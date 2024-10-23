@@ -20,7 +20,7 @@ import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { DeprecatedVaults } from './vault-overrides';
 import { ClientRegistry } from '../client/client-registry';
-import { CacheSchema, getVaultType } from '..';
+import { CacheSchema, ConfigurationClient, getVaultType } from '..';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
 // process environment directly here.
@@ -96,7 +96,12 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
                 vaultType === 'SingleSidedLP_DirectClaim'
               );
             case 'PendlePT':
-              return this.getPendlePTCalls(vaultAddress, network, enabled);
+              return this.getPendlePTCalls(
+                vaultAddress,
+                network,
+                enabled,
+                name
+              );
             default:
               return [];
           }
@@ -188,7 +193,9 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             totalVaultShares,
             secondaryTradeParams: '0x',
             enabled,
-            name,
+            vaultAddress,
+            rewardState: undefined,
+            ...ConfigurationClient.parseVaultName(name),
           };
         },
       },
@@ -244,7 +251,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             endTime: v.endTime,
             rewardToken: v.rewardToken,
             emissionRatePerYear: v.emissionRatePerYear,
-            accumulatedRewardPerVaultSHare: v.accumulatedRewardPerVaultShare,
+            accumulatedRewardPerVaultShare: v.accumulatedRewardPerVaultShare,
           })),
       });
     }
@@ -255,7 +262,8 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   protected getPendlePTCalls(
     vaultAddress: string,
     network: Network,
-    enabled: boolean
+    enabled: boolean,
+    name: string
   ): AggregateCall[] {
     const PendlePTVaultABI = new ethers.utils.Interface([
       'function MARKET() view external returns (address)',
@@ -268,6 +276,16 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     ]);
 
     return [
+      {
+        target: 'NO_OP',
+        stage: 0,
+        method: 'NO_OP',
+        key: vaultAddress,
+        transform: () => ({
+          ...ConfigurationClient.parseVaultName(name),
+          vaultAddress,
+        }),
+      },
       {
         target: new Contract(
           vaultAddress,

@@ -2,94 +2,99 @@ import { useState } from 'react';
 import {
   useAllVaults,
   useVaultHoldings,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps } from '@notional-finance/mui';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { PointsIcon } from '@notional-finance/icons';
+import {
+  AutoReinvestIcon,
+  DirectIcon,
+  PointsIcon,
+} from '@notional-finance/icons';
 import { Box } from '@mui/material';
+import { useAppStore } from '@notional-finance/notionable';
+import { defineMessage } from 'react-intl';
+import { VaultType } from '@notional-finance/core-entities';
 
 export const useLeveragedVaultGrid = (
   network: Network | undefined,
   vaultProduct: PRODUCTS
 ): DashboardGridProps => {
   const navigate = useNavigate();
-  const { baseCurrency } = useAppState();
-  const listedVaults = useAllVaults(network, vaultProduct);
+  const { baseCurrency } = useAppStore();
+  const listedVaults = useAllVaults(vaultProduct);
   const vaultHoldings = useVaultHoldings(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
 
   const allVaultData = listedVaults
-    .map(
-      ({
-        vaultAddress,
-        name,
-        primaryToken,
-        vaultTVL,
-        maxVaultAPY: y,
-        vaultType,
-        vaultUtilization,
-        rewardTokens,
-      }) => {
-        const profile = vaultHoldings.find(
-          (p) => p.vault.vaultAddress === vaultAddress
-        )?.vault;
-        const apy = profile?.totalAPY || y?.totalAPY || 0;
-        const points = y?.pointMultiples;
+    .map(({ vaultConfig, apy, tvl, debtToken }) => {
+      const holding = vaultHoldings?.find(
+        (p) => p.vaultAddress === vaultConfig.vaultAddress
+      );
+      const totalAPY = holding?.totalAPY || apy?.totalAPY || 0;
+      const points = apy?.pointMultiples;
 
-        return {
-          title: primaryToken.symbol,
-          subTitle: name,
-          bottomRightValue: profile
-            ? `NET WORTH: ${
-                profile?.netWorth().toDisplayStringWithSymbol() || '-'
-              }`
-            : `TVL: ${
-                vaultTVL
-                  ? formatNumberAsAbbr(
-                      vaultTVL.toFiat(baseCurrency).toFloat(),
-                      0
-                    )
-                  : 0
-              }`,
-          bottomLeftValue: undefined,
-          symbol: primaryToken.symbol,
-          network: primaryToken.network,
-          hasPosition: profile ? true : false,
-          apy,
-          routeCallback: () =>
-            navigate(
-              profile
-                ? `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/IncreaseVaultPosition`
-                : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`
-            ),
-          vaultType:
-            vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING
-              ? vaultType
-              : undefined,
-          vaultUtilization,
-          rewardTokens: rewardTokens.map((t) => t.symbol),
-          PointsSubTitle: points
-            ? () => (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    fontSize: 'inherit',
-                    alignItems: 'center',
-                  }}
-                >
-                  <PointsIcon sx={{ fontSize: 'inherit' }} />
-                  &nbsp;
-                  {` ${Object.keys(points).join('/')} Points`}
-                </Box>
-              )
+      return {
+        title: vaultConfig.primaryToken.symbol,
+        subTitle: vaultConfig.name,
+        bottomRightValue: holding
+          ? `NET WORTH: ${holding?.netWorth.toDisplayStringWithSymbol() || '-'}`
+          : `TVL: ${
+              tvl
+                ? formatNumberAsAbbr(tvl.toFiat(baseCurrency).toFloat(), 0)
+                : 0
+            }`,
+        bottomLeftValue: undefined,
+        symbol: vaultConfig.primaryToken.symbol,
+        network: vaultConfig.primaryToken.network,
+        hasPosition: holding ? true : false,
+        apy: totalAPY,
+        routeCallback: () =>
+          navigate(
+            holding
+              ? `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/IncreaseVaultPosition`
+              : `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`
+          ),
+        reinvestOptions:
+          vaultConfig.vaultType === 'SingleSidedLP_DirectClaim'
+            ? {
+                Icon: DirectIcon,
+                label: defineMessage({
+                  defaultMessage: 'Direct Claim',
+                  description: 'Direct Claim',
+                }),
+              }
+            : vaultConfig.vaultType === 'SingleSidedLP_AutoReinvest'
+            ? {
+                Icon: AutoReinvestIcon,
+                label: defineMessage({
+                  defaultMessage: 'Auto-Reinvest',
+                  description: 'Auto Reinvest',
+                }),
+              }
             : undefined,
-        };
-      }
-    )
-    .sort((a, b) => b.apy - a.apy);
+        reinvestmentTypeString: vaultConfig.vaultType as VaultType | undefined,
+        vaultUtilization: vaultConfig.vaultUtilization,
+        rewardTokens: vaultConfig.rewardTokens.map((t) => t.symbol),
+        PointsSubTitle: points
+          ? () => (
+              <Box
+                sx={{
+                  display: 'flex',
+                  fontSize: 'inherit',
+                  alignItems: 'center',
+                }}
+              >
+                <PointsIcon sx={{ fontSize: 'inherit' }} />
+                &nbsp;
+                {` ${Object.keys(points).join('/')} Points`}
+              </Box>
+            )
+          : undefined,
+      };
+    })
+    .sort((a, b) => (b.apy || 0) - (a.apy || 0));
 
   const defaultVaultData = allVaultData.filter(
     ({ hasPosition }) => !hasPosition

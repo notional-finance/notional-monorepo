@@ -1,17 +1,16 @@
 import { trackEvent } from '@notional-finance/helpers';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { useWalletStore } from '@notional-finance/notionable';
 import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import { useCallback, useEffect } from 'react';
 
 export const useWalletActive = () => {
   const [{ wallet }] = useConnectWallet();
   return wallet?.accounts[0].address ? true : false;
-}
+};
 
 export const useConnect = () => {
-  const { globalState, updateNotional } = useNotionalContext();
   const [
     { wallet },
     connect,
@@ -22,18 +21,18 @@ export const useConnect = () => {
   ] = useConnectWallet();
   const currentLabel = wallet?.label;
   const [{ connectedChain }] = useSetChain(currentLabel);
+  const walletStore = useWalletStore();
   const icon = wallet?.icon;
-
   // The first account and chain are considered "selected" by the UI
-  const selectedAddress = globalState?.wallet?.isReadOnlyAddress
-    ? globalState?.wallet?.selectedAddress
+  const selectedAddress = walletStore?.userWallet?.isReadOnlyAddress
+    ? walletStore?.userWallet?.selectedAddress
     : wallet?.accounts[0].address;
-  const isReadOnlyAddress = globalState?.wallet?.isReadOnlyAddress;
-
+  const isReadOnlyAddress = walletStore?.userWallet?.isReadOnlyAddress;
   const onboardChainId = connectedChain?.id;
   const selectedChain = onboardChainId
     ? getNetworkFromId(BigNumber.from(onboardChainId).toNumber())
     : undefined;
+
   const connectWallet = useCallback(
     (walletLabel?: string) => {
       // No change to wallets, nothing to do here.
@@ -50,37 +49,35 @@ export const useConnect = () => {
         wallet: currentLabel,
       });
     }
-    updateNotional({ wallet: undefined });
-  }, [disconnect, currentLabel, updateNotional]);
+    walletStore.setUserWallet(undefined);
+  }, [disconnect, currentLabel, walletStore]);
 
   // Listens for wallet changes and sets the primary wallet as well as sends the
   // addresses to the Notional global state
   useEffect(() => {
     if (!selectedAddress) {
-      updateNotional({ wallet: undefined });
-    } else if (wallet && selectedAddress && !isReadOnlyAddress) {
+      walletStore.setUserWallet(undefined);
+    } else if (
+      wallet &&
+      selectedAddress &&
+      !isReadOnlyAddress &&
+      selectedChain
+    ) {
       setPrimaryWallet(wallet, selectedAddress);
-      const provider = new ethers.providers.Web3Provider(wallet.provider);
-      const signer = provider.getSigner();
-
-      updateNotional({
-        wallet: {
-          signer,
-          selectedChain,
-          selectedAddress,
-          isReadOnlyAddress: false,
-          label: wallet.label,
-          provider,
-        },
+      walletStore.setUserWallet({
+        selectedChain,
+        selectedAddress,
+        isReadOnlyAddress: false,
+        label: wallet.label,
       });
     }
   }, [
     wallet,
+    walletStore,
     selectedAddress,
     onboardChainId,
     selectedChain,
     setPrimaryWallet,
-    updateNotional,
     isReadOnlyAddress,
   ]);
 

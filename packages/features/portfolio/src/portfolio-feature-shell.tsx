@@ -5,7 +5,6 @@ import {
   useAccountReady,
   useAccountAndBalanceReady,
   useSelectedNetwork,
-  useYieldsReady,
 } from '@notional-finance/notionable-hooks';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import {
@@ -29,6 +28,7 @@ import {
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
+import { observer } from 'mobx-react-lite';
 
 export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
@@ -44,7 +44,6 @@ export const PortfolioFeatureShell = () => {
   const params = useParams<PortfolioParams>();
   const network = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
-  const yieldsReady = useYieldsReady(network);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const { hasNoteOrSNote } = usePortfolioNOTETable();
 
@@ -69,7 +68,7 @@ export const PortfolioFeatureShell = () => {
     params.sideDrawerKey,
   ]);
 
-  return !network || isAccountLoading || !yieldsReady ? (
+  return !network || isAccountLoading ? (
     <PortfolioContainer>
       <PageLoading
         sx={{
@@ -283,4 +282,4 @@ const CustomHeaderContainer = styled(Box)(
 `
 );
 
-export default PortfolioFeatureShell;
+export default observer(PortfolioFeatureShell);

@@ -1,10 +1,10 @@
 import {
   fCashMarket,
-  Registry,
   SNOTEWeightedPool,
   TokenBalance,
   TokenDefinition,
   VaultAdapter,
+  getNetworkModel,
 } from '@notional-finance/core-entities';
 import {
   AccountRiskProfile,
@@ -124,15 +124,9 @@ export function calculateCollateral({
   depositBalance?: TokenBalance;
   debtBalance?: TokenBalance;
 }) {
-  const tokens = Registry.getTokenRegistry();
-  const collateralUnderlying = tokens.getUnderlying(
-    collateral.network,
-    collateral.currencyId
-  );
-  const localPrime = Registry.getTokenRegistry().getPrimeCash(
-    collateralUnderlying.network,
-    collateralUnderlying.currencyId
-  );
+  const model = getNetworkModel(collateral.network);
+  const collateralUnderlying = model.getUnderlying(collateral.currencyId);
+  const localPrime = model.getPrimeCash(collateralUnderlying.currencyId);
 
   const {
     localPrime: localDebtPrime,
@@ -226,12 +220,9 @@ export function calculateDebt({
   depositBalance?: TokenBalance;
   collateralBalance?: TokenBalance;
 }) {
-  const tokens = Registry.getTokenRegistry();
-  const debtUnderlying = tokens.getUnderlying(debt.network, debt.currencyId);
-  const localPrime = tokens.getPrimeCash(
-    debtUnderlying.network,
-    debtUnderlying.currencyId
-  );
+  const model = getNetworkModel(debt.network);
+  const debtUnderlying = model.getUnderlying(debt.currencyId);
+  const localPrime = model.getPrimeCash(debtUnderlying.currencyId);
 
   const {
     localPrime: localCollateralPrime,
@@ -320,10 +311,8 @@ export function calculateDeposit({
   debtBalance?: TokenBalance;
   collateralBalance?: TokenBalance;
 }) {
-  const localPrime = Registry.getTokenRegistry().getPrimeCash(
-    deposit.network,
-    deposit.currencyId
-  );
+  const model = getNetworkModel(deposit.network);
+  const localPrime = model.getPrimeCash(deposit.currencyId);
 
   const { localPrime: localCollateralPrime, fees: collateralFee } =
     exchangeToLocalPrime(collateralBalance, collateralPool, localPrime);
@@ -408,10 +397,8 @@ export function calculateDepositDebtGivenCollateralRiskLimit({
   balances: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
 }) {
-  const depositPrime = Registry.getTokenRegistry().getPrimeCash(
-    deposit.network,
-    deposit.currencyId
-  );
+  const model = getNetworkModel(deposit.network);
+  const depositPrime = model.getPrimeCash(deposit.currencyId);
 
   const { debtBalance, debtFee, collateralFee, netRealizedDebtBalance } =
     calculateDebt({
@@ -461,10 +448,8 @@ export function calculateDepositCollateralGivenDebtRiskLimit({
   balances: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
 }) {
-  const depositPrime = Registry.getTokenRegistry().getPrimeCash(
-    deposit.network,
-    deposit.currencyId
-  );
+  const model = getNetworkModel(deposit.network);
+  const depositPrime = model.getPrimeCash(deposit.currencyId);
 
   const {
     collateralBalance,
@@ -759,8 +744,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   // collateral options
   debt =
     collateral.vaultAddress && collateral.maturity
-      ? Registry.getTokenRegistry().getVaultDebt(
-          collateral.network,
+      ? getNetworkModel(collateral.network).getVaultDebt(
           collateral.vaultAddress,
           collateral.maturity
         )
@@ -836,16 +820,13 @@ export function calculateVaultRoll({
   const currentDebt = profile.vaultDebt;
   if (!collateralBalance) throw Error('Vault Shares not defined');
   if (!currentDebt) throw Error('Vault Debt not defined');
-  const tokens = Registry.getTokenRegistry();
+  const model = getNetworkModel(debt.network);
 
   // eslint-disable-next-line prefer-const
   let { localPrime: costToRepay, fees: currentDebtFee } = exchangeToLocalPrime(
     currentDebt.unwrapVaultToken().neg(),
-    Registry.getExchangeRegistry().getfCashMarket(
-      currentDebt.network,
-      currentDebt.currencyId
-    ),
-    tokens.getPrimeCash(currentDebt.network, currentDebt.currencyId)
+    model.getfCashMarket(currentDebt.currencyId),
+    model.getPrimeCash(currentDebt.currencyId)
   );
 
   const netCostToRepay = costToRepay
@@ -854,11 +835,11 @@ export function calculateVaultRoll({
     .sub(depositBalance.toPrimeCash());
 
   if (debt.maturity === PRIME_CASH_VAULT_MATURITY) {
-    const pDebt = tokens.getPrimeDebt(debt.network, debt.currencyId);
+    const pDebt = model.getPrimeDebt(debt.currencyId);
     // NOTE: this undershoots the actual vault share amount
     const newVaultShares = TokenBalance.from(
       collateralBalance.n,
-      tokens.getVaultShare(debt.network, debt.vaultAddress, debt.maturity)
+      model.getVaultShare(debt.vaultAddress, debt.maturity)
     );
 
     return {
@@ -875,13 +856,11 @@ export function calculateVaultRoll({
     };
   } else if (debt.maturity) {
     // If fCash, need to account for additional borrow fee
-    const { feeRate } =
-      Registry.getConfigurationRegistry().getVaultBorrowWithFees(
-        debt.network,
-        debt.vaultAddress,
-        debt.maturity,
-        netCostToRepay
-      );
+    const { feeRate } = model.getVaultBorrowWithFees(
+      debt.vaultAddress,
+      debt.maturity,
+      netCostToRepay
+    );
 
     const totalPrimeCashRequired = netCostToRepay.scale(
       RATE_PRECISION,
@@ -891,12 +870,12 @@ export function calculateVaultRoll({
 
     const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
       totalPrimeCashRequired.neg(), // NOTE: this is negative because net cash to the pool is negative
-      debtPool.getTokenIndex(tokens.unwrapVaultToken(debt))
+      debtPool.getTokenIndex(model.unwrapVaultToken(debt))
     );
     // NOTE: this undershoots the actual vault share amount
     const newVaultShares = TokenBalance.from(
       collateralBalance.n,
-      tokens.getVaultShare(debt.network, debt.vaultAddress, debt.maturity)
+      model.getVaultShare(debt.vaultAddress, debt.maturity)
     );
 
     return {
@@ -958,13 +937,13 @@ export function calculateVaultCollateral({
     debtBalance.toPrimeCash().token
   );
 
-  const { cashBorrowed, vaultFee } =
-    Registry.getConfigurationRegistry().getVaultBorrowWithFees(
-      debtBalance.network,
-      debtBalance.vaultAddress,
-      debtBalance.maturity,
-      localDebtPrime
-    );
+  const { cashBorrowed, vaultFee } = getNetworkModel(
+    debtBalance.network
+  ).getVaultBorrowWithFees(
+    debtBalance.vaultAddress,
+    debtBalance.maturity,
+    localDebtPrime
+  );
 
   const netRealizedCollateralBalance = debtBalance.isNegative()
     ? (depositBalance || cashBorrowed.toUnderlying().copy(0)).add(
@@ -1008,14 +987,9 @@ export function calculateStake({
   secondaryDepositBalance?: TokenBalance;
   useOptimalETH: boolean;
 }) {
-  const ETH = Registry.getTokenRegistry().getTokenBySymbol(
-    Network.mainnet,
-    'ETH'
-  );
-  const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
-    Network.mainnet,
-    'NOTE'
-  );
+  const mainnet = getNetworkModel(Network.mainnet);
+  const ETH = mainnet.getTokenBySymbol('ETH');
+  const NOTE = mainnet.getTokenBySymbol('NOTE');
   const noteIn = secondaryDepositBalance || TokenBalance.zero(NOTE);
   const ethIn = useOptimalETH
     ? collateralPool.getOptimumETHForNOTE(noteIn)

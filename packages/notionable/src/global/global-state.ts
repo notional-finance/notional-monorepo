@@ -21,7 +21,6 @@ import {
 import { AccruedIncentives, TotalIncentives } from './account/incentives';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { Community } from './account/communities';
-import { getIndexedYields } from './data/yields';
 
 const userSettings = getFromLocalStorage('userSettings');
 
@@ -126,26 +125,15 @@ interface AddressState {
 
   /** Every supported network has an account object written to the state */
   networkAccounts?: Record<Network, AccountState>;
-  arbPoints?: {
-    token: string;
-    points: number;
-    season_one: number;
-    season_two: number;
-    season_three: number;
-  }[];
   totalPoints?: number;
 }
 
 /** These settings are associated with the user directly */
-interface ErrorState {
-  error?: NotionalError;
-}
 
 export interface GlobalState
   extends Record<string, unknown>,
     AddressState,
-    TransactionState,
-    ErrorState {}
+    TransactionState {}
 
 export const initialGlobalState: GlobalState = {
   isSanctionedAddress: false,
@@ -159,14 +147,20 @@ export const initialGlobalState: GlobalState = {
   },
 };
 
+export interface ArbPointsType {
+  token: string;
+  points: number;
+  season_one: number;
+  season_two: number;
+  season_three: number;
+}
+
 /** This is associated with the overall application state */
 export interface ApplicationState extends Record<string, unknown> {
   /** If waiting for the site to load initially */
   networkState?: Record<Network, NetworkLoadingState>;
   /** URL of the cache hostname */
   cacheHostname: string;
-  /** All yields calculated from the yield registry */
-  allYields?: Record<Network, ReturnType<typeof getIndexedYields>>;
   /** All price changes calculated from the yield registry */
   priceChanges?: Record<Network, CalculatedPriceChanges>;
   /** All active accounts from the analytics registry */

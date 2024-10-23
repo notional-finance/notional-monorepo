@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { FiatKeys, getNetworkModel } from '@notional-finance/core-entities';
 import {
   formatNumberAsAbbr,
   formatNumberAsPercent,
@@ -7,27 +7,15 @@ import {
 } from '@notional-finance/helpers';
 import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
-  useAppState,
   formatHealthFactorValues,
+  useFetchAnalyticsData,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
+import { useObserver } from 'mobx-react-lite';
 import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-
-interface AccountData {
-  address: string;
-  hasCrossCurrencyRisk: boolean;
-  riskFactors: {
-    netWorth: TokenBalance;
-    freeCollateral: TokenBalance;
-    loanToValue: number;
-    collateralRatio: number | null;
-    leverageRatio: number | null;
-    healthFactor: number | null;
-  };
-}
 
 export const findSortingNum = (
   numbers: number[],
@@ -47,38 +35,33 @@ export const findSortingNum = (
   return highestNumber;
 };
 
-export const useAllAccounts = (selectedNetwork: Network) => {
+export const useAllAccounts = (
+  selectedNetwork: Network,
+  baseCurrency: FiatKeys
+) => {
   const theme = useTheme();
-  const [allAccounts, setAllAccounts] = useState<AccountData[] | undefined>(
-    undefined
-  );
   const { updateNotional } = useNotionalContext();
-  const { baseCurrency } = useAppState();
+
   const navigate = useNavigate();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [crossCurrencyRiskOptions, setCrossCurrencyRiskOptions] = useState([]);
   const [netWorthOptions, setNetWorthOptions] = useState([]);
 
-  const fetchAllAccounts = async () => {
-    const { portfolioRisk } =
-      await Registry.getAnalyticsRegistry().getAccountRisk(selectedNetwork);
-    const allAccountsData = await portfolioRisk;
-    if (allAccountsData) {
-      setAllAccounts(allAccountsData);
-    }
-  };
+  const allAccountsData = useObserver(() => {
+    const model = getNetworkModel(selectedNetwork);
+    return model.getAccountPortfolioRisk();
+  });
+  useFetchAnalyticsData(
+    'accountPortfolioRisk',
+    !!allAccountsData,
+    selectedNetwork
+  );
 
   useEffect(() => {
     setCrossCurrencyRiskOptions([]);
     setHealthFactorOptions([]);
     setNetWorthOptions([]);
   }, []);
-
-  useEffect(() => {
-    if (selectedNetwork) {
-      fetchAllAccounts();
-    }
-  }, [selectedNetwork]);
 
   const addressClick = useCallback(
     (address: string, network) => {
@@ -171,7 +154,7 @@ export const useAllAccounts = (selectedNetwork: Network) => {
     },
   ];
 
-  const tableData = allAccounts?.map((data) => {
+  const tableData = allAccountsData?.map((data) => {
     return {
       address: {
         text: data.address ? truncateAddress(data.address) : '-',

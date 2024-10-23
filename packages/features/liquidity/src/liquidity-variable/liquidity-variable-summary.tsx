@@ -1,4 +1,5 @@
 import { Box, useTheme } from '@mui/material';
+import { observer } from 'mobx-react-lite';
 import {
   TABLE_VARIANTS,
   FaqHeader,
@@ -26,25 +27,29 @@ import { LiquidityContext } from '../liquidity';
 import { HowItWorksFaq } from './components';
 import {
   useAssetPriceHistory,
-  useTokenHistory,
+  useChartData,
 } from '@notional-finance/notionable-hooks';
+import { ChartType } from '@notional-finance/core-entities';
+import { useAppStore } from '@notional-finance/notionable';
 
-export const LiquidityVariableSummary = () => {
+const LiquidityVariableSummary = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const { state } = useContext(LiquidityContext);
+  const { baseCurrency } = useAppStore();
   const { selectedDepositToken, collateral, collateralBalance, deposit } =
     state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const { totalsData, liquidityYieldData } = useTotalsData(
     deposit,
+    baseCurrency,
     collateralBalance
   );
   const { returnDriversColumns, returnDriversData, infoBoxData } =
-    useReturnDriversTable();
+    useReturnDriversTable(baseCurrency);
   const { poolTableColumns, poolTableData } = useLiquidityPoolsTable();
-  const { tvlData } = useTokenHistory(collateral);
+  const { data: tvlData } = useChartData(collateral, ChartType.PRICE);
   const { barConfig, barChartData } = useApyChart(collateral);
   const priceData = useAssetPriceHistory(collateral);
 
@@ -62,7 +67,7 @@ export const LiquidityVariableSummary = () => {
                 xAxisTickFormat="date"
                 isStackedBar
                 barConfig={barConfig}
-                barChartData={barChartData}
+                barChartData={barChartData?.data || []}
                 yAxisTickFormat="percent"
               />
             ),
@@ -93,7 +98,8 @@ export const LiquidityVariableSummary = () => {
                 showCartesianGrid
                 xAxisTickFormat="date"
                 yAxisTickFormat="usd"
-                areaChartData={tvlData}
+                areaDataKey={'tvlUSD'}
+                areaChartData={tvlData?.data || []}
                 areaLineType="linear"
               />
             ),
@@ -193,4 +199,4 @@ export const LiquidityVariableSummary = () => {
   );
 };
 
-export default LiquidityVariableSummary;
+export default observer(LiquidityVariableSummary);

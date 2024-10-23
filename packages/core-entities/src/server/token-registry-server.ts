@@ -12,7 +12,7 @@ import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllTokensQuery } from '../.graphclient';
 
-type SerializedToken =
+export type SerializedToken =
   | (Omit<TokenDefinition, 'totalSupply'> & {
       totalSupply: SerializedTokenBalance | undefined;
     })

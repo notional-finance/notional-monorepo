@@ -51,7 +51,7 @@ export const VaultActionSideDrawer = () => {
         }
       : undefined;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
-  const { enabled } = useVaultProperties(selectedNetwork, vaultAddress);
+  const enabled = useVaultProperties(vaultAddress)?.enabled;
 
   useEffect(() => {
     const borrowOptionId = queryData.get('borrowOption');
@@ -78,8 +78,8 @@ export const VaultActionSideDrawer = () => {
   ]);
 
   const currentPosition = {
-    collateral: vaultPosition?.vault?.vaultShares?.token,
-    debt: vaultPosition?.vault?.vaultDebt.token,
+    collateral: vaultPosition?.vaultShares?.token,
+    debt: vaultPosition?.vaultDebt?.token,
     riskFactorLimit: vaultPosition?.leverageRatio
       ? ({
           riskFactor: 'leverageRatio',

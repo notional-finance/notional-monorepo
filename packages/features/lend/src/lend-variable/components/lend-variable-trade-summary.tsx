@@ -18,7 +18,8 @@ import {
   useVariableTotals,
   useInterestRateUtilizationChart,
 } from '@notional-finance/trade';
-import { useTokenHistory } from '@notional-finance/notionable-hooks';
+import { useChartData } from '@notional-finance/notionable-hooks';
+import { ChartType } from '@notional-finance/core-entities';
 
 export const LendVariableTradeSummary = () => {
   const theme = useTheme();
@@ -31,7 +32,8 @@ export const LendVariableTradeSummary = () => {
     selectedNetwork
   );
   const totalsData = useVariableTotals(state);
-  const { apyData, tvlData } = useTokenHistory(collateral);
+  const { data: tvlData } = useChartData(collateral, ChartType.PRICE);
+  const { data: apyData } = useChartData(collateral, ChartType.APY);
   const {
     areaChartData,
     chartToolTipData,
@@ -54,7 +56,7 @@ export const LendVariableTradeSummary = () => {
                 showCartesianGrid
                 areaDataKey="totalAPY"
                 xAxisTickFormat="date"
-                areaChartData={apyData}
+                areaChartData={apyData?.data || []}
                 areaLineType="linear"
               />
             ),
@@ -68,7 +70,8 @@ export const LendVariableTradeSummary = () => {
                 title="Total Lent"
                 showCartesianGrid
                 xAxisTickFormat="date"
-                areaChartData={tvlData}
+                areaDataKey="tvlUSD"
+                areaChartData={tvlData?.data || []}
                 yAxisTickFormat="usd"
                 areaLineType="linear"
               />

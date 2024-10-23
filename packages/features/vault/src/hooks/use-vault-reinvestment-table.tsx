@@ -1,19 +1,19 @@
 import {
-  Registry,
+  getNetworkModel,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { Network, getEtherscanTransactionLink } from '@notional-finance/util';
 import { DateTimeCell, TxnHashCell } from '@notional-finance/mui';
 import { useTheme } from '@mui/material';
-import { useAnalyticsReady } from '@notional-finance/notionable-hooks';
+import { useObserver } from 'mobx-react-lite';
+import { useFetchAnalyticsData } from '@notional-finance/notionable-hooks';
 
 export const useVaultReinvestmentTable = (
   network: Network | undefined,
   deposit: TokenDefinition | undefined,
   vaultAddress: string | undefined
 ) => {
-
   const theme = useTheme();
   const tableColumns = [
     {
@@ -44,44 +44,42 @@ export const useVaultReinvestmentTable = (
       showLinkIcon: true,
     },
   ];
-  const analyticsReady = useAnalyticsReady(network)
 
-  const reinvestmentData = network && analyticsReady
-    ? Registry.getAnalyticsRegistry().getVaultReinvestments(network)
-    : undefined;
+  const reinvestmentData = useObserver(() =>
+    vaultAddress && network
+      ? getNetworkModel(network).getVaultReinvestment(vaultAddress)
+      : undefined
+  );
+  useFetchAnalyticsData('vaultReinvestment', !!reinvestmentData, network);
 
-  let result = [] as any[];
-
-  if (
-    vaultAddress &&
-    reinvestmentData &&
-    reinvestmentData[vaultAddress] &&
-    network &&
-    deposit
-  ) {
-    result = reinvestmentData[vaultAddress]
-      .map((data) => {
-        const sharePrice = data?.vaultSharePrice
-          ? TokenBalance.from(data.vaultSharePrice, deposit)
-          : undefined;
-        const amountSold = TokenBalance.fromID(
-          data.rewardAmountSold,
-          data?.rewardTokenSold.id,
-          network
-        );
-        return {
-          time: data.timestamp,
-          amountSold: amountSold.toDisplayStringWithSymbol(),
-          vaultSharePrice: sharePrice?.toFloat().toFixed(4),
-          txnHash: {
-            href: getEtherscanTransactionLink(data.transactionHash, network),
-            hash: data.transactionHash,
-          },
-        };
-      })
-      .sort((a, b) => b.time - a.time)
-      .slice(0, 25);
-  }
+  const result =
+    network && deposit
+      ? reinvestmentData
+          ?.map((data) => {
+            const sharePrice = data?.vaultSharePrice
+              ? TokenBalance.from(data.vaultSharePrice, deposit)
+              : undefined;
+            const amountSold = new TokenBalance(
+              data.rewardAmountSold,
+              data?.rewardTokenSold.id,
+              network
+            );
+            return {
+              time: data.timestamp,
+              amountSold: amountSold.toDisplayStringWithSymbol(),
+              vaultSharePrice: sharePrice?.toFloat().toFixed(4),
+              txnHash: {
+                href: getEtherscanTransactionLink(
+                  data.transactionHash,
+                  network
+                ),
+                hash: data.transactionHash,
+              },
+            };
+          })
+          .sort((a, b) => b.time - a.time)
+          .slice(0, 25)
+      : [];
 
   return {
     reinvestmentTableData: result || [],

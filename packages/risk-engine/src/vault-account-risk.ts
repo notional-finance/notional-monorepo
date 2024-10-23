@@ -1,11 +1,9 @@
 import {
   AccountDefinition,
-  Registry,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import {
-  Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
@@ -15,7 +13,11 @@ import {
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
-import { DeprecatedVaults } from '@notional-finance/core-entities';
+import {
+  DeprecatedVaults,
+  NetworkClientModel,
+} from '@notional-finance/core-entities';
+import { Instance } from 'mobx-state-tree';
 
 export class VaultAccountRiskProfile extends BaseRiskProfile {
   static collateralToLeverageRatio(collateralRatio: number) {
@@ -24,20 +26,6 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   static leverageToCollateralRatio(leverageRatio: number) {
     return 1 / leverageRatio;
-  }
-
-  static empty(network: Network, vaultAddress: string, maturity: number) {
-    const config = Registry.getConfigurationRegistry();
-    const { vaultShareID } = config.getVaultIDs(
-      network,
-      vaultAddress,
-      maturity
-    );
-    return new VaultAccountRiskProfile(
-      vaultAddress,
-      [TokenBalance.fromID(0, vaultShareID, network)],
-      0
-    );
   }
 
   static fromAccount(vaultAddress: string, account: AccountDefinition) {
@@ -80,11 +68,14 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     );
   }
 
-  static getAllRiskProfiles(account: AccountDefinition) {
+  static getAllRiskProfiles(
+    model: Instance<typeof NetworkClientModel>,
+    account: AccountDefinition
+  ) {
     return (
-      Registry.getConfigurationRegistry()
+      model
         // Include disabled vaults here in case the account still has a position
-        .getAllListedVaults(account.network, true)
+        .getAllListedVaults(true)
         ?.map(({ vaultAddress }) => {
           if (DeprecatedVaults.includes(vaultAddress.toLowerCase()))
             return undefined;
@@ -121,25 +112,16 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     super(balances, denom);
   }
 
-  get discountFCash() {
-    return Registry.getConfigurationRegistry().getVaultDiscountfCash(
-      this.network,
-      this.vaultAddress
-    );
+  get vaultConfig() {
+    return this.model.getVaultConfig(this.vaultAddress);
   }
 
-  get vaultConfig() {
-    return Registry.getConfigurationRegistry().getVaultConfig(
-      this.network,
-      this.vaultAddress
-    );
+  get discountFCash() {
+    return this.vaultConfig.discountfCash;
   }
 
   get vaultLeverageFactors() {
-    return Registry.getConfigurationRegistry().getVaultLeverageFactors(
-      this.network,
-      this.vaultAddress
-    );
+    return this.model.getLeverageRatios(this.vaultShares.token);
   }
 
   get maturity() {
@@ -151,11 +133,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       this.maturity === PRIME_CASH_VAULT_MATURITY &&
       this.lastUpdateBlockTime > 0
     ) {
-      const annualizedFeeRate =
-        Registry.getConfigurationRegistry().getVaultConfig(
-          this.network,
-          this.vaultAddress
-        ).feeRateBasisPoints;
+      const annualizedFeeRate = this.model.getVaultConfig(
+        this.vaultAddress
+      ).feeRateBasisPoints;
       const timeSinceLastUpdate = getNowSeconds() - this.lastUpdateBlockTime;
       const feeRate = Math.floor(
         (annualizedFeeRate * timeSinceLastUpdate) / SECONDS_IN_YEAR
@@ -171,11 +151,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return (
       this.debts.find((t) => t.tokenType === 'VaultDebt') ||
       TokenBalance.zero(
-        Registry.getTokenRegistry().getVaultDebt(
-          this.network,
-          this.vaultAddress,
-          this.maturity
-        )
+        this.model.getVaultDebt(this.vaultAddress, this.maturity)
       )
     );
   }
@@ -184,20 +160,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return (
       this.balances.find((t) => t.tokenType === 'VaultCash') ||
       TokenBalance.zero(
-        Registry.getTokenRegistry().getVaultCash(
-          this.network,
-          this.vaultAddress,
-          this.maturity
-        )
+        this.model.getVaultCash(this.vaultAddress, this.maturity)
       )
     );
   }
 
   get vaultAdapter() {
-    return Registry.getVaultRegistry().getVaultAdapter(
-      this.network,
-      this.vaultAddress
-    );
+    return this.model.getVaultAdapter(this.vaultAddress);
   }
 
   get maxLeverageRatio() {
@@ -213,19 +182,14 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get borrowAPY() {
-    const market = Registry.getExchangeRegistry().getNotionalMarket(
-      this.network,
-      this.vaultDebt.currencyId
-    );
+    const market = this.model.getNotionalMarket(this.vaultDebt.currencyId);
     return this.vaultDebt.maturity === PRIME_CASH_VAULT_MATURITY
       ? market.getSpotInterestRate(this.vaultDebt.unwrapVaultToken().token)
       : this.lastImpliedFixedRate || 0;
   }
 
   get strategyAPY() {
-    return Registry.getYieldRegistry()
-      .getAllYields(this.network)
-      .find(({ token }) => token.id === this.vaultShares.tokenId)?.totalAPY;
+    return this.vaultAdapter.getVaultAPY();
   }
 
   get totalAPY() {
@@ -238,10 +202,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   protected _netCurrencyDebt() {
     return this.allCurrencyIds.map((id) => {
-      const underlying = Registry.getTokenRegistry().getUnderlying(
-        this.network,
-        id
-      );
+      const underlying = this.model.getUnderlying(id);
       const zeroUnderlying = TokenBalance.zero(underlying);
 
       const debt = this.debts.find((_) => _);
@@ -307,8 +268,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     if (this.vaultShares.isZero() || this.vaultDebt.isZero()) return null;
 
     // (minCollateralRatio + 1) * debtOutstanding = vaultSharesValue
-    const config = Registry.getConfigurationRegistry();
-    const vaultConfig = config.getVaultConfig(this.network, this.vaultAddress);
+    const vaultConfig = this.model.getVaultConfig(this.vaultAddress);
     // NOTE: this value is in primary borrow underlying terms
     const oneVaultShareValueAtLiquidation = this.totalDebtRiskAdjusted()
       .neg()
@@ -359,7 +319,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   override getAllLiquidationPrices() {
-    const borrowedToken = this.vaultAdapter.getBorrowedToken();
+    const borrowedToken = this.vaultAdapter.borrowedToken;
 
     return this.vaultAdapter
       .getLiquidationPriceTokens()
@@ -427,10 +387,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     let costToRepay: TokenBalance | undefined;
     let debtFee: TokenBalance | undefined;
     if (this.vaultDebt.maturity !== PRIME_CASH_VAULT_MATURITY) {
-      const fCash = Registry.getExchangeRegistry().getfCashMarket(
-        this.network,
-        this.vaultDebt.currencyId
-      );
+      const fCash = this.model.getfCashMarket(this.vaultDebt.currencyId);
 
       try {
         const { tokensOut, feesPaid } = fCash.calculateTokenTrade(

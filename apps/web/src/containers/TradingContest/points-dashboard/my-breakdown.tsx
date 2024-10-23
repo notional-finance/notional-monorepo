@@ -3,9 +3,11 @@ import { THEME_VARIANTS } from '@notional-finance/util';
 import { useMyBreakdownTable } from './hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { ThemeProvider } from '@mui/material';
+import { observer } from 'mobx-react-lite';
 
-export const MyBreakdown = () => {
+const MyBreakdown = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
+
   const { tableColumns, tableData } = useMyBreakdownTable();
   return (
     <ThemeProvider theme={theme}>
@@ -14,4 +16,4 @@ export const MyBreakdown = () => {
   );
 };
 
-export default MyBreakdown;
+export default observer(MyBreakdown);

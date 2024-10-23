@@ -1,6 +1,7 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   BaseTradeContext,
+  usePortfolioMaxWithdraw,
   usePortfolioRiskProfile,
   usePrimeCash,
   useTradedValue,
@@ -12,16 +13,14 @@ export function useMaxWithdraw(context: BaseTradeContext) {
   const { updateState, state } = context;
   const { debt, selectedNetwork } = state;
   const profile = usePortfolioRiskProfile(selectedNetwork);
-  const primeCash = usePrimeCash(debt?.network, debt?.currencyId);
+  const primeCash = usePrimeCash(debt?.currencyId);
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
 
   const withdrawToken = debt?.tokenType === 'PrimeDebt' ? primeCash : debt;
   const balance = profile?.balances.find(
     (t) => t.tokenId === withdrawToken?.id
   );
-  const maxWithdraw = withdrawToken
-    ? profile?.maxWithdraw(withdrawToken)
-    : undefined;
+  const maxWithdraw = usePortfolioMaxWithdraw(withdrawToken);
   const maxWithdrawUnderlying = useTradedValue(maxWithdraw?.neg());
 
   const onMaxValue = useCallback(() => {
@@ -44,7 +43,7 @@ export function useMaxWithdraw(context: BaseTradeContext) {
     balance &&
     state.maxWithdraw &&
     maxWithdraw &&
-    !!profile?.healthFactor() &&
+    !!profile?.healthFactor &&
     maxWithdraw.ratioWith(balance).toNumber() < 0.999e9 ? (
       <FormattedMessage
         defaultMessage={'Max withdraw restricted by liquidation risk.'}

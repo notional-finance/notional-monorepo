@@ -21,21 +21,22 @@ import {
 import {
   useAccountLoading,
   useTruncatedAddress,
-  useWalletAddress,
-  useWalletConnectedNetwork,
+  // useWalletAddress,
+  // useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
+import { useWalletStore } from '@notional-finance/notionable';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
 }
 
-export function WalletSelector() {
+const WalletSelector = () => {
   const theme = useTheme();
   const { isReadOnlyAddress, icon } = useConnect();
   const isAccountPending = useAccountLoading();
-  const selectedAccount = useWalletAddress();
-  const walletNetwork = useWalletConnectedNetwork();
+  const { userWallet } = useWalletStore();
   const truncatedAddress = useTruncatedAddress();
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
@@ -56,15 +57,18 @@ export function WalletSelector() {
 
   useEffect(() => {
     if (showAlert) {
-      setTimeout(() => {
+      const intervalId = setTimeout(() => {
         setShowAlert(false);
       }, 1000);
+
+      return () => clearInterval(intervalId);
     }
+    return;
   }, [showAlert, setShowAlert]);
 
   const handleCopy = () => {
-    if (selectedAccount) {
-      navigator.clipboard.writeText(selectedAccount);
+    if (userWallet?.selectedAddress) {
+      navigator.clipboard.writeText(userWallet.selectedAddress);
       setShowAlert(true);
     }
   };
@@ -78,7 +82,7 @@ export function WalletSelector() {
               {icon && icon.length > 0 && !isReadOnlyAddress && (
                 <IconContainer sx={{ paddingRight: '0px' }}>
                   <TokenIcon
-                    symbol={getNetworkSymbol(walletNetwork)}
+                    symbol={getNetworkSymbol(userWallet?.selectedChain)}
                     size="medium"
                   />
                 </IconContainer>
@@ -131,7 +135,7 @@ export function WalletSelector() {
       <WalletSideDrawer />
     </Box>
   );
-}
+};
 
 const OuterContainer = styled(Box)(
   ({ theme }) => `
@@ -172,4 +176,4 @@ const IconContainer = styled(Box)(
   `
 );
 
-export default WalletSelector;
+export default observer(WalletSelector);

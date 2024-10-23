@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   Allowance,
-  Registry,
+  getNetworkModel,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -9,27 +9,33 @@ import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
 import {
   Network,
   SupportedNetworks,
+  getNetworkFromId,
   groupArrayToMap,
 } from '@notional-finance/util';
 import {
   formatNumberAsPercent,
   truncateAddress,
 } from '@notional-finance/helpers';
-import { useAllMarkets } from './use-market';
 import { useNotionalContext } from './use-notional';
+import { useConnectWallet, useSetChain } from '@web3-onboard/react';
+import { BigNumber } from 'ethers';
+import {
+  useCurrentNetworkStore,
+  useWalletStore,
+} from '@notional-finance/notionable';
 
 export function usePrimeCashBalance(
   selectedToken: string | undefined | null,
   selectedNetwork: Network | undefined
 ) {
-  const tokens = Registry.getTokenRegistry();
+  const model = getNetworkModel(selectedNetwork);
   const token =
     selectedToken && selectedNetwork
-      ? tokens.getTokenBySymbol(selectedNetwork, selectedToken)
+      ? model.getTokenBySymbol(selectedToken)
       : undefined;
   const primeCash =
     selectedNetwork && token?.currencyId
-      ? tokens.getPrimeCash(selectedNetwork, token.currencyId)
+      ? model.getPrimeCash(token.currencyId)
       : undefined;
 
   return useMaxAssetBalance(primeCash);
@@ -48,35 +54,32 @@ export function useWalletConnected() {
 }
 
 export function useWalletAddress() {
-  const {
-    globalState: { wallet },
-  } = useNotionalContext();
+  const { userWallet } = useWalletStore();
 
-  return wallet?.selectedAddress;
+  return userWallet?.selectedAddress;
 }
 
 export function useTruncatedAddress() {
-  const {
-    globalState: { wallet },
-  } = useNotionalContext();
+  const { userWallet } = useWalletStore();
 
-  return wallet?.selectedAddress
-    ? truncateAddress(wallet?.selectedAddress)
+  return userWallet?.selectedAddress
+    ? truncateAddress(userWallet?.selectedAddress)
     : '';
 }
 
 export function useWalletConnectedNetwork() {
-  const {
-    globalState: { wallet },
-  } = useNotionalContext();
-  return wallet?.selectedChain;
+  const [{ wallet }] = useConnectWallet();
+  const currentLabel = wallet?.label;
+  const [{ connectedChain }] = useSetChain(currentLabel);
+  const selectedChain = connectedChain?.id
+    ? getNetworkFromId(BigNumber.from(connectedChain?.id).toNumber())
+    : undefined;
+  return selectedChain;
 }
 
 export function useReadOnlyAddress() {
-  const {
-    globalState: { wallet },
-  } = useNotionalContext();
-  return wallet?.isReadOnlyAddress === true;
+  const { userWallet } = useWalletStore();
+  return userWallet?.isReadOnlyAddress === true;
 }
 
 export function useWalletAllowances() {
@@ -125,64 +128,80 @@ export function useWalletBalanceInputCheck(
   };
 }
 
-function useApyValues(
-  tradeType: string | undefined,
-  network: Network | undefined
-) {
+function useApyValues(tradeType: string | undefined) {
+  const currentNetworkStore = useCurrentNetworkStore();
   // create a apyData object with a type of a Record with key of string and value of string
   const apyData: Record<string, string> = {};
-  const {
-    yields: {
-      fCashLend,
-      variableLend,
-      liquidity,
-      fCashBorrow,
-      variableBorrow,
-      leveragedLiquidity,
-    },
-    getMax,
-    getMin,
-  } = useAllMarkets(network);
+
+  const getMax = useCallback((y: any[]) => {
+    return y.reduce((m, t) => (m === null || t.totalAPY > m.totalAPY ? t : m));
+  }, []);
+
+  const getMin = useCallback((y: any[]) => {
+    return y.reduce((m, t) => (m === null || t.totalAPY < m.totalAPY ? t : m));
+  }, []);
 
   if (tradeType === 'LendFixed') {
+    const fCashLend = currentNetworkStore.getAllFCashYields();
     const cardData = [
-      ...groupArrayToMap(fCashLend, (t) => t.underlying.symbol).entries(),
+      ...groupArrayToMap(fCashLend, (t) => t?.underlying?.symbol).entries(),
     ];
     cardData.map(([symbol, yields]) => {
+      const indexSymbol = symbol ? symbol : '';
       const maxRate = getMax(yields)?.totalAPY || 0;
-      apyData[symbol] = `${formatNumberAsPercent(maxRate, 2)} APY`;
+      apyData[indexSymbol] = `${formatNumberAsPercent(maxRate, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'LendVariable') {
-    variableLend.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+    const variableLend = currentNetworkStore.getAllPrimeCashYields();
+    variableLend.map(({ underlying, apy }) => {
+      const indexSymbol = underlying?.symbol ? underlying?.symbol : '';
+      apyData[indexSymbol] = `${formatNumberAsPercent(
+        apy?.totalAPY || 0,
+        2
+      )} APY`;
       return apyData;
     });
   } else if (tradeType === 'MintNToken') {
-    liquidity.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+    const liquidity = currentNetworkStore.getAllNTokenYields();
+    liquidity.map(({ underlying, apy }) => {
+      const indexSymbol = underlying?.symbol ? underlying?.symbol : '';
+      apyData[indexSymbol] = `${formatNumberAsPercent(
+        apy?.totalAPY || 0,
+        2
+      )} APY`;
       return apyData;
     });
   } else if (tradeType === 'BorrowFixed') {
+    const fCashBorrow = currentNetworkStore.getAllFCashDebt();
     const cardData = [
-      ...groupArrayToMap(fCashBorrow, (t) => t.underlying.symbol).entries(),
+      ...groupArrayToMap(fCashBorrow, (t) => t?.underlying?.symbol).entries(),
     ];
     cardData.map(([symbol, yields]) => {
+      const indexSymbol = symbol ? symbol : '';
       const minRate = getMin(yields)?.totalAPY || 0;
-      apyData[symbol] = `${formatNumberAsPercent(minRate, 2)} APY`;
+      apyData[indexSymbol] = `${formatNumberAsPercent(minRate, 2)} APY`;
       return apyData;
     });
   } else if (tradeType === 'BorrowVariable') {
-    variableBorrow.map(({ underlying, totalAPY }) => {
-      apyData[underlying.symbol] = `${formatNumberAsPercent(totalAPY, 2)} APY`;
+    const variableBorrow = currentNetworkStore.getAllPrimeCashDebt();
+    variableBorrow.map(({ underlying, apy }) => {
+      const indexSymbol = underlying?.symbol ? underlying?.symbol : '';
+      apyData[indexSymbol] = `${formatNumberAsPercent(
+        apy?.totalAPY || 0,
+        2
+      )} APY`;
       return apyData;
     });
   } else if (tradeType === 'LeveragedNToken') {
+    const leveragedLiquidity =
+      currentNetworkStore.getAllLeveragedNTokenYields();
     leveragedLiquidity
-      .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
-      .map(({ underlying, totalAPY }) => {
-        apyData[underlying.symbol] = `${formatNumberAsPercent(
-          totalAPY,
+      .filter((y) => y?.debtToken?.tokenType === 'PrimeDebt')
+      .map(({ underlying, apy }) => {
+        const indexSymbol = underlying?.symbol ? underlying?.symbol : '';
+        apyData[indexSymbol] = `${formatNumberAsPercent(
+          apy?.totalAPY || 0,
           2
         )} APY`;
         return apyData;
@@ -210,7 +229,7 @@ export function useWalletBalancesOnNetworks(
     acc[n] =
       acct?.accountDefinition?.balances.find(
         (t) => t.tokenType === 'Underlying' && t.symbol === underlyingSymbol
-      ) || TokenBalance.fromSymbol(0, underlyingSymbol, n);
+      ) || getNetworkModel(n).getTokenBalanceFromSymbol(0, underlyingSymbol);
 
     return acc;
   }, {} as Record<Network, TokenBalance>);
@@ -222,7 +241,7 @@ export function useWalletBalances(
   tradeType: string | undefined
 ) {
   const account = useAccountDefinition(network);
-  const apyData = useApyValues(tradeType, network);
+  const apyData = useApyValues(tradeType);
   return useMemo(() => {
     return tokens
       ?.map((token) => {
@@ -265,13 +284,14 @@ export function useMaxAssetBalance(token: TokenDefinition | undefined) {
     : profile?.balances.find((b) => b.tokenId === token?.id);
 }
 
-export function useExceedsSupplyCap(deposit: TokenBalance | undefined, excludeSupplyCap: boolean) {
-  if (deposit && !excludeSupplyCap) {
+export function useExceedsSupplyCap(
+  deposit: TokenBalance | undefined,
+  excludeSupplyCap: boolean
+) {
+  const currentNetworkStore = useCurrentNetworkStore();
+  if (deposit?.currencyId && !excludeSupplyCap) {
     const { maxUnderlyingSupply, currentUnderlyingSupply } =
-      Registry.getConfigurationRegistry().getMaxSupply(
-        deposit?.network,
-        deposit?.currencyId
-      );
+      currentNetworkStore.getMaxSupply(deposit.currencyId);
 
     return {
       currentUnderlyingSupply,

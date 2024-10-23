@@ -2,6 +2,8 @@ import { Box, useTheme } from '@mui/material';
 import { Network } from '@notional-finance/util';
 import { useAllVaultAccounts } from './hooks';
 import { DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
+import { useAppStore } from '@notional-finance/notionable';
+import { observer } from 'mobx-react-lite';
 
 interface AllVaultAccountsProps {
   networkToggleData: {
@@ -11,13 +13,16 @@ interface AllVaultAccountsProps {
   selectedNetwork: Network;
 }
 
-export const AllVaultAccounts = ({
+const AllVaultAccounts = ({
   networkToggleData,
   selectedNetwork,
 }: AllVaultAccountsProps) => {
   const theme = useTheme();
-  const { tableData, tableColumns, dropdownsData } =
-    useAllVaultAccounts(selectedNetwork);
+  const { baseCurrency } = useAppStore();
+  const { tableData, tableColumns, dropdownsData } = useAllVaultAccounts(
+    selectedNetwork,
+    baseCurrency
+  );
 
   return (
     <Box
@@ -41,4 +46,4 @@ export const AllVaultAccounts = ({
   );
 };
 
-export default AllVaultAccounts;
+export default observer(AllVaultAccounts);

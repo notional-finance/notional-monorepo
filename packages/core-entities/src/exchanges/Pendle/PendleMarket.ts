@@ -17,7 +17,7 @@ import {
 } from '@notional-finance/util';
 import { AggregateCall } from '@notional-finance/multicall';
 import { BigNumber, Contract, utils } from 'ethers';
-import { Registry } from '../../Registry';
+import { getNetworkModel } from '../../Models';
 
 interface PendleMarketParams {
   marketState: {
@@ -183,7 +183,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   public convertAssetToSy(assetAmount: TokenBalance) {
-    return TokenBalance.fromID(
+    return new TokenBalance(
       assetAmount.n
         .mul(SCALAR_PRECISION)
         .div(this.poolParams.syToAssetExchangeRate),
@@ -193,7 +193,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   public convertSyToAsset(syAmount: TokenBalance) {
-    return TokenBalance.fromID(
+    return new TokenBalance(
       syAmount.n
         .mul(this.poolParams.syToAssetExchangeRate)
         .div(SCALAR_PRECISION),
@@ -206,8 +206,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     tokensIn: TokenBalance,
     tokenIndexOut: number
   ) {
-    const assetToken = Registry.getTokenRegistry().getTokenByID(
-      this._network,
+    const assetToken = getNetworkModel(this._network).getTokenByID(
       this.poolParams.assetTokenId
     );
 
@@ -329,7 +328,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       this.timeToExpiry
     );
     const preFeeExchangeRate = this.getPreFeeExchangeRate(netPtToAccount);
-    const preFeeAssetToAccount = TokenBalance.fromID(
+    const preFeeAssetToAccount = new TokenBalance(
       netPtToAccount
         .neg()
         .divInRatePrecision(Math.floor(preFeeExchangeRate * RATE_PRECISION)).n,
@@ -371,7 +370,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     );
 
     const totalAsset = this.convertSyToAsset(
-      TokenBalance.fromID(
+      new TokenBalance(
         this.poolParams.marketState.totalSy,
         this.poolParams.tokens.SY,
         this._network

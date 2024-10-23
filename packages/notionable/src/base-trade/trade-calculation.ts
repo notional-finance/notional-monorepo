@@ -5,8 +5,8 @@ import {
   TokenDefinition,
   TokenBalance,
   fCashMarket,
-  Registry,
   PendlePT,
+  getNetworkModel,
 } from '@notional-finance/core-entities';
 import { RiskFactorLimit, RiskFactorKeys } from '@notional-finance/risk-engine';
 import {
@@ -519,8 +519,7 @@ function computeDebtOptions(
       if (isVaultTrade(tradeType)) {
         // Switch to the matching vault share token for vault trades
         if (!d.vaultAddress || !d.maturity) throw Error('Invalid debt token');
-        i['collateral'] = Registry.getTokenRegistry().getVaultShare(
-          d.network,
+        i['collateral'] = getNetworkModel(d.network).getVaultShare(
           d.vaultAddress,
           d.maturity
         );
@@ -593,20 +592,19 @@ function _getTradedInterestRate(
     utilization = fCashMarket.getPrimeCashUtilization(undefined, amount.neg());
     interestRate = fCashMarket.getPrimeDebtRate(utilization);
     if (_amount.tokenType === 'VaultDebt') {
-      const annualizedFeeRate =
-        Registry.getConfigurationRegistry().getVaultConfig(
-          _amount.network,
-          _amount.vaultAddress
-        ).feeRateBasisPoints;
-      // Add the vault fee to the interest rate here..
-      interestRate += annualizedFeeRate;
+      // // Add the vault fee to the interest rate here..
+      // interestRate += annualizedFeeRate;
     }
   } else if (amount.tokenType === 'nToken') {
     return {
-      interestRate:
-        Registry.getYieldRegistry().getSimulatedNTokenYield(amount)?.totalAPY,
+      interestRate: 0,
       utilization: undefined,
     };
+    // return {
+    //   interestRate:
+    //     Registry.getYieldRegistry().getSimulatedNTokenYield(amount)?.totalAPY,
+    //   utilization: undefined,
+    // };
   } else if (
     amount.tokenType === 'VaultShare' &&
     vaultAdapter &&

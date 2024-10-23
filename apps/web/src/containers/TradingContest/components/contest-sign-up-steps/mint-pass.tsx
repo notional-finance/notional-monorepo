@@ -9,15 +9,14 @@ import {
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { ethers } from 'ethers';
-import {
-  useNotionalContext,
-  useMintPass,
-} from '@notional-finance/notionable-hooks';
+import { useWalletStore } from '@notional-finance/notionable';
+import { useMintPass } from '@notional-finance/notionable-hooks';
 import { ContestButtonBar } from '../contest-button-bar';
 import { useChangeNetwork } from '@notional-finance/trade';
 import { Network } from '@notional-finance/util';
+import { observer } from 'mobx-react-lite';
 
-export const MintPass = ({
+const MintPass = ({
   isReadOnlyAddress,
   isWalletConnectedToNetwork,
   onMintPass,
@@ -27,9 +26,7 @@ export const MintPass = ({
   errorMessage,
 }: ReturnType<typeof useMintPass>) => {
   const theme = useTheme();
-  const {
-    globalState: { wallet },
-  } = useNotionalContext();
+  const { userWallet } = useWalletStore();
   const [error, setError] = useState<string>('');
   const { changeNetwork: onSwitchNetwork } = useChangeNetwork(undefined);
 
@@ -108,7 +105,7 @@ export const MintPass = ({
               </Box>
 
               <MintInput
-                placeholder={wallet?.selectedAddress || ''}
+                placeholder={userWallet?.selectedAddress || ''}
                 handleChange={handleChange}
                 inputValue={mintedAddress || ''}
                 onKeyDown={(event) =>
@@ -158,4 +155,4 @@ const MintInput = styled(Input)(
       `
 );
 
-export default MintPass;
+export default observer(MintPass);

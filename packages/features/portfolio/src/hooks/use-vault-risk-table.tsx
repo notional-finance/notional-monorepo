@@ -1,6 +1,6 @@
 import { useTheme } from '@mui/material';
-import { formatTokenType } from '@notional-finance/helpers';
 import { DisplayCell, MultiValueIconCell } from '@notional-finance/mui';
+import { useAppStore } from '@notional-finance/notionable';
 import {
   formatHealthFactorValues,
   useCurrentLiquidationPrices,
@@ -100,29 +100,31 @@ export const useVaultRiskTable = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
-  const { vaultLiquidation } = useCurrentLiquidationPrices(network);
+  const { baseCurrency } = useAppStore();
+  const { vaultLiquidation } = useCurrentLiquidationPrices(
+    network,
+    baseCurrency
+  );
 
   const tableData = vaultLiquidation
     .filter((l) => l.liquidationPrices.length > 0)
     .flatMap((l) => {
-      const vaultHolding = vaults.find(
-        (v) => v.vault.vaultAddress === l.vaultAddress
+      const vaultHolding = vaults?.find(
+        (v) => v.vaultAddress === l.vaultAddress
       );
 
       return vaultHolding
         ? l.liquidationPrices.map((p) => {
             return {
               vault: {
-                symbol: formatTokenType(vaultHolding.denom).icon,
-                label: vaultHolding.vault.vaultConfig.name,
+                symbol: vaultHolding.underlying,
+                label: vaultHolding.name,
                 caption:
-                  vaultHolding.vault.maturity === PRIME_CASH_VAULT_MATURITY
+                  vaultHolding.maturity === PRIME_CASH_VAULT_MATURITY
                     ? 'Open Term'
-                    : `Maturity: ${formatMaturity(
-                        vaultHolding.vault.maturity
-                      )}`,
+                    : `Maturity: ${formatMaturity(vaultHolding.maturity)}`,
               },
-              healthFactor: vaultHolding.vault.healthFactor(),
+              healthFactor: vaultHolding.healthFactor,
               ...p,
             };
           })

@@ -5,7 +5,7 @@ export * from './Registry';
 export { AccountFetchMode } from './client/account-registry-client';
 export * from './exchanges';
 export * from './vaults';
-export { ConfigurationClient, NOTERegistryClient } from './client';
+export { ConfigurationClient } from './client';
 export * from './config/fiat-config';
 export * from './server';
 export { ClientRegistry } from './client/client-registry';
@@ -20,3 +20,18 @@ export * from './config/whitelisted-vaults';
 export { DeprecatedVaults } from './server/vault-overrides';
 export { SecondaryIncentiveToken } from './config/whitelisted-tokens';
 export * from './Boosts';
+
+export * from './Models';
+export { NetworkServerModel, NetworkClientModel } from './models/NetworkModel';
+export { AccountModel, BalanceStatementModel } from './models/AccountModel';
+export {
+  ChartType,
+  NotionalTypes,
+  TokenDefinitionModel,
+} from './models/ModelTypes';
+export type {
+  TimeSeriesDataPoint,
+  TimeSeriesResponse,
+  TimeSeriesLegend,
+} from './models/ModelTypes';
+export * from './models/views/YieldViews';

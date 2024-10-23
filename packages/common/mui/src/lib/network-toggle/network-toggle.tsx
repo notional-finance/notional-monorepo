@@ -4,12 +4,12 @@ import { TokenIcon } from '@notional-finance/icons';
 
 interface NetworkToggleProps {
   selectedNetwork: number;
-  handleNetWorkToggle: (value: number) => void;
+  handleNetworkToggle: (value: number) => void;
 }
 
 export const NetworkToggle = ({
   selectedNetwork,
-  handleNetWorkToggle,
+  handleNetworkToggle,
 }: NetworkToggleProps) => {
   const theme = useTheme();
 
@@ -36,7 +36,7 @@ export const NetworkToggle = ({
     <SimpleToggle
       tabLabels={toggleOptions}
       selectedTabIndex={selectedNetwork}
-      onChange={(_, v) => handleNetWorkToggle(v as number)}
+      onChange={(_, v) => handleNetworkToggle(v as number)}
     />
   );
 };

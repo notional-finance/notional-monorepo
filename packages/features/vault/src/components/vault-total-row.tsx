@@ -1,24 +1,17 @@
 import { InfoTooltip, TotalRow } from '@notional-finance/mui';
-import {
-  useAllVaults,
-  useAppState,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useVaultProperties } from '@notional-finance/notionable-hooks';
 import { VaultActionContext } from '../vault';
 import { useContext } from 'react';
 import { SxProps, useTheme } from '@mui/material';
 import { defineMessage } from 'react-intl';
 import { getVaultType, TokenBalance } from '@notional-finance/core-entities';
+import { useAppStore } from '@notional-finance/notionable';
 
 const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
-  const selectedNetwork = useSelectedNetwork();
   const { state } = useContext(VaultActionContext);
   const { maxPoolShare, vaultAddress } = state;
   const theme = useTheme();
-  const listedVaults = useAllVaults(selectedNetwork);
-  const vaultData = listedVaults.find(
-    (vault) => vault.vaultAddress === vaultAddress
-  );
+  const vaultData = useVaultProperties(vaultAddress);
 
   const toopTipData = {
     borrowCapacity: defineMessage({
@@ -46,7 +39,8 @@ const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
 
   const currentTip = title?.includes('Borrow Capacity')
     ? toopTipData.borrowCapacity
-    : vaultData?.baseProtocol === vaultData?.boosterProtocol
+    : vaultData?.baseProtocol ===
+      vaultData?.boosterProtocol
     ? toopTipData.poolCapWithMaxShareSameProtocol
     : toopTipData.poolCapWithMaxShare;
 
@@ -62,7 +56,7 @@ const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
 
 const TotalRowSingleSidedLP = () => {
   const { state } = useContext(VaultActionContext);
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const { totalCapacityRemaining, totalPoolCapacityRemaining, vaultTVL } =
     state;
   const tvl = vaultTVL?.toFiat(baseCurrency);
@@ -97,7 +91,7 @@ const TotalRowSingleSidedLP = () => {
 
 const TotalRowPendlePT = () => {
   const { state } = useContext(VaultActionContext);
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const { totalCapacityRemaining, vaultTVL, collateral } = state;
   const tvl = vaultTVL?.toFiat(baseCurrency);
   const totalsData = [

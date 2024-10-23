@@ -1,29 +1,32 @@
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
-import { useNotionalContext } from './use-notional';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { getNowSeconds } from '@notional-finance/util';
+import { useWalletStore } from '@notional-finance/notionable';
+import { useSelectedNetwork } from './use-network';
+import { useObserver } from 'mobx-react-lite';
 
 /** Contains selectors for account holdings information */
 function useNetworkAccounts(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
+  const walletStore = useWalletStore();
+  return network ? walletStore.networkAccounts.get(network) : undefined;
+}
 
-  return network && networkAccounts && networkAccounts[network];
+export function useCurrentNetworkAccount() {
+  const network = useSelectedNetwork();
+  return useNetworkAccounts(network);
 }
 
 /** Total NOTE balances across all networks */
 export function useTotalNOTEBalances() {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-  if (networkAccounts) {
+  const walletStore = useWalletStore();
+
+  if (walletStore.networkAccounts) {
     return SupportedNetworks.reduce((t, n) => {
-      const note = networkAccounts[n]?.accountDefinition?.balances.find(
-        (t) => t.symbol === 'NOTE'
-      );
+      const note = walletStore.networkAccounts
+        .get(n)
+        ?.balances.find((t) => t.symbol === 'NOTE');
       return t + (note?.toFloat() || 0);
     }, 0);
   }
@@ -32,14 +35,14 @@ export function useTotalNOTEBalances() {
 }
 
 export function useAccountDefinition(network: Network | undefined) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
+  const walletStore = useWalletStore();
+  const account = useObserver(() =>
+    network && walletStore.networkAccounts
+      ? walletStore.networkAccounts.get(network)
+      : undefined
+  );
 
-  const account =
-    network && networkAccounts ? networkAccounts[network] : undefined;
-
-  return account?.accountDefinition;
+  return account;
 }
 
 export function useTotalIncentives(network: Network | undefined) {
@@ -60,10 +63,8 @@ export function useAccountAndBalanceReady(network: Network | undefined) {
 }
 
 export function useAccountLoading() {
-  const {
-    globalState: { isAccountPending },
-  } = useNotionalContext();
-  return isAccountPending;
+  const walletStore = useWalletStore();
+  return walletStore.isAccountPending;
 }
 
 export function useTransactionHistory(network: Network | undefined) {
@@ -72,28 +73,53 @@ export function useTransactionHistory(network: Network | undefined) {
 }
 
 export function useVaultHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.vaultHoldings || [];
+  return useNetworkAccounts(network)?.vaultHoldings;
+}
+
+export function useTotalVaultHoldings(network: Network | undefined) {
+  return useNetworkAccounts(network)?.totalVaultHoldings;
 }
 
 export function useVaultPosition(
   network: Network | undefined,
   vaultAddress: string | undefined
 ) {
-  return useVaultHoldings(network).find(
-    ({ vault }) => vault.vaultAddress === vaultAddress
+  return useVaultHoldings(network)?.find(
+    (v) => v.vaultAddress === vaultAddress
   );
 }
 
+export function useTotalPortfolioHoldings(network: Network | undefined) {
+  return useNetworkAccounts(network)?.totalPortfolioHoldings;
+}
+
 export function usePortfolioHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.portfolioHoldings || [];
+  return useNetworkAccounts(network)?.detailedHoldings;
 }
 
 export function useGroupedHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.groupedHoldings || [];
+  return useNetworkAccounts(network)?.groupedHoldings;
 }
 
 export function usePortfolioRiskProfile(network: Network | undefined) {
-  return useNetworkAccounts(network)?.riskProfile;
+  return useNetworkAccounts(network)?.portfolioRiskProfile;
+}
+
+export function usePortfolioMaxWithdraw(token: TokenDefinition | undefined) {
+  const networkAccounts = useNetworkAccounts(token?.network);
+  return networkAccounts && token
+    ? networkAccounts.maxPortfolioWithdraw(token)
+    : undefined;
+}
+
+export function useVaultMaxWithdraw(
+  network: Network | undefined,
+  vaultAddress: string | undefined
+) {
+  const networkAccounts = useNetworkAccounts(network);
+  return networkAccounts && vaultAddress
+    ? networkAccounts.maxVaultWithdraw(vaultAddress)
+    : undefined;
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {
@@ -114,14 +140,12 @@ export function useAccountCurrentFactors(network: Network | undefined) {
 
 export function useAccountNetWorth() {
   const fiatToken = useFiatToken();
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
+  const walletStore = useWalletStore();
 
   return SupportedNetworks.reduce((acc, n) => {
-    if (networkAccounts && networkAccounts[n]) {
+    if (walletStore.networkAccounts && walletStore.networkAccounts.get(n)) {
       acc[n] =
-        networkAccounts[n].currentFactors?.netWorth ||
+        walletStore.networkAccounts.get(n)?.currentFactors?.netWorth ||
         TokenBalance.zero(fiatToken);
     } else {
       acc[n] = TokenBalance.zero(fiatToken);
@@ -130,24 +154,16 @@ export function useAccountNetWorth() {
   }, {} as Record<Network, TokenBalance>);
 }
 
-export function useArbPoints() {
-  const {
-    globalState: { arbPoints },
-  } = useNotionalContext();
-
-  return arbPoints;
-}
-
 export function useTotalArbPoints() {
-  const [totalPoints, setTotalPoints] = useState<{
+  const [totalPoints, _] = useState<{
     [SEASONS.SEASON_ONE]: number;
     [SEASONS.SEASON_TWO]: number;
     [SEASONS.SEASON_THREE]: number;
-  }>({ [SEASONS.SEASON_ONE]: 0, [SEASONS.SEASON_TWO]: 0, [SEASONS.SEASON_THREE]: 0 });
-  useEffect(() => {
-    Registry.getAnalyticsRegistry().getTotalPoints().then(setTotalPoints);
-  }, []);
-
+  }>({
+    [SEASONS.SEASON_ONE]: 0,
+    [SEASONS.SEASON_TWO]: 0,
+    [SEASONS.SEASON_THREE]: 0,
+  });
   return totalPoints;
 }
 
@@ -155,7 +171,10 @@ export function useCurrentSeason() {
   const now = getNowSeconds();
   if (now < PointsSeasonsData[SEASONS.SEASON_ONE].endDate.getTime() / 1000) {
     return PointsSeasonsData[SEASONS.SEASON_ONE];
-  } else if (now < PointsSeasonsData[SEASONS.SEASON_TWO].endDate.getTime() / 1000) {
+  } else if (
+    now <
+    PointsSeasonsData[SEASONS.SEASON_TWO].endDate.getTime() / 1000
+  ) {
     return PointsSeasonsData[SEASONS.SEASON_TWO];
   } else {
     return PointsSeasonsData[SEASONS.SEASON_THREE];
@@ -188,8 +207,3 @@ export const PointsSeasonsData = {
     totalPoints: '',
   },
 };
-
-
-export function useAccountTotalPointsPerDay() {
-  return useNetworkAccounts(Network.arbitrum)?.pointsPerDay || 0;
-}

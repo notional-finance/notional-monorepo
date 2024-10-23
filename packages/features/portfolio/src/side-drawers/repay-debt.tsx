@@ -41,10 +41,6 @@ export const RepayDebt = () => {
       <PortfolioHoldingSelect
         context={context}
         inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabel']}
-        filterBalances={(b) =>
-          b.isNegative() &&
-          (b.tokenType === 'PrimeCash' || b.tokenType === 'fCash')
-        }
       />
       <DepositInput
         ref={currencyInputRef}

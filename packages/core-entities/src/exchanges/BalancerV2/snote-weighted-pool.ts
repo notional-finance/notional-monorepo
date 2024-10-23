@@ -18,7 +18,6 @@ import {
   sNOTE,
 } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
-import { Registry } from '../../Registry';
 
 interface SNOTEParams extends PoolParams {
   totalBPTHeld: TokenBalance;
@@ -145,10 +144,7 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
   }
 
   get sNOTE() {
-    return Registry.getTokenRegistry().getTokenBySymbol(
-      Network.mainnet,
-      'sNOTE'
-    );
+    return new TokenBalance(0, 'sNOTE', Network.mainnet).token;
   }
 
   get totalSNOTE() {

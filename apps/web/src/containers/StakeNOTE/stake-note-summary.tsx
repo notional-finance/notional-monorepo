@@ -16,16 +16,17 @@ import { SECONDS_IN_DAY, TRACKING_EVENTS } from '@notional-finance/util';
 import { trackEvent } from '@notional-finance/helpers';
 import { useLocation } from 'react-router';
 import { useStakingFaq } from './use-staking-faq';
+import { useAppStore } from '@notional-finance/notionable';
 import {
   StakedNoteData,
   useNotePrice,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { useReinvestmentData } from './use-reinvestment-data';
 import { useStakedNote } from '../NoteView/staked-note/use-staked-note';
+import { observer } from 'mobx-react-lite';
 
-export const StakeNOTESummary = ({
+const StakeNOTESummary = ({
   stakedNoteData,
 }: {
   stakedNoteData: StakedNoteData | undefined;
@@ -34,14 +35,14 @@ export const StakeNOTESummary = ({
   const { state } = useContext(NOTEContext);
   const { pathname } = useLocation();
   const { faqs, faqHeaderLinks } = useStakingFaq();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const {
     historicalSNOTEPrice,
     historicalSNOTEAPY,
     annualizedRewardRate,
     totalSNOTEValue,
     currentSNOTEYield,
-  } = useStakedNote(stakedNoteData, 90 * SECONDS_IN_DAY);
+  } = useStakedNote(stakedNoteData, 90 * SECONDS_IN_DAY, baseCurrency);
   const { reinvestmentTableColumns, reinvestmentTableData } =
     useReinvestmentData();
   const { notePrice } = useNotePrice();
@@ -146,3 +147,5 @@ export const StakeNOTESummary = ({
     </TradeActionSummary>
   );
 };
+
+export default observer(StakeNOTESummary);

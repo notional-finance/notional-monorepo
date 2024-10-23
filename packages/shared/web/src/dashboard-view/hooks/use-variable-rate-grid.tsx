@@ -1,88 +1,47 @@
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAppState, useAllMarkets } from '@notional-finance/notionable-hooks';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import { PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
+import { ProductAPY } from '@notional-finance/core-entities';
 
-export const useVariableRateGrid = (
-  network: Network | undefined,
-  product: PRODUCTS
-) => {
-  const {
-    yields: { variableLend, variableBorrow },
-  } = useAllMarkets(network);
+export const useVariableRateGrid = (product: PRODUCTS) => {
+  const currentNetworkStore = useCurrentNetworkStore();
+  const network = currentNetworkStore.network;
+
+  let yieldData: ProductAPY[] = [];
+  if (product === PRODUCTS.LEND_VARIABLE) {
+    yieldData = currentNetworkStore.getAllPrimeCashYields();
+  } else if (product === PRODUCTS.BORROW_VARIABLE) {
+    yieldData = currentNetworkStore.getAllPrimeCashDebt();
+  }
+
   const navigate = useNavigate();
-  const { baseCurrency } = useAppState();
-  // const totalArbPoints = useTotalArbPoints();
-  // const currentSeason = useCurrentSeason();
-  const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
-  const yieldData = isBorrow ? variableBorrow : variableLend;
+  const { baseCurrency } = useAppStore();
 
   const allData = yieldData
-    .map((y) => {
-      // const pointsBoost = getArbBoosts(y.token, isBorrow);
-      // const pointsAPY = getPointsAPY(
-      //   pointsBoost,
-      //   totalArbPoints[currentSeason.db_name],
-      //   currentSeason.totalArb,
-      //   currentSeason.startDate,
-      //   currentSeason.endDate
-      // );
-
+    .map(({ apy, liquidity, tvl, underlying }) => {
       return {
-        ...y,
-        symbol: y.underlying.symbol,
-        title: y.underlying.symbol,
+        symbol: underlying?.symbol || '',
+        title: underlying?.symbol || '',
         subTitle: `Liquidity: ${
-          y.liquidity
+          liquidity
             ? formatNumberAsAbbr(
-                y.liquidity.toFiat(baseCurrency).toFloat(),
+                liquidity.toFiat(baseCurrency).toFloat(),
                 0,
                 baseCurrency
               )
             : 0
         }`,
         bottomLeftValue: undefined,
-        // pointsBoost > 0 && network === Network.arbitrum ? (
-        //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        //     <PointsIcon
-        //       sx={{
-        //         marginRight: theme.spacing(1),
-        //         height: theme.spacing(1.75),
-        //         width: theme.spacing(1.75),
-        //       }}
-        //     />
-        //     {`${pointsBoost}x ARB POINTS`}
-        //     <Box sx={{ marginLeft: theme.spacing(0.5) }}>
-        //       {pointsAPY !== Infinity &&
-        //         `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
-        //     </Box>
-        //   </Box>
-        // ) : !isBorrow && network === Network.arbitrum ? (
-        //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        //     <LeafIcon
-        //       fill={theme.palette.typography.main}
-        //       sx={{
-        //         marginRight: theme.spacing(1),
-        //         height: theme.spacing(1.75),
-        //         width: theme.spacing(1.75),
-        //       }}
-        //     />
-        //     <FormattedMessage defaultMessage={'Organic APY'} />
-        //   </Box>
-        // ) : network === Network.arbitrum ? (
-        //   <Box
-        //     sx={{
-        //       display: 'flex',
-        //       alignItems: 'center',
-        //     }}
-        //   />
-        // ) : undefined,
-        network: y.token.network,
+        network,
         hasPosition: false,
-        apy: y.totalAPY,
-        tvlNum: y.liquidity ? y.liquidity.toFiat(baseCurrency).toFloat() : 0,
+        apy: apy.totalAPY || 0,
+        tvlNum: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         routeCallback: () =>
-          navigate(`/${product}/${network}/${y.underlying.symbol}`),
+          navigate(`/${product}/${network}/${underlying?.symbol}`),
       };
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);

@@ -1,9 +1,4 @@
-import {
-  Registry,
-  TokenBalance,
-  TokenDefinition,
-  YieldData,
-} from '@notional-finance/core-entities';
+import { YieldData } from '@notional-finance/core-entities';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { DashboardDataProps } from '@notional-finance/mui';
 import { STABLE_COINS, LSDS, PRODUCTS } from '@notional-finance/util';
@@ -29,26 +24,6 @@ export const getTotalIncentiveSymbol = (symbol1?: string, symbol2?: string) => {
     return [symbol2];
   } else {
     return [];
-  }
-};
-
-export const getDebtOrCollateralFactor = (
-  token: TokenDefinition,
-  underlying: TokenDefinition,
-  isBorrow: boolean
-) => {
-  const { buffer, haircut } =
-    Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(token);
-  const unit = TokenBalance.unit(underlying).toToken(token);
-  if (isBorrow) {
-    return (
-      Math.abs(unit.neg().toRiskAdjustedUnderlying().toFloat() * buffer) / 100
-    ).toFixed(4);
-  } else {
-    return (
-      (unit.toRiskAdjustedUnderlying().toFloat() * haircut) /
-      100
-    ).toFixed(4);
   }
 };
 
@@ -113,22 +88,21 @@ export const sortListData = (
 };
 
 export const getIncentiveData = (
-  incentives: YieldData['noteIncentives'],
-  secondaryIncentives: YieldData['secondaryIncentives']
+  incentives: Array<{ symbol: string; incentiveAPY?: number }>
 ) => {
-  if (secondaryIncentives && incentives) {
+  if (incentives.length >= 2) {
     return {
       inlineIcons: true,
-      label: formatNumberAsPercent(incentives.incentiveAPY),
-      symbol: incentives.symbol,
-      caption: formatNumberAsPercent(secondaryIncentives.incentiveAPY),
-      captionSymbol: secondaryIncentives.symbol,
+      label: formatNumberAsPercent(incentives[0].incentiveAPY || 0),
+      symbol: incentives[0].symbol,
+      caption: formatNumberAsPercent(incentives[1].incentiveAPY || 0),
+      captionSymbol: incentives[1].symbol,
     };
-  } else if (incentives && !secondaryIncentives) {
+  } else if (incentives.length === 1) {
     return {
       inlineIcons: false,
-      label: formatNumberAsPercent(incentives.incentiveAPY),
-      symbol: incentives.symbol,
+      label: formatNumberAsPercent(incentives[0].incentiveAPY || 0),
+      symbol: incentives[0].symbol,
     };
   } else {
     return {
@@ -149,4 +123,20 @@ export const getCombinedIncentiveData = (
   } else {
     return 0;
   }
+};
+
+export const sumAndFormatIncentives = (
+  incentives: Array<{ symbol: string; incentiveAPY?: number }>
+): string => {
+  const totalAPY = incentives.reduce(
+    (sum, incentive) => sum + (incentive.incentiveAPY || 0),
+    0
+  );
+  return formatNumberAsPercent(totalAPY);
+};
+
+export const getIncentiveSymbols = (
+  incentives: Array<{ symbol: string; incentiveAPY?: number }>
+): string[] => {
+  return incentives.map((incentive) => incentive.symbol);
 };

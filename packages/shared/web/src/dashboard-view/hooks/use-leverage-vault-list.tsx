@@ -8,7 +8,6 @@ import {
   useAllVaults,
   useAccountDefinition,
   useVaultHoldings,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -22,6 +21,7 @@ import {
 import { Box } from '@mui/material';
 import { MultiTokenIcon, PointsIcon } from '@notional-finance/icons';
 import { FiatKeys } from '@notional-finance/core-entities';
+import { useAppStore } from '@notional-finance/notionable';
 
 const RewardsCell = (props) => {
   const {
@@ -169,8 +169,8 @@ export const useLeverageVaultList = (
   network: Network | undefined,
   vaultProduct: PRODUCTS
 ) => {
-  const listedVaults = useAllVaults(network, vaultProduct);
-  const { baseCurrency } = useAppState();
+  const listedVaults = useAllVaults(vaultProduct);
+  const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const vaultHoldings = useVaultHoldings(network);
   let listColumns = ListColumns(baseCurrency);
@@ -188,82 +188,83 @@ export const useLeverageVaultList = (
   }
 
   const listData = listedVaults
-    .map((vault) => {
+    .map(({ vaultConfig, apy, tvl, debtToken }) => {
       const walletBalance = account
-        ? account.balances.find((t) => t.tokenId === vault.primaryToken.id)
+        ? account.balances.find(
+            (t) => t.tokenId === vaultConfig.primaryToken.id
+          )
         : undefined;
-      const profile = vaultHoldings.find(
-        (p) => p.vault.vaultAddress === vault.vaultAddress
-      )?.vault;
-      const y = vault.maxVaultAPY;
+
+      const holding = vaultHoldings?.find(
+        (p) => p.vaultAddress === vaultConfig.vaultAddress
+      );
 
       return {
         currency: {
-          symbol: vault.primaryToken.symbol,
+          symbol: vaultConfig.primaryToken.symbol || '',
           symbolSize: 'large',
           symbolBottom: '',
-          label: vault.primaryToken.symbol,
+          label: vaultConfig.primaryToken.symbol || '',
           caption: network
             ? network.charAt(0).toUpperCase() + network.slice(1)
             : '',
         },
         walletBalance: walletBalance?.toFloat() || 0,
-        pool: vault.poolName,
+        pool: vaultConfig.poolName,
         protocols:
-          vault.boosterProtocol === vault.baseProtocol
-            ? vault.baseProtocol
-            : `${vault.boosterProtocol} / ${vault.baseProtocol}`,
-        totalApy: profile?.totalAPY || y?.totalAPY || 0,
+          vaultConfig.boosterProtocol === vaultConfig.baseProtocol
+            ? vaultConfig.baseProtocol
+            : `${vaultConfig.boosterProtocol} / ${vaultConfig.baseProtocol}`,
+        totalApy: holding?.totalAPY || apy?.totalAPY || 0,
         incentiveApy: 0,
-        tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
-        view: profile
-          ? `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/IncreaseVaultPosition`
-          : `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`,
-        symbol: vault.primaryToken.symbol,
+        tvl: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
+        view: holding
+          ? `${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/IncreaseVaultPosition`
+          : `${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`,
+        symbol: vaultConfig.primaryToken.symbol || '',
         borrowTerms: {
           data: [
             {
               displayValue:
-                y?.leveraged?.debtToken.tokenType === 'fCash'
-                  ? 'Fixed'
-                  : 'Variable',
+                debtToken?.tokenType === 'fCash' ? 'Fixed' : 'Variable',
             },
             {
-              displayValue: y?.leveraged?.debtToken?.maturity
-                ? formatMaturity(y?.leveraged?.debtToken?.maturity)
+              displayValue: debtToken?.maturity
+                ? formatMaturity(debtToken?.maturity)
                 : '',
             },
           ],
         },
         vaultType:
-          vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING && vault.vaultType
-            ? vault.vaultType
+          vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
+          vaultConfig.vaultType
+            ? vaultConfig.vaultType
             : undefined,
         rewards: {
           label:
-            vault.vaultType === 'SingleSidedLP_AutoReinvest'
+            vaultConfig.vaultType === 'SingleSidedLP_AutoReinvest'
               ? 'Auto-Reinvest'
               : 'Direct Claim',
-          rewardTokens: vault.rewardTokens,
+          rewardTokens: vaultConfig.rewardTokens,
         },
         multiValueCellData: {
           currency: {
-            symbol: vault.primaryToken.symbol,
+            symbol: vaultConfig.primaryToken.symbol || '',
             symbolSize: 'large',
             symbolBottom: '',
-            label: vault.primaryToken.symbol,
+            label: vaultConfig.primaryToken.symbol || '',
             caption: network
               ? network.charAt(0).toUpperCase() + network.slice(1)
               : '',
             network: network,
           },
           totalApy: {
-            label: y?.totalAPY
-              ? formatNumberAsPercent(y.totalAPY, 2)
+            label: apy?.totalAPY
+              ? formatNumberAsPercent(apy.totalAPY, 2)
               : undefined,
-            labelIsNegative: y?.totalAPY && y?.totalAPY < 0 ? true : false,
-            caption: y?.leveraged?.leverageRatio
-              ? `${formatNumber(y?.leveraged?.leverageRatio, 1)}x Leverage`
+            labelIsNegative: apy?.totalAPY && apy?.totalAPY < 0 ? true : false,
+            caption: apy?.leverageRatio
+              ? `${formatNumber(apy.leverageRatio, 1)}x Leverage`
               : undefined,
           },
           incentiveApy:

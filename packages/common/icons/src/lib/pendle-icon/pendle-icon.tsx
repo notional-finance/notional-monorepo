@@ -13,15 +13,15 @@ export function PendleIcon(props: PendleIconProps) {
         fill={props.stroke}
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M7.10059 14.6987V1.61112L8.27796 1.07023V14.6987H7.10059Z"
         fill={props.stroke}
       />
       <path
         d="M21.0007 9.60032C21.0007 14.5711 16.9711 18.6006 12.0003 18.6006C7.0296 18.6006 3.00002 14.5711 3.00002 9.60032C3.00002 4.62958 7.0296 0.6 12.0003 0.6C16.9711 0.6 21.0007 4.62958 21.0007 9.60032Z"
         stroke={props.stroke}
-        stroke-width="1.2"
+        strokeWidth="1.2"
       />
     </SvgIcon>
   );

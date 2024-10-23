@@ -2,8 +2,8 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useVaultActionErrors } from '../hooks';
 import { LeverageSlider } from '@notional-finance/trade';
 import {
+  useVaultPoints,
   VaultContext,
-  useAllMarkets,
   usePointPrices,
 } from '@notional-finance/notionable-hooks';
 import { pointsMultiple } from '@notional-finance/util';
@@ -18,16 +18,10 @@ export const VaultLeverageSlider = ({
   context: VaultContext;
 }) => {
   const {
-    state: {
-      netRealizedDebtBalance,
-      selectedNetwork,
-      collateral,
-      riskFactorLimit,
-    },
+    state: { netRealizedDebtBalance, vaultAddress, riskFactorLimit },
   } = context;
-  const {
-    yields: { vaultShares },
-  } = useAllMarkets(selectedNetwork);
+  const points = useVaultPoints(vaultAddress);
+
   const {
     leverageRatioError,
     isDeleverage,
@@ -37,9 +31,6 @@ export const VaultLeverageSlider = ({
   const errorMsg =
     leverageRatioError || underMinAccountBorrowError || inputErrorMsg;
   const leverageRatio = riskFactorLimit?.limit as number;
-  const points = vaultShares.find(
-    (y) => y.token.id === collateral?.id
-  )?.pointMultiples;
   const pointPrices = usePointPrices();
 
   const additionalSliderInfo = points
@@ -51,6 +42,7 @@ export const VaultLeverageSlider = ({
         suffix: 'x',
         toolTipTitle: (
           <FormattedMessage
+            // eslint-disable-next-line no-template-curly-in-string
             defaultMessage={'{k} Points: ${value}/point'}
             values={{
               k,

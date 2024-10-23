@@ -126,6 +126,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "maturity",
+        type: "uint256",
+      },
+    ],
+    name: "getExchangeRate",
+    outputs: [
+      {
+        internalType: "int256",
+        name: "",
+        type: "int256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "string",

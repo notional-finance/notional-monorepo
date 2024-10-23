@@ -79,7 +79,7 @@ export const PerformanceChart = ({
           xAxisTickFormat="date"
           isStackedBar
           barConfig={barConfig}
-          barChartData={barChartData}
+          barChartData={barChartData?.data || []}
           yAxisTickFormat="percent"
         />
       ),

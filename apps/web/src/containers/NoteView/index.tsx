@@ -4,7 +4,7 @@ import { colors, useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { NoteViewSubNav, SquareGridBg } from './components';
-import { NoteSummary } from './note-supply/note-summary';
+import NoteSummary from './note-supply/note-summary';
 import StakedNote from './staked-note/staked-note';
 import NoteSupply from './note-supply/note-supply';
 import NoteGovernance from './note-governance/note-governance';

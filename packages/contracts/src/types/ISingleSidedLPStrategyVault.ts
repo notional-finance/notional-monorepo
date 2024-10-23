@@ -165,6 +165,7 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
     "TOKENS()": FunctionFragment;
     "emergencyExit(uint256,bytes)": FunctionFragment;
     "getStrategyVaultInfo()": FunctionFragment;
+    "getExchangeRate(uint256)": FunctionFragment;
     "initialize((string,uint16,(uint32,uint16,uint16,uint8,uint32)))": FunctionFragment;
     "isLocked()": FunctionFragment;
     "reinvestReward((address,address,uint256,(uint16,uint8,uint256,bytes))[],uint256)": FunctionFragment;
@@ -187,6 +188,7 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
       | "TOKENS"
       | "emergencyExit"
       | "getStrategyVaultInfo"
+      | "getExchangeRate"
       | "initialize"
       | "isLocked"
       | "reinvestReward"
@@ -212,6 +214,10 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getStrategyVaultInfo",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getExchangeRate",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
@@ -294,6 +300,10 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getStrategyVaultInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getExchangeRate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -471,6 +481,11 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
       [ISingleSidedLPStrategyVault.SingleSidedLPStrategyVaultInfoStructOutput]
     >;
 
+    getExchangeRate(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     initialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -581,6 +596,11 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
     overrides?: CallOverrides
   ): Promise<ISingleSidedLPStrategyVault.SingleSidedLPStrategyVaultInfoStructOutput>;
 
+  getExchangeRate(
+    maturity: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   initialize(
     params: InitParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -690,6 +710,11 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
     getStrategyVaultInfo(
       overrides?: CallOverrides
     ): Promise<ISingleSidedLPStrategyVault.SingleSidedLPStrategyVaultInfoStructOutput>;
+
+    getExchangeRate(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     initialize(
       params: InitParamsStruct,
@@ -853,6 +878,11 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
 
     getStrategyVaultInfo(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getExchangeRate(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     initialize(
       params: InitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -947,6 +977,11 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getStrategyVaultInfo(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getExchangeRate(
+      maturity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

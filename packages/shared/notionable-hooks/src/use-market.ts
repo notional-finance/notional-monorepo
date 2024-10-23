@@ -1,19 +1,16 @@
 import {
-  Registry,
+  getNetworkModel,
   TokenBalance,
   TokenDefinition,
-  YieldData,
 } from '@notional-finance/core-entities';
-import {
-  Network,
-  PRODUCTS,
-  RATE_PRECISION,
-  SupportedNetworks,
-  unique,
-} from '@notional-finance/util';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAnalyticsReady, useAppContext } from './use-notional';
+import { Network, PRODUCTS, RATE_PRECISION } from '@notional-finance/util';
+import { useEffect, useMemo } from 'react';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
+import {
+  useCurrentNetworkStore,
+  usePortfolioStore,
+} from '@notional-finance/notionable';
+import { useObserver } from 'mobx-react-lite';
 
 export interface MaturityData {
   token: TokenDefinition;
@@ -22,285 +19,92 @@ export interface MaturityData {
   maturity: number;
 }
 
-export function useNToken(
-  network: Network | undefined,
-  currencyId: number | undefined
-) {
+export function usePrimeCash(currencyId: number | undefined) {
+  const currentNetworkStore = useCurrentNetworkStore();
   try {
-    return network
-      ? Registry.getTokenRegistry().getNToken(network, currencyId)
+    return currentNetworkStore.isReady()
+      ? currentNetworkStore.getPrimeCash(currencyId)
       : undefined;
   } catch {
     return undefined;
   }
 }
 
-export function usePrimeCash(
-  network: Network | undefined,
-  currencyId: number | undefined
-) {
+export function useVaultAdapter(vaultAddress: string | undefined) {
+  const currentNetworkStore = useCurrentNetworkStore();
   try {
-    return network
-      ? Registry.getTokenRegistry().getPrimeCash(network, currencyId)
+    return currentNetworkStore.isReady() && vaultAddress
+      ? currentNetworkStore.getVaultAdapter(vaultAddress)
       : undefined;
   } catch {
     return undefined;
   }
 }
 
-export function useToken(
-  network: Network | undefined,
-  tokenId: string | undefined
-) {
+export function usePrimeDebt(currencyId: number | undefined) {
+  const currentNetworkStore = useCurrentNetworkStore();
   try {
-    return network && tokenId
-      ? Registry.getTokenRegistry().getTokenByID(network, tokenId)
+    return currentNetworkStore.isReady()
+      ? currentNetworkStore.getPrimeDebt(currencyId)
       : undefined;
   } catch {
     return undefined;
   }
 }
 
-export function usePrimeDebt(
-  network: Network | undefined,
-  currencyId: number | undefined
-) {
+export function usePrimeTokens() {
+  const currentNetworkStore = useCurrentNetworkStore();
   try {
-    return network
-      ? Registry.getTokenRegistry().getPrimeDebt(network, currencyId)
-      : undefined;
+    if (currentNetworkStore.isReady()) {
+      const allTokens = currentNetworkStore.getAllTokens();
+      return {
+        primeCash: allTokens.filter((t) => t.tokenType === 'PrimeCash'),
+        primeDebt: allTokens.filter((t) => t.tokenType === 'PrimeDebt'),
+      };
+    } else {
+      return undefined;
+    }
   } catch {
     return undefined;
   }
-}
-
-export function useAllUniqueUnderlyingTokens(
-  networks: Network[] = SupportedNetworks
-) {
-  return unique(
-    networks.flatMap((n) => {
-      return Registry.getTokenRegistry()
-        .getAllTokens(n)
-        .filter(
-          (t) => t.tokenType === 'Underlying' && t.currencyId !== undefined
-        )
-        .map((t) => t.symbol);
-    })
-  );
-}
-
-export function useUnderlyingTokens(network: Network | undefined) {
-  const allTokens = network
-    ? Registry.getTokenRegistry().getAllTokens(network)
-    : [];
-
-  return allTokens.filter(
-    (t) => t.tokenType === 'Underlying' && t.currencyId !== undefined
-  );
-}
-
-export function usePrimeTokens(network: Network | undefined) {
-  const allTokens = network
-    ? Registry.getTokenRegistry().getAllTokens(network)
-    : [];
-  return {
-    primeCash: allTokens.filter((t) => t.tokenType === 'PrimeCash'),
-    primeDebt: allTokens.filter((t) => t.tokenType === 'PrimeDebt'),
-  };
-}
-
-export function useMaxSupply(
-  network: Network | undefined,
-  currencyId: number | undefined
-) {
-  if (!network || !currencyId) return undefined;
-  const { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining } =
-    Registry.getConfigurationRegistry().getMaxSupply(network, currencyId);
-  return { maxUnderlyingSupply, currentUnderlyingSupply, capacityRemaining };
-}
-
-export function useYieldsReady(network: Network | undefined) {
-  const {
-    appState: { allYields: _allYields },
-  } = useAppContext();
-  return _allYields && network && _allYields[network] ? true : false;
 }
 
 export const useProductNetwork = (
   product: PRODUCTS,
   underlyingSymbol: string | undefined
 ) => {
-  const tokens = Registry.getTokenRegistry();
-  return SupportedNetworks.filter((n) => {
-    if (
-      product === PRODUCTS.LEND_FIXED ||
-      product === PRODUCTS.LEND_LEVERAGED ||
-      product === PRODUCTS.BORROW_FIXED ||
-      product === PRODUCTS.LIQUIDITY_LEVERAGED ||
-      product === PRODUCTS.LIQUIDITY_VARIABLE
-    ) {
-      return !!tokens
-        .getAllTokens(n)
-        .find(
-          (t) =>
-            t.tokenType === 'nToken' &&
-            t.underlying &&
-            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
-        );
-    } else if (product === PRODUCTS.BORROW_VARIABLE) {
-      return !!tokens
-        .getAllTokens(n)
-        .find(
-          (t) =>
-            t.tokenType === 'PrimeDebt' &&
-            t.underlying &&
-            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
-        );
-    } else if (product === PRODUCTS.LEND_VARIABLE) {
-      return !!tokens
-        .getAllTokens(n)
-        .find(
-          (t) =>
-            t.tokenType === 'PrimeCash' &&
-            t.underlying &&
-            tokens.getTokenByID(n, t.underlying).symbol === underlyingSymbol
-        );
-    } else {
-      return false;
-    }
-  });
-};
-
-export const useAllNetworkMarkets = () => {
-  const {
-    appState: { allYields: _allYields },
-  } = useAppContext();
-
-  const earnYields = _allYields
-    ? Object.keys(_allYields).flatMap((n) => {
-        const yields = _allYields[n as Network];
-        return [
-          ...yields.liquidity,
-          ...yields.fCashLend,
-          ...yields.variableLend,
-          ...yields.leveragedVaults,
-          // ...yields.leveragedLend,
-          ...yields.leveragedLiquidity,
-        ];
-      })
-    : [];
-
-  const borrowYields = _allYields
-    ? Object.keys(_allYields).flatMap((n) => {
-        const yields = _allYields[n as Network];
-        return [...yields.fCashBorrow, ...yields.variableBorrow];
-      })
-    : [];
-
-  return { earnYields, borrowYields };
-};
-
-export const useHeadlineRates = (network?: Network) => {
-  const {
-    appState: { allYields: _allYields },
-  } = useAppContext();
-
-  return useMemo(() => {
-    const getMax = (y: YieldData[]) => {
-      return y.reduce(
-        (m, t) => (m === null || t.totalAPY > m.totalAPY ? t : m),
-        null as YieldData | null
-      );
-    };
-
-    const getMin = (y: YieldData[]) => {
-      return y.reduce(
-        (m, t) => (m === null || t.totalAPY < m.totalAPY ? t : m),
-        null as YieldData | null
-      );
-    };
-
-    // If a network is defined then use it, otherwise this returns values
-    // across all networks
-    const networks = network ? [network] : SupportedNetworks;
-    const extractKey = (k: keyof NonNullable<typeof _allYields>[Network]) => {
-      return networks.flatMap((n) =>
-        _allYields && _allYields[n] ? _allYields[n][k] : []
-      );
-    };
-
-    return {
-      liquidity: getMax(extractKey('liquidity')),
-      fCashLend: getMax(extractKey('fCashLend')),
-      fCashBorrow: getMin(extractKey('fCashBorrow')),
-      variableLend: getMax(extractKey('variableLend')),
-      variableBorrow: getMin(extractKey('variableBorrow')),
-      leveragedVaults: getMax(extractKey('leveragedVaults')),
-      // leveragedLend: getMax(extractKey('leveragedLend')),
-      leveragedLiquidity: getMax(extractKey('leveragedLiquidity')),
-    };
-  }, [_allYields, network]);
-};
-
-const emptyYields = {
-  nonLeveragedYields: [],
-  liquidity: [],
-  fCashLend: [],
-  fCashBorrow: [],
-  variableLend: [],
-  variableBorrow: [],
-  vaultShares: [],
-  leveragedVaults: [],
-  leveragedLend: [],
-  leveragedLiquidity: [],
-};
-
-export const useAllMarkets = (network: Network | undefined) => {
-  const {
-    appState: { allYields: _allYields },
-  } = useAppContext();
-  const allYields =
-    _allYields && network ? _allYields[network] || emptyYields : emptyYields;
-
-  const getMax = useCallback((y: YieldData[]) => {
-    return y.reduce(
-      (m, t) => (m === null || t.totalAPY > m.totalAPY ? t : m),
-      null as YieldData | null
-    );
-  }, []);
-
-  const getMin = useCallback((y: YieldData[]) => {
-    return y.reduce(
-      (m, t) => (m === null || t.totalAPY < m.totalAPY ? t : m),
-      null as YieldData | null
-    );
-  }, []);
-
-  return {
-    yields: allYields,
-    nonLeveragedYields: allYields['nonLeveragedYields'],
-    getMax,
-    getMin,
-  };
+  const portfolioStore = usePortfolioStore();
+  return portfolioStore.getNetworksForProduct(product, underlyingSymbol);
 };
 
 /** This is used to generate the utilization charts */
 export const useNotionalMarket = (token: TokenDefinition | undefined) => {
-  return token && token.currencyId
-    ? Registry.getExchangeRegistry().getNotionalMarket(
-        token.network,
-        token.currencyId
-      )
-    : undefined;
+  const currentNetworkStore = useCurrentNetworkStore();
+  try {
+    return currentNetworkStore.isReady() && token && token.currencyId
+      ? currentNetworkStore.getNotionalMarket(token?.currencyId)
+      : undefined;
+  } catch {
+    return undefined;
+  }
 };
 
 export const useFCashMarket = (token?: TokenDefinition | undefined) => {
+  const currentNetworkStore = useCurrentNetworkStore();
   try {
-    return token && token.currencyId
-      ? Registry.getExchangeRegistry().getfCashMarket(
-          token.network,
-          token.currencyId
-        )
+    return currentNetworkStore.isReady() && token && token.currencyId
+      ? currentNetworkStore.getfCashMarket(token?.currencyId)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+export const useSNOTEPool = () => {
+  const currentNetworkStore = useCurrentNetworkStore();
+  try {
+    return currentNetworkStore.isReady()
+      ? currentNetworkStore.getSNOTEPool()
       : undefined;
   } catch {
     return undefined;
@@ -308,17 +112,18 @@ export const useFCashMarket = (token?: TokenDefinition | undefined) => {
 };
 
 export const useSpotMaturityData = (
-  tokens: TokenDefinition[] | undefined,
-  selectedNetwork: Network | undefined
+  tokens: TokenDefinition[] | undefined
 ): MaturityData[] => {
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
 
   return useMemo(() => {
     return (
       tokens?.map((t) => {
-        const _t = Registry.getTokenRegistry().unwrapVaultToken(t);
+        const _t = currentNetworkStore.unwrapVaultToken(t);
         let spotRate =
-          nonLeveragedYields.find((y) => y.token.id === _t.id)?.totalAPY || 0;
+          nonLeveragedYields.find((y) => y.token.id === _t.id)?.apy.totalAPY ||
+          0;
         if (
           _t.tokenType === 'PrimeDebt' &&
           t.tokenType === 'VaultDebt' &&
@@ -326,10 +131,8 @@ export const useSpotMaturityData = (
         ) {
           // Add the vault fee to the debt rate here
           spotRate +=
-            (Registry.getConfigurationRegistry().getVaultConfig(
-              t.network,
-              t.vaultAddress
-            ).feeRateBasisPoints *
+            (currentNetworkStore.getVaultConfig(t.vaultAddress)
+              .feeRateBasisPoints *
               100) /
             RATE_PRECISION;
         }
@@ -342,12 +145,12 @@ export const useSpotMaturityData = (
         };
       }) || []
     );
-  }, [tokens, nonLeveragedYields]);
+  }, [tokens, currentNetworkStore, nonLeveragedYields]);
 };
 
 export function useTradedValue(amount: TokenBalance | undefined) {
   const fCashMarket = useFCashMarket(amount?.token);
-  const primeCash = usePrimeCash(amount?.network, amount?.currencyId);
+  const primeCash = usePrimeCash(amount?.currencyId);
   try {
     return primeCash
       ? exchangeToLocalPrime(
@@ -362,17 +165,22 @@ export function useTradedValue(amount: TokenBalance | undefined) {
   }
 }
 
-export function usePointPrices() {
-  const analyticsReady = useAnalyticsReady(Network.all);
-  const [pointPrices, setPointPrices] = useState<
-    { points: string; price: number }[] | undefined
-  >();
-
+export function useFetchAnalyticsData(
+  id: string,
+  isLoaded: boolean,
+  network: Network | undefined
+) {
   useEffect(() => {
-    if (analyticsReady && pointPrices === undefined) {
-      Registry.getAnalyticsRegistry().getPointPrices().then(setPointPrices);
-    }
-  }, [analyticsReady, pointPrices]);
+    if (!isLoaded && network)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getNetworkModel(network).fetchAnalyticsData(id as any);
+  }, [id, isLoaded, network]);
+}
 
+export function usePointPrices() {
+  const pointPrices = useObserver(() => {
+    return getNetworkModel(Network.all).getPointPrices();
+  });
+  useFetchAnalyticsData('pointPrices', !!pointPrices, Network.all);
   return pointPrices;
 }

@@ -1,6 +1,6 @@
 import {
-  AccountDefinition,
-  Registry,
+  AccountIncentiveDebt,
+  NetworkClientModel,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import {
@@ -8,6 +8,7 @@ import {
   SECONDS_IN_YEAR,
   getNowSeconds,
 } from '@notional-finance/util';
+import { Instance } from 'mobx-state-tree';
 
 export interface AccruedIncentives {
   currencyId: number;
@@ -19,17 +20,22 @@ export type TotalIncentives = Record<
   { current: TokenBalance; in100Sec: TokenBalance }
 >;
 
-export function calculateAccruedIncentives(account: AccountDefinition): {
+export function calculateAccruedIncentives(
+  model: Instance<typeof NetworkClientModel>,
+  balances: TokenBalance[],
+  accountIncentiveDebt: AccountIncentiveDebt[],
+  secondaryIncentiveDebt: AccountIncentiveDebt[]
+): {
   accruedIncentives: AccruedIncentives[];
   totalIncentives: TotalIncentives;
 } {
-  const accruedIncentives = account.balances
+  const accruedIncentives = balances
     .filter((t) => t.tokenType === 'nToken')
     .map((b) => {
       const incentives: TokenBalance[] = [];
       const incentivesIn100Seconds: TokenBalance[] = [];
 
-      const noteDebt = account.accountIncentiveDebt?.find(
+      const noteDebt = accountIncentiveDebt?.find(
         ({ currencyId }) => currencyId === b.currencyId
       );
       if (noteDebt) {
@@ -37,9 +43,8 @@ export function calculateAccruedIncentives(account: AccountDefinition): {
           lastAccumulatedTime,
           accumulatedNOTEPerNToken,
           incentiveEmissionRate,
-        } = Registry.getConfigurationRegistry().getAnnualizedNOTEIncentives(
-          b.token
-        );
+        } = model.getAnnualizedNOTEIncentives(b.token);
+
         incentives.push(
           calculateIncentive(
             b,
@@ -63,13 +68,10 @@ export function calculateAccruedIncentives(account: AccountDefinition): {
         );
       }
 
-      const secondaryDebt = account.secondaryIncentiveDebt?.find(
+      const secondaryDebt = secondaryIncentiveDebt?.find(
         ({ currencyId }) => currencyId === b.currencyId
       );
-      const secondary =
-        Registry.getConfigurationRegistry().getAnnualizedSecondaryIncentives(
-          b.token
-        );
+      const secondary = model.getAnnualizedSecondaryIncentives(b.token);
       if (secondaryDebt && secondary) {
         incentives.push(
           calculateIncentive(

@@ -8,6 +8,7 @@ import { TokenIcon } from '@notional-finance/icons';
 import { formatTokenType } from '@notional-finance/helpers';
 import { SelectedOptions } from '@notional-finance/mui';
 import { formatTxnTableData } from '@notional-finance/helpers';
+import { AccountHistory } from '@notional-finance/core-entities';
 
 export const useTxnHistoryData = (txnHistoryCategory: number) => {
   let assetOrVaultData: SelectedOptions[] = [];
@@ -18,7 +19,7 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
 
   const allAccountHistoryData = accountHistory
     .sort((x, y) => y.timestamp - x.timestamp)
-    .map((data) => formatTxnTableData(data, network));
+    .map((data) => formatTxnTableData(data as AccountHistory, network));
 
   let accountHistoryData: typeof allAccountHistoryData = [];
   const removeDuplicateObjects = useCallback((data) => {

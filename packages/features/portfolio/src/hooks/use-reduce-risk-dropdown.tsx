@@ -29,15 +29,18 @@ export const useReduceRiskDropdown = () => {
         navigate(`${currentPath}/${PORTFOLIO_ACTIONS.DELEVERAGE}`);
       },
     },
-    {
+  ];
+
+  if (debtData?.length) {
+    options.push({
       label: <FormattedMessage defaultMessage={'Repay Debt'} />,
       callback: () => {
         navigate(
           `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${debtData[0].maturedTokenId}`
         );
       },
-    },
-  ];
+    });
+  }
 
   return {
     options: options,

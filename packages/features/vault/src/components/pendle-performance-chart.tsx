@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material';
-import { PendlePT, Registry } from '@notional-finance/core-entities';
+import { PendlePT } from '@notional-finance/core-entities';
 import {
   AreaChart,
   AreaChartStylesProps,
@@ -11,6 +11,7 @@ import { VaultTradeState } from '@notional-finance/notionable';
 import {
   calculateDepositValue,
   useSpotMaturityData,
+  useVaultAdapter,
 } from '@notional-finance/notionable-hooks';
 import {
   floorToMidnight,
@@ -35,25 +36,16 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
     collateralOptions,
     riskFactorLimit,
     vaultAddress,
-    selectedNetwork,
   } = state;
   const {
     priorBorrowRate,
     leverageRatio: priorLeverageRatio,
     debt: priorDebt,
   } = useVaultExistingFactors();
-  const spotData = useSpotMaturityData(
-    debt ? [debt] : undefined,
-    debt ? debt.network : undefined
-  );
+  const adapter = useVaultAdapter(vaultAddress) as PendlePT | undefined;
+  const spotData = useSpotMaturityData(debt ? [debt] : undefined);
+
   const nowMidnight = floorToMidnight(getNowSeconds());
-  const adapter =
-    selectedNetwork && vaultAddress
-      ? (Registry.getVaultRegistry().getVaultAdapter(
-          selectedNetwork,
-          vaultAddress
-        ) as PendlePT)
-      : undefined;
   const ptExpires = adapter?.expiry;
 
   const leverageRatio = (riskFactorLimit?.limit || priorLeverageRatio) as

@@ -1,12 +1,7 @@
+import { FiatKeys } from '@notional-finance/core-entities';
 import {
-  NOTERegistryClient,
-  Registry,
-  TokenBalance,
-} from '@notional-finance/core-entities';
-import {
-  useAppState,
   StakedNoteData,
-  useStakedNOTEPoolReady,
+  useSNOTEPool,
   useTotalNOTEBalances,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -15,31 +10,16 @@ import {
   getMidnightUTC,
   lastValue,
 } from '@notional-finance/util';
-import { useEffect, useState } from 'react';
 
 export function useStakedNote(
   stakedNoteData: StakedNoteData | undefined,
-  dateRange = 30 * SECONDS_IN_DAY
+  dateRange = 30 * SECONDS_IN_DAY,
+  baseCurrency: FiatKeys
 ) {
-  const isPoolReady = useStakedNOTEPoolReady();
-  const { baseCurrency } = useAppState();
-  const [sNOTEData, setSNOTEData] = useState<
-    Awaited<ReturnType<NOTERegistryClient['getSNOTEData']>>
-  >([]);
   const minDate = getMidnightUTC() - dateRange;
   const walletNOTEBalances = useTotalNOTEBalances();
-
-  useEffect(() => {
-    if (stakedNoteData) {
-      setSNOTEData(
-        stakedNoteData.filter(({ day }) => minDate < day.getTime() / 1000)
-      );
-    }
-  }, [stakedNoteData, minDate]);
-
-  let currentSNOTEPrice: TokenBalance | undefined;
-  let totalSNOTEValue: TokenBalance | undefined;
-  let annualizedRewardRate: TokenBalance | undefined;
+  const sNOTEData =
+    stakedNoteData?.filter(({ day }) => minDate < day.getTime() / 1000) || [];
   const historicalSNOTEPrice: [Date, number][] = sNOTEData.map(
     ({ day, price }) => [day, price]
   );
@@ -48,18 +28,16 @@ export function useStakedNote(
     apy,
   ]);
   const currentSNOTEYield = lastValue(sNOTEData)?.apy;
+  const sNOTEPool = useSNOTEPool();
 
-  if (isPoolReady) {
-    const sNOTEPool = Registry.getExchangeRegistry().getSNOTEPool();
-    currentSNOTEPrice = sNOTEPool?.getCurrentSNOTEPrice();
-    totalSNOTEValue = sNOTEPool?.totalSNOTE.toFiat(baseCurrency);
-    annualizedRewardRate =
-      currentSNOTEYield !== undefined
-        ? totalSNOTEValue?.mulInRatePrecision(
-            Math.floor((currentSNOTEYield * RATE_PRECISION) / 100)
-          )
-        : undefined;
-  }
+  const currentSNOTEPrice = sNOTEPool?.getCurrentSNOTEPrice();
+  const totalSNOTEValue = sNOTEPool?.totalSNOTE.toFiat(baseCurrency);
+  const annualizedRewardRate =
+    currentSNOTEYield !== undefined
+      ? totalSNOTEValue?.mulInRatePrecision(
+          Math.floor((currentSNOTEYield * RATE_PRECISION) / 100)
+        )
+      : undefined;
 
   return {
     currentSNOTEPrice,

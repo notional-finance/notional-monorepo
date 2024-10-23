@@ -9,32 +9,35 @@ import {
   InfoTooltip,
   ReinvestPill,
 } from '@notional-finance/mui';
-import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
+import {
+  APYData,
+  BaseTradeState,
+  isLeveragedTrade,
+} from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { useAllMarkets, useTotalAPY } from '@notional-finance/notionable-hooks';
+import {
+  useTotalAPY,
+  useVaultPoints,
+  useVaultProperties,
+  useVaultRewardTokens,
+} from '@notional-finance/notionable-hooks';
 import {
   LeverageInfoRow,
   LiquidityYieldInfo,
   NativeYieldPopup,
 } from './components';
+import { TokenDefinition } from '@notional-finance/core-entities';
 import {
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
-import {
-  Registry,
-  SingleSidedLP,
-  TokenDefinition,
-  YieldData,
-  getVaultType,
-} from '@notional-finance/core-entities';
 import { MultiTokenIcon } from '@notional-finance/icons';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
   stakedNOTEApy?: number;
-  liquidityYieldData?: YieldData;
+  liquidityYieldData?: APYData;
   priorVaultFactors?: {
     vaultShare?: TokenDefinition;
     vaultBorrowRate?: number;
@@ -51,14 +54,7 @@ export function TradeActionSummary({
   children,
 }: TradeActionSummaryProps) {
   const theme = useTheme();
-  const {
-    tradeType,
-    deposit,
-    debt,
-    vaultConfig,
-    vaultAddress,
-    selectedNetwork,
-  } = state;
+  const { tradeType, deposit, debt, vaultConfig, vaultAddress } = state;
   const isVault = !!vaultAddress;
   const {
     totalAPY,
@@ -68,33 +64,16 @@ export function TradeActionSummary({
     organicAPY,
     incentiveAPY,
   } = useTotalAPY(state, priorVaultFactors);
-  const vaultType =
-    vaultAddress && selectedNetwork
-      ? getVaultType(vaultAddress, selectedNetwork)
-      : undefined;
 
-  const allMarkets = useAllMarkets(selectedNetwork);
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
   const headerText =
     messages?.headerText || defineMessage({ defaultMessage: 'unknown ' });
   const isLeveraged =
     isLeveragedTrade(tradeType) || priorVaultFactors !== undefined;
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
-
-  const adapter =
-    selectedNetwork && vaultAddress
-      ? Registry.getVaultRegistry().getVaultAdapter(
-          selectedNetwork,
-          vaultAddress
-        )
-      : undefined;
-
-  let rewardTokens: TokenDefinition[] = [];
-  if (vaultType === 'SingleSidedLP_DirectClaim' && selectedNetwork) {
-    rewardTokens = (adapter as SingleSidedLP).rewardTokens.map((t) =>
-      Registry.getTokenRegistry().getTokenByID(selectedNetwork, t)
-    );
-  }
+  const vaultType = useVaultProperties(vaultAddress)?.vaultType;
+  const points = useVaultPoints(vaultAddress);
+  const rewardTokens = useVaultRewardTokens(vaultAddress);
 
   const apySuffix = isLeveraged ? (
     <FormattedMessage defaultMessage={'Total APY'} />
@@ -118,11 +97,6 @@ export function TradeActionSummary({
     (tradeType === 'LeveragedNToken' || tradeType === 'LeveragedLend') && debt
       ? formatTokenType(debt).icon
       : undefined;
-
-  const nonLeveragedYield = allMarkets.nonLeveragedYields.find(
-    (y) => y.token.id === collateral?.id
-  );
-  const points = nonLeveragedYield?.pointMultiples;
 
   const { title } = collateral
     ? formatTokenType(collateral)

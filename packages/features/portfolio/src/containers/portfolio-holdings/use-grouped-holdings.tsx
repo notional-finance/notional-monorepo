@@ -1,4 +1,4 @@
-import { TokenBalance } from '@notional-finance/core-entities';
+import { FiatKeys, TokenBalance } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
@@ -11,7 +11,6 @@ import {
   useGroupedHoldings,
   usePendingPnLCalculation,
   useSelectedNetwork,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import {
   TXN_HISTORY_TYPE,
@@ -39,8 +38,7 @@ export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   }
 }
 
-export function useGroupedHoldingsTable() {
-  const { baseCurrency } = useAppState();
+export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
   const network = useSelectedNetwork();
   const groupedTokens = useGroupedHoldings(network) || [];
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
@@ -53,17 +51,17 @@ export function useGroupedHoldingsTable() {
       asset: {
         balance: asset,
         marketYield: assetYield,
-        statement: assetStatement,
         perIncentiveEarnings,
         isHighUtilization,
       },
-      debt: { balance: debt, statement: debtStatement },
+      debt: { balance: debt },
       hasMatured,
       leverageRatio,
       presentValue,
       borrowAPY,
       totalEarnings,
       totalLeveragedApy,
+      amountPaid,
     }) => {
       const underlying = asset.underlying;
       const { icon } = formatTokenType(asset.token);
@@ -79,13 +77,6 @@ export function useGroupedHoldingsTable() {
       const secondaryIncentives =
         secondaryAPY !== undefined && secondarySymbol
           ? leveragedYield(secondaryAPY, 0, leverageRatio)
-          : undefined;
-
-      const amountPaid =
-        assetStatement && debtStatement
-          ? assetStatement?.accumulatedCostRealized.add(
-              debtStatement?.accumulatedCostRealized
-            )
           : undefined;
 
       return {
@@ -214,7 +205,7 @@ export function useGroupedHoldingsTable() {
             {
               txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
               assetOrVaultId: asset.token.id,
-              debtId: debtStatement?.token.id || '',
+              debtId: debt.token.id || '',
             }
           )}`,
         },

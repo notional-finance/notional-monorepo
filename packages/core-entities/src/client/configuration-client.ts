@@ -27,7 +27,6 @@ import { Registry } from '../Registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Maybe, TokenType } from '../.graphclient';
 import { BigNumber, Contract } from 'ethers';
-import { OracleRegistryClient } from './oracle-registry-client';
 import {
   LeveragedNTokenAdapter,
   LeveragedNTokenAdapterABI,
@@ -132,15 +131,12 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   }
 
   protected _parseVaultConfig(
-    network: Network,
+    _network: Network,
     vaultConfig: AllConfigurationQuery['vaultConfigurations'][0]
   ) {
-    let enabled = vaultConfig.enabled;
+    const enabled = vaultConfig.enabled;
     try {
-      enabled = Registry.getVaultRegistry().isVaultEnabled(
-        network,
-        vaultConfig.vaultAddress
-      );
+      // enabled =
     } catch (e) {
       // Ignore if if registry is not initialized yet, this is only relevant
       // for Pendle PT vaults which mature at a later date.
@@ -232,12 +228,12 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     );
 
     return {
-      minAccountBorrowSize: TokenBalance.fromID(
+      minAccountBorrowSize: new TokenBalance(
         minAccountBorrowSize,
         id,
         network
       ).scaleFromInternal(),
-      totalUsedPrimaryBorrowCapacity: TokenBalance.fromID(
+      totalUsedPrimaryBorrowCapacity: new TokenBalance(
         totalUsedPrimaryBorrowCapacity,
         id,
         network
@@ -245,9 +241,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
         .scaleFromInternal()
         .add(
           primeDebt.totalSupply?.toUnderlying() ||
-            TokenBalance.fromID(0, id, network)
+            new TokenBalance(0, id, network)
         ),
-      maxPrimaryBorrowCapacity: TokenBalance.fromID(
+      maxPrimaryBorrowCapacity: new TokenBalance(
         maxPrimaryBorrowCapacity,
         id,
         network
@@ -642,41 +638,6 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     };
   }
 
-  getMinLendRiskAdjustedDiscountFactor(fCash: TokenDefinition) {
-    if (!fCash.currencyId || !fCash.maturity) throw Error('Invalid fCash');
-    const config = this.getConfig(fCash.network, fCash.currencyId);
-    const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
-      fCash.network,
-      fCash.currencyId
-    );
-    const marketIndex = fCashMarket.getMarketIndex(fCash.maturity);
-
-    // Convert this to an exchange rate
-    const maxMarketInterestRate =
-      fCashMarket.poolParams.interestRateCurve[marketIndex - 1].maxRate -
-      this._assertDefined(config.fCashHaircutBasisPoints);
-    const maxInterestRate = Math.max(
-      maxMarketInterestRate,
-      this._assertDefined(config.fCashMinOracleRate)
-    );
-    const discountRate = OracleRegistryClient.interestToExchangeRate(
-      BigNumber.from(maxInterestRate).mul(-1),
-      fCash.maturity
-    )
-      .mul(RATE_PRECISION)
-      .div(SCALAR_PRECISION);
-
-    const lowestDiscountFactor = Math.min(
-      discountRate.toNumber(),
-      this._assertDefined(config.fCashMaxDiscountFactor)
-    );
-
-    return {
-      lowestDiscountFactor,
-      maxDiscountFactor: this._assertDefined(config.fCashMaxDiscountFactor),
-    };
-  }
-
   getSecondaryRewarder(nToken: TokenDefinition) {
     if (!nToken.currencyId) throw Error('Invalid nToken');
     const config = this.getConfig(nToken.network, nToken.currencyId);
@@ -688,80 +649,6 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
           getProviderFromNetwork(nToken.network)
         ) as SecondaryRewarder)
       : undefined;
-  }
-
-  getAnnualizedSecondaryIncentives(nToken: TokenDefinition) {
-    if (!nToken.currencyId) throw Error('Invalid nToken');
-    const config = this.getConfig(nToken.network, nToken.currencyId);
-    if (!config.incentives?.currentSecondaryReward) return undefined;
-    const rewardEndTime = config.incentives.secondaryRewardEndTime as
-      | number
-      | undefined;
-    if (rewardEndTime && rewardEndTime < getNowSeconds()) return undefined;
-
-    const rewardToken = Registry.getTokenRegistry().getTokenByID(
-      nToken.network,
-      config.incentives.currentSecondaryReward.id
-    );
-    const incentiveEmissionRate = TokenBalance.fromFloat(
-      BigNumber.from(
-        (config.incentives.secondaryEmissionRate as string | undefined) || 0
-      ).toNumber() / INTERNAL_TOKEN_PRECISION,
-      rewardToken
-    );
-    const accumulatedRewardPerNToken = config.incentives
-      ?.accumulatedSecondaryRewardPerNToken
-      ? TokenBalance.from(
-          // This value is stored in 18 decimals but we want to scale it to reward token precision
-          BigNumber.from(config.incentives.accumulatedSecondaryRewardPerNToken)
-            .mul(TokenBalance.unit(rewardToken).precision)
-            .div(SCALAR_PRECISION),
-          rewardToken
-        )
-      : undefined;
-
-    return {
-      rewardToken,
-      incentiveEmissionRate,
-      accumulatedRewardPerNToken,
-      lastAccumulatedTime: config.incentives?.lastAccumulatedTime as
-        | number
-        | undefined,
-      rewardEndTime: config.incentives.secondaryRewardEndTime as number,
-    };
-  }
-
-  getAnnualizedNOTEIncentives(nToken: TokenDefinition) {
-    if (!nToken.currencyId) throw Error('Invalid nToken');
-    const config = this.getConfig(nToken.network, nToken.currencyId);
-    const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
-      nToken.network,
-      'NOTE'
-    );
-
-    const incentiveEmissionRate = TokenBalance.from(
-      BigNumber.from(
-        (config.incentives?.incentiveEmissionRate as string | undefined) || 0
-      ).mul(INTERNAL_TOKEN_PRECISION),
-      NOTE
-    );
-
-    const accumulatedNOTEPerNToken = config.incentives?.accumulatedNOTEPerNToken
-      ? // NOTE: this value is stored in 18 decimals natively, but downscale it here
-        // for calculations
-        TokenBalance.from(
-          config.incentives.accumulatedNOTEPerNToken,
-          NOTE
-        ).scale(INTERNAL_TOKEN_PRECISION, SCALAR_PRECISION)
-      : undefined;
-
-    return {
-      incentiveEmissionRate,
-      lastAccumulatedTime: config.incentives?.lastAccumulatedTime as
-        | number
-        | undefined,
-      accumulatedNOTEPerNToken,
-    };
   }
 
   getLeveragedNTokenAdapter(network: Network) {

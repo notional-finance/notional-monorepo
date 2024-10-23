@@ -126,7 +126,7 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             marginTop: theme.spacing(0.5),
           }}
         >
-          {card.bottomValue && !card?.availableSymbols && !disabledCard ? (
+          {card.bottomValue && !disabledCard ? (
             card.bottomValue
           ) : disabledCard && card?.availableSymbols ? (
             <FormattedMessage
@@ -136,7 +136,7 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
               }}
             />
           ) : (
-            '-'
+            ''
           )}
         </Caption>
         {disabledCard && card?.availableSymbols ? (
@@ -153,8 +153,8 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
                 marginTop: theme.spacing(1),
               }}
             >
-              {card?.availableSymbols.map((tokenSymbol) => (
-                <TokenIcon symbol={tokenSymbol} size="medium" />
+              {card?.availableSymbols.map((tokenSymbol, index) => (
+                <TokenIcon key={index} symbol={tokenSymbol} size="medium" />
               ))}
             </Box>
           </Box>

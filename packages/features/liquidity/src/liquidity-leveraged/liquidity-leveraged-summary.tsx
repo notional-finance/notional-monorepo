@@ -14,16 +14,20 @@ import {
   useTotalsData,
 } from './hooks';
 import { FormattedMessage } from 'react-intl';
-import { useLeveragedNTokenAPY } from './hooks/use-leveraged-ntoken-apy';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
   const state = useSummaryState();
   const { pathname } = useLocation();
-  const { selectedDepositToken } = state;
+  const { baseCurrency } = useAppStore();
+  const { selectedDepositToken, collateralBalance } = state;
   const tokenSymbol = selectedDepositToken || '';
-  const liquidityYieldData = useLeveragedNTokenAPY(state);
-  const { totalsData } = useTotalsData(state, liquidityYieldData);
+  const { totalsData, liquidityYieldData } = useTotalsData(
+    state,
+    baseCurrency,
+    collateralBalance
+  );
   const { faqs, faqHeaderLinks } = useLeveragedLiquidityFaq(tokenSymbol);
 
   return (

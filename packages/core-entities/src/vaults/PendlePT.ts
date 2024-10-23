@@ -13,7 +13,7 @@ import {
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { TokenBalance } from '../token-balance';
-import { Registry } from '../Registry';
+import { getNetworkModel } from '../Models';
 import { BigNumber, BytesLike } from 'ethers';
 import { PendleMarket } from '../exchanges';
 import { ExchangeRate, TokenDefinition } from '../Definitions';
@@ -36,13 +36,17 @@ export class PendlePT extends VaultAdapter {
     return 'PendlePT';
   }
 
-  constructor(network: Network, vaultAddress: string, p: PendlePTVaultParams) {
-    super(p.enabled, p.name, network, vaultAddress);
+  constructor(
+    network: Network,
+    vaultAddress: string,
+    p: PendlePTVaultParams,
+    borrowedToken: TokenDefinition
+  ) {
+    super(p.enabled, p.name, network, vaultAddress, borrowedToken);
     this.tokenInSy = p.tokenInSy.toLowerCase();
     this.tokenOutSy = p.tokenOutSy.toLowerCase();
     this.marketAddress = p.marketAddress.toLowerCase();
-    this.market = Registry.getExchangeRegistry().getPoolInstance<PendleMarket>(
-      network,
+    this.market = getNetworkModel(this.network).getPoolInstance<PendleMarket>(
       p.marketAddress
     );
   }
@@ -72,14 +76,14 @@ export class PendlePT extends VaultAdapter {
   }
 
   getInitialVaultShareValuation(): ExchangeRate {
-    const oneAssetUnit = TokenBalance.fromID(
+    const oneAssetUnit = new TokenBalance(
       this.market.ptExchangeRate,
       this.market.assetTokenId,
       this.network
     );
 
     return {
-      rate: oneAssetUnit.toToken(this.getBorrowedToken()).n,
+      rate: oneAssetUnit.toToken(this.borrowedToken).n,
       timestamp: getNowSeconds(),
       blockNumber: 0,
     };
@@ -87,8 +91,7 @@ export class PendlePT extends VaultAdapter {
 
   convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance {
     // Prime vault shares convert 1-1
-    const token = Registry.getTokenRegistry().getVaultShare(
-      vaultShares.network,
+    const token = getNetworkModel(vaultShares.network).getVaultShare(
       vaultShares.vaultAddress,
       PRIME_CASH_VAULT_MATURITY
     );
@@ -100,7 +103,7 @@ export class PendlePT extends VaultAdapter {
       return token;
     } else {
       if (!token.symbol.startsWith('SY')) throw Error('Invalid SY token');
-      return TokenBalance.fromID(token.n, this.tokenOutSy, this.network);
+      return new TokenBalance(token.n, this.tokenOutSy, this.network);
     }
   }
 
@@ -122,8 +125,7 @@ export class PendlePT extends VaultAdapter {
     const { poolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (poolAddress) {
-      const tokenSyPool = Registry.getExchangeRegistry().getPoolInstance(
-        this.network,
+      const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
         poolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
@@ -162,8 +164,7 @@ export class PendlePT extends VaultAdapter {
     tradingFeesPaid: TokenBalance;
   } {
     // Short circuit if borrowed token is the tokenInSy
-    const borrowedToken = this.getBorrowedToken();
-    if (tokenOutSy.tokenId === borrowedToken.id) {
+    if (tokenOutSy.tokenId === this.borrowedToken.id) {
       return {
         underlyingOut: tokenOutSy,
         tradingFeesPaid: tokenOutSy.copy(0),
@@ -173,14 +174,13 @@ export class PendlePT extends VaultAdapter {
     const { poolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (poolAddress) {
-      const tokenSyPool = Registry.getExchangeRegistry().getPoolInstance(
-        this.network,
+      const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
         poolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
         (t) =>
-          t.token.id === borrowedToken.id ||
-          (borrowedToken.symbol === 'ETH' && t.token.symbol === 'WETH')
+          t.token.id === this.borrowedToken.id ||
+          (this.borrowedToken.symbol === 'ETH' && t.token.symbol === 'WETH')
       );
       const { tokensOut, feesPaid } = tokenSyPool.calculateTokenTrade(
         tokenOutSy,
@@ -190,7 +190,7 @@ export class PendlePT extends VaultAdapter {
       return {
         underlyingOut: tokensOut,
         tradingFeesPaid:
-          feesPaid.find((t) => t.tokenId === borrowedToken.id) ||
+          feesPaid.find((t) => t.tokenId === this.borrowedToken.id) ||
           tokenOutSy.copy(0),
       };
     } else {
@@ -409,7 +409,7 @@ export class PendlePT extends VaultAdapter {
     _underlyingToRepayDebt: TokenBalance,
     slippageFactor = 50 * BASIS_POINT
   ): Promise<BytesLike> {
-    if (this.tokenOutSy === this.getBorrowedToken().id) {
+    if (this.tokenOutSy === this.borrowedToken.id) {
       return '0x';
     } else {
       // In the other case, we need to determine the default exit trade.

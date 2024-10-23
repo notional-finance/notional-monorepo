@@ -3,6 +3,7 @@
   "useGitignore": true,
   "ignorePaths": [
     "/**/package.json",
+    "**/package-lock.json",
     "**/yarn.lock",
     "**/.eslintrc.json",
     "packages/shared/helpers/src/lang/**",

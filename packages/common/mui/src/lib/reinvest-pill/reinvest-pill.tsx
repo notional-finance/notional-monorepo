@@ -1,11 +1,11 @@
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { SxProps, useTheme } from '@mui/material';
-import { useAppState } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { Caption } from '../typography/typography';
 import { VaultType } from '@notional-finance/core-entities';
 import { AutoReinvestIcon, DirectIcon } from '@notional-finance/icons';
+import { useAppStore } from '@notional-finance/notionable';
 
 export const ReinvestPill = ({
   vaultType,
@@ -15,7 +15,7 @@ export const ReinvestPill = ({
   sx?: SxProps;
 }) => {
   const theme = useTheme();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
 
   const reinvestOptions =
     vaultType === 'SingleSidedLP_DirectClaim'

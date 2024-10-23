@@ -14,7 +14,6 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import {
   TradeContext,
-  useAllMarkets,
   usePrimeCash,
   usePrimeDebt,
 } from '@notional-finance/notionable-hooks';
@@ -23,7 +22,10 @@ import {
   formatTokenType,
 } from '@notional-finance/helpers';
 import { PORTFOLIO_ACTIONS, formatMaturity } from '@notional-finance/util';
-import { TokenOption } from '@notional-finance/notionable';
+import {
+  TokenOption,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { TransactionHeadings } from '@notional-finance/trade';
 import { useConvertOptions } from '../hooks/use-convert-options';
@@ -37,20 +39,14 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   const { state, updateState } = context;
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const {
-    tradeType,
-    debt,
-    collateral,
-    debtBalance,
-    collateralBalance,
-    selectedNetwork,
-  } = state;
-  const { nonLeveragedYields } = useAllMarkets(selectedNetwork);
+  const { tradeType, debt, collateral, debtBalance, collateralBalance } = state;
+  const currentNetworkStore = useCurrentNetworkStore();
+  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
   const { options, initialConvertFromBalance: balance } =
     useConvertOptions(state);
   let convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;
-  const pCash = usePrimeCash(selectedNetwork, convertFromToken?.currencyId);
-  const pDebt = usePrimeDebt(selectedNetwork, convertFromToken?.currencyId);
+  const pCash = usePrimeCash(convertFromToken?.currencyId);
+  const pDebt = usePrimeDebt(convertFromToken?.currencyId);
   if (convertFromToken?.tokenType === 'PrimeCash') {
     convertFromToken = pDebt;
   } else if (convertFromToken?.tokenType === 'PrimeDebt') {
@@ -65,7 +61,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
 
   const marketApy = nonLeveragedYields.find(
     (y) => y.token.id === convertFromToken?.id
-  )?.totalAPY;
+  )?.apy.totalAPY;
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;
   }>();

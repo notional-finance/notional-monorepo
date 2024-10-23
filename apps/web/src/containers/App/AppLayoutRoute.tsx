@@ -10,12 +10,12 @@ import {
   MetaTagManager,
   metaTagData,
 } from '@notional-finance/shared-web';
+import { useAppStore, useRootStore } from '@notional-finance/notionable';
 import {
   NotionalContext,
   useGlobalContext,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
-import { WalletSelector } from '@notional-finance/wallet';
+import WalletSelector from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
@@ -24,6 +24,8 @@ import {
   InitSanctionsBlock,
   InitPageTrack,
 } from './InitComponents';
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 
 interface AppLayoutRouteProps {
   component: React.ComponentType<unknown>;
@@ -38,12 +40,22 @@ const AppLayoutRoute = ({
   routeType,
 }: AppLayoutRouteProps) => {
   const globalState = useGlobalContext();
-  const { themeVariant } = useAppState();
+  const { themeVariant } = useAppStore();
+  const { setRoute } = useRootStore();
   const params = useParams();
   const notionalTheme = useNotionalTheme(themeVariant);
+
   const slicedPath = path
     .match(/\/[^/]+/)?.[0]
     ?.slice(1) as META_TAG_CATEGORIES;
+
+  useEffect(() => {
+    const formattedRoute =
+      slicedPath && params.category
+        ? `${slicedPath}-${params.category}`
+        : slicedPath;
+    setRoute(formattedRoute);
+  }, [slicedPath, params.category, setRoute]);
 
   return (
     <ThemeProvider theme={notionalTheme}>
@@ -92,4 +104,4 @@ const MainContent = styled('div')`
   }
 `;
 
-export default AppLayoutRoute;
+export default observer(AppLayoutRoute);

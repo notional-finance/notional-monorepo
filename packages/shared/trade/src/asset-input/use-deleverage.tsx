@@ -1,10 +1,10 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { CurrencyInputHandle } from '@notional-finance/mui';
+import { useAppStore } from '@notional-finance/notionable';
 import {
   BaseTradeContext,
   usePortfolioRiskProfile,
   usePrimeTokens,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 
@@ -26,7 +26,7 @@ export const useDeleverage = (
     },
     updateState,
   } = context;
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const computedBalance =
     debtOrCollateral === 'Debt' ? debtBalance : collateralBalance;
   const availableTokens =
@@ -34,7 +34,7 @@ export const useDeleverage = (
       ? availableDebtTokens
       : availableCollateralTokens;
   const profile = usePortfolioRiskProfile(selectedNetwork);
-  const { primeCash, primeDebt } = usePrimeTokens(selectedNetwork);
+  const primeTokens = usePrimeTokens();
 
   useEffect(() => {
     // If the input control is no longer the primary, it will just mirror
@@ -119,12 +119,16 @@ export const useDeleverage = (
         let displayToken: TokenDefinition | undefined;
         // Flip the titles since this is inverted inside the calculation
         if (t.tokenType === 'PrimeDebt' && debtOrCollateral === 'Debt') {
-          displayToken = primeCash.find((p) => p.currencyId === t.currencyId);
+          displayToken = primeTokens?.primeCash.find(
+            (p) => p.currencyId === t.currencyId
+          );
         } else if (
           t.tokenType === 'PrimeCash' &&
           debtOrCollateral === 'Collateral'
         ) {
-          displayToken = primeDebt.find((p) => p.currencyId === t.currencyId);
+          displayToken = primeTokens?.primeDebt.find(
+            (p) => p.currencyId === t.currencyId
+          );
         }
 
         return {
@@ -140,14 +144,7 @@ export const useDeleverage = (
         };
       }) || []
     );
-  }, [
-    availableTokens,
-    primeCash,
-    primeDebt,
-    debtOrCollateral,
-    profile,
-    baseCurrency,
-  ]);
+  }, [availableTokens, primeTokens, debtOrCollateral, profile, baseCurrency]);
 
   return {
     options,

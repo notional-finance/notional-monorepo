@@ -4,6 +4,7 @@ import {
   FiatKeys,
   TokenBalance,
   PriceChange,
+  getNetworkModel,
 } from '@notional-finance/core-entities';
 import { usePortfolioLiquidationPrices, useVaultHoldings } from './use-account';
 import {
@@ -19,7 +20,6 @@ import {
   percentChange,
 } from '@notional-finance/util';
 import { useAppContext, useNOTE } from './use-notional';
-import { useAppState } from './use-app-state';
 
 function usePriceChanges(network: Network | undefined) {
   const {
@@ -170,15 +170,21 @@ export function useNotePrice() {
   return { notePrice, notePriceChange };
 }
 
-export function useCurrentLiquidationPrices(network: Network | undefined) {
+export function useCurrentLiquidationPrices(
+  network: Network | undefined,
+  baseCurrency: FiatKeys
+) {
   const portfolio = usePortfolioLiquidationPrices(network);
   const vaults = useVaultHoldings(network);
-  const { baseCurrency } = useAppState();
   const { oneDay, sevenDay } = usePriceChanges(network);
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;
 
-  const exchangeRateRisk = portfolio
+  const exchangeRateRisk = (portfolio || [])
+    .map((p) => ({
+      ...p,
+      asset: getNetworkModel(network).getTokenByID(p.asset),
+    }))
     .filter((p) => p.asset.tokenType === 'Underlying')
     .map(({ asset, threshold }) => {
       return parseFiatLiquidationPrice(
@@ -191,11 +197,15 @@ export function useCurrentLiquidationPrices(network: Network | undefined) {
       );
     });
 
-  const assetPriceRisk = portfolio
+  const assetPriceRisk = (portfolio || [])
+    .map((p) => ({
+      ...p,
+      asset: getNetworkModel(network).getTokenByID(p.asset),
+    }))
     .filter((p) => p.asset.tokenType !== 'Underlying')
     .map(({ asset, threshold }) => {
       return parseUnderlyingLiquidationPrice(
-        asset,
+        asset as TokenDefinition,
         threshold,
         oneDay.find((t) => t.asset.id === asset.id),
         sevenDay.find((t) => t.asset.id === asset.id),
@@ -203,47 +213,49 @@ export function useCurrentLiquidationPrices(network: Network | undefined) {
       );
     });
 
-  const vaultLiquidation = vaults.map(({ vault, liquidationPrices }) => {
-    return {
-      vaultAddress: vault.vaultAddress,
-      liquidationPrices: liquidationPrices.map(
-        ({ asset, threshold, debt }) => ({
-          ...parseUnderlyingLiquidationPrice(
-            asset,
-            threshold,
-            oneDay.find((t) => t.asset.id === asset.id),
-            sevenDay.find((t) => t.asset.id === asset.id),
-            secondary,
-            debt
-          ),
-          collateral: {
-            symbol: threshold?.underlying.symbol || '',
-            label: vault.vaultConfig.name,
-            caption: 'Leveraged Vault',
-          },
-          riskFactor: {
-            data: [
-              {
-                displayValue: (
-                  <span>
-                    {asset.symbol}
-                    <span style={{ color: secondary }}>
-                      &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+  const vaultLiquidation = (vaults || []).map(
+    ({ vaultAddress, liquidationPrices, name }) => {
+      return {
+        vaultAddress,
+        liquidationPrices: liquidationPrices.map(
+          ({ asset, threshold, debt }) => ({
+            ...parseUnderlyingLiquidationPrice(
+              getNetworkModel(network).getTokenByID(asset),
+              threshold,
+              oneDay.find((t) => t.asset.id === asset),
+              sevenDay.find((t) => t.asset.id === asset),
+              secondary,
+              debt ? getNetworkModel(network).getTokenByID(debt) : undefined
+            ),
+            collateral: {
+              symbol: threshold?.underlying.symbol || '',
+              label: name,
+              caption: 'Leveraged Vault',
+            },
+            riskFactor: {
+              data: [
+                {
+                  displayValue: (
+                    <span>
+                      {getNetworkModel(network).getTokenByID(asset).symbol}
+                      <span style={{ color: secondary }}>
+                        &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+                      </span>
                     </span>
-                  </span>
-                ),
-                isNegative: false,
-              },
-              {
-                displayValue: 'Chainlink Oracle Price',
-                isNegative: false,
-              },
-            ],
-          },
-        })
-      ),
-    };
-  });
+                  ),
+                  isNegative: false,
+                },
+                {
+                  displayValue: 'Chainlink Oracle Price',
+                  isNegative: false,
+                },
+              ],
+            },
+          })
+        ),
+      };
+    }
+  );
 
   return { exchangeRateRisk, assetPriceRisk, vaultLiquidation };
 }

@@ -415,8 +415,8 @@ export class RegistryClientDO extends DurableObject {
         } else {
           m.set(
             tokenId,
-            (m.get(tokenId) || TokenBalance.fromID(0, tokenId, network)).add(
-              TokenBalance.fromID(b.n, tokenId, network).abs()
+            (m.get(tokenId) || new TokenBalance(0, tokenId, network)).add(
+              new TokenBalance(b.n, tokenId, network).abs()
             )
           );
         }
@@ -625,7 +625,7 @@ export class RegistryClientDO extends DurableObject {
     )) as unknown as ExternalLendingHistoryQuery;
 
     for (const e of data.externalLendings) {
-      const underlyingHeld = TokenBalance.fromID(
+      const underlyingHeld = new TokenBalance(
         // Takes the most recent underlying snapshot
         e.underlyingSnapshots?.shift()?.storedBalanceOf || 0,
         e.underlying.id,

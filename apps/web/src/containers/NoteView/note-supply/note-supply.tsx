@@ -18,19 +18,18 @@ import {
 } from '../components';
 import { FormattedMessage } from 'react-intl';
 import { useNoteSupply } from './use-note-supply';
-import {
-  NoteSupplyData,
-  useAppState,
-} from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
+import { NoteSupplyData } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 
 interface NoteSupplyProps {
   noteSupplyData: NoteSupplyData | undefined;
 }
 
-export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
+const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
   const theme = useTheme();
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const [dateRange, setDateRange] = useState(ValidDateRanges[2].value);
   const {
     noteHistoricalSupply,
@@ -78,6 +77,7 @@ export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
           // option={option}
           // showMarkLines={true}
           noteNumCallback={noteNumCallback}
+          baseCurrency={baseCurrency}
           data={noteHistoricalSupply}
           title={
             <FormattedMessage defaultMessage={'NOTE Circulating Supply'} />
@@ -164,4 +164,4 @@ export const NoteSupply = ({ noteSupplyData }: NoteSupplyProps) => {
   );
 };
 
-export default NoteSupply;
+export default observer(NoteSupply);

@@ -310,7 +310,7 @@ export abstract class BaseRegistry<T> {
   /**
    * Returns the latest value from all subjects (if a value is set)
    */
-  public getLatestFromAllSubjects(network: Network, checkFreshness = 1) {
+  public getLatestFromAllSubjects(network: Network, checkFreshness = 0) {
     return this.getAllSubjectKeys(network).reduce((map, k) => {
       const v = this.getLatestFromSubject(network, k, checkFreshness);
       if (v) map.set(k, v);

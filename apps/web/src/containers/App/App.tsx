@@ -1,6 +1,7 @@
 import spindl from '@spindl-xyz/attribution';
 import { useEffect } from 'react';
-import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useAppStore } from '@notional-finance/notionable';
 import {
   LeveragedVaultDashboard,
   LendFixedDashboard,
@@ -39,29 +40,53 @@ import {
   ContestHome,
   ContestRules,
   ContestSignUp,
+  InitPointsDashboard,
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
-import { Markets } from '../Markets';
 import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import {
+  createRootStore,
+  RootStoreContext,
+} from '@notional-finance/notionable';
+import { initializeTokenBalanceRegistry } from '@notional-finance/core-entities';
+import { reaction } from 'mobx';
+import { observer } from 'mobx-react-lite';
 
 const spindlAPI = process.env['NX_SPINDL_API_KEY'] as string | undefined;
 
 const RedirectToDefaultNetwork = () => {
-  const walletNetwork = useWalletConnectedNetwork();
+  const selectedNetwork = useSelectedNetwork();
   const { basePath } = useParams<{ basePath: string }>();
   return (
     <Navigate
       to={`${basePath}/${
-        walletNetwork || getDefaultNetworkFromHostname(window.location.hostname)
+        selectedNetwork ||
+        getDefaultNetworkFromHostname(window.location.hostname)
       }`}
       replace
     />
   );
 };
 
-const AllRoutes = () => {
+const AllRoutes = observer(() => {
+  const appStore = useAppStore();
+
+  useEffect(() => {
+    const models = initializeTokenBalanceRegistry();
+    const disposer = reaction(
+      () => models.every((m) => m.isReady()),
+      (isReady) => {
+        if (isReady) {
+          appStore.setIsAppReady(true);
+        }
+      }
+    );
+
+    return () => disposer();
+  }, [appStore]);
+
   return (
     <RouteContainer>
       <Routes>
@@ -296,16 +321,6 @@ const AllRoutes = () => {
           }
         />
         <Route
-          path="/markets"
-          element={
-            <AppLayoutRoute
-              path="/markets"
-              component={Markets}
-              routeType="Analytics"
-            />
-          }
-        />
-        <Route
           path="/stake/:selectedDepositToken"
           element={
             <AppLayoutRoute
@@ -352,6 +367,16 @@ const AllRoutes = () => {
               path="/error"
               component={ServerError}
               routeType="Error"
+            />
+          }
+        />
+        <Route
+          path="/points-dashboard/:selectedNetwork"
+          element={
+            <AppLayoutRoute
+              path="/points-dashboard/:selectedNetwork"
+              component={InitPointsDashboard}
+              routeType="Contest"
             />
           }
         />
@@ -425,7 +450,7 @@ const AllRoutes = () => {
       </Routes>
     </RouteContainer>
   );
-};
+});
 
 export const App = () => {
   useEffect(() => {
@@ -438,24 +463,28 @@ export const App = () => {
     }
   }, []);
 
+  const rootStore = createRootStore();
+
   return (
     <HelmetProvider>
-      <Helmet>
-        <link rel="icon" href="/favicon.svg" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Notional Finance - DeFi lending and leveraged yield</title>
-        <meta
-          name="title"
-          content="Notional Finance - DeFi lending and leveraged yield"
-        />
-        <meta
-          name="description"
-          content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
-        />
-      </Helmet>
-      <Web3OnboardProvider web3Onboard={OnboardContext}>
-        <AllRoutes />
-      </Web3OnboardProvider>
+      <RootStoreContext.Provider value={rootStore}>
+        <Helmet>
+          <link rel="icon" href="/favicon.svg" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>Notional Finance - DeFi lending and leveraged yield</title>
+          <meta
+            name="title"
+            content="Notional Finance - DeFi lending and leveraged yield"
+          />
+          <meta
+            name="description"
+            content="Lend, Borrow, and Earn Leveraged Yield with Fixed or Variable Rates"
+          />
+        </Helmet>
+        <Web3OnboardProvider web3Onboard={OnboardContext}>
+          <AllRoutes />
+        </Web3OnboardProvider>
+      </RootStoreContext.Provider>
     </HelmetProvider>
   );
 };

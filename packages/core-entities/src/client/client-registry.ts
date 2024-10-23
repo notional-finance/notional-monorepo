@@ -21,7 +21,7 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected static reviver(key: string, value: any): any {
+  public static reviver(key: string, value: any): any {
     if (value === undefined || value === null) {
       return value;
     } else if (Array.isArray(value)) {

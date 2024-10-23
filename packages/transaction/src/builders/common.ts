@@ -9,7 +9,7 @@ import {
   NotionalAddress,
   unique,
 } from '@notional-finance/util';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { getNetworkModel, TokenBalance } from '@notional-finance/core-entities';
 import { BalanceActionStruct } from '@notional-finance/contracts/types/NotionalV3';
 import {
   BalanceActionWithTradesStruct,
@@ -78,8 +78,7 @@ export function hasExistingCashBalance(
       // may not have nToken / fCash markets.
       exchangeToLocalPrime(
         tokenBalance,
-        Registry.getExchangeRegistry().getfCashMarket(
-          tokenBalance.network,
+        getNetworkModel(tokenBalance.network).getfCashMarket(
           tokenBalance.currencyId
         ),
         tokenBalance.toPrimeCash().token
@@ -198,10 +197,7 @@ export function encodeTrades(
   }
   const currencyId = currencyIds[0];
   const network = networks[0];
-  const pool = Registry.getExchangeRegistry().getfCashMarket(
-    network,
-    currencyId
-  );
+  const pool = getNetworkModel(network).getfCashMarket(currencyId);
 
   return {
     trades: amounts.map((fCash) => {

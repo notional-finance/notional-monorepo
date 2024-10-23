@@ -4,16 +4,19 @@ import {
   Network,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
+  encodeERC1155Id,
+  AssetType,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder } from 'ethers/lib/utils';
-import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
 import { TokenDefinition } from '../Definitions';
 import { PointsMultipliers } from '../config/whitelisted-vaults';
+import { TimeSeriesResponse } from '../models/ModelTypes';
+import { getNetworkModel } from '../Models';
 
 export interface SingleSidedLPParams extends BaseVaultParams {
   pool: string;
@@ -89,21 +92,38 @@ export class SingleSidedLP extends VaultAdapter {
     return this.rewardState?.map((r) => r.rewardToken) || [];
   }
 
+  protected get primeVaultShareId() {
+    return encodeERC1155Id(
+      this.borrowedToken.currencyId as number,
+      PRIME_CASH_VAULT_MATURITY,
+      AssetType.VAULT_SHARE_ASSET_TYPE,
+      false,
+      this.vaultAddress
+    );
+  }
+
   getLiquidationPriceTokens() {
     return this.pool.balances
       .filter(
         (b) =>
           // Exclude the LP token and the borrowed token
           b.tokenId !== this.pool.oneLPToken().tokenId &&
-          b.tokenId !== this.getBorrowedToken().id
+          b.tokenId !== this.borrowedToken.id
       )
       .map((b) => b.token);
   }
 
-  constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
-    super(p.enabled, p.name, network, vaultAddress);
+  constructor(
+    network: Network,
+    vaultAddress: string,
+    p: SingleSidedLPParams,
+    _pool: BaseLiquidityPool<unknown>,
+    borrowedToken: TokenDefinition,
+    public apyHistory?: TimeSeriesResponse
+  ) {
+    super(p.enabled, p.name, network, vaultAddress, borrowedToken);
 
-    this.pool = Registry.getExchangeRegistry().getPoolInstance(network, p.pool);
+    this.pool = _pool;
 
     // NOTE: make a correction for BPT index to exclude it from ComposableStablePools
     const bptIndex = this.bptIndex;
@@ -122,8 +142,6 @@ export class SingleSidedLP extends VaultAdapter {
     this.maxPoolShares = p.maxPoolShares;
     this.totalPoolSupply = p.totalPoolSupply;
     this.rewardState = p.rewardState;
-
-    this._initOracles(network, vaultAddress.toLowerCase());
   }
 
   get hashKey() {
@@ -137,10 +155,8 @@ export class SingleSidedLP extends VaultAdapter {
 
   public getRemainingPoolCapacity() {
     if (this.totalPoolSupply) {
-      const vaultShare = Registry.getTokenRegistry().getVaultShare(
-        this.network,
-        this.vaultAddress,
-        PRIME_CASH_VAULT_MATURITY
+      const vaultShare = getNetworkModel(this.network).getTokenByID(
+        this.primeVaultShareId
       );
       const maxLPTokens = this.totalPoolSupply.scale(
         this.maxPoolShares,
@@ -213,32 +229,29 @@ export class SingleSidedLP extends VaultAdapter {
 
   convertToPrimeVaultShares(vaultShares: TokenBalance) {
     // Prime vault shares convert 1-1
-    const token = Registry.getTokenRegistry().getVaultShare(
-      vaultShares.network,
-      vaultShares.vaultAddress,
-      PRIME_CASH_VAULT_MATURITY
+    return new TokenBalance(
+      vaultShares.n,
+      this.primeVaultShareId,
+      this.network
     );
-    return TokenBalance.from(vaultShares.n, token);
   }
 
   override getVaultTVL() {
-    const token = Registry.getTokenRegistry().getVaultShare(
-      this.network,
-      this.vaultAddress,
-      PRIME_CASH_VAULT_MATURITY
-    );
-    return TokenBalance.from(this.totalVaultShares, token).toUnderlying();
+    return new TokenBalance(
+      this.totalVaultShares,
+      this.primeVaultShareId,
+      this.network
+    ).toUnderlying();
   }
 
   getVaultAPY() {
-    const analytics = Registry.getAnalyticsRegistry();
-    const vaultAPYs = (analytics
-      .getVault(this.network, this.vaultAddress)
-      ?.filter(
-        ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
-      )
-      .map(({ totalAPY }) => totalAPY)
-      .filter((apy) => apy !== null) || []) as number[];
+    const vaultAPYs =
+      this.apyHistory?.data
+        ?.filter(
+          ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+        )
+        .map(({ totalAPY }) => totalAPY)
+        .filter((apy) => apy !== null) || [];
 
     return vaultAPYs.length > 0
       ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
@@ -246,22 +259,21 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   override getRewardAPY() {
-    const analytics = Registry.getAnalyticsRegistry();
-    const incentiveAPYs = (analytics
-      .getVault(this.network, this.vaultAddress)
-      ?.filter(
-        ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
-      )
-      .map((r) =>
-        Object.keys(r.returnDrivers)
-          .filter(
-            (r) =>
-              r.toLowerCase().includes('incentive') ||
-              r.toLowerCase().includes('points')
-          )
-          .reduce((t, i) => t + (r.returnDrivers[i] || 0), 0)
-      )
-      .filter((apy) => apy !== null) || []) as number[];
+    const incentiveAPYs =
+      this.apyHistory?.data
+        ?.filter(
+          ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+        )
+        .map((r) =>
+          Object.keys(r.returnDrivers)
+            .filter(
+              (r) =>
+                r.toLowerCase().includes('incentive') ||
+                r.toLowerCase().includes('points')
+            )
+            .reduce((t, i) => t + (r.returnDrivers[i] || 0), 0)
+        )
+        .filter((apy) => apy !== null) || ([] as number[]);
 
     return incentiveAPYs.length > 0
       ? incentiveAPYs.reduce((t, a) => t + a, 0) / incentiveAPYs.length

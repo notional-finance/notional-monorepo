@@ -1,6 +1,7 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { formatNumberAsPercent, trackEvent } from '@notional-finance/helpers';
 import { useLocation } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
 import {
   InfoTooltip,
   H4,
@@ -17,10 +18,10 @@ import {
   useCurrentLiquidationPrices,
   usePortfolioRiskProfile,
   useSelectedNetwork,
-  useAppState,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import { useReduceRiskDropdown } from '../../hooks';
+import { useAppStore } from '@notional-finance/notionable';
 
 const LabelAndValue = ({
   label,
@@ -38,18 +39,18 @@ const LabelAndValue = ({
   );
 };
 
-export const PortfolioRisk = () => {
+const PortfolioRisk = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const network = useSelectedNetwork();
   const isAccountReady = useAccountReady(network);
   const profile = usePortfolioRiskProfile(network);
   const account = useAccountDefinition(network);
-  const { baseCurrency } = useAppState();
-  const loanToValue = profile?.loanToValue();
-  const healthFactor = profile ? profile.healthFactor() : null;
-  const { exchangeRateRisk, assetPriceRisk } =
-    useCurrentLiquidationPrices(network);
+  const { baseCurrency } = useAppStore();
+  const { exchangeRateRisk, assetPriceRisk } = useCurrentLiquidationPrices(
+    network,
+    baseCurrency
+  );
   const { options, title } = useReduceRiskDropdown();
   const hasDebts = !!account?.balances.find(
     (t) => t.isNegative() && !t.isVaultToken
@@ -98,7 +99,7 @@ export const PortfolioRisk = () => {
                 width: { sm: '100%', md: theme.spacing(54) },
               }}
             >
-              <SliderRisk healthFactor={healthFactor} />
+              <SliderRisk healthFactor={profile?.healthFactor || null} />
             </Box>
             <Box
               sx={{
@@ -111,26 +112,19 @@ export const PortfolioRisk = () => {
               <LabelAndValue
                 label={defineMessage({ defaultMessage: 'Total Collateral' })}
                 value={
-                  profile
-                    ?.totalAssets()
-                    .toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(2, true) || '-'
+                  profile?.totalAssets.toFiat(baseCurrency).toDisplayStringWithSymbol(2, true) || '-'
                 }
               />
               <LabelAndValue
                 label={defineMessage({ defaultMessage: 'Total Debt' })}
                 value={
-                  profile
-                    ?.totalDebt()
-                    .abs()
-                    .toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(2, true) || '-'
+                  profile?.totalDebt.abs().toFiat(baseCurrency).toDisplayStringWithSymbol(2, true) || '-'
                 }
               />
               <LabelAndValue
                 label={defineMessage({ defaultMessage: 'Loan to Value' })}
                 value={
-                  loanToValue ? formatNumberAsPercent(loanToValue, 2) : '-'
+                  profile?.loanToValue ? formatNumberAsPercent(profile.loanToValue, 2) : '-'
                 }
               />
             </Box>
@@ -143,6 +137,8 @@ export const PortfolioRisk = () => {
     </Container>
   );
 };
+
+export default observer(PortfolioRisk);
 
 const RiskContainer = styled(Box)(
   ({ theme }) => `

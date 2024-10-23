@@ -20,25 +20,24 @@ import {
 } from '../components';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
+import { useAppStore } from '@notional-finance/notionable';
 import { TokenIcon, WalletIcon } from '@notional-finance/icons';
 import { useStakedNote } from './use-staked-note';
-import {
-  StakedNoteData,
-  useAppState,
-} from '@notional-finance/notionable-hooks';
+import { StakedNoteData } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useState } from 'react';
 import { PRODUCTS, SECONDS_IN_DAY } from '@notional-finance/util';
+import { observer } from 'mobx-react-lite';
 
 interface StakedNoteProps {
   stakedNoteData: StakedNoteData | undefined;
 }
 
-export const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
+const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
   const theme = useTheme();
   const [dateRange, setDateRange] = useState(ValidDateRanges[1].value);
-  const { baseCurrency } = useAppState();
+  const { baseCurrency } = useAppStore();
   const {
     currentSNOTEPrice,
     totalSNOTEValue,
@@ -46,7 +45,7 @@ export const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
     annualizedRewardRate,
     historicalSNOTEPrice,
     walletNOTEBalances,
-  } = useStakedNote(stakedNoteData, dateRange);
+  } = useStakedNote(stakedNoteData, undefined, baseCurrency);
 
   return (
     <ContentContainer id="staked-note">
@@ -66,6 +65,7 @@ export const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
           <NoteChart
             // option={option}
             data={historicalSNOTEPrice}
+            baseCurrency={baseCurrency}
             formatToolTipValueAsFiat
             title={<FormattedMessage defaultMessage={'sNOTE Price'} />}
             largeValue={
@@ -186,4 +186,4 @@ const Container = styled(Box)(
   `
 );
 
-export default StakedNote;
+export default observer(StakedNote);

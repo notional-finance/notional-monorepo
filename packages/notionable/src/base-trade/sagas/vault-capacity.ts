@@ -1,14 +1,9 @@
 import {
   AccountDefinition,
   Registry,
-  SingleSidedLP,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import {
-  PRIME_CASH_VAULT_MATURITY,
-  filterEmpty,
-  formatNumberAsPercent,
-} from '@notional-finance/util';
+import { PRIME_CASH_VAULT_MATURITY, filterEmpty } from '@notional-finance/util';
 import { Observable, combineLatest, distinctUntilChanged, map } from 'rxjs';
 import { VaultTradeState } from '../base-trade-store';
 import { selectedNetwork } from '../../global';
@@ -38,35 +33,27 @@ export function vaultCapacity(
     map(
       ([
         _,
-        {
-          debtBalance,
-          vaultAddress,
-          priorVaultBalances,
-          tradeType,
-          collateralBalance,
-        },
+        { debtBalance, vaultAddress, priorVaultBalances, tradeType },
         network,
       ]) => {
-        const vaultCapacity =
-          network && vaultAddress
-            ? Registry.getConfigurationRegistry().getVaultCapacity(
-                network,
-                vaultAddress
-              )
-            : undefined;
-        const vaultAdapter =
-          network && vaultAddress
-            ? Registry.getVaultRegistry().getVaultAdapter(network, vaultAddress)
-            : undefined;
-
         let totalCapacityRemaining: TokenBalance | undefined;
         let totalPoolCapacityRemaining: TokenBalance | undefined;
         let overCapacityError = false;
-        let overPoolCapacityError = false;
+        const overPoolCapacityError = false;
         let minBorrowSize: string | undefined = undefined;
         let underMinAccountBorrow = false;
         let vaultTVL: TokenBalance | undefined;
         let maxPoolShare: string | undefined;
+        // TODO: Fix this when live
+        const vaultCapacity = debtBalance?.token
+          ? {
+              minAccountBorrowSize: TokenBalance.zero(debtBalance.token),
+              totalUsedPrimaryBorrowCapacity: TokenBalance.zero(
+                debtBalance.token
+              ),
+              maxPrimaryBorrowCapacity: TokenBalance.zero(debtBalance.token),
+            }
+          : undefined;
 
         if (vaultCapacity) {
           const {
@@ -106,30 +93,30 @@ export function vaultCapacity(
                 .add(netDebtBalanceForCapacity)
                 .gt(maxPrimaryBorrowCapacity);
 
-            overPoolCapacityError =
-              vaultAdapter?.strategy === 'SingleSidedLP'
-                ? (vaultAdapter as SingleSidedLP).isOverMaxPoolShare(
-                    collateralBalance
-                  ) ?? false
-                : false;
+            // overPoolCapacityError =
+            //   vaultAdapter?.strategy === 'SingleSidedLP'
+            //     ? (vaultAdapter as SingleSidedLP).isOverMaxPoolShare(
+            //         collateralBalance
+            //       ) ?? false
+            //     : false;
           }
 
           totalCapacityRemaining = maxPrimaryBorrowCapacity.sub(
             totalUsedPrimaryBorrowCapacity
           );
 
-          if (vaultAdapter?.strategy === 'SingleSidedLP') {
-            totalPoolCapacityRemaining = (
-              vaultAdapter as SingleSidedLP
-            ).getRemainingPoolCapacity();
-            maxPoolShare = (vaultAdapter as SingleSidedLP).maxPoolShares
-              ? formatNumberAsPercent(
-                  (vaultAdapter as SingleSidedLP).maxPoolShares.toNumber() /
-                    100,
-                  0
-                )
-              : undefined;
-          }
+          // if (vaultAdapter?.strategy === 'SingleSidedLP') {
+          //   totalPoolCapacityRemaining = (
+          //     vaultAdapter as SingleSidedLP
+          //   ).getRemainingPoolCapacity();
+          //   maxPoolShare = (vaultAdapter as SingleSidedLP).maxPoolShares
+          //     ? formatNumberAsPercent(
+          //         (vaultAdapter as SingleSidedLP).maxPoolShares.toNumber() /
+          //           100,
+          //         0
+          //       )
+          //     : undefined;
+          // }
 
           // NOTE: these two values below do not need to be recalculated inside the observable
           minBorrowSize =

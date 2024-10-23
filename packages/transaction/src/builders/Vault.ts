@@ -12,9 +12,8 @@ import {
 } from '@notional-finance/util';
 import {
   AccountDefinition,
-  Registry,
   TokenBalance,
-  fCashMarket,
+  getNetworkModel,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 
@@ -30,13 +29,8 @@ function getVaultSlippageRate(
     };
   }
 
-  const nToken = Registry.getTokenRegistry().getNToken(
-    debtBalance.network,
+  const pool = getNetworkModel(debtBalance.network).getfCashMarket(
     debtBalance.currencyId
-  );
-  const pool = Registry.getExchangeRegistry().getPoolInstance<fCashMarket>(
-    debtBalance.network,
-    nToken.address
   );
 
   const slippageRate = pool.getSlippageRate(
@@ -52,9 +46,8 @@ function getVaultSlippageRate(
     ? // If lending, no fees are applied on the vault side
       tokensOut.toUnderlying()
     : // If borrowing, fees are applied on the vault side
-      Registry.getConfigurationRegistry()
+      getNetworkModel(debtBalance.network)
         .getVaultBorrowWithFees(
-          debtBalance.network,
           debtBalance.vaultAddress,
           debtBalance.maturity,
           tokensOut
@@ -77,10 +70,7 @@ export async function DepositVault({
     throw Error('Deposit balance, collateral balance must be defined');
   const vaultAddress = collateralBalance.vaultAddress;
 
-  const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
-    network,
-    vaultAddress
-  );
+  const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
 
   const vaultData = await vaultAdapter.getDepositParameters(
     address,
@@ -126,10 +116,7 @@ export async function EnterVault({
       : debtBalance.neg().n;
   const { slippageRate: maxBorrowRate, underlyingOut } =
     getVaultSlippageRate(debtBalance);
-  const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
-    network,
-    vaultAddress
-  );
+  const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
 
   const totalDeposit = profile
     ? underlyingOut
@@ -204,11 +191,7 @@ export async function ExitVault({
     underlyingOut = debtBalance.neg().toUnderlying();
   }
 
-  const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
-    network,
-    vaultAddress
-  );
-
+  const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
   const vaultData = await vaultAdapter.getRedeemParameters(
     address,
     collateralBalance.maturity,
@@ -266,10 +249,7 @@ export async function RollVault({
       ? debtBalance.toUnderlying().neg().scaleTo(INTERNAL_TOKEN_DECIMALS)
       : debtBalance.neg().n;
 
-  const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
-    network,
-    vaultAddress
-  );
+  const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
 
   const vaultData = await vaultAdapter.getDepositParameters(
     address,
