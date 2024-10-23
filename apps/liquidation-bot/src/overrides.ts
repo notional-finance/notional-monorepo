@@ -16,5 +16,4 @@ export const overrides: Record<Network, CurrencyOverride[]> = {
   ] as CurrencyOverride[],
   [Network.mainnet]: [] as CurrencyOverride[],
   [Network.all]: [] as CurrencyOverride[],
-  [Network.optimism]: [] as CurrencyOverride[],
 };

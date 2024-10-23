@@ -23,11 +23,7 @@ export interface DashboardDataProps {
   bottomRightValue?: string | ReactNode;
   hasPosition?: boolean;
   apySubTitle?: MessageDescriptor;
-  reinvestOptions?: {
-    Icon: any;
-    label: MessageDescriptor;
-  };
-  reinvestmentTypeString?: VaultType | undefined;
+  vaultType?: VaultType | undefined;
   vaultUtilization?: number;
   rewardTokens?: string[];
   currency?: {

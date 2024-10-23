@@ -85,7 +85,7 @@ export default class VaultV3Liquidator {
           stage: 1,
           target: this.notionalContract,
           method: 'getCurrency',
-          args: (r) => [r['config']['borrowCurrencyId']],
+          args: (r) => [(r['config'] as any)['borrowCurrencyId']],
           key: 'currency',
         },
       ],
@@ -252,11 +252,12 @@ export default class VaultV3Liquidator {
     const minPrimary = (results['vaultShareValue'] as BigNumber)
       .mul(this.settings.slippageLimit)
       .div(1000);
-    const minAmount = new Array(results['TOKENS'][0].length).fill(
+    const minAmount = new Array((results['TOKENS'] as any)[0].length).fill(
       BigNumber.from(0)
     );
-    minAmount[results['strategyVaultInfo']['singleSidedTokenIndex'] as number] =
-      minPrimary;
+    minAmount[
+      (results['strategyVaultInfo'] as any)['singleSidedTokenIndex'] as number
+    ] = minPrimary;
     return ethers.utils.defaultAbiCoder.encode(
       ['tuple(uint256[],bytes)'],
       [[minAmount, []]]
@@ -423,6 +424,8 @@ export default class VaultV3Liquidator {
         maturity,
         totalVaultShares
       );
+    } else {
+      throw new Error('Unknown vault type');
     }
 
     return {
@@ -464,16 +467,16 @@ export default class VaultV3Liquidator {
     const multicall = getMulticall(this.provider);
     const pop = await multicall.populateTransaction.aggregate3(
       batch.map((p) => ({
-        target: p.txn.to,
+        target: p.txn.to as string,
         allowFailure: true,
-        callData: p.txn.data,
+        callData: p.txn.data as string,
       }))
     );
     const gasLimit = await multicall.estimateGas.aggregate3(
       batch.map((p) => ({
-        target: p.txn.to,
+        target: p.txn.to as string,
         allowFailure: true,
-        callData: p.txn.data,
+        callData: p.txn.data as string,
       }))
     );
 
@@ -485,7 +488,7 @@ export default class VaultV3Liquidator {
           TX_RELAY_AUTH_TOKEN: this.settings.txRelayAuthToken,
         },
         to: multicall.address,
-        data: pop.data,
+        data: pop.data as string,
         gasLimit: gasLimit.mul(200).div(100).toNumber(),
       });
     }

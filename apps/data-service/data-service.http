@@ -12,6 +12,14 @@ x-auth-token: {{$dotenv DATA_SERVICE_AUTH_TOKEN}}
 
 ###
 
+# @prompt startTime [number]
+# @prompt endTime [number]
+# @prompt onlyContractAddress [string]
+GET {{baseUrl}}/backfillGenericData?startTime={{startTime}}&endTime={{endTime}}&onlyContractAddress={{onlyContractAddress}}
+x-auth-token: {{$dotenv DATA_SERVICE_AUTH_TOKEN}}
+
+###
+
 POST {{baseUrl}}/events
 x-auth-token: {{$dotenv DATA_SERVICE_AUTH_TOKEN}}
 Content-Type: application/json

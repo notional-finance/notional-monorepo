@@ -31,10 +31,7 @@ r2_buckets = [
 ]
 
 [env.prod.triggers]
-crons = [
-  "* * * * *",
-  "*/10 * * * *"
-]
+crons = ["* * * * *"]
 
 [env.prod.vars]
 NX_ENV = 'prod'

@@ -26,7 +26,7 @@ interface SNOTEParams extends PoolParams {
 }
 
 export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
-  public static sNOTE_Pool = '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7';
+  public static sNOTE_Pool = '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7';
   public static sNOTE_Gauge = '0x09afec27f5a6201617aad014ceea8deb572b0608';
   public static sNOTE_Pool_Id =
     '0x5122e01d819e58bb2e22528c0d68d310f0aa6fd7000200000000000000000163';

@@ -79,7 +79,7 @@ export const useEmptyPortfolio = () => {
           description: 'empty leveraged vault overview button text',
         },
       }),
-      link: '/vaults',
+      link: `/leveraged-yield-farming/${selectedNetwork}`,
     },
     [PORTFOLIO_CATEGORIES.WELCOME]: {
       messages: defineMessages({

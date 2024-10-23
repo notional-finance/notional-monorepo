@@ -6,6 +6,8 @@ import {
   IAggregatorABI,
   ISingleSidedLPStrategyVault,
   ISingleSidedLPStrategyVaultABI,
+  IStrategyVault,
+  IStrategyVaultABI,
 } from '@notional-finance/contracts';
 import { fetchGraphPaginate } from '@notional-finance/core-entities';
 import { aggregate } from '@notional-finance/multicall';
@@ -140,13 +142,14 @@ async function getVaultInfo(
 }
 
 export async function getVaultTVL(vaultAddress: string, blockNumber?: number) {
-  const { network, usdOracle, decimals } = VaultConfig[vaultAddress];
+  const { network, usdOracle, decimals } =
+    VaultConfig[vaultAddress as keyof typeof VaultConfig];
   const provider = getProviderFromNetwork(network, true);
   const vault = new Contract(
     vaultAddress,
-    ISingleSidedLPStrategyVaultABI,
+    [...IStrategyVaultABI, ...ISingleSidedLPStrategyVaultABI],
     provider
-  ) as ISingleSidedLPStrategyVault;
+  ) as ISingleSidedLPStrategyVault & IStrategyVault;
   const totalVaultShares = (
     await vault.getStrategyVaultInfo({
       blockTag: blockNumber || 'latest',
@@ -181,7 +184,8 @@ export async function getVaultData(
   blockNumber: number,
   apiKey: string
 ) {
-  const { targetToken, poolId, network, symbol } = VaultConfig[vaultAddress];
+  const { targetToken, poolId, network, symbol } =
+    VaultConfig[vaultAddress as keyof typeof VaultConfig];
 
   const vaultInfo = await getVaultInfo(vaultAddress, network, blockNumber);
 

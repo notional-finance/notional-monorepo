@@ -8,6 +8,7 @@
     "serve": "yarn build-functions && node --env-file .env -- functions-framework --target=txRelayService --source=./dist",
     "serve-rebalance": "yarn build-functions && node --env-file .env -- functions-framework --target=rebalanceService --source=./dist",
     "deploy-gcp": "yarn build-functions && ./deploy.sh",
+    "typecheck": "npx tsc -p tsconfig.json --noEmit --pretty",
     "lint": "eslint ./"
   },
   "author": "",

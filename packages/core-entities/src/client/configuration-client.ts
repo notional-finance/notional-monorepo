@@ -138,8 +138,8 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     try {
       // enabled =
     } catch (e) {
-      console.error(e);
-      // Ignore
+      // Ignore if if registry is not initialized yet, this is only relevant
+      // for Pendle PT vaults which mature at a later date.
     }
 
     return {

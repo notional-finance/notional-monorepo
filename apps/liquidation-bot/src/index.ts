@@ -1,4 +1,6 @@
 import {
+  DATA_SERVICE_URL,
+  DataServiceEndpoints,
   Network,
   ZERO_ADDRESS,
   batchArray,
@@ -16,7 +18,6 @@ import { DDSeries, Logger, MetricType } from '@notional-finance/util';
 
 export interface Env {
   NX_REGISTRY_URL: string;
-  ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   ZERO_EX_API_KEY: string;
   NETWORK: Network;
@@ -27,22 +28,14 @@ export interface Env {
   DUST_THRESHOLD: string;
   ALCHEMY_KEY: string;
   DD_API_KEY: string;
-  DD_APP_KEY: string;
-  TX_RELAY_URL: string;
   TX_RELAY_AUTH_TOKEN: string;
   EXACT_IN_SLIPPAGE_LIMIT: string;
   EXACT_OUT_SLIPPAGE_LIMIT: string;
   GAS_COST_BUFFER: string;
   PROFIT_THRESHOLD: string;
   ENVIRONMENT: string;
-}
-
-function shuffleArray(array: string[]) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+  AUTH_KEY: string;
+  ACCOUNTS_KV: KVNamespace;
 }
 
 async function setUp(env: Env) {
@@ -68,7 +61,6 @@ async function setUp(env: Env) {
       flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
       notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
       dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
-      txRelayUrl: env.TX_RELAY_URL,
       txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
       currencies: allTokens['values']
         .filter(
@@ -107,31 +99,37 @@ async function setUp(env: Env) {
   return { liquidator, logger };
 }
 
-async function processAllAccounts(
-  env: Env,
-  liquidator: NotionalV3Liquidator,
-  isHourly: boolean
-) {
-  // Currently the worker cannot process more than 2000 accounts per batch
-  const accounts = (await (
-    await fetch(`${env.ACCOUNT_SERVICE_URL}?network=${env.NETWORK}`, {
+async function getAccounts(env: Env) {
+  const accounts = await env.ACCOUNTS_KV.get(env.NETWORK);
+  if (accounts) {
+    return JSON.parse(accounts) as string[];
+  }
+  return fetch(
+    `${DATA_SERVICE_URL}/${DataServiceEndpoints.ACCOUNTS}?network=${env.NETWORK}`,
+    {
       headers: {
         'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
       },
-    })
-  ).json()) as { account_id: string }[];
-  let addresses: string[] = accounts
-    .map((a) => a.account_id)
-    .filter((a) => a !== ZERO_ADDRESS);
+    }
+  )
+    .then((r) => r.json() as Promise<{ account_id: string }[]>)
+    .then((r) => r.map((a) => a.account_id))
+    .then((r) => r.filter((a) => a !== ZERO_ADDRESS));
+}
 
-  // Currently the worker cannot process more than 2500 accounts per batch
-  if (!isHourly && env.NETWORK === Network.arbitrum) {
-    // Unable to scan all accounts in a single segment
-    addresses = shuffleArray(addresses).slice(0, 2500);
-    console.log(
-      `First: ${addresses[0]}, Last: ${addresses[addresses.length - 1]}`
-    );
-  }
+async function processAllAccounts(
+  env: Env,
+  liquidator: NotionalV3Liquidator,
+  skip: number
+) {
+  const accounts = await getAccounts(env);
+  // process maximum 1000 accounts
+  const addresses = accounts.slice(skip, skip + 1000);
+  console.log(
+    `Processing ${addresses.length} accounts, from: ${
+      addresses[0]
+    } to ${addresses.at(-1)}`
+  );
 
   const batchedAccounts = batchArray(addresses, 250);
   let riskyAccounts: RiskyAccount[] = [];
@@ -170,7 +168,7 @@ const displayRiskyAccounts = async (env: Env) => {
   const { riskyAccounts, addresses } = await processAllAccounts(
     env,
     liquidator,
-    false
+    0
   );
 
   return {
@@ -184,44 +182,42 @@ const displayRiskyAccounts = async (env: Env) => {
   };
 };
 
-const run = async (env: Env, isHourly: boolean) => {
+const run = async (env: Env, skip: number) => {
   const { logger, liquidator } = await setUp(env);
   const { riskyAccounts, addresses } = await processAllAccounts(
     env,
     liquidator,
-    isHourly
+    skip
   );
 
   const ddSeries: DDSeries = {
-    series: [],
+    series: [
+      {
+        metric: MetricNames.NUM_RISKY_ACCOUNTS,
+        points: [
+          {
+            value: riskyAccounts.length,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        type: MetricType.Gauge,
+        tags: [`network:${env.NETWORK}`, 'version:v3.2'],
+      },
+      {
+        metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
+        points: [
+          {
+            value: addresses.length,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        type: MetricType.Gauge,
+        tags: [`network:${env.NETWORK}`, 'version:v3.2'],
+      },
+    ],
   };
-
-  ddSeries.series.push(
-    {
-      metric: MetricNames.NUM_RISKY_ACCOUNTS,
-      points: [
-        {
-          value: riskyAccounts.length,
-          timestamp: getNowSeconds(),
-        },
-      ],
-      type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`, 'version:v3.2'],
-    },
-    {
-      metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
-      points: [
-        {
-          value: addresses.length,
-          timestamp: getNowSeconds(),
-        },
-      ],
-      type: MetricType.Gauge,
-      tags: [`network:${env.NETWORK}`, 'version:v3.2'],
-    }
-  );
-
   await logger.submitMetrics(ddSeries);
+
   for (const account of riskyAccounts) {
     await logger.submitEvent({
       aggregation_key: 'RiskyAccount',
@@ -253,6 +249,10 @@ export default {
     env: Env,
     _: ExecutionContext
   ): Promise<Response> {
+    const authKey = request.headers.get('x-auth-key');
+    if (authKey !== env.AUTH_KEY) {
+      return new Response(null, { status: 401 });
+    }
     try {
       const url = new URL(request.url);
       const splitPath = url.pathname.split('/');
@@ -270,6 +270,12 @@ export default {
           ),
           { status: 200 }
         );
+      } else if (url.pathname.startsWith('/trigger')) {
+        const { searchParams } = new URL(request.url);
+        const skip = Number(searchParams.get('skip')) || 0;
+        await run(env, skip);
+
+        return new Response('OK', { status: 200 });
       } else {
         return new Response('Not Found', { status: 404 });
       }
@@ -277,19 +283,6 @@ export default {
       console.error(e);
       console.trace();
       return new Response(JSON.stringify(e), { status: 500 });
-    }
-  },
-  async scheduled(
-    s: ScheduledController,
-    env: Env,
-    _: ExecutionContext
-  ): Promise<void> {
-    try {
-      const isHourly = s.cron === '0 * * * *';
-      await run(env, isHourly);
-    } catch (e) {
-      console.error(e);
-      console.trace();
     }
   },
 };

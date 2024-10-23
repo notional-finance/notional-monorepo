@@ -48,6 +48,7 @@
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nrwl/nx/typescript"],
       "rules": {
+        "no-unexpected-multiline": "off",
         "@typescript-eslint/no-unused-vars": [
           "error",
           {

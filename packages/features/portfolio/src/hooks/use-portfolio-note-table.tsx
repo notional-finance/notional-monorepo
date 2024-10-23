@@ -13,13 +13,11 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
 import { Network, SupportedNetworks } from '@notional-finance/util';
-import { useNavigate } from 'react-router-dom';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useAppStore } from '@notional-finance/notionable';
 
 export function usePortfolioNOTETable() {
   const theme = useTheme();
-  const navigate = useNavigate();
   const { notePrice } = useNotePrice();
   const {
     globalState: { networkAccounts },
@@ -147,11 +145,11 @@ export function usePortfolioNOTETable() {
         buttonBarData: [
           {
             buttonText: <FormattedMessage defaultMessage={'Unstake'} />,
-            callback: () => console.log('Unstake'),
+            callback: () => console.log('Unstake'), // TODO: add unstake logic
           },
           {
             buttonText: <FormattedMessage defaultMessage={'Stake More'} />,
-            callback: () => navigate('/stake/ETH'),
+            link: '/stake/ETH',
           },
         ],
         txnHistory: ``,

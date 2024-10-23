@@ -31,11 +31,9 @@ const sortReinvestmentType = (data: any[], reinvestmentType: number) => {
   if (reinvestmentType === 0) {
     return data;
   } else if (reinvestmentType === 1) {
-    return data.filter((x) => x.reinvestmentTypeString === 'SingleSidedLP');
+    return data.filter((x) => x.vaultType === 'SingleSidedLP_AutoReinvest');
   } else if (reinvestmentType === 2) {
-    return data.filter(
-      (x) => x.reinvestmentTypeString === 'SingleSidedLP_DirectClaim'
-    );
+    return data.filter((x) => x.vaultType === 'SingleSidedLP_DirectClaim');
   } else {
     return [];
   }

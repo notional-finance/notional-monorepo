@@ -76,7 +76,7 @@ function parseFiatLiquidationPrice(
       ],
     },
     currentPrice:
-      oneDay?.currentFiat?.toFiat(baseCurrency).toDisplayStringWithSymbol(3) ||
+      oneDay?.currentFiat?.toFiat(baseCurrency).toDisplayStringWithSymbol(4) ||
       '',
     oneDayChange: oneDay?.fiatChange
       ? formatNumberAsPercent(oneDay.fiatChange)
@@ -86,7 +86,7 @@ function parseFiatLiquidationPrice(
       : '',
     liquidationPrice: threshold
       ?.toFiat(baseCurrency)
-      .toDisplayStringWithSymbol(3),
+      .toDisplayStringWithSymbol(4),
   };
 }
 
@@ -100,14 +100,14 @@ function parseUnderlyingLiquidationPrice(
 ) {
   const { icon, titleWithMaturity } = formatTokenType(asset);
   const liquidationPrice = debt
-    ? threshold?.toToken(debt).toDisplayStringWithSymbol(2)
-    : threshold?.toUnderlying().toDisplayStringWithSymbol(2);
+    ? threshold?.toToken(debt).toDisplayStringWithSymbol(4)
+    : threshold?.toUnderlying().toDisplayStringWithSymbol(4);
   const currentPrice =
     debt && threshold
       ? TokenBalance.unit(threshold.token)
           .toToken(debt)
-          .toDisplayStringWithSymbol(2)
-      : oneDay?.currentUnderlying.toDisplayStringWithSymbol(2) || '';
+          .toDisplayStringWithSymbol(4)
+      : oneDay?.currentUnderlying.toDisplayStringWithSymbol(4) || '';
 
   return {
     // Used on portfolio screen

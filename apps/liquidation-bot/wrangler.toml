@@ -7,14 +7,14 @@ node_compat = true
 minify = true
 
 [triggers]
-crons = [
-    "0/10 * * * *",
-    "0 * * * *",
-]
+crons = []
 
 # Liquidation Bot v1 are the original liquidators and the code exists on the liquidation-bot-v1 tag
 [env.arbitrum2]
 name = "liquidation-bot-arbitrum2"
+kv_namespaces = [
+    { binding = "ACCOUNTS_KV", id = "1d9440f8266c47e68ac0f560691f95a4" },
+]
 
 [env.arbitrum2.vars]
 NX_REGISTRY_URL = 'https://registry.notional.finance'
@@ -33,14 +33,14 @@ GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
 
 [env.arbitrum2.triggers]
-crons = [
-    "0/2 * * * *",
-    "0 * * * *"
-]
+crons = []
 
 # This liquidator uses the additional flash lender methods
 [env.mainnet2]
 name = "liquidation-bot-mainnet2"
+kv_namespaces = [
+    { binding = "ACCOUNTS_KV", id = "1d9440f8266c47e68ac0f560691f95a4" },
+]
 
 [env.mainnet2.vars]
 NX_REGISTRY_URL = 'https://registry.notional.finance'
@@ -58,7 +58,4 @@ GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
 
 [env.mainnet2.triggers]
-crons = [
-    "0/2 * * * *",
-    "0 * * * *"
-]
+crons = []

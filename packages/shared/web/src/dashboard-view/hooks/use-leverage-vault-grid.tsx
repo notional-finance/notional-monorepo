@@ -7,8 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps } from '@notional-finance/mui';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { defineMessage } from 'react-intl';
-import { VaultType } from '@notional-finance/core-entities';
 import {
   AutoReinvestIcon,
   DirectIcon,
@@ -16,6 +14,8 @@ import {
 } from '@notional-finance/icons';
 import { Box } from '@mui/material';
 import { useAppStore } from '@notional-finance/notionable';
+import { defineMessage } from 'react-intl';
+import { VaultType } from '@notional-finance/core-entities';
 
 export const useLeveragedVaultGrid = (
   network: Network | undefined,

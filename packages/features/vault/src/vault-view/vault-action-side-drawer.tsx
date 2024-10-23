@@ -41,6 +41,7 @@ export const VaultActionSideDrawer = () => {
     },
     updateState,
   } = context;
+
   const loaded = vaultAddress && vaultAddressParam === vaultAddress;
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     defaultLeverageRatio && !riskFactorLimit
@@ -115,7 +116,8 @@ export const VaultActionSideDrawer = () => {
           Component: CreateVaultPosition,
           requiredState: {
             tradeType: 'IncreaseVaultPosition',
-            riskFactorLimit: defaultRiskLimit,
+            riskFactorLimit:
+              currentPosition.riskFactorLimit || defaultRiskLimit,
           },
         },
         {

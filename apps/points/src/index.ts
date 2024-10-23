@@ -13,6 +13,9 @@ export default {
   ): Promise<Response> {
     const url = new URL(request.url);
     const [_, vaultAddress, blockNumber] = url.pathname.split('/', 3);
+    if (!vaultAddress || !blockNumber) {
+      return new Response('Invalid request', { status: 400 });
+    }
     if (vaultAddress === 'arb_account_points') {
       return new Response(JSON.stringify(await getAccountPoints(blockNumber)), {
         headers: {

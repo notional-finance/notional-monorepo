@@ -5,7 +5,7 @@ type LoggerOptions = {
   version: string;
   apiKey: string;
   env: string;
-  environment: string;
+  environment?: string;
 };
 
 type LogMessage = {
@@ -81,7 +81,7 @@ const Endpoints = {
 
 export class Logger {
   baseMessage: LogMessage;
-  environment: string;
+  environment: string | undefined;
 
   constructor(public loggerConfig: LoggerOptions) {
     this.environment = loggerConfig.environment;

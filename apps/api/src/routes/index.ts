@@ -13,7 +13,7 @@ const handleDataDogForward = async (request: IRequest) => {
       method: 'POST',
       body,
       headers: {
-        'X-Forwarded-For': _request.headers.get('cf-connecting-ip'),
+        'X-Forwarded-For': _request.headers.get('cf-connecting-ip') || '',
       },
     });
   }

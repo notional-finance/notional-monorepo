@@ -14,7 +14,6 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_ACTIONS, TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { useNavigate } from 'react-router-dom';
 
 export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
   const network = useSelectedNetwork();
@@ -23,7 +22,6 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
-  const navigate = useNavigate();
 
   const detailedHoldings = (holdings || [])
     .map(
@@ -56,7 +54,7 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
 
         const buttonBarData: {
           buttonText: React.ReactNode;
-          callback: () => void;
+          link: string;
         }[] = [];
 
         const subRowData: {
@@ -82,37 +80,25 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
         if (hasNToken) {
           buttonBarData.push({
             buttonText: <FormattedMessage defaultMessage={'Manage'} />,
-            callback: () => {
-              navigate(
-                b.isPositive()
-                  ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
-                  : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`
-              );
-            },
+            link: b.isPositive()
+              ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
+              : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`,
           });
         }
 
         if (b.isPositive()) {
           buttonBarData.push({
             buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
-            callback: () => {
-              navigate(
-                `/portfolio/${network}/holdings/${
-                  PORTFOLIO_ACTIONS.WITHDRAW
-                }/${maturedTokenId}${
-                  isHighUtilization ? `?warning=${isHighUtilization}` : ''
-                }`
-              );
-            },
+            link: `/portfolio/${network}/holdings/${
+              PORTFOLIO_ACTIONS.WITHDRAW
+            }/${maturedTokenId}${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}${
+              isHighUtilization ? `?warning=${isHighUtilization}` : ''
+            }`,
           });
         } else {
           buttonBarData.push({
             buttonText: <FormattedMessage defaultMessage={'Repay'} />,
-            callback: () => {
-              navigate(
-                `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
-              );
-            },
+            link: `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`,
           });
         }
 

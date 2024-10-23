@@ -1,6 +1,6 @@
 import { Request, Response } from '@google-cloud/functions-framework';
 import { ethers, Contract } from 'ethers';
-import { Address, Sign, rpcUrls } from './config';
+import { Sign, rpcUrls, rebalanceHelperAddresses } from './config';
 import { Network } from './types';
 import { sendTransaction } from './Signer';
 import { logToDataDog } from './util';
@@ -12,7 +12,7 @@ export async function checkAndTriggerRebalance(network: Network) {
   const log = logToDataDog('rebalance-service');
   const provider = ethers.getDefaultProvider(rpcUrls[network]);
   const rebalanceHelper = new Contract(
-    Address.REBALANCE_HELPER,
+    rebalanceHelperAddresses[network],
     RebalanceHelperInterface,
     provider
   );
@@ -24,7 +24,7 @@ export async function checkAndTriggerRebalance(network: Network) {
 
   const result = await sendTransaction(
     {
-      to: Address.REBALANCE_HELPER,
+      to: rebalanceHelperAddresses[network],
       data: Sign.checkAndRebalance,
       network,
     },

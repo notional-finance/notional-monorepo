@@ -77,8 +77,8 @@ export function getEtherscanAddressLink(
 
 export function isTestHost() {
   return (
-    window.location.hostname === 'arbitrum-dev.notional.finance' ||
-    window.location.hostname === 'dev.notional.finance' ||
-    window.location.hostname === 'localhost:3000'
+    globalThis.location.hostname === 'arbitrum-dev.notional.finance' ||
+    globalThis.location.hostname === 'dev.notional.finance' ||
+    globalThis.location.hostname === 'localhost:3000'
   );
 }

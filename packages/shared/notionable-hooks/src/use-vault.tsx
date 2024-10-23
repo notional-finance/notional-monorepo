@@ -6,6 +6,7 @@ import {
 } from '@notional-finance/notionable';
 import { PRODUCTS } from '@notional-finance/util';
 import { useWalletCommunities } from './use-wallet';
+import { getVaultType, SingleSidedLP } from '@notional-finance/core-entities';
 
 export function useVaultNftCheck() {
   const navigate = useNavigate();
@@ -29,8 +30,21 @@ export function useVaultNftCheck() {
 
 export function useVaultPoints(vaultAddress?: string) {
   const currentNetworkStore = useCurrentNetworkStore();
-  return vaultAddress
+  return vaultAddress &&
+    getVaultType(vaultAddress, currentNetworkStore.network) ===
+      'SingleSidedLP_Points'
     ? currentNetworkStore.getVaultAdapter(vaultAddress).getPointMultiples()
+    : undefined;
+}
+
+export function useVaultRewardTokens(vaultAddress?: string) {
+  const currentNetworkStore = useCurrentNetworkStore();
+  return vaultAddress &&
+    getVaultType(vaultAddress, currentNetworkStore.network) ===
+      'SingleSidedLP_DirectClaim'
+    ? (
+        currentNetworkStore.getVaultAdapter(vaultAddress) as SingleSidedLP
+      ).rewardTokens.map((t) => currentNetworkStore.getTokenByID(t))
     : undefined;
 }
 

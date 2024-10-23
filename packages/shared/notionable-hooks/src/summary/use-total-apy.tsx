@@ -45,11 +45,31 @@ export function useTotalAPY(
       : undefined;
 
   let totalAPY: number | undefined;
+  let organicAPY: number | undefined;
+  let incentiveAPY: number | undefined;
   if (isLeveraged) {
     totalAPY = leveragedYield(assetAPY, debtAPY, leverageRatio);
+    organicAPY = leveragedYield(
+      nonLeveragedYield?.organicAPY,
+      debtAPY,
+      leverageRatio
+    );
+    incentiveAPY = leveragedYield(
+      nonLeveragedYield?.incentiveAPY,
+      0,
+      leverageRatio
+    );
   } else {
     totalAPY = assetAPY !== undefined ? assetAPY : debtAPY;
   }
 
-  return { totalAPY, apySpread, leverageRatio, assetAPY, debtAPY };
+  return {
+    totalAPY,
+    apySpread,
+    leverageRatio,
+    assetAPY,
+    debtAPY,
+    organicAPY,
+    incentiveAPY,
+  };
 }

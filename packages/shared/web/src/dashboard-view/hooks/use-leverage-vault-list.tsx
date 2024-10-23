@@ -235,12 +235,16 @@ export const useLeverageVaultList = (
             },
           ],
         },
-        reinvestmentTypeString: vaultConfig.vaultType,
+        vaultType:
+          vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING &&
+          vaultConfig.vaultType
+            ? vaultConfig.vaultType
+            : undefined,
         rewards: {
           label:
-            vaultConfig.vaultType === 'SingleSidedLP_DirectClaim'
-              ? 'Direct Claim'
-              : 'Auto-Reinvest',
+            vaultConfig.vaultType === 'SingleSidedLP_AutoReinvest'
+              ? 'Auto-Reinvest'
+              : 'Direct Claim',
           rewardTokens: vaultConfig.rewardTokens,
         },
         multiValueCellData: {

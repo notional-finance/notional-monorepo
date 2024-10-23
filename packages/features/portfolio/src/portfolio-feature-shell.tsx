@@ -11,7 +11,6 @@ import {
   PageLoading,
   SideBarSubHeader,
   SideDrawer,
-  TypeForm,
 } from '@notional-finance/mui';
 import { usePortfolioNOTETable, usePortfolioSideDrawers } from './hooks';
 import { SideNav, PortfolioMobileNav, EmptyPortfolio } from './components';
@@ -161,7 +160,6 @@ const Portfolio = () => {
             params.category === undefined) && (
             <>
               <PortfolioOverview />
-              <TypeForm />
             </>
           )}
           {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
@@ -204,7 +202,6 @@ const Portfolio = () => {
       {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
         <>
           <PortfolioStateZero />
-          <TypeForm />
         </>
       )}
       {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&

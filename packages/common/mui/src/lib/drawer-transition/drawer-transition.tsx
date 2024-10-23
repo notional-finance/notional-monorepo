@@ -47,7 +47,7 @@ export const DrawerTransition = ({
   }, []);
 
   return (
-    <Transition nodeRef={ref} in={inState} timeout={500}>
+    <Transition nodeRef={ref} in={inState} timeout={300}>
       {(state: TransitionStatus) => (
         <Box
           ref={ref}

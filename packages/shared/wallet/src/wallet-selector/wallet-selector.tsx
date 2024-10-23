@@ -11,7 +11,7 @@ import {
   CopyCaption,
 } from '@notional-finance/mui';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
-import { useWalletSideDrawer, useConnect, useIntercomUpdate } from '../hooks';
+import { useWalletSideDrawer, useConnect } from '../hooks';
 import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
@@ -41,7 +41,6 @@ const WalletSelector = () => {
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { openDrawer } = useWalletSideDrawer();
-  useIntercomUpdate();
 
   useEffect(() => {
     getNotificationsData();

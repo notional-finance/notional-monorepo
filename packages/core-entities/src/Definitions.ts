@@ -1,5 +1,5 @@
 import { Network, TokenAddress, VaultAddress } from '@notional-finance/util';
-import { BigNumber } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 import { BehaviorSubject } from 'rxjs';
 import { PoolClasses } from './exchanges';
 import { SerializedTokenBalance, TokenBalance } from './token-balance';
@@ -294,6 +294,7 @@ export interface YieldData {
   vaultName?: string;
   nativeTokenAPY?: number;
   organicAPY?: number;
+  incentiveAPY?: number;
   feeAPY?: number;
   strategyAPY?: number;
   noteIncentives?: {
@@ -379,7 +380,7 @@ export type VaultReinvestment = Record<
     rewardAmountSold: BigNumber;
     tokensReinvested: TokenBalance;
     tokensPerVaultShare?: TokenBalance;
-    underlyingAmountRealized?: TokenBalance;
+    underlyingAmountRealized?: BigNumberish;
     vaultSharePrice?: BigNumber;
   }[]
 >;

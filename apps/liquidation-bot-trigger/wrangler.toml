@@ -1,0 +1,21 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+name = "liquidation-bot-trigger"
+
+workers_dev = false
+logpush = true
+node_compat = true
+minify = true
+
+
+[triggers]
+crons = ["0/2 * * * *"]
+
+[env.all]
+name = "liquidation-bot-trigger-all"
+kv_namespaces = [
+    { binding = "ACCOUNTS_KV", id = "1d9440f8266c47e68ac0f560691f95a4" },
+]
+
+[env.all.vars]
+NETWORKS = ['mainnet', 'arbitrum']
