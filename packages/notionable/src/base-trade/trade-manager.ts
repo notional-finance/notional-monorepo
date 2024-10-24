@@ -1,18 +1,15 @@
 import { of, merge, Observable } from 'rxjs';
 import { TradeState } from './base-trade-store';
 import {
-  initState,
   priorAccountRisk,
   postAccountRisk,
   availableTokens,
   buildTransaction,
-  resetOnTradeTypeChange,
   defaultLeverageRatio,
   simulateTransaction,
   selectedPool,
   selectedDepositToken,
   selectedPortfolioToken,
-  resetOnNetworkChange,
 } from './sagas';
 import { selectedAccount, selectedNetwork } from '../global';
 import { calculate, calculateMaxWithdraw } from './trade-calculation';
@@ -49,9 +46,9 @@ export function createTradeManager(
     selectedDepositToken(state$),
     priorAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
-    selectedPortfolioToken(state$),
-    resetOnNetworkChange(state$),
-    initState(state$),
-    resetOnTradeTypeChange(state$)
+    selectedPortfolioToken(state$)
+    // resetOnNetworkChange(state$),
+    // initState(state$),
+    // resetOnTradeTypeChange(state$)
   );
 }

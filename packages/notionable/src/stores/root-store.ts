@@ -38,6 +38,7 @@ const RootStore = types
   })
   .actions((self) => ({
     setTradeModel(props: {
+      selectedNetwork: Network;
       tradeType: AllTradeTypes;
       selectedDepositToken?: string;
       selectedToken?: string;

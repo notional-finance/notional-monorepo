@@ -514,6 +514,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     token: TokenDefinition | undefined,
     isDebt: boolean
   ) => {
+    if (!deposit) return undefined;
+
     const fCashTokens = isDebt
       ? getTokensByType('fCash').filter((t) => t?.isFCashDebt)
       : getTokensByType('fCash').filter((t) => !t?.isFCashDebt);
@@ -547,6 +549,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getPrimeCashTotalsData = (deposit: TokenDefinition | undefined) => {
+    if (!deposit) return undefined;
+
     const primeCash = getPrimeCash(deposit?.currencyId);
     const primeDebt = getPrimeDebt(deposit?.currencyId);
     const capacityRemaining = deposit?.currencyId
@@ -565,6 +569,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     nTokenAmount: TokenBalance | undefined,
     isLeveraged: boolean
   ) => {
+    if (!deposit) return undefined;
+
     const liquidity = isLeveraged
       ? getAllLeveragedNTokenYields()
       : getAllNTokenYields();
