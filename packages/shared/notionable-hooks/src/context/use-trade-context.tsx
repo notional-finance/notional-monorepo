@@ -1,14 +1,12 @@
-import { useEffect } from 'react';
 import {
+  BaseTradeState,
   TradeState,
   TradeType,
-  createTradeManager,
   initialBaseTradeState,
 } from '@notional-finance/notionable';
-import {
-  createObservableContext,
-  useObservableContext,
-} from './ObservableContext';
+import { createObservableContext } from './ObservableContext';
+import { useTradeModel } from '../trade/use-trade-model';
+import { getSnapshot } from 'mobx-state-tree';
 
 export function createTradeContext(displayName: string) {
   return createObservableContext<TradeState>(
@@ -17,20 +15,16 @@ export function createTradeContext(displayName: string) {
   );
 }
 
+const defaultUpdateState = (_state: Partial<BaseTradeState>) => {
+  return;
+};
+
 export function useTradeContext(tradeType: TradeType) {
-  const { updateState, state$, state } = useObservableContext<TradeState>(
-    initialBaseTradeState as TradeState,
-    createTradeManager
-  );
+  const tradeModel = useTradeModel(tradeType);
+  const state: BaseTradeState = tradeModel
+    ? (getSnapshot(tradeModel) as unknown as BaseTradeState) ||
+      initialBaseTradeState
+    : initialBaseTradeState;
 
-  useEffect(() => {
-    updateState({
-      tradeType,
-      // Change the default setting for leveraged lend
-      // customizeLeverage: tradeType === 'LeveragedLend',
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return { updateState, state$, state };
+  return { updateState: defaultUpdateState, state };
 }
