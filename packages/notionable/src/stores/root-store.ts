@@ -13,6 +13,8 @@ import {
 import { createContext } from 'react';
 import { AppStoreModel } from './app-store';
 import { WalletModel } from './wallet-store';
+import { TradeModel } from './trades/TradeModel';
+import { AllTradeTypes } from '../base-trade/base-trade-store';
 
 export type RootStoreType = Instance<typeof RootStore>;
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
@@ -32,8 +34,16 @@ const RootStore = types
     walletStore: WalletModel,
     network: NotionalTypes.Network,
     route: types.string,
+    tradeModel: types.maybe(TradeModel),
   })
   .actions((self) => ({
+    setTradeModel(props: {
+      tradeType: AllTradeTypes;
+      selectedDepositToken?: string;
+      selectedToken?: string;
+    }) {
+      self.tradeModel = TradeModel.create(props);
+    },
     setNetwork(network: Network) {
       self.network = network;
     },

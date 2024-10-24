@@ -5,6 +5,7 @@ import {
 } from '@notional-finance/notionable';
 import { ObservableContext } from './context/ObservableContext';
 
+export * from './trade/use-trade-model';
 export * from './context/use-trade-context';
 export * from './context/use-vault-context';
 export * from './context/use-note-context';
