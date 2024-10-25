@@ -5,7 +5,6 @@ import {
   initialBaseTradeState,
 } from '@notional-finance/notionable';
 import { createObservableContext } from './ObservableContext';
-import { getSnapshot } from 'mobx-state-tree';
 import { useEffect } from 'react';
 import { useSelectedNetwork } from '../use-network';
 import { useRootStore } from '@notional-finance/notionable';
@@ -48,10 +47,12 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
 
 export function useTradeContext(tradeType: TradeType) {
   const tradeModel = useTradeModel(tradeType);
-  const state: BaseTradeState = tradeModel
-    ? (getSnapshot(tradeModel) as unknown as BaseTradeState) ||
-      initialBaseTradeState
-    : initialBaseTradeState;
+  let state: BaseTradeState;
+  if (tradeModel) {
+    state = tradeModel as unknown as BaseTradeState;
+  } else {
+    state = initialBaseTradeState;
+  }
 
   return { updateState: defaultUpdateState, state };
 }

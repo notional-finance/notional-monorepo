@@ -21,6 +21,7 @@ export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
 export type AppStoreModelType = Instance<typeof AppStoreModel>;
 export type PortfolioStoreModelType = Instance<typeof PortfolioStoreModel>;
 export interface RootStoreInterface {
+  network: Network;
   getNetworkClient: (network: Network) => NetworkClientModelType;
   appStore: AppStoreModelType;
 }
