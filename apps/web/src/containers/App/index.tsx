@@ -30,7 +30,7 @@ if (
     sessionSampleRate: 100,
     sessionReplaySampleRate: privacySettings['disableTracking'] ? 0 : 10,
     trackUserInteractions: true,
-    proxy: `${PROXY_HOST}/dd-forward`,
+    // proxy: `${PROXY_HOST}/dd-forward`,
 
     beforeSend: (event) => {
       if (privacySettings['disableErrorReporting'] && event.type === 'error') {
