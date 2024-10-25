@@ -2,11 +2,26 @@ import {
   NotionalTypes,
   TokenDefinitionModel,
 } from '@notional-finance/core-entities';
-import { AllTradeTypes } from '@notional-finance/notionable';
-import { types } from 'mobx-state-tree';
+import { AllTradeTypes } from '../../base-trade/base-trade-store';
+import { getRoot, Instance, types } from 'mobx-state-tree';
+import { RootStoreInterface } from '../root-store';
+import { getTradeConfig } from '../../base-trade/trade-calculation';
+
+export const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
+  get(identifier, parent) {
+    const root = getRoot<RootStoreInterface>(parent);
+    const model = root.getNetworkClient(root.network);
+    return model.getTokenByID(identifier.toString()) as Instance<
+      typeof TokenDefinitionModel
+    >;
+  },
+  set(value) {
+    return value.id;
+  },
+});
 
 export const TokenOptionModel = types.model('TokenOption', {
-  token: types.reference(TokenDefinitionModel),
+  token: TokenDefinitionReference,
   balance: types.maybe(NotionalTypes.TokenBalance),
   interestRate: types.maybe(types.number),
   error: types.maybe(types.string),
@@ -24,16 +39,19 @@ export const TradeModel = types
 
     /** A list of tokens that can be deposited */
     availableDepositTokens: types.optional(
-      types.array(TokenDefinitionModel),
+      types.array(TokenDefinitionReference),
       []
     ),
     /** A list of collateral tokens that can be selected */
     availableCollateralTokens: types.optional(
-      types.array(TokenDefinitionModel),
+      types.array(TokenDefinitionReference),
       []
     ),
     /** A list of debt tokens that can be selected */
-    availableDebtTokens: types.optional(types.array(TokenDefinitionModel), []),
+    availableDebtTokens: types.optional(
+      types.array(TokenDefinitionReference),
+      []
+    ),
     /** A parameter key set by the url params */
     sideDrawerKey: types.optional(types.maybe(types.string), undefined),
     /** Maximum collateral slippage for the vault */
@@ -57,11 +75,11 @@ export const TradeModel = types
     pathname: types.optional(types.maybe(types.string), undefined),
 
     /** Collateral token definition */
-    collateral: types.optional(types.maybe(TokenDefinitionModel), undefined),
+    collateral: types.maybe(TokenDefinitionReference),
     /** Debt token definition */
-    debt: types.optional(types.maybe(TokenDefinitionModel), undefined),
+    debt: types.maybe(TokenDefinitionReference),
     /** Deposit token definition, always in underlying */
-    deposit: types.optional(types.maybe(TokenDefinitionModel), undefined),
+    deposit: types.maybe(TokenDefinitionReference),
 
     /** Parsed from selected risk factors */
     leverageRatio: types.maybe(types.number),
@@ -142,21 +160,72 @@ export const TradeModel = types
     ),
   })
   .actions((self) => {
+    const root = () => getRoot<RootStoreInterface>(self);
+
     const afterAttach = () => {
-      // TODO: set selected deposit token
-      // TODO: set selected portfolio token
-      // TODO: set available tokens
+      const model = root().getNetworkClient(self.selectedNetwork);
+      // Set deposit token
+      self.deposit = self.selectedDepositToken
+        ? (model.getTokenBySymbol(self.selectedDepositToken) as Instance<
+            typeof TokenDefinitionModel
+          >)
+        : undefined;
+
+      // Set selected portfolio token
+      if (self.selectedToken) {
+        const selected = model.getTokenBySymbol(self.selectedToken) as Instance<
+          typeof TokenDefinitionModel
+        >;
+        if (self.tradeType === 'Deposit') {
+          self.deposit = model.getTokenBySymbol(self.selectedToken) as Instance<
+            typeof TokenDefinitionModel
+          >;
+          self.collateral = model.getPrimeCash(selected.currencyId) as Instance<
+            typeof TokenDefinitionModel
+          >;
+        } else if (self.tradeType === 'RepayDebt') {
+          self.collateral =
+            selected.tokenType === 'PrimeDebt'
+              ? (model.getPrimeCash(selected.currencyId) as Instance<
+                  typeof TokenDefinitionModel
+                >)
+              : selected;
+        } else if (
+          self.tradeType === 'Withdraw' ||
+          self.tradeType === 'RollDebt'
+        ) {
+          self.debt =
+            selected.tokenType === 'PrimeCash'
+              ? (model.getPrimeDebt(selected.currencyId) as Instance<
+                  typeof TokenDefinitionModel
+                >)
+              : selected;
+        } else if (self.tradeType === 'RollVaultPosition') {
+          self.debt = selected;
+        }
+      }
       // TODO: is leveraged trade, set default leverage ratios
+
+      // TODO: set available tokens
+      // TODO: move this into a separate function
+      const { collateralFilter, depositFilter, debtFilter } = getTradeConfig(
+        self.tradeType
+      );
+
       console.log(
         'afterAttach',
         self.selectedDepositToken,
         self.selectedNetwork,
         self.tradeType
       );
+      self.isReady = true;
     };
 
+    // TODO: ideally refactor update state to be more explicit
     const updateState = () => {
-      // TODO: allow setting of certain values
+      // TODO: allow setting of certain values:
+      // - leverage ratio, collateral, debt, deposit
+      // - depositBalance, collateralBalance, debtBalance
       // TODO: if all inputs are satisfied, run a calculations
     };
 
