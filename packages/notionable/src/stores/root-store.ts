@@ -48,6 +48,9 @@ const RootStore = types
     }) {
       self.tradeModel = TradeModel.create(props);
     },
+    clearTradeModel() {
+      self.tradeModel = undefined;
+    },
     setNetwork(network: Network) {
       self.network = network;
     },

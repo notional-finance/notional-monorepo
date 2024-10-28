@@ -124,10 +124,11 @@ export const PortfolioStoreModel = types
       return SupportedNetworks.filter((n) => {
         const model = root.getNetworkClient(n);
         if (!underlyingSymbol) return false;
-        const currencyId = model.getTokenBySymbol(underlyingSymbol)?.currencyId;
-        if (!currencyId) return false;
 
         try {
+          const currencyId =
+            model.getTokenBySymbol(underlyingSymbol)?.currencyId;
+          if (!currencyId) return false;
           // NOTE: these getters throw errors if the token is not found so we catch
           // and return false
           if (
