@@ -1,5 +1,6 @@
 import {
   NotionalTypes,
+  TokenBalance,
   TokenDefinition,
   TokenDefinitionModel,
 } from '@notional-finance/core-entities';
@@ -396,7 +397,7 @@ export const TradeModel = types
       setAvailableDebtTokens();
 
       console.log(
-        'afterAttach',
+        'trade model afterAttach',
         self.selectedDepositToken,
         self.selectedNetwork,
         self.tradeType
@@ -412,5 +413,30 @@ export const TradeModel = types
       // TODO: if all inputs are satisfied, run a calculations
     };
 
-    return { afterAttach, updateState };
-  });
+    const setDepositBalance = (
+      balance: TokenBalance | undefined,
+      maxWithdraw = false
+    ) => {
+      self.depositBalance = balance;
+      self.maxWithdraw = maxWithdraw;
+    };
+
+    const setHasInputErrors = (inputErrors: boolean) => {
+      self.inputErrors = inputErrors;
+    };
+
+    return {
+      afterAttach,
+      updateState,
+      setHasInputErrors,
+      setDepositBalance,
+    };
+  })
+  .views((self) => ({
+    get actions() {
+      return {
+        setDepositBalance: self.setDepositBalance,
+        setHasInputErrors: self.setHasInputErrors,
+      };
+    },
+  }));
