@@ -1,4 +1,5 @@
 import {
+  AccountDefinition,
   getNetworkModel,
   NetworkClientModel,
   NotionalTypes,
@@ -23,6 +24,7 @@ export type PortfolioStoreModelType = Instance<typeof PortfolioStoreModel>;
 export interface RootStoreInterface {
   network: Network;
   getNetworkClient: (network: Network) => NetworkClientModelType;
+  getAccountDefinition: (network: Network) => AccountDefinition | null;
   appStore: AppStoreModelType;
 }
 
@@ -54,6 +56,9 @@ const RootStore = types
     },
   }))
   .views((self) => ({
+    getAccountDefinition(network: Network) {
+      return self.walletStore.getAccountDefinition(network) || null;
+    },
     getNetworkClient(network: Network) {
       return getNetworkModel(network);
     },

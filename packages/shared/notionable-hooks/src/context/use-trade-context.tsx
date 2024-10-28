@@ -10,6 +10,7 @@ import { useSelectedNetwork } from '../use-network';
 import { useRootStore } from '@notional-finance/notionable';
 import { AllTradeTypes } from '@notional-finance/notionable';
 import { useParams } from 'react-router-dom';
+import { useObserver } from 'mobx-react-lite';
 
 export function createTradeContext(displayName: string) {
   return createObservableContext<TradeState>(
@@ -47,12 +48,13 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
 
 export function useTradeContext(tradeType: TradeType) {
   const tradeModel = useTradeModel(tradeType);
-  let state: BaseTradeState;
-  if (tradeModel) {
-    state = tradeModel as unknown as BaseTradeState;
-  } else {
-    state = initialBaseTradeState;
-  }
+  const state = useObserver(() => {
+    if (tradeModel) {
+      return tradeModel as unknown as BaseTradeState;
+    } else {
+      return initialBaseTradeState;
+    }
+  });
 
   return { updateState: defaultUpdateState, state };
 }

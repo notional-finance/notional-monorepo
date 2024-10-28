@@ -1,7 +1,7 @@
 import spindl from '@spindl-xyz/attribution';
 import { types, Instance, flow } from 'mobx-state-tree';
 import { NotionalTypes } from '@notional-finance/core-entities';
-import { SupportedNetworks } from '@notional-finance/util';
+import { Network, SupportedNetworks } from '@notional-finance/util';
 import { checkSanctionedAddress } from '../global/account/communities';
 import { identify } from '@notional-finance/helpers';
 import { Provider } from '@ethersproject/providers';
@@ -22,6 +22,11 @@ export const WalletModel = types
     networkAccounts: types.optional(types.map(AccountPortfolioModel), {}),
     totalPoints: types.maybe(types.number),
   })
+  .views((self) => ({
+    getAccountDefinition(network: Network) {
+      return self.networkAccounts.get(network);
+    },
+  }))
   .actions((self) => {
     const executeUserTracking = async (
       userWallet: Instance<typeof UserWalletModel>

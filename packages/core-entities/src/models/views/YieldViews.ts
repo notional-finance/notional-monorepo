@@ -5,6 +5,7 @@ import {
   INTERNAL_TOKEN_PRECISION,
   leveragedYield,
   PRIME_CASH_VAULT_MATURITY,
+  RATE_DECIMALS,
   RATE_PRECISION,
   SCALAR_PRECISION,
 } from '@notional-finance/util';
@@ -243,9 +244,12 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     return apyData;
   };
 
-  const getLeverageRatios = (token: TokenDefinition) => {
-    if (token.tokenType === 'VaultShare' && token.vaultAddress) {
-      const config = getVaultConfig(token.vaultAddress);
+  const getLeverageRatios = (
+    collateral: TokenDefinition,
+    debt?: TokenDefinition
+  ) => {
+    if (collateral.tokenType === 'VaultShare' && collateral.vaultAddress) {
+      const config = getVaultConfig(collateral.vaultAddress);
       const minLeverageRatio =
         RATE_PRECISION /
         (config.maxRequiredAccountCollateralRatioBasisPoints as number);
@@ -255,17 +259,16 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         RATE_PRECISION / config.minCollateralRatioBasisPoints;
 
       return { minLeverageRatio, defaultLeverageRatio, maxLeverageRatio };
-    } else if (token.tokenType === 'nToken') {
-      if (!token.currencyId) throw Error('Invalid nToken');
+    } else if (collateral.tokenType === 'nToken') {
+      if (!collateral.currencyId) throw Error('Invalid nToken');
       // NOTE: this would include the fCash discount
-      // const pvFactor =
-      //   debt.token.tokenType === 'fCash'
-      //     ? TokenBalance.unit(debt.token).toUnderlying().scaleTo(RATE_DECIMALS)
-      //     : RATE_PRECISION;
-      const config = getConfig(token.currencyId);
+      const pvFactor =
+        debt?.tokenType === 'fCash'
+          ? TokenBalance.unit(debt).toUnderlying().scaleTo(RATE_DECIMALS)
+          : RATE_PRECISION;
+      const config = getConfig(collateral.currencyId);
       const nTokenHaircut =
         (assertDefined(config.pvHaircutPercentage) * RATE_PRECISION) / 100;
-      const pvFactor = RATE_PRECISION;
       const maxFactor = BigNumber.from(RATE_PRECISION)
         .pow(2)
         .sub(BigNumber.from(pvFactor).mul(nTokenHaircut));

@@ -1,11 +1,23 @@
 import {
   NotionalTypes,
+  TokenDefinition,
   TokenDefinitionModel,
 } from '@notional-finance/core-entities';
-import { AllTradeTypes } from '../../base-trade/base-trade-store';
+import {
+  AllTradeTypes,
+  isDeleverageWithSwappedTokens,
+  isLeveragedTrade,
+  TradeState,
+} from '../../base-trade/base-trade-store';
 import { getRoot, Instance, types } from 'mobx-state-tree';
 import { RootStoreInterface } from '../root-store';
 import { getTradeConfig } from '../../base-trade/trade-calculation';
+import {
+  getNowSeconds,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
+
+type Category = 'Collateral' | 'Debt' | 'Deposit';
 
 export const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
   get(identifier, parent) {
@@ -162,6 +174,152 @@ export const TradeModel = types
   .actions((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
 
+    const getDefaultTokens = (
+      availableTokens: TokenDefinition[],
+      category: Category,
+      tradeType?: AllTradeTypes
+    ) => {
+      if (tradeType === 'LendFixed' && category === 'Collateral') {
+        return availableTokens[0];
+      } else if (tradeType === 'BorrowFixed' && category === 'Debt') {
+        return availableTokens[0];
+      } else if (tradeType === 'LeveragedNToken' && category === 'Debt') {
+        return availableTokens.find((t) => t.tokenType === 'PrimeDebt');
+      } else if (tradeType === 'CreateVaultPosition') {
+        return availableTokens.find(
+          (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
+        );
+      } else {
+        return undefined;
+      }
+    };
+
+    /** Ensures that tokens are automatically selected or cleared when they change */
+    const getSelectedToken = (
+      availableTokens: TokenDefinition[],
+      selectedToken: string | undefined,
+      category: Category,
+      tradeType?: AllTradeTypes
+    ) => {
+      if (availableTokens.length === 1) {
+        return availableTokens[0];
+      } else if (selectedToken === undefined) {
+        return getDefaultTokens(availableTokens, category, tradeType);
+      } else {
+        return availableTokens.find((t) => t.symbol === selectedToken);
+      }
+    };
+
+    const setAvailableDepositTokens = () => {
+      const model = root().getNetworkClient(self.selectedNetwork);
+      const account = root().getAccountDefinition(self.selectedNetwork);
+      const { depositFilter } = getTradeConfig(self.tradeType);
+      const listedTokens = model.getAllTokens();
+
+      const availableDepositTokens = listedTokens
+        .filter((t) => t.tokenType === 'Underlying' && !!t.currencyId)
+        .filter((t) =>
+          depositFilter
+            ? depositFilter(
+                t,
+                account,
+                self as unknown as TradeState,
+                listedTokens
+              )
+            : true
+        );
+      self.availableDepositTokens.replace(
+        availableDepositTokens as Instance<typeof TokenDefinitionModel>[]
+      );
+
+      self.deposit = getSelectedToken(
+        availableDepositTokens,
+        self.selectedDepositToken,
+        'Deposit',
+        self.tradeType
+      ) as Instance<typeof TokenDefinitionModel> | undefined;
+    };
+
+    const setAvailableCollateralTokens = () => {
+      const model = root().getNetworkClient(self.selectedNetwork);
+      const account = root().getAccountDefinition(self.selectedNetwork);
+      const { collateralFilter } = getTradeConfig(self.tradeType);
+      const listedTokens = model.getAllTokens();
+
+      const availableCollateralTokens = listedTokens
+        .filter(
+          (t) =>
+            t.tokenType === 'PrimeCash' ||
+            t.tokenType === 'nToken' ||
+            (t.tokenType === 'VaultShare' &&
+              (t.maturity || 0) > getNowSeconds()) ||
+            (t.tokenType === 'fCash' &&
+              t.isFCashDebt === false &&
+              (t.maturity || 0) > getNowSeconds())
+        )
+        .filter((t) =>
+          collateralFilter
+            ? collateralFilter(
+                t,
+                account,
+                self as unknown as TradeState,
+                listedTokens
+              )
+            : true
+        );
+
+      self.availableCollateralTokens.replace(
+        availableCollateralTokens as Instance<typeof TokenDefinitionModel>[]
+      );
+
+      self.collateral = getSelectedToken(
+        availableCollateralTokens,
+        self.selectedToken,
+        'Collateral',
+        self.tradeType
+      ) as Instance<typeof TokenDefinitionModel> | undefined;
+    };
+
+    const setAvailableDebtTokens = () => {
+      const model = root().getNetworkClient(self.selectedNetwork);
+      const account = root().getAccountDefinition(self.selectedNetwork);
+      const { debtFilter } = getTradeConfig(self.tradeType);
+      const listedTokens = model.getAllTokens();
+
+      const availableDebtTokens = listedTokens
+        .filter(
+          (t) =>
+            t.tokenType === 'nToken' ||
+            t.tokenType === 'PrimeDebt' ||
+            (t.tokenType === 'VaultDebt' &&
+              (t.maturity || 0) > getNowSeconds()) ||
+            (t.tokenType === 'fCash' &&
+              t.isFCashDebt === false &&
+              (t.maturity || 0) > getNowSeconds())
+        )
+        .filter((t) =>
+          debtFilter
+            ? debtFilter(
+                t,
+                account,
+                self as unknown as TradeState,
+                listedTokens
+              )
+            : true
+        );
+
+      self.availableDebtTokens.replace(
+        availableDebtTokens as Instance<typeof TokenDefinitionModel>[]
+      );
+
+      self.debt = getSelectedToken(
+        availableDebtTokens,
+        self.selectedToken,
+        'Debt',
+        self.tradeType
+      ) as Instance<typeof TokenDefinitionModel> | undefined;
+    };
+
     const afterAttach = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
       // Set deposit token
@@ -204,13 +362,38 @@ export const TradeModel = types
           self.debt = selected;
         }
       }
-      // TODO: is leveraged trade, set default leverage ratios
 
-      // TODO: set available tokens
-      // TODO: move this into a separate function
-      const { collateralFilter, depositFilter, debtFilter } = getTradeConfig(
-        self.tradeType
-      );
+      if (
+        isDeleverageWithSwappedTokens({
+          tradeType: self.tradeType,
+          collateral: self.collateral as TokenDefinition,
+        })
+      ) {
+        const l = root()
+          .getNetworkClient(self.selectedNetwork)
+          .getLeverageRatios(
+            // Swap the collateral and debt in this case
+            self.debt as TokenDefinition,
+            self.collateral as TokenDefinition
+          );
+        self.defaultLeverageRatio = l.defaultLeverageRatio;
+        self.minLeverageRatio = l.minLeverageRatio;
+        self.maxLeverageRatio = l.maxLeverageRatio;
+      } else if (isLeveragedTrade(self.tradeType)) {
+        const l = root()
+          .getNetworkClient(self.selectedNetwork)
+          .getLeverageRatios(
+            self.collateral as TokenDefinition,
+            self.debt as TokenDefinition
+          );
+        self.defaultLeverageRatio = l.defaultLeverageRatio;
+        self.minLeverageRatio = l.minLeverageRatio;
+        self.maxLeverageRatio = l.maxLeverageRatio;
+      }
+
+      setAvailableDepositTokens();
+      setAvailableCollateralTokens();
+      setAvailableDebtTokens();
 
       console.log(
         'afterAttach',
