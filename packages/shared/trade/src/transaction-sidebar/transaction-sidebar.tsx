@@ -83,7 +83,8 @@ const TransactionSidebarComponent = ({
   hideTextOnMobile,
   hideActionButtons,
 }: TransactionSidebarProps) => {
-  const { state, updateState } = context;
+  const { state, actions } = context;
+  const setConfirm = actions?.setConfirm;
   const { pathname } = useLocation();
   const [showTxnApprovals, setShowTxnApprovals] = useState(false);
   const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
@@ -102,22 +103,26 @@ const TransactionSidebarComponent = ({
   const handleSubmit = useCallback(() => {
     // Set the confirmation state up front to prevent the action sidebar
     // from re-rendering inside intermediate state updates.
-    updateState({ confirm: true });
+    if (setConfirm) {
+      setConfirm(true);
+    }
 
     if (mustSwitchNetwork) {
       setShowSwitchNetwork(true);
     } else if (showApprovals) {
       setShowTxnApprovals(true);
     }
-  }, [updateState, showApprovals, mustSwitchNetwork]);
+  }, [setConfirm, showApprovals, mustSwitchNetwork]);
 
   const onConfirmCancel = useCallback(() => {
-    updateState({ confirm: false });
-  }, [updateState]);
+    if (setConfirm) {
+      setConfirm(false);
+    }
+  }, [setConfirm]);
 
   useEffect(() => {
     // NOTE: Triggers confirmations once all approvals are complete.
-    if (!mustSwitchNetwork && showSwitchNetwork) {
+    if (!mustSwitchNetwork && showSwitchNetwork && setConfirm) {
       setShowSwitchNetwork(false);
 
       // If approvals are still required proceed to that stage
@@ -125,29 +130,21 @@ const TransactionSidebarComponent = ({
         setShowTxnApprovals(true);
       } else {
         // Clear the populated transaction and transaction error to reset the simulation
-        updateState({
-          confirm: true,
-          populatedTransaction: undefined,
-          transactionError: undefined,
-        });
+        setConfirm(true);
       }
     }
 
-    if (!showApprovals && showTxnApprovals) {
+    if (!showApprovals && showTxnApprovals && setConfirm) {
       setShowTxnApprovals(false);
       // Clear the populated transaction and transaction error to reset the simulation
-      updateState({
-        confirm: true,
-        populatedTransaction: undefined,
-        transactionError: undefined,
-      });
+      setConfirm(true);
     }
   }, [
+    setConfirm,
     showApprovals,
     showTxnApprovals,
     mustSwitchNetwork,
     showSwitchNetwork,
-    updateState,
   ]);
 
   if (tradeType === undefined) return <PageLoading />;

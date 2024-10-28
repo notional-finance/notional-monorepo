@@ -77,6 +77,8 @@ export const TradeModel = types
      * repay debt, and roll maturity
      */
     selectedToken: types.optional(types.maybe(types.string), undefined),
+    /** Address of the vault, if any */
+    vaultAddress: types.optional(types.maybe(types.string), undefined),
     /** NOTE: this is currently unused throughout the site */
     redeemToWETH: types.optional(types.boolean, false),
     /** Signals that the input is a max withdraw or max repayment */
@@ -405,12 +407,80 @@ export const TradeModel = types
       self.isReady = true;
     };
 
-    // TODO: ideally refactor update state to be more explicit
-    const updateState = () => {
-      // TODO: allow setting of certain values:
-      // - leverage ratio, collateral, debt, deposit
-      // - depositBalance, collateralBalance, debtBalance
-      // TODO: if all inputs are satisfied, run a calculations
+    const calculate = () => {
+      const {
+        requiredArgs,
+        calculationFn,
+        // TODO: add these as well...
+        // computeDebtOptions,
+        // computeCollateralOptions,
+      } = getTradeConfig(self.tradeType);
+      let inputsSatisfied = true;
+      const inputs = requiredArgs.reduce((acc, arg) => {
+        if (arg === 'collateralPool' && self.collateral?.currencyId) {
+          acc['collateralPool'] = root()
+            .getNetworkClient(self.selectedNetwork)
+            .getNotionalMarket(self.collateral.currencyId);
+        } else if (arg === 'debtPool' && self.debt?.currencyId) {
+          acc['debtPool'] = root()
+            .getNetworkClient(self.selectedNetwork)
+            .getNotionalMarket(self.debt.currencyId);
+        } else if (arg === 'vaultAdapter' && self.vaultAddress) {
+          acc['vaultAdapter'] = root()
+            .getNetworkClient(self.selectedNetwork)
+            .getVaultAdapter(self.vaultAddress);
+        } else if (arg === 'balances') {
+          acc['balances'] = root().getAccountDefinition(
+            self.selectedNetwork
+          )?.balances;
+        } else if (arg === 'vaultLastUpdateTime' && self.vaultAddress) {
+          const accountDefinition = root().getAccountDefinition(
+            self.selectedNetwork
+          );
+
+          if (accountDefinition?.vaultLastUpdateTime) {
+            acc['vaultLastUpdateTime'] =
+              accountDefinition.vaultLastUpdateTime[self.vaultAddress];
+          } else {
+            acc['vaultLastUpdateTime'] = 0;
+          }
+        } else if (self[arg] === undefined) {
+          inputsSatisfied = false;
+        }
+        acc[arg] = self[arg];
+        return acc;
+      }, {});
+
+      if (inputsSatisfied) {
+        try {
+          const outputs = calculationFn(inputs as any);
+          if (outputs) {
+            Object.keys(outputs).forEach((key) => {
+              self[key] = outputs[key];
+            });
+          }
+
+          self.calculationSuccess = true;
+          self.calculateError = undefined;
+        } catch (e) {
+          self.calculationSuccess = false;
+          self.calculateError = (e as Error).toString();
+          // Clear any calculated inputs that are not required for the trade type
+          requiredArgs.forEach((arg) => {
+            if (arg === 'collateral' && self.tradeType !== 'RollDebt') {
+              self.collateralBalance = undefined;
+            } else if (arg === 'debt' && self.tradeType !== 'ConvertAsset') {
+              self.debtBalance = undefined;
+            } else if (arg === 'deposit') {
+              self.depositBalance = undefined;
+            }
+          });
+          self.netRealizedCollateralBalance = undefined;
+          self.netRealizedDebtBalance = undefined;
+          self.debtFee = undefined;
+          self.collateralFee = undefined;
+        }
+      }
     };
 
     const setDepositBalance = (
@@ -419,17 +489,26 @@ export const TradeModel = types
     ) => {
       self.depositBalance = balance;
       self.maxWithdraw = maxWithdraw;
+      calculate();
     };
 
     const setHasInputErrors = (inputErrors: boolean) => {
       self.inputErrors = inputErrors;
     };
 
+    const setConfirm = (confirm: boolean) => {
+      if (self.confirm !== confirm) {
+        self.populatedTransaction = undefined;
+        self.transactionError = undefined;
+      }
+      self.confirm = confirm;
+    };
+
     return {
       afterAttach,
-      updateState,
       setHasInputErrors,
       setDepositBalance,
+      setConfirm,
     };
   })
   .views((self) => ({
@@ -437,6 +516,14 @@ export const TradeModel = types
       return {
         setDepositBalance: self.setDepositBalance,
         setHasInputErrors: self.setHasInputErrors,
+        setConfirm: self.setConfirm,
       };
+    },
+    get state() {
+      // NOTE: this is slow....
+      return {
+        ...self,
+      };
+    },
     },
   }));
