@@ -80,7 +80,7 @@ export const DepositInput = React.forwardRef<
         tradeType,
         selectedNetwork,
       },
-      updateState,
+      actions,
     } = context;
     const availableDepositTokens = depositTokens || _depositTokens;
     const deposit = depositOverride || _deposit;
@@ -103,22 +103,17 @@ export const DepositInput = React.forwardRef<
       if (onUpdate) {
         onUpdate(inputAmount);
       } else {
-        updateState({
-          depositBalance: inputAmount,
-          maxWithdraw: false,
-        });
+        actions?.setDepositBalance(inputAmount, false);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateState, onUpdate, inputAmount?.hashKey]);
+    }, [actions?.setDepositBalance, onUpdate, inputAmount?.hashKey]);
 
     useEffect(() => {
-      updateState({
-        inputErrors: !!errorMsg || !!errorMsgOverride,
-      });
+      actions?.setHasInputErrors(!!errorMsg || !!errorMsgOverride);
       // Use message descriptor ids here for the comparison. If there is a values object
       // included then will get into an infinite loop here due to object reference comparison
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateState, errorMsg?.id, errorMsgOverride?.id]);
+    }, [actions?.setHasInputErrors, errorMsg?.id, errorMsgOverride?.id]);
 
     const balanceAndApyData = useWalletBalances(
       selectedNetwork,

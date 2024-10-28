@@ -60,5 +60,9 @@ export function useTradeContext(tradeType: TradeType) {
     }
   });
 
-  return { updateState: defaultUpdateState, state };
+  return {
+    updateState: defaultUpdateState,
+    state,
+    actions: tradeModel?.actions,
+  };
 }

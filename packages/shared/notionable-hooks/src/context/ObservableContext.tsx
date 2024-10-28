@@ -15,12 +15,15 @@ import {
 } from 'rxjs';
 import { useAppReady } from '../use-notional';
 import { useObservableReducer } from './use-observable-reducer';
+import { TradeModel } from '@notional-finance/notionable/stores/trades/TradeModel';
+import { Instance } from 'mobx-state-tree';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
 
 export interface ObservableContext<T> {
   updateState: (args: Partial<T>) => void;
   state: T;
+  actions?: Instance<typeof TradeModel>['actions'];
 }
 
 export function createObservableContext<T>(
