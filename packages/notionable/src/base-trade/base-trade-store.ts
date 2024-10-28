@@ -259,7 +259,10 @@ export function isDeleverageTrade(tradeType?: AllTradeTypes) {
   );
 }
 
-export function isDeleverageWithSwappedTokens(s?: BaseTradeState) {
+export function isDeleverageWithSwappedTokens(s?: {
+  tradeType?: AllTradeTypes;
+  collateral?: TokenDefinition;
+}) {
   if (!s?.tradeType) return false;
   return (
     s?.tradeType === 'Deleverage' ||
