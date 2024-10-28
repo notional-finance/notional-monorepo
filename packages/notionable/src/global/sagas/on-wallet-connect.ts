@@ -171,6 +171,8 @@ async function getDebBankData(selectedAddress, isReadOnlyAddress) {
 
   let isFetching = false;
   let currentNetWorth = 0;
+  let currentIsLender;
+  let currentLendingProtocols = [];
 
   async function updateDeBankNetWorth(address: string) {
     if (isFetching) return;
@@ -182,6 +184,8 @@ async function getDebBankData(selectedAddress, isReadOnlyAddress) {
 
       const currentTimestamp = getNowSeconds();
       currentNetWorth = Math.trunc(netWorth);
+      currentIsLender = isLender;
+      currentLendingProtocols = lendingProtocols;
 
       const userSettings = getFromLocalStorage('userSettings');
       setInLocalStorage('userSettings', {
@@ -201,9 +205,18 @@ async function getDebBankData(selectedAddress, isReadOnlyAddress) {
     await updateDeBankNetWorth(selectedAddress);
   }
 
-  return !userSettings.debankNetWorth
-    ? currentNetWorth
-    : userSettings.debankNetWorth;
+  return {
+    debankNetWorth: !userSettings.debankNetWorth
+      ? currentNetWorth
+      : userSettings.debankNetWorth,
+    isLender:
+      userSettings.isLender === undefined
+        ? currentIsLender
+        : userSettings.isLender,
+    lendingProtocols: !userSettings.lendingProtocols
+      ? currentLendingProtocols
+      : userSettings.lendingProtocols,
+  };
 }
 
 async function updateWalletTracking(
@@ -216,9 +229,16 @@ async function updateWalletTracking(
   };
   const userSettings = getFromLocalStorage('userSettings');
   let debankNetWorth = 0;
-  await getDebBankData(selectedAddress, isReadOnlyAddress).then((netWorth) => {
-    debankNetWorth = netWorth;
-  });
+  let isLender;
+  let lendingProtocols = [];
+
+  await getDebBankData(selectedAddress, isReadOnlyAddress).then(
+    (debankData) => {
+      debankNetWorth = debankData.debankNetWorth;
+      isLender = debankData.isLender;
+      lendingProtocols = debankData.lendingProtocols;
+    }
+  );
   const accounts = Registry.getAccountRegistry();
 
   SupportedNetworks.forEach((network) => {
@@ -270,6 +290,9 @@ async function updateWalletTracking(
     TotalNotionalBalance: balanceData.notionalBalance,
     TotalBalance: totalBalance,
     DeBankNetWorth: debankNetWorth,
+    IsLender:
+      lendingProtocols && lendingProtocols.length > 0 ? isLender : undefined,
+    LendingProtocols: lendingProtocols,
   });
 
   safeDatadogRum.setUser({
@@ -283,6 +306,9 @@ async function updateWalletTracking(
     TotalNotionalBalance: balanceData.notionalBalance,
     TotalBalance: totalBalance,
     DeBankNetWorth: debankNetWorth,
+    IsLender:
+      lendingProtocols && lendingProtocols.length > 0 ? isLender : undefined,
+    LendingProtocols: lendingProtocols,
   });
 
   update({
@@ -293,6 +319,9 @@ async function updateWalletTracking(
       TotalNotionalBalance: balanceData.notionalBalance,
       TotalBalance: totalBalance,
       DeBankNetWorth: debankNetWorth,
+      IsLender:
+        lendingProtocols && lendingProtocols.length > 0 ? isLender : undefined,
+      LendingProtocols: lendingProtocols,
     },
   });
 }
