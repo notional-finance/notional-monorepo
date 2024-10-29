@@ -125,23 +125,14 @@ async function fetchDeBankData(walletAddress: string) {
       protocolsResponse.json(),
     ]);
 
-    let isLender;
-
-    protocolsData?.map((data) => {
-      if (data.debt_usd_value > 0) {
-        isLender = false;
-        return isLender;
-      } else {
-        isLender = true;
-      }
-      return isLender;
-    });
+    const isBorrower =
+      protocolsData?.find((data) => data.debt_usd_value > 0) ?? false;
 
     const lendingProtocols = protocolsData.map((data) => data.id);
 
     return {
       netWorth: balanceData.total_usd_value,
-      isLender,
+      isLender: !isBorrower,
       lendingProtocols:
         lendingProtocols && lendingProtocols.length > 0 ? lendingProtocols : [],
     };
