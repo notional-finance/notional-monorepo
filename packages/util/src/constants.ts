@@ -225,6 +225,12 @@ export const vaults = {
     Curve_USDe_xUSDC: '0xD6AA58cf21A0EDB33375D6c0434b8Bb5b589F021' as const,
     Convex_xGHO_USDe: '0xB1113cf888A019693b254da3d90f841072D85172' as const,
     Convex_xWBTC_tBTC: '0xe20048FA0F165A49b780DFA9A8caBa845332f848' as const,
+    Pendle_ezETH_25DEC2024:
+      '0xe47d1584A6dBb98Cc889BB1c9CBE5387173C282b' as const,
+    Pendle_USDe_25DEC2024:
+      '0x5fc3FC6263B16F665d78075784f5A6ABeD00e1dD' as const,
+    Pendle_USDe_26MAR2025:
+      '0xc87a900078F04c45B7f14e46C520D4A6f37296b0' as const,
   },
   arbitrum: {
     Curve_xFRAX_USDC: '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf' as const,

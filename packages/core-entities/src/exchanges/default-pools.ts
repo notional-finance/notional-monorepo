@@ -25,6 +25,18 @@ const registerTokensMap = {
     tBTC: '0x18084fbA666a33d37592fA2633fD49a74DD93a88' as const,
     CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b' as const,
     CRV: '0xd533a949740bb3306d119cc777fa900ba034cd52' as const,
+    'Pendle-Market-ezETH-25DEC2024':
+      '0xD8F12bCDE578c653014F27379a6114F67F0e445f' as const,
+    'PT-ezETH-25DEC2024': '0xf7906F274c174A52d444175729E3fa98f9bde285' as const,
+    'SY-ezETH': '0x22E12A50e3ca49FB183074235cB1db84Fe4C716D' as const,
+    'Pendle-Market-USDe-25DEC2024':
+      '0x8a49f2AC2730ba15AB7EA832EdaC7f6BA22289f8' as const,
+    'PT-USDe-25DEC2024': '0xA8778DD6B7f1F61f2CFda5D3cB18be8F99A8dB30' as const,
+    'SY-USDe-25DEC2024': '0xd29a7D69cF5f06CCd777e53d6E437032804aBf89' as const,
+    'Pendle-Market-USDe-26MAR2025':
+      '0xB451A36c8B6b2EAc77AD0737BA732818143A0E25' as const,
+    'PT-USDe-26MAR2025': '0x8A47b431A7D947c6a3ED6E42d501803615a97EAa' as const,
+    'SY-USDe-26MARC2025': '0x4dB99b79361F98865230f5702de024C69f629fEC' as const,
   },
   arbitrum: {
     'FRAXBP-f': '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5' as const,
@@ -431,6 +443,126 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           network: Network.mainnet,
           symbol: 'CRV',
           name: 'Curve DAO Token',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address:
+        registerTokensMap[Network.mainnet]['Pendle-Market-ezETH-25DEC2024'],
+      PoolClass: 'PendleMarket',
+      registerTokens: [
+        {
+          id: registerTokensMap[Network.mainnet][
+            'Pendle-Market-ezETH-25DEC2024'
+          ],
+          address:
+            registerTokensMap[Network.mainnet]['Pendle-Market-ezETH-25DEC2024'],
+          name: 'Pendle Market: ezETH 25DEC2024',
+          network: Network.mainnet,
+          symbol: 'PENDLE-LPT ezETH 25DEC2024',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['PT-ezETH-25DEC2024'],
+          address: registerTokensMap[Network.mainnet]['PT-ezETH-25DEC2024'],
+          name: 'PT: ezETH 25DEC2024',
+          network: Network.mainnet,
+          symbol: 'PT-ezETH-25DEC2024',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['SY-ezETH'],
+          address: registerTokensMap[Network.mainnet]['SY-ezETH'],
+          name: 'SY ezETH',
+          network: Network.mainnet,
+          symbol: 'SY-ezETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address:
+        registerTokensMap[Network.mainnet]['Pendle-Market-USDe-25DEC2024'],
+      PoolClass: 'PendleMarket',
+      registerTokens: [
+        {
+          id: registerTokensMap[Network.mainnet][
+            'Pendle-Market-USDe-25DEC2024'
+          ],
+          address:
+            registerTokensMap[Network.mainnet]['Pendle-Market-USDe-25DEC2024'],
+          name: 'Pendle Market: USDe 25DEC2024',
+          network: Network.mainnet,
+          symbol: 'PENDLE-LPT USDe 25DEC2024',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['PT-USDe-25DEC2024'],
+          address: registerTokensMap[Network.mainnet]['PT-USDe-25DEC2024'],
+          name: 'PT: USDe 25DEC2024',
+          network: Network.mainnet,
+          symbol: 'PT-USDe-25DEC2024',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['SY-USDe-25DEC2024'],
+          address: registerTokensMap[Network.mainnet]['SY-USDe-25DEC2024'],
+          name: 'SY USDe 25DEC2024',
+          network: Network.mainnet,
+          symbol: 'SY-USDe-25DEC2024',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address:
+        registerTokensMap[Network.mainnet]['Pendle-Market-USDe-26MAR2025'],
+      PoolClass: 'PendleMarket',
+      registerTokens: [
+        {
+          id: registerTokensMap[Network.mainnet][
+            'Pendle-Market-USDe-26MAR2025'
+          ],
+          address:
+            registerTokensMap[Network.mainnet]['Pendle-Market-USDe-26MAR2025'],
+          name: 'Pendle Market: USDe 26MAR2025',
+          network: Network.mainnet,
+          symbol: 'PENDLE-LPT USDe 26MAR2025',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['PT-USDe-26MAR2025'],
+          address: registerTokensMap[Network.mainnet]['PT-USDe-26MAR2025'],
+          name: 'PT: USDe 26MAR2025',
+          network: Network.mainnet,
+          symbol: 'PT-USDe-26MAR2025',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['SY-USDe-26MAR2025'],
+          address: registerTokensMap[Network.mainnet]['SY-USDe-26MAR2025'],
+          name: 'SY USDe 26MAR2025',
+          network: Network.mainnet,
+          symbol: 'SY-USDe-26MAR2025',
           decimals: 18,
           tokenInterface: 'ERC20',
           tokenType: 'Underlying',
