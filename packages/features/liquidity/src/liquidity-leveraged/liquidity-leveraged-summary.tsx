@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import { FaqHeader, Faq, TotalRow } from '@notional-finance/mui';
 import {
-  LiquidationChart,
+  LeveragedLiquidityLiquidationChart,
   PerformanceChart,
   TradeActionSummary,
 } from '@notional-finance/trade';
@@ -34,7 +34,7 @@ export const LiquidityLeveragedSummary = () => {
     <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
       <PerformanceChart state={state} />
       <TotalRow totalsData={totalsData} />
-      <LiquidationChart state={state} />
+      <LeveragedLiquidityLiquidationChart state={state} />
       <Box sx={{ marginTop: theme.spacing(5) }}>
         <FaqHeader
           title={

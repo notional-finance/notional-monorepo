@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material';
-import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import {
   ChartToolTipDataProps,
@@ -8,50 +8,28 @@ import {
   LEGEND_LINE_TYPES,
   AreaChartStylesProps,
 } from '@notional-finance/mui';
-import {
-  TradeState,
-  useCurrentNetworkStore,
-  VaultTradeState,
-} from '@notional-finance/notionable';
+import { TradeState } from '@notional-finance/notionable';
 import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
-import { RATE_PRECISION, getDateString } from '@notional-finance/util';
+import { getDateString } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { AxisDomain } from 'recharts/types/util/types';
 
-export function useLiquidationChart(
-  state: TradeState | VaultTradeState,
-  vaultCollateral?: TokenDefinition,
-  vaultLiquidationPrice?: TokenBalance | null
-) {
+export function useLiquidationChart(state: TradeState) {
   const theme = useTheme();
-  const currentNetworkStore = useCurrentNetworkStore();
-  const {
-    collateral,
-    postAccountRisk,
-    debt,
-    tradeType,
-    priorAccountRisk,
-    inputsSatisfied,
-    calculationSuccess,
-  } = state;
-
-  const token =
-    tradeType === 'LeveragedLend' && collateral?.tokenType === 'PrimeCash'
-      ? debt
-      : collateral || vaultCollateral;
+  const { collateral, inputsSatisfied, calculationSuccess } = state;
 
   const liquidationPrice = (
     postAccountRisk
       ? postAccountRisk.liquidationPrice.find(
-          ({ asset }) => asset.id === token?.id
+          ({ asset }) => asset.id === collateral?.id
         )?.threshold
       : priorAccountRisk?.liquidationPrice.find(
-          ({ asset }) => asset.id === token?.id
-        )?.threshold || vaultLiquidationPrice
+          ({ asset }) => asset.id === collateral?.id
+        )?.threshold
   )?.toUnderlying();
   const deposit = state.deposit || liquidationPrice?.underlying;
 
-  const areaChartData = useAssetPriceHistory(token).map(
+  const areaChartData = useAssetPriceHistory(collateral).map(
     ({ timestamp, assetPrice }) => ({
       timestamp,
       area: assetPrice,
@@ -59,19 +37,13 @@ export function useLiquidationChart(
     })
   );
 
-  let yAxisDomain: AxisDomain = ['dataMin * 0.95', 'dataMax * 1.05'];
-  if (token?.tokenType === 'fCash') {
-    // This range technically only applies to lending fCash but works as a boundary on the
-    // fCash price anyway
-    const { lowestDiscountFactor } =
-      currentNetworkStore.getMinLendRiskAdjustedDiscountFactor(token);
-    yAxisDomain = [lowestDiscountFactor / RATE_PRECISION, 1];
-  }
-
+  const yAxisDomain: AxisDomain = ['dataMin * 0.95', 'dataMax * 1.05'];
   const currentPrice =
-    deposit && token ? TokenBalance.unit(token).toToken(deposit) : undefined;
-  const pricePair = token
-    ? `${formatTokenType(token).title}/${deposit?.symbol}`
+    deposit && collateral
+      ? TokenBalance.unit(collateral).toToken(deposit)
+      : undefined;
+  const pricePair = collateral
+    ? `${formatTokenType(collateral).title}/${deposit?.symbol}`
     : '';
 
   const chartToolTipData: ChartToolTipDataProps = {
