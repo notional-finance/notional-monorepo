@@ -66,3 +66,8 @@ export function useTradeContext(tradeType: TradeType) {
     actions: tradeModel?.actions,
   };
 }
+
+export function useCurrentTradeContext() {
+  const root = useRootStore();
+  return useObserver(() => root.tradeModel);
+}

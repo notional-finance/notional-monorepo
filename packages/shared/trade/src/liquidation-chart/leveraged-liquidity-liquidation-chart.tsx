@@ -1,22 +1,14 @@
 import { MultiDisplayChart, AreaChart } from '@notional-finance/mui';
-import { TradeState, VaultTradeState } from '@notional-finance/notionable';
+import { TradeState } from '@notional-finance/notionable';
 import { useLiquidationChart } from './use-liquidation-chart';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import {
-  TimeSeriesDataPoint,
-  TokenBalance,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { TimeSeriesDataPoint } from '@notional-finance/core-entities';
 
-export const LiquidationChart = ({
+export const LeveragedLiquidityLiquidationChart = ({
   state,
-  vaultCollateral,
-  vaultLiquidationPrice,
 }: {
-  state: TradeState | VaultTradeState;
-  vaultCollateral?: TokenDefinition;
-  vaultLiquidationPrice?: TokenBalance | null;
+  state: TradeState;
 }) => {
   const theme = useTheme();
   const {
@@ -26,7 +18,7 @@ export const LiquidationChart = ({
     chartToolTipData,
     yAxisDomain,
     showEmptyState,
-  } = useLiquidationChart(state, vaultCollateral, vaultLiquidationPrice);
+  } = useLiquidationChart(state);
 
   return (
     <Box marginBottom={theme.spacing(5)}>
