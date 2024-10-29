@@ -89,27 +89,59 @@ function onWalletChange$(global$: Observable<GlobalState>) {
   );
 }
 
-async function fetchDeBankNetWorth(walletAddress) {
+async function fetchDeBankData(walletAddress: string) {
   const DeBankAPIKey = process.env['NX_DEBANK_API_KEY'] as string | undefined;
-  const url = `https://pro-openapi.debank.com/v1/user/total_balance?id=${walletAddress}`;
+  const headers = {
+    accept: 'application/json',
+    AccessKey: DeBankAPIKey || '',
+  };
 
   try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-        AccessKey: DeBankAPIKey || '',
-      },
-    });
+    const [balanceResponse, protocolsResponse] = await Promise.all([
+      fetch(
+        `https://pro-openapi.debank.com/v1/user/total_balance?id=${walletAddress}`,
+        {
+          method: 'GET',
+          headers,
+        }
+      ),
+      fetch(
+        `https://pro-openapi.debank.com/v1/user/all_simple_protocol_list?id=${walletAddress}`,
+        {
+          method: 'GET',
+          headers,
+        }
+      ),
+    ]);
 
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+    if (!balanceResponse.ok || !protocolsResponse.ok) {
+      throw new Error(
+        `API Error: Balance ${balanceResponse.status}, Protocols ${protocolsResponse.status}`
+      );
     }
-    const data = await response.json();
 
-    return data.total_usd_value;
+    const [balanceData, protocolsData] = await Promise.all([
+      balanceResponse.json(),
+      protocolsResponse.json(),
+    ]);
+
+    const isBorrower =
+      protocolsData?.find((data) => data.debt_usd_value > 0) ?? false;
+
+    const lendingProtocols = protocolsData.map((data) => data.id);
+
+    return {
+      netWorth: balanceData.total_usd_value,
+      isLender: !isBorrower,
+      lendingProtocols:
+        lendingProtocols && lendingProtocols.length > 0 ? lendingProtocols : [],
+    };
   } catch (error) {
-    console.error('Failed to fetch DeBank net worth:', error);
+    console.error('Failed to fetch DeBank data:', error);
+    return {
+      netWorth: 0,
+      isLender: false,
+    };
   }
 }
 
@@ -130,19 +162,28 @@ async function getDebBankData(selectedAddress, isReadOnlyAddress) {
 
   let isFetching = false;
   let currentNetWorth = 0;
+  let currentIsLender;
+  let currentLendingProtocols = [];
 
   async function updateDeBankNetWorth(address: string) {
     if (isFetching) return;
     isFetching = true;
     try {
-      const netWorth = await fetchDeBankNetWorth(address);
+      const { netWorth, isLender, lendingProtocols } = await fetchDeBankData(
+        address
+      );
+
       const currentTimestamp = getNowSeconds();
       currentNetWorth = Math.trunc(netWorth);
+      currentIsLender = isLender;
+      currentLendingProtocols = lendingProtocols;
 
       const userSettings = getFromLocalStorage('userSettings');
       setInLocalStorage('userSettings', {
         ...userSettings,
         debankAddress: address,
+        isLender: isLender,
+        lendingProtocols: lendingProtocols,
         debankNetWorth: currentNetWorth,
         debankTimestamp: currentTimestamp,
       });
@@ -155,9 +196,18 @@ async function getDebBankData(selectedAddress, isReadOnlyAddress) {
     await updateDeBankNetWorth(selectedAddress);
   }
 
-  return !userSettings.debankNetWorth
-    ? currentNetWorth
-    : userSettings.debankNetWorth;
+  return {
+    debankNetWorth: !userSettings.debankNetWorth
+      ? currentNetWorth
+      : userSettings.debankNetWorth,
+    isLender:
+      userSettings.isLender === undefined
+        ? currentIsLender
+        : userSettings.isLender,
+    lendingProtocols: !userSettings.lendingProtocols
+      ? currentLendingProtocols
+      : userSettings.lendingProtocols,
+  };
 }
 
 async function updateWalletTracking(
@@ -170,9 +220,16 @@ async function updateWalletTracking(
   };
   const userSettings = getFromLocalStorage('userSettings');
   let debankNetWorth = 0;
-  await getDebBankData(selectedAddress, isReadOnlyAddress).then((netWorth) => {
-    debankNetWorth = netWorth;
-  });
+  let isLender;
+  let lendingProtocols = [];
+
+  await getDebBankData(selectedAddress, isReadOnlyAddress).then(
+    (debankData) => {
+      debankNetWorth = debankData.debankNetWorth;
+      isLender = debankData.isLender;
+      lendingProtocols = debankData.lendingProtocols;
+    }
+  );
   const accounts = Registry.getAccountRegistry();
 
   SupportedNetworks.forEach((network) => {
@@ -224,6 +281,9 @@ async function updateWalletTracking(
     TotalNotionalBalance: balanceData.notionalBalance,
     TotalBalance: totalBalance,
     DeBankNetWorth: debankNetWorth,
+    IsLender:
+      lendingProtocols && lendingProtocols.length > 0 ? isLender : undefined,
+    LendingProtocols: lendingProtocols,
   });
 
   safeDatadogRum.setUser({
@@ -237,6 +297,9 @@ async function updateWalletTracking(
     TotalNotionalBalance: balanceData.notionalBalance,
     TotalBalance: totalBalance,
     DeBankNetWorth: debankNetWorth,
+    IsLender:
+      lendingProtocols && lendingProtocols.length > 0 ? isLender : undefined,
+    LendingProtocols: lendingProtocols,
   });
 
   update({
@@ -247,6 +310,9 @@ async function updateWalletTracking(
       TotalNotionalBalance: balanceData.notionalBalance,
       TotalBalance: totalBalance,
       DeBankNetWorth: debankNetWorth,
+      IsLender:
+        lendingProtocols && lendingProtocols.length > 0 ? isLender : undefined,
+      LendingProtocols: lendingProtocols,
     },
   });
 }
