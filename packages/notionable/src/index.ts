@@ -9,4 +9,8 @@ export * from './stores/app-store';
 export * from './stores/points-store';
 export * from './stores/portfolio-store';
 export * from './stores/root-store';
-export { GATED_VAULTS, CommunityId } from './global/account/communities';
+export {
+  GATED_VAULTS,
+  CommunityId,
+  Community,
+} from './global/account/communities';

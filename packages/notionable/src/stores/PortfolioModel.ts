@@ -601,6 +601,28 @@ export const AccountPortfolioActions = (
   };
 };
 
-export const AccountPortfolioModel = _AccountPortfolioModel.actions((self) => ({
-  ...AccountPortfolioActions(self),
-}));
+export const AccountPortfolioModel = _AccountPortfolioModel
+  .actions((self) => ({
+    ...AccountPortfolioActions(self),
+  }))
+  .views((self) => {
+    const root = () => getRoot<RootStoreInterface>(self);
+
+    return {
+      get allowances() {
+        return (
+          self.allowances?.filter(
+            (a) => a.amount.isPositive() && a.amount.symbol !== 'ETH'
+          ) || []
+        );
+      },
+      balanceOf(symbol: string) {
+        return (
+          self.balances.find((b) => b.symbol === symbol) ||
+          TokenBalance.zero(
+            root().getNetworkClient(self.network).getTokenBySymbol(symbol)
+          )
+        );
+      },
+    };
+  });
