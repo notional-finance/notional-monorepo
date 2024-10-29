@@ -16,10 +16,11 @@ import {
   formatNumberAsPercent,
   truncateAddress,
 } from '@notional-finance/helpers';
-import { useNotionalContext } from './use-notional';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';
 import {
+  Community,
+  COMMUNITY_NAMES,
   useCurrentNetworkStore,
   useWalletStore,
 } from '@notional-finance/notionable';
@@ -42,11 +43,8 @@ export function usePrimeCashBalance(
 }
 
 export function useWalletCommunities() {
-  const {
-    globalState: { communityMembership },
-  } = useNotionalContext();
-
-  return communityMembership;
+  // NOTE: this is currently disabled
+  return [] as Community[];
 }
 
 export function useWalletConnected() {
@@ -83,15 +81,12 @@ export function useReadOnlyAddress() {
 }
 
 export function useWalletAllowances() {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
+  const networkAccounts = useWalletStore().networkAccounts;
+
   return SupportedNetworks.reduce((acc, n) => {
     acc[n as Network] =
       networkAccounts && networkAccounts[n as Network]
-        ? networkAccounts[n as Network].accountDefinition?.allowances?.filter(
-            (a) => a.amount.isPositive() && a.amount.symbol !== 'ETH'
-          ) || []
+        ? networkAccounts[n as Network].allowances
         : [];
     return acc;
   }, {} as Record<Network, Allowance[]>);
@@ -217,9 +212,7 @@ export function useWalletBalancesOnNetworks(
   networks: Network[],
   underlyingSymbol: string | undefined
 ) {
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
+  const networkAccounts = useWalletStore().networkAccounts;
   if (!underlyingSymbol) return {} as Record<Network, TokenBalance>;
 
   return networks.reduce((acc, n) => {
@@ -227,9 +220,8 @@ export function useWalletBalancesOnNetworks(
       networkAccounts && networkAccounts[n] ? networkAccounts[n] : undefined;
 
     acc[n] =
-      acct?.accountDefinition?.balances.find(
-        (t) => t.tokenType === 'Underlying' && t.symbol === underlyingSymbol
-      ) || getNetworkModel(n).getTokenBalanceFromSymbol(0, underlyingSymbol);
+      acct?.balanceOf(underlyingSymbol) ||
+      getNetworkModel(n).getTokenBalanceFromSymbol(0, underlyingSymbol);
 
     return acc;
   }, {} as Record<Network, TokenBalance>);
@@ -242,6 +234,7 @@ export function useWalletBalances(
 ) {
   const account = useAccountDefinition(network);
   const apyData = useApyValues(tradeType);
+
   return useMemo(() => {
     return tokens
       ?.map((token) => {
