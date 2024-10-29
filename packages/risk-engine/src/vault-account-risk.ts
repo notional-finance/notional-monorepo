@@ -330,31 +330,6 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       .mulInRatePrecision(liquidationPriceRatio)
       .toToken(asset);
 
-    console.log(
-      'vault address',
-      this.vaultAddress,
-      '\ntotal debt risk adjusted',
-      this.totalDebtRiskAdjusted().toDisplayStringWithSymbol(8, false, false),
-      '\none vault share value at liquidation',
-      oneVaultShareValueAtLiquidation.toDisplayStringWithSymbol(
-        8,
-        false,
-        false
-      ),
-      '\none vault share value',
-      oneVaultShareValue.toDisplayStringWithSymbol(8, false, false),
-      '\nliquidation price ratio',
-      liquidationPriceRatio.toNumber() / RATE_PRECISION,
-      '\nasset to underlying price',
-      assetToUnderlyingPrice.toDisplayStringWithSymbol(8, false, false),
-      '\nasset to underlying price * liquidation price ratio',
-      assetToUnderlyingPrice
-        .mulInRatePrecision(liquidationPriceRatio)
-        .toDisplayStringWithSymbol(8, false, false),
-      '\nasset liquidation threshold',
-      assetLiquidationThreshold.toDisplayStringWithSymbol(8, false, false)
-    );
-
     return assetLiquidationThreshold;
   }
 
