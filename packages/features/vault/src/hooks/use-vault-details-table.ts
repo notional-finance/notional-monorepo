@@ -12,7 +12,7 @@ export function useVaultDetailsTable() {
     postAccountNoRisk,
     tooRisky,
     onlyCurrent,
-  } = useVaultDetails(state);
+  } = useVaultDetails();
 
   const maturity =
     collateralBalance?.maturity ||

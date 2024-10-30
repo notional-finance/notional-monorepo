@@ -1,6 +1,9 @@
 import { useContext } from 'react';
 import { LiquidityContext } from '../../liquidity';
-import { usePortfolioLiquidationRisk } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  usePortfolioLiquidationRisk,
+} from '@notional-finance/notionable-hooks';
 import {
   formatLeverageRatio,
   formatNumberAsPercentWithUndefined,
@@ -17,17 +20,17 @@ import { useCurrentNetworkStore } from '@notional-finance/notionable';
 
 export const useLiquidityDetails = () => {
   const { state } = useContext(LiquidityContext);
+  const trade = useCurrentTradeContext();
+  const comparePortfolio = trade?.getPortfolioComparison();
   const {
     selectedDepositToken,
-    comparePortfolio,
     collateralBalance,
     debtBalance,
     debtOptions,
     collateralOptions,
     selectedNetwork,
   } = state;
-  const { tableData, tooRisky, onlyCurrent } =
-    usePortfolioLiquidationRisk(state);
+  const { tableData, tooRisky, onlyCurrent } = usePortfolioLiquidationRisk();
   const currentNetworkStore = useCurrentNetworkStore();
   const liquidity = currentNetworkStore.getAllNTokenYields();
   const { currentHoldings } = useLeveragedNTokenPositions(
@@ -99,7 +102,7 @@ export const useLiquidityDetails = () => {
       )?.totalAPY
     : currentNToken?.apy.totalAPY;
 
-  let newFixedRate;
+  let newFixedRate: number | undefined;
   if (
     newDebt?.tokenType === 'fCash' &&
     debtBalance &&
