@@ -655,10 +655,16 @@ export const TradeModel = types
       };
     };
 
-    const getVaultRiskSummary = () => {
+    const getPriorVaultBalances = () => {
       const account = root().getAccountDefinition(self.selectedNetwork);
-      const baseCurrency = root().appStore.baseCurrency;
+      return account && self.vaultAddress
+        ? VaultAccountRiskProfile.fromAccount(self.vaultAddress, account)
+            ?.balances
+        : undefined;
+    };
 
+    const getPostVaultRiskProfile = () => {
+      const account = root().getAccountDefinition(self.selectedNetwork);
       const priorVaultRisk =
         account && self.vaultAddress
           ? VaultAccountRiskProfile.fromAccount(self.vaultAddress, account)
@@ -683,6 +689,21 @@ export const TradeModel = types
                 ) as TokenBalance[]
               )
           : undefined;
+
+      return {
+        priorVaultRisk,
+        postVaultRisk,
+      };
+    };
+
+    const getPostVaultFactors = () => {
+      const { postVaultRisk } = getPostVaultRiskProfile();
+      return postVaultRisk?.getAllRiskFactors();
+    };
+
+    const getVaultRiskSummary = () => {
+      const baseCurrency = root().appStore.baseCurrency;
+      const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
 
       const priorBorrowRate = priorVaultRisk?.borrowAPY;
       const priorAPY = priorVaultRisk?.totalAPY;
@@ -777,6 +798,8 @@ export const TradeModel = types
       getVaultRiskSummary,
       getTradeLiquidationPrices,
       getPortfolioComparison,
+      getPriorVaultBalances,
+      getPostVaultFactors,
     };
   });
 

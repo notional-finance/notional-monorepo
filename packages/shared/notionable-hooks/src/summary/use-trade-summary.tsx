@@ -27,6 +27,7 @@ import { DetailItem, OrderDetailLabels, TradeSummaryLabels, Earnings } from '.';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
 import { useTotalAPY } from './use-total-apy';
 import { NotionalTheme } from '@notional-finance/styles';
+import { useCurrentTradeContext } from '../context/use-trade-context';
 
 type FeeMessages = {
   content: MessageDescriptor;
@@ -587,7 +588,8 @@ function getStakeNOTESummary(
  */
 function getLeverageSummary(
   state: TradeState | VaultTradeState,
-  intl: IntlShape
+  intl: IntlShape,
+  priorVaultBalances: TokenBalance[] | undefined
 ): DetailItem[] {
   const summary: DetailItem[] = [];
   const {
@@ -626,7 +628,6 @@ function getLeverageSummary(
   }
   // NOTE: rolling a vault debt will repay and withdraw all current shares
   if (tradeType === 'RollVaultPosition') {
-    const { priorVaultBalances } = state as VaultTradeState;
     if (priorVaultBalances) {
       const debt = priorVaultBalances.find((t) => t.tokenType === 'VaultDebt');
       const assets = priorVaultBalances.find(
@@ -770,6 +771,8 @@ function getDeleverageWithdrawSummary(
 export function useTradeSummary(state: VaultTradeState | TradeState) {
   const intl = useIntl();
   const theme = useTheme();
+  const trade = useCurrentTradeContext();
+  const priorVaultBalances = trade?.getPriorVaultBalances();
   const {
     depositBalance: _d,
     netAssetBalance,
@@ -823,7 +826,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
         debtBalance.tokenType !== 'nToken') ||
       (tradeType === 'AdjustVaultLeverage' && debtBalance.isNegative()))
   ) {
-    summary.push(...getLeverageSummary(state, intl));
+    summary.push(...getLeverageSummary(state, intl, priorVaultBalances));
   } else if (
     isLeverageOrRoll &&
     (tradeType === 'WithdrawVault' ||
