@@ -63,7 +63,11 @@ const PendlePTVaults: Record<Network, string[]> = {
     vaults.arbitrum.Pendle_rsETH_25SEP2024,
     vaults.arbitrum.Pendle_rsETH_26DEC2024,
   ].map(toLowercase),
-  [Network.mainnet]: [],
+  [Network.mainnet]: [
+    vaults.mainnet.Pendle_ezETH_25DEC2024,
+    vaults.mainnet.Pendle_USDe_25DEC2024,
+    vaults.mainnet.Pendle_USDe_26MAR2025,
+  ].map(toLowercase),
   [Network.all]: [],
 };
 
@@ -84,6 +88,9 @@ export const whitelistedVaults = (
         vaults.mainnet.Convex_xGHO_USDe,
         vaults.mainnet.Balancer_rsETH_xWETH,
         vaults.mainnet.Convex_xWBTC_tBTC,
+        vaults.mainnet.Pendle_ezETH_25DEC2024,
+        vaults.mainnet.Pendle_USDe_25DEC2024,
+        vaults.mainnet.Pendle_USDe_26MAR2025,
       ].map(toLowercase);
     case Network.arbitrum:
       return [
@@ -115,7 +122,7 @@ export const VaultDefaultDexParameters: Record<
   >
 > = {
   [Network.arbitrum]: {
-    '0x851a28260227f9a8e6bf39a5fa3b5132fa49c7f3': {
+    [vaults.arbitrum.Pendle_rsETH_25SEP2024.toLowerCase()]: {
       dexId: DexIds.BALANCER_V2,
       exchangeData: defaultAbiCoder.encode(
         ['bytes32'],
@@ -123,7 +130,7 @@ export const VaultDefaultDexParameters: Record<
       ),
       poolAddress: '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
     },
-    '0x878c46978ac67e43d9d27e510f98e087e9940b12': {
+    [vaults.arbitrum.Pendle_rsETH_26DEC2024.toLowerCase()]: {
       dexId: DexIds.BALANCER_V2,
       exchangeData: defaultAbiCoder.encode(
         ['bytes32'],
@@ -132,7 +139,32 @@ export const VaultDefaultDexParameters: Record<
       poolAddress: '0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd739',
     },
   },
-  [Network.mainnet]: {},
+  [Network.mainnet]: {
+    [vaults.mainnet.Pendle_ezETH_25DEC2024.toLowerCase()]: {
+      dexId: DexIds.BALANCER_V2,
+      exchangeData: defaultAbiCoder.encode(
+        ['bytes32'],
+        ['0x596192bb6e41802428ac943d2f1476c1af25cc0e000000000000000000000659']
+      ),
+      poolAddress: '0x596192bb6e41802428ac943d2f1476c1af25cc0e',
+    },
+    [vaults.mainnet.Pendle_USDe_25DEC2024.toLowerCase()]: {
+      dexId: DexIds.CURVE_V2,
+      exchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 1, 0]
+      ),
+      poolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
+    },
+    [vaults.mainnet.Pendle_USDe_26MAR2025.toLowerCase()]: {
+      dexId: DexIds.CURVE_V2,
+      exchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 1, 0]
+      ),
+      poolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
+    },
+  },
   [Network.all]: {},
 };
 
