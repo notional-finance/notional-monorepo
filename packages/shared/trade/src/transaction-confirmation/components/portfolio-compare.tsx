@@ -20,7 +20,7 @@ export const PortfolioCompare = ({
   const theme = useTheme();
   const [showHiddenRows, setShowHiddenRows] = useState(false);
   const { onlyCurrent, allTableData, filteredTableData } =
-    usePortfolioComparison(state);
+    usePortfolioComparison();
 
   const tableData = showHiddenRows ? allTableData : filteredTableData;
 

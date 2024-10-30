@@ -24,7 +24,10 @@ import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
-import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import {
+  formatNumberAsPercentWithUndefined,
+  formatTokenType,
+} from '@notional-finance/helpers';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -558,6 +561,32 @@ export const TradeModel = types
       );
     };
 
+    const comparePortfolio = (prior: TokenBalance[], post: TokenBalance[]) => {
+      return zipByKeyToArray(prior, post, (t) => t.tokenId)
+        .map(([_current, _updated]) => {
+          const updated = (_updated || _current?.copy(0)) as TokenBalance;
+          const current = (_current || _updated?.copy(0)) as TokenBalance;
+          const { titleWithMaturity } =
+            updated.tokenType === 'PrimeCash' && current.isNegative()
+              ? formatTokenType(current.toPrimeDebt().token)
+              : formatTokenType(current.token);
+
+          return {
+            label: titleWithMaturity,
+            current: current,
+            isCurrentNegative: current.isNegative(),
+            updated: updated,
+            isUpdatedNegative: updated.isNegative(),
+            sortOrder: updated.sub(current).abs().toFloat(),
+            changeType: getChangeType(current.toFloat(), updated.toFloat()),
+          };
+        })
+        .filter(
+          ({ current, updated }) => !current.isZero() || !updated.isZero()
+        )
+        .sort((a, b) => b.sortOrder - a.sortOrder);
+    };
+
     const getPostTradeSummary = () => {
       const account = root().getNetworkAccount(self.selectedNetwork);
       const newBalances = [self.collateralBalance, self.debtBalance].filter(
@@ -570,8 +599,13 @@ export const TradeModel = types
         : undefined;
     };
 
-    const getTradeBalances = () => {
-      return getPostTradeSummary()?.balances;
+    const getPortfolioComparison = () => {
+      const postBalances = getPostTradeSummary()?.balances;
+      const priorBalances = root().getNetworkAccount(self.selectedNetwork)
+        ?.balances as TokenBalance[] | undefined;
+      return priorBalances && postBalances
+        ? comparePortfolio(priorBalances, postBalances)
+        : [];
     };
 
     const getTradeLiquidationPrices = () => {
@@ -741,8 +775,8 @@ export const TradeModel = types
       },
       getRiskSummary,
       getVaultRiskSummary,
-      getTradeBalances,
       getTradeLiquidationPrices,
+      getPortfolioComparison,
     };
   });
 
