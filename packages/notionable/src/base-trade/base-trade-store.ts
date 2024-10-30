@@ -13,7 +13,6 @@ import {
 import { PopulatedTransaction } from 'ethers';
 import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
 import { TradeType } from './trade-config';
-import { AccountRiskSummary, VaultAccountRiskSummary } from './sagas';
 import { Network } from '@notional-finance/util';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
@@ -186,8 +185,10 @@ export interface BaseTradeState
     TransactionState,
     VaultState {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface TradeState extends BaseTradeState {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface VaultTradeState extends BaseTradeState {}
 
 export interface NOTETradeState extends BaseTradeState {

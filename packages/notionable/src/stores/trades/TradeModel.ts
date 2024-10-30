@@ -558,21 +558,37 @@ export const TradeModel = types
       );
     };
 
-    const getRiskSummary = () => {
+    const getPostTradeSummary = () => {
       const account = root().getNetworkAccount(self.selectedNetwork);
-      const priorAccountRisk = account?.portfolioRiskProfile;
-      const priorLiquidationPrice = account?.portfolioLiquidationPrices;
       const newBalances = [self.collateralBalance, self.debtBalance].filter(
         (b) => b !== undefined
       ) as TokenBalance[];
 
-      const postAccountRisk =
-        self.calculationSuccess && (self.collateralBalance || self.debtBalance)
-          ? AccountRiskProfile.simulate(
-              account?.balances || [],
-              newBalances
-            ).getAllRiskFactors()
-          : undefined;
+      return self.calculationSuccess &&
+        (self.collateralBalance || self.debtBalance)
+        ? AccountRiskProfile.simulate(account?.balances || [], newBalances)
+        : undefined;
+    };
+
+    const getTradeBalances = () => {
+      return getPostTradeSummary()?.balances;
+    };
+
+    const getTradeLiquidationPrices = () => {
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const postTrade = getPostTradeSummary()?.getAllLiquidationPrices();
+      const preTrade = account?.portfolioLiquidationPrices;
+      return {
+        postTrade,
+        preTrade,
+      };
+    };
+
+    const getRiskSummary = () => {
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const priorAccountRisk = account?.portfolioRiskProfile;
+      const priorLiquidationPrice = account?.portfolioLiquidationPrices;
+      const postAccountRisk = getPostTradeSummary()?.getAllRiskFactors();
 
       return {
         onlyCurrent: !postAccountRisk,
@@ -725,6 +741,8 @@ export const TradeModel = types
       },
       getRiskSummary,
       getVaultRiskSummary,
+      getTradeBalances,
+      getTradeLiquidationPrices,
     };
   });
 
