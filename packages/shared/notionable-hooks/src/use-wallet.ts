@@ -86,7 +86,7 @@ export function useWalletAllowances() {
   return SupportedNetworks.reduce((acc, n) => {
     acc[n as Network] =
       networkAccounts && networkAccounts[n as Network]
-        ? networkAccounts[n as Network].allowances
+        ? networkAccounts[n as Network].positiveAllowances
         : [];
     return acc;
   }, {} as Record<Network, Allowance[]>);

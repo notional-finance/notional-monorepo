@@ -128,7 +128,6 @@ const PortfolioModel = types.model('PortfolioModel', {
   portfolioRiskProfile: types.optional(
     types.maybe(
       types.model({
-        freeCollateral: NotionalTypes.TokenBalance,
         loanToValue: types.maybeNull(types.number),
         healthFactor: types.maybeNull(types.number),
         totalAssets: NotionalTypes.TokenBalance,
@@ -611,7 +610,7 @@ export const AccountPortfolioModel = _AccountPortfolioModel
     const root = () => getRoot<RootStoreInterface>(self);
 
     return {
-      get allowances() {
+      get positiveAllowances() {
         return (
           self.allowances?.filter(
             (a) => a.amount.isPositive() && a.amount.symbol !== 'ETH'
