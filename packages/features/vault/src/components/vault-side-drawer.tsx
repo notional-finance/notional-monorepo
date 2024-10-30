@@ -44,9 +44,7 @@ export const VaultSideDrawer = ({
         navigate(`/vaults/${selectedNetwork}/${vaultAddress}`)
       }
       hideTextOnMobile={false}
-      riskComponent={
-        <CreateVaultLiquidationRisk key={'vault-risk-table'} state={state} />
-      }
+      riskComponent={<CreateVaultLiquidationRisk key={'vault-risk-table'} />}
       helptext={{
         ...messages[tradeType].helptext,
         values: {

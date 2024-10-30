@@ -186,13 +186,9 @@ export interface BaseTradeState
     TransactionState,
     VaultState {}
 
-export interface TradeState
-  extends BaseTradeState,
-    Partial<Omit<AccountRiskSummary, 'postTradeBalances'>> {}
+export interface TradeState extends BaseTradeState {}
 
-export interface VaultTradeState
-  extends BaseTradeState,
-    Partial<Omit<VaultAccountRiskSummary, 'postTradeBalances'>> {}
+export interface VaultTradeState extends BaseTradeState {}
 
 export interface NOTETradeState extends BaseTradeState {
   useOptimalETH?: boolean;

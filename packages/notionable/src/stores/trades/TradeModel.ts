@@ -14,9 +14,17 @@ import { getRoot, Instance, types } from 'mobx-state-tree';
 import { RootStoreInterface } from '../root-store';
 import { getTradeConfig } from '../../base-trade/trade-calculation';
 import {
+  getChangeType,
   getNowSeconds,
+  leveragedYield,
   PRIME_CASH_VAULT_MATURITY,
+  zipByKeyToArray,
 } from '@notional-finance/util';
+import {
+  AccountRiskProfile,
+  VaultAccountRiskProfile,
+} from '@notional-finance/risk-engine';
+import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -511,19 +519,233 @@ export const TradeModel = types
       setConfirm,
     };
   })
-  .views((self) => ({
-    get actions() {
+  .views((self) => {
+    const root = () => getRoot<RootStoreInterface>(self);
+    const mergeLiquidationPrices = (
+      prior: (ReturnType<
+        AccountRiskProfile['getAllLiquidationPrices']
+      >[number] & {
+        debt?: TokenDefinition;
+      })[],
+      post: (ReturnType<
+        AccountRiskProfile['getAllLiquidationPrices']
+      >[number] & {
+        debt?: TokenDefinition;
+      })[]
+    ) => {
+      return zipByKeyToArray(prior, post, (t) => t.asset.id).map(
+        ([current, updated]) => {
+          const asset = (current?.asset || updated?.asset) as TokenDefinition;
+          const debt = (current?.debt || updated?.debt) as
+            | TokenDefinition
+            | undefined;
+
+          return {
+            asset,
+            debt,
+            current: current?.threshold,
+            updated: updated?.threshold,
+            changeType: getChangeType(
+              current?.threshold?.toFloat(),
+              updated?.threshold?.toFloat()
+            ),
+            // Debt thresholds improve as they increase
+            greenOnArrowUp: updated?.isDebtThreshold ? true : false,
+            isPriceRisk: asset.tokenType === 'Underlying',
+            isAssetRisk: asset.tokenType !== 'Underlying',
+          };
+        }
+      );
+    };
+
+    const getRiskSummary = () => {
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const priorAccountRisk = account?.portfolioRiskProfile;
+      const priorLiquidationPrice = account?.portfolioLiquidationPrices;
+      const newBalances = [self.collateralBalance, self.debtBalance].filter(
+        (b) => b !== undefined
+      ) as TokenBalance[];
+
+      const postAccountRisk =
+        self.calculationSuccess && (self.collateralBalance || self.debtBalance)
+          ? AccountRiskProfile.simulate(
+              account?.balances || [],
+              newBalances
+            ).getAllRiskFactors()
+          : undefined;
+
       return {
-        setDepositBalance: self.setDepositBalance,
-        setHasInputErrors: self.setHasInputErrors,
-        setConfirm: self.setConfirm,
+        onlyCurrent: !postAccountRisk,
+        tooRisky: postAccountRisk?.freeCollateral.isNegative() || false,
+        priorAccountNoRisk:
+          priorAccountRisk === undefined ||
+          (priorAccountRisk?.healthFactor === null &&
+            priorLiquidationPrice?.length === 0),
+        postAccountNoRisk:
+          postAccountRisk?.healthFactor === null &&
+          postAccountRisk?.liquidationPrice.length === 0,
+        healthFactor: {
+          current: priorAccountRisk?.healthFactor,
+          updated: postAccountRisk?.healthFactor,
+          changeType: getChangeType(
+            priorAccountRisk?.healthFactor,
+            postAccountRisk?.healthFactor
+          ),
+          greenOnArrowUp: true,
+        },
+        liquidationPrice: mergeLiquidationPrices(
+          priorLiquidationPrice?.map((p) => ({
+            ...p,
+            asset: root()
+              .getNetworkClient(self.selectedNetwork)
+              .getTokenByID(p.asset),
+          })) || [],
+          postAccountRisk?.liquidationPrice || []
+        ),
       };
-    },
-    get state() {
-      // NOTE: this is slow....
+    };
+
+    const getVaultRiskSummary = () => {
+      const account = root().getAccountDefinition(self.selectedNetwork);
+      const baseCurrency = root().appStore.baseCurrency;
+
+      const priorVaultRisk =
+        account && self.vaultAddress
+          ? VaultAccountRiskProfile.fromAccount(self.vaultAddress, account)
+          : undefined;
+
+      const postVaultRisk =
+        self.calculationSuccess &&
+        self.collateralBalance &&
+        self.debtBalance &&
+        self.vaultAddress
+          ? (self.tradeType === 'RollVaultPosition' ||
+              self.tradeType === 'CreateVaultPosition') &&
+            self.debtBalance
+            ? new VaultAccountRiskProfile(
+                self.vaultAddress,
+                [self.collateralBalance, self.debtBalance],
+                0
+              )
+            : priorVaultRisk?.simulate(
+                [self.collateralBalance, self.debtBalance].filter(
+                  (b) => b !== undefined
+                ) as TokenBalance[]
+              )
+          : undefined;
+
+      const priorBorrowRate = priorVaultRisk?.borrowAPY;
+      const priorAPY = priorVaultRisk?.totalAPY;
+      const newBorrowRate = self.debtOptions?.find(
+        (t) => t.token.id === self.debtBalance?.tokenId
+      )?.interestRate;
+      const postBorrowRate =
+        postVaultRisk?.maturity === PRIME_CASH_VAULT_MATURITY
+          ? newBorrowRate
+          : averageFixedRate(priorVaultRisk, postVaultRisk, newBorrowRate);
+      const vaultSharesAPY = postVaultRisk?.vaultShares?.tokenId
+        ? root()
+            .getNetworkClient(self.selectedNetwork)
+            .getSpotAPY(postVaultRisk.vaultShares.tokenId)?.totalAPY
+        : undefined;
+
+      const postAPY = leveragedYield(
+        vaultSharesAPY,
+        postBorrowRate,
+        postVaultRisk?.leverageRatio() || 0
+      );
+
       return {
-        ...self,
+        onlyCurrent: !postVaultRisk,
+        tooRisky: postVaultRisk?.aboveMaxLeverageRatio() || false,
+        priorAccountNoRisk:
+          priorVaultRisk === undefined ||
+          priorVaultRisk?.leverageRatio() === null,
+        postAccountNoRisk:
+          postVaultRisk === undefined ||
+          postVaultRisk?.leverageRatio() === null,
+        healthFactor: {
+          current: priorVaultRisk?.healthFactor(),
+          updated: postVaultRisk?.healthFactor(),
+          changeType: getChangeType(
+            priorVaultRisk?.healthFactor(),
+            postVaultRisk?.healthFactor()
+          ),
+          greenOnArrowUp: true,
+        },
+        liquidationPrice: mergeLiquidationPrices(
+          priorVaultRisk?.getAllLiquidationPrices() || [],
+          postVaultRisk?.getAllLiquidationPrices() || []
+        ),
+        netWorth: {
+          current:
+            priorVaultRisk
+              ?.netWorth()
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(2, true, false) || '-',
+          updated:
+            postVaultRisk
+              ?.netWorth()
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(2, true, false) || '-',
+          changeType: getChangeType(
+            priorVaultRisk?.netWorth().toFloat(),
+            postVaultRisk?.netWorth().toFloat()
+          ),
+          greenOnArrowUp: true,
+        },
+        borrowAPY: {
+          current: formatNumberAsPercentWithUndefined(priorBorrowRate, '-'),
+          updated: formatNumberAsPercentWithUndefined(postBorrowRate, '-'),
+          changeType: getChangeType(priorBorrowRate, postBorrowRate),
+          greenOnArrowUp: false,
+        },
+        totalAPY: {
+          current: formatNumberAsPercentWithUndefined(priorAPY, '-'),
+          updated: formatNumberAsPercentWithUndefined(postAPY, '-'),
+          changeType: getChangeType(priorAPY, postAPY),
+          greenOnArrowUp: true,
+        },
       };
-    },
-    },
-  }));
+    };
+
+    return {
+      get actions() {
+        return {
+          setDepositBalance: self.setDepositBalance,
+          setHasInputErrors: self.setHasInputErrors,
+          setConfirm: self.setConfirm,
+        };
+      },
+      get state() {
+        // NOTE: this is slow....
+        return {
+          ...self,
+        };
+      },
+      getRiskSummary,
+      getVaultRiskSummary,
+    };
+  });
+
+function averageFixedRate(
+  prior: VaultAccountRiskProfile | undefined,
+  post: VaultAccountRiskProfile | undefined,
+  newBorrowRate: number | undefined
+) {
+  if (
+    prior?.maturity === post?.maturity &&
+    newBorrowRate !== undefined &&
+    prior?.lastImpliedFixedRate !== undefined &&
+    post?.vaultDebt !== undefined
+  ) {
+    return (
+      (prior.lastImpliedFixedRate * prior.vaultDebt.toFloat() +
+        (newBorrowRate - prior.lastImpliedFixedRate) *
+          post.vaultDebt.toFloat()) /
+      prior.vaultDebt.toFloat()
+    );
+  } else {
+    return newBorrowRate;
+  }
+}

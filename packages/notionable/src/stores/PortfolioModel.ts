@@ -128,6 +128,7 @@ const PortfolioModel = types.model('PortfolioModel', {
   portfolioRiskProfile: types.optional(
     types.maybe(
       types.model({
+        freeCollateral: NotionalTypes.TokenBalance,
         loanToValue: types.maybeNull(types.number),
         healthFactor: types.maybeNull(types.number),
         totalAssets: NotionalTypes.TokenBalance,
@@ -316,6 +317,7 @@ export const AccountPortfolioActions = (
   const getPortfolioRiskProfile = () => {
     const profile = getAccountRiskProfile();
     return {
+      freeCollateral: profile.freeCollateral(),
       loanToValue: profile.loanToValue(),
       healthFactor: profile.healthFactor(),
       totalAssets: profile.totalAssets(),

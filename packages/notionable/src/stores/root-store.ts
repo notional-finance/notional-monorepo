@@ -16,15 +16,18 @@ import { AppStoreModel } from './app-store';
 import { WalletModel } from './wallet-store';
 import { TradeModel } from './trades/TradeModel';
 import { AllTradeTypes } from '../base-trade/base-trade-store';
+import { AccountPortfolioModel } from './PortfolioModel';
 
 export type RootStoreType = Instance<typeof RootStore>;
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
 export type AppStoreModelType = Instance<typeof AppStoreModel>;
-export type PortfolioStoreModelType = Instance<typeof PortfolioStoreModel>;
 export interface RootStoreInterface {
   network: Network;
   getNetworkClient: (network: Network) => NetworkClientModelType;
   getAccountDefinition: (network: Network) => AccountDefinition | null;
+  getNetworkAccount: (
+    network: Network
+  ) => Instance<typeof AccountPortfolioModel> | undefined;
   appStore: AppStoreModelType;
 }
 
@@ -64,6 +67,9 @@ const RootStore = types
     },
     getNetworkClient(network: Network) {
       return getNetworkModel(network);
+    },
+    getNetworkAccount(network: Network) {
+      return self.walletStore.networkAccounts.get(network);
     },
     get currentNetworkClient() {
       return getNetworkModel(self.network);
