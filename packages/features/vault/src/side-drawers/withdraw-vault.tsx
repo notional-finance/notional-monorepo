@@ -13,6 +13,7 @@ import { VaultActionContext } from '../vault';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
 import {
+  useCurrentTradeContext,
   useVaultMaxWithdraw,
   useVaultPosition,
 } from '@notional-finance/notionable-hooks';
@@ -22,9 +23,10 @@ import { useVaultActionErrors } from '../hooks';
 export const WithdrawVault = () => {
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
   const context = useContext(VaultActionContext);
+  const trade = useCurrentTradeContext();
+  const postVaultFactors = trade?.getPostVaultFactors();
   const {
     state: {
-      postAccountRisk,
       deposit,
       depositBalance,
       vaultAddress,
@@ -37,7 +39,7 @@ export const WithdrawVault = () => {
   const [inputString, setInputString] = useState('');
   const { underMinAccountBorrowError } = useVaultActionErrors();
   const primaryBorrowSymbol = deposit?.symbol;
-  const isFullRepayment = postAccountRisk?.leverageRatio === null;
+  const isFullRepayment = postVaultFactors?.leverageRatio === null;
   const profile = useVaultPosition(selectedNetwork, vaultAddress);
   const maxWithdrawValues = useVaultMaxWithdraw(selectedNetwork, vaultAddress);
 

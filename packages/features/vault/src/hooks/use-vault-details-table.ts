@@ -1,11 +1,16 @@
 import { useContext } from 'react';
 import { formatMaturity } from '@notional-finance/util';
 import { VaultActionContext } from '../vault';
-import { useVaultDetails } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useVaultDetails,
+} from '@notional-finance/notionable-hooks';
 
 export function useVaultDetailsTable() {
   const { state } = useContext(VaultActionContext);
-  const { priorVaultBalances, collateralBalance } = state;
+  const trade = useCurrentTradeContext();
+  const priorVaultBalances = trade?.getPriorVaultBalances();
+  const { collateralBalance } = state;
   const {
     tableData,
     priorAccountNoRisk,

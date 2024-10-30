@@ -1,6 +1,6 @@
+/* eslint-disable */
 import {
   AccountDefinition,
-  Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { PRIME_CASH_VAULT_MATURITY, filterEmpty } from '@notional-finance/util';
@@ -56,86 +56,77 @@ export function vaultCapacity(
           : undefined;
 
         if (vaultCapacity) {
-          const {
-            minAccountBorrowSize,
-            totalUsedPrimaryBorrowCapacity,
-            maxPrimaryBorrowCapacity,
-          } = vaultCapacity;
-
-          // If the debt balance is the same as the current debt then
-          // sum them together, otherwise just go with the new debt balance
-          const priorDebtBalance = priorVaultBalances?.find(
-            (t) => t.tokenType === 'VaultDebt'
-          );
-
-          const totalAccountDebt =
-            debtBalance && priorDebtBalance?.tokenId === debtBalance?.tokenId
-              ? priorDebtBalance?.add(debtBalance)
-              : debtBalance;
-
-          underMinAccountBorrow = totalAccountDebt?.isNegative()
-            ? toCapacityValue(totalAccountDebt).lt(minAccountBorrowSize)
-            : false;
-
-          const netDebtBalanceForCapacity =
-            priorDebtBalance && totalAccountDebt
-              ? toCapacityValue(totalAccountDebt).sub(
-                  toCapacityValue(priorDebtBalance)
-                )
-              : totalAccountDebt
-              ? toCapacityValue(totalAccountDebt)
-              : undefined;
-
-          if (netDebtBalanceForCapacity && debtBalance?.isNegative()) {
-            overCapacityError =
-              // Over capacity due to borrow
-              totalUsedPrimaryBorrowCapacity
-                .add(netDebtBalanceForCapacity)
-                .gt(maxPrimaryBorrowCapacity);
-
-            // overPoolCapacityError =
-            //   vaultAdapter?.strategy === 'SingleSidedLP'
-            //     ? (vaultAdapter as SingleSidedLP).isOverMaxPoolShare(
-            //         collateralBalance
-            //       ) ?? false
-            //     : false;
-          }
-
-          totalCapacityRemaining = maxPrimaryBorrowCapacity.sub(
-            totalUsedPrimaryBorrowCapacity
-          );
-
-          // if (vaultAdapter?.strategy === 'SingleSidedLP') {
-          //   totalPoolCapacityRemaining = (
-          //     vaultAdapter as SingleSidedLP
-          //   ).getRemainingPoolCapacity();
-          //   maxPoolShare = (vaultAdapter as SingleSidedLP).maxPoolShares
-          //     ? formatNumberAsPercent(
-          //         (vaultAdapter as SingleSidedLP).maxPoolShares.toNumber() /
-          //           100,
-          //         0
+          // const {
+          //   minAccountBorrowSize,
+          //   totalUsedPrimaryBorrowCapacity,
+          //   maxPrimaryBorrowCapacity,
+          // } = vaultCapacity;
+          // // If the debt balance is the same as the current debt then
+          // // sum them together, otherwise just go with the new debt balance
+          // const priorDebtBalance = priorVaultBalances?.find(
+          //   (t) => t.tokenType === 'VaultDebt'
+          // );
+          // const totalAccountDebt =
+          //   debtBalance && priorDebtBalance?.tokenId === debtBalance?.tokenId
+          //     ? priorDebtBalance?.add(debtBalance)
+          //     : debtBalance;
+          // underMinAccountBorrow = totalAccountDebt?.isNegative()
+          //   ? toCapacityValue(totalAccountDebt).lt(minAccountBorrowSize)
+          //   : false;
+          // const netDebtBalanceForCapacity =
+          //   priorDebtBalance && totalAccountDebt
+          //     ? toCapacityValue(totalAccountDebt).sub(
+          //         toCapacityValue(priorDebtBalance)
           //       )
+          //     : totalAccountDebt
+          //     ? toCapacityValue(totalAccountDebt)
           //     : undefined;
+          // if (netDebtBalanceForCapacity && debtBalance?.isNegative()) {
+          //   overCapacityError =
+          //     // Over capacity due to borrow
+          //     totalUsedPrimaryBorrowCapacity
+          //       .add(netDebtBalanceForCapacity)
+          //       .gt(maxPrimaryBorrowCapacity);
+          //   // overPoolCapacityError =
+          //   //   vaultAdapter?.strategy === 'SingleSidedLP'
+          //   //     ? (vaultAdapter as SingleSidedLP).isOverMaxPoolShare(
+          //   //         collateralBalance
+          //   //       ) ?? false
+          //   //     : false;
           // }
-
-          // NOTE: these two values below do not need to be recalculated inside the observable
-          minBorrowSize =
-            minAccountBorrowSize.toFloat() < 10
-              ? minAccountBorrowSize.toDisplayStringWithSymbol(1)
-              : minAccountBorrowSize.toDisplayStringWithSymbol(0);
-          vaultTVL = Registry.getTokenRegistry()
-            .getAllTokens(network)
-            .filter(
-              (t) =>
-                t.tokenType === 'VaultShare' && t.vaultAddress === vaultAddress
-            )
-            .reduce((tvl, t) => {
-              if (t.totalSupply) {
-                return tvl.add(t.totalSupply.toUnderlying());
-              } else {
-                return tvl;
-              }
-            }, TokenBalance.zero(minAccountBorrowSize.token));
+          // totalCapacityRemaining = maxPrimaryBorrowCapacity.sub(
+          //   totalUsedPrimaryBorrowCapacity
+          // );
+          // // if (vaultAdapter?.strategy === 'SingleSidedLP') {
+          // //   totalPoolCapacityRemaining = (
+          // //     vaultAdapter as SingleSidedLP
+          // //   ).getRemainingPoolCapacity();
+          // //   maxPoolShare = (vaultAdapter as SingleSidedLP).maxPoolShares
+          // //     ? formatNumberAsPercent(
+          // //         (vaultAdapter as SingleSidedLP).maxPoolShares.toNumber() /
+          // //           100,
+          // //         0
+          // //       )
+          // //     : undefined;
+          // // }
+          // // NOTE: these two values below do not need to be recalculated inside the observable
+          // minBorrowSize =
+          //   minAccountBorrowSize.toFloat() < 10
+          //     ? minAccountBorrowSize.toDisplayStringWithSymbol(1)
+          //     : minAccountBorrowSize.toDisplayStringWithSymbol(0);
+          // vaultTVL = Registry.getTokenRegistry()
+          //   .getAllTokens(network)
+          //   .filter(
+          //     (t) =>
+          //       t.tokenType === 'VaultShare' && t.vaultAddress === vaultAddress
+          //   )
+          //   .reduce((tvl, t) => {
+          //     if (t.totalSupply) {
+          //       return tvl.add(t.totalSupply.toUnderlying());
+          //     } else {
+          //       return tvl;
+          //     }
+          //   }, TokenBalance.zero(minAccountBorrowSize.token));
         }
 
         return {

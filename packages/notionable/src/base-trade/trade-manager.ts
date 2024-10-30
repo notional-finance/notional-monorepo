@@ -43,9 +43,10 @@ export function createTradeManager(
     calculate(state$, debtPool$, collateralPool$, of(undefined), account$),
     // NOTE: this is required to read URL based inputs for deposits
 
+    // TODO: this should be calculated via a model view
+    priorAccountRisk(state$, account$),
 
     selectedDepositToken(state$),
-    priorAccountRisk(state$, account$),
     defaultLeverageRatio(state$, network$),
     availableTokens(state$, network$, account$),
     selectedPortfolioToken(state$)
