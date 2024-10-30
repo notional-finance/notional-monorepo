@@ -9,7 +9,10 @@ import {
   AreaChartStylesProps,
 } from '@notional-finance/mui';
 import { TradeState } from '@notional-finance/notionable';
-import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
+import {
+  useAssetPriceHistory,
+  useTradeLiquidationPrice,
+} from '@notional-finance/notionable-hooks';
 import { getDateString } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { AxisDomain } from 'recharts/types/util/types';
@@ -17,16 +20,7 @@ import { AxisDomain } from 'recharts/types/util/types';
 export function useLiquidationChart(state: TradeState) {
   const theme = useTheme();
   const { collateral, inputsSatisfied, calculationSuccess } = state;
-
-  const liquidationPrice = (
-    postAccountRisk
-      ? postAccountRisk.liquidationPrice.find(
-          ({ asset }) => asset.id === collateral?.id
-        )?.threshold
-      : priorAccountRisk?.liquidationPrice.find(
-          ({ asset }) => asset.id === collateral?.id
-        )?.threshold
-  )?.toUnderlying();
+  const liquidationPrice = useTradeLiquidationPrice();
   const deposit = state.deposit || liquidationPrice?.underlying;
 
   const areaChartData = useAssetPriceHistory(collateral).map(

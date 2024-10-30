@@ -128,6 +128,17 @@ export function formatHealthFactorValues(
   return { value, textColor };
 }
 
+export function useTradeLiquidationPrice() {
+  const trade = useCurrentTradeContext();
+  const l = trade?.getTradeLiquidationPrices();
+  return trade?.collateral
+    ? (
+        l?.postTrade?.find((p) => p.asset.id === trade.collateral?.id) ||
+        l?.preTrade?.find((p) => p.asset === trade.collateral?.id)
+      )?.threshold?.toUnderlying()
+    : undefined;
+}
+
 export function usePortfolioLiquidationRisk() {
   const trade = useCurrentTradeContext();
   const intl = useIntl();
