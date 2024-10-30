@@ -6,19 +6,13 @@ import {
   TABLE_VARIANTS,
   ToolTipCell,
 } from '@notional-finance/mui';
-import { VaultTradeState } from '@notional-finance/notionable';
 import { useVaultLiquidationRisk } from '@notional-finance/notionable-hooks';
 import { tradeErrors } from '@notional-finance/trade';
 import { FormattedMessage } from 'react-intl';
 
-export const CreateVaultLiquidationRisk = ({
-  state,
-}: {
-  state: VaultTradeState;
-}) => {
+export const CreateVaultLiquidationRisk = () => {
   const theme = useTheme();
-  const { tableData, tooRisky, postAccountNoRisk } =
-    useVaultLiquidationRisk(state);
+  const { tableData, tooRisky, postAccountNoRisk } = useVaultLiquidationRisk();
   const columns: any[] = [
     {
       header: <FormattedMessage defaultMessage={'Detail'} />,

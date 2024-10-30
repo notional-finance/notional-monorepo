@@ -25,7 +25,7 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     postAccountNoRisk,
     tableData,
     tooRisky,
-  } = usePortfolioLiquidationRisk(state);
+  } = usePortfolioLiquidationRisk();
 
   const columns: any[] = [
     {

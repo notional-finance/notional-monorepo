@@ -1,21 +1,25 @@
 import { useTheme } from '@mui/material';
 import { NotionalTheme, colors } from '@notional-finance/styles';
-import { FiatKeys } from '@notional-finance/core-entities';
 import {
-  formatTokenType,
-  formatNumberAsPercentWithUndefined,
-} from '@notional-finance/helpers';
-import {
-  TradeState,
-  VaultTradeState,
-  useAppStore,
-} from '@notional-finance/notionable';
+  FiatKeys,
+  TokenBalance,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
+import { formatTokenType } from '@notional-finance/helpers';
+import { useAppStore } from '@notional-finance/notionable';
 import { HEALTH_FACTOR_RISK_LEVELS } from '@notional-finance/util';
 import { IntlShape, useIntl, defineMessages } from 'react-intl';
-import { useVaultPosition } from '../use-account';
+import { useCurrentTradeContext } from '../context/use-trade-context';
 
 function formatVaultLiquidationPrices(
-  liquidationPrice: VaultTradeState['liquidationPrice'],
+  liquidationPrice: {
+    asset: TokenDefinition;
+    debt?: TokenDefinition;
+    current?: TokenBalance | null;
+    updated?: TokenBalance | null;
+    changeType: string;
+    greenOnArrowUp: boolean;
+  }[],
   intl: IntlShape,
   hideArrow?: boolean
 ) {
@@ -53,7 +57,15 @@ function formatVaultLiquidationPrices(
 }
 
 function formatLiquidationPrices(
-  liquidationPrice: TradeState['liquidationPrice'],
+  liquidationPrice: {
+    asset: TokenDefinition;
+    debt?: TokenDefinition;
+    current?: TokenBalance | null;
+    updated?: TokenBalance | null;
+    isPriceRisk: boolean;
+    changeType: string;
+    greenOnArrowUp: boolean;
+  }[],
   baseCurrency: FiatKeys,
   intl: IntlShape,
   hideArrow?: boolean
@@ -116,21 +128,21 @@ export function formatHealthFactorValues(
   return { value, textColor };
 }
 
-export function usePortfolioLiquidationRisk(state: TradeState) {
-  const {
-    priorAccountRisk,
-    postAccountRisk,
-    healthFactor: _h,
-    liquidationPrice,
-  } = state;
-  const onlyCurrent = !postAccountRisk;
+export function usePortfolioLiquidationRisk() {
+  const trade = useCurrentTradeContext();
   const intl = useIntl();
   const { baseCurrency } = useAppStore();
   const theme = useTheme();
-  const priorAccountNoRisk =
-    priorAccountRisk === undefined ||
-    (priorAccountRisk?.healthFactor === null &&
-      priorAccountRisk?.liquidationPrice.length === 0);
+  if (!trade) throw new Error('No trade model');
+
+  const {
+    onlyCurrent,
+    healthFactor: _h,
+    liquidationPrice,
+    priorAccountNoRisk,
+    postAccountNoRisk,
+    tooRisky,
+  } = trade.getRiskSummary();
 
   const hideArrow = !onlyCurrent && priorAccountNoRisk ? true : false;
   const currentHFData = formatHealthFactorValues(_h?.current, theme);
@@ -163,18 +175,16 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 
   return {
     onlyCurrent,
-    tooRisky: postAccountRisk?.freeCollateral.isNegative() || false,
+    tooRisky,
     priorAccountNoRisk,
-    postAccountNoRisk:
-      postAccountRisk?.healthFactor === null &&
-      postAccountRisk?.liquidationPrice.length === 0,
+    postAccountNoRisk,
     tableData: [healthFactor, ...liquidationPrices],
   };
 }
 
-export function useVaultLiquidationRisk(state: VaultTradeState) {
+export function useVaultLiquidationRisk() {
   const { liquidationPrices, tooRisky, postAccountNoRisk, healthFactor } =
-    useVaultDetails(state);
+    useVaultDetails();
 
   const liquidationRiskTableData = [...liquidationPrices, healthFactor];
 
@@ -185,25 +195,22 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
   };
 }
 
-export function useVaultDetails(state: VaultTradeState) {
+export function useVaultDetails() {
+  const trade = useCurrentTradeContext();
+  const intl = useIntl();
+  const theme = useTheme();
+  if (!trade) throw new Error('No trade model');
   const {
-    postAccountRisk,
-    netWorth,
+    onlyCurrent,
+    priorAccountNoRisk,
+    postAccountNoRisk,
+    tooRisky,
     healthFactor: _h,
     liquidationPrice,
-    borrowAPY,
     totalAPY,
-    vaultAddress,
-    selectedNetwork,
-  } = state;
-  const currentPosition = useVaultPosition(selectedNetwork, vaultAddress);
-  const onlyCurrent = !postAccountRisk;
-  const intl = useIntl();
-  const { baseCurrency } = useAppStore();
-  const priorAccountNoRisk =
-    currentPosition === undefined || currentPosition?.leverageRatio === null;
-
-  const theme = useTheme();
+    netWorth,
+    borrowAPY,
+  } = trade.getVaultRiskSummary();
 
   const hideArrow = !onlyCurrent && priorAccountNoRisk ? true : false;
   const currentHFData = formatHealthFactorValues(_h?.current, theme);
@@ -247,11 +254,6 @@ export function useVaultDetails(state: VaultTradeState) {
           content: { defaultMessage: 'Total APY' },
         }),
       },
-      current: formatNumberAsPercentWithUndefined(
-        currentPosition?.totalAPY,
-        '-'
-      ),
-      updated: formatNumberAsPercentWithUndefined(totalAPY?.updated, '-'),
     },
     healthFactor,
     {
@@ -261,14 +263,6 @@ export function useVaultDetails(state: VaultTradeState) {
           content: { defaultMessage: 'Net Worth' },
         }),
       },
-      current:
-        currentPosition?.netWorth
-          ?.toFiat(baseCurrency)
-          .toDisplayStringWithSymbol(2, true, false) || '-',
-      updated:
-        netWorth?.updated
-          ?.toFiat(baseCurrency)
-          .toDisplayStringWithSymbol(2, true, false) || '-',
     },
     {
       ...borrowAPY,
@@ -277,11 +271,6 @@ export function useVaultDetails(state: VaultTradeState) {
           content: { defaultMessage: 'Borrow APY' },
         }),
       },
-      current: formatNumberAsPercentWithUndefined(
-        currentPosition?.borrowAPY,
-        '-'
-      ),
-      updated: formatNumberAsPercentWithUndefined(borrowAPY?.updated, '-'),
     },
   ];
 
@@ -292,11 +281,9 @@ export function useVaultDetails(state: VaultTradeState) {
 
   return {
     onlyCurrent,
-    tooRisky: postAccountRisk?.aboveMaxLeverageRatio || false,
-    priorAccountNoRisk:
-      currentPosition === undefined || currentPosition?.leverageRatio === null,
-    postAccountNoRisk:
-      postAccountRisk === undefined || postAccountRisk?.leverageRatio === null,
+    tooRisky,
+    priorAccountNoRisk,
+    postAccountNoRisk,
     tableData: [...factors, ...liquidationPrices],
     liquidationPrices,
     healthFactor,
