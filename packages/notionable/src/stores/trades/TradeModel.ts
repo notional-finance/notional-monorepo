@@ -190,11 +190,6 @@ export const TradeModel = types
       types.array(NotionalTypes.TokenBalance),
       []
     ),
-    /** Calculated incentives to the account balances post trade */
-    postTradeIncentives: types.optional(
-      types.array(NotionalTypes.TokenBalance),
-      []
-    ),
   })
   .actions((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
@@ -718,6 +713,25 @@ export const TradeModel = types
       };
     };
 
+    const getPostTradeIncentives = () => {
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const accruedIncentives = account
+        ? account.calculateAccruedIncentives().accruedIncentives
+        : undefined;
+      return (
+        accruedIncentives
+          ?.filter(
+            ({ currencyId }) =>
+              (self.collateralBalance?.tokenType === 'nToken' &&
+                self.collateralBalance.currencyId === currencyId) ||
+              (self.debtBalance?.tokenType === 'nToken' &&
+                self.debtBalance.currencyId === currencyId)
+          )
+          .flatMap(({ incentives }) => incentives)
+          .filter((i) => i.isPositive()) || []
+      );
+    };
+
     const getRiskSummary = () => {
       const account = root().getNetworkAccount(self.selectedNetwork);
       const priorAccountRisk = account?.portfolioRiskProfile;
@@ -1028,6 +1042,7 @@ export const TradeModel = types
       getPriorVaultBalances,
       getPostVaultFactors,
       getVaultCapacity,
+      getPostTradeIncentives,
       canSubmit,
     };
   });
