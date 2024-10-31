@@ -1,4 +1,5 @@
 import {
+  useCurrentNetworkAccount,
   useNotionalContext,
   useTransactionStatus,
   useVaultPosition,
@@ -24,45 +25,19 @@ import { Contract } from 'ethers';
 export const ClaimVaultRewards = () => {
   const context = useContext(VaultActionContext);
   const {
-    updateNotional,
-    globalState: { networkAccounts },
-  } = useNotionalContext();
-  const {
     state: { vaultAddress, selectedNetwork },
   } = context;
   const navigate = useNavigate();
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const account = useWalletAddress();
+  const networkAccount = useCurrentNetworkAccount();
   const { mustSwitchNetwork } = useChangeNetwork(selectedNetwork);
 
-  // NOTE: this is a bit of a hack to clear the rewardClaims from the vaultHoldings
-  // so that the backend will refresh the vaultHoldings with the new rewardClaims
-  const clearRewardClaims = () => {
-    if (selectedNetwork && networkAccounts) {
-      const clearedRewardClaims = {
-        ...networkAccounts,
-        [selectedNetwork]: {
-          ...networkAccounts[selectedNetwork],
-          vaultHoldings: networkAccounts[selectedNetwork]?.vaultHoldings?.map(
-            (holding) =>
-              holding.vaultAddress === vaultAddress
-                ? {
-                    ...holding,
-                    vaultMetadata: {
-                      ...holding.vaultMetadata,
-                      rewardClaims: holding.vaultMetadata?.rewardClaims?.map(
-                        (c) => c.copy(0)
-                      ),
-                    },
-                  }
-                : holding
-          ),
-        },
-      };
-
-      updateNotional({ networkAccounts: clearedRewardClaims });
+  const clearRewardClaims = useCallback(() => {
+    if (vaultAddress && networkAccount) {
+      networkAccount.refreshRewardClaims(vaultAddress);
     }
-  };
+  }, [vaultAddress, networkAccount]);
 
   const { isReadOnlyAddress, onSubmit } = useTransactionStatus(
     selectedNetwork,

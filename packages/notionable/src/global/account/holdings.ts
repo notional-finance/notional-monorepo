@@ -327,10 +327,6 @@ export function calculateVaultHoldings(
   accountHistory: AccountHistory[],
   vaultLastUpdateTime: Record<string, number>,
   rewardClaims: Record<string, TokenBalance[]>
-  // prevRewardClaims?: {
-  //   vaultAddress: string;
-  //   rewardClaims: TokenBalance[] | undefined;
-  // }[]
 ) {
   const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(model, {
     balances,
@@ -386,22 +382,6 @@ export function calculateVaultHoldings(
 
     const marketProfitLoss = profit.sub(totalInterestAccrual);
     const vaultType = getVaultType(v.vaultAddress, v.network);
-
-    // This is is a bit of an expensive call so only run it on initial update, we simulate
-    // the reward claims on chain to ensure that the data is as up to date as possible.
-    // if (rewardClaims && rewardClaims.length > 0) {
-    //   const prevClaimValue = prevRewardClaims?.find(
-    //     ({ vaultAddress }) => vaultAddress === v.vaultAddress
-    //   )?.rewardClaims;
-
-    //   rewardClaims =
-    //     prevClaimValue ||
-    //     (await simulateRewardClaims(
-    //       account.network,
-    //       account.address,
-    //       v.vaultAddress
-    //     ));
-    // }
 
     const vaultMetadata = {
       rewardClaims: rewardClaims[v.vaultAddress],

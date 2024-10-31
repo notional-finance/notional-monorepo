@@ -1,5 +1,6 @@
 import {
   ERC20ABI,
+  ISingleSidedLPStrategyVaultABI,
   NotionalV3,
   NotionalV3ABI,
 } from '@notional-finance/contracts';
@@ -30,6 +31,8 @@ import {
 import { fetchUsingMulticall } from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
 import { getNetworkModel } from '../../Models';
+import { getVaultType } from '../../config/whitelisted-vaults';
+import { SingleSidedLP } from '../../vaults';
 
 export function fetchCurrentAccount(
   network: Network,
@@ -329,7 +332,7 @@ function getVaultCalls(
   const model = getNetworkModel(network);
 
   return (model.getAllListedVaults(true) || []).flatMap<AggregateCall>((v) => {
-    return [
+    const vaultCalls: AggregateCall[] = [
       {
         stage: 0,
         target: notional,
@@ -371,6 +374,29 @@ function getVaultCalls(
         },
       },
     ];
+
+    const vaultType = getVaultType(v.vaultAddress, network);
+    if (vaultType === 'SingleSidedLP_DirectClaim') {
+      const adapter = model.getVaultAdapter(v.vaultAddress) as SingleSidedLP;
+      const rewardTokens = adapter.rewardTokens;
+
+      vaultCalls.push({
+        stage: 0,
+        target: new Contract(
+          v.vaultAddress,
+          ISingleSidedLPStrategyVaultABI,
+          notional.provider
+        ),
+        method: 'getAccountRewardClaim',
+        args: [account, getNowSeconds()],
+        key: `${v.vaultAddress}.rewardClaim`,
+        transform: (r: BigNumber[]) => {
+          return r.map((b, i) => new TokenBalance(b, rewardTokens[i], network));
+        },
+      });
+    }
+
+    return vaultCalls;
   });
 }
 
