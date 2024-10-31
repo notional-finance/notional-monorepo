@@ -102,7 +102,7 @@ export function simulateTransaction(
         populatedTransaction,
         postTradeBalances,
         vaultAddress,
-        postTradeIncentives,
+        // postTradeIncentives,
       } = s;
       if (populatedTransaction && a) {
         return from(
@@ -113,14 +113,14 @@ export function simulateTransaction(
               balancesAfter.filter((t) => {
                 if (vaultAddress) {
                   return t.isVaultToken && t.vaultAddress === vaultAddress;
-                } else if (
-                  postTradeIncentives?.find((i) => i.tokenId === t.tokenId)
-                ) {
-                  // Do not include incentive tokens in the check, this causes issues
-                  // with the simulation for a token like ARB which is both listed and
-                  // given out as an incentive. Prior balances are added which causes the
-                  // check to break.
-                  return false;
+                  // } else if (
+                  //   postTradeIncentives?.find((i) => i.tokenId === t.tokenId)
+                  // ) {
+                  //   // Do not include incentive tokens in the check, this causes issues
+                  //   // with the simulation for a token like ARB which is both listed and
+                  //   // given out as an incentive. Prior balances are added which causes the
+                  //   // check to break.
+                  //   return false;
                 } else {
                   return (
                     t.tokenType !== 'Underlying' &&

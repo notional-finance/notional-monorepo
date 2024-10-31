@@ -7,13 +7,18 @@ import {
   Body,
 } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
-import { useOrderDetails } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useOrderDetails,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
   const theme = useTheme();
   const [showHiddenRows, setShowHiddenRows] = useState(false);
   const { orderDetails, filteredOrderDetails } = useOrderDetails(state);
+  const trade = useCurrentTradeContext();
+  const postTradeIncentives = trade?.getPostTradeIncentives();
   const tableData = showHiddenRows ? orderDetails : filteredOrderDetails;
 
   return (
@@ -41,7 +46,7 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
           },
         ]}
       />
-      {state.postTradeIncentives?.map((i) => (
+      {postTradeIncentives?.map((i) => (
         <Body
           sx={{
             display: 'inline-flex',

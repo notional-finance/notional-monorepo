@@ -640,5 +640,13 @@ export const AccountPortfolioModel = _AccountPortfolioModel
           )
         );
       },
+      calculateAccruedIncentives: () => {
+        return calculateAccruedIncentives(
+          root().getNetworkClient(self.network),
+          self.balances,
+          self.accountIncentiveDebt,
+          self.secondaryIncentiveDebt
+        );
+      },
     };
   });
