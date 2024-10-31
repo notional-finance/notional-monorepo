@@ -1,18 +1,23 @@
 import {
+  fCashMarket,
   NotionalTypes,
+  PendlePT,
   SingleSidedLP,
   TokenBalance,
   TokenDefinition,
   TokenDefinitionModel,
+  VaultAdapter,
 } from '@notional-finance/core-entities';
 import {
   AllTradeTypes,
   isDeleverageWithSwappedTokens,
   isLeveragedTrade,
+  isVaultTrade,
+  NOTETradeType,
   TradeState,
 } from '../../base-trade/base-trade-store';
 import { getRoot, Instance, types } from 'mobx-state-tree';
-import { RootStoreInterface } from '../root-store';
+import { NetworkClientModelType, RootStoreInterface } from '../root-store';
 import { getTradeConfig } from '../../base-trade/trade-calculation';
 import {
   formatNumberAsPercent,
@@ -20,6 +25,8 @@ import {
   getNowSeconds,
   leveragedYield,
   PRIME_CASH_VAULT_MATURITY,
+  RATE_PRECISION,
+  SECONDS_IN_YEAR_ACTUAL,
   zipByKeyToArray,
 } from '@notional-finance/util';
 import {
@@ -30,6 +37,10 @@ import {
   formatNumberAsPercentWithUndefined,
   formatTokenType,
 } from '@notional-finance/helpers';
+import {
+  CalculationFn,
+  CalculationFnParams,
+} from '@notional-finance/transaction';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -422,11 +433,11 @@ export const TradeModel = types
       const {
         requiredArgs,
         calculationFn,
-        // TODO: add these as well...
-        // computeDebtOptions,
-        // computeCollateralOptions,
+        calculateDebtOptions,
+        calculateCollateralOptions,
       } = getTradeConfig(self.tradeType);
       let inputsSatisfied = true;
+
       const inputs = requiredArgs.reduce((acc, arg) => {
         if (arg === 'collateralPool' && self.collateral?.currencyId) {
           acc['collateralPool'] = root()
@@ -460,7 +471,7 @@ export const TradeModel = types
         }
         acc[arg] = self[arg];
         return acc;
-      }, {});
+      }, {} as Record<CalculationFnParams, unknown>);
 
       if (inputsSatisfied) {
         try {
@@ -493,6 +504,51 @@ export const TradeModel = types
         }
       }
       self.inputsSatisfied = inputsSatisfied;
+
+      if (
+        calculateCollateralOptions &&
+        self.availableCollateralTokens &&
+        requiredArgs
+          .filter((c) => c !== 'collateral')
+          .every((r) => inputs[r] !== undefined) &&
+        (inputs['collateralPool'] !== undefined ||
+          inputs['vaultAdapter'] !== undefined)
+      ) {
+        self.collateralOptions.replace(
+          computeCollateralOptions(
+            inputs,
+            calculationFn,
+            self.availableCollateralTokens as TokenDefinition[],
+            inputs['collateralPool'] as fCashMarket | undefined,
+            self.tradeType,
+            inputs['vaultAdapter'] as VaultAdapter | undefined,
+            root().getNetworkClient(self.selectedNetwork)
+          ) || []
+        );
+      }
+
+      if (
+        calculateDebtOptions &&
+        self.availableDebtTokens &&
+        requiredArgs
+          .filter((c) => c !== 'debt')
+          .filter((c) =>
+            isVaultTrade(self.tradeType) ? c !== 'collateral' : true
+          )
+          .every((r) => inputs[r] !== undefined) &&
+        inputs['debtPool'] !== undefined
+      ) {
+        self.debtOptions.replace(
+          computeDebtOptions(
+            inputs,
+            calculationFn,
+            self.availableDebtTokens as TokenDefinition[],
+            inputs['debtPool'] as fCashMarket,
+            self.tradeType,
+            root().getNetworkClient(self.selectedNetwork)
+          ) || []
+        );
+      }
     };
 
     const setDepositBalance = (
@@ -960,4 +1016,181 @@ function toCapacityValue(balance: TokenBalance) {
     ? // fCash is 1-1 in internal precision
       balance.toUnderlying().copy(balance?.n).scaleFromInternal().abs()
     : balance.toUnderlying().abs();
+}
+
+function computeCollateralOptions(
+  inputs: Record<CalculationFnParams, unknown>,
+  calculationFn: CalculationFn,
+  options: TokenDefinition[],
+  fCashMarket: fCashMarket | undefined,
+  tradeType: AllTradeTypes | undefined,
+  vaultAdapter: VaultAdapter | undefined,
+  model: NetworkClientModelType
+) {
+  return options.map((c) => {
+    const i = { ...inputs, collateral: c };
+    try {
+      const { collateralBalance, netRealizedCollateralBalance } = calculationFn(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        i as any
+      ) as {
+        collateralFee: TokenBalance;
+        collateralBalance: TokenBalance;
+        netRealizedCollateralBalance: TokenBalance;
+      };
+
+      return {
+        token: c as Instance<typeof TokenDefinitionModel>,
+        balance: collateralBalance,
+        error: undefined,
+        ..._getTradedInterestRate(
+          netRealizedCollateralBalance,
+          collateralBalance,
+          fCashMarket,
+          tradeType,
+          vaultAdapter,
+          model
+        ),
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        token: c as Instance<typeof TokenDefinitionModel>,
+        balance: undefined,
+        utilization: undefined,
+        interestRate: undefined,
+        error: (e as Error).toString(),
+      };
+    }
+  });
+}
+
+function computeDebtOptions(
+  inputs: Record<CalculationFnParams, unknown>,
+  calculationFn: CalculationFn,
+  options: TokenDefinition[],
+  fCashMarket: fCashMarket,
+  tradeType: AllTradeTypes | undefined,
+  model: NetworkClientModelType
+) {
+  return options.map((d) => {
+    const i = { ...inputs, debt: d };
+    try {
+      if (isVaultTrade(tradeType)) {
+        // Switch to the matching vault share token for vault trades
+        if (!d.vaultAddress || !d.maturity) throw Error('Invalid debt token');
+        i['collateral'] = model.getVaultShare(d.vaultAddress, d.maturity);
+      }
+
+      const { debtBalance, netRealizedDebtBalance } = calculationFn(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        i as any
+      ) as {
+        debtFee: TokenBalance;
+        debtBalance: TokenBalance;
+        netRealizedDebtBalance: TokenBalance;
+      };
+
+      return {
+        token: d as Instance<typeof TokenDefinitionModel>,
+        balance: debtBalance,
+        error: undefined,
+        ..._getTradedInterestRate(
+          netRealizedDebtBalance,
+          debtBalance,
+          fCashMarket,
+          tradeType,
+          undefined, // Vault Adapter is not used for debt
+          model
+        ),
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        token: d as Instance<typeof TokenDefinitionModel>,
+        balance: undefined,
+        interestRate: undefined,
+        utilization: undefined,
+        error: (e as Error).toString(),
+      };
+    }
+  });
+}
+
+function _getTradedInterestRate(
+  realized: TokenBalance,
+  _amount: TokenBalance,
+  fCashMarket: fCashMarket | undefined,
+  tradeType: AllTradeTypes | NOTETradeType | undefined,
+  vaultAdapter: VaultAdapter | undefined,
+  model: NetworkClientModelType
+): {
+  interestRate: number | undefined;
+  utilization: number | undefined;
+} {
+  let interestRate: number | undefined;
+  let utilization: number | undefined;
+  const amount = _amount.unwrapVaultToken();
+  if (amount.tokenType === 'fCash' && fCashMarket) {
+    // We net off the fee for fcash so that we show it as an up-front
+    // trading fee rather than part of the implied yield
+    interestRate = fCashMarket.getImpliedInterestRate(realized, amount);
+  } else if (
+    (amount.tokenType === 'PrimeDebt' || amount.tokenType === 'PrimeCash') &&
+    (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken') &&
+    fCashMarket
+  ) {
+    // If borrowing for leverage it is prime supply + prime debt and the interest rate
+    // is always the prime debt rate
+    utilization = fCashMarket.getPrimeCashUtilization(
+      amount.toPrimeCash().neg(),
+      amount.neg()
+    );
+    interestRate = fCashMarket.getPrimeDebtRate(utilization);
+  } else if (amount.tokenType === 'PrimeCash' && fCashMarket) {
+    // Increases or decreases the prime supply accordingly
+    utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
+    interestRate = fCashMarket.getPrimeSupplyRate(utilization);
+  } else if (amount.tokenType === 'PrimeDebt' && fCashMarket) {
+    // If borrowing and withdrawing then it is just prime debt increase. This
+    // includes vault debt
+    utilization = fCashMarket.getPrimeCashUtilization(undefined, amount.neg());
+    interestRate = fCashMarket.getPrimeDebtRate(utilization);
+    if (_amount.tokenType === 'VaultDebt') {
+      // Add the vault fee to the interest rate here..
+      const annualizedFeeRate = model.getVaultConfig(
+        amount.vaultAddress
+      ).feeRateBasisPoints;
+      interestRate += annualizedFeeRate;
+    }
+  } else if (amount.tokenType === 'nToken') {
+    return {
+      interestRate: model.getSimulatedAPY(amount)?.totalAPY,
+      utilization: undefined,
+    };
+  } else if (
+    amount.tokenType === 'VaultShare' &&
+    vaultAdapter &&
+    vaultAdapter.strategy === 'PendlePT' &&
+    // Only calculate this on increasing the position, otherwise it will be based on
+    // the current spot APY
+    (tradeType === 'IncreaseVaultPosition' ||
+      tradeType === 'CreateVaultPosition')
+  ) {
+    const impliedExchangeRate = amount.toFloat() / realized.toFloat();
+    const timeToMaturity = (vaultAdapter as PendlePT).timeToExpiry;
+    interestRate = Math.trunc(
+      ((Math.log(impliedExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
+        timeToMaturity) *
+        RATE_PRECISION
+    );
+  }
+
+  return {
+    interestRate:
+      interestRate !== undefined
+        ? (interestRate * 100) / RATE_PRECISION
+        : undefined,
+    utilization,
+  };
 }
