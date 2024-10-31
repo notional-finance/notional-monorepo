@@ -1,5 +1,6 @@
 import {
   NotionalTypes,
+  SingleSidedLP,
   TokenBalance,
   TokenDefinition,
   TokenDefinitionModel,
@@ -14,6 +15,7 @@ import { getRoot, Instance, types } from 'mobx-state-tree';
 import { RootStoreInterface } from '../root-store';
 import { getTradeConfig } from '../../base-trade/trade-calculation';
 import {
+  formatNumberAsPercent,
   getChangeType,
   getNowSeconds,
   leveragedYield,
@@ -779,10 +781,112 @@ export const TradeModel = types
       };
     };
 
+    const getVaultCapacity = () => {
+      let totalCapacityRemaining: TokenBalance | undefined;
+      let totalPoolCapacityRemaining: TokenBalance | undefined;
+      let overCapacityError = false;
+      let overPoolCapacityError = false;
+      let minBorrowSize: string | undefined = undefined;
+      let underMinAccountBorrow = false;
+      let maxPoolShare: string | undefined;
+      const vaultAdapter = root()
+        .getNetworkClient(self.selectedNetwork)
+        .getVaultAdapter(self.selectedNetwork);
+      const vaultCapacity = self.debtBalance?.token
+        ? {
+            minAccountBorrowSize: TokenBalance.zero(self.debtBalance.token),
+            totalUsedPrimaryBorrowCapacity: TokenBalance.zero(
+              self.debtBalance.token
+            ),
+            maxPrimaryBorrowCapacity: TokenBalance.zero(self.debtBalance.token),
+          }
+        : undefined;
+      const priorVaultBalances = getPriorVaultBalances();
+
+      if (vaultCapacity) {
+        const {
+          minAccountBorrowSize,
+          totalUsedPrimaryBorrowCapacity,
+          maxPrimaryBorrowCapacity,
+        } = vaultCapacity;
+        // If the debt balance is the same as the current debt then
+        // sum them together, otherwise just go with the new debt balance
+        const priorDebtBalance = priorVaultBalances?.find(
+          (t) => t.tokenType === 'VaultDebt'
+        );
+        const totalAccountDebt =
+          self.debtBalance &&
+          priorDebtBalance?.tokenId === self.debtBalance?.tokenId
+            ? priorDebtBalance?.add(self.debtBalance)
+            : self.debtBalance;
+        underMinAccountBorrow = totalAccountDebt?.isNegative()
+          ? toCapacityValue(totalAccountDebt).lt(minAccountBorrowSize)
+          : false;
+        const netDebtBalanceForCapacity =
+          priorDebtBalance && totalAccountDebt
+            ? toCapacityValue(totalAccountDebt).sub(
+                toCapacityValue(priorDebtBalance)
+              )
+            : totalAccountDebt
+            ? toCapacityValue(totalAccountDebt)
+            : undefined;
+        if (netDebtBalanceForCapacity && self.debtBalance?.isNegative()) {
+          overCapacityError =
+            // Over capacity due to borrow
+            totalUsedPrimaryBorrowCapacity
+              .add(netDebtBalanceForCapacity)
+              .gt(maxPrimaryBorrowCapacity);
+          overPoolCapacityError =
+            vaultAdapter?.strategy === 'SingleSidedLP'
+              ? (vaultAdapter as SingleSidedLP).isOverMaxPoolShare(
+                  self.collateralBalance
+                ) ?? false
+              : false;
+        }
+        totalCapacityRemaining = maxPrimaryBorrowCapacity.sub(
+          totalUsedPrimaryBorrowCapacity
+        );
+
+        if (vaultAdapter?.strategy === 'SingleSidedLP') {
+          totalPoolCapacityRemaining = (
+            vaultAdapter as SingleSidedLP
+          ).getRemainingPoolCapacity();
+          maxPoolShare = (vaultAdapter as SingleSidedLP).maxPoolShares
+            ? formatNumberAsPercent(
+                (vaultAdapter as SingleSidedLP).maxPoolShares.toNumber() / 100,
+                0
+              )
+            : undefined;
+        }
+
+        // NOTE: these two values below do not need to be recalculated inside the observable
+        minBorrowSize =
+          minAccountBorrowSize.toFloat() < 10
+            ? minAccountBorrowSize.toDisplayStringWithSymbol(1)
+            : minAccountBorrowSize.toDisplayStringWithSymbol(0);
+      }
+
+      return {
+        minBorrowSize,
+        overCapacityError,
+        overPoolCapacityError,
+        maxPoolShare,
+        underMinAccountBorrow,
+        totalCapacityRemaining,
+        totalPoolCapacityRemaining,
+        vaultTVL: vaultAdapter.getVaultTVL(),
+        vaultCapacityError:
+          self.tradeType === 'WithdrawVault'
+            ? false
+            : overCapacityError || underMinAccountBorrow,
+      };
+    };
+
     const canSubmit = () => {
       if (self.vaultAddress) {
         const postAccountRisk = getPostVaultRiskProfile().postVaultRisk;
         const leverageRatio = postAccountRisk?.leverageRatio();
+        const { vaultCapacityError } = getVaultCapacity();
 
         return (
           !!postAccountRisk &&
@@ -790,8 +894,7 @@ export const TradeModel = types
             (!!postAccountRisk.maxLeverageRatio &&
               !!leverageRatio &&
               leverageRatio < postAccountRisk.maxLeverageRatio)) &&
-          // TODO: implement this
-          // self.vaultCapacityError === false &&
+          vaultCapacityError === false &&
           self.inputErrors === false
         );
       } else {
@@ -825,6 +928,7 @@ export const TradeModel = types
       getPortfolioComparison,
       getPriorVaultBalances,
       getPostVaultFactors,
+      getVaultCapacity,
       canSubmit,
     };
   });
@@ -849,4 +953,11 @@ function averageFixedRate(
   } else {
     return newBorrowRate;
   }
+}
+
+function toCapacityValue(balance: TokenBalance) {
+  return balance.maturity !== PRIME_CASH_VAULT_MATURITY
+    ? // fCash is 1-1 in internal precision
+      balance.toUnderlying().copy(balance?.n).scaleFromInternal().abs()
+    : balance.toUnderlying().abs();
 }
