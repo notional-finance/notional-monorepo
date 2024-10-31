@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { Divider, styled, useTheme, Box } from '@mui/material';
@@ -22,9 +22,11 @@ import {
   VaultContext,
   TransactionStatus,
   useTransactionStatus,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { clearTradeState } from '@notional-finance/notionable';
+import { PopulatedTransaction } from 'ethers';
 
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
@@ -42,20 +44,31 @@ export const TransactionConfirmation = ({
 }: TransactionConfirmationProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
+  const [p, setPopulatedTransaction] = useState<{
+    populatedTransaction?: PopulatedTransaction;
+    transactionError?: string;
+  }>({
+    populatedTransaction: undefined,
+    transactionError: undefined,
+  });
   const location = useLocation();
-  const {
-    populatedTransaction,
-    transactionError,
-    debt,
-    collateral,
-    tradeType,
-    selectedNetwork,
-  } = state;
+  const trade = useCurrentTradeContext();
+  const { debt, collateral, tradeType, selectedNetwork } = state;
   const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
     useTransactionStatus(selectedNetwork);
   const onTxnCancel = useCallback(() => {
     updateState({ ...clearTradeState });
   }, [updateState]);
+
+  useEffect(() => {
+    if (
+      trade &&
+      p.populatedTransaction === undefined &&
+      p.transactionError === undefined
+    ) {
+      trade.buildTransaction().then(setPopulatedTransaction);
+    }
+  }, [trade, p]);
 
   useEffect(() => {
     trackEvent(TRACKING_EVENTS.CONFIRMATION, {
@@ -74,7 +87,7 @@ export const TransactionConfirmation = ({
       <StatusHeading
         heading={heading}
         transactionStatus={
-          transactionError
+          p.transactionError
             ? TransactionStatus.ERROR_BUILDING
             : transactionStatus
         }
@@ -119,14 +132,15 @@ export const TransactionConfirmation = ({
           selectedNetwork={selectedNetwork}
         />
       )}
-      {(transactionStatus === TransactionStatus.REVERT || transactionError) && (
+      {(transactionStatus === TransactionStatus.REVERT ||
+        p.transactionError) && (
         <Box sx={{ height: theme.spacing(8), marginBottom: theme.spacing(6) }}>
           <ErrorMessage
             variant="error"
             marginBottom
             message={
-              transactionError ? (
-                transactionError
+              p.transactionError ? (
+                p.transactionError
               ) : (
                 <FormattedMessage defaultMessage={'Transaction Reverted'} />
               )
@@ -145,18 +159,20 @@ export const TransactionConfirmation = ({
       )} */}
       {(transactionStatus === TransactionStatus.NONE ||
         transactionStatus === TransactionStatus.WAIT_USER_CONFIRM) &&
-        transactionError === undefined && <PortfolioCompare state={state} />}
+        p.transactionError === undefined && (
+          <PortfolioCompare populatedTransaction={p.populatedTransaction} />
+        )}
       <TransactionButtons
         network={selectedNetwork}
         transactionStatus={
-          transactionError
+          p.transactionError
             ? TransactionStatus.ERROR_BUILDING
             : transactionStatus
         }
         onSubmit={() =>
           onSubmit(
             tradeType || 'unknown',
-            populatedTransaction,
+            p.populatedTransaction,
             [debt, collateral].filter(
               (t) => t !== undefined
             ) as TokenDefinition[]
@@ -170,8 +186,8 @@ export const TransactionConfirmation = ({
           onTxnCancel();
           if (onReturnToForm) onReturnToForm();
         }}
-        isDisabled={isReadOnlyAddress || !!transactionError}
-        isLoaded={populatedTransaction !== undefined}
+        isDisabled={isReadOnlyAddress || !!p.transactionError}
+        isLoaded={p.populatedTransaction !== undefined}
       />
     </Box>
   );

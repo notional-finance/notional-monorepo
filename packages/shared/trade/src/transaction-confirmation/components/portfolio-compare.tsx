@@ -4,18 +4,19 @@ import { CopyIcon } from '@notional-finance/icons';
 import {
   ArrowIndicatorCell,
   DataTable,
+  DataTableColumn,
   LinkText,
   NegativeValueCell,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
-import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { usePortfolioComparison } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { PopulatedTransaction } from 'ethers';
 
 export const PortfolioCompare = ({
-  state,
+  populatedTransaction,
 }: {
-  state: TradeState | VaultTradeState;
+  populatedTransaction: PopulatedTransaction | undefined;
 }) => {
   const theme = useTheme();
   const [showHiddenRows, setShowHiddenRows] = useState(false);
@@ -24,7 +25,7 @@ export const PortfolioCompare = ({
 
   const tableData = showHiddenRows ? allTableData : filteredTableData;
 
-  const columns: any[] = [
+  const columns: DataTableColumn[] = [
     {
       header: <FormattedMessage defaultMessage={'Asset'} />,
       accessorKey: 'label',
@@ -49,8 +50,8 @@ export const PortfolioCompare = ({
   }
 
   const handleCopy = () => {
-    if (state.populatedTransaction === undefined) return;
-    const { gasLimit, value, data, from, to } = state.populatedTransaction;
+    if (populatedTransaction === undefined) return;
+    const { gasLimit, value, data, from, to } = populatedTransaction;
     const result = {
       data,
       from,

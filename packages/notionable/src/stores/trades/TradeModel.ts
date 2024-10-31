@@ -169,10 +169,6 @@ export const TradeModel = types
     calculationSuccess: types.optional(types.boolean, false),
     /** True if the form is in the confirmation state */
     confirm: types.optional(types.boolean, false),
-    /** Transaction call information for the confirmation page */
-    populatedTransaction: types.maybe(types.frozen({})),
-    /** Error creating transaction */
-    transactionError: types.maybe(types.string),
     /** Simulation error transaction */
     simulationError: types.maybe(types.string),
 
@@ -560,25 +556,23 @@ export const TradeModel = types
     };
 
     const setConfirm = (confirm: boolean) => {
-      if (self.confirm !== confirm) {
-        self.populatedTransaction = undefined;
-        self.transactionError = undefined;
-      }
       self.confirm = confirm;
     };
 
     const buildTransaction = flow(function* () {
       if (self.confirm === false) {
-        self.populatedTransaction = undefined;
-        self.transactionError = undefined;
-        return;
+        return {
+          populatedTransaction: undefined,
+          transactionError: undefined,
+        };
       }
 
       const account = root().getAccountDefinition(self.selectedNetwork);
       if (!account) {
-        self.transactionError = 'Account not found';
-        self.populatedTransaction = undefined;
-        return;
+        return {
+          populatedTransaction: undefined,
+          transactionError: 'Account not found',
+        };
       }
 
       const config = getTradeConfig(self.tradeType);
@@ -589,23 +583,29 @@ export const TradeModel = types
       ).balances;
 
       try {
-        self.populatedTransaction = yield config.transactionBuilder({
+        const populatedTransaction = yield config.transactionBuilder({
           ...self,
           accountBalances,
           vaultLastUpdateTime: account.vaultLastUpdateTime || {},
           address: account.address,
           network: account.network,
         });
-        self.transactionError = undefined;
+
+        return {
+          populatedTransaction,
+          transactionError: undefined,
+        };
         // TODO: add simulation
       } catch (e) {
         // Log these errors in full to the console
-        const _reason = (e as any)['reason'];
+        const _reason = (e as { reason: string })['reason'];
         const parsedReason = _reason.replace(/execution\sreverted:?/, '');
-        self.populatedTransaction = undefined;
-        self.transactionError = parsedReason
-          ? `Transaction will revert: ${parsedReason}`
-          : 'Transaction will revert based on inputs.';
+        return {
+          populatedTransaction: undefined,
+          transactionError: parsedReason
+            ? `Transaction will revert: ${parsedReason}`
+            : 'Transaction will revert based on inputs.',
+        };
       }
     });
 
@@ -1027,6 +1027,7 @@ export const TradeModel = types
           setDepositBalance: self.setDepositBalance,
           setHasInputErrors: self.setHasInputErrors,
           setConfirm: self.setConfirm,
+          buildTransaction: self.buildTransaction,
         };
       },
       get state() {
