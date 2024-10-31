@@ -22,6 +22,7 @@ import {
 } from '../global/account/holdings';
 import { Network } from '@notional-finance/util';
 import { reaction } from 'mobx';
+import { simulateRewardClaims } from '@notional-finance/transaction';
 
 const APYDataModel = types.model('APYDataModel', {
   totalAPY: types.maybe(types.number),
@@ -597,8 +598,22 @@ export const AccountPortfolioActions = (
     yield Promise.resolve(refreshAccountHoldings());
   });
 
+  const refreshPortfolio = flow(function* () {
+    yield Promise.resolve(self.refreshAccount());
+    yield Promise.resolve(refreshAccountHoldings());
+  });
+
+  const refreshRewardClaims = flow(function* (vaultAddress: string) {
+    self.rewardClaims.set(
+      vaultAddress,
+      yield simulateRewardClaims(self.network, self.address, vaultAddress)
+    );
+  });
+
   return {
     afterAttach,
+    refreshPortfolio,
+    refreshRewardClaims,
   };
 };
 

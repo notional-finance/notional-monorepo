@@ -20,7 +20,6 @@ import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';
 import {
   Community,
-  COMMUNITY_NAMES,
   useCurrentNetworkStore,
   useWalletStore,
 } from '@notional-finance/notionable';
