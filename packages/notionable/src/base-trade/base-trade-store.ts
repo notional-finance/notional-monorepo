@@ -10,7 +10,6 @@ import {
   CalculationFnParams,
   TransactionBuilder,
 } from '@notional-finance/transaction';
-import { PopulatedTransaction } from 'ethers';
 import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
 import { TradeType } from './trade-config';
 import { Network } from '@notional-finance/util';
@@ -136,10 +135,6 @@ interface TransactionState {
   calculateInputKeys?: string;
   /** True if the form is in the confirmation state */
   confirm: boolean;
-  /** Transaction call information for the confirmation page */
-  populatedTransaction?: PopulatedTransaction;
-  /** Error creating transaction */
-  transactionError?: string;
   /** Simulation error transaction */
   simulationError?: string;
 
@@ -269,8 +264,6 @@ export const clearTradeState: TransactionState = {
   inputsSatisfied: false,
   calculationSuccess: false,
   calculateInputKeys: undefined,
-  populatedTransaction: undefined,
-  transactionError: undefined,
   netAssetBalance: undefined,
   netDebtBalance: undefined,
   netRealizedCollateralBalance: undefined,

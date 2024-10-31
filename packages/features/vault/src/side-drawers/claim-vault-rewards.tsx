@@ -1,6 +1,5 @@
 import {
   useCurrentNetworkAccount,
-  useNotionalContext,
   useTransactionStatus,
   useVaultPosition,
   useWalletAddress,

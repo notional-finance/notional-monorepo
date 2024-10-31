@@ -6,7 +6,6 @@ import {
   availableTokens,
   buildTransaction,
   defaultLeverageRatio,
-  simulateTransaction,
   selectedPool,
   selectedDepositToken,
   selectedPortfolioToken,
@@ -29,7 +28,7 @@ export function createTradeManager(
   // observables can create their subscription prior to the upstream observable
   // emits.
   return merge(
-    simulateTransaction(state$, account$, network$),
+    // simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
     tradeSummary(state$, account$),
     postAccountRisk(state$, account$),

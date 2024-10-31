@@ -7,7 +7,6 @@ import {
   availableTokens,
   buildTransaction,
   resetOnTradeTypeChange,
-  simulateTransaction,
   selectedPool,
   selectedVaultAdapter,
   defaultVaultLeverageRatio,
@@ -28,7 +27,7 @@ export function createVaultTradeManager(
 
   // Emitted State Changes
   return merge(
-    simulateTransaction(state$, account$, network$),
+    // simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
     vaultCapacity(state$, account$, network$),
     postVaultAccountRisk(state$, account$),
