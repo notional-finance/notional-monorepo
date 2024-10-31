@@ -108,7 +108,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   totalILAndFees: NotionalTypes.TokenBalance,
   totalInterestAccrual: NotionalTypes.TokenBalance,
   vaultMetadata: types.model({
-    rewardClaims: types.maybeNull(types.array(NotionalTypes.TokenBalance)),
+    rewardClaims: types.optional(types.array(NotionalTypes.TokenBalance), []),
     vaultType: types.string,
     reinvestmentCadence: types.number,
     isExpired: types.maybe(types.boolean),
@@ -558,7 +558,10 @@ export const AccountPortfolioActions = (
         vaultYield: APYDataModel.create(h.vaultYield),
         vaultMetadata: {
           ...h.vaultMetadata,
-          rewardClaims: cast(h.vaultMetadata.rewardClaims),
+          // NOTE: cast to JSON so that it can be stored properly in mobx
+          rewardClaims: cast(
+            h.vaultMetadata.rewardClaims?.map((r) => r.toJSON())
+          ),
         },
       }))
     );

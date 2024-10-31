@@ -695,9 +695,9 @@ export const TradeModel = types
     };
 
     const getPortfolioComparison = () => {
+      const account = root().getNetworkAccount(self.selectedNetwork);
       const postBalances = getPostTradeSummary()?.balances;
-      const priorBalances = root().getNetworkAccount(self.selectedNetwork)
-        ?.balances as TokenBalance[] | undefined;
+      const priorBalances = account?.portfolioRiskProfile?.balances;
       return priorBalances && postBalances
         ? comparePortfolio(priorBalances, postBalances)
         : [];
