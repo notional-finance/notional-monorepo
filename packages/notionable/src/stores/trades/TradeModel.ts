@@ -16,7 +16,7 @@ import {
   NOTETradeType,
   TradeState,
 } from '../../base-trade/base-trade-store';
-import { getRoot, Instance, types } from 'mobx-state-tree';
+import { flow, getRoot, Instance, types } from 'mobx-state-tree';
 import { NetworkClientModelType, RootStoreInterface } from '../root-store';
 import { getTradeConfig } from '../../base-trade/trade-calculation';
 import {
@@ -572,11 +572,54 @@ export const TradeModel = types
       self.confirm = confirm;
     };
 
+    const buildTransaction = flow(function* () {
+      if (self.confirm === false) {
+        self.populatedTransaction = undefined;
+        self.transactionError = undefined;
+        return;
+      }
+
+      const account = root().getAccountDefinition(self.selectedNetwork);
+      if (!account) {
+        self.transactionError = 'Account not found';
+        self.populatedTransaction = undefined;
+        return;
+      }
+
+      const config = getTradeConfig(self.tradeType);
+      // Using the risk profile here ensures that we use settled balances
+      const accountBalances = new AccountRiskProfile(
+        account.balances,
+        account.network
+      ).balances;
+
+      try {
+        self.populatedTransaction = yield config.transactionBuilder({
+          ...self,
+          accountBalances,
+          vaultLastUpdateTime: account.vaultLastUpdateTime || {},
+          address: account.address,
+          network: account.network,
+        });
+        self.transactionError = undefined;
+        // TODO: add simulation
+      } catch (e) {
+        // Log these errors in full to the console
+        const _reason = (e as any)['reason'];
+        const parsedReason = _reason.replace(/execution\sreverted:?/, '');
+        self.populatedTransaction = undefined;
+        self.transactionError = parsedReason
+          ? `Transaction will revert: ${parsedReason}`
+          : 'Transaction will revert based on inputs.';
+      }
+    });
+
     return {
       afterAttach,
       setHasInputErrors,
       setDepositBalance,
       setConfirm,
+      buildTransaction,
     };
   })
   .views((self) => {
