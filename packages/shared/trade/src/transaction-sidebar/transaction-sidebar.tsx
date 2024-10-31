@@ -9,6 +9,7 @@ import {
   VaultContext,
   TradeContext,
   useLeverageBlock,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { TradeState } from '@notional-finance/notionable';
 import { useCallback, useEffect, useState } from 'react';
@@ -88,8 +89,9 @@ const TransactionSidebarComponent = ({
   const { pathname } = useLocation();
   const [showTxnApprovals, setShowTxnApprovals] = useState(false);
   const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
-  const { canSubmit, confirm, tradeType, debt, collateral, selectedNetwork } =
-    state;
+  const trade = useCurrentTradeContext();
+  const canSubmit = trade?.canSubmit() ?? false;
+  const { confirm, tradeType, debt, collateral, selectedNetwork } = state;
   const { mustSwitchNetwork } = useChangeNetwork(selectedNetwork);
   const isBlocked = useLeverageBlock();
   const approvalData = useTransactionApprovals(
@@ -221,7 +223,7 @@ const TransactionSidebarComponent = ({
       }
       walletConnectedText={TransactionHeadings[tradeType].walletConnectedText}
       handleSubmit={handleSubmit}
-      canSubmit={canSubmit && !leverageDisabled}
+      canSubmit={!!canSubmit && !leverageDisabled}
       onCancelCallback={handleActionSidebarCancel}
       leverageDisabled={leverageDisabled}
       hideTextOnMobile={isPortfolio || !hideTextOnMobile ? false : true}

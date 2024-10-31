@@ -132,8 +132,6 @@ interface TransactionState {
   inputsSatisfied: boolean;
   /** True if all calculations have been completed */
   calculationSuccess: boolean;
-  /** True if the calculations are successful and the risk check has completed */
-  canSubmit: boolean;
   /** Contains a unique key for each set of calculation inputs */
   calculateInputKeys?: string;
   /** True if the form is in the confirmation state */
@@ -199,7 +197,6 @@ export interface NOTETradeState extends BaseTradeState {
 export const initialBaseTradeState: BaseTradeState = {
   isReady: false,
   hasError: false,
-  canSubmit: false,
   confirm: false,
   inputsSatisfied: false,
   redeemToWETH: false,
@@ -273,7 +270,6 @@ export const clearTradeState: TransactionState = {
   confirm: false,
   inputsSatisfied: false,
   calculationSuccess: false,
-  canSubmit: false,
   calculateInputKeys: undefined,
   populatedTransaction: undefined,
   transactionError: undefined,

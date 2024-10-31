@@ -10,7 +10,6 @@ import { useVaultPosition } from '@notional-finance/notionable-hooks';
 export function useVaultActionErrors() {
   const {
     state: {
-      canSubmit,
       depositBalance,
       debt,
       calculateError,
@@ -23,7 +22,7 @@ export function useVaultActionErrors() {
       selectedNetwork,
       vaultAddress,
       underMinAccountBorrow,
-      netRealizedDebtBalance
+      netRealizedDebtBalance,
     },
   } = useContext(VaultActionContext);
   const currentPosition = useVaultPosition(selectedNetwork, vaultAddress);
@@ -91,7 +90,6 @@ export function useVaultActionErrors() {
   return {
     minBorrowSize,
     inputErrorMsg,
-    canSubmit,
     leverageRatioError,
     underMinAccountBorrowError,
     isDeleverage:

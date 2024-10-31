@@ -154,8 +154,6 @@ export const TradeModel = types
     inputsSatisfied: types.optional(types.boolean, false),
     /** True if all calculations have been completed */
     calculationSuccess: types.optional(types.boolean, false),
-    /** True if the calculations are successful and the risk check has completed */
-    canSubmit: types.optional(types.boolean, false),
     /** True if the form is in the confirmation state */
     confirm: types.optional(types.boolean, false),
     /** Transaction call information for the confirmation page */
@@ -492,6 +490,7 @@ export const TradeModel = types
           self.collateralFee = undefined;
         }
       }
+      self.inputsSatisfied = inputsSatisfied;
     };
 
     const setDepositBalance = (
@@ -780,6 +779,32 @@ export const TradeModel = types
       };
     };
 
+    const canSubmit = () => {
+      if (self.vaultAddress) {
+        const postAccountRisk = getPostVaultRiskProfile().postVaultRisk;
+        const leverageRatio = postAccountRisk?.leverageRatio();
+
+        return (
+          !!postAccountRisk &&
+          (leverageRatio === null ||
+            (!!postAccountRisk.maxLeverageRatio &&
+              !!leverageRatio &&
+              leverageRatio < postAccountRisk.maxLeverageRatio)) &&
+          // TODO: implement this
+          // self.vaultCapacityError === false &&
+          self.inputErrors === false
+        );
+      } else {
+        const postAccountRisk = getPostTradeSummary();
+        return (
+          postAccountRisk &&
+          (postAccountRisk?.freeCollateral().isPositive() ||
+            postAccountRisk?.freeCollateral().isZero()) &&
+          self.inputErrors === false
+        );
+      }
+    };
+
     return {
       get actions() {
         return {
@@ -800,6 +825,7 @@ export const TradeModel = types
       getPortfolioComparison,
       getPriorVaultBalances,
       getPostVaultFactors,
+      canSubmit,
     };
   });
 
