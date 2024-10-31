@@ -263,6 +263,8 @@ export class PendlePT extends VaultAdapter {
         ),
         feesPaid: this.market
           .convertSyToAsset(feesPaid[0])
+          // Ensure that this is converted to the underlying
+          .toToken(netUnderlying.token)
           .add(tradingFeesPaid),
       };
     } else {
