@@ -14,6 +14,7 @@ import {
   INTERNAL_TOKEN_PRECISION,
   Network,
   NotionalAddress,
+  vaults,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract, ethers } from 'ethers';
@@ -73,7 +74,14 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               baseDecimals: v.base.decimals,
               quote: v.quote.id,
               quoteCurrencyId: v.quote.currencyId,
-              decimals: v.decimals,
+              decimals:
+                // Override these two vault addresses b/c the decimals are not right in the subgraph
+                v.oracleAddress ===
+                  vaults.mainnet.Pendle_USDe_25DEC2024.toLowerCase() ||
+                v.oracleAddress ===
+                  vaults.mainnet.Pendle_USDe_26MAR2025.toLowerCase()
+                  ? 18
+                  : v.decimals,
               latestRate: {
                 rate: BigNumber.from(v.latestRate),
                 timestamp: v.lastUpdateTimestamp,
