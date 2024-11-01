@@ -11,6 +11,7 @@ import {
   NotionalV3,
   ISingleSidedLPStrategyVaultABI,
   VaultLiquidator,
+  IStrategyVaultABI,
 } from '@notional-finance/contracts';
 import {
   INTERNAL_TOKEN_PRECISION,
@@ -279,7 +280,7 @@ export default class VaultV3Liquidator {
 
     const vaultContract = new ethers.Contract(
       vault,
-      ISingleSidedLPStrategyVaultABI,
+      IStrategyVaultABI,
       this.provider
     );
 
