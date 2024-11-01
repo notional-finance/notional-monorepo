@@ -339,7 +339,7 @@ export class PendlePT extends VaultAdapter {
     totalDeposit: TokenBalance,
     slippageFactor = 50 * BASIS_POINT
   ): Promise<BytesLike> {
-    const { dexId, exchangeData } =
+    const { dexId, depositExchangeData: exchangeData } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
 
     // Apply some slippage limit to the oracle price on the deposit
@@ -418,7 +418,7 @@ export class PendlePT extends VaultAdapter {
       return '0x';
     } else {
       // In the other case, we need to determine the default exit trade.
-      const { dexId, exchangeData } =
+      const { dexId, redeemExchangeData: exchangeData } =
         VaultDefaultDexParameters[this.network][this.vaultAddress];
 
       const minPurchaseAmount = this.market
