@@ -31,10 +31,12 @@ export const useNetworkTokenData = (selectedTabIndex: number) => {
     if (data.length === 0) {
       portfolioStore.setStateZeroEarnData();
     }
+    console.log('tokenList', tokenList[0]);
+    console.log('defaultSymbol', defaultSymbol);
     return {
       tokenList: tokenList || [],
       productGroupData: data || [],
-      defaultSymbol: defaultSymbol || '',
+      defaultSymbol: defaultSymbol || tokenList[0],
     };
   } else if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE) {
     const { data, tokenList, defaultSymbol } =
@@ -45,7 +47,7 @@ export const useNetworkTokenData = (selectedTabIndex: number) => {
     return {
       tokenList: tokenList || [],
       productGroupData: data || [],
-      defaultSymbol: defaultSymbol || '',
+      defaultSymbol: defaultSymbol || tokenList[0],
     };
   } else {
     const { data, tokenList, defaultSymbol } =
@@ -56,7 +58,7 @@ export const useNetworkTokenData = (selectedTabIndex: number) => {
     return {
       tokenList: tokenList || [],
       productGroupData: data || [],
-      defaultSymbol: defaultSymbol || '',
+      defaultSymbol: defaultSymbol || tokenList[0],
     };
   }
 };

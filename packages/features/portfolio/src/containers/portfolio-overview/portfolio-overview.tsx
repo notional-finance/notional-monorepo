@@ -32,6 +32,8 @@ const PortfolioOverview = () => {
     vaultHoldingsData.length === 0 &&
     riskOverviewData.length === 0;
 
+  console.log({ totalHoldingsData });
+
   return (
     <Box>
       <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.OVERVIEW}>

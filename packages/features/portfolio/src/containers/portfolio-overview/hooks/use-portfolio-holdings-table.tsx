@@ -53,6 +53,8 @@ export const useTotalHoldingsTable = (baseCurrency: FiatKeys) => {
   const currentAccount = useCurrentNetworkAccount();
   const totalCurrencyHoldings = currentAccount?.totalCurrencyHoldings;
 
+  console.log({ totalCurrencyHoldings });
+
   const totalHoldingsData = totalCurrencyHoldings
     ? totalCurrencyHoldings.holdings.map(
         ({ currency, netWorth, assets, debts }) => {
