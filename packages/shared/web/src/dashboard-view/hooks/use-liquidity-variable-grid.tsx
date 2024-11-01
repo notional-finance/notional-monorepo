@@ -1,22 +1,41 @@
-import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAllMarkets, useAppState } from '@notional-finance/notionable-hooks';
+import {
+  checkStarterBoostToken,
+  formatNumberAsAbbr,
+  getBoostedData,
+} from '@notional-finance/helpers';
+import {
+  useAllMarkets,
+  useAppState,
+  useNotionalContext,
+} from '@notional-finance/notionable-hooks';
 import { getTotalIncentiveApy, getTotalIncentiveSymbol } from './utils';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import {
+  formatNumberAsPercent,
+  Network,
+  PRODUCTS,
+} from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
-import { FormattedMessage } from 'react-intl';
+import { defineMessage, FormattedMessage } from 'react-intl';
 
 export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const {
     yields: { liquidity },
   } = useAllMarkets(network);
+  const {
+    globalState: { isStarterBoostUser },
+  } = useNotionalContext();
   const theme = useTheme();
   const { baseCurrency } = useAppState();
   const navigate = useNavigate();
 
   const allData = liquidity
     .map((y) => {
+      const isStarterBoost = checkStarterBoostToken(
+        y.underlying.symbol,
+        isStarterBoostUser
+      );
       return {
         ...y,
         symbol: y.underlying.symbol,
@@ -52,6 +71,15 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
           ) : (
             ''
           ),
+        apySubTitle: isStarterBoost
+          ? defineMessage({
+              defaultMessage: `starter boost: {boostApy}% APY`,
+              description: 'subtitle',
+              values: {
+                boostApy: formatNumberAsPercent(y.totalAPY + 5),
+              },
+            })
+          : undefined,
         incentiveValue: getTotalIncentiveApy(
           y?.noteIncentives?.incentiveAPY,
           y?.secondaryIncentives?.incentiveAPY
@@ -74,13 +102,28 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);
 
-  const gridData = [
-    {
-      sectionTitle: '',
-      data: allData,
-      hasLeveragedPosition: false,
-    },
-  ];
+  const { newUserBoostedData, nonBoostedData } = getBoostedData(allData);
+
+  const gridData = isStarterBoostUser
+    ? [
+        {
+          sectionTitle: 'STARTER BOOST',
+          data: newUserBoostedData,
+          hasBoost: true,
+        },
+        {
+          sectionTitle: 'NO BOOST',
+          data: nonBoostedData,
+          hasLeveragedPosition: false,
+        },
+      ]
+    : [
+        {
+          sectionTitle: '',
+          data: allData,
+          hasLeveragedPosition: false,
+        },
+      ];
 
   return {
     gridData: allData.length > 0 ? gridData : [],

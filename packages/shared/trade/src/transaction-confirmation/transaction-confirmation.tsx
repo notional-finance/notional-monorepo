@@ -25,6 +25,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { clearTradeState } from '@notional-finance/notionable';
+import { StarterBoost } from '../transaction-sidebar/components';
 
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
@@ -110,7 +111,7 @@ export const TransactionConfirmation = ({
         variant="fullWidth"
         sx={{ background: 'white', marginBottom: theme.spacing(6) }}
       />
-
+      <StarterBoost sx={{ marginBottom: theme.spacing(6) }} state={state} />
       <OrderDetails state={state} />
       {transactionHash && (
         <PendingTransaction

@@ -1,10 +1,8 @@
-import dashboard from './images/dashboard.svg';
 import defiLlama from './images/defi-llama.svg';
 import dune from './images/dune.svg';
 import tokenTerminal from './images/token-terminal.svg';
 import {
   DuneIcon,
-  DashboardIcon,
   DefiLlamaIcon,
   TokenTerminalIcon,
 } from '@notional-finance/icons';
@@ -12,20 +10,8 @@ import {
 export const useDashboardLinks = () => {
   return [
     {
-      title: 'Notional Dashboard',
-      link: 'https://info.notional.finance/',
-      image: dashboard,
-      icon: (
-        <DashboardIcon
-          sx={{
-            fontSize: '1.5rem',
-          }}
-        />
-      ),
-    },
-    {
       title: 'Dune Dashboard',
-      link: 'https://dune.com/PierreYves_Gendron/notional-dashboard',
+      link: 'https://dune.com/notional_team/notional-dashboard',
       image: dune,
       icon: (
         <DuneIcon

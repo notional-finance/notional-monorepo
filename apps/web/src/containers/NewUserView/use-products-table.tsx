@@ -1,0 +1,144 @@
+import { useTheme } from '@mui/material';
+import { formatNumberAsAbbr } from '@notional-finance/helpers';
+import {
+  DataTableColumn,
+  DisplayCell,
+  LinkCell,
+  IconCell,
+  MultiValueIconCell,
+} from '@notional-finance/mui';
+import { useAllMarkets, useAppState } from '@notional-finance/notionable-hooks';
+import {
+  formatNumberAsPercent,
+  Network,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
+import { FormattedMessage } from 'react-intl';
+import { RocketIcon } from '@notional-finance/icons';
+
+export const useProductsTable = (selectedNetwork: Network) => {
+  const theme = useTheme();
+  const { baseCurrency } = useAppState();
+  const {
+    yields: { fCashLend, variableLend, liquidity },
+  } = useAllMarkets(selectedNetwork);
+
+  const tableColumns: DataTableColumn[] = [
+    {
+      header: (
+        <FormattedMessage
+          defaultMessage="Currency"
+          description={'Currency header'}
+        />
+      ),
+      cell: MultiValueIconCell,
+      className: 'sticky-column',
+      accessorKey: 'currency',
+      textAlign: 'left',
+      marginRight: theme.spacing(1.25),
+    },
+    {
+      header: (
+        <FormattedMessage
+          defaultMessage="Product"
+          description={'Product header'}
+        />
+      ),
+      accessorKey: 'product',
+      textAlign: 'left',
+      marginRight: theme.spacing(1.25),
+    },
+    {
+      header: (
+        <FormattedMessage
+          defaultMessage="Boosted APY"
+          description={'Boosted APY header'}
+        />
+      ),
+      cell: IconCell,
+      displayFormatter: formatNumberAsPercent,
+      accessorKey: 'boostedAPY',
+      showCustomIcon: true,
+      textAlign: 'right',
+      enableSorting: true,
+      sortingFn: 'basic',
+      sortDescFirst: true,
+    },
+    {
+      header: (
+        <FormattedMessage defaultMessage="APY" description={'APY header'} />
+      ),
+      displayFormatter: formatNumberAsPercent,
+      cell: DisplayCell,
+      accessorKey: 'apy',
+      textAlign: 'right',
+      enableSorting: true,
+      sortingFn: 'basic',
+      sortDescFirst: true,
+    },
+    {
+      header: (
+        <FormattedMessage defaultMessage="TVL" description={'TVL header'} />
+      ),
+      enableSorting: true,
+      sortingFn: 'basic',
+      cell: DisplayCell,
+      displayFormatter: (val) =>
+        formatNumberAsAbbr(val, 2, baseCurrency, { removeKAbbr: true }),
+      accessorKey: 'tvl',
+      textAlign: 'right',
+      width: '250px',
+    },
+    {
+      header: '',
+      cell: LinkCell,
+      accessorKey: 'view',
+      textAlign: 'right',
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
+    },
+  ];
+
+  const formatMarketData = (allMarketsData) => {
+    return allMarketsData
+      .filter((data) => data.product !== 'Leveraged Liquidity')
+      .filter(
+        (data) =>
+          data.underlying.symbol === 'USDC' || data.underlying.symbol === 'ETH'
+      )
+      .map((data) => {
+        const { underlying, product, tvl, link, totalAPY } = data;
+        return {
+          currency: underlying.symbol,
+          product: product,
+          boostedAPY: totalAPY + 5,
+          apy: totalAPY,
+          tvl: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
+          multiValueCellData: {
+            currency: {
+              symbol: underlying.symbol,
+              symbolSize: 'large',
+              label: underlying.symbol,
+              network: selectedNetwork,
+              caption: selectedNetwork
+                ? selectedNetwork.charAt(0).toUpperCase() +
+                  selectedNetwork.slice(1)
+                : '',
+            },
+          },
+          view: link,
+          iconCellData: {
+            icon: RocketIcon,
+          },
+        };
+      });
+  };
+
+  const initialData = formatMarketData([
+    ...fCashLend,
+    ...variableLend,
+    ...liquidity,
+  ]);
+
+  return { productsTableColumns: tableColumns, productsTableData: initialData };
+};

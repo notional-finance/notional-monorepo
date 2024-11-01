@@ -117,6 +117,8 @@ interface AddressState {
   communityMembership?: Community[];
   /** Checks if the address is sanctioned on wallet connection */
   isSanctionedAddress: boolean;
+  /** Checks if the address is a new user on wallet connection */
+  isStarterBoostUser: boolean;
 
   /**
    * Set to true when addresses are switched and set to false when all networks
@@ -149,6 +151,7 @@ export interface GlobalState
 
 export const initialGlobalState: GlobalState = {
   isSanctionedAddress: false,
+  isStarterBoostUser: false,
   isAccountPending: false,
   sentTransactions: [],
   completedTransactions: {},

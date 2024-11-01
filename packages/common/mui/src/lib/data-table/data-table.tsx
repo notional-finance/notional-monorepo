@@ -279,6 +279,10 @@ export const DataTable = ({
             />
           )}
 
+          {networkToggleData && !filterBarData && (
+            <DataTableFilterBar networkToggleData={networkToggleData} />
+          )}
+
           {tabBarProps && (
             <DataTableTabBar
               tabsThatIncludeToggle={tabsThatIncludeToggle}

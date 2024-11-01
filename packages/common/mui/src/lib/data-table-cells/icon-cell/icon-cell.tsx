@@ -8,6 +8,48 @@ import { TokenIcon } from '@notional-finance/icons';
 //   };
 // }
 
+const DisplayFormatterIconCell = (props): JSX.Element => {
+  const theme = useTheme();
+  const {
+    row: { original },
+    column,
+    getValue,
+  } = props.cell;
+  const showCustomIcon = column.columnDef?.showCustomIcon;
+  const CustomIcon = original.iconCellData?.icon;
+  const value = getValue();
+  const displayFormatter = column.columnDef?.displayFormatter;
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: column.columnDef?.textAlign,
+      }}
+    >
+      <Box>
+        {showCustomIcon && (
+          <CustomIcon
+            sx={{ height: theme.spacing(2), width: theme.spacing(2) }}
+          />
+        )}
+      </Box>
+      <TableCell
+        style={{
+          marginLeft: !showCustomIcon
+            ? theme.spacing(1.25)
+            : theme.spacing(0.5),
+          lineHeight: 'normal',
+          fontWeight: 500,
+        }}
+      >
+        {displayFormatter(value)}
+      </TableCell>
+    </Box>
+  );
+};
+
 export const IconCell = (props): JSX.Element => {
   const theme = useTheme();
   const {
@@ -18,8 +60,11 @@ export const IconCell = (props): JSX.Element => {
   const showCustomIcon = column.columnDef?.showCustomIcon;
   const CustomIcon = original.iconCellData?.icon;
   const value = getValue();
+  const displayFormatter = column.columnDef?.displayFormatter;
 
-  return (
+  return displayFormatter ? (
+    <DisplayFormatterIconCell {...props} />
+  ) : (
     <Box
       sx={{
         display: 'flex',
