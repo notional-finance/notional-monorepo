@@ -75,6 +75,7 @@ export function trackPageView(
   currentLocation: Route,
   prevLocation?: Route
 ) {
+  console.log('trackPageView', currentLocation);
   analytics.page(
     currentLocation.state?.routeType ||
       (currentLocation.pathname === '/' ? 'Landing' : 'unknown'),
