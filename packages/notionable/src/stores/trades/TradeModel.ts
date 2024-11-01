@@ -68,7 +68,18 @@ export const TokenOptionModel = types.model('TokenOption', {
 export const TradeModel = types
   .model('TradeModel', {
     /** A key into the trade configuration object */
-    tradeType: types.enumeration<AllTradeTypes>('TradeType', ['LendVariable']),
+    tradeType: types.enumeration<AllTradeTypes>('TradeType', [
+      'LendVariable',
+      'LendFixed',
+      'MintNToken',
+      'BorrowVariable',
+      'BorrowFixed',
+      'Deposit',
+      'Withdraw',
+      'ConvertAsset',
+      'RepayDebt',
+      'RollDebt',
+    ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),
     /** Selected network for the current trade, the user can change this */
