@@ -233,7 +233,9 @@ export class PendlePT extends VaultAdapter {
 
     return {
       netUnderlyingForVaultShares: underlyingOut,
-      feesPaid: tradingFeesPaid.add(this.market.convertSyToAsset(feesPaid[0])),
+      feesPaid: tradingFeesPaid.add(
+        this.market.convertSyToAsset(feesPaid[0]).toToken(tradingFeesPaid.token)
+      ),
     };
   }
 
@@ -310,6 +312,7 @@ export class PendlePT extends VaultAdapter {
               ptTokensIn,
               feesPaid: this.market
                 .convertSyToAsset(feesPaid[0])
+                .toToken(netUnderlying.token)
                 .add(tradingFeesPaid),
             },
           };
