@@ -118,13 +118,22 @@ export const VaultDefaultDexParameters: Record<
   Network,
   Record<
     string,
-    { dexId: DexIds; exchangeData: BytesLike; poolAddress?: string }
+    {
+      dexId: DexIds;
+      depositExchangeData: BytesLike;
+      redeemExchangeData: BytesLike;
+      poolAddress?: string;
+    }
   >
 > = {
   [Network.arbitrum]: {
     [vaults.arbitrum.Pendle_rsETH_25SEP2024.toLowerCase()]: {
       dexId: DexIds.BALANCER_V2,
-      exchangeData: defaultAbiCoder.encode(
+      depositExchangeData: defaultAbiCoder.encode(
+        ['bytes32'],
+        ['0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c']
+      ),
+      redeemExchangeData: defaultAbiCoder.encode(
         ['bytes32'],
         ['0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c']
       ),
@@ -132,7 +141,11 @@ export const VaultDefaultDexParameters: Record<
     },
     [vaults.arbitrum.Pendle_rsETH_26DEC2024.toLowerCase()]: {
       dexId: DexIds.BALANCER_V2,
-      exchangeData: defaultAbiCoder.encode(
+      depositExchangeData: defaultAbiCoder.encode(
+        ['bytes32'],
+        ['0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c']
+      ),
+      redeemExchangeData: defaultAbiCoder.encode(
         ['bytes32'],
         ['0x90e6cb5249f5e1572afbf8a96d8a1ca6acffd73900000000000000000000055c']
       ),
@@ -142,7 +155,11 @@ export const VaultDefaultDexParameters: Record<
   [Network.mainnet]: {
     [vaults.mainnet.Pendle_ezETH_25DEC2024.toLowerCase()]: {
       dexId: DexIds.BALANCER_V2,
-      exchangeData: defaultAbiCoder.encode(
+      depositExchangeData: defaultAbiCoder.encode(
+        ['bytes32'],
+        ['0x596192bb6e41802428ac943d2f1476c1af25cc0e000000000000000000000659']
+      ),
+      redeemExchangeData: defaultAbiCoder.encode(
         ['bytes32'],
         ['0x596192bb6e41802428ac943d2f1476c1af25cc0e000000000000000000000659']
       ),
@@ -150,17 +167,25 @@ export const VaultDefaultDexParameters: Record<
     },
     [vaults.mainnet.Pendle_USDe_25DEC2024.toLowerCase()]: {
       dexId: DexIds.CURVE_V2,
-      exchangeData: defaultAbiCoder.encode(
+      depositExchangeData: defaultAbiCoder.encode(
         ['address', 'int128', 'int128'],
         ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 1, 0]
+      ),
+      redeemExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 0, 1]
       ),
       poolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
     },
     [vaults.mainnet.Pendle_USDe_26MAR2025.toLowerCase()]: {
       dexId: DexIds.CURVE_V2,
-      exchangeData: defaultAbiCoder.encode(
+      depositExchangeData: defaultAbiCoder.encode(
         ['address', 'int128', 'int128'],
         ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 1, 0]
+      ),
+      redeemExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 0, 1]
       ),
       poolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
     },
