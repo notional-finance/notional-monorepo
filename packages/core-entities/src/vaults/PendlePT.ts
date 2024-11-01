@@ -421,8 +421,8 @@ export class PendlePT extends VaultAdapter {
       const { dexId, redeemExchangeData: exchangeData } =
         VaultDefaultDexParameters[this.network][this.vaultAddress];
 
-      const minPurchaseAmount = this.market
-        .convertAssetToSy(vaultSharesToRedeem.toUnderlying())
+      const minPurchaseAmount = vaultSharesToRedeem
+        .toUnderlying()
         .mulInRatePrecision(RATE_PRECISION - slippageFactor);
 
       return defaultAbiCoder.encode(
