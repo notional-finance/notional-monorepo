@@ -7,6 +7,7 @@ import {
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import {
+  BASIS_POINT,
   doSecantSearch,
   getNowSeconds,
   getProviderFromNetwork,
@@ -277,10 +278,6 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       };
     } else if (tokenIndexOut === this.PT_TOKEN_INDEX) {
       const assetTokensIn = this.convertSyToAsset(tokensIn);
-      console.log(
-        'ASSET TOKENS IN ',
-        assetTokensIn.toDisplayStringWithSymbol(8, false, false)
-      );
       // Assume PT in at the current exchange rate, then do secant search until
       // we find the postFeeAssetToAccount that is close to tokensIn
       const initialTokensIn = TokenBalance.fromFloat(
@@ -298,12 +295,6 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
           const netPtToAccount = initialTokensIn.mulInRatePrecision(exRate);
           const { postFeeAssetToAccount, fee } =
             this.calculateTokenOutGivenPTIn(netPtToAccount);
-          console.log(
-            'IN PT CALC ',
-            exRate / RATE_PRECISION,
-            netPtToAccount.toDisplayStringWithSymbol(8, false, false),
-            postFeeAssetToAccount.toDisplayStringWithSymbol(8, false, false)
-          );
 
           return {
             fx: Math.floor(
@@ -316,7 +307,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
               fee,
             },
           };
-        }
+        },
+        50 * BASIS_POINT
       );
 
       return {
