@@ -116,7 +116,8 @@ export const VaultActionSideDrawer = () => {
           Component: CreateVaultPosition,
           requiredState: {
             tradeType: 'IncreaseVaultPosition',
-            riskFactorLimit: defaultRiskLimit,
+            riskFactorLimit:
+              currentPosition.riskFactorLimit || defaultRiskLimit,
           },
         },
         {

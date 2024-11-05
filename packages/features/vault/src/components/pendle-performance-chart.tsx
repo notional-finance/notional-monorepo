@@ -25,6 +25,7 @@ import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault';
 import { useVaultExistingFactors } from '../hooks';
+import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
 
 const usePendlePerformanceChart = (state: VaultTradeState) => {
   const dataPoints = 90;
@@ -36,12 +37,15 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
     vaultAddress,
     selectedNetwork,
   } = state;
+  const {
+    priorBorrowRate,
+    leverageRatio: priorLeverageRatio,
+    debt: priorDebt,
+  } = useVaultExistingFactors();
   const spotData = useSpotMaturityData(
     debt ? [debt] : undefined,
     debt ? debt.network : undefined
   );
-  const { priorBorrowRate, leverageRatio: priorLeverageRatio } =
-    useVaultExistingFactors();
   const nowMidnight = floorToMidnight(getNowSeconds());
   const adapter =
     selectedNetwork && vaultAddress
@@ -58,11 +62,18 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
   const fixedBorrowMaturity =
     debt && debt.maturity !== PRIME_CASH_VAULT_MATURITY
       ? debt.maturity
+      : priorDebt?.maturity && priorDebt?.maturity !== PRIME_CASH_VAULT_MATURITY
+      ? priorDebt.maturity
       : undefined;
 
-  const primeBorrowRate = debtOptions?.find(
-    (t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY
-  )?.interestRate;
+  const primeBorrowRate =
+    debtOptions &&
+    debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
+      ? debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
+          ?.interestRate
+      : priorDebt?.maturity === PRIME_CASH_VAULT_MATURITY
+      ? priorBorrowRate
+      : undefined;
 
   const ptAPY =
     collateralOptions?.find((t) => t.token.maturity === debt?.maturity)
@@ -105,10 +116,11 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
 export const PendlePerformanceChart = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { deposit } = state;
+  const { deposit, collateral } = state;
 
   const { areaChartData, ptExpires, fixedBorrowMaturity } =
     usePendlePerformanceChart(state);
+  const priceData = useAssetPriceHistory(collateral);
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
@@ -183,11 +195,24 @@ export const PendlePerformanceChart = () => {
             />
           ),
           chartHeaderData: {
-            textHeader: (
-              <FormattedMessage defaultMessage={'Estimated Performance'} />
-            ),
             legendData,
           },
+        },
+        {
+          id: 'price-area-chart',
+          title: `Vault Share Price`,
+          hideTopGridLine: true,
+          Component: (
+            <AreaChart
+              title={`Vault Share Price`}
+              showCartesianGrid
+              xAxisTickFormat="date"
+              yAxisTickFormat="double"
+              yAxisDomain={['dataMin * 0.95', 'dataMax * 1.05']}
+              areaDataKey={'assetPrice'}
+              areaChartData={priceData}
+            />
+          ),
         },
       ]}
     />

@@ -211,7 +211,7 @@ export const useVaultFaq = (
     },
   ];
 
-  if (currentVaultType === 'SingleSidedLP') {
+  if (currentVaultType?.startsWith('SingleSidedLP')) {
     baseFaq.push(
       {
         question: (

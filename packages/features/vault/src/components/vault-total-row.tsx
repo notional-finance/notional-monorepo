@@ -136,10 +136,7 @@ export const VaultTotalRow = () => {
       ? getVaultType(vaultAddress, selectedNetwork)
       : undefined;
 
-  if (
-    vaultType === 'SingleSidedLP' ||
-    vaultType === 'SingleSidedLP_DirectClaim'
-  ) {
+  if (vaultType?.startsWith('SingleSidedLP')) {
     return <TotalRowSingleSidedLP />;
   } else if (vaultType === 'PendlePT') {
     return <TotalRowPendlePT />;

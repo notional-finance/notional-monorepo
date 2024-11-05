@@ -17,7 +17,7 @@ export const VaultReinvestmentHistory = () => {
       ? getVaultType(vaultAddress, selectedNetwork)
       : undefined;
 
-  return vaultType === 'SingleSidedLP' ? (
+  return vaultType === 'SingleSidedLP_AutoReinvest' ? (
     <Box
       sx={{
         marginBottom: theme.spacing(5),

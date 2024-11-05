@@ -304,6 +304,7 @@ export async function calculateVaultHoldings(
   const allYields = Registry.getYieldRegistry().getNonLeveragedYields(
     account.network
   );
+  const config = Registry.getConfigurationRegistry();
 
   return await Promise.all(
     vaultProfiles.map(async (v) => {
@@ -326,12 +327,20 @@ export async function calculateVaultHoldings(
         (y) => v.vaultShares.tokenId === y.token.id
       );
       const strategyAPY = vaultYield?.totalAPY || 0;
+      const primeDebtAPY =
+        allYields.find(
+          (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
+        )?.totalAPY || 0;
+      // Add this annualized fee rate to the prime debt APY
+      const annualizedFeeRate =
+        (100 *
+          config.getVaultConfig(v.network, v.vaultAddress).feeRateBasisPoints) /
+          RATE_PRECISION || 0;
+
       const borrowAPY =
         debtPnL?.impliedFixedRate !== undefined
           ? debtPnL.impliedFixedRate
-          : allYields.find(
-              (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
-            )?.totalAPY || 0;
+          : primeDebtAPY + annualizedFeeRate;
 
       const amountPaid = (assetPnL?.accumulatedCostRealized || zeroDenom)
         .add(debtPnL?.accumulatedCostRealized || zeroDenom)

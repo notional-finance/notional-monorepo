@@ -10,7 +10,7 @@ import {
   VaultTotalRow,
 } from '../components';
 import { VaultActionContext } from '../vault';
-import { LiquidationChart, TradeActionSummary } from '@notional-finance/trade';
+import { TradeActionSummary } from '@notional-finance/trade';
 import { useVaultExistingFactors, useVaultFaq } from '../hooks';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { getVaultType } from '@notional-finance/core-entities';
@@ -19,7 +19,7 @@ export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
   const { selectedNetwork, collateral, deposit, vaultAddress } = state;
-  const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
+  const { vaultShare, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
   const vaultType =
     vaultAddress && selectedNetwork
@@ -81,11 +81,6 @@ export const VaultSummary = () => {
           >
             <VaultPerformanceChart />
             <VaultTotalRow />
-            <LiquidationChart
-              state={state}
-              vaultCollateral={vaultShare}
-              vaultLiquidationPrice={assetLiquidationPrice}
-            />
             <VaultReinvestmentHistory />
             <FaqHeader
               title={

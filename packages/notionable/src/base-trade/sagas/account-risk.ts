@@ -55,7 +55,10 @@ export function postAccountRisk(
         a1?.network === a2?.network
     ),
     // Filter required to ensure that account and network are synchronized
-    filter(([a, s]) => (a === null || (!!a?.network && a.network === s.selectedNetwork))),
+    filter(
+      ([a, s]) =>
+        a === null || (!!a?.network && a.network === s.selectedNetwork)
+    ),
     map(
       ([
         account,
@@ -108,14 +111,23 @@ export function postAccountRisk(
 }
 
 export function mergeLiquidationPrices(
-  prior: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>,
-  post: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>
+  prior: (ReturnType<AccountRiskProfile['getAllLiquidationPrices']>[number] & {
+    debt?: TokenDefinition;
+  })[],
+  post: (ReturnType<AccountRiskProfile['getAllLiquidationPrices']>[number] & {
+    debt?: TokenDefinition;
+  })[]
 ) {
   return zipByKeyToArray(prior, post, (t) => t.asset.id).map(
     ([current, updated]) => {
       const asset = (current?.asset || updated?.asset) as TokenDefinition;
+      const debt = (current?.debt || updated?.debt) as
+        | TokenDefinition
+        | undefined;
+
       return {
         asset,
+        debt,
         current: current?.threshold,
         updated: updated?.threshold,
         changeType: getChangeType(

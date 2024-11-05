@@ -47,6 +47,10 @@ export class PendlePT extends VaultAdapter {
     );
   }
 
+  getLiquidationPriceTokens() {
+    return [this.market.ptToken];
+  }
+
   getVaultAPY(): number {
     return this.market.ptSpotYieldToMaturity;
   }
@@ -205,14 +209,21 @@ export class PendlePT extends VaultAdapter {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
-    const ptTokens = TokenBalance.from(netVaultShares.n, this.market.ptToken)
-      .scaleFromInternal()
-      .neg();
+    // This is only called on maxWithdraw from a vault
+    if (netVaultShares.isPositive())
+      throw Error(
+        'getNetVaultSharesCost should not be called with a positive netVaultShares'
+      );
 
-    // Calculate the cost to purchase the PT
+    const ptTokens = TokenBalance.from(
+      netVaultShares.n,
+      this.market.ptToken
+    ).scaleFromInternal();
+
+    // Calculate the cost to sell the PT, receive tokenOutSy in return
     const { tokensOut: tokensOutSy, feesPaid } =
       this.market.calculateTokenTrade(
-        ptTokens.neg(),
+        ptTokens.abs(),
         this.market.TOKEN_IN_INDEX
       );
 
@@ -222,7 +233,9 @@ export class PendlePT extends VaultAdapter {
 
     return {
       netUnderlyingForVaultShares: underlyingOut,
-      feesPaid: tradingFeesPaid.add(this.market.convertSyToAsset(feesPaid[0])),
+      feesPaid: tradingFeesPaid.add(
+        this.market.convertSyToAsset(feesPaid[0]).toToken(tradingFeesPaid.token)
+      ),
     };
   }
 
@@ -234,27 +247,13 @@ export class PendlePT extends VaultAdapter {
     feesPaid: TokenBalance;
   } {
     if (netUnderlying.isPositive()) {
-      console.log(
-        'Net Underlying in',
-        netUnderlying.toDisplayStringWithSymbol(8, false, false)
-      );
       // On way in, netUnderlying is traded to tokenInSy
       const { tokensInSy, tradingFeesPaid } =
         this.calculateTradeToSy(netUnderlying);
-      console.log(
-        'Tokens In Sy, Trading Fees Paid',
-        tokensInSy.toDisplayStringWithSymbol(8, false, false),
-        tradingFeesPaid.toDisplayStringWithSymbol(8, false, false)
-      );
 
       // Calculate the amount received for selling the PT
       const { tokensOut: ptTokensOut, feesPaid } =
         this.market.calculateTokenTrade(tokensInSy, this.market.PT_TOKEN_INDEX);
-      console.log(
-        'PT Tokens Out, Fees Paid',
-        ptTokensOut.toDisplayStringWithSymbol(8, false, false),
-        feesPaid[0].toDisplayStringWithSymbol(8, false, false)
-      );
 
       return {
         netVaultSharesForUnderlying: TokenBalance.from(
@@ -279,8 +278,8 @@ export class PendlePT extends VaultAdapter {
       );
 
       const { ptTokensIn, feesPaid } = doSecantSearch(
+        Math.floor(approxPTExchangeRate / 2),
         approxPTExchangeRate,
-        RATE_PRECISION,
         (exRate: number) => {
           const ptTokensIn = initialPtTokens.mulInRatePrecision(exRate);
 
@@ -294,11 +293,12 @@ export class PendlePT extends VaultAdapter {
             this.calculateTradeFromSy(tokenOutSy);
 
           return {
-            fx: underlyingOut.neg().toFloat() - netUnderlying.toFloat(),
+            fx: underlyingOut.toFloat() - netUnderlying.neg().toFloat(),
             value: {
               ptTokensIn,
               feesPaid: this.market
                 .convertSyToAsset(feesPaid[0])
+                .toToken(netUnderlying.token)
                 .add(tradingFeesPaid),
             },
           };
@@ -325,7 +325,7 @@ export class PendlePT extends VaultAdapter {
     totalDeposit: TokenBalance,
     slippageFactor = 50 * BASIS_POINT
   ): Promise<BytesLike> {
-    const { dexId, exchangeData } =
+    const { dexId, depositExchangeData: exchangeData } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
 
     // Apply some slippage limit to the oracle price on the deposit
@@ -404,11 +404,11 @@ export class PendlePT extends VaultAdapter {
       return '0x';
     } else {
       // In the other case, we need to determine the default exit trade.
-      const { dexId, exchangeData } =
+      const { dexId, redeemExchangeData: exchangeData } =
         VaultDefaultDexParameters[this.network][this.vaultAddress];
 
-      const minPurchaseAmount = this.market
-        .convertAssetToSy(vaultSharesToRedeem.toUnderlying())
+      const minPurchaseAmount = vaultSharesToRedeem
+        .toUnderlying()
         .mulInRatePrecision(RATE_PRECISION - slippageFactor);
 
       return defaultAbiCoder.encode(

@@ -85,8 +85,9 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         }) => {
           const vaultType = getVaultType(vaultAddress, network);
           switch (vaultType) {
-            case 'SingleSidedLP':
+            case 'SingleSidedLP_AutoReinvest':
             case 'SingleSidedLP_DirectClaim':
+            case 'SingleSidedLP_Points':
               return this.getSingleSidedLPCalls(
                 vaultAddress,
                 network,

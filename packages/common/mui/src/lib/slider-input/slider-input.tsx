@@ -6,6 +6,7 @@ import SliderBasic from '../slider-basic/slider-basic';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { Caption } from '../typography/typography';
 import ErrorMessage from '../error-message/error-message';
+import { InfoTooltip } from '../info-tooltip/info-tooltip';
 import React from 'react';
 import CountUp from '../count-up/count-up';
 
@@ -25,6 +26,8 @@ export interface SliderInputProps {
     caption: React.ReactNode;
     value: number | React.ReactNode;
     suffix?: string;
+    toolTipText?: React.ReactNode;
+    toolTipTitle?: React.ReactNode;
   }[];
 }
 
@@ -236,25 +239,52 @@ export const SliderInput = React.forwardRef<
         </Container>
         {sliderLeverageInfo && (
           <LeverageInfoContainer>
-            {sliderLeverageInfo.map(({ caption, value, suffix }) => (
-              <Box
-                sx={{
-                  display: 'flex',
-                  marginBottom: theme.spacing(1),
-                  justifyContent: 'space-between',
-                  alignContent: 'baseline',
-                }}
-              >
-                <Caption>{caption}</Caption>
-                <Caption main fontWeight="medium">
-                  {typeof value === 'number' ? (
-                    <CountUp value={value} suffix={suffix} decimals={4} />
-                  ) : (
-                    value
-                  )}
-                </Caption>
-              </Box>
-            ))}
+            {sliderLeverageInfo.map(
+              ({ caption, value, suffix, toolTipTitle, toolTipText }) => (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    marginBottom: theme.spacing(1),
+                    justifyContent: 'space-between',
+                    alignContent: 'baseline',
+                  }}
+                >
+                  <Caption sx={{ display: 'flex' }}>
+                    {caption}
+                    {toolTipTitle && toolTipText && (
+                      <InfoTooltip
+                        iconColor={theme.palette.typography.accent}
+                        iconSize={theme.spacing(2)}
+                        sx={{
+                          marginLeft: theme.spacing(1),
+                        }}
+                        ToolTipComp={() => (
+                          <Box sx={{ color: 'black' }}>
+                            <Caption
+                              sx={{
+                                color: theme.palette.typography.main,
+                                fontWeight: '600',
+                                marginBottom: theme.spacing(2),
+                              }}
+                            >
+                              {toolTipTitle}
+                            </Caption>
+                            <Caption>{toolTipText}</Caption>
+                          </Box>
+                        )}
+                      />
+                    )}
+                  </Caption>
+                  <Caption main fontWeight="medium">
+                    {typeof value === 'number' ? (
+                      <CountUp value={value} suffix={suffix} decimals={4} />
+                    ) : (
+                      value
+                    )}
+                  </Caption>
+                </Box>
+              )
+            )}
           </LeverageInfoContainer>
         )}
         <Caption sx={{ marginTop: theme.spacing(1.5) }}>

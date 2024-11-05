@@ -275,7 +275,7 @@ export default class VaultV3Liquidator {
       return '0x';
     }
 
-    const { dexId, exchangeData } =
+    const { dexId, redeemExchangeData: exchangeData } =
       VaultDefaultDexParameters[this.settings.network][vault];
 
     const vaultContract = new ethers.Contract(
@@ -419,10 +419,7 @@ export default class VaultV3Liquidator {
         maturity,
         totalVaultShares
       );
-    } else if (
-      vaultType === 'SingleSidedLP' ||
-      vaultType === 'SingleSidedLP_DirectClaim'
-    ) {
+    } else if (vaultType.startsWith('SingleSidedLP')) {
       redeemData = await this.getSingleSidedLPRedeemData(
         vault,
         maturity,
@@ -457,7 +454,8 @@ export default class VaultV3Liquidator {
         _batch.map((p) =>
           this.provider
             .estimateGas(p.txn)
-            .catch(() => {
+            .catch((e) => {
+              console.log('FAILED ESTIMATE GAS ', e);
               failingTxns.push(p);
               return null;
             })

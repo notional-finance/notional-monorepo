@@ -303,10 +303,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
           RATE_PRECISION;
   }
 
-  assetLiquidationThreshold(
-    // NOTE: this parameter is unused because the returned units is always in vault share denomination
-    _collateral: TokenDefinition = this.vaultShares.token
-  ): TokenBalance | null {
+  assetLiquidationThreshold(asset: TokenDefinition): TokenBalance | null {
     if (this.vaultShares.isZero() || this.vaultDebt.isZero()) return null;
 
     // (minCollateralRatio + 1) * debtOutstanding = vaultSharesValue
@@ -321,7 +318,35 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       );
 
     // This is the relative exchange rate decrease of vault shares to liquidation
-    return oneVaultShareValueAtLiquidation.toToken(this.vaultShares.token);
+    const oneVaultShareValue = TokenBalance.unit(
+      this.vaultShares.token
+    ).toUnderlying();
+    const liquidationPriceRatio =
+      oneVaultShareValueAtLiquidation.ratioWith(oneVaultShareValue);
+    const assetToUnderlyingPrice = TokenBalance.unit(asset).toToken(
+      oneVaultShareValue.token
+    );
+    const assetLiquidationThreshold = assetToUnderlyingPrice
+      .mulInRatePrecision(liquidationPriceRatio)
+      .toToken(asset);
+
+    return assetLiquidationThreshold;
+  }
+
+  override getAllLiquidationPrices() {
+    const borrowedToken = this.vaultAdapter.getBorrowedToken();
+
+    return this.vaultAdapter
+      .getLiquidationPriceTokens()
+      .map((asset) => {
+        return {
+          asset,
+          debt: borrowedToken,
+          threshold: this.assetLiquidationThreshold(asset),
+          isDebtThreshold: false,
+        };
+      })
+      .filter(({ threshold }) => threshold !== null);
   }
 
   freeCollateral(): TokenBalance {
@@ -409,28 +434,23 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         .neg();
     }
 
-    // Vault shares burned to repay debt
-    const { netVaultSharesForUnderlying } =
-      this.vaultAdapter.getNetVaultSharesMinted(
-        costToRepay, // this is a negative number
-        this.vaultShares.token
-      );
+    // Returns the total underlying received when redeeming all of the vault shares
     const { netUnderlyingForVaultShares, feesPaid } =
       this.vaultAdapter.getNetVaultSharesCost(this.vaultShares.neg());
 
-    // Return this in vault shares terms
-    const maxWithdraw = this.vaultShares.gt(netVaultSharesForUnderlying)
-      ? this.vaultShares.sub(netVaultSharesForUnderlying)
+    // Returns the net amount remaining after repaying all the debt
+    const maxWithdrawUnderlying = netUnderlyingForVaultShares.gt(costToRepay)
+      ? netUnderlyingForVaultShares.sub(costToRepay)
       : this.vaultShares.copy(0);
 
     return {
-      maxWithdrawUnderlying: maxWithdraw.toUnderlying(),
+      maxWithdrawUnderlying: maxWithdrawUnderlying,
       netRealizedCollateralBalance: netUnderlyingForVaultShares.add(feesPaid),
       collateralFee: feesPaid,
       debtFee,
-      netRealizedDebtBalance: costToRepay.add(
-        debtFee?.toUnderlying() || costToRepay.copy(0)
-      ),
+      netRealizedDebtBalance: costToRepay
+        .add(debtFee?.toUnderlying() || costToRepay.copy(0))
+        .neg(),
     };
   }
 }

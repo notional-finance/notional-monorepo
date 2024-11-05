@@ -465,6 +465,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           v.vaultAddress
         );
         const totalAPY = adapter.getVaultAPY();
+        const rewardAPY = adapter.getRewardAPY();
         if (debt.token.tokenType === 'PrimeDebt') {
           const annualizedFeeRate =
             Registry.getConfigurationRegistry().getVaultConfig(
@@ -490,6 +491,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           token: v,
           underlying,
           totalAPY,
+          organicAPY: totalAPY - rewardAPY,
+          incentiveAPY: rewardAPY,
           tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
           vaultName: config.getVaultName(network, v.vaultAddress),
           pointMultiples: adapter.getPointMultiples(),

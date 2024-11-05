@@ -11,6 +11,44 @@ import { HEALTH_FACTOR_RISK_LEVELS } from '@notional-finance/util';
 import { IntlShape, useIntl, defineMessages } from 'react-intl';
 import { useVaultPosition } from '../use-account';
 
+function formatVaultLiquidationPrices(
+  liquidationPrice: VaultTradeState['liquidationPrice'],
+  intl: IntlShape,
+  hideArrow?: boolean
+) {
+  return (
+    (liquidationPrice || []).map((p) => {
+      return {
+        ...p,
+        label: p.debt
+          ? intl.formatMessage(
+              { defaultMessage: '{asset} / {base} Liquidation Price' },
+              {
+                asset: p.asset.symbol,
+                base: p.debt.symbol,
+              }
+            )
+          : intl.formatMessage(
+              { defaultMessage: '{asset} Liquidation Price' },
+              {
+                asset: formatTokenType(p.asset).title,
+              }
+            ),
+        current:
+          p.debt && p.current
+            ? p.current.toToken(p.debt).toDisplayStringWithSymbol()
+            : 'No Risk',
+        updated:
+          p.debt && p.updated
+            ? p.updated.toToken(p.debt).toDisplayStringWithSymbol()
+            : 'No Risk',
+        textColor: '',
+        hideArrow: hideArrow || false,
+      };
+    }) || []
+  );
+}
+
 function formatLiquidationPrices(
   liquidationPrice: TradeState['liquidationPrice'],
   baseCurrency: FiatKeys,
@@ -244,11 +282,8 @@ export function useVaultDetails(state: VaultTradeState) {
     },
   ];
 
-  const liquidationPrices = formatLiquidationPrices(
-    (liquidationPrice || []).filter(
-      (p) => p.isAssetRisk && p.asset.tokenType === 'VaultShare'
-    ),
-    baseCurrency,
+  const liquidationPrices = formatVaultLiquidationPrices(
+    (liquidationPrice || []).filter((p) => p.isPriceRisk),
     intl
   );
 

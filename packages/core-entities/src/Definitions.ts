@@ -294,6 +294,7 @@ export interface YieldData {
   vaultName?: string;
   nativeTokenAPY?: number;
   organicAPY?: number;
+  incentiveAPY?: number;
   feeAPY?: number;
   strategyAPY?: number;
   noteIncentives?: {

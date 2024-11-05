@@ -4,7 +4,6 @@ import {
   Network,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
-  INTERNAL_TOKEN_DECIMALS,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
@@ -88,6 +87,17 @@ export class SingleSidedLP extends VaultAdapter {
 
   get rewardTokens() {
     return this.rewardState?.map((r) => r.rewardToken) || [];
+  }
+
+  getLiquidationPriceTokens() {
+    return this.pool.balances
+      .filter(
+        (b) =>
+          // Exclude the LP token and the borrowed token
+          b.tokenId !== this.pool.oneLPToken().tokenId &&
+          b.tokenId !== this.getBorrowedToken().id
+      )
+      .map((b) => b.token);
   }
 
   constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
@@ -232,6 +242,29 @@ export class SingleSidedLP extends VaultAdapter {
 
     return vaultAPYs.length > 0
       ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
+      : 0;
+  }
+
+  override getRewardAPY() {
+    const analytics = Registry.getAnalyticsRegistry();
+    const incentiveAPYs = (analytics
+      .getVault(this.network, this.vaultAddress)
+      ?.filter(
+        ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+      )
+      .map((r) =>
+        Object.keys(r.returnDrivers)
+          .filter(
+            (r) =>
+              r.toLowerCase().includes('incentive') ||
+              r.toLowerCase().includes('points')
+          )
+          .reduce((t, i) => t + (r.returnDrivers[i] || 0), 0)
+      )
+      .filter((apy) => apy !== null) || []) as number[];
+
+    return incentiveAPYs.length > 0
+      ? incentiveAPYs.reduce((t, a) => t + a, 0) / incentiveAPYs.length
       : 0;
   }
 

@@ -10,6 +10,7 @@ import { Box, useTheme } from '@mui/material';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import useApyChart from './use-apy-chart';
+import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
 
 export const PerformanceChart = ({
   state,
@@ -29,6 +30,7 @@ export const PerformanceChart = ({
   const { collateral: _collateral, deposit, selectedDepositToken } = state;
   const collateral = _collateral || priorVaultFactors?.vaultShare;
   const { barConfig, barChartData } = useApyChart(collateral);
+  const priceData = useAssetPriceHistory(collateral);
 
   const chartComponents: ChartComponentsProps[] = [
     {
@@ -69,7 +71,7 @@ export const PerformanceChart = ({
       id: 'bar-chart',
       title:
         collateral?.tokenType === 'VaultShare'
-          ? 'Vault Share APY'
+          ? 'Vault APY'
           : `n${selectedDepositToken} APY`,
       hideTopGridLine: true,
       Component: (
@@ -91,6 +93,25 @@ export const PerformanceChart = ({
       },
     },
   ];
+
+  if (collateral?.tokenType === 'VaultShare') {
+    chartComponents.push({
+      id: 'price-area-chart',
+      title: `Vault Share Price`,
+      hideTopGridLine: true,
+      Component: (
+        <AreaChart
+          title={`Vault Share Price`}
+          showCartesianGrid
+          xAxisTickFormat="date"
+          yAxisTickFormat="double"
+          yAxisDomain={['dataMin * 0.95', 'dataMax * 1.05']}
+          areaDataKey={'assetPrice'}
+          areaChartData={priceData}
+        />
+      ),
+    });
+  }
 
   return (
     <Box marginBottom={theme.spacing(5)}>

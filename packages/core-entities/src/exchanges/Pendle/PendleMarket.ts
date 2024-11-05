@@ -7,6 +7,7 @@ import {
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import {
+  BASIS_POINT,
   doSecantSearch,
   getNowSeconds,
   getProviderFromNetwork,
@@ -166,7 +167,9 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   get ptExchangeRate() {
-    return this.getPreFeeExchangeRate(TokenBalance.zero(this.ptToken));
+    return this.timeToExpiry === 0
+      ? 1
+      : this.getPreFeeExchangeRate(TokenBalance.zero(this.ptToken));
   }
 
   get assetTokenId() {
@@ -181,21 +184,31 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   public convertAssetToSy(assetAmount: TokenBalance) {
+    const syToken = Registry.getTokenRegistry().getTokenByID(
+      this._network,
+      this.poolParams.tokens.SY
+    );
+
     return TokenBalance.fromID(
-      assetAmount.n
-        .mul(SCALAR_PRECISION)
-        .div(this.poolParams.syToAssetExchangeRate),
-      this.poolParams.tokens.SY.toLowerCase(),
+      assetAmount
+        .scale(SCALAR_PRECISION, this.poolParams.syToAssetExchangeRate)
+        .scaleTo(syToken.decimals),
+      syToken.id,
       this._network
     );
   }
 
   public convertSyToAsset(syAmount: TokenBalance) {
+    const assetToken = Registry.getTokenRegistry().getTokenByID(
+      this._network,
+      this.poolParams.assetTokenId
+    );
+
     return TokenBalance.fromID(
-      syAmount.n
-        .mul(this.poolParams.syToAssetExchangeRate)
-        .div(SCALAR_PRECISION),
-      this.poolParams.assetTokenId,
+      syAmount
+        .scale(this.poolParams.syToAssetExchangeRate, SCALAR_PRECISION)
+        .scaleTo(assetToken.decimals),
+      assetToken.id,
       this._network
     );
   }
@@ -294,7 +307,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
               fee,
             },
           };
-        }
+        },
+        50 * BASIS_POINT
       );
 
       return {
