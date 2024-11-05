@@ -4,7 +4,6 @@ import { FormattedMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { useRootStore } from '@notional-finance/notionable-hooks';
 
 export const config = {
   [PRODUCTS.LEVERAGED_POINTS_FARMING]: {
@@ -179,7 +178,6 @@ export const config = {
 export const useDashboardConfig = (routeKey: PRODUCTS) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { setNetwork } = useRootStore();
   const selectedNetwork = useSelectedNetwork();
   const defaultNetwork = selectedNetwork === Network.mainnet ? 1 : 0;
   const [networkToggle, setNetworkToggle] = useState<number>(defaultNetwork);
@@ -188,7 +186,6 @@ export const useDashboardConfig = (routeKey: PRODUCTS) => {
     const label = v === 0 ? Network.arbitrum : Network.mainnet;
     if (selectedNetwork) {
       setNetworkToggle(v);
-      setNetwork(label);
       navigate(pathname.replace(selectedNetwork, label));
     }
   };

@@ -7,7 +7,9 @@ import {
   ROUTE_MATCH,
   SupportedNetworks,
   unique,
+  Network,
 } from '@notional-finance/util';
+import { NotionalTypes } from '@notional-finance/core-entities';
 
 export interface APYData {
   totalAPY?: number;
@@ -109,6 +111,7 @@ export type StateZeroDataType = Instance<typeof StateZeroGroupModel>;
 
 export const PortfolioStoreModel = types
   .model('PortfolioStoreModel', {
+    network: NotionalTypes.Network,
     pointsStore: PointsStoreModel,
     stateZeroEarnData: StateZeroGroupModel,
     stateZeroBorrowData: StateZeroGroupModel,
@@ -156,177 +159,178 @@ export const PortfolioStoreModel = types
       getNetworksForProduct,
     };
   })
-  .actions((self) => ({
-    setStateZeroEarnData() {
-      const root = getRoot<RootStoreType>(self);
-      const clientNetwork = root.currentNetworkClient;
-      if (!clientNetwork.isReady()) {
-        return;
-      }
-      const getStateZeroEarnData = () => {
-        const fCashLendData = clientNetwork.getAllFCashYields().map((t) => {
-          return {
-            apy: t.apy,
-            symbol: t.underlying ? t.underlying.symbol : '',
-          };
-        });
-        const nTokenData = clientNetwork.getAllNTokenYields().map((t) => {
-          return {
-            apy: t.apy,
-            symbol: t.underlying ? t.underlying.symbol : '',
-          };
-        });
-        const primeCashLendData = clientNetwork.getAllFCashYields().map((t) => {
-          return {
-            apy: t.apy,
-            symbol: t.underlying ? t.underlying.symbol : '',
-          };
-        });
-
-        const earnData = [
-          primeCashLendData,
-          getMaturityAPYPerSymbol(fCashLendData),
-          nTokenData,
-        ];
-        const tokenList = getGreatestUniqueUnderlyingSymbols(earnData);
-        const result = {
-          defaultSymbol: tokenList[0],
-          data: earnData,
-          tokenList: tokenList,
-        };
-        return result;
-      };
-
-      const result = getStateZeroEarnData();
-      self.stateZeroEarnData = result as any;
-    },
-
-    setStateZeroLeveragedData() {
-      const root = getRoot<RootStoreType>(self);
-      const clientNetwork = root.currentNetworkClient;
-      if (!clientNetwork.isReady()) {
-        return;
-      }
-      const getAllLeveragedNTokenYields = () => {
-        const leveragedNTokenData = clientNetwork
-          .getAllLeveragedNTokenYields()
-          .map((t) => {
-            return {
-              vaultAddress: '',
-              apy: t?.apy,
-              maxLeverageRatio: t.maxLeverageRatio,
-              symbol: t.underlying ? t.underlying.symbol : '',
-              debtTokenId: t?.debtToken?.id,
-            };
-          });
-        return leveragedNTokenData;
-      };
-
-      const getVaultsData = () => {
-        const vaultsData = clientNetwork
-          .getAllListedVaultsWithYield()
-          .map((v) => {
-            return {
-              vaultAddress: v.vaultConfig.vaultAddress,
-              apy: v.apy,
-              maxLeverageRatio: v.maxLeverageRatio,
-              symbol: v.underlying ? v.underlying.symbol : '',
-              debtTokenId: v.debtToken?.id,
-              vaultType: v.vaultConfig.vaultType,
-            };
-          });
-
-        return {
-          pointsVaults: vaultsData.filter(
-            (v) => v.vaultType === 'SingleSidedLP_Points'
-          ),
-          farmingVaults: vaultsData.filter(
-            (v) =>
-              v.vaultType === 'SingleSidedLP_AutoReinvest' ||
-              v.vaultType === 'SingleSidedLP_DirectClaim'
-          ),
-        };
-      };
-
-      const getStateZeroLeveragedData = () => {
-        const { pointsVaults, farmingVaults } = getVaultsData();
-        const leveragedNTokenData = getAllLeveragedNTokenYields();
-        const leveragedGroupData = [
-          leveragedNTokenData,
-          pointsVaults,
-          farmingVaults,
-        ];
-        const tokenList =
-          getGreatestUniqueUnderlyingSymbols(leveragedGroupData);
-
-        const result = {
-          tokenList,
-          data: leveragedGroupData,
-          defaultSymbol: tokenList[0],
-        };
-        return result;
-      };
-      const result = getStateZeroLeveragedData();
-      self.stateZeroLeveragedData = result as any;
-    },
-
-    setStateZeroBorrowData() {
-      const root = getRoot<RootStoreType>(self);
-      const clientNetwork = root.currentNetworkClient;
-      if (!clientNetwork.isReady()) {
-        return;
-      }
-      const getStateBorrowData = () => {
-        const fCashBorrowData = clientNetwork.getAllFCashDebt().map((t) => {
-          return {
-            apy: t.apy,
-            symbol: t.underlying ? t.underlying.symbol : '',
-          };
-        });
-        const primeCashDebtData = clientNetwork.getAllFCashDebt().map((t) => {
-          return {
-            apy: t.apy,
-            symbol: t.underlying ? t.underlying.symbol : '',
-          };
-        });
-        const borrowData = [
-          primeCashDebtData,
-          getMaturityAPYPerSymbol(fCashBorrowData),
-        ];
-        const tokenList = getUniqueUnderlyingSymbols(borrowData);
-        const result = {
-          defaultSymbol: 'ETH',
-          data: borrowData,
-          tokenList: tokenList,
-        };
-        return result;
-      };
-
-      const result = getStateBorrowData();
-      self.stateZeroBorrowData = result as any;
-    },
-
-    afterCreate() {
-      const root = getRoot<RootStoreType>(self);
-      reaction(
-        () => root.network,
-        () => {
-          if (root.route === ROUTE_MATCH.PORTFOLIO_WELCOME) {
-            when(
-              () => root.currentNetworkClient.isReady(),
-              () => {
-                // @ts-ignore
-                self.setStateZeroEarnData();
-                // @ts-ignore
-                self.setStateZeroLeveragedData();
-                // @ts-ignore
-                self.setStateZeroBorrowData();
-              }
-            );
-          }
+  .actions((self) => {
+    const root = () => getRoot<RootStoreType>(self);
+    return {
+      setNetwork(network: Network) {
+        self.network = network;
+      },
+      setStateZeroEarnData() {
+        const clientNetwork = root().getNetworkClient(self.network);
+        if (!clientNetwork.isReady()) {
+          return;
         }
-      );
-    },
-  }));
+        const getStateZeroEarnData = () => {
+          const fCashLendData = clientNetwork.getAllFCashYields().map((t) => {
+            return {
+              apy: t.apy,
+              symbol: t.underlying ? t.underlying.symbol : '',
+            };
+          });
+          const nTokenData = clientNetwork.getAllNTokenYields().map((t) => {
+            return {
+              apy: t.apy,
+              symbol: t.underlying ? t.underlying.symbol : '',
+            };
+          });
+          const primeCashLendData = clientNetwork
+            .getAllFCashYields()
+            .map((t) => {
+              return {
+                apy: t.apy,
+                symbol: t.underlying ? t.underlying.symbol : '',
+              };
+            });
+
+          const earnData = [
+            primeCashLendData,
+            getMaturityAPYPerSymbol(fCashLendData),
+            nTokenData,
+          ];
+          const tokenList = getGreatestUniqueUnderlyingSymbols(earnData);
+          const result = {
+            defaultSymbol: tokenList[0],
+            data: earnData,
+            tokenList: tokenList,
+          };
+          return result;
+        };
+
+        const result = getStateZeroEarnData();
+        self.stateZeroEarnData = result as any;
+      },
+      setStateZeroLeveragedData() {
+        const clientNetwork = root().getNetworkClient(self.network);
+        if (!clientNetwork.isReady()) {
+          return;
+        }
+        const getAllLeveragedNTokenYields = () => {
+          const leveragedNTokenData = clientNetwork
+            .getAllLeveragedNTokenYields()
+            .map((t) => {
+              return {
+                vaultAddress: '',
+                apy: t?.apy,
+                maxLeverageRatio: t.maxLeverageRatio,
+                symbol: t.underlying ? t.underlying.symbol : '',
+                debtTokenId: t?.debtToken?.id,
+              };
+            });
+          return leveragedNTokenData;
+        };
+
+        const getVaultsData = () => {
+          const vaultsData = clientNetwork
+            .getAllListedVaultsWithYield()
+            .map((v) => {
+              return {
+                vaultAddress: v.vaultConfig.vaultAddress,
+                apy: v.apy,
+                maxLeverageRatio: v.maxLeverageRatio,
+                symbol: v.underlying ? v.underlying.symbol : '',
+                debtTokenId: v.debtToken?.id,
+                vaultType: v.vaultConfig.vaultType,
+              };
+            });
+
+          return {
+            pointsVaults: vaultsData.filter(
+              (v) => v.vaultType === 'SingleSidedLP_Points'
+            ),
+            farmingVaults: vaultsData.filter(
+              (v) =>
+                v.vaultType === 'SingleSidedLP_AutoReinvest' ||
+                v.vaultType === 'SingleSidedLP_DirectClaim'
+            ),
+          };
+        };
+
+        const getStateZeroLeveragedData = () => {
+          const { pointsVaults, farmingVaults } = getVaultsData();
+          const leveragedNTokenData = getAllLeveragedNTokenYields();
+          const leveragedGroupData = [
+            leveragedNTokenData,
+            pointsVaults,
+            farmingVaults,
+          ];
+          const tokenList =
+            getGreatestUniqueUnderlyingSymbols(leveragedGroupData);
+
+          const result = {
+            tokenList,
+            data: leveragedGroupData,
+            defaultSymbol: tokenList[0],
+          };
+          return result;
+        };
+        const result = getStateZeroLeveragedData();
+        self.stateZeroLeveragedData = result as any;
+      },
+      setStateZeroBorrowData() {
+        const clientNetwork = root().getNetworkClient(self.network);
+        if (!clientNetwork.isReady()) {
+          return;
+        }
+        const getStateBorrowData = () => {
+          const fCashBorrowData = clientNetwork.getAllFCashDebt().map((t) => {
+            return {
+              apy: t.apy,
+              symbol: t.underlying ? t.underlying.symbol : '',
+            };
+          });
+          const primeCashDebtData = clientNetwork.getAllFCashDebt().map((t) => {
+            return {
+              apy: t.apy,
+              symbol: t.underlying ? t.underlying.symbol : '',
+            };
+          });
+          const borrowData = [
+            primeCashDebtData,
+            getMaturityAPYPerSymbol(fCashBorrowData),
+          ];
+          const tokenList = getUniqueUnderlyingSymbols(borrowData);
+          const result = {
+            defaultSymbol: 'ETH',
+            data: borrowData,
+            tokenList: tokenList,
+          };
+          return result;
+        };
+
+        const result = getStateBorrowData();
+        self.stateZeroBorrowData = result as any;
+      },
+      afterCreate() {
+        reaction(
+          () => self.network,
+          () => {
+            if (root().route === ROUTE_MATCH.PORTFOLIO_WELCOME) {
+              when(
+                () => root().getNetworkClient(self.network).isReady(),
+                () => {
+                  // @ts-ignore
+                  self.setStateZeroEarnData();
+                  // @ts-ignore
+                  self.setStateZeroLeveragedData();
+                  // @ts-ignore
+                  self.setStateZeroBorrowData();
+                }
+              );
+            }
+          }
+        );
+      },
+    };
+  });
 
 export type PortfolioStoreType = Instance<typeof PortfolioStoreModel>;

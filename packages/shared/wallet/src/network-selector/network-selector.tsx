@@ -20,10 +20,10 @@ import {
   useProductNetwork,
   useWalletBalancesOnNetworks,
   useSelectedNetwork,
+  usePortfolioStore,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
-import { useRootStore } from '@notional-finance/notionable-hooks';
 
 export interface NetworkButtonProps {
   active?: boolean;
@@ -132,6 +132,7 @@ export function PortfolioNetworkSelector({
 }) {
   const selectedNetwork = useSelectedNetwork();
   const walletBalances = useAccountNetWorth();
+  const portfolioStore = usePortfolioStore();
 
   return (
     <NetworkSelector
@@ -141,6 +142,7 @@ export function PortfolioNetworkSelector({
       hideNetWorth={hideNetWorth}
       sx={sx}
       isPortfolio
+      onNetworkChange={(network) => portfolioStore.setNetwork(network)}
     />
   );
 }
@@ -152,7 +154,9 @@ function NetworkSelector({
   hideNetWorth,
   isPortfolio,
   sx,
+  onNetworkChange,
 }: {
+  onNetworkChange?: (network: Network) => void;
   selectedNetwork?: Network;
   availableNetworks: Network[];
   walletBalances: Record<Network, TokenBalance>;
@@ -163,7 +167,6 @@ function NetworkSelector({
   const theme = useTheme();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { setNetwork } = useRootStore();
   const userSettings = getFromLocalStorage('userSettings');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [anchorEl, setAnchorEl] = useState<any>(null);
@@ -177,7 +180,8 @@ function NetworkSelector({
   const handleClose = (network?: Network) => {
     setAnchorEl(null);
     if (network && !pathname.includes(network) && selectedNetwork) {
-      setNetwork(network);
+      if (onNetworkChange && network) onNetworkChange(network);
+
       setInLocalStorage('userSettings', { ...userSettings, network: network });
       navigate(pathname.replace(selectedNetwork, network));
     }

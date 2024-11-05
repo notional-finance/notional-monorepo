@@ -2,7 +2,6 @@ import {
   AccountDefinition,
   getNetworkModel,
   NetworkClientModel,
-  NotionalTypes,
 } from '@notional-finance/core-entities';
 import { types, Instance } from 'mobx-state-tree';
 import { PortfolioStoreModel } from './portfolio-store';
@@ -38,7 +37,6 @@ const RootStore = types
     portfolioStore: PortfolioStoreModel,
     appStore: AppStoreModel,
     walletStore: WalletModel,
-    network: NotionalTypes.Network,
     route: types.string,
     tradeModel: types.maybe(TradeModel),
   })
@@ -54,9 +52,6 @@ const RootStore = types
     clearTradeModel() {
       self.tradeModel = undefined;
     },
-    setNetwork(network: Network) {
-      self.network = network;
-    },
     setRoute(route: string) {
       self.route = route;
     },
@@ -70,9 +65,6 @@ const RootStore = types
     },
     getNetworkAccount(network: Network) {
       return self.walletStore.networkAccounts.get(network);
-    },
-    get currentNetworkClient() {
-      return getNetworkModel(self.network);
     },
   }));
 
@@ -89,6 +81,7 @@ export const createRootStore = (): RootStoreType => {
       },
     },
     portfolioStore: {
+      network: userSettings?.network ? userSettings?.network : Network.mainnet,
       stateZeroEarnData: {
         defaultSymbol: '',
         data: [],
@@ -109,7 +102,6 @@ export const createRootStore = (): RootStoreType => {
         totalPoints: 0,
       },
     },
-    network: userSettings?.network ? userSettings?.network : Network.mainnet,
     route: '',
     appStore: {
       baseCurrency: userSettings?.baseCurrency
