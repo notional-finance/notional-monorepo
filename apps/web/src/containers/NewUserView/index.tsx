@@ -15,15 +15,12 @@ import discordIcon from '@notional-finance/assets/images/logos/discord-two-tone.
 import twitterIcon from '@notional-finance/assets/images/logos/twitter-two-tone.svg';
 import { colors, useNotionalTheme } from '@notional-finance/styles';
 import { useProductsTable } from './use-products-table';
-import {
-  Network,
-  NEW_USER_ADDRESSES,
-  THEME_VARIANTS,
-} from '@notional-finance/util';
+import { Network, THEME_VARIANTS } from '@notional-finance/util';
 import { useNetworkToggle } from '../AnalyticsViews/hooks';
 import newcomer from './newcomer.png';
 import { useNavigate } from 'react-router-dom';
 import { useWalletAddress } from '@notional-finance/notionable-hooks';
+import { fetchNewcomerBoostData } from '@notional-finance/helpers';
 
 export const NewUserView = () => {
   const navigate = useNavigate();
@@ -37,15 +34,18 @@ export const NewUserView = () => {
     useProductsTable(selectedNetwork);
 
   useEffect(() => {
-    if (selectedAccount) {
-      const ineligible = !NEW_USER_ADDRESSES.map((addr) =>
-        addr.toLowerCase()
-      ).includes(selectedAccount.toLocaleLowerCase());
-
-      if (ineligible) {
-        navigate('/');
+    const loadEligibleAddresses = async () => {
+      const eligibleAddresses = await fetchNewcomerBoostData();
+      if (selectedAccount && eligibleAddresses.length > 0) {
+        const ineligible = !eligibleAddresses
+          .map((addr) => addr.toLowerCase())
+          .includes(selectedAccount.toLowerCase());
+        if (ineligible) {
+          navigate('/');
+        }
       }
-    }
+    };
+    loadEligibleAddresses();
   }, [selectedAccount, navigate]);
 
   return (

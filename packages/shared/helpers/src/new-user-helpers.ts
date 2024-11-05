@@ -18,3 +18,18 @@ export const checkStarterBoostToken = (
 ) => {
   return (symbol === 'ETH' || symbol === 'USDC') && isStarterBoostUser;
 };
+
+export const fetchNewcomerBoostData = async () => {
+  try {
+    const response = await fetch(
+      'https://registry.notional.finance/newcomer-boost.json'
+    );
+    if (!response.ok) {
+      throw new Error('Failed to fetch newcomer boost data');
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching newcomer boost data:', error);
+    return null;
+  }
+};

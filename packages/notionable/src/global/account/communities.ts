@@ -1,11 +1,11 @@
 import {
-  NEW_USER_ADDRESSES,
   Network,
   getProviderFromNetwork,
   getProviderURLFromNetwork,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { COMMUNITY_NAMES } from '../global-state';
+import { fetchNewcomerBoostData } from '@notional-finance/helpers';
 export const GATED_VAULTS: Record<string, COMMUNITY_NAMES[]> = {};
 
 export interface Community {
@@ -98,8 +98,9 @@ export function checkSanctionedAddress(account: string) {
   return sanctionList['isSanctioned'](account) as Promise<boolean>;
 }
 
-export function checkNewUserAddress(account: string) {
-  return NEW_USER_ADDRESSES.map((addr) => addr.toLowerCase()).includes(
-    account.toLocaleLowerCase()
-  );
+export async function checkNewUserAddress(account: string) {
+  const eligibleAddresses = await fetchNewcomerBoostData();
+  return eligibleAddresses
+    ?.map((addr) => addr.toLowerCase())
+    .includes(account.toLocaleLowerCase());
 }
