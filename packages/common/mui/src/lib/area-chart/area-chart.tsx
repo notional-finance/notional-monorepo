@@ -61,6 +61,7 @@ export interface AreaChartProps {
   showEmptyState?: boolean;
   title?: string;
   xAxisTickCount?: number;
+  xAxisDateTickInterval?: number;
 }
 
 export const yAxisTickHandler = (
@@ -95,6 +96,7 @@ export const AreaChart = ({
   showEmptyState,
   title,
   xAxisTickCount = 0,
+  xAxisDateTickInterval = 15,
 }: AreaChartProps) => {
   const theme = useTheme();
 
@@ -104,7 +106,7 @@ export const AreaChart = ({
     let result = '';
     if (xAxisTickFormat === 'date') {
       if (typeof v === 'number') {
-        const showTick = i % 15 === 0;
+        const showTick = i % xAxisDateTickInterval === 0;
         const date = getDateString(v);
         result = showTick ? date.toUpperCase() : '';
       }
