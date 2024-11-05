@@ -27,7 +27,7 @@ import {
   useNotePrice,
 } from '@notional-finance/notionable-hooks';
 import { useNoteSupply } from './use-note-supply';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 
 interface NoteSummaryProps {

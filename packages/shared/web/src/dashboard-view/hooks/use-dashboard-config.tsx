@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { useRootStore } from '@notional-finance/notionable';
+import { useRootStore } from '@notional-finance/notionable-hooks';
 
 export const config = {
   [PRODUCTS.LEVERAGED_POINTS_FARMING]: {

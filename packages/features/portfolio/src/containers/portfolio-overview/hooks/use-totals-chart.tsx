@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { FiatKeys, FiatSymbols } from '@notional-finance/core-entities';
 import {} from '@notional-finance/notionable-hooks';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import {
   BarConfigProps,
   ChartHeaderTotalsDataProps,

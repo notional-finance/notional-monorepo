@@ -5,7 +5,7 @@ import { THEME_VARIANTS } from '@notional-finance/util';
 import { Caption } from '../typography/typography';
 import { VaultType } from '@notional-finance/core-entities';
 import { AutoReinvestIcon, DirectIcon } from '@notional-finance/icons';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export const ReinvestPill = ({
   vaultType,

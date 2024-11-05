@@ -1,6 +1,6 @@
 import { useTheme } from '@mui/material';
 import { DisplayCell, MultiValueIconCell } from '@notional-finance/mui';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import {
   formatHealthFactorValues,
   useCurrentLiquidationPrices,

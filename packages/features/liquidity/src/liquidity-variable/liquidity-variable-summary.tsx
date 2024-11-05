@@ -30,7 +30,7 @@ import {
   useChartData,
 } from '@notional-finance/notionable-hooks';
 import { ChartType } from '@notional-finance/core-entities';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 const LiquidityVariableSummary = () => {
   const theme = useTheme();

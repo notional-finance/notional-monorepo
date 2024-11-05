@@ -17,7 +17,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 const PortfolioHoldings = () => {
   const [currentTab, setCurrentTab] = useState(0);

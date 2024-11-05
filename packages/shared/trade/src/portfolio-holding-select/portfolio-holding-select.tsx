@@ -9,7 +9,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 interface PortfolioHoldingSelectProps {
   context: BaseTradeContext;

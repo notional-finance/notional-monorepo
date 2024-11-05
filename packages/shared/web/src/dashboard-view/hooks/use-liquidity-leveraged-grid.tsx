@@ -9,9 +9,9 @@ import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import {
-  useCurrentNetworkStore,
   useAppStore,
-} from '@notional-finance/notionable';
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable-hooks';
 
 export const useLiquidityLeveragedGrid = (
   network: Network | undefined

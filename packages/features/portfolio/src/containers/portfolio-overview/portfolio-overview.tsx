@@ -15,7 +15,7 @@ import {
 } from '../../components';
 import { Box, styled, useTheme } from '@mui/material';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 const PortfolioOverview = () => {
   const theme = useTheme();

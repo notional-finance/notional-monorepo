@@ -1,5 +1,5 @@
 import { Network } from '@notional-finance/util';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from './context/use-root-store';
 import { TokenBalance } from '@notional-finance/core-entities';
 
 export function useFiatToken() {

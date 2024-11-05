@@ -2,7 +2,7 @@ import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import {
   useAppStore,
   useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+} from '@notional-finance/notionable-hooks';
 import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';

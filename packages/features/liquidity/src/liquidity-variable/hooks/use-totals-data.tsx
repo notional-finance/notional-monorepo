@@ -8,7 +8,7 @@ import { InfoTooltip } from '@notional-finance/mui';
 import { SparklesIcon } from '@notional-finance/icons';
 import { SxProps, useTheme } from '@mui/material';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,

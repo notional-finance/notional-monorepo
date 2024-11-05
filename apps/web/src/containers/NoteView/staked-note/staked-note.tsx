@@ -20,7 +20,7 @@ import {
 } from '../components';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import { TokenIcon, WalletIcon } from '@notional-finance/icons';
 import { useStakedNote } from './use-staked-note';
 import { StakedNoteData } from '@notional-finance/notionable-hooks';

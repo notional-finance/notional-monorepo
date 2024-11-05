@@ -5,10 +5,7 @@ import { NotionalContext } from './context/NotionalContext';
 import { switchMap, take, concat } from 'rxjs';
 import { Network } from '@notional-finance/util';
 import { isAppReady } from '@notional-finance/notionable';
-import {
-  useAppStore,
-  useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+import { useAppStore, useCurrentNetworkStore } from './context/use-root-store';
 import { getNetworkModel } from '@notional-finance/core-entities';
 
 export function useAppReady() {

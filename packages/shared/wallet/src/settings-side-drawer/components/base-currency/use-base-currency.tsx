@@ -17,7 +17,7 @@ import {
 } from '@notional-finance/icons';
 
 import { FIAT_NAMES } from '@notional-finance/core-entities';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 interface ImageWrapperProps {
   active: boolean;

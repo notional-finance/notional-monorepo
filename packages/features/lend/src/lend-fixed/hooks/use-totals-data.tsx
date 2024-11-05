@@ -4,7 +4,7 @@ import {
   FiatSymbols,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,

@@ -8,7 +8,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Network } from '@notional-finance/util';
-import { useWalletStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable-hooks';
 
 export function ViewAsAccount() {
   const theme = useTheme();

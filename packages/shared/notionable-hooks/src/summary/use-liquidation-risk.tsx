@@ -6,10 +6,10 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
-import { useAppStore } from '@notional-finance/notionable';
 import { HEALTH_FACTOR_RISK_LEVELS } from '@notional-finance/util';
 import { IntlShape, useIntl, defineMessages } from 'react-intl';
 import { useCurrentTradeContext } from '../context/use-trade-context';
+import { useAppStore } from '../context/use-root-store';
 
 function formatVaultLiquidationPrices(
   liquidationPrice: {

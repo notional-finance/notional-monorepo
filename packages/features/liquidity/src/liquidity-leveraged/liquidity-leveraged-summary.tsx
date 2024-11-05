@@ -14,7 +14,7 @@ import {
   useTotalsData,
 } from './hooks';
 import { FormattedMessage } from 'react-intl';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();

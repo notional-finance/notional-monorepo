@@ -21,7 +21,7 @@ import {
 import { Box } from '@mui/material';
 import { MultiTokenIcon, PointsIcon } from '@notional-finance/icons';
 import { FiatKeys } from '@notional-finance/core-entities';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 const RewardsCell = (props) => {
   const {

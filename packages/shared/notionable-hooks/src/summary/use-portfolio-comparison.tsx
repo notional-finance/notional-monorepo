@@ -1,4 +1,4 @@
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '../context/use-root-store';
 import { useCurrentTradeContext } from '../context/use-trade-context';
 
 export function usePortfolioComparison() {

@@ -16,7 +16,7 @@ import { PointsIcon } from '@notional-finance/icons';
 import {
   useAppStore,
   useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+} from '@notional-finance/notionable-hooks';
 import { ProductAPY } from '@notional-finance/core-entities';
 
 export const useLendBorrowList = (

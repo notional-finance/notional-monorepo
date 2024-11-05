@@ -9,7 +9,7 @@ import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const useBorrowTerms = (
   context: BaseTradeContext,

@@ -1,13 +1,15 @@
-import { useContext } from 'react';
+import { useContext, createContext } from 'react';
 import {
-  RootStoreContext,
   RootStoreType,
   NetworkClientModelType,
-} from '../stores/root-store';
-import { AppStoreType } from '../stores/app-store';
-import { PortfolioStoreType } from '../stores/portfolio-store';
-import { WalletStoreType } from '../stores/wallet-store';
+  AppStoreType,
+  PortfolioStoreType,
+  WalletStoreType,
+} from '@notional-finance/notionable';
 
+export const RootStoreContext = createContext<RootStoreType | null>(null);
+
+// TODO: move this into notionable-hooks
 export const useRootStore = (): RootStoreType => {
   const rootContext = useContext(RootStoreContext);
   if (!rootContext) {
@@ -19,6 +21,7 @@ export const useRootStore = (): RootStoreType => {
 
 export const useCurrentNetworkStore = (): NetworkClientModelType => {
   const rootContext = useContext(RootStoreContext);
+  //TODO: switch this to use the params
   if (!rootContext) {
     throw new Error(
       'currentNetworkClient must be used within a RootStoreContext'

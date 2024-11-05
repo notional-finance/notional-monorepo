@@ -13,7 +13,7 @@ import {
   PointsIcon,
 } from '@notional-finance/icons';
 import { Box } from '@mui/material';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import { defineMessage } from 'react-intl';
 import { VaultType } from '@notional-finance/core-entities';
 

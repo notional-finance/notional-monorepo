@@ -16,16 +16,14 @@ import {
   TradeContext,
   usePrimeCash,
   usePrimeDebt,
+  useCurrentNetworkStore,
 } from '@notional-finance/notionable-hooks';
 import {
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
 import { PORTFOLIO_ACTIONS, formatMaturity } from '@notional-finance/util';
-import {
-  TokenOption,
-  useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+import { TokenOption } from '@notional-finance/notionable';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { TransactionHeadings } from '@notional-finance/trade';
 import { useConvertOptions } from '../hooks/use-convert-options';
