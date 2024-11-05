@@ -25,7 +25,19 @@ export type AllTradeTypes = TradeType | VaultTradeType | NOTETradeType;
 export type FilterFunc = (
   t: TokenDefinition,
   a: AccountDefinition | null,
-  s: VaultTradeState | TradeState,
+  s: {
+    deposit?: TokenDefinition;
+    collateral?: TokenDefinition;
+    debt?: TokenDefinition;
+    vaultAddress?: string;
+    vaultConfig?: {
+      vaultAddress?: string;
+      maxBorrowMarketIndex?: number;
+      primaryBorrowCurrency: {
+        id: string;
+      };
+    };
+  },
   l: TokenDefinition[]
 ) => boolean;
 
