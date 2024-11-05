@@ -16,7 +16,14 @@ import {
   NOTETradeType,
   TradeState,
 } from '../../base-trade/base-trade-store';
-import { flow, getParent, getRoot, Instance, types } from 'mobx-state-tree';
+import {
+  flow,
+  getParent,
+  getRoot,
+  getType,
+  Instance,
+  types,
+} from 'mobx-state-tree';
 import { NetworkClientModelType, RootStoreInterface } from '../root-store';
 import { getTradeConfig } from '../../base-trade/trade-calculation';
 import {
@@ -24,6 +31,7 @@ import {
   getChangeType,
   getNowSeconds,
   leveragedYield,
+  Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
@@ -47,9 +55,20 @@ type Category = 'Collateral' | 'Debt' | 'Deposit';
 const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
   get(identifier, parent) {
     const root = () => getRoot<RootStoreInterface>(parent);
-    const selectedNetwork =
-      parent?.selectedNetwork ||
-      getParent<Instance<typeof TradeModel>>(parent)?.selectedNetwork;
+    const parentName = getType(parent).name;
+    let selectedNetwork: Network | undefined;
+    if (parentName === 'TradeModel') {
+      selectedNetwork = parent?.selectedNetwork;
+    } else if (parentName === 'TokenOption') {
+      selectedNetwork = getParent<Instance<typeof TradeModel>>(
+        parent,
+        2
+      )?.selectedNetwork;
+    } else {
+      selectedNetwork =
+        getParent<Instance<typeof TradeModel>>(parent)?.selectedNetwork;
+    }
+
     if (!selectedNetwork)
       throw Error('Token Definition parent reference not found');
     const model = root().getNetworkClient(selectedNetwork);
@@ -491,8 +510,9 @@ export const TradeModel = types
           }
         } else if (self[arg] === undefined) {
           inputsSatisfied = false;
+        } else {
+          acc[arg] = self[arg];
         }
-        acc[arg] = self[arg];
         return acc;
       }, {} as Record<CalculationFnParams, unknown>);
 
