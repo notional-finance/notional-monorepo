@@ -16,7 +16,7 @@ import {
   NOTETradeType,
   TradeState,
 } from '../../base-trade/base-trade-store';
-import { flow, getRoot, Instance, types } from 'mobx-state-tree';
+import { flow, getParent, getRoot, Instance, types } from 'mobx-state-tree';
 import { NetworkClientModelType, RootStoreInterface } from '../root-store';
 import { getTradeConfig } from '../../base-trade/trade-calculation';
 import {
@@ -44,10 +44,15 @@ import {
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
-export const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
+const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
   get(identifier, parent) {
-    const root = getRoot<RootStoreInterface>(parent);
-    const model = root.getNetworkClient(root.network);
+    const root = () => getRoot<RootStoreInterface>(parent);
+    const selectedNetwork =
+      parent?.selectedNetwork ||
+      getParent<Instance<typeof TradeModel>>(parent)?.selectedNetwork;
+    if (!selectedNetwork)
+      throw Error('Token Definition parent reference not found');
+    const model = root().getNetworkClient(selectedNetwork);
     return model.getTokenByID(identifier.toString()) as Instance<
       typeof TokenDefinitionModel
     >;
@@ -289,7 +294,15 @@ export const TradeModel = types
             ? collateralFilter(
                 t,
                 account,
-                self as unknown as TradeState,
+                {
+                  deposit: self.deposit as TokenDefinition | undefined,
+                  collateral: self.collateral as TokenDefinition | undefined,
+                  debt: self.debt as TokenDefinition | undefined,
+                  vaultAddress: self.vaultAddress,
+                  vaultConfig: self.vaultAddress
+                    ? model.getVaultConfig(self.vaultAddress)
+                    : undefined,
+                },
                 listedTokens
               )
             : true
@@ -329,7 +342,15 @@ export const TradeModel = types
             ? debtFilter(
                 t,
                 account,
-                self as unknown as TradeState,
+                {
+                  deposit: self.deposit as TokenDefinition | undefined,
+                  collateral: self.collateral as TokenDefinition | undefined,
+                  debt: self.debt as TokenDefinition | undefined,
+                  vaultAddress: self.vaultAddress,
+                  vaultConfig: self.vaultAddress
+                    ? model.getVaultConfig(self.vaultAddress)
+                    : undefined,
+                },
                 listedTokens
               )
             : true

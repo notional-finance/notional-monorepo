@@ -45,7 +45,13 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
     return () => {
       root.clearTradeModel();
     };
-  }, [tradeType, network, params.selectedDepositToken, params.selectedToken]);
+  }, [
+    root,
+    tradeType,
+    network,
+    params.selectedDepositToken,
+    params.selectedToken,
+  ]);
 
   return useObserver(() => root.tradeModel);
 };
