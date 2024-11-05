@@ -6,10 +6,10 @@ import {
   PortfolioStoreType,
   WalletStoreType,
 } from '@notional-finance/notionable';
+import { useSelectedNetwork } from '../use-network';
 
 export const RootStoreContext = createContext<RootStoreType | null>(null);
 
-// TODO: move this into notionable-hooks
 export const useRootStore = (): RootStoreType => {
   const rootContext = useContext(RootStoreContext);
   if (!rootContext) {
@@ -21,14 +21,14 @@ export const useRootStore = (): RootStoreType => {
 
 export const useCurrentNetworkStore = (): NetworkClientModelType => {
   const rootContext = useContext(RootStoreContext);
-  //TODO: switch this to use the params
+  const selectedNetwork = useSelectedNetwork();
   if (!rootContext) {
     throw new Error(
       'currentNetworkClient must be used within a RootStoreContext'
     );
   }
 
-  return rootContext.currentNetworkClient;
+  return rootContext.getNetworkClient(selectedNetwork);
 };
 
 export const useWalletStore = (): WalletStoreType => {
