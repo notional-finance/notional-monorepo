@@ -14,7 +14,7 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { formatMaturity } from '@notional-finance/util';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 import { useLeveragedNTokenPositions } from '@notional-finance/trade';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();

@@ -3,10 +3,8 @@ import {
   FiatKeys,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import {
-  TradeState,
-  useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+import { TradeState } from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 import { SparklesIcon } from '@notional-finance/icons';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { InfoTooltip } from '@notional-finance/mui';

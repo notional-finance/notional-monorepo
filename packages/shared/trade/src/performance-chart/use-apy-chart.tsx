@@ -4,7 +4,7 @@ import { colors } from '@notional-finance/styles';
 import { useChartData } from '@notional-finance/notionable-hooks';
 import { BarConfigProps } from '@notional-finance/mui';
 import { useMemo } from 'react';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export const useApyChart = (token?: TokenDefinition) => {
   const { data: apyData } = useChartData(token, ChartType.APY);

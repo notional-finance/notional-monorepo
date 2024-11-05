@@ -7,7 +7,7 @@ import { AnalyticsIcon } from '@notional-finance/icons';
 import { useAnalyticsDropdown } from './use-analytics-dropdown';
 import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export function AnalyticsDropdown() {
   const { pathname } = useLocation();

@@ -15,9 +15,9 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import {
-  useCurrentNetworkStore,
   useAppStore,
-} from '@notional-finance/notionable';
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable-hooks';
 import { ProductAPY } from '@notional-finance/core-entities';
 
 export const useLiquidityList = (

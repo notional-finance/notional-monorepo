@@ -14,7 +14,7 @@ import {
 import { useTheme } from '@mui/material';
 import { Network, SupportedNetworks } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export function usePortfolioNOTETable() {
   const theme = useTheme();

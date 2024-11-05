@@ -24,7 +24,7 @@ import {
 } from './hooks';
 import { sortGridData, sortListData } from './hooks/utils';
 import { observer } from 'mobx-react-lite';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export const DashboardView = ({
   gridData,

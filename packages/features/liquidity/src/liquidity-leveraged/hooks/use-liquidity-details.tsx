@@ -16,7 +16,7 @@ import {
   leveragedYield,
 } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const useLiquidityDetails = () => {
   const { state } = useContext(LiquidityContext);

@@ -19,7 +19,7 @@ import {
   MOBILE_SUB_NAV_ACTIONS,
   SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/util';
-import { useWalletStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';

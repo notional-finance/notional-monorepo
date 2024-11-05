@@ -98,5 +98,3 @@ export const WalletModel = types
       setUserWallet,
     };
   });
-
-export type WalletStoreType = Instance<typeof WalletModel>;

@@ -1,10 +1,7 @@
-import {
-  BaseTradeState,
-  isLeveragedTrade,
-  useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { leveragedYield } from '@notional-finance/util';
+import { useCurrentNetworkStore } from '../context/use-root-store';
 
 export function useTotalAPY(
   state: BaseTradeState,

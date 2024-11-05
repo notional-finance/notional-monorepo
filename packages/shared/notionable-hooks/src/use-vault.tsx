@@ -1,12 +1,10 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  GATED_VAULTS,
-  useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+import { GATED_VAULTS } from '@notional-finance/notionable';
 import { PRODUCTS } from '@notional-finance/util';
 import { useWalletCommunities } from './use-wallet';
 import { getVaultType, SingleSidedLP } from '@notional-finance/core-entities';
+import { useCurrentNetworkStore } from './context/use-root-store';
 
 export function useVaultNftCheck() {
   const navigate = useNavigate();

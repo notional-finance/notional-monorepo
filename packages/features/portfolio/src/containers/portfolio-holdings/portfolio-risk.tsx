@@ -21,7 +21,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import { useReduceRiskDropdown } from '../../hooks';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 const LabelAndValue = ({
   label,
@@ -112,19 +112,26 @@ const PortfolioRisk = () => {
               <LabelAndValue
                 label={defineMessage({ defaultMessage: 'Total Collateral' })}
                 value={
-                  profile?.totalAssets.toFiat(baseCurrency).toDisplayStringWithSymbol(2, true) || '-'
+                  profile?.totalAssets
+                    .toFiat(baseCurrency)
+                    .toDisplayStringWithSymbol(2, true) || '-'
                 }
               />
               <LabelAndValue
                 label={defineMessage({ defaultMessage: 'Total Debt' })}
                 value={
-                  profile?.totalDebt.abs().toFiat(baseCurrency).toDisplayStringWithSymbol(2, true) || '-'
+                  profile?.totalDebt
+                    .abs()
+                    .toFiat(baseCurrency)
+                    .toDisplayStringWithSymbol(2, true) || '-'
                 }
               />
               <LabelAndValue
                 label={defineMessage({ defaultMessage: 'Loan to Value' })}
                 value={
-                  profile?.loanToValue ? formatNumberAsPercent(profile.loanToValue, 2) : '-'
+                  profile?.loanToValue
+                    ? formatNumberAsPercent(profile.loanToValue, 2)
+                    : '-'
                 }
               />
             </Box>

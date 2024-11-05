@@ -11,7 +11,6 @@ import {
   Network,
   THEME_VARIANTS,
 } from '@notional-finance/util';
-import { createContext } from 'react';
 import { AppStoreModel } from './app-store';
 import { WalletModel } from './wallet-store';
 import { TradeModel } from './trades/TradeModel';
@@ -21,6 +20,7 @@ import { AccountPortfolioModel } from './PortfolioModel';
 export type RootStoreType = Instance<typeof RootStore>;
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
 export type AppStoreModelType = Instance<typeof AppStoreModel>;
+export type WalletStoreType = Instance<typeof WalletModel>;
 export interface RootStoreInterface {
   network: Network;
   getNetworkClient: (network: Network) => NetworkClientModelType;
@@ -131,5 +131,3 @@ export const createRootStore = (): RootStoreType => {
 
   return rootStore;
 };
-
-export const RootStoreContext = createContext<RootStoreType | null>(null);

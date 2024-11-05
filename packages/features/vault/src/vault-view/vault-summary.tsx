@@ -13,7 +13,7 @@ import { VaultActionContext } from '../vault';
 import { getVaultType } from '@notional-finance/core-entities';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { useVaultExistingFactors, useVaultFaq } from '../hooks';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const VaultSummary = () => {
   const theme = useTheme();

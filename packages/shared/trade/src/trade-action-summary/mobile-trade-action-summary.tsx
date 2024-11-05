@@ -5,10 +5,8 @@ import { H5, LargeInputTextEmphasized, CountUp } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TokenIcon } from '@notional-finance/icons';
 import { messages } from './messages';
-import {
-  BaseTradeState,
-  useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
+import { BaseTradeState } from '@notional-finance/notionable';
 
 interface MobileTradeActionSummaryProps {
   tradeAction: PRODUCTS;

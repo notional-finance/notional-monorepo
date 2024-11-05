@@ -2,7 +2,7 @@ import { Box, useTheme } from '@mui/material';
 import { Network } from '@notional-finance/util';
 import { useAllVaultAccounts } from './hooks';
 import { DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 
 interface AllVaultAccountsProps {

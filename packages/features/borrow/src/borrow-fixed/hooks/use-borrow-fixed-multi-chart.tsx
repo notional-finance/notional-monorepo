@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { InteractiveAreaChart, AreaChart } from '@notional-finance/mui';
 import { useChartData } from '@notional-finance/notionable-hooks';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 import {
   useMaturitySelect,
   useInteractiveMaturityChart,

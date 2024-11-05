@@ -23,7 +23,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
-import { useRootStore } from '@notional-finance/notionable';
+import { useRootStore } from '@notional-finance/notionable-hooks';
 
 export interface NetworkButtonProps {
   active?: boolean;

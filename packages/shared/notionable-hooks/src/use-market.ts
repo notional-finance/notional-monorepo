@@ -9,7 +9,7 @@ import { exchangeToLocalPrime } from '@notional-finance/transaction';
 import {
   useCurrentNetworkStore,
   usePortfolioStore,
-} from '@notional-finance/notionable';
+} from './context/use-root-store';
 import { useObserver } from 'mobx-react-lite';
 
 export interface MaturityData {

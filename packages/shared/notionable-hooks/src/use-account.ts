@@ -3,7 +3,7 @@ import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
 import { useState } from 'react';
 import { getNowSeconds } from '@notional-finance/util';
-import { useWalletStore } from '@notional-finance/notionable';
+import { useWalletStore } from './context/use-root-store';
 import { useSelectedNetwork } from './use-network';
 import { useObserver } from 'mobx-react-lite';
 

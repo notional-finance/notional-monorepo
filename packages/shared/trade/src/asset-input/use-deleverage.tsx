@@ -1,6 +1,6 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { CurrencyInputHandle } from '@notional-finance/mui';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import {
   BaseTradeContext,
   usePortfolioRiskProfile,

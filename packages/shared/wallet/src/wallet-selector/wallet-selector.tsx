@@ -25,7 +25,7 @@ import {
   // useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
-import { useWalletStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;

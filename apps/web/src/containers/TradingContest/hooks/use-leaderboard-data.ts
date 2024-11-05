@@ -3,10 +3,8 @@ import {
   formatNumberAsPercent,
   truncateAddress,
 } from '@notional-finance/helpers';
-import { useWalletStore } from '@notional-finance/notionable';
-import {
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useWalletStore } from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';
 
 // NOTE: this URL would need to be updated if we were to ever start running contests again.
@@ -105,7 +103,9 @@ export function useLeaderboardData() {
         },
       });
       const data: AccountResponse[] = await response.json();
-      const userData = data.find((c) => c.address === userWallet?.selectedAddress);
+      const userData = data.find(
+        (c) => c.address === userWallet?.selectedAddress
+      );
 
       const filteredHighRollerData = data
         .filter((a) => a.hasLeverage && a.irr)
@@ -135,7 +135,9 @@ export function useLeaderboardData() {
           filteredHighRollerData.find(
             (c) => c.address === userWallet?.selectedAddress
           ) ||
-          filteredFatCatData.find((c) => c.address === userWallet?.selectedAddress);
+          filteredFatCatData.find(
+            (c) => c.address === userWallet?.selectedAddress
+          );
         if (userContestData) setCurrentUserData([userContestData]);
       }
     }

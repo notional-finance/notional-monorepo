@@ -7,7 +7,7 @@ import {
   ViewAsAddressCell,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useWalletStore } from '@notional-finance/notionable';
+import { useWalletStore } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
 
 export const useAnalyticsTable = () => {

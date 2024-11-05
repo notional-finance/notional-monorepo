@@ -16,7 +16,7 @@ import { FiatKeys } from '@notional-finance/core-entities';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../../liquidity';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const useReturnDriversTable = (baseCurrency: FiatKeys) => {
   const theme = useTheme();

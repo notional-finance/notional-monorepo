@@ -39,7 +39,7 @@ import {
 } from '@notional-finance/core-entities';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../components';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 const HealthFactorCell = ({ cell }) => {
   const theme = useTheme();

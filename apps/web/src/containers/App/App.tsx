@@ -1,7 +1,7 @@
 import spindl from '@spindl-xyz/attribution';
 import { useEffect } from 'react';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 import {
   LeveragedVaultDashboard,
   LendFixedDashboard,
@@ -46,10 +46,8 @@ import {
 import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
-import {
-  createRootStore,
-  RootStoreContext,
-} from '@notional-finance/notionable';
+import { RootStoreContext } from '@notional-finance/notionable-hooks';
+import { createRootStore } from '@notional-finance/notionable';
 import { initializeTokenBalanceRegistry } from '@notional-finance/core-entities';
 import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';

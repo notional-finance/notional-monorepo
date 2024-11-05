@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import { SxProps, useTheme } from '@mui/material';
 import { defineMessage } from 'react-intl';
 import { getVaultType, TokenBalance } from '@notional-finance/core-entities';
-import { useAppStore } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
   const { state } = useContext(VaultActionContext);
@@ -39,8 +39,7 @@ const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
 
   const currentTip = title?.includes('Borrow Capacity')
     ? toopTipData.borrowCapacity
-    : vaultData?.baseProtocol ===
-      vaultData?.boosterProtocol
+    : vaultData?.baseProtocol === vaultData?.boosterProtocol
     ? toopTipData.poolCapWithMaxShareSameProtocol
     : toopTipData.poolCapWithMaxShare;
 

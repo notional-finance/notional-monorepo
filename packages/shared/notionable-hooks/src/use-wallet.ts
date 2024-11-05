@@ -18,11 +18,11 @@ import {
 } from '@notional-finance/helpers';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';
+import { Community } from '@notional-finance/notionable';
 import {
-  Community,
   useCurrentNetworkStore,
   useWalletStore,
-} from '@notional-finance/notionable';
+} from './context/use-root-store';
 
 export function usePrimeCashBalance(
   selectedToken: string | undefined | null,

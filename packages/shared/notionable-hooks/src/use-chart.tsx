@@ -13,10 +13,7 @@ import {
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
 import { useEffect, useMemo } from 'react';
-import {
-  useAppStore,
-  useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+import { useAppStore, useCurrentNetworkStore } from './context/use-root-store';
 import { useObserver } from 'mobx-react-lite';
 
 export const useChartData = (

@@ -1,8 +1,9 @@
+import { TradeState } from '@notional-finance/notionable';
 import {
-  TradeState,
   useAppStore,
   useCurrentNetworkStore,
-} from '@notional-finance/notionable';
+  useChartData,
+} from '@notional-finance/notionable-hooks';
 import {
   ChartType,
   FiatSymbols,
@@ -10,7 +11,6 @@ import {
 } from '@notional-finance/core-entities';
 import { InfoTooltip } from '@notional-finance/mui';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { useChartData } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
 
 const getSevenDayAvgApy = (apyData: TimeSeriesDataPoint[]) => {

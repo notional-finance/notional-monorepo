@@ -1,4 +1,4 @@
-import { usePortfolioStore } from '@notional-finance/notionable';
+import { usePortfolioStore } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 
 export const getAPYDataForToken = (

@@ -1,5 +1,8 @@
-import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
-import { useCurrentNetworkStore } from '@notional-finance/notionable';
+import {
+  getNetworkModel,
+  TokenBalance,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 import { utils } from 'ethers';
 
@@ -9,10 +12,10 @@ export function useInputAmount(
   selectedToken?: string,
   suppressZero = true
 ) {
-  const model = useCurrentNetworkStore();
   if (!selectedNetwork || !selectedToken)
     return { inputAmount: undefined, token: undefined };
 
+  const model = getNetworkModel(selectedNetwork);
   let token: TokenDefinition | undefined;
   try {
     token = model.getTokenBySymbol(selectedToken);
