@@ -69,6 +69,7 @@ export function useTradeContext(tradeType: TradeType) {
   return {
     updateState: defaultUpdateState,
     state,
+    tradeModel,
     actions: tradeModel?.actions,
   };
 }

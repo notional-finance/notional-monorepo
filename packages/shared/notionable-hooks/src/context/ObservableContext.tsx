@@ -24,6 +24,7 @@ export interface ObservableContext<T> {
   updateState: (args: Partial<T>) => void;
   state: T;
   actions?: Instance<typeof TradeModel>['actions'];
+  tradeModel?: Instance<typeof TradeModel>;
 }
 
 export function createObservableContext<T>(
