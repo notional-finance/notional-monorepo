@@ -32,7 +32,7 @@ export const BorrowVariableTradeSummary = () => {
     borrowUtilization,
   } = useInterestRateUtilizationChart(deposit, 'borrow');
   const { faqs, faqHeaderLinks } = useBorrowVariableFaq();
-  const totalsData = useVariableTotals(state);
+  const totalsData = useVariableTotals();
   const { data: priceData } = useChartData(debt, ChartType.PRICE);
   const { data: apyData } = useChartData(debt, ChartType.APY);
 

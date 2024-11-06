@@ -13,13 +13,14 @@ import { useDepositInput } from './use-deposit-input';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   BaseTradeContext,
+  useCurrentTradeContext,
   useWalletBalances,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
 
 interface DepositInputProps {
-  context: BaseTradeContext;
+  context?: BaseTradeContext;
   onMaxValue?: () => void;
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
@@ -48,7 +49,6 @@ export const DepositInput = React.forwardRef<
 >(
   (
     {
-      context,
       newRoute,
       onMaxValue,
       onUpdate,
@@ -72,18 +72,17 @@ export const DepositInput = React.forwardRef<
     const navigate = useNavigate();
     const { pathname } = useLocation();
     const theme = useTheme();
-    const {
-      state: {
-        deposit: _deposit,
-        availableDepositTokens: _depositTokens,
-        calculateError,
-        tradeType,
-        selectedNetwork,
-      },
-      actions,
-    } = context;
-    const availableDepositTokens = depositTokens || _depositTokens;
-    const deposit = depositOverride || _deposit;
+    const trade = useCurrentTradeContext();
+
+    const availableDepositTokens =
+      depositTokens || trade?.availableTokens.deposit;
+    const deposit = depositOverride || trade?.selectedTokens.deposit;
+    const tradeType = trade?.tradeType;
+    const selectedNetwork = trade?.selectedNetwork;
+    const calculateError = trade?.calculateError;
+    const setDepositBalance = trade?.actions?.setDepositBalance;
+    const setHasInputErrors = trade?.actions?.setHasInputErrors;
+
     const {
       inputAmount,
       maxBalance,
@@ -102,18 +101,20 @@ export const DepositInput = React.forwardRef<
     useEffect(() => {
       if (onUpdate) {
         onUpdate(inputAmount);
-      } else {
-        actions?.setDepositBalance(inputAmount, false);
+      } else if (setDepositBalance) {
+        setDepositBalance(inputAmount, false);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [actions?.setDepositBalance, onUpdate, inputAmount?.hashKey]);
+    }, [setDepositBalance, onUpdate, inputAmount?.hashKey]);
 
     useEffect(() => {
-      actions?.setHasInputErrors(!!errorMsg || !!errorMsgOverride);
+      if (setHasInputErrors) {
+        setHasInputErrors(!!errorMsg || !!errorMsgOverride);
+      }
       // Use message descriptor ids here for the comparison. If there is a values object
       // included then will get into an infinite loop here due to object reference comparison
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [actions?.setHasInputErrors, errorMsg?.id, errorMsgOverride?.id]);
+    }, [setHasInputErrors, errorMsg?.id, errorMsgOverride?.id]);
 
     const balanceAndApyData = useWalletBalances(
       selectedNetwork,

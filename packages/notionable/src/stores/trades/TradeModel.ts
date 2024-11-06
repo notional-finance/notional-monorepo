@@ -1088,6 +1088,22 @@ export const TradeModel = types
           ...self,
         };
       },
+      get selectedTokens() {
+        return {
+          deposit: self.deposit as TokenDefinition,
+          debt: self.debt as TokenDefinition,
+          collateral: self.collateral as TokenDefinition,
+        };
+      },
+      get availableTokens() {
+        return {
+          deposit: self.availableDepositTokens as TokenDefinition[] | undefined,
+          debt: self.availableDebtTokens as TokenDefinition[] | undefined,
+          collateral: self.availableCollateralTokens as
+            | TokenDefinition[]
+            | undefined,
+        };
+      },
       getRiskSummary,
       getVaultRiskSummary,
       getTradeLiquidationPrices,
