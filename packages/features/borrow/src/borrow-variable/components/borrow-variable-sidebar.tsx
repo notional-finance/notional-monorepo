@@ -33,7 +33,6 @@ export const BorrowVariableSidebar = () => {
       <MobileTradeActionSummary
         selectedToken={selectedDepositToken}
         tradeAction={PRODUCTS.BORROW_VARIABLE}
-        state={context.state}
       />
       <TransactionSidebar
         context={context}

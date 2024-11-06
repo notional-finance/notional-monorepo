@@ -10,8 +10,9 @@ import { PRODUCTS } from '@notional-finance/util';
 import { LendVariableContext } from '../../lend-variable/lend-variable';
 import { TransactionNetworkSelector } from '@notional-finance/wallet';
 import { Box, useTheme } from '@mui/material';
+import { observer } from 'mobx-react-lite';
 
-export const LendVariableSidebar = () => {
+export const LendVariableSidebar = observer(() => {
   const theme = useTheme();
   const context = useContext(LendVariableContext);
   const { currencyInputRef } = useCurrencyInputRef();
@@ -23,7 +24,6 @@ export const LendVariableSidebar = () => {
       <MobileTradeActionSummary
         selectedToken={selectedDepositToken}
         tradeAction={PRODUCTS.LEND_VARIABLE}
-        state={context.state}
       />
       <TransactionSidebar
         context={context}
@@ -51,6 +51,6 @@ export const LendVariableSidebar = () => {
       </TransactionSidebar>
     </Box>
   );
-};
+});
 
 export default LendVariableSidebar;

@@ -1,12 +1,12 @@
-import { useContext, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { LendVariableContext } from '../../lend-variable/lend-variable';
 import {
   getEtherscanAddressLink,
   Network,
   NotionalAddress,
 } from '@notional-finance/util';
 import { RiskFaq } from '../components';
+import { TokenDefinition } from '@notional-finance/core-entities';
 
 interface FaqProps {
   questionString: string;
@@ -16,14 +16,10 @@ interface FaqProps {
 }
 
 export const useLendVariableFaq = (
+  collateral: TokenDefinition | undefined,
   tokenSymbol: string | undefined,
   selectedNetwork: Network | undefined
 ) => {
-  const context = useContext(LendVariableContext);
-  const {
-    state: { collateral },
-  } = context;
-
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/variable-rate-lending',

@@ -22,7 +22,6 @@ export const LiquidityVariableSidebar = () => {
       <MobileTradeActionSummary
         selectedToken={selectedDepositToken}
         tradeAction={PRODUCTS.LIQUIDITY_VARIABLE}
-        state={context.state}
       />
       <TransactionSidebar
         context={context}
