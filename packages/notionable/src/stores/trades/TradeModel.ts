@@ -662,12 +662,21 @@ export const TradeModel = types
       }
     });
 
+    const clearTradeState = () => {
+      self.confirm = false;
+      self.inputsSatisfied = false;
+      self.calculationSuccess = false;
+      self.netRealizedCollateralBalance = undefined;
+      self.netRealizedDebtBalance = undefined;
+    };
+
     return {
       afterAttach,
       setHasInputErrors,
       setDepositBalance,
       setConfirm,
       buildTransaction,
+      clearTradeState,
     };
   })
   .views((self) => {

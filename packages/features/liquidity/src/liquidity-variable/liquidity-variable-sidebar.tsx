@@ -24,13 +24,9 @@ export const LiquidityVariableSidebar = () => {
         tradeAction={PRODUCTS.LIQUIDITY_VARIABLE}
       />
       <TransactionSidebar
-        context={context}
         showDrawer
         NetworkSelector={
-          <TransactionNetworkSelector
-            product={PRODUCTS.LIQUIDITY_VARIABLE}
-            context={context}
-          />
+          <TransactionNetworkSelector product={PRODUCTS.LIQUIDITY_VARIABLE} />
         }
         mobileTopMargin={theme.spacing(16)}
       >

@@ -78,8 +78,8 @@ export const ClaimVaultRewards = () => {
       <ScrollToTop />
       {mustSwitchNetwork && (
         <SwitchNetwork
-          context={context}
           hideDrawer
+          selectedNetwork={selectedNetwork}
           onCancel={() => {
             navigate(-1);
           }}

@@ -1,21 +1,17 @@
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { useTokenApproval } from './use-token-approval';
 import { useEnablePrimeBorrow } from './use-enable-prime-borrow';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 
 export const useTransactionApprovals = (
-  context: BaseTradeContext,
   requiredApprovalAmount?: TokenBalance,
   variableBorrowRequired?: boolean
 ) => {
-  const {
-    state: {
-      depositBalance,
-      deposit,
-      selectedNetwork,
-      secondaryDepositBalance,
-    },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const deposit = trade?.selectedTokens?.deposit;
+  const selectedNetwork = trade?.selectedNetwork;
+  const depositBalance = trade?.depositBalance;
+  const secondaryDepositBalance = trade?.secondaryDepositBalance;
   const {
     tokenStatus,
     isSignerConnected,

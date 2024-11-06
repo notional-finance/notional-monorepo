@@ -36,7 +36,6 @@ export const VaultSideDrawer = ({
 
   return (
     <TransactionSidebar
-      context={context}
       showDrawer={false}
       heading={messages[tradeType].heading}
       advancedToggle={advancedToggle}

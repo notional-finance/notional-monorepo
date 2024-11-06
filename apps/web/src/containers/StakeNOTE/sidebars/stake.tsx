@@ -68,7 +68,6 @@ export const Stake = () => {
   return (
     <TransactionSidebar
       riskComponent={<div />}
-      context={context}
       showDrawer
       mobileTopMargin={theme.spacing(16)}
     >

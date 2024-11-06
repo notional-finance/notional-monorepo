@@ -6,8 +6,6 @@ import {
   ScrollToTop,
 } from '@notional-finance/mui';
 import {
-  VaultContext,
-  TradeContext,
   useLeverageBlock,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
@@ -44,7 +42,6 @@ interface TransactionSidebarProps {
   helptext?:
     | MessageDescriptor
     | { defaultMessage: string; values?: Record<string, any> };
-  context: TradeContext | VaultContext;
   children?: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
   requiredApprovalAmount?: TokenBalance;
@@ -65,7 +62,6 @@ interface TransactionSidebarProps {
 
 const TransactionSidebarComponent = ({
   mobileTopMargin,
-  context,
   heading,
   helptext,
   children,
@@ -83,18 +79,19 @@ const TransactionSidebarComponent = ({
   hideTextOnMobile,
   hideActionButtons,
 }: TransactionSidebarProps) => {
-  const { state, actions } = context;
-  const setConfirm = actions?.setConfirm;
+  const trade = useCurrentTradeContext();
+  const setConfirm = trade?.setConfirm;
   const { pathname } = useLocation();
   const [showTxnApprovals, setShowTxnApprovals] = useState(false);
   const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
-  const trade = useCurrentTradeContext();
   const canSubmit = trade?.canSubmit() ?? false;
-  const { confirm, tradeType, debt, collateral, selectedNetwork } = state;
+  const confirm = trade?.confirm;
+  const tradeType = trade?.tradeType;
+  const selectedNetwork = trade?.selectedNetwork;
+  const { debt, collateral } = trade?.selectedTokens ?? {};
   const { mustSwitchNetwork } = useChangeNetwork(selectedNetwork);
   const isBlocked = useLeverageBlock();
   const approvalData = useTransactionApprovals(
-    context,
     requiredApprovalAmount,
     variableBorrowRequired
   );
@@ -192,19 +189,17 @@ const TransactionSidebarComponent = ({
 
   const inner = showSwitchNetwork ? (
     <SwitchNetwork
-      context={context}
+      selectedNetwork={selectedNetwork}
       onCancel={() => setShowSwitchNetwork(false)}
     />
   ) : showTxnApprovals ? (
     <TransactionApprovals
-      context={context}
       onCancel={() => setShowTxnApprovals(false)}
       {...approvalData}
     />
   ) : confirm ? (
     <TransactionConfirmation
       heading={heading && <FormattedMessage {...heading} />}
-      context={context}
       isWithdraw={isWithdraw}
       onReturnToForm={onReturnToForm}
       onCancel={onConfirmCancel}

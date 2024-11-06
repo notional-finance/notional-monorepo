@@ -43,7 +43,7 @@ export const Withdraw = () => {
   }, [pathname]);
 
   return (
-    <PortfolioSideDrawer context={context} isWithdraw>
+    <PortfolioSideDrawer isWithdraw>
       <PortfolioHoldingSelect
         isWithdraw
         context={context}

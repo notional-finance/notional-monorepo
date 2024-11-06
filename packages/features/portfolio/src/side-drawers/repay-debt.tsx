@@ -34,10 +34,7 @@ export const RepayDebt = () => {
   }, [pathname]);
 
   return (
-    <PortfolioSideDrawer
-      context={context}
-      requiredApprovalAmount={requiredApprovalAmount}
-    >
+    <PortfolioSideDrawer requiredApprovalAmount={requiredApprovalAmount}>
       <PortfolioHoldingSelect
         context={context}
         inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabel']}

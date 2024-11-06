@@ -49,7 +49,7 @@ const ConvertCollateral = () => {
   return (
     <DrawerTransition fade={true}>
       {collateral && (
-        <PortfolioSideDrawer context={context}>
+        <PortfolioSideDrawer>
           <AssetInput
             ref={currencyInputRef}
             debtOrCollateral="Debt"

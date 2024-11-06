@@ -6,17 +6,17 @@ import {
   MultiValueCell,
   Body,
 } from '@notional-finance/mui';
-import { BaseTradeState } from '@notional-finance/notionable';
 import {
   useCurrentTradeContext,
   useOrderDetails,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { observer } from 'mobx-react-lite';
 
-export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
+export const OrderDetails = observer(() => {
   const theme = useTheme();
   const [showHiddenRows, setShowHiddenRows] = useState(false);
-  const { orderDetails, filteredOrderDetails } = useOrderDetails(state);
+  const { orderDetails, filteredOrderDetails } = useOrderDetails();
   const trade = useCurrentTradeContext();
   const postTradeIncentives = trade?.getPostTradeIncentives();
   const tableData = showHiddenRows ? orderDetails : filteredOrderDetails;
@@ -68,4 +68,4 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
       ))}
     </Box>
   );
-};
+});

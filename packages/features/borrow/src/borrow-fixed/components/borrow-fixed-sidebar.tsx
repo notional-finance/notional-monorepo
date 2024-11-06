@@ -32,7 +32,6 @@ export const BorrowFixedSidebar = () => {
         tradeAction={PRODUCTS.BORROW_FIXED}
       />
       <TransactionSidebar
-        context={context}
         showDrawer
         isWithdraw
         // If the cash balance is negative, then the account will require
@@ -40,10 +39,7 @@ export const BorrowFixedSidebar = () => {
         // will not be incurred
         variableBorrowRequired={cashBalance?.isNegative()}
         NetworkSelector={
-          <TransactionNetworkSelector
-            product={PRODUCTS.BORROW_FIXED}
-            context={context}
-          />
+          <TransactionNetworkSelector product={PRODUCTS.BORROW_FIXED} />
         }
         mobileTopMargin={theme.spacing(16)}
       >

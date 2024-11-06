@@ -35,15 +35,11 @@ export const BorrowVariableSidebar = () => {
         tradeAction={PRODUCTS.BORROW_VARIABLE}
       />
       <TransactionSidebar
-        context={context}
         showDrawer
         isWithdraw
         variableBorrowRequired
         NetworkSelector={
-          <TransactionNetworkSelector
-            product={PRODUCTS.BORROW_VARIABLE}
-            context={context}
-          />
+          <TransactionNetworkSelector product={PRODUCTS.BORROW_VARIABLE} />
         }
         mobileTopMargin={theme.spacing(16)}
       >

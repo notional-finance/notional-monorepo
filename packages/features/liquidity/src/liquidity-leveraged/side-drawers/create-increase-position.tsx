@@ -24,15 +24,11 @@ export const CreateOrIncreasePosition = () => {
 
   return (
     <TransactionSidebar
-      context={context}
       riskComponent={currentPosition ? <LiquidityDetailsTable /> : undefined}
       variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}
       NetworkSelector={
         currentPosition === undefined ? (
-          <TransactionNetworkSelector
-            product={PRODUCTS.LIQUIDITY_LEVERAGED}
-            context={context}
-          />
+          <TransactionNetworkSelector product={PRODUCTS.LIQUIDITY_LEVERAGED} />
         ) : undefined
       }
     >

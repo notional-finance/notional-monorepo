@@ -1,12 +1,13 @@
 import { IntlShape, MessageDescriptor, useIntl } from 'react-intl';
 import { DetailItem, OrderDetailLabels } from '.';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { BaseTradeState, TokenOption } from '@notional-finance/notionable';
+import { TokenOption } from '@notional-finance/notionable';
 import {
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
 import { RATE_DECIMALS } from '@notional-finance/util';
+import { useCurrentTradeContext } from '../context/use-trade-context';
 
 interface OrderDetails {
   orderDetails: DetailItem[];
@@ -134,20 +135,20 @@ function getOrderDetails(
   return orderDetails;
 }
 
-export function useOrderDetails(state: BaseTradeState): OrderDetails {
-  const {
-    debtBalance,
-    debtFee,
-    collateralFee,
-    debtOptions,
-    collateralOptions,
-    collateralBalance,
-    netRealizedDebtBalance,
-    netRealizedCollateralBalance,
-    depositBalance,
-    tradeType,
-    secondaryDepositBalance,
-  } = state;
+export function useOrderDetails(): OrderDetails {
+  const trade = useCurrentTradeContext();
+  const debtBalance = trade?.debtBalance;
+  const collateralBalance = trade?.collateralBalance;
+  const debtFee = trade?.debtFee;
+  const collateralFee = trade?.collateralFee;
+  const { collateral: collateralOptions, debt: debtOptions } =
+    trade?.computedOptions ?? {};
+  const netRealizedDebtBalance = trade?.netRealizedDebtBalance;
+  const netRealizedCollateralBalance = trade?.netRealizedCollateralBalance;
+  const depositBalance = trade?.depositBalance;
+  const tradeType = trade?.tradeType;
+  const secondaryDepositBalance = trade?.secondaryDepositBalance;
+
   const intl = useIntl();
   const orderDetails: DetailItem[] = [];
   // Only show positive values if one of the values is defined
