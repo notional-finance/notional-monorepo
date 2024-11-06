@@ -108,8 +108,6 @@ export const whitelistedVaults = (
         vaults.arbitrum.Aura_rsETH_xWETH,
         vaults.arbitrum.Aura_cbETH_xwstETH_rETH,
         vaults.arbitrum.Convex_tBTC_xWBTC,
-        vaults.arbitrum.Pendle_rsETH_25SEP2024,
-        vaults.arbitrum.Pendle_rsETH_26DEC2024,
       ].map(toLowercase);
   }
 };

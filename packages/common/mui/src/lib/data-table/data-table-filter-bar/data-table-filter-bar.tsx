@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { Body } from '../../typography/typography';
 
 interface DataTableFilterBarProps {
-  filterBarData: any[];
+  filterBarData?: any[];
   rightToggleData?: DataTableToggleProps;
   allNetworksToggleData?: DataTableToggleProps;
   networkToggleData?: {
@@ -26,7 +26,7 @@ export const DataTableFilterBar = ({
   const theme = useTheme();
   const [resetButtonDisabled, setResetButtonDisabled] = useState(true);
   const handleFilterReset = () => {
-    filterBarData.forEach(({ setSelectedOptions }) => setSelectedOptions([]));
+    filterBarData?.forEach(({ setSelectedOptions }) => setSelectedOptions([]));
     if (allNetworksToggleData?.setToggleKey) {
       allNetworksToggleData.setToggleKey(0);
     }
@@ -36,7 +36,7 @@ export const DataTableFilterBar = ({
   };
 
   useEffect(() => {
-    filterBarData.forEach(({ selectedOptions }) => {
+    filterBarData?.forEach(({ selectedOptions }) => {
       if (
         selectedOptions.length > 0 ||
         (allNetworksToggleData && allNetworksToggleData?.toggleKey > 0)
@@ -51,53 +51,57 @@ export const DataTableFilterBar = ({
 
   return (
     <Container>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        {filterBarData.map(
-          (
-            { selectedOptions, setSelectedOptions, data, placeHolderText },
-            index
-          ) => (
-            <MultiSelectDropdown
-              key={index}
-              options={data}
-              selected={selectedOptions}
-              setSelected={setSelectedOptions}
-              placeHolderText={placeHolderText}
-            />
-          )
-        )}
-        {allNetworksToggleData && (
-          <SimpleToggle
-            sx={{
-              marginRight: theme.spacing(3),
-            }}
-            tabVariant="standard"
-            tabLabels={allNetworksToggleData.toggleOptions}
-            selectedTabIndex={allNetworksToggleData.toggleKey}
-            onChange={(_, v) => allNetworksToggleData.setToggleKey(v as number)}
-          />
-        )}
-        <Body
-          onClick={handleFilterReset}
+      {filterBarData && (
+        <Box
           sx={{
-            padding: theme.spacing(1, 2),
-            border: theme.shape.borderStandard,
-            borderRadius: theme.shape.borderRadius(),
-            cursor: 'pointer',
-            color: resetButtonDisabled
-              ? theme.palette.typography.light
-              : theme.palette.typography.main,
-            background: theme.palette.secondary.main,
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
-          <FormattedMessage defaultMessage={'Reset'} />
-        </Body>
-      </Box>
+          {filterBarData.map(
+            (
+              { selectedOptions, setSelectedOptions, data, placeHolderText },
+              index
+            ) => (
+              <MultiSelectDropdown
+                key={index}
+                options={data}
+                selected={selectedOptions}
+                setSelected={setSelectedOptions}
+                placeHolderText={placeHolderText}
+              />
+            )
+          )}
+          {allNetworksToggleData && (
+            <SimpleToggle
+              sx={{
+                marginRight: theme.spacing(3),
+              }}
+              tabVariant="standard"
+              tabLabels={allNetworksToggleData.toggleOptions}
+              selectedTabIndex={allNetworksToggleData.toggleKey}
+              onChange={(_, v) =>
+                allNetworksToggleData.setToggleKey(v as number)
+              }
+            />
+          )}
+          <Body
+            onClick={handleFilterReset}
+            sx={{
+              padding: theme.spacing(1, 2),
+              border: theme.shape.borderStandard,
+              borderRadius: theme.shape.borderRadius(),
+              cursor: 'pointer',
+              color: resetButtonDisabled
+                ? theme.palette.typography.light
+                : theme.palette.typography.main,
+              background: theme.palette.secondary.main,
+            }}
+          >
+            <FormattedMessage defaultMessage={'Reset'} />
+          </Body>
+        </Box>
+      )}
       {rightToggleData && (
         <SimpleToggle
           tabLabels={rightToggleData.toggleOptions}
