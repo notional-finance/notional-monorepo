@@ -23,7 +23,6 @@ export const LendFixedSidebar = () => {
       <MobileTradeActionSummary
         selectedToken={selectedDepositToken}
         tradeAction={PRODUCTS.LEND_FIXED}
-        state={context.state}
       />
       <TransactionSidebar
         context={context}

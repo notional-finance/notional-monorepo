@@ -12,23 +12,28 @@ import {
 } from '@notional-finance/mui';
 import { useLocation } from 'react-router-dom';
 import { useLendVariableFaq } from '../hooks';
-import { LendVariableContext } from '../../lend-variable/lend-variable';
 import {
   TradeActionSummary,
   useVariableTotals,
   useInterestRateUtilizationChart,
 } from '@notional-finance/trade';
-import { useChartData } from '@notional-finance/notionable-hooks';
+import {
+  useChartData,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 import { ChartType } from '@notional-finance/core-entities';
+import { LendVariableContext } from '../lend-variable';
 
 export const LendVariableTradeSummary = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
   const context = useContext(LendVariableContext);
-  const { state } = context;
-  const { collateral, deposit, selectedDepositToken, selectedNetwork } = state;
+  const trade = useCurrentTradeContext();
+  const selectedNetwork = trade?.selectedNetwork;
+  const { collateral, deposit } = trade?.selectedTokens ?? {};
   const { faqs, faqHeaderLinks } = useLendVariableFaq(
-    selectedDepositToken,
+    collateral,
+    deposit?.symbol,
     selectedNetwork
   );
   const totalsData = useVariableTotals();
@@ -43,7 +48,7 @@ export const LendVariableTradeSummary = () => {
   } = useInterestRateUtilizationChart(deposit, 'lend');
 
   return (
-    <TradeActionSummary state={state}>
+    <TradeActionSummary state={context.state}>
       <MultiDisplayChart
         chartComponents={[
           {

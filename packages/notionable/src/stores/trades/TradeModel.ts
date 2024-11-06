@@ -14,6 +14,7 @@ import {
   isLeveragedTrade,
   isVaultTrade,
   NOTETradeType,
+  TokenOption,
   TradeState,
 } from '../../base-trade/base-trade-store';
 import {
@@ -1102,6 +1103,12 @@ export const TradeModel = types
           collateral: self.availableCollateralTokens as
             | TokenDefinition[]
             | undefined,
+        };
+      },
+      get computedOptions() {
+        return {
+          collateral: self.collateralOptions as TokenOption[] | undefined,
+          debt: self.debtOptions as TokenOption[] | undefined,
         };
       },
       getRiskSummary,
