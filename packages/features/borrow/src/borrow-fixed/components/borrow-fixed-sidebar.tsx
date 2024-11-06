@@ -52,7 +52,6 @@ export const BorrowFixedSidebar = () => {
           showScrollPopper
           ref={currencyInputRef}
           inputRef={currencyInputRef}
-          context={context}
           newRoute={(newToken) =>
             `/${PRODUCTS.BORROW_FIXED}/${selectedNetwork}/${newToken}`
           }

@@ -38,7 +38,6 @@ export const CreateVaultPosition = () => {
         <DepositInput
           ref={currencyInputRef}
           inputRef={currencyInputRef}
-          context={context}
           errorMsgOverride={inputErrorMsg}
           inputLabel={messages['CreateVaultPosition'].depositAmount}
           excludeSupplyCap
@@ -46,8 +45,7 @@ export const CreateVaultPosition = () => {
         {vaultPosition ? (
           <ManageTerms
             borrowType={
-              vaultPosition.vaultDebt.maturity ===
-              PRIME_CASH_VAULT_MATURITY
+              vaultPosition.vaultDebt.maturity === PRIME_CASH_VAULT_MATURITY
                 ? 'Variable'
                 : 'Fixed'
             }

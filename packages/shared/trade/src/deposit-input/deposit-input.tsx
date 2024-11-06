@@ -12,7 +12,6 @@ import { getDepositErrorMessage } from './get-deposit-error-messages';
 import { useDepositInput } from './use-deposit-input';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  BaseTradeContext,
   useCurrentTradeContext,
   useWalletBalances,
 } from '@notional-finance/notionable-hooks';
@@ -20,7 +19,6 @@ import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
 
 interface DepositInputProps {
-  context?: BaseTradeContext;
   onMaxValue?: () => void;
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;

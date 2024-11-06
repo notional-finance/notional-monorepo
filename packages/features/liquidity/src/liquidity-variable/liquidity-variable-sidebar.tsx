@@ -38,7 +38,6 @@ export const LiquidityVariableSidebar = () => {
           showScrollPopper
           ref={currencyInputRef}
           inputRef={currencyInputRef}
-          context={context}
           newRoute={(newToken) =>
             `/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedNetwork}/${newToken}`
           }
