@@ -37,7 +37,6 @@ export const Redeem = () => {
         excludeSupplyCap
         ref={sNOTEInputRef}
         inputRef={sNOTEInputRef}
-        context={context}
       />
       <Body marginTop={theme.spacing(-4)}>
         <FormattedMessage

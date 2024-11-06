@@ -52,7 +52,6 @@ export const Withdraw = () => {
       <DepositInput
         isWithdraw
         ref={currencyInputRef}
-        context={context}
         inputRef={currencyInputRef}
         maxWithdraw={maxWithdrawUnderlying}
         warningMsg={belowMaxWarning}

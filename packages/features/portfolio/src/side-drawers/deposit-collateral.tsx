@@ -19,7 +19,6 @@ export const DepositCollateral = () => {
     <PortfolioSideDrawer context={context}>
       <DepositInput
         showScrollPopper
-        context={context}
         inputRef={currencyInputRef}
         newRoute={(newToken) =>
           `/portfolio/${selectedNetwork}/${category}/${sideDrawerKey}/${newToken}`

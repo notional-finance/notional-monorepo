@@ -50,7 +50,6 @@ export const Withdraw = () => {
         isWithdraw
         showScrollPopper
         ref={currencyInputRef}
-        context={context}
         inputRef={currencyInputRef}
         maxWithdraw={maxWithdrawUnderlying}
         onMaxValue={onMaxValue}

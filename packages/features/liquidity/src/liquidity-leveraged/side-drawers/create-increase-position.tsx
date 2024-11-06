@@ -40,7 +40,6 @@ export const CreateOrIncreasePosition = () => {
         showScrollPopper
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={context}
         newRoute={(newToken) => {
           return `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/${
             depositTokensWithPositions.includes(newToken || '')

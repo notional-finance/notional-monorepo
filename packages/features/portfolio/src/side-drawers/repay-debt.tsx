@@ -44,7 +44,6 @@ export const RepayDebt = () => {
       />
       <DepositInput
         ref={currencyInputRef}
-        context={context}
         inputRef={currencyInputRef}
         onMaxValue={onMaxValue}
         newRoute={(newToken) =>

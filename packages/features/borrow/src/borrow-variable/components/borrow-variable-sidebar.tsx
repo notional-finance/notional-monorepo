@@ -52,7 +52,6 @@ export const BorrowVariableSidebar = () => {
           isWithdraw
           ref={currencyInputRef}
           inputRef={currencyInputRef}
-          context={context}
           newRoute={(newToken) =>
             `/${PRODUCTS.BORROW_VARIABLE}/${selectedNetwork}/${newToken}`
           }

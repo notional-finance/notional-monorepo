@@ -38,7 +38,6 @@ export const LendFixedSidebar = () => {
         <DepositInput
           ref={currencyInputRef}
           inputRef={currencyInputRef}
-          context={context}
           newRoute={(newToken) =>
             `/${PRODUCTS.LEND_FIXED}/${selectedNetwork}/${newToken}`
           }

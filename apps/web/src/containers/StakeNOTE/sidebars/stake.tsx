@@ -77,7 +77,6 @@ export const Stake = () => {
           showScrollPopper
           ref={noteInputRef}
           inputRef={noteInputRef}
-          context={context}
           excludeSupplyCap
           useZeroDefault
           onUpdate={onNOTEUpdate}
@@ -92,7 +91,6 @@ export const Stake = () => {
         showScrollPopper
         ref={ethInputRef}
         inputRef={ethInputRef}
-        context={context}
         useZeroDefault
         miniButtonLabel={'OPTIMIZE'}
         onUpdate={onETHUpdate}
