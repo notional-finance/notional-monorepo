@@ -23,7 +23,6 @@ export const Redeem = () => {
 
   return (
     <TransactionSidebar
-      context={context}
       showDrawer
       // No approvals required for sNOTE redeem
       requiredApprovalAmount={deposit ? TokenBalance.zero(deposit) : undefined}

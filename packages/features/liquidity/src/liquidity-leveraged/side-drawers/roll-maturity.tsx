@@ -48,7 +48,6 @@ export const RollMaturity = () => {
 
   return (
     <TransactionSidebar
-      context={context}
       heading={heading}
       helptext={helptext}
       variableBorrowRequired={debt?.tokenType === 'PrimeDebt'}

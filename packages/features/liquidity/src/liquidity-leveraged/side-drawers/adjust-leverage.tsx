@@ -81,10 +81,7 @@ export const AdjustLeverage = () => {
   );
 
   return (
-    <TransactionSidebar
-      context={context}
-      riskComponent={<LiquidityDetailsTable />}
-    >
+    <TransactionSidebar riskComponent={<LiquidityDetailsTable />}>
       <LeverageSlider
         context={context}
         leverageCurrencyId={deposit?.currencyId}

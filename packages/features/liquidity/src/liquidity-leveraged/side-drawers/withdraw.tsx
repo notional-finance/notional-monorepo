@@ -38,7 +38,6 @@ export const Withdraw = () => {
 
   return (
     <TransactionSidebar
-      context={context}
       heading={defineMessage({ defaultMessage: 'Withdraw' })}
       helptext={defineMessage({
         defaultMessage: 'Unwind your position and withdraw your capital.',

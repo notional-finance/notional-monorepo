@@ -15,12 +15,12 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Network } from '@notional-finance/util';
 import {
-  BaseTradeContext,
   useAccountNetWorth,
   useProductNetwork,
   useWalletBalancesOnNetworks,
   useSelectedNetwork,
   usePortfolioStore,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
@@ -98,16 +98,11 @@ export const NetworkSelectorButton = ({
   );
 };
 
-export function TransactionNetworkSelector({
-  context,
-  product,
-}: {
-  context: BaseTradeContext;
-  product: PRODUCTS;
-}) {
-  const {
-    state: { selectedNetwork, deposit },
-  } = context;
+export function TransactionNetworkSelector({ product }: { product: PRODUCTS }) {
+  const trade = useCurrentTradeContext();
+  const deposit = trade?.selectedTokens?.deposit;
+  const selectedNetwork = trade?.selectedNetwork;
+
   const availableNetworks = useProductNetwork(product, deposit?.symbol);
   const walletBalances = useWalletBalancesOnNetworks(
     availableNetworks,

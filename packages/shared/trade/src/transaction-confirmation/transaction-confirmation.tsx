@@ -18,19 +18,15 @@ import {
   PendingTransaction,
 } from './components';
 import {
-  BaseTradeContext,
-  VaultContext,
   TransactionStatus,
   useTransactionStatus,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
-import { clearTradeState } from '@notional-finance/notionable';
 import { PopulatedTransaction } from 'ethers';
 
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
-  context: BaseTradeContext | VaultContext;
   onCancel?: () => void;
   onReturnToForm?: () => void;
   isWithdraw?: boolean;
@@ -38,12 +34,10 @@ export interface TransactionConfirmationProps {
 
 export const TransactionConfirmation = ({
   heading,
-  context,
   onCancel,
   onReturnToForm,
 }: TransactionConfirmationProps) => {
   const theme = useTheme();
-  const { state, updateState } = context;
   const [p, setPopulatedTransaction] = useState<{
     populatedTransaction?: PopulatedTransaction;
     transactionError?: string;
@@ -53,12 +47,15 @@ export const TransactionConfirmation = ({
   });
   const location = useLocation();
   const trade = useCurrentTradeContext();
-  const { debt, collateral, tradeType, selectedNetwork } = state;
+  const { debt, collateral } = trade?.selectedTokens ?? {};
+  const tradeType = trade?.tradeType;
+  const selectedNetwork = trade?.selectedNetwork;
   const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
     useTransactionStatus(selectedNetwork);
+
   const onTxnCancel = useCallback(() => {
-    updateState({ ...clearTradeState });
-  }, [updateState]);
+    trade?.clearTradeState();
+  }, [trade]);
 
   useEffect(() => {
     if (
@@ -124,7 +121,7 @@ export const TransactionConfirmation = ({
         sx={{ background: 'white', marginBottom: theme.spacing(6) }}
       />
 
-      <OrderDetails state={state} />
+      <OrderDetails />
       {transactionHash && (
         <PendingTransaction
           hash={transactionHash}

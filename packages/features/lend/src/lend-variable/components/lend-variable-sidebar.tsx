@@ -26,13 +26,9 @@ export const LendVariableSidebar = observer(() => {
         tradeAction={PRODUCTS.LEND_VARIABLE}
       />
       <TransactionSidebar
-        context={context}
         showDrawer
         NetworkSelector={
-          <TransactionNetworkSelector
-            context={context}
-            product={PRODUCTS.LEND_VARIABLE}
-          />
+          <TransactionNetworkSelector product={PRODUCTS.LEND_VARIABLE} />
         }
         mobileTopMargin={theme.spacing(16)}
       >

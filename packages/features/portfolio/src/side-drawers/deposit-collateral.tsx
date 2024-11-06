@@ -16,7 +16,7 @@ export const DepositCollateral = () => {
   } = context;
 
   return (
-    <PortfolioSideDrawer context={context}>
+    <PortfolioSideDrawer>
       <DepositInput
         showScrollPopper
         inputRef={currencyInputRef}

@@ -23,7 +23,7 @@ export const Deleverage = () => {
   } = useDeleverageLabels(context);
 
   return (
-    <PortfolioSideDrawer context={context}>
+    <PortfolioSideDrawer>
       <Box>
         <HeadingSubtitle
           gutter="default"

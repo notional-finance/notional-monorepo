@@ -51,7 +51,6 @@ const ConvertDebt = () => {
     <DrawerTransition fade={true}>
       {debt && (
         <PortfolioSideDrawer
-          context={context}
           enablePrimeBorrow={debt?.tokenType === 'PrimeDebt'}
         >
           <AssetInput

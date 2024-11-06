@@ -4,14 +4,13 @@ import { Button, ScrollToTop } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import {
   TransactionStatus,
-  BaseTradeContext,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { TermsOfService } from '../transaction-confirmation/transaction-confirmation';
 import { ApprovalButton } from './components/approval-button';
 import { messages } from './messages';
 
 export interface TransactionApprovalsProps {
-  context: BaseTradeContext;
   onCancel?: () => void;
   allowanceIncreaseRequired?: boolean;
   secondaryTokenApprovalRequired?: boolean;
@@ -26,7 +25,6 @@ export interface TransactionApprovalsProps {
 }
 
 export const TransactionApprovals = ({
-  context,
   onCancel,
   allowanceIncreaseRequired,
   secondaryTokenApprovalRequired,
@@ -40,9 +38,9 @@ export const TransactionApprovals = ({
   secondaryEnableToken,
 }: TransactionApprovalsProps) => {
   const theme = useTheme();
-  const {
-    state: { depositBalance, secondaryDepositBalance },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const depositBalance = trade?.depositBalance;
+  const secondaryDepositBalance = trade?.secondaryDepositBalance;
 
   return (
     <>

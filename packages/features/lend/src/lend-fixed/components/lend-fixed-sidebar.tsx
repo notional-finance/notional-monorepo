@@ -25,13 +25,9 @@ export const LendFixedSidebar = () => {
         tradeAction={PRODUCTS.LEND_FIXED}
       />
       <TransactionSidebar
-        context={context}
         showDrawer
         NetworkSelector={
-          <TransactionNetworkSelector
-            product={PRODUCTS.LEND_FIXED}
-            context={context}
-          />
+          <TransactionNetworkSelector product={PRODUCTS.LEND_FIXED} />
         }
         mobileTopMargin={theme.spacing(16)}
       >
