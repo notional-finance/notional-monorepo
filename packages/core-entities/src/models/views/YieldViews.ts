@@ -322,7 +322,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       // We net off the fee for fcash so that we show it as an up-front
       // trading fee rather than part of the implied yield
       apyData.organicAPY =
-        market.getImpliedInterestRate(realized, netAmount) || 0;
+        (100 * (market.getImpliedInterestRate(realized, netAmount) || 0)) /
+        RATE_PRECISION;
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.unwrapVaultToken().tokenType === 'PrimeCash') {
       // Increases or decreases the prime supply accordingly
@@ -331,7 +332,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         netAmount.unwrapVaultToken(),
         undefined
       );
-      apyData.organicAPY = market.getPrimeSupplyRate(apyData.utilization) || 0;
+      apyData.organicAPY =
+        (100 * market.getPrimeSupplyRate(apyData.utilization)) / RATE_PRECISION;
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.unwrapVaultToken().tokenType === 'PrimeDebt') {
       // If borrowing and withdrawing then it is just prime debt increase. This
@@ -341,7 +343,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         undefined,
         netAmount.unwrapVaultToken().neg()
       );
-      apyData.organicAPY = market.getPrimeDebtRate(apyData.utilization) || 0;
+      apyData.organicAPY =
+        100 * market.getPrimeDebtRate(apyData.utilization) || 0;
       if (
         netAmount.token.tokenType === 'VaultDebt' &&
         netAmount.maturity === PRIME_CASH_VAULT_MATURITY &&
