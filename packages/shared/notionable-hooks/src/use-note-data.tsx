@@ -27,10 +27,8 @@ export function useNoteSupplyData() {
 }
 
 export function useStakedNoteData() {
-  const snoteData = useObserver(() => {
-    const model = getNetworkModel(Network.mainnet);
-    return model.getSNOTEData();
-  });
+  const model = getNetworkModel(Network.mainnet);
+  const snoteData = model.getSNOTEData();
   useFetchAnalyticsData('sNOTEData', !!snoteData, Network.mainnet);
   return snoteData || [];
 }

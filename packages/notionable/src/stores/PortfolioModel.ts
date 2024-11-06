@@ -5,7 +5,6 @@ import {
 import { RootStoreInterface } from './root-store';
 import {
   AccountHistory,
-  AccountModel,
   BalanceStatement,
   FiatKeys,
   NotionalTypes,
@@ -23,6 +22,7 @@ import {
 import { Network } from '@notional-finance/util';
 import { reaction } from 'mobx';
 import { simulateRewardClaims } from '@notional-finance/transaction';
+import { AccountModel } from './AccountModel';
 
 const APYDataModel = types.model('APYDataModel', {
   totalAPY: types.maybe(types.number),

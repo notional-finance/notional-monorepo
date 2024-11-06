@@ -5,8 +5,11 @@ import {
   TokenDefinition,
   TokenType,
 } from '@notional-finance/core-entities';
-import { Network, getEtherscanTransactionLink } from '@notional-finance/util';
-import { formatNumberAsPercent } from './number-helpers';
+import {
+  Network,
+  formatNumberAsPercent,
+  getEtherscanTransactionLink,
+} from '@notional-finance/util';
 import { formatTokenType, truncateAddress } from './text-helpers';
 
 const tokenTypeSortOrder: TokenType[] = [

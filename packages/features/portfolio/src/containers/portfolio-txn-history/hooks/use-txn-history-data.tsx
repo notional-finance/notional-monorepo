@@ -16,7 +16,6 @@ export const useTxnHistoryData = (txnHistoryCategory: number) => {
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
   const accountHistory = useTransactionHistory(network);
-
   const allAccountHistoryData = accountHistory
     .sort((x, y) => y.timestamp - x.timestamp)
     .map((data) => formatTxnTableData(data as AccountHistory, network));

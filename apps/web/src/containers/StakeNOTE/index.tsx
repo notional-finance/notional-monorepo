@@ -7,10 +7,11 @@ import {
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { Stake, CoolDown, Redeem } from './sidebars';
 import StakeNOTESummary from './stake-note-summary';
+import { observer } from 'mobx-react-lite';
 
 export const NOTEContext = createNOTEContext();
 
-export const StakeNOTE = () => {
+export const StakeNOTE = observer(() => {
   const context = useNOTEContext();
   const {
     state: { isReady, confirm, tradeType },
@@ -36,6 +37,6 @@ export const StakeNOTE = () => {
       </FeatureLoader>
     </NOTEContext.Provider>
   );
-};
+});
 
 export default StakeNOTE;

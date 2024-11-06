@@ -13,8 +13,9 @@ import {
   useStakedNoteData,
 } from '@notional-finance/notionable-hooks';
 import NoteDelegate from './note-delegate/note-delegate';
+import { observer } from 'mobx-react-lite';
 
-export const NoteView = () => {
+export const NoteView = observer(() => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const supplyData = useNoteSupplyData();
   const stakedNoteData = useStakedNoteData();
@@ -69,7 +70,7 @@ export const NoteView = () => {
       </MainContainer>
     </ThemeProvider>
   );
-};
+});
 
 const TopGradientBg = styled(Box)(
   ({ theme }) => `

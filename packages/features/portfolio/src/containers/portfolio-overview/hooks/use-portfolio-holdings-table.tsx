@@ -102,5 +102,9 @@ export const useTotalHoldingsTable = (baseCurrency: FiatKeys) => {
     });
   }
 
-  return { totalHoldingsColumns: TotalHoldingsColumns, totalHoldingsData };
+  return {
+    totalHoldingsColumns: TotalHoldingsColumns,
+    totalHoldingsData,
+    showTotalHoldingsTable: totalHoldingsData && totalHoldingsData.length > 1,
+  };
 };
