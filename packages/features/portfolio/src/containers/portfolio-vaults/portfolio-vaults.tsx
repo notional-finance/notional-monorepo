@@ -64,6 +64,7 @@ export const PortfolioVaults = () => {
   const [currentTab, setCurrentTab] = useState(PortfolioVaultsTabs.POSITIONS);
   const {
     vaultHoldingsColumns,
+    showVaultHoldingsTable,
     vaultHoldingsData,
     setExpandedRows,
     toggleBarProps,
@@ -115,7 +116,7 @@ export const PortfolioVaults = () => {
           />
         )}
       </PortfolioPageHeader>
-      {vaultHoldingsData && vaultHoldingsData.length === 0 ? (
+      {!showVaultHoldingsTable ? (
         <EmptyPortfolio />
       ) : (
         <DataTable

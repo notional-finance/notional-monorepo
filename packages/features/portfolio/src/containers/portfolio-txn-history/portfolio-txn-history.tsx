@@ -11,9 +11,11 @@ import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { PortfolioPageHeader } from '../../components';
 import { observer } from 'mobx-react-lite';
 
-export const PortfolioTransactionHistory = () => {
+export const PortfolioTransactionHistory = observer(() => {
   const rightToggleData = useTxnHistoryCategory();
   const txnHistoryCategory = rightToggleData?.toggleKey || 0;
+
+  useTxnHistoryData(txnHistoryCategory);
 
   const {
     accountHistoryData,
@@ -55,6 +57,6 @@ export const PortfolioTransactionHistory = () => {
       />
     </Box>
   );
-};
+});
 
-export default observer(PortfolioTransactionHistory);
+export default PortfolioTransactionHistory;

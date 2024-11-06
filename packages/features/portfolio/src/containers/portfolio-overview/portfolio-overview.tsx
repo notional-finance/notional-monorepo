@@ -20,9 +20,9 @@ import { useAppStore } from '@notional-finance/notionable-hooks';
 const PortfolioOverview = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
-  const { totalHoldingsColumns, totalHoldingsData } =
+  const { totalHoldingsColumns, totalHoldingsData, showTotalHoldingsTable } =
     useTotalHoldingsTable(baseCurrency);
-  const { vaultHoldingsData } = useVaultHoldingsTable();
+  const { vaultHoldingsData, showVaultHoldingsTable } = useVaultHoldingsTable();
   const { overviewVaultHoldingsColumns } = useOverviewVaultHoldingsColumns();
   const { riskOverviewData, riskOverviewColumns } =
     useRiskOverviewTable(baseCurrency);
@@ -78,7 +78,7 @@ const PortfolioOverview = () => {
               }
             />
           )}
-          {totalHoldingsData.length > 0 && (
+          {showTotalHoldingsTable && (
             <DataTable
               data={totalHoldingsData}
               columns={totalHoldingsColumns}
@@ -92,7 +92,7 @@ const PortfolioOverview = () => {
               }
             />
           )}
-          {vaultHoldingsData.length > 0 && (
+          {showVaultHoldingsTable && (
             <DataTable
               data={vaultHoldingsData}
               columns={overviewVaultHoldingsColumns}

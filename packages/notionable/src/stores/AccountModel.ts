@@ -1,16 +1,81 @@
-import { flow, Instance, types } from 'mobx-state-tree';
-import { NotionalTypes, TokenDefinitionModel } from './ModelTypes';
-import { getProviderFromNetwork } from '@notional-finance/util';
+import {
+  flow,
+  getParent,
+  getRoot,
+  getType,
+  Instance,
+  types,
+} from 'mobx-state-tree';
+import { getProviderFromNetwork, Network } from '@notional-finance/util';
 import { providers } from 'ethers';
-import { fetchCurrentAccount } from '../client/accounts/current-account';
-import { AccountDefinition, CacheSchema } from '../Definitions';
-import { AccountRegistryClient } from '../client/account-registry-client';
+import {
+  AccountDefinition,
+  CacheSchema,
+  NotionalTypes,
+  AccountRegistryClient,
+  TokenDefinitionModel,
+  fetchCurrentAccount,
+} from '@notional-finance/core-entities';
+import { RootStoreInterface } from './root-store';
+import { TradeModel } from './trades/TradeModel';
 
 const NX_SUBGRAPH_API_KEY = process.env['NX_SUBGRAPH_API_KEY'] as string;
 
 const AccountIncentiveDebtModel = types.model('AccountIncentiveDebt', {
   value: NotionalTypes.TokenBalance,
   currencyId: types.number,
+});
+
+const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
+  get(identifier, parent) {
+    const root = () => getRoot<RootStoreInterface>(parent);
+    const parentName = getType(parent).name;
+
+    let selectedNetwork: Network | undefined;
+
+    switch (parentName) {
+      case 'TradeModel':
+        selectedNetwork = parent?.selectedNetwork;
+        break;
+      case 'TokenOption':
+        selectedNetwork = getParent<Instance<typeof TradeModel>>(
+          parent,
+          2
+        )?.selectedNetwork;
+        break;
+      case 'BalanceStatement':
+      case 'AccountHistory': {
+        const accountModel = getParent<Instance<typeof AccountModel>>(
+          parent,
+          2
+        );
+        selectedNetwork = accountModel?.network;
+        break;
+      }
+      default:
+        selectedNetwork =
+          getParent<Instance<typeof TradeModel>>(parent)?.selectedNetwork;
+    }
+
+    if (!selectedNetwork) {
+      console.error('Parent reference lookup failed for:', {
+        parentName,
+        identifier,
+        parent,
+      });
+      throw Error(
+        `Token Definition parent reference not found for ${parentName}`
+      );
+    }
+
+    const model = root().getNetworkClient(selectedNetwork);
+    return model.getTokenByID(identifier.toString()) as Instance<
+      typeof TokenDefinitionModel
+    >;
+  },
+  set(value) {
+    return value.id;
+  },
 });
 
 export const BalanceStatementModel = types.model('BalanceStatement', {
@@ -37,8 +102,8 @@ const AccountHistoryModel = types.model('AccountHistory', {
   txnLabel: types.optional(types.maybe(types.string), undefined),
   timestamp: types.number,
   blockNumber: types.number,
-  token: types.reference(TokenDefinitionModel),
-  underlying: types.reference(TokenDefinitionModel),
+  token: TokenDefinitionReference,
+  underlying: TokenDefinitionReference,
   tokenAmount: NotionalTypes.TokenBalance,
   bundleName: types.string,
   transactionHash: types.string,
@@ -158,6 +223,8 @@ export const AccountModel = types
       }
 
       yield fetchBalanceStatements();
+      yield fetchAccountHistory();
+      yield fetchHistoricalBalances();
 
       const endTime = performance.now();
       console.log(
@@ -165,7 +232,6 @@ export const AccountModel = types
           endTime - startTime
         } ms`
       );
-
     });
 
     const fetchAccountHistory = flow(function* () {
@@ -178,9 +244,10 @@ export const AccountModel = types
       >;
 
       self.accountHistory.replace(
-        history.finalResults[self.address] as Instance<
-          typeof AccountHistoryModel
-        >[]
+        history.finalResults[self.address].map((v) => ({
+          ...v,
+          blockNumber: Number(v.blockNumber),
+        })) as Instance<typeof AccountHistoryModel>[]
       );
     });
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   useAccountHistoryChart,
   useSelectedNetwork,
@@ -57,25 +57,22 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
     }
   );
 
-  const barConfig: BarConfigProps[] = useMemo(
-    () => [
-      {
-        dataKey: 'totalNetWorth',
-        title: <FormattedMessage defaultMessage="Total Net Worth" />,
-        toolTipTitle: <FormattedMessage defaultMessage="Net Worth" />,
-        fill:
-          themeVariant === THEME_VARIANTS.LIGHT
-            ? colors.turquoise
-            : colors.neonTurquoise,
-        radius: [8, 8, 0, 0],
-        currencySymbol: FiatSymbols[baseCurrency]
-          ? FiatSymbols[baseCurrency]
-          : '$',
-        value: netWorth?.toDisplayStringWithSymbol(2, true, false) ?? '0',
-      },
-    ],
-    [themeVariant, baseCurrency, netWorth]
-  );
+  const barConfig: BarConfigProps[] = [
+    {
+      dataKey: 'totalNetWorth',
+      title: <FormattedMessage defaultMessage="Total Net Worth" />,
+      toolTipTitle: <FormattedMessage defaultMessage="Net Worth" />,
+      fill:
+        themeVariant === THEME_VARIANTS.LIGHT
+          ? colors.turquoise
+          : colors.neonTurquoise,
+      radius: [8, 8, 0, 0],
+      currencySymbol: FiatSymbols[baseCurrency]
+        ? FiatSymbols[baseCurrency]
+        : '$',
+      value: netWorth?.toDisplayStringWithSymbol(2, true, false) ?? '0',
+    },
+  ];
 
   if (debts?.isNegative()) {
     barConfig.push(

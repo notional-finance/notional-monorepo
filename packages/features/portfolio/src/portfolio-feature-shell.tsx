@@ -38,7 +38,7 @@ export interface PortfolioParams extends Record<string, string | undefined> {
   selectedCollateralToken?: string;
 }
 
-export const PortfolioFeatureShell = () => {
+export const PortfolioFeatureShell = observer(() => {
   const theme = useTheme();
   const navigate = useNavigate();
   const params = useParams<PortfolioParams>();
@@ -87,7 +87,7 @@ export const PortfolioFeatureShell = () => {
   ) : (
     <Portfolio />
   );
-};
+});
 
 const Portfolio = () => {
   const params = useParams<PortfolioParams>();
@@ -157,11 +157,7 @@ const Portfolio = () => {
       {params.category !== PORTFOLIO_CATEGORIES.WELCOME && (
         <PortfolioMainContent>
           {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-            params.category === undefined) && (
-            <>
-              <PortfolioOverview />
-            </>
-          )}
+            params.category === undefined) && <PortfolioOverview />}
           {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
             <PortfolioHoldings />
           )}
@@ -200,9 +196,7 @@ const Portfolio = () => {
       )}
 
       {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
-        <>
-          <PortfolioStateZero />
-        </>
+        <PortfolioStateZero />
       )}
       {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&
         hasNoteOrSNote && (
@@ -282,4 +276,4 @@ const CustomHeaderContainer = styled(Box)(
 `
 );
 
-export default observer(PortfolioFeatureShell);
+export default PortfolioFeatureShell;
