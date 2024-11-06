@@ -11,7 +11,6 @@ import {
   useLeverageBlock,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
-import { TradeState } from '@notional-finance/notionable';
 import { useCallback, useEffect, useState } from 'react';
 import {
   FormattedMessage,
@@ -233,8 +232,8 @@ const TransactionSidebarComponent = ({
     >
       <ScrollToTop />
       {children}
-      {riskComponent || <LiquidationRisk state={state as TradeState} />}
-      {tradeType !== 'StakeNOTECoolDown' && <TradeSummary state={state} />}
+      {riskComponent || <LiquidationRisk />}
+      {tradeType !== 'StakeNOTECoolDown' && <TradeSummary />}
     </ActionSidebar>
   );
 

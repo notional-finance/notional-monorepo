@@ -209,10 +209,6 @@ export const TradeModel = types
     /** Simulation error transaction */
     simulationError: types.maybe(types.string),
 
-    /** Net amount of assets, when rolling refers to the new asset */
-    netAssetBalance: types.maybe(NotionalTypes.TokenBalance),
-    /** Net amount of debts, when rolling refers to the new debt  */
-    netDebtBalance: types.maybe(NotionalTypes.TokenBalance),
     /** Net cost of assets in underlying terms */
     netRealizedCollateralBalance: types.maybe(NotionalTypes.TokenBalance),
     /** Net cost of debts in underlying terms*/
@@ -223,6 +219,9 @@ export const TradeModel = types
       types.array(NotionalTypes.TokenBalance),
       []
     ),
+
+    /** Amount of ETH redeemed during NOTE unstaking */
+    ethRedeem: types.maybe(NotionalTypes.TokenBalance),
   })
   .actions((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
@@ -1141,6 +1140,38 @@ export const TradeModel = types
       }
     };
 
+    const getNetBalances = () => {
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const accountBalances = account?.portfolioRiskProfile?.balances || [];
+      const netChange =
+        self.tradeType === 'RollDebt'
+          ? self.debtBalance
+          : self.tradeType === 'ConvertAsset'
+          ? self.collateralBalance
+          : self.collateralBalance || self.debtBalance;
+      if (!netChange) return undefined;
+
+      const zero = netChange.copy(0);
+      const start =
+        accountBalances.find((b) => b.tokenId === netChange.tokenId) || zero;
+      const end = start.add(netChange);
+      if (start.eq(end) || (start.gte(zero) && end.gte(zero))) {
+        // Only asset changes
+        return { netAssetBalance: netChange, netDebtBalance: zero };
+      } else if (start.lte(zero) && end.lte(zero)) {
+        // Only debt changes
+        return { netAssetBalance: zero, netDebtBalance: netChange };
+      } else if (start.gte(zero) && end.lte(zero)) {
+        // Entire start balance has decreased to zero, entire negative balance is created
+        return { netAssetBalance: start.neg(), netDebtBalance: end };
+      } else if (start.lte(zero) && end.gte(zero)) {
+        // Entire start balance has been repaid, entire positive balance is created
+        return { netAssetBalance: end, netDebtBalance: start.neg() };
+      }
+
+      throw Error('unknown balance change');
+    };
+
     return {
       get actions() {
         return {
@@ -1178,6 +1209,7 @@ export const TradeModel = types
           debt: self.debtOptions as TokenOption[] | undefined,
         };
       },
+      getNetBalances,
       getAPYFactors,
       getRiskSummary,
       getVaultRiskSummary,

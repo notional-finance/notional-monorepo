@@ -6,18 +6,22 @@ import {
   ErrorMessage,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
-import { TradeState } from '@notional-finance/notionable';
 import {
   useAccountReady,
+  useCurrentTradeContext,
   usePortfolioLiquidationRisk,
 } from '@notional-finance/notionable-hooks';
 import { tradeErrors } from '../../tradeErrors';
 import { FormattedMessage } from 'react-intl';
+import { observer } from 'mobx-react-lite';
 
-export const LiquidationRisk = ({ state }: { state: TradeState }) => {
+export const LiquidationRisk = observer(() => {
   const theme = useTheme();
-  const { tradeType, inputsSatisfied, calculationSuccess, selectedNetwork } =
-    state;
+  const trade = useCurrentTradeContext();
+  const tradeType = trade?.tradeType;
+  const inputsSatisfied = trade?.inputsSatisfied;
+  const calculationSuccess = trade?.calculationSuccess;
+  const selectedNetwork = trade?.selectedNetwork;
   const isAccountReady = useAccountReady(selectedNetwork);
   const {
     onlyCurrent,
@@ -160,4 +164,4 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
       />
     </Box>
   );
-};
+});

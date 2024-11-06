@@ -6,14 +6,11 @@ import {
 } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import {
-  VaultTradeState,
-  TradeState,
   isLeveragedTrade,
   isDeleverageTrade,
   isDeleverageWithSwappedTokens,
   isVaultTrade,
   AllTradeTypes,
-  NOTETradeState,
 } from '@notional-finance/notionable';
 import { BASIS_POINT } from '@notional-finance/util';
 import {
@@ -25,7 +22,6 @@ import {
 } from 'react-intl';
 import { DetailItem, OrderDetailLabels, TradeSummaryLabels, Earnings } from '.';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
-import { useTotalAPY } from './use-total-apy';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useCurrentTradeContext } from '../context/use-trade-context';
 
@@ -460,7 +456,11 @@ function getCollateralFeeDetailItem(
 }
 
 function getDepositSummary(
-  state: TradeState | VaultTradeState,
+  state: {
+    netAssetBalance: TokenBalance | undefined;
+    netRealizedCollateralBalance: TokenBalance | undefined;
+    tradeType: AllTradeTypes | undefined;
+  },
   intl: IntlShape
 ): DetailItem[] {
   const summary: DetailItem[] = [];
@@ -494,7 +494,12 @@ function getDepositSummary(
 }
 
 function getWithdrawSummary(
-  state: TradeState | VaultTradeState,
+  state: {
+    netDebtBalance: TokenBalance | undefined;
+    netAssetBalance: TokenBalance | undefined;
+    netRealizedDebtBalance: TokenBalance | undefined;
+    tradeType: AllTradeTypes | undefined;
+  },
   intl: IntlShape
 ): DetailItem[] {
   const summary: DetailItem[] = [];
@@ -539,7 +544,13 @@ function getWithdrawSummary(
 }
 
 function getStakeNOTESummary(
-  state: NOTETradeState,
+  state: {
+    tradeType: AllTradeTypes;
+    collateralBalance: TokenBalance | undefined;
+    depositBalance: TokenBalance | undefined;
+    secondaryDepositBalance: TokenBalance | undefined;
+    ethRedeem: TokenBalance | undefined;
+  },
   intl: IntlShape
 ): DetailItem[] {
   const summary: DetailItem[] = [];
@@ -587,7 +598,15 @@ function getStakeNOTESummary(
  *   - mint rest of the position
  */
 function getLeverageSummary(
-  state: TradeState | VaultTradeState,
+  state: {
+    tradeType: AllTradeTypes | undefined;
+    depositBalance: TokenBalance | undefined;
+    collateralBalance: TokenBalance | undefined;
+    debtBalance: TokenBalance | undefined;
+    netRealizedCollateralBalance: TokenBalance | undefined;
+    netRealizedDebtBalance: TokenBalance | undefined;
+    debtFee: TokenBalance | undefined;
+  },
   intl: IntlShape,
   priorVaultBalances: TokenBalance[] | undefined
 ): DetailItem[] {
@@ -681,7 +700,13 @@ function getLeverageSummary(
 }
 
 function getRollDebtOrConvertAssetSummary(
-  state: TradeState | VaultTradeState,
+  state: {
+    collateralBalance: TokenBalance | undefined;
+    debtBalance: TokenBalance | undefined;
+    netRealizedCollateralBalance: TokenBalance | undefined;
+    netRealizedDebtBalance: TokenBalance | undefined;
+    tradeType: AllTradeTypes | undefined;
+  },
   intl: IntlShape
 ): DetailItem[] {
   const summary: DetailItem[] = [];
@@ -724,7 +749,15 @@ function getRollDebtOrConvertAssetSummary(
 }
 
 function getDeleverageWithdrawSummary(
-  state: TradeState | VaultTradeState,
+  state: {
+    collateralBalance: TokenBalance | undefined;
+    debtBalance: TokenBalance | undefined;
+    netRealizedCollateralBalance: TokenBalance | undefined;
+    netRealizedDebtBalance: TokenBalance | undefined;
+    depositBalance: TokenBalance | undefined;
+    tradeType: AllTradeTypes | undefined;
+    maxWithdraw: boolean | undefined;
+  },
   intl: IntlShape
 ): DetailItem[] {
   const summary: DetailItem[] = [];
@@ -768,26 +801,24 @@ function getDeleverageWithdrawSummary(
   return summary;
 }
 
-export function useTradeSummary(state: VaultTradeState | TradeState) {
+export function useTradeSummary() {
   const intl = useIntl();
   const theme = useTheme();
   const trade = useCurrentTradeContext();
   const priorVaultBalances = trade?.getPriorVaultBalances();
-  const {
-    depositBalance: _d,
-    netAssetBalance,
-    netDebtBalance,
-    debtBalance,
-    collateralBalance,
-    collateralFee,
-    debtFee,
-    deposit,
-    tradeType,
-    inputsSatisfied,
-    calculationSuccess,
-  } = state;
-  const depositBalance = _d;
-  const { totalAPY } = useTotalAPY(state);
+  const { netAssetBalance, netDebtBalance } = trade?.getNetBalances() || {};
+  const { deposit, collateral } = trade?.selectedTokens || {};
+  const depositBalance = trade?.depositBalance;
+  const debtBalance = trade?.debtBalance;
+  const collateralBalance = trade?.collateralBalance;
+  const collateralFee = trade?.collateralFee;
+  const debtFee = trade?.debtFee;
+  const tradeType = trade?.tradeType;
+  const inputsSatisfied = trade?.inputsSatisfied;
+  const calculationSuccess = trade?.calculationSuccess;
+  const netRealizedCollateralBalance = trade?.netRealizedCollateralBalance;
+  const netRealizedDebtBalance = trade?.netRealizedDebtBalance;
+  const totalAPY = trade?.getAPYFactors()?.totalAPY;
 
   const underlying =
     netAssetBalance?.underlying ||
@@ -816,7 +847,18 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
 
   let summary: DetailItem[] = [];
   if (tradeType === 'StakeNOTE' || tradeType === 'StakeNOTERedeem') {
-    summary.push(...getStakeNOTESummary(state, intl));
+    summary.push(
+      ...getStakeNOTESummary(
+        {
+          tradeType,
+          collateralBalance,
+          depositBalance,
+          secondaryDepositBalance: trade?.secondaryDepositBalance,
+          ethRedeem: trade?.ethRedeem,
+        },
+        intl
+      )
+    );
   } else if (
     isLeverageOrRoll &&
     (depositBalance?.isPositive() ||
@@ -826,7 +868,21 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
         debtBalance.tokenType !== 'nToken') ||
       (tradeType === 'AdjustVaultLeverage' && debtBalance.isNegative()))
   ) {
-    summary.push(...getLeverageSummary(state, intl, priorVaultBalances));
+    summary.push(
+      ...getLeverageSummary(
+        {
+          depositBalance,
+          collateralBalance,
+          debtBalance,
+          netRealizedCollateralBalance,
+          netRealizedDebtBalance,
+          debtFee: trade?.debtFee,
+          tradeType,
+        },
+        intl,
+        priorVaultBalances
+      )
+    );
   } else if (
     isLeverageOrRoll &&
     (tradeType === 'WithdrawVault' ||
@@ -836,16 +892,59 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
         debtBalance.tokenType === 'nToken') ||
       (tradeType === 'AdjustVaultLeverage' && debtBalance.isPositive()))
   ) {
-    summary.push(...getDeleverageWithdrawSummary(state, intl));
+    summary.push(
+      ...getDeleverageWithdrawSummary(
+        {
+          collateralBalance,
+          debtBalance,
+          netRealizedCollateralBalance,
+          netRealizedDebtBalance,
+          depositBalance,
+          tradeType,
+          maxWithdraw: trade?.maxWithdraw,
+        },
+        intl
+      )
+    );
   } else if (
     isLeverageOrRoll &&
     (tradeType === 'RollDebt' || tradeType === 'ConvertAsset')
   ) {
-    summary.push(...getRollDebtOrConvertAssetSummary(state, intl));
+    summary.push(
+      ...getRollDebtOrConvertAssetSummary(
+        {
+          collateralBalance,
+          debtBalance,
+          netRealizedCollateralBalance,
+          netRealizedDebtBalance,
+          tradeType,
+        },
+        intl
+      )
+    );
   } else if (depositBalance?.isPositive()) {
-    summary.push(...getDepositSummary(state, intl));
+    summary.push(
+      ...getDepositSummary(
+        {
+          netAssetBalance,
+          netRealizedCollateralBalance,
+          tradeType,
+        },
+        intl
+      )
+    );
   } else if (depositBalance?.isNegative()) {
-    summary.push(...getWithdrawSummary(state, intl));
+    summary.push(
+      ...getWithdrawSummary(
+        {
+          netDebtBalance,
+          netAssetBalance,
+          netRealizedDebtBalance,
+          tradeType,
+        },
+        intl
+      )
+    );
   } else {
     return { summary: undefined, total: undefined };
   }
@@ -963,5 +1062,5 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     summary.push(earningsRow);
   }
 
-  return { summary, earnings, totalAtMaturity };
+  return { summary, earnings, totalAtMaturity, tradeType, collateral };
 }

@@ -4,19 +4,15 @@ import {
   MultiValueCell,
   ToolTipCell,
 } from '@notional-finance/mui';
-import { BaseTradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useTradeSummary } from '@notional-finance/notionable-hooks';
 import TotalEarnings from './total-at-maturity';
 import { Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
+import { observer } from 'mobx-react-lite';
 
-export const TradeSummary = ({
-  state,
-}: {
-  state: BaseTradeState | VaultTradeState;
-}) => {
-  const { tradeType, collateral } = state;
-  const { summary, earnings, totalAtMaturity } = useTradeSummary(state);
+export const TradeSummary = observer(() => {
+  const { summary, earnings, totalAtMaturity, tradeType, collateral } =
+    useTradeSummary();
 
   return (
     <Box>
@@ -61,4 +57,4 @@ export const TradeSummary = ({
       />
     </Box>
   );
-};
+});
