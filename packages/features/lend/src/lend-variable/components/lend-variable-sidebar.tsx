@@ -15,7 +15,8 @@ export const LendVariableSidebar = () => {
   const theme = useTheme();
   const context = useContext(LendVariableContext);
   const { currencyInputRef } = useCurrencyInputRef();
-  const { selectedNetwork, selectedDepositToken } = context.state;
+  const selectedDepositToken = context.tradeModel?.selectedDepositToken;
+  const selectedNetwork = context.tradeModel?.selectedNetwork;
 
   return (
     <Box>
@@ -29,8 +30,8 @@ export const LendVariableSidebar = () => {
         showDrawer
         NetworkSelector={
           <TransactionNetworkSelector
-            product={PRODUCTS.LEND_VARIABLE}
             context={context}
+            product={PRODUCTS.LEND_VARIABLE}
           />
         }
         mobileTopMargin={theme.spacing(16)}
@@ -39,7 +40,6 @@ export const LendVariableSidebar = () => {
           showScrollPopper
           ref={currencyInputRef}
           inputRef={currencyInputRef}
-          context={context}
           newRoute={(newToken) =>
             `/${PRODUCTS.LEND_VARIABLE}/${selectedNetwork}/${newToken}`
           }

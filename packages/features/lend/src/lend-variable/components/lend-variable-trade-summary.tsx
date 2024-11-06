@@ -31,7 +31,7 @@ export const LendVariableTradeSummary = () => {
     selectedDepositToken,
     selectedNetwork
   );
-  const totalsData = useVariableTotals(state);
+  const totalsData = useVariableTotals();
   const { data: tvlData } = useChartData(collateral, ChartType.PRICE);
   const { data: apyData } = useChartData(collateral, ChartType.APY);
   const {

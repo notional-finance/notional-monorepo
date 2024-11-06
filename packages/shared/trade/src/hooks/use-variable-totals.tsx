@@ -1,8 +1,8 @@
-import { TradeState } from '@notional-finance/notionable';
 import {
   useAppStore,
   useCurrentNetworkStore,
   useChartData,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import {
   ChartType,
@@ -26,12 +26,14 @@ const getSevenDayAvgApy = (apyData: TimeSeriesDataPoint[]) => {
   return averageApy;
 };
 
-export const useVariableTotals = (state: TradeState) => {
+export const useVariableTotals = () => {
   const theme = useTheme();
-  const { deposit } = state;
-  const isBorrow = state.tradeType === 'BorrowVariable';
   const { baseCurrency } = useAppStore();
-  const { data: apyData } = useChartData(state.debt, ChartType.APY);
+  const tradeContext = useCurrentTradeContext();
+  const { deposit, debt } = tradeContext?.selectedTokens ?? {};
+  const isBorrow = tradeContext?.tradeType === 'BorrowVariable';
+
+  const { data: apyData } = useChartData(debt, ChartType.APY);
   const currentNetworkStore = useCurrentNetworkStore();
   const totalsData = currentNetworkStore.getPrimeCashTotalsData(deposit);
 
