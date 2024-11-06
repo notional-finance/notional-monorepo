@@ -12,37 +12,29 @@ import {
 import { VaultActionContext } from '../vault';
 import { getVaultType } from '@notional-finance/core-entities';
 import { TradeActionSummary } from '@notional-finance/trade';
-import { useVaultExistingFactors, useVaultFaq } from '../hooks';
-import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
+import { useVaultFaq } from '../hooks';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { selectedNetwork, collateral, deposit, vaultAddress } = state;
-  const { vaultShare, priorBorrowRate, leverageRatio } =
-    useVaultExistingFactors();
+  const { selectedNetwork, deposit, vaultAddress } = state;
   const vaultType =
     vaultAddress && selectedNetwork
       ? getVaultType(vaultAddress, selectedNetwork)
       : undefined;
-  const currentNetworkStore = useCurrentNetworkStore();
-  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
 
-  const nonLeveragedYield = nonLeveragedYields.find(
-    (y) => y.token.id === collateral?.id
-  );
-  const points = nonLeveragedYield?.apy.pointMultiples;
+  const hasPoints = vaultType === 'SingleSidedLP_Points';
 
   const { faqHeaderLinks, faqs } = useVaultFaq(
     selectedNetwork,
     deposit?.symbol,
-    points,
+    hasPoints,
     vaultType
   );
 
   return (
     <Box>
-      {points && <VaultModal />}
+      {hasPoints && <VaultModal />}
       <Box
         sx={{
           zIndex: 10,
@@ -72,14 +64,7 @@ export const VaultSummary = () => {
             justifyContent: 'center',
           }}
         >
-          <TradeActionSummary
-            state={state}
-            priorVaultFactors={{
-              vaultShare,
-              vaultBorrowRate: priorBorrowRate,
-              leverageRatio,
-            }}
-          >
+          <TradeActionSummary>
             <VaultPerformanceChart />
             <VaultTotalRow />
             <VaultReinvestmentHistory />

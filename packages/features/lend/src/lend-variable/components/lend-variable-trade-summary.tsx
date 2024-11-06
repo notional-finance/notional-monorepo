@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { trackEvent } from '@notional-finance/helpers';
@@ -22,12 +21,11 @@ import {
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { ChartType } from '@notional-finance/core-entities';
-import { LendVariableContext } from '../lend-variable';
+import { observer } from 'mobx-react-lite';
 
-export const LendVariableTradeSummary = () => {
+export const LendVariableTradeSummary = observer(() => {
   const theme = useTheme();
   const { pathname } = useLocation();
-  const context = useContext(LendVariableContext);
   const trade = useCurrentTradeContext();
   const selectedNetwork = trade?.selectedNetwork;
   const { collateral, deposit } = trade?.selectedTokens ?? {};
@@ -48,7 +46,7 @@ export const LendVariableTradeSummary = () => {
   } = useInterestRateUtilizationChart(deposit, 'lend');
 
   return (
-    <TradeActionSummary state={context.state}>
+    <TradeActionSummary>
       <MultiDisplayChart
         chartComponents={[
           {
@@ -157,6 +155,6 @@ export const LendVariableTradeSummary = () => {
       )}
     </TradeActionSummary>
   );
-};
+});
 
 export default LendVariableTradeSummary;

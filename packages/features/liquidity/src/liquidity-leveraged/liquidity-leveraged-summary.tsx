@@ -21,17 +21,13 @@ export const LiquidityLeveragedSummary = () => {
   const state = useSummaryState();
   const { pathname } = useLocation();
   const { baseCurrency } = useAppStore();
-  const { selectedDepositToken, collateralBalance } = state;
+  const { selectedDepositToken } = state;
   const tokenSymbol = selectedDepositToken || '';
-  const { totalsData, liquidityYieldData } = useTotalsData(
-    state,
-    baseCurrency,
-    collateralBalance
-  );
+  const { totalsData } = useTotalsData(state, baseCurrency);
   const { faqs, faqHeaderLinks } = useLeveragedLiquidityFaq(tokenSymbol);
 
   return (
-    <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
+    <TradeActionSummary>
       <PerformanceChart state={state} />
       <TotalRow totalsData={totalsData} />
       <LeveragedLiquidityLiquidationChart state={state} />

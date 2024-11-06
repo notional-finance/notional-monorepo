@@ -38,7 +38,7 @@ const LendFixedTradeSummary = () => {
   const multiChartData = useLendFixedMultiChart();
 
   return (
-    <TradeActionSummary state={state}>
+    <TradeActionSummary>
       <MultiDisplayChart chartComponents={multiChartData} />
       <Box
         sx={{

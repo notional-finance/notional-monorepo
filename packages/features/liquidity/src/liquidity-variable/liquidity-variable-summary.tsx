@@ -37,15 +37,10 @@ const LiquidityVariableSummary = () => {
   const { pathname } = useLocation();
   const { state } = useContext(LiquidityContext);
   const { baseCurrency } = useAppStore();
-  const { selectedDepositToken, collateral, collateralBalance, deposit } =
-    state;
+  const { selectedDepositToken, collateral, deposit } = state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
-  const { totalsData, liquidityYieldData } = useTotalsData(
-    deposit,
-    baseCurrency,
-    collateralBalance
-  );
+  const { totalsData } = useTotalsData(deposit, baseCurrency);
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable(baseCurrency);
   const { poolTableColumns, poolTableData } = useLiquidityPoolsTable();
@@ -54,7 +49,7 @@ const LiquidityVariableSummary = () => {
   const priceData = useAssetPriceHistory(collateral);
 
   return (
-    <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
+    <TradeActionSummary>
       <MultiDisplayChart
         chartComponents={[
           {
