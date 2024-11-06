@@ -5,13 +5,14 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { LendVariableSidebar, LendVariableTradeSummary } from './components';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { observer } from 'mobx-react-lite';
 
 export const LendVariableContext = createTradeContext('LendVariable');
 
-export const LendVariable = () => {
+export const LendVariable = observer(() => {
   const context = useTradeContext('LendVariable');
-  const { state } = context;
-  const { isReady, confirm } = state;
+  const isReady = context.tradeModel?.isReady || false;
+  const confirm = context.tradeModel?.confirm || false;
 
   return (
     <LendVariableContext.Provider value={context}>
@@ -24,6 +25,6 @@ export const LendVariable = () => {
       </FeatureLoader>
     </LendVariableContext.Provider>
   );
-};
+});
 
 export default LendVariable;
