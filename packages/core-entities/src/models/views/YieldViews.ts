@@ -20,7 +20,9 @@ import { ExchangeViews } from './ExchangeViews';
 export interface APYData {
   totalAPY?: number;
   organicAPY?: number;
+  assetAPY?: number;
   feeAPY?: number;
+  apySpread?: number;
   incentiveAPY?: number;
   incentives?: {
     symbol: string;
@@ -50,6 +52,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getPrimeCash,
     getPrimeDebt,
     getUnderlying,
+    getNToken,
     getDebtTokens,
     getVaultShares,
     getTokensByType,
@@ -356,7 +359,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         netAmount,
         netPrimeDebt
       );
-      // TODO: maybe add it to the oracle views and add this to the organicAPY
+      // FIXME: maybe add it to the oracle views and add this to the organicAPY
       apyData.feeAPY = 0;
 
       const simulatedTVL = getTVL(netAmount.token).add(
@@ -381,9 +384,13 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     collateralAmount: TokenBalance,
     debtAmount: TokenBalance,
     leverageRatio: number
-  ) => {
+  ): APYData => {
     const collateralAPY = getSimulatedAPY(collateralAmount);
     const debtAPY = getSimulatedAPY(debtAmount);
+    const apySpread =
+      collateralAPY.totalAPY !== undefined && debtAPY.totalAPY !== undefined
+        ? collateralAPY.totalAPY - debtAPY.totalAPY
+        : undefined;
 
     return {
       totalAPY: leveragedYield(
@@ -391,6 +398,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         debtAPY.totalAPY,
         leverageRatio
       ),
+      assetAPY: collateralAPY.totalAPY,
+      apySpread,
       organicAPY: leveragedYield(
         (collateralAPY.organicAPY || 0) + (collateralAPY.feeAPY || 0),
         debtAPY.totalAPY,
@@ -398,7 +407,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       ),
       incentives: collateralAPY.incentives?.map(({ symbol, incentiveAPY }) => ({
         symbol,
-        incentiveAPY: leveragedYield(incentiveAPY, 0, leverageRatio),
+        incentiveAPY: leveragedYield(incentiveAPY, 0, leverageRatio) || 0,
       })),
       leverageRatio,
       debtAPY: debtAPY.totalAPY,
@@ -567,24 +576,13 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     };
   };
 
-  const getNTokenTotalsData = (
-    deposit: TokenDefinition | undefined,
-    nTokenAmount: TokenBalance | undefined,
-    isLeveraged: boolean
-  ) => {
+  const getNTokenTotalsData = (deposit: TokenDefinition | undefined) => {
     if (!deposit) return undefined;
+    const nToken = getNToken(deposit?.currencyId);
+    const spotAPY = getSpotAPY(nToken?.id);
+    const tvl = getTVL(nToken);
 
-    const liquidity = isLeveraged
-      ? getAllLeveragedNTokenYields()
-      : getAllNTokenYields();
-    const allLiquidityYieldData = liquidity.find(
-      (data) => data?.underlying?.id === deposit?.id
-    );
-    const liquidityYieldData = nTokenAmount
-      ? getSimulatedAPY(nTokenAmount)
-      : allLiquidityYieldData?.apy;
-
-    const totalIncentives = liquidityYieldData?.incentives?.reduce(
+    const totalIncentives = spotAPY?.incentives?.reduce(
       (acc, curr) => acc + curr.incentiveAPY,
       0
     );
@@ -596,9 +594,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
 
     return {
       capacityRemaining,
-      liquidityYieldData: liquidityYieldData,
-      totalIncentives: totalIncentives ? totalIncentives : undefined,
-      tvl: allLiquidityYieldData?.tvl ? allLiquidityYieldData?.tvl : undefined,
+      totalIncentives,
+      tvl,
     };
   };
 

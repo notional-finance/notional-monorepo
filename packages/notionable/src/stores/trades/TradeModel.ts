@@ -1,4 +1,5 @@
 import {
+  APYData,
   fCashMarket,
   NotionalTypes,
   PendlePT,
@@ -1074,6 +1075,72 @@ export const TradeModel = types
       }
     };
 
+    const getAPYFactors = () => {
+      const model = root().getNetworkClient(self.selectedNetwork);
+      const isSwapped = isDeleverageWithSwappedTokens({
+        tradeType: self.tradeType,
+        collateral: self.collateral as TokenDefinition | undefined,
+      });
+
+      if (self.vaultAddress) {
+        const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
+        const totalAPY = postVaultRisk?.totalAPY || priorVaultRisk?.totalAPY;
+        const leverageRatio =
+          postVaultRisk?.leverageRatio() || priorVaultRisk?.leverageRatio();
+        const assetAPY =
+          postVaultRisk?.strategyAPY || priorVaultRisk?.strategyAPY;
+        const debtAPY = postVaultRisk?.borrowAPY || priorVaultRisk?.borrowAPY;
+        const vaultShareId =
+          self.collateral?.id || priorVaultRisk?.vaultShares?.tokenId;
+        const apy = vaultShareId ? model.getSpotAPY(vaultShareId) : undefined;
+        const apySpread =
+          assetAPY !== undefined && debtAPY !== undefined
+            ? assetAPY - debtAPY
+            : undefined;
+
+        return {
+          totalAPY,
+          leverageRatio,
+          debtAPY,
+          assetAPY,
+          apySpread,
+          organicAPY: leveragedYield(apy?.organicAPY, debtAPY, leverageRatio),
+          incentiveAPY: leveragedYield(
+            apy?.incentiveAPY,
+            debtAPY,
+            leverageRatio
+          ),
+        } as APYData;
+      } else if (isLeveragedTrade(self.tradeType) || isSwapped) {
+        if (self.collateral && self.debt && self.leverageRatio) {
+          // If all inputs are available then we can calculate the leveraged APY
+          const collateralBalance =
+            self.collateralBalance ||
+            TokenBalance.zero(self.collateral as TokenDefinition);
+          const debtBalance =
+            self.debtBalance || TokenBalance.zero(self.debt as TokenDefinition);
+          return model.getLeveragedAPY(
+            isSwapped ? debtBalance : collateralBalance,
+            isSwapped ? collateralBalance : debtBalance,
+            self.leverageRatio
+          );
+        } else {
+          // The collateral and debt should always be defined for leveraged trades
+          return undefined;
+        }
+      } else if (self.collateralBalance) {
+        return model.getSimulatedAPY(self.collateralBalance);
+      } else if (self.debtBalance) {
+        return model.getSimulatedAPY(self.debtBalance);
+      } else if (self.collateral) {
+        return model.getSpotAPY(self.collateral.id);
+      } else if (self.debt) {
+        return model.getSpotAPY(self.debt.id);
+      } else {
+        return undefined;
+      }
+    };
+
     return {
       get actions() {
         return {
@@ -1111,6 +1178,7 @@ export const TradeModel = types
           debt: self.debtOptions as TokenOption[] | undefined,
         };
       },
+      getAPYFactors,
       getRiskSummary,
       getVaultRiskSummary,
       getTradeLiquidationPrices,

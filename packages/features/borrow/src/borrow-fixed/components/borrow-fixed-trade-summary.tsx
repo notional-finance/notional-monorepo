@@ -35,7 +35,7 @@ const BorrowFixedTradeSummary = () => {
   const totalsData = useTotalsData(deposit, debt, baseCurrency);
 
   return (
-    <TradeActionSummary state={state}>
+    <TradeActionSummary>
       <MultiDisplayChart chartComponents={multiChartData} />
       <Box
         sx={{

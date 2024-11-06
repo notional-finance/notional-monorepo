@@ -37,7 +37,7 @@ export const BorrowVariableTradeSummary = () => {
   const { data: apyData } = useChartData(debt, ChartType.APY);
 
   return (
-    <TradeActionSummary state={state}>
+    <TradeActionSummary>
       <MultiDisplayChart
         chartComponents={[
           {

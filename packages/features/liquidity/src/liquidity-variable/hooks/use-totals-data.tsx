@@ -1,7 +1,6 @@
 import {
   FiatKeys,
   FiatSymbols,
-  TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { InfoTooltip } from '@notional-finance/mui';
@@ -12,16 +11,11 @@ import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const useTotalsData = (
   deposit: TokenDefinition | undefined,
-  baseCurrency: FiatKeys,
-  nTokenAmount?: TokenBalance
+  baseCurrency: FiatKeys
 ) => {
   const theme = useTheme();
   const currentNetworkStore = useCurrentNetworkStore();
-  const nTokenTotalsData = currentNetworkStore.getNTokenTotalsData(
-    deposit,
-    nTokenAmount,
-    false
-  );
+  const nTokenTotalsData = currentNetworkStore.getNTokenTotalsData(deposit);
 
   const ToolTip = ({ sx }: { sx: SxProps }) => {
     return (
@@ -63,7 +57,6 @@ export const useTotalsData = (
         decimals: 0,
       },
     ],
-    liquidityYieldData: nTokenTotalsData?.liquidityYieldData,
   };
 };
 

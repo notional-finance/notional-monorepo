@@ -1,5 +1,3 @@
-import { useContext } from 'react';
-import { NOTEContext } from './index';
 import { Box, useTheme } from '@mui/material';
 import { TradeActionSummary } from '@notional-finance/trade';
 import {
@@ -32,7 +30,6 @@ const StakeNOTESummary = ({
   stakedNoteData: StakedNoteData | undefined;
 }) => {
   const theme = useTheme();
-  const { state } = useContext(NOTEContext);
   const { pathname } = useLocation();
   const { faqs, faqHeaderLinks } = useStakingFaq();
   const { baseCurrency } = useAppStore();
@@ -68,7 +65,7 @@ const StakeNOTESummary = ({
   ];
 
   return (
-    <TradeActionSummary state={state} stakedNOTEApy={currentSNOTEYield}>
+    <TradeActionSummary stakedNOTEApy={currentSNOTEYield}>
       <MultiDisplayChart
         chartComponents={[
           {

@@ -21,7 +21,7 @@ interface FaqProps {
 export const useVaultFaq = (
   selectedNetwork: Network | undefined,
   tokenSymbol: string | undefined,
-  points: Record<string, number> | undefined,
+  hasPoints: boolean,
   currentVaultType?: VaultType | undefined
 ) => {
   const faqHeaderLinks = [
@@ -220,7 +220,7 @@ export const useVaultFaq = (
             description={'faq question'}
           />
         ),
-        answer: points ? (
+        answer: hasPoints ? (
           <FormattedMessage
             defaultMessage={`Profits from incentive token reinvestments are paid in the same token you deposit and are claimable on Notional. Profits that come from points are distributed directly to you by the partner protocol per the terms of their points program. Points profits are not claimable on Notional.`}
           />
@@ -237,7 +237,7 @@ export const useVaultFaq = (
             description={'faq question'}
           />
         ),
-        answer: points ? (
+        answer: hasPoints ? (
           <FormattedMessage
             defaultMessage={`Rewards are reinvested weekly on Mainnet and daily on L2s. Any profits from points are not reinvested - points are only claimable by you directly from partner protocols.`}
           />

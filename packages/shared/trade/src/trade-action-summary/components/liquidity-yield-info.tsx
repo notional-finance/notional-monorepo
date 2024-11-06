@@ -13,8 +13,7 @@ export const LiquidityYieldInfo = ({
 }) => {
   const theme = useTheme();
   const { pathname } = useLocation();
-  const organicAPY =
-    (liquidityYieldData.feeAPY || 0) + (liquidityYieldData.organicAPY || 0);
+  const organicAPY = liquidityYieldData.organicAPY;
   return (
     <Box display="inline-flex" sx={{ marginTop: theme.spacing(1) }}>
       <H4>
