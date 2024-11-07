@@ -441,53 +441,41 @@ const DateType = types.custom<string, Date>({
 
 export const AnalyticsModel = types.model('Analytics', {
   noteSupply: types.maybe(
-    types.model({
-      result: types.model({
-        rows: types.array(
-          types.model({
-            address: types.union(
-              types.literal('Burned'),
-              types.literal('Circulating Supply'),
-              types.literal('Non-Circulating')
-            ),
-            balance: types.number,
-            day: DateType, // Changed from types.string to DateType
-          })
+    types.array(
+      types.model({
+        address: types.union(
+          types.literal('Burned'),
+          types.literal('Circulating Supply'),
+          types.literal('Non-Circulating')
         ),
-      }),
-    })
+        balance: types.number,
+        day: DateType, // Changed from types.string to DateType
+      })
+    )
   ),
   sNOTEData: types.maybe(
-    types.model({
-      result: types.model({
-        rows: types.array(
-          types.model({
-            day: DateType, // Changed from types.string to DateType
-            total_pool_value: types.number,
-            snote_supply: types.number,
-            price: types.number,
-            apy: types.number,
-          })
-        ),
-      }),
-    })
+    types.array(
+      types.model({
+        day: DateType, // Changed from types.string to DateType
+        total_pool_value: types.maybeNull(types.number),
+        snote_supply: types.maybeNull(types.number),
+        price: types.maybeNull(types.number),
+        apy: types.maybeNull(types.number),
+      })
+    )
   ),
   sNOTEReinvestment: types.maybe(
-    types.model({
-      result: types.model({
-        rows: types.array(
-          types.model({
-            day: types.string,
-            evt_block_time: types.string,
-            bpts_per_snote: types.number,
-            eth_reinvestment: types.number,
-            note_reinvestment: types.number,
-            transaction_hash: types.string,
-            apy: types.number,
-          })
-        ),
-      }),
-    })
+    types.array(
+      types.model({
+        day: types.string,
+        evt_block_time: types.string,
+        bpts_per_snote: types.number,
+        eth_reinvestment: types.number,
+        note_reinvestment: types.number,
+        transaction_hash: types.string,
+        apy: types.number,
+      })
+    )
   ),
   pointPrices: types.maybe(
     types.array(

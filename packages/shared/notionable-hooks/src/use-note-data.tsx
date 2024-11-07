@@ -11,10 +11,10 @@ export type NoteSupplyData = {
 
 export type StakedNoteData = {
   day: Date;
-  total_pool_value: number;
-  snote_supply: number;
-  price: number;
-  apy: number;
+  total_pool_value: number | null;
+  snote_supply: number | null;
+  price: number | null;
+  apy: number | null;
 }[];
 
 export function useNoteSupplyData() {

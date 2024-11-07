@@ -36,7 +36,7 @@ export function usePortfolioSNOTETable() {
 
   if (snoteBalance && stakedNoteData) {
     const currentSNOTEYield = formatNumberAsPercentWithUndefined(
-      lastValue(stakedNoteData)?.apy,
+      lastValue(stakedNoteData)?.apy || undefined,
       '-',
       2
     );

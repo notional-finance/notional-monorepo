@@ -21,13 +21,13 @@ export function useStakedNote(
   const sNOTEData =
     stakedNoteData?.filter(({ day }) => minDate < day.getTime() / 1000) || [];
   const historicalSNOTEPrice: [Date, number][] = sNOTEData.map(
-    ({ day, price }) => [day, price]
+    ({ day, price }) => [day, price || 0]
   );
   const historicalSNOTEAPY: [Date, number][] = sNOTEData.map(({ day, apy }) => [
     day,
-    apy,
+    apy || 0,
   ]);
-  const currentSNOTEYield = lastValue(sNOTEData)?.apy;
+  const currentSNOTEYield = lastValue(sNOTEData)?.apy || undefined;
   const sNOTEPool = useSNOTEPool();
 
   const currentSNOTEPrice = sNOTEPool?.getCurrentSNOTEPrice();
