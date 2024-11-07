@@ -366,7 +366,10 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               };
             },
           };
-        } else if (oracle.oracleType === 'sNOTEToETHExchangeRate') {
+        } else if (
+          oracle.oracleType === 'sNOTEToETHExchangeRate' ||
+          oracle.oracleType === 'sNOTE'
+        ) {
           return {
             key: id,
             target: new Contract(
