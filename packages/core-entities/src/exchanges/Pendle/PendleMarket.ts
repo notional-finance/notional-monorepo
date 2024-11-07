@@ -184,12 +184,11 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   public convertAssetToSy(assetAmount: TokenBalance) {
-    const syToken = Registry.getTokenRegistry().getTokenByID(
-      this._network,
+    const syToken = getNetworkModel(this._network).getTokenByID(
       this.poolParams.tokens.SY
     );
 
-    return TokenBalance.fromID(
+    return new TokenBalance(
       assetAmount
         .scale(SCALAR_PRECISION, this.poolParams.syToAssetExchangeRate)
         .scaleTo(syToken.decimals),
@@ -199,12 +198,11 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   public convertSyToAsset(syAmount: TokenBalance) {
-    const assetToken = Registry.getTokenRegistry().getTokenByID(
-      this._network,
+    const assetToken = getNetworkModel(this._network).getTokenByID(
       this.poolParams.assetTokenId
     );
 
-    return TokenBalance.fromID(
+    return new TokenBalance(
       syAmount
         .scale(this.poolParams.syToAssetExchangeRate, SCALAR_PRECISION)
         .scaleTo(assetToken.decimals),
