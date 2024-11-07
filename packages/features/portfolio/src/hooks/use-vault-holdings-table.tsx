@@ -207,12 +207,13 @@ function getSpecificVaultInfo(
               }}
               href={pointsLink}
             >
-              {Object.keys(points)
+              {Array.from(points.keys())
                 .map(
                   (k) =>
-                    `${pointsMultiple(points[k], v.leverageRatio || 0).toFixed(
-                      2
-                    )}x ${k}`
+                    `${pointsMultiple(
+                      points.get(k) || 0,
+                      v.leverageRatio || 0
+                    ).toFixed(2)}x ${k}`
                 )
                 .join(', ')}
             </LinkText>
@@ -223,7 +224,7 @@ function getSpecificVaultInfo(
       buttonBarData: [],
       warning: 'pointsWarning',
     };
-  } else if (v.vaultMetadata.rewardClaims) {
+  } else if (v.vaultMetadata.rewardClaims.length > 0) {
     // Reward Claiming Vaults
     return {
       subRowInfo: [
