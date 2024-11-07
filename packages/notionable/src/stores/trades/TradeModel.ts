@@ -670,6 +670,32 @@ export const TradeModel = types
       self.netRealizedDebtBalance = undefined;
     };
 
+    const setCollateralByID = (id: string | undefined) => {
+      self.collateral = id
+        ? self.availableCollateralTokens?.find((t) => t.id === id)
+        : undefined;
+      calculate();
+    };
+
+    const setDebtByID = (id: string | undefined) => {
+      self.debt = id
+        ? self.availableDebtTokens?.find((t) => t.id === id)
+        : undefined;
+      calculate();
+    };
+
+    const setVaultDebtByID = (id: string | undefined) => {
+      self.debt = id
+        ? self.availableDebtTokens?.find((t) => t.id === id)
+        : undefined;
+      self.collateral = id
+        ? self.availableCollateralTokens?.find(
+            (t) => t.maturity === self.debt?.maturity
+          )
+        : undefined;
+      calculate();
+    };
+
     return {
       afterAttach,
       setHasInputErrors,
@@ -677,6 +703,9 @@ export const TradeModel = types
       setConfirm,
       buildTransaction,
       clearTradeState,
+      setCollateralByID,
+      setDebtByID,
+      setVaultDebtByID,
     };
   })
   .views((self) => {

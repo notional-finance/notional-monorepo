@@ -11,17 +11,14 @@ import { ChartType } from '@notional-finance/core-entities';
 
 export const useLendFixedMultiChart = () => {
   const context = useContext(LendFixedContext);
-  const {
-    state: { deposit },
-  } = context;
+  const { deposit } = context.tradeModel?.selectedTokens ?? {};
   const { areaChartData, apyToolTipData } =
     useInteractiveMaturityChart(deposit);
-  const { selectedfCashId, onSelect } = useMaturitySelect(
-    'Collateral',
-    context
-  );
+  const { selectedfCashId, onSelect } = useMaturitySelect('Collateral');
   const currentNetworkStore = useCurrentNetworkStore();
-  const nToken = currentNetworkStore.getNToken(deposit?.currencyId);
+  const nToken = deposit
+    ? currentNetworkStore.getNToken(deposit?.currencyId)
+    : undefined;
   const { data: tvlData } = useChartData(nToken, ChartType.PRICE);
 
   return [

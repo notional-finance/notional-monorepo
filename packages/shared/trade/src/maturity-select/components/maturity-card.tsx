@@ -2,11 +2,10 @@ import { FormattedMessage } from 'react-intl';
 import { Box, useTheme } from '@mui/material';
 import { LabelValue, BodySecondary, CountUp } from '@notional-finance/mui';
 import { formatMaturity } from '@notional-finance/util';
-import { MaturityData } from '@notional-finance/notionable-hooks';
+import { TokenOption } from '@notional-finance/notionable';
 
-/* eslint-disable-next-line */
 export interface MaturityCardProps {
-  maturityData: MaturityData;
+  maturityData: TokenOption;
   onSelect: (marketKey?: string) => void;
   selected: boolean;
   isFirstChild: boolean;
@@ -23,11 +22,11 @@ export function MaturityCard({
   isVariable,
 }: MaturityCardProps) {
   const theme = useTheme();
-  const { tradeRate, maturity, tokenId } = maturityData;
-  const disabled = tradeRate === undefined;
+  const { interestRate, token } = maturityData;
+  const disabled = interestRate === undefined;
 
   const handleSelect = () => {
-    if (!disabled) onSelect(tokenId);
+    if (!disabled) onSelect(token.id);
   };
 
   const getBackgroundColor = () => {
@@ -76,16 +75,16 @@ export function MaturityCard({
       }}
     >
       <BodySecondary accent={selected} gutter="tight">
-        {isVariable ? (
+        {token.maturity === undefined ? (
           <FormattedMessage defaultMessage={'Current Rate'} />
         ) : (
-          formatMaturity(maturity)
+          formatMaturity(token.maturity)
         )}
       </BodySecondary>
       <LabelValue fontWeight="regular">
-        {tradeRate === undefined && '--'}
-        {tradeRate !== undefined && (
-          <CountUp value={tradeRate} suffix="%" duration={1} />
+        {interestRate === undefined && '--'}
+        {interestRate !== undefined && (
+          <CountUp value={interestRate} suffix="%" duration={1} />
         )}
       </LabelValue>
     </Box>
