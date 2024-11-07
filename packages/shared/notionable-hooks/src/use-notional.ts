@@ -7,6 +7,7 @@ import { Network } from '@notional-finance/util';
 import { isAppReady } from '@notional-finance/notionable';
 import { useAppStore, useCurrentNetworkStore } from './context/use-root-store';
 import { getNetworkModel } from '@notional-finance/core-entities';
+import { useObserver } from 'mobx-react-lite';
 
 export function useAppReady() {
   const {
@@ -61,9 +62,9 @@ export function useNotionalContext() {
 }
 
 export function useNOTE(network: Network | undefined) {
-  return network
-    ? getNetworkModel(network).getTokenBySymbol('NOTE')
-    : undefined;
+  return useObserver(() =>
+    network ? getNetworkModel(network).getTokenBySymbol('NOTE') : undefined
+  );
 }
 
 export function useNotionalError() {
