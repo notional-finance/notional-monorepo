@@ -8,7 +8,6 @@ export * from './leverage-slider/leverage-slider';
 export * from './leverage-terms/leverage-terms';
 export * from './deposit-input/deposit-input';
 export * from './maturity-select/maturity-select';
-export * from './maturity-select/variable-fixed-maturity-toggle';
 export * from './maturity-select/use-maturity-select';
 export * from './maturity-select/components/maturities';
 export * from './maturity-select/components/maturity-card';

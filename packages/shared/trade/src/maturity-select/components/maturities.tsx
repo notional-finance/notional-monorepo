@@ -1,11 +1,11 @@
 import { Box, useTheme } from '@mui/material';
 import { MessageDescriptor } from 'react-intl';
-import { MaturityData } from '@notional-finance/notionable-hooks';
 import { InputLabel } from '@notional-finance/mui';
 import MaturityCard from './maturity-card';
+import { TokenOption } from '@notional-finance/notionable';
 
 export interface MaturitiesProps {
-  maturityData: MaturityData[];
+  maturityData: TokenOption[];
   defaultfCashId: string;
   selectedfCashId: string | undefined;
   onSelect: (selectedId: string | undefined) => void;
@@ -29,7 +29,7 @@ export function Maturities({
               key={`maturity-${index}`}
               maturityData={data}
               selected={
-                selectedfCashId && selectedfCashId === data?.tokenId
+                selectedfCashId && selectedfCashId === data?.token.id
                   ? true
                   : false
               }

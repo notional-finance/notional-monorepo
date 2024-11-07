@@ -17,9 +17,8 @@ export const BorrowFixedSidebar = () => {
   const theme = useTheme();
   const { currencyInputRef } = useCurrencyInputRef();
   const context = useContext(BorrowFixedContext);
-  const {
-    state: { selectedDepositToken, selectedNetwork },
-  } = context;
+  const selectedDepositToken = context.tradeModel?.selectedDepositToken;
+  const selectedNetwork = context.tradeModel?.selectedNetwork;
   const cashBalance = usePrimeCashBalance(
     selectedDepositToken,
     selectedNetwork
@@ -57,7 +56,6 @@ export const BorrowFixedSidebar = () => {
           })}
         />
         <MaturitySelect
-          context={context}
           category={'Debt'}
           inputLabel={defineMessage({
             defaultMessage: 'Select a maturity & fix your rate',

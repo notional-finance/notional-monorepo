@@ -10,9 +10,8 @@ import { FeatureLoader } from '@notional-finance/shared-web';
 export const LendFixedContext = createTradeContext('LendFixed');
 export const LendFixed = () => {
   const context = useTradeContext('LendFixed');
-  const {
-    state: { isReady, confirm },
-  } = context;
+  const isReady = context.tradeModel?.isReady;
+  const confirm = context.tradeModel?.confirm;
 
   return (
     <LendFixedContext.Provider value={context}>

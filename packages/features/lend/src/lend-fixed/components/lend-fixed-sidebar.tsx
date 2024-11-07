@@ -16,7 +16,8 @@ export const LendFixedSidebar = () => {
   const theme = useTheme();
   const context = useContext(LendFixedContext);
   const { currencyInputRef } = useCurrencyInputRef();
-  const { selectedNetwork, selectedDepositToken } = context.state;
+  const selectedNetwork = context.tradeModel?.selectedNetwork;
+  const selectedDepositToken = context.tradeModel?.selectedDepositToken;
 
   return (
     <Box>
@@ -44,7 +45,6 @@ export const LendFixedSidebar = () => {
           })}
         />
         <MaturitySelect
-          context={context}
           category={'Collateral'}
           inputLabel={defineMessage({
             defaultMessage: 'Select a maturity & fix your rate',
