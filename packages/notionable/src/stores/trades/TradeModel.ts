@@ -388,6 +388,34 @@ export const TradeModel = types
       ) as Instance<typeof TokenDefinitionModel> | undefined;
     };
 
+    const setInitialComputedOptions = () => {
+      const model = root().getNetworkClient(self.selectedNetwork);
+
+      if (self.tradeType === 'LendFixed') {
+        self.collateralOptions.replace(
+          self.availableCollateralTokens.map((t) => {
+            return {
+              token: t,
+              balance: TokenBalance.zero(t as TokenDefinition),
+              interestRate: model.getSpotAPY(t.id).totalAPY,
+              error: undefined,
+              utilization: undefined,
+            };
+          })
+        );
+      } else if (self.tradeType === 'BorrowFixed') {
+        self.debtOptions.replace(
+          self.availableDebtTokens.map((t) => ({
+            token: t,
+            balance: TokenBalance.zero(t as TokenDefinition),
+            interestRate: model.getSpotAPY(t.id).totalAPY,
+            error: undefined,
+            utilization: undefined,
+          }))
+        );
+      }
+    };
+
     const afterAttach = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
       // Set deposit token
@@ -462,6 +490,7 @@ export const TradeModel = types
       setAvailableDepositTokens();
       setAvailableCollateralTokens();
       setAvailableDebtTokens();
+      setInitialComputedOptions();
 
       console.log(
         'trade model afterAttach',
