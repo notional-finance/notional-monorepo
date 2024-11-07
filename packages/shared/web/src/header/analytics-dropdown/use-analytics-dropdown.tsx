@@ -6,7 +6,7 @@ export const useAnalyticsDropdown = () => {
   const links: SectionLinkProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Dune Dashboard - Mainnet'} />,
-      to: 'https://dune.com/PierreYves_Gendron/notional-dashboard',
+      to: 'https://dune.com/notional_team/notional-dashboard',
       icon: (
         <DuneIcon
           sx={{
@@ -22,7 +22,7 @@ export const useAnalyticsDropdown = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Dune Dashboard - Arbitrum'} />,
-      to: 'https://dune.com/PierreYves_Gendron/notional-finance-v3-arbitrum',
+      to: 'https://dune.com/notional_team/notional-finance-v3-arbitrum',
       icon: (
         <DuneIcon
           sx={{

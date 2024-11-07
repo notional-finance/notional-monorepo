@@ -319,29 +319,6 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
     feesPaid[0] = tokensIn[0].sub(
       postMintSpotValue.scale(lpTokens, this.totalSupply.add(lpTokens))
     );
-    // console.log(`
-    // POST MINT SPOT VALUE:
-    // ${tokensIn[0]
-    //   .copy(INTERNAL_TOKEN_PRECISION)
-    //   .toUnderlying()
-    //   .toDisplayStringWithSymbol(8, false, false)}
-    // ${nTokenOracleRate.toString()}
-    // ${this.totalSupply.toDisplayStringWithSymbol(4, false, false)}
-    // ${tokensIn[0].toDisplayStringWithSymbol(4, false, false)}
-    // ${postMintSpotValue
-    //   .scale(lpTokens, this.totalSupply)
-    //   .toDisplayStringWithSymbol(4, false, false)}
-    // ${lpTokenOracleValue
-    //   .toUnderlying()
-    //   .toDisplayStringWithSymbol(4, false, false)}
-    // ${lpTokenSpotValue
-    //   .toUnderlying()
-    //   .toDisplayStringWithSymbol(4, false, false)}
-    // ${postMintSpotValue
-    //   .toUnderlying()
-    //   .toDisplayStringWithSymbol(4, false, false)}
-    // ${feesPaid[0].toDisplayStringWithSymbol(4, false, false)}
-    // `);
 
     return {
       feesPaid,
@@ -483,24 +460,6 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
         this._getTotalfCash(marketIndex),
         this.getMarketCashUnderlying(marketIndex)
       );
-      // console.log(`
-      // IN POST TRADE SPOT RATES ${marketIndex}:
-      // ${utilization / RATE_PRECISION}
-      // ${leverageThresholds[i] / RATE_PRECISION}
-      // ${this.poolParams.perMarketfCash[
-      //   marketIndex - 1
-      // ].toDisplayStringWithSymbol(8, false, false)}
-      // ${this.poolParams.perMarketCash[
-      //   marketIndex - 1
-      // ].toDisplayStringWithSymbol(8, false, false)}
-      // ${this.getMarketCashUnderlying(marketIndex).toDisplayStringWithSymbol(
-      //   8,
-      //   false,
-      //   false
-      // )}
-      // ${this.getfCashSpotRateInRP(b.token)}
-      // `);
-      // console.log(this.getIRParams(marketIndex));
 
       if (utilization < leverageThresholds[i]) {
         return this.getInterestRate(marketIndex, utilization);
@@ -539,18 +498,6 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
             .sub(fee.scale(BigNumber.from(fCashReserveFeeSharePercent), 100))
             .toUnderlying();
 
-          // console.log(`
-          // CALCULATED POST TRADE ${marketIndex}
-          // ${deleverageInterestRate / RATE_PRECISION}
-          // ${assumedExchangeRate / RATE_PRECISION}
-          // ${marketDeposit.toDisplayStringWithSymbol(4, false, false)}
-          // ${fCashAmountAssumed.toDisplayStringWithSymbol(4, false, false)}
-          // ${fCashAmountActual.toDisplayStringWithSymbol(4, false, false)}
-          // ${fee.toDisplayString()}
-          // ${cashToMarket.toDisplayStringWithSymbol(4, false, false)}
-          // ${this.getImpliedInterestRate(marketDeposit, fCashAmountActual) || 0}
-          // `);
-
           if (fCashAmountActual.lte(fCashAmountAssumed)) {
             throw Error(
               'Cannot mint due to high fixed rate utilization, try a smaller amount.'
@@ -568,11 +515,9 @@ export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
           this.poolParams.perMarketfCash[i].sub(fCashAmountActual),
           this.poolParams.perMarketCash[i].toUnderlying().add(cashToMarket)
         );
-        // console.log('NEW UTILIZATION', newUtilization);
         return this.getInterestRate(marketIndex, newUtilization);
       }
     });
-    // console.log('RETURNED POST TRADE SPOT RATES', postTradeSpotRates);
 
     return this.getNTokenSpotValue(postTradeSpotRates);
   }

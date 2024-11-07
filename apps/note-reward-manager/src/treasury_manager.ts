@@ -1,14 +1,14 @@
-import { Provider } from "@ethersproject/abstract-provider";
-import { get0xData, sendTxThroughRelayer } from "@notional-finance/util";
+import { Provider } from '@ethersproject/abstract-provider';
+import { get0xData, sendTxThroughRelayer } from '@notional-finance/util';
 import {
   TreasuryManager as TreasuryManagerProxy,
   TreasuryManager__factory,
-  ERC20__factory
-} from "@notional-finance/contracts";
-import { TradeStruct as Trade } from "@notional-finance/contracts/types/TradingModule";
-import Config from "./config";
-import { BigNumber } from "ethers";
-import { Env, TradeType, DexId, RunType } from "./types";
+  ERC20__factory,
+} from '@notional-finance/contracts';
+import { TradeStruct as Trade } from '@notional-finance/contracts/types/TradingModule';
+import Config from './config';
+import { BigNumber } from 'ethers';
+import { Env, TradeType, DexId, RunType } from './types';
 
 const TWO_HOURS_SEC = 1200;
 const nowInSec = () => Math.floor(Date.now() / 1000);
@@ -24,51 +24,59 @@ export default class TreasuryManager {
     private provider: Provider,
     private env: Env
   ) {
-    this.proxy = TreasuryManager__factory.connect(Config.getTreasuryAddress(this.network), this.provider);
-    this.COMP = Config.getTokenAddress(this.network, "COMP");
-    this.WETH = Config.getTokenAddress(this.network, "WETH");
-    this.NOTE = Config.getTokenAddress(this.network, "NOTE");
+    this.proxy = TreasuryManager__factory.connect(
+      Config.getTreasuryAddress(this.network),
+      this.provider
+    );
+    this.COMP = Config.getTokenAddress(this.network, 'COMP');
+    this.WETH = Config.getTokenAddress(this.network, 'WETH');
+    this.NOTE = Config.getTokenAddress(this.network, 'NOTE');
   }
 
   public async getLastNoteInvestmentTime(): Promise<number> {
-    return fetch(`https://gateway-arbitrum.network.thegraph.com/api/${this.env.SUBGRAPH_API_KEY}/subgraphs/id/BnVrrrzw6cLHxFUkgtfmWcF83DopC8jrYnrMnysVKptm`, {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json"
-      },
+    return fetch(
+      `https://gateway-arbitrum.network.thegraph.com/api/${this.env.SUBGRAPH_API_KEY}/subgraphs/id/BnVrrrzw6cLHxFUkgtfmWcF83DopC8jrYnrMnysVKptm`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
 
-      body: JSON.stringify({
-        query: `{
+        body: JSON.stringify({
+          query: `{
         stakedNoteInvestments(first: 1, orderBy:timestamp, orderDirection:desc) {
           timestamp
         }
-      }`
-      })
-    }).then(r => r.json())
+      }`,
+        }),
+      }
+    )
+      .then((r) => r.json())
       .then((r: any) => r.data.stakedNoteInvestments[0]?.timestamp || 0);
   }
 
   public async run(runType: RunType) {
     const lastNoteInvestmentTimestamp = await this.getLastNoteInvestmentTime();
-    console.log("lastNoteInvestmentTimestamp", lastNoteInvestmentTimestamp);
-    const lastInvestmentStartOfDay = new Date(lastNoteInvestmentTimestamp * 1000);
+    console.log('lastNoteInvestmentTimestamp', lastNoteInvestmentTimestamp);
+    const lastInvestmentStartOfDay = new Date(
+      lastNoteInvestmentTimestamp * 1000
+    );
     lastInvestmentStartOfDay.setUTCHours(0, 0, 0, 0);
     const duration = (Date.now() - lastInvestmentStartOfDay.getTime()) / 1000;
     if (
       // force run it twice (sellComp & burnNote) at Saturday midnight and after that respect TREASURY_REINVESTMENT_INTERVAL
-      (
-        new Date('2024-06-09T00:00:00.000Z').getTime() <= Date.now() &&
-        Date.now() < new Date('2024-06-09T00:15:00.000Z').getTime()
-      ) || duration > Config.TREASURY_REINVESTMENT_INTERVAL
+      (new Date('2024-11-10T00:00:00.000Z').getTime() <= Date.now() &&
+        Date.now() < new Date('2024-11-10T00:15:00.000Z').getTime()) ||
+      duration > Config.TREASURY_REINVESTMENT_INTERVAL
     ) {
       if (runType === RunType.burnNOTE) {
         const wethToken = ERC20__factory.connect(this.WETH, this.provider);
         const wethBalance = await wethToken.balanceOf(this.proxy.address);
         if (!wethBalance.gte(1e15)) {
-          console.log("No WETH available");
+          console.log('No WETH available');
           return;
         }
-        console.log("WETH balance detected, calling investWETHAndNOTE");
+        console.log('WETH balance detected, calling investWETHAndNOTE');
 
         const noteBurnPercent = await this.proxy.noteBurnPercent();
         const wethForBurn = wethBalance.mul(noteBurnPercent).div(100);
@@ -81,7 +89,7 @@ export default class TreasuryManager {
           amount: BigNumber.from(0),
           limit: BigNumber.from(0),
           deadline: nowInSec() + TWO_HOURS_SEC,
-          exchangeData: '0x'
+          exchangeData: '0x',
         };
 
         if (wethForBurn.gt(0)) {
@@ -90,7 +98,7 @@ export default class TreasuryManager {
             buyToken: this.NOTE,
             sellAmount: wethForBurn,
             taker: this.proxy.address,
-            env: this.env
+            env: this.env,
           });
 
           trade.amount = wethForBurn;
@@ -114,7 +122,7 @@ export default class TreasuryManager {
         return sendTxThroughRelayer({
           to: this.proxy.address,
           data: data,
-          env: this.env
+          env: this.env,
         });
       } else if (runType == RunType.sellCOMP) {
         console.log('Selling COMP...');
@@ -131,7 +139,7 @@ export default class TreasuryManager {
             buyToken: this.WETH,
             sellAmount,
             taker: this.proxy.address,
-            env: this.env
+            env: this.env,
           });
           console.log(`
             sellAmount = ${sellAmount.toString()}
@@ -145,32 +153,32 @@ export default class TreasuryManager {
             amount: sellAmount,
             limit: zeroXdata.limit,
             deadline: nowInSec() + TWO_HOURS_SEC,
-            exchangeData: zeroXdata.data
+            exchangeData: zeroXdata.data,
           };
 
           // check will trade execute successfully
-          await this.proxy.callStatic.executeTrade(
+          await this.proxy.callStatic.executeTrade(trade, DexId.ZERO_EX, {
+            from: this.env.MANAGER_BOT_ADDRESS,
+          });
+
+          const data = this.proxy.interface.encodeFunctionData('executeTrade', [
             trade,
             DexId.ZERO_EX,
-            { from: this.env.MANAGER_BOT_ADDRESS }
-          );
-
-          const data = this.proxy.interface.encodeFunctionData(
-            'executeTrade',
-            [trade, DexId.ZERO_EX]
-          );
+          ]);
 
           return sendTxThroughRelayer({
             to: this.proxy.address,
             data: data,
-            env: this.env
+            env: this.env,
           });
         } else {
-          console.log("No COMP");
+          console.log('No COMP');
         }
       }
     } else {
-      console.log(`duration(${duration}) is less than interval(${Config.TREASURY_REINVESTMENT_INTERVAL})`);
+      console.log(
+        `duration(${duration}) is less than interval(${Config.TREASURY_REINVESTMENT_INTERVAL})`
+      );
     }
   }
 }

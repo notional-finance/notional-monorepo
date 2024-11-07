@@ -737,6 +737,10 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } =
       vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral));
     profile = profile.simulate([netVaultSharesForWithdraw]);
+  } else if (!profile.vaultDebt.isZero()) {
+    initialDebtUnitsEstimateInRP = Math.floor(
+      (profile.vaultDebt.toFloat() * RATE_PRECISION) / 2
+    );
   }
   const accruedVaultFees = profile.accruedVaultFees;
 

@@ -233,7 +233,9 @@ export class PendlePT extends VaultAdapter {
 
     return {
       netUnderlyingForVaultShares: underlyingOut,
-      feesPaid: tradingFeesPaid.add(this.market.convertSyToAsset(feesPaid[0])),
+      feesPaid: tradingFeesPaid.add(
+        this.market.convertSyToAsset(feesPaid[0]).toToken(tradingFeesPaid.token)
+      ),
     };
   }
 
@@ -245,27 +247,13 @@ export class PendlePT extends VaultAdapter {
     feesPaid: TokenBalance;
   } {
     if (netUnderlying.isPositive()) {
-      console.log(
-        'Net Underlying in',
-        netUnderlying.toDisplayStringWithSymbol(8, false, false)
-      );
       // On way in, netUnderlying is traded to tokenInSy
       const { tokensInSy, tradingFeesPaid } =
         this.calculateTradeToSy(netUnderlying);
-      console.log(
-        'Tokens In Sy, Trading Fees Paid',
-        tokensInSy.toDisplayStringWithSymbol(8, false, false),
-        tradingFeesPaid.toDisplayStringWithSymbol(8, false, false)
-      );
 
       // Calculate the amount received for selling the PT
       const { tokensOut: ptTokensOut, feesPaid } =
         this.market.calculateTokenTrade(tokensInSy, this.market.PT_TOKEN_INDEX);
-      console.log(
-        'PT Tokens Out, Fees Paid',
-        ptTokensOut.toDisplayStringWithSymbol(8, false, false),
-        feesPaid[0].toDisplayStringWithSymbol(8, false, false)
-      );
 
       return {
         netVaultSharesForUnderlying: TokenBalance.from(
@@ -274,6 +262,8 @@ export class PendlePT extends VaultAdapter {
         ),
         feesPaid: this.market
           .convertSyToAsset(feesPaid[0])
+          // Ensure that this is converted to the underlying
+          .toToken(netUnderlying.token)
           .add(tradingFeesPaid),
       };
     } else {
@@ -308,6 +298,7 @@ export class PendlePT extends VaultAdapter {
               ptTokensIn,
               feesPaid: this.market
                 .convertSyToAsset(feesPaid[0])
+                .toToken(netUnderlying.token)
                 .add(tradingFeesPaid),
             },
           };
@@ -334,7 +325,7 @@ export class PendlePT extends VaultAdapter {
     totalDeposit: TokenBalance,
     slippageFactor = 50 * BASIS_POINT
   ): Promise<BytesLike> {
-    const { dexId, exchangeData } =
+    const { dexId, depositExchangeData: exchangeData } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
 
     // Apply some slippage limit to the oracle price on the deposit
@@ -413,11 +404,11 @@ export class PendlePT extends VaultAdapter {
       return '0x';
     } else {
       // In the other case, we need to determine the default exit trade.
-      const { dexId, exchangeData } =
+      const { dexId, redeemExchangeData: exchangeData } =
         VaultDefaultDexParameters[this.network][this.vaultAddress];
 
-      const minPurchaseAmount = this.market
-        .convertAssetToSy(vaultSharesToRedeem.toUnderlying())
+      const minPurchaseAmount = vaultSharesToRedeem
+        .toUnderlying()
         .mulInRatePrecision(RATE_PRECISION - slippageFactor);
 
       return defaultAbiCoder.encode(
