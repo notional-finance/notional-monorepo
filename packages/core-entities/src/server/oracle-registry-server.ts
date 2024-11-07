@@ -15,6 +15,7 @@ import {
   Network,
   NotionalAddress,
   SCALAR_PRECISION,
+  sNOTE,
   WETHAddress,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
@@ -34,6 +35,10 @@ const NX_REGISTRY_URL = 'https://registry.notional.finance';
 const VaultABI = new ethers.utils.Interface([
   'function getExchangeRate(uint256 maturity) view external returns (int256)',
 ]);
+
+const sNOTE_Pool = '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7';
+
+const sNOTEOracle = `${ZERO_ADDRESS}:${sNOTE_Pool}:sNOTEToETHExchangeRate`;
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   public override hasAllNetwork(): boolean {
@@ -66,6 +71,27 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
         },
       },
     ]);
+
+    if (network === Network.mainnet) {
+      results.values.push([
+        sNOTEOracle,
+        {
+          id: sNOTEOracle,
+          oracleAddress: sNOTE_Pool,
+          network: Network.mainnet,
+          oracleType: 'sNOTEToETHExchangeRate',
+          base: ZERO_ADDRESS,
+          quote: sNOTE,
+          decimals: 18,
+          latestRate: {
+            blockNumber: 0,
+            timestamp: getNowSeconds(),
+            // Latest rate will get updated in the call below
+            rate: BigNumber.from(0),
+          },
+        },
+      ]);
+    }
 
     // Updates the latest rates using the blockchain
     const r = this._updateLatestRates(results, blockNumber);
@@ -156,14 +182,15 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
         if (results[id] && oracle) {
           return [
             id,
-            Object.assign(oracle, {
+            {
+              ...oracle,
               // Overrides the latest rate property in the oracle record
               latestRate: {
                 rate: results[id].rate,
                 timestamp: results[id].timestamp || block?.timestamp || 0,
                 blockNumber: block?.number || 0,
               },
-            }),
+            },
           ];
         } else {
           return [id, oracle];
@@ -331,7 +358,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               };
             },
           };
-        } else if (oracle.oracleType === 'sNOTE') {
+        } else if (oracle.oracleType === 'sNOTEToETHExchangeRate') {
           return {
             key: id,
             target: new Contract(

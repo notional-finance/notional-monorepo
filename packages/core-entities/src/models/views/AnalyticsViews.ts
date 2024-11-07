@@ -58,6 +58,23 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
     }
   };
 
+  const parseData = (
+    key: keyof typeof self.analytics,
+    data: Record<string, unknown>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): any => {
+    if (
+      (key === 'noteSupply' ||
+        key === 'sNOTEData' ||
+        key === 'sNOTEReinvestment') &&
+      data['result']
+    ) {
+      return data['result']['rows'];
+    } else {
+      return data;
+    }
+  };
+
   const fetchAnalyticsData = flow(function* <
     K extends keyof typeof self.analytics
   >(key: K) {
@@ -69,9 +86,14 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
     if (!response.ok) {
       throw new Error(`Failed to fetch ${String(key)}: ${response.statusText}`);
     }
-    const data = yield response.json();
-    self.analytics[key] = data;
-    return data;
+    try {
+      const data = parseData(key, yield response.json());
+      self.analytics[key] = data;
+      return data;
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
   });
 
   return {
@@ -91,12 +113,12 @@ export const AnalyticsViews = (self: Instance<typeof NetworkModel>) => ({
     };
   },
   getNoteSupply: () =>
-    self.analytics.noteSupply?.result.rows.map((r) => ({
+    self.analytics.noteSupply?.map((r) => ({
       ...r,
       date: new Date(r.day),
     })),
-  getSNOTEData: () => self.analytics.sNOTEData?.result.rows,
-  getSNOTEReinvestment: () => self.analytics.sNOTEReinvestment?.result.rows,
+  getSNOTEData: () => self.analytics.sNOTEData,
+  getSNOTEReinvestment: () => self.analytics.sNOTEReinvestment,
   getPointPrices: () => self.analytics.pointPrices,
   getHistoricalTrading: () => self.analytics.historicalTrading,
   getVaultReinvestment: (vaultAddress: string) =>
