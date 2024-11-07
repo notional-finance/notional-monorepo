@@ -49,6 +49,7 @@ export const PerformanceChart = ({
           xAxisTickFormat="date"
           yAxisTickFormat="number"
           yAxisDomain={['dataMin', 'dataMax']}
+          xAxisDateTickInterval={Math.floor(areaChartData.length / 5)}
           areaChartData={areaChartData}
           areaLineType="linear"
           chartToolTipData={chartToolTipData}

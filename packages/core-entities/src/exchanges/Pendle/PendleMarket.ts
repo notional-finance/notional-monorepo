@@ -7,6 +7,7 @@ import {
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import {
+  BASIS_POINT,
   doSecantSearch,
   getNowSeconds,
   getProviderFromNetwork,
@@ -183,21 +184,31 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   }
 
   public convertAssetToSy(assetAmount: TokenBalance) {
-    return new TokenBalance(
-      assetAmount.n
-        .mul(SCALAR_PRECISION)
-        .div(this.poolParams.syToAssetExchangeRate),
-      this.poolParams.tokens.SY.toLowerCase(),
+    const syToken = Registry.getTokenRegistry().getTokenByID(
+      this._network,
+      this.poolParams.tokens.SY
+    );
+
+    return TokenBalance.fromID(
+      assetAmount
+        .scale(SCALAR_PRECISION, this.poolParams.syToAssetExchangeRate)
+        .scaleTo(syToken.decimals),
+      syToken.id,
       this._network
     );
   }
 
   public convertSyToAsset(syAmount: TokenBalance) {
-    return new TokenBalance(
-      syAmount.n
-        .mul(this.poolParams.syToAssetExchangeRate)
-        .div(SCALAR_PRECISION),
-      this.poolParams.assetTokenId,
+    const assetToken = Registry.getTokenRegistry().getTokenByID(
+      this._network,
+      this.poolParams.assetTokenId
+    );
+
+    return TokenBalance.fromID(
+      syAmount
+        .scale(this.poolParams.syToAssetExchangeRate, SCALAR_PRECISION)
+        .scaleTo(assetToken.decimals),
+      assetToken.id,
       this._network
     );
   }
@@ -295,7 +306,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
               fee,
             },
           };
-        }
+        },
+        50 * BASIS_POINT
       );
 
       return {

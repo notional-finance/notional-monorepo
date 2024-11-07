@@ -29,7 +29,6 @@ import { useVaultExistingFactors } from '../hooks';
 import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
 
 const usePendlePerformanceChart = (state: VaultTradeState) => {
-  const dataPoints = 90;
   const {
     debt,
     debtOptions,
@@ -47,6 +46,9 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
 
   const nowMidnight = floorToMidnight(getNowSeconds());
   const ptExpires = adapter?.expiry;
+  const dataPoints = ptExpires
+    ? Math.ceil((ptExpires - nowMidnight) / SECONDS_IN_DAY) + 1
+    : 90;
 
   const leverageRatio = (riskFactorLimit?.limit || priorLeverageRatio) as
     | number
@@ -102,7 +104,13 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
   });
 
   const areaChartData = calculateDepositValue(leverageRatio, data, dataPoints);
-  return { areaChartData, ptExpires, fixedBorrowMaturity };
+  const xAxisDateTickInterval = Math.floor(dataPoints / 5);
+  return {
+    areaChartData,
+    ptExpires,
+    fixedBorrowMaturity,
+    xAxisDateTickInterval,
+  };
 };
 
 export const PendlePerformanceChart = () => {
@@ -110,8 +118,12 @@ export const PendlePerformanceChart = () => {
   const { state } = useContext(VaultActionContext);
   const { deposit, collateral } = state;
 
-  const { areaChartData, ptExpires, fixedBorrowMaturity } =
-    usePendlePerformanceChart(state);
+  const {
+    areaChartData,
+    ptExpires,
+    fixedBorrowMaturity,
+    xAxisDateTickInterval,
+  } = usePendlePerformanceChart(state);
   const priceData = useAssetPriceHistory(collateral);
 
   const chartToolTipData: ChartToolTipDataProps = {
@@ -170,7 +182,7 @@ export const PendlePerformanceChart = () => {
               yAxisDomain={['dataMin', 'dataMax']}
               yAxisTickFormat="number"
               xAxisTickFormat="date"
-              xAxisTickCount={12}
+              xAxisDateTickInterval={xAxisDateTickInterval}
               areaChartData={areaChartData}
               areaChartStyles={areaChartStyles}
               chartToolTipData={chartToolTipData}
