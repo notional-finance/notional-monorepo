@@ -260,8 +260,9 @@ export class PendlePT extends VaultAdapter {
       const { tokensOut: ptTokensOut, feesPaid } =
         this.market.calculateTokenTrade(tokensInSy, this.market.PT_TOKEN_INDEX);
 
-      const slippageForSY = netUnderlying
-        .sub(tokensInSy.toToken(netUnderlying.token))
+      const slippageForSY = tokensInSy
+        .toToken(netUnderlying.token)
+        .sub(netUnderlying)
         .add(tradingFeesPaid);
 
       return {
