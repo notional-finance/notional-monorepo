@@ -75,6 +75,13 @@ export class PendlePT extends VaultAdapter {
     return this.market.assetTokenId === this.getBorrowedToken().id;
   }
 
+  get assetToken(): TokenDefinition {
+    return Registry.getTokenRegistry().getTokenByID(
+      this.network,
+      this.market.assetTokenId
+    );
+  }
+
   getInitialVaultShareValuation(): ExchangeRate {
     const oneAssetUnit = TokenBalance.fromID(
       this.market.ptExchangeRate,
