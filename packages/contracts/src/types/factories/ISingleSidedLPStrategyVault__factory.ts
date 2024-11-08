@@ -30,6 +30,35 @@ const _abi = [
     type: "event",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "strategyTokens",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "maturity",
+        type: "uint256",
+      },
+    ],
+    name: "convertStrategyToUnderlying",
+    outputs: [
+      {
+        internalType: "int256",
+        name: "underlyingValue",
+        type: "int256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     anonymous: false,
     inputs: [],
     name: "VaultLocked",

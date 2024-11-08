@@ -271,6 +271,15 @@ export function isDeleverageWithSwappedTokens(s?: {
   );
 }
 
+export function isNOTEStake(tradeType?: AllTradeTypes) {
+  if (!tradeType) return false;
+  return (
+    tradeType === 'StakeNOTE' ||
+    tradeType === 'StakeNOTERedeem' ||
+    tradeType === 'StakeNOTECoolDown'
+  );
+}
+
 export const clearTradeState: TransactionState = {
   confirm: false,
   inputsSatisfied: false,
