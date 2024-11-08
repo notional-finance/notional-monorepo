@@ -144,7 +144,7 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
   }
 
   get sNOTE() {
-    return new TokenBalance(0, 'sNOTE', Network.mainnet).token;
+    return new TokenBalance(0, sNOTE, Network.mainnet).token;
   }
 
   get totalSNOTE() {

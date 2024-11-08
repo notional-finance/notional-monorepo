@@ -7,8 +7,9 @@ import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import { Network, getDateString, sNOTE } from '@notional-finance/util';
 import { useCancelCoolDown } from './use-cancel-cooldown';
 import { ReactNode } from 'react';
+import { observer } from 'mobx-react-lite';
 
-export const Redeem = () => {
+export const Redeem = observer(() => {
   const theme = useTheme();
   const { currencyInputRef: sNOTEInputRef } = useCurrencyInputRef();
   const redeemWindowEnd = useAccountDefinition(Network.mainnet)?.stakeNOTEStatus
@@ -62,4 +63,4 @@ export const Redeem = () => {
       </Body>
     </TransactionSidebar>
   );
-};
+});

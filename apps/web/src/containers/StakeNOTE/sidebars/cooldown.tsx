@@ -24,8 +24,9 @@ import {
   getDateString,
 } from '@notional-finance/util';
 import { useCancelCoolDown } from './use-cancel-cooldown';
+import { observer } from 'mobx-react-lite';
 
-export const CoolDown = () => {
+export const CoolDown = observer(() => {
   const theme = useTheme();
   const selectedNetwork = Network.mainnet;
   const { sideDrawerOpen } = useSideDrawerState();
@@ -157,4 +158,4 @@ export const CoolDown = () => {
       )}
     </TransactionSidebar>
   );
-};
+});
