@@ -101,14 +101,14 @@ export const useFCashMarket = (token?: TokenDefinition | undefined) => {
 };
 
 export const useSNOTEPool = () => {
-  const currentNetworkStore = useCurrentNetworkStore();
-  try {
-    return currentNetworkStore.isReady()
-      ? currentNetworkStore.getSNOTEPool()
-      : undefined;
-  } catch {
-    return undefined;
-  }
+  return useObserver(() => {
+    const mainnet = getNetworkModel(Network.mainnet);
+    try {
+      return mainnet.isReady() ? mainnet.getSNOTEPool() : undefined;
+    } catch {
+      return undefined;
+    }
+  });
 };
 
 export const useSpotMaturityData = (

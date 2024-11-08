@@ -281,7 +281,7 @@ export function useExceedsSupplyCap(
   excludeSupplyCap: boolean
 ) {
   const currentNetworkStore = useCurrentNetworkStore();
-  if (deposit?.currencyId && !excludeSupplyCap) {
+  if (!excludeSupplyCap && deposit?.currencyId) {
     const { maxUnderlyingSupply, currentUnderlyingSupply } =
       currentNetworkStore.getMaxSupply(deposit.currencyId);
 

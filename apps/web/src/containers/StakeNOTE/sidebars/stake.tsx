@@ -7,8 +7,9 @@ import { useNOTE } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { observer } from 'mobx-react-lite';
 
-export const Stake = () => {
+export const Stake = observer(() => {
   const theme = useTheme();
   const context = useContext(NOTEContext);
   const setNOTEBalanceForStaking = context.tradeModel?.setNOTEBalanceForStaking;
@@ -82,4 +83,4 @@ export const Stake = () => {
       />
     </TransactionSidebar>
   );
-};
+});

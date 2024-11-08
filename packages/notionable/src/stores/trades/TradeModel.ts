@@ -38,6 +38,7 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
+  unique,
   zipByKeyToArray,
 } from '@notional-finance/util';
 import {
@@ -551,14 +552,41 @@ export const TradeModel = types
       let inputsSatisfied = true;
 
       const inputs = requiredArgs.reduce((acc, arg) => {
-        if (arg === 'collateralPool' && self.collateral?.currencyId) {
+        if (arg === 'collateralPool' && isNOTEStake(self.tradeType)) {
           acc['collateralPool'] = root()
             .getNetworkClient(self.selectedNetwork)
-            .getNotionalMarket(self.collateral.currencyId);
+            .getSNOTEPool();
+        } else if (arg === 'collateralPool') {
+          let currencyId: number | undefined;
+          if (self.collateral?.currencyId) {
+            currencyId = self.collateral.currencyId;
+          } else {
+            const ids = unique(
+              self.availableCollateralTokens?.map((t) => t.currencyId)
+            );
+            if (ids.length === 1) currencyId = ids[0];
+          }
+
+          acc['collateralPool'] = currencyId
+            ? root()
+                .getNetworkClient(self.selectedNetwork)
+                .getNotionalMarket(currencyId)
+            : undefined;
         } else if (arg === 'debtPool' && self.debt?.currencyId) {
-          acc['debtPool'] = root()
-            .getNetworkClient(self.selectedNetwork)
-            .getNotionalMarket(self.debt.currencyId);
+          let currencyId: number | undefined;
+          if (self.debt?.currencyId) {
+            currencyId = self.debt.currencyId;
+          } else {
+            const ids = unique(
+              self.availableDebtTokens?.map((t) => t.currencyId)
+            );
+            if (ids.length === 1) currencyId = ids[0];
+          }
+          acc['debtPool'] = currencyId
+            ? root()
+                .getNetworkClient(self.selectedNetwork)
+                .getNotionalMarket(currencyId)
+            : undefined;
         } else if (arg === 'vaultAdapter' && self.vaultAddress) {
           acc['vaultAdapter'] = root()
             .getNetworkClient(self.selectedNetwork)
@@ -1226,7 +1254,7 @@ export const TradeModel = types
         );
       } else if (isNOTEStake(self.tradeType)) {
         const account = root().getNetworkAccount(self.selectedNetwork);
-        const priorBalances = account?.portfolioRiskProfile?.balances;
+        const priorBalances = account?.balances;
         const noteBalance = priorBalances?.find((t) => t.symbol === 'NOTE');
         const ethBalance = priorBalances?.find(
           (t) => t.tokenId === self.deposit?.id
