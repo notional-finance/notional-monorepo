@@ -11,6 +11,7 @@ import { messages } from './messages';
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { PortfolioParams } from '../portfolio-feature-shell';
+import { observer } from 'mobx-react-lite';
 
 const ConvertCollateral = () => {
   const params = useParams<PortfolioParams>();
@@ -65,22 +66,9 @@ const ConvertCollateral = () => {
   );
 };
 
-export const ConvertAsset = () => {
+export const ConvertAsset = observer(() => {
   const context = useTradeContext('ConvertAsset');
   const { action } = useParams<PortfolioParams>();
-  const {
-    updateState,
-    state: { debt },
-  } = context;
-  const { initialConvertFromBalance: balance } = useConvertOptions(
-    context.state
-  );
-
-  useEffect(() => {
-    if (!debt) {
-      updateState({ debtBalance: balance, debt: balance?.token });
-    }
-  }, [debt, balance, updateState]);
 
   return (
     <Container>
@@ -94,7 +82,7 @@ export const ConvertAsset = () => {
       {action === 'convertTo' && <ConvertCollateral />}
     </Container>
   );
-};
+});
 
 const Container = styled(Box)(
   ({ theme }) => `

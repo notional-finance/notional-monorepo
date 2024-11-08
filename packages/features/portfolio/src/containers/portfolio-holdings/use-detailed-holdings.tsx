@@ -89,9 +89,10 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
         if (b.isPositive()) {
           buttonBarData.push({
             buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
+            // link: `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}`,
             link: `/portfolio/${network}/holdings/${
               PORTFOLIO_ACTIONS.WITHDRAW
-            }/${maturedTokenId}${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}${
+            }/${maturedTokenId}${
               isHighUtilization ? `?warning=${isHighUtilization}` : ''
             }`,
           });

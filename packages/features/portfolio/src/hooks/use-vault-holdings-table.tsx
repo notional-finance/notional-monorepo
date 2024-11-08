@@ -320,8 +320,6 @@ export const useVaultHoldingsTable = () => {
   const vaults = useVaultHoldings(network);
   const totalVaultHoldings = useTotalVaultHoldings(network);
 
-  console.log('totalVaultHoldings: ', totalVaultHoldings);
-
   const claimableRewards = (vaults || []).reduce(
     (acc, vault) => {
       if (

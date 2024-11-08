@@ -28,6 +28,8 @@ const ConvertDebt = () => {
     ({ token }) => token.id === params?.selectedCollateralToken
   );
 
+  console.log('=========== ConvertDebt ===========');
+
   useEffect(() => {
     if (!collateral) {
       updateState({ collateralBalance: balance, collateral: balance?.token });

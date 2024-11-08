@@ -58,7 +58,7 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
 export function useTradeContext(tradeType: AllTradeTypes) {
   const tradeModel = useTradeModel(tradeType);
   const state = useObserver(() => {
-    if (tradeModel) {
+    if (tradeModel?.isReady) {
       return tradeModel.state as unknown as BaseTradeState;
     } else {
       return initialBaseTradeState;

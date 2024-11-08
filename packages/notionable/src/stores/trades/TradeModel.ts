@@ -425,6 +425,8 @@ export const TradeModel = types
         );
       } else if (isNOTEStake(self.tradeType)) {
         calculate();
+      } else if (self.tradeType === 'ConvertAsset') {
+        calculate();
       }
     };
 
@@ -439,7 +441,7 @@ export const TradeModel = types
 
       // Set selected portfolio token
       if (self.selectedToken) {
-        const selected = model.getTokenBySymbol(self.selectedToken) as Instance<
+        const selected = model.getTokenByID(self.selectedToken) as Instance<
           typeof TokenDefinitionModel
         >;
         if (self.tradeType === 'Deposit') {
@@ -468,6 +470,19 @@ export const TradeModel = types
               : selected;
         } else if (self.tradeType === 'RollVaultPosition') {
           self.debt = selected;
+        } else if (self.tradeType === 'ConvertAsset') {
+          const account = root().getNetworkAccount(self.selectedNetwork);
+          const priorBalances = account?.portfolioRiskProfile?.balances;
+          const debtBalance = priorBalances?.find(
+            (t) => t.tokenId === self.selectedToken
+          );
+          self.debt =
+            selected.tokenType === 'PrimeCash'
+              ? (model.getPrimeDebt(selected.currencyId) as Instance<
+                  typeof TokenDefinitionModel
+                >)
+              : selected;
+          self.debtBalance = debtBalance?.toPrimeDebt();
         }
       }
 

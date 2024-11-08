@@ -79,9 +79,9 @@ const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
 });
 
 export const BalanceStatementModel = types.model('BalanceStatement', {
-  token: types.reference(TokenDefinitionModel),
+  token: TokenDefinitionReference,
   blockNumber: types.number,
-  underlying: types.reference(TokenDefinitionModel),
+  underlying: TokenDefinitionReference,
   currentBalance: NotionalTypes.TokenBalance,
   adjustedCostBasis: NotionalTypes.TokenBalance,
   totalILAndFees: NotionalTypes.TokenBalance,
