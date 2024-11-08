@@ -12,7 +12,6 @@ export function useConvertOptions(state: BaseTradeState) {
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;
   }>();
-
   const isPrimeDebt = primeTokens?.primeDebt.find(
     (t) => t.id === selectedParamToken
   );

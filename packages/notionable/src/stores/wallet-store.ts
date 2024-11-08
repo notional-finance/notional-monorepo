@@ -1,11 +1,13 @@
 import spindl from '@spindl-xyz/attribution';
-import { types, Instance, flow } from 'mobx-state-tree';
+import { types, Instance, flow, getRoot } from 'mobx-state-tree';
 import { NotionalTypes } from '@notional-finance/core-entities';
 import { Network, SupportedNetworks } from '@notional-finance/util';
 import { checkSanctionedAddress } from '../global/account/communities';
+import { updateWalletTracking } from '../global/account/tracking';
 import { identify } from '@notional-finance/helpers';
 import { Provider } from '@ethersproject/providers';
 import { AccountPortfolioModel } from './PortfolioModel';
+import { RootStoreInterface } from './root-store';
 
 const UserWalletModel = types.model('UserWalletModel', {
   selectedChain: types.maybe(NotionalTypes.Network),
@@ -28,6 +30,7 @@ export const WalletModel = types
     },
   }))
   .actions((self) => {
+    const root = getRoot<RootStoreInterface>(self);
     const executeUserTracking = async (
       userWallet: Instance<typeof UserWalletModel>
     ) => {
@@ -59,6 +62,16 @@ export const WalletModel = types
       // check sanctioned address
       const isSanctionedAddress = await checkSanctionedAddress(
         userWallet.selectedAddress
+      );
+
+      const account = userWallet?.selectedChain
+        ? root.getNetworkAccount(userWallet?.selectedChain)
+        : undefined;
+
+      await updateWalletTracking(
+        userWallet.selectedAddress,
+        userWallet.isReadOnlyAddress,
+        account?.balances || []
       );
 
       if (!isSanctionedAddress) {
