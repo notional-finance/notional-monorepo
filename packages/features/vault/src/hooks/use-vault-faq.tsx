@@ -81,7 +81,7 @@ export const useVaultFaq = (
       ),
       answer: (
         <FormattedMessage
-          defaultMessage={`At maturity your PTs stop earning the fixed PT yield and you should exit the vault to take your principal and profits.`}
+          defaultMessage={`At maturity, your PTs stop earning the fixed PT yield and you should exit the vault by withdrawing on the Notional UI. The vault will redeem your PTs, convert them back into the currency you deposited, and transfer that to you.`}
         />
       ),
     },

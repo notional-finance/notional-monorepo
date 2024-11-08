@@ -186,6 +186,7 @@ function getFeeItems(
   collateralFee: TokenBalance | undefined,
   debtFee: TokenBalance | undefined,
   tradeType: AllTradeTypes | undefined,
+  vaultTradeMetadata: unknown | undefined,
   theme: NotionalTheme
 ): DetailItem[] {
   const zeroUnderlying = TokenBalance.zero(underlying);
@@ -233,6 +234,30 @@ function getFeeItems(
           theme
         )
       );
+    }
+
+    if (vaultTradeMetadata && vaultTradeMetadata['slippageForSY']) {
+      const slippageForSY = vaultTradeMetadata['slippageForSY'] as TokenBalance;
+      feeItems.push({
+        label: {
+          text: defineMessages({
+            content: { defaultMessage: 'Trade Slippage' },
+          }),
+        },
+        value: {
+          data: [
+            {
+              displayValue: slippageForSY.toDisplayStringWithSymbol(
+                4,
+                true,
+                false
+              ),
+              isNegative: slippageForSY.isNegative(),
+              showPositiveAsGreen: slippageForSY.isPositive(),
+            },
+          ],
+        },
+      });
     }
 
     return feeItems;
@@ -783,6 +808,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     tradeType,
     inputsSatisfied,
     calculationSuccess,
+    vaultTradeMetadata,
   } = state;
   const depositBalance = _d;
   const { totalAPY } = useTotalAPY(state);
@@ -809,6 +835,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     collateralFee,
     debtFee,
     tradeType,
+    vaultTradeMetadata,
     theme
   );
 
