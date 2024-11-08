@@ -1,21 +1,21 @@
 import { SideBarLayout } from '@notional-finance/mui';
 import {
-  createNOTEContext,
-  useNOTEContext,
+  createTradeContext,
   useStakedNoteData,
+  useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { Stake, CoolDown, Redeem } from './sidebars';
 import StakeNOTESummary from './stake-note-summary';
 import { observer } from 'mobx-react-lite';
 
-export const NOTEContext = createNOTEContext();
+export const NOTEContext = createTradeContext('StakeNOTE');
 
 export const StakeNOTE = observer(() => {
-  const context = useNOTEContext();
-  const {
-    state: { isReady, confirm, tradeType },
-  } = context;
+  const context = useTradeContext('StakeNOTE');
+  const tradeType = context.tradeModel?.tradeType;
+  const isReady = context.tradeModel?.isReady || false;
+  const confirm = context.tradeModel?.confirm || false;
   const stakedNoteData = useStakedNoteData();
 
   return (

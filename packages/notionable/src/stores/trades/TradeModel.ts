@@ -13,6 +13,7 @@ import {
   AllTradeTypes,
   isDeleverageWithSwappedTokens,
   isLeveragedTrade,
+  isNOTEStake,
   isVaultTrade,
   NOTETradeType,
   TokenOption,
@@ -105,6 +106,9 @@ export const TradeModel = types
       'ConvertAsset',
       'RepayDebt',
       'RollDebt',
+      'StakeNOTECoolDown',
+      'StakeNOTERedeem',
+      'StakeNOTE',
     ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),
@@ -222,6 +226,8 @@ export const TradeModel = types
 
     /** Amount of ETH redeemed during NOTE unstaking */
     ethRedeem: types.maybe(NotionalTypes.TokenBalance),
+    /** True if the optimal ETH amount should be used for NOTE staking */
+    useOptimalETH: types.optional(types.boolean, false),
   })
   .actions((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
@@ -263,6 +269,9 @@ export const TradeModel = types
     };
 
     const setAvailableDepositTokens = () => {
+      // Skip this for NOTE staking
+      if (isNOTEStake(self.tradeType)) return;
+
       const model = root().getNetworkClient(self.selectedNetwork);
       const account = root().getAccountDefinition(self.selectedNetwork);
       const { depositFilter } = getTradeConfig(self.tradeType);
@@ -413,6 +422,8 @@ export const TradeModel = types
             utilization: undefined,
           }))
         );
+      } else if (isNOTEStake(self.tradeType)) {
+        calculate();
       }
     };
 
@@ -485,6 +496,35 @@ export const TradeModel = types
         self.defaultLeverageRatio = l.defaultLeverageRatio;
         self.minLeverageRatio = l.minLeverageRatio;
         self.maxLeverageRatio = l.maxLeverageRatio;
+      } else if (isNOTEStake(self.tradeType)) {
+        const stakeNOTEStatus = root().getAccountDefinition(
+          self.selectedNetwork
+        )?.stakeNOTEStatus;
+        const sNOTE = model.getTokenBySymbol('sNOTE') as Instance<
+          typeof TokenDefinitionModel
+        >;
+
+        if (stakeNOTEStatus?.inCoolDown) {
+          self.collateral = sNOTE;
+          self.tradeType = 'StakeNOTECoolDown';
+        } else if (stakeNOTEStatus?.inRedeemWindow) {
+          self.deposit = sNOTE;
+          self.availableDepositTokens.replace([sNOTE]);
+          self.tradeType = 'StakeNOTERedeem';
+        } else {
+          // This is the normal case, just staking NOTE
+          const ETH = model.getTokenBySymbol('ETH') as Instance<
+            typeof TokenDefinitionModel
+          >;
+          const WETH = model.getTokenBySymbol('WETH') as Instance<
+            typeof TokenDefinitionModel
+          >;
+          self.tradeType = 'StakeNOTE';
+          self.availableDepositTokens.replace([ETH, WETH]);
+          self.availableCollateralTokens.replace([sNOTE]);
+          self.collateral = sNOTE;
+          self.useOptimalETH = true;
+        }
       }
 
       setAvailableDepositTokens();
@@ -624,6 +664,57 @@ export const TradeModel = types
       }
     };
 
+    const calculateStakingWithOptimalETH = (
+      setETHInput: (value: string, emitChange: boolean) => void
+    ) => {
+      calculate();
+
+      if (self.useOptimalETH && self.depositBalance) {
+        const account = root().getNetworkAccount(self.selectedNetwork);
+        const accountBalances = account?.portfolioRiskProfile?.balances || [];
+        const maxETH = accountBalances.find(
+          (b) => b.token.id === self.depositBalance?.tokenId
+        );
+
+        // Cap the optimal ETH input to the account's balance
+        if (maxETH && self.depositBalance.gt(maxETH)) {
+          setETHInput(maxETH.toExactString(), false);
+          self.depositBalance = maxETH;
+        } else {
+          // Set the ETH input to the calculated optimal amount
+          setETHInput(self.depositBalance.toExactString(), false);
+        }
+      }
+    };
+
+    const setNOTEBalanceForStaking = (
+      balance: TokenBalance | undefined,
+      setETHInput: (value: string, emitChange: boolean) => void
+    ) => {
+      self.secondaryDepositBalance = balance;
+      calculateStakingWithOptimalETH(setETHInput);
+    };
+
+    const setETHBalanceForStaking = (
+      balance: TokenBalance | undefined,
+      hasTouchedETH: boolean,
+      setETHInput: (value: string, emitChange: boolean) => void
+    ) => {
+      self.useOptimalETH =
+        (balance === undefined || balance.isZero()) && !hasTouchedETH;
+      self.depositBalance = balance;
+
+      calculateStakingWithOptimalETH(setETHInput);
+    };
+
+    const setUseOptimalETHForStaking = (
+      useOptimalETH: boolean,
+      setETHInput: (value: string, emitChange: boolean) => void
+    ) => {
+      self.useOptimalETH = useOptimalETH;
+      calculateStakingWithOptimalETH(setETHInput);
+    };
+
     const setDepositBalance = (
       balance: TokenBalance | undefined,
       maxWithdraw = false
@@ -735,6 +826,9 @@ export const TradeModel = types
       setCollateralByID,
       setDebtByID,
       setVaultDebtByID,
+      setNOTEBalanceForStaking,
+      setETHBalanceForStaking,
+      setUseOptimalETHForStaking,
     };
   })
   .views((self) => {
@@ -1129,6 +1223,29 @@ export const TradeModel = types
               leverageRatio < postAccountRisk.maxLeverageRatio)) &&
           vaultCapacityError === false &&
           self.inputErrors === false
+        );
+      } else if (isNOTEStake(self.tradeType)) {
+        const account = root().getNetworkAccount(self.selectedNetwork);
+        const priorBalances = account?.portfolioRiskProfile?.balances;
+        const noteBalance = priorBalances?.find((t) => t.symbol === 'NOTE');
+        const ethBalance = priorBalances?.find(
+          (t) => t.tokenId === self.deposit?.id
+        );
+        const hasSufficientNOTE =
+          self.secondaryDepositBalance &&
+          noteBalance &&
+          self.secondaryDepositBalance.lte(noteBalance);
+        const hasSufficientETH =
+          self.depositBalance &&
+          ethBalance &&
+          self.depositBalance.lte(ethBalance);
+
+        return (
+          self.calculationSuccess &&
+          self.inputErrors === false &&
+          (self.tradeType === 'StakeNOTE'
+            ? hasSufficientETH && hasSufficientNOTE
+            : true)
         );
       } else {
         const postAccountRisk = getPostTradeSummary();

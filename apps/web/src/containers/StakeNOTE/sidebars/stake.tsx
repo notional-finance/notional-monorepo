@@ -1,12 +1,9 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { NOTEContext } from '..';
 import { useTheme } from '@mui/material';
 import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import {
-  useNOTE,
-  useWalletBalanceInputCheck,
-} from '@notional-finance/notionable-hooks';
+import { useNOTE } from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -14,56 +11,39 @@ import { TokenBalance } from '@notional-finance/core-entities';
 export const Stake = () => {
   const theme = useTheme();
   const context = useContext(NOTEContext);
-  const {
-    state: { useOptimalETH, depositBalance, deposit },
-    updateState,
-  } = context;
-  const { maxBalance: maxETH } = useWalletBalanceInputCheck(deposit, undefined);
+  const setNOTEBalanceForStaking = context.tradeModel?.setNOTEBalanceForStaking;
+  const setETHBalanceForStaking = context.tradeModel?.setETHBalanceForStaking;
+  const setUseOptimalETHForStaking =
+    context.tradeModel?.setUseOptimalETHForStaking;
+
   const [hasTouchedETH, setHasTouchedETH] = useState(false);
   const NOTE = useNOTE(Network.mainnet);
   const { currencyInputRef: ethInputRef, setCurrencyInput: setETHInput } =
     useCurrencyInputRef();
   const { currencyInputRef: noteInputRef } = useCurrencyInputRef();
 
-  const onNOTEUpdate = useCallback(
-    (inputAmount: TokenBalance | undefined) => {
-      updateState({ secondaryDepositBalance: inputAmount });
-    },
-    [updateState]
-  );
-
   const onETHUpdate = useCallback(
     (inputAmount: TokenBalance | undefined) => {
       if (inputAmount?.isPositive() && hasTouchedETH === false)
         setHasTouchedETH(true);
-      updateState({
-        depositBalance: inputAmount,
-        useOptimalETH: inputAmount?.isZero() && hasTouchedETH === false,
-      });
+      if (setETHBalanceForStaking)
+        setETHBalanceForStaking(inputAmount, hasTouchedETH, setETHInput);
     },
-    [updateState, hasTouchedETH]
+    [hasTouchedETH, setETHBalanceForStaking, setETHInput]
+  );
+
+  const onNOTEUpdate = useCallback(
+    (inputAmount: TokenBalance | undefined) => {
+      if (setNOTEBalanceForStaking)
+        setNOTEBalanceForStaking(inputAmount, setETHInput);
+    },
+    [setNOTEBalanceForStaking, setETHInput]
   );
 
   const onOptimize = useCallback(() => {
-    updateState({ useOptimalETH: true });
-  }, [updateState]);
-
-  useEffect(() => {
-    if (useOptimalETH && depositBalance) {
-      if (
-        maxETH &&
-        maxETH.tokenId === depositBalance.tokenId &&
-        depositBalance.gt(maxETH)
-      ) {
-        // Caps the max ETH input here
-        setETHInput(maxETH.toExactString(), false);
-        updateState({ depositBalance: maxETH });
-      } else {
-        setETHInput(depositBalance.toExactString(), false);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useOptimalETH, depositBalance?.hashKey, maxETH?.hashKey, setETHInput]);
+    if (setUseOptimalETHForStaking)
+      setUseOptimalETHForStaking(true, setETHInput);
+  }, [setUseOptimalETHForStaking, setETHInput]);
 
   return (
     <TransactionSidebar

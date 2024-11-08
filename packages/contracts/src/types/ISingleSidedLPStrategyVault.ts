@@ -162,6 +162,7 @@ export declare namespace ISingleSidedLPStrategyVault {
 
 export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
   functions: {
+    "convertStrategyToUnderlying(address,uint256,uint256)": FunctionFragment;
     "TOKENS()": FunctionFragment;
     "emergencyExit(uint256,bytes)": FunctionFragment;
     "getStrategyVaultInfo()": FunctionFragment;
@@ -185,6 +186,7 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "convertStrategyToUnderlying"
       | "TOKENS"
       | "emergencyExit"
       | "getStrategyVaultInfo"
@@ -206,6 +208,14 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
       | "updateRewardToken"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "convertStrategyToUnderlying",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
   encodeFunctionData(functionFragment: "TOKENS", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "emergencyExit",
@@ -293,6 +303,10 @@ export interface ISingleSidedLPStrategyVaultInterface extends utils.Interface {
     ]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "convertStrategyToUnderlying",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "TOKENS", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "emergencyExit",
@@ -465,6 +479,13 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    convertStrategyToUnderlying(
+      account: PromiseOrValue<string>,
+      strategyTokens: PromiseOrValue<BigNumberish>,
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { underlyingValue: BigNumber }>;
+
     TOKENS(
       overrides?: CallOverrides
     ): Promise<[string[], number[]] & { decimals: number[] }>;
@@ -582,6 +603,13 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  convertStrategyToUnderlying(
+    account: PromiseOrValue<string>,
+    strategyTokens: PromiseOrValue<BigNumberish>,
+    maturity: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   TOKENS(
     overrides?: CallOverrides
   ): Promise<[string[], number[]] & { decimals: number[] }>;
@@ -697,6 +725,13 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    convertStrategyToUnderlying(
+      account: PromiseOrValue<string>,
+      strategyTokens: PromiseOrValue<BigNumberish>,
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     TOKENS(
       overrides?: CallOverrides
     ): Promise<[string[], number[]] & { decimals: number[] }>;
@@ -868,6 +903,13 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
   };
 
   estimateGas: {
+    convertStrategyToUnderlying(
+      account: PromiseOrValue<string>,
+      strategyTokens: PromiseOrValue<BigNumberish>,
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     TOKENS(overrides?: CallOverrides): Promise<BigNumber>;
 
     emergencyExit(
@@ -968,6 +1010,13 @@ export interface ISingleSidedLPStrategyVault extends BaseContract {
   };
 
   populateTransaction: {
+    convertStrategyToUnderlying(
+      account: PromiseOrValue<string>,
+      strategyTokens: PromiseOrValue<BigNumberish>,
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     TOKENS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     emergencyExit(

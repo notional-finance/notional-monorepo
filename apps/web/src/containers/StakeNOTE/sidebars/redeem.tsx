@@ -1,31 +1,26 @@
-import { useContext } from 'react';
-import { NOTEContext } from '..';
 import { useTheme } from '@mui/material';
 import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
 import { LinkText, useCurrencyInputRef, Body } from '@notional-finance/mui';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useAccountDefinition } from '@notional-finance/notionable-hooks';
-import { Network, getDateString } from '@notional-finance/util';
+import { Network, getDateString, sNOTE } from '@notional-finance/util';
 import { useCancelCoolDown } from './use-cancel-cooldown';
 import { ReactNode } from 'react';
 
 export const Redeem = () => {
   const theme = useTheme();
-  const context = useContext(NOTEContext);
-  const {
-    state: { deposit },
-  } = context;
   const { currencyInputRef: sNOTEInputRef } = useCurrencyInputRef();
   const redeemWindowEnd = useAccountDefinition(Network.mainnet)?.stakeNOTEStatus
     ?.redeemWindowEnd;
   const { cancelCoolDown } = useCancelCoolDown();
+  const zeroSNOTE = new TokenBalance(0, sNOTE, Network.mainnet);
 
   return (
     <TransactionSidebar
       showDrawer
       // No approvals required for sNOTE redeem
-      requiredApprovalAmount={deposit ? TokenBalance.zero(deposit) : undefined}
+      requiredApprovalAmount={zeroSNOTE}
       mobileTopMargin={theme.spacing(16)}
       riskComponent={<div />}
     >

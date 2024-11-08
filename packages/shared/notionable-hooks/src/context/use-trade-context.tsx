@@ -1,7 +1,6 @@
 import {
   BaseTradeState,
   TradeState,
-  TradeType,
   AllTradeTypes,
   initialBaseTradeState,
 } from '@notional-finance/notionable';
@@ -56,7 +55,7 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
   return useObserver(() => root.tradeModel);
 };
 
-export function useTradeContext(tradeType: TradeType) {
+export function useTradeContext(tradeType: AllTradeTypes) {
   const tradeModel = useTradeModel(tradeType);
   const state = useObserver(() => {
     if (tradeModel) {

@@ -1,5 +1,3 @@
-import { useContext } from 'react';
-import { NOTEContext } from '..';
 import { Box, useTheme } from '@mui/material';
 import {
   PendingTransaction,
@@ -29,10 +27,7 @@ import { useCancelCoolDown } from './use-cancel-cooldown';
 
 export const CoolDown = () => {
   const theme = useTheme();
-  const context = useContext(NOTEContext);
-  const {
-    state: { selectedNetwork },
-  } = context;
+  const selectedNetwork = Network.mainnet;
   const { sideDrawerOpen } = useSideDrawerState();
   const {
     cancelCoolDown,

@@ -27,7 +27,7 @@ import { StakedNoteData } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useState } from 'react';
-import { PRODUCTS, SECONDS_IN_DAY } from '@notional-finance/util';
+import { PRODUCTS } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
 
 interface StakedNoteProps {
