@@ -17,6 +17,7 @@ import {
   SecondaryIncentiveToken,
 } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
+import { observer } from 'mobx-react-lite';
 
 interface ClaimNoteType {
   theme: NotionalTheme;
@@ -65,7 +66,7 @@ const useIncentiveCountUp = (
   return c;
 };
 
-export const ClaimNoteButton = () => {
+export const ClaimNoteButton = observer(() => {
   const theme = useTheme();
   const network = useSelectedNetwork();
   const [networkError, setNetworkError] = useState(false);
@@ -179,7 +180,7 @@ export const ClaimNoteButton = () => {
       )}
     </Box>
   );
-};
+});
 
 const NoteIcon = styled(NoteWithShadow)(
   ({ theme }) => `

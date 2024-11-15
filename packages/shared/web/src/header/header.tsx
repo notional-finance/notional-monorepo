@@ -14,8 +14,8 @@ import MobileNavigation from './mobile-navigation/mobile-navigation';
 import { useLocation } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
-  useNotionalContext,
   useSelectedNetwork,
+  useWalletNetworkAccounts,
 } from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
@@ -42,9 +42,7 @@ export function Header({ children }: HeaderProps) {
       ? contestTheme
       : appTheme;
   const { navLinks } = useNavLinks(false, theme);
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
+  const networkAccounts = useWalletNetworkAccounts();
 
   const subGraphError =
     networkAccounts &&

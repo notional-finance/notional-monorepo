@@ -11,25 +11,12 @@ import Llama from './assets/Llama.svg';
 import Cryptotesters from './assets/cryptotesters.svg';
 import L2DAO from './assets/L2DAO.svg';
 import { COMMUNITY_NAMES } from '@notional-finance/notionable';
-import { useMintPass, useSideDrawerManager } from '@notional-finance/notionable-hooks';
+import {
+  useMintPass,
+  useSideDrawerManager,
+} from '@notional-finance/notionable-hooks';
 
-const imgData = {
-  [COMMUNITY_NAMES.LLAMAS]: {
-    icon: Llama,
-  },
-  [COMMUNITY_NAMES.CRYPTO_TESTERS]: {
-    icon: Cryptotesters,
-  },
-  [COMMUNITY_NAMES.L2DAO]: {
-    icon: L2DAO,
-  },
-};
-
-const CommunityFound = ({
-  community,
-}: {
-  community: ReturnType<typeof useMintPass>['community'];
-}) => {
+const CommunityFound = () => {
   const theme = useTheme();
 
   return (
@@ -45,7 +32,7 @@ const CommunityFound = ({
           }}
         >
           <img
-            src={community?.name && imgData[community?.name]?.icon}
+            src={''}
             alt="community icon"
             style={{
               height: theme.spacing(7),
@@ -56,7 +43,7 @@ const CommunityFound = ({
           <FormattedMessage
             defaultMessage="{community} NFT Found"
             values={{
-              community: community?.displayName,
+              community: '',
             }}
           />
         </TitleText>
@@ -64,7 +51,7 @@ const CommunityFound = ({
           <FormattedMessage
             defaultMessage="You are set to compete for the special {community} prizes! Confirm to move on."
             values={{
-              community: community?.displayName,
+              community: '',
             }}
           />
         </ContestBodyText>
@@ -153,11 +140,7 @@ const CommunityNotFound = () => {
 export const CommunityPartners = ({
   community,
 }: ReturnType<typeof useMintPass>) => {
-  return community ? (
-    <CommunityFound community={community} />
-  ) : (
-    <CommunityNotFound />
-  );
+  return community ? <CommunityFound /> : <CommunityNotFound />;
 };
 
 export const ImageClusterContainer = styled(Box)(

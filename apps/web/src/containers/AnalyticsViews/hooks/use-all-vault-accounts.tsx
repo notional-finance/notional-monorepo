@@ -10,7 +10,7 @@ import {
   formatHealthFactorValues,
   useAllVaults,
   useFetchAnalyticsData,
-  useNotionalContext,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
 import { useCallback, useEffect, useState } from 'react';
@@ -25,7 +25,7 @@ export const useAllVaultAccounts = (
 ) => {
   const theme = useTheme();
   const listedVaults = useAllVaults();
-  const { updateNotional } = useNotionalContext();
+  const walletStore = useWalletStore();
   const navigate = useNavigate();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [vaultNameOptions, setVaultNameOptions] = useState([]);
@@ -50,19 +50,16 @@ export const useAllVaultAccounts = (
 
   const addressClick = useCallback(
     (address: string, network) => {
-      updateNotional({
-        wallet: {
-          signer: undefined,
-          selectedAddress: address,
-          isReadOnlyAddress: true,
-          label: 'ReadOnly',
-        },
-        selectedNetwork: network,
+      walletStore?.setUserWallet({
+        selectedChain: selectedNetwork || Network.mainnet,
+        selectedAddress: address,
+        isReadOnlyAddress: true,
+        label: 'ReadOnly',
       });
 
       navigate(`/portfolio/${network}/overview`);
     },
-    [navigate, updateNotional]
+    [navigate, walletStore, selectedNetwork]
   );
 
   const tableColumns = [

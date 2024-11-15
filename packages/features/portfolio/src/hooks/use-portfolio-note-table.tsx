@@ -9,28 +9,24 @@ import {
 } from '@notional-finance/mui';
 import {
   useNotePrice,
-  useNotionalContext,
+  useWalletNetworkAccounts,
 } from '@notional-finance/notionable-hooks';
-import { useTheme } from '@mui/material';
 import { Network, SupportedNetworks } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export function usePortfolioNOTETable() {
-  const theme = useTheme();
   const { notePrice } = useNotePrice();
-  const {
-    globalState: { networkAccounts },
-  } = useNotionalContext();
+  const networkAccounts = useWalletNetworkAccounts();
   let hasNoteOrSNote = false;
   const { baseCurrency } = useAppStore();
+
   const result = SupportedNetworks.map((network) => {
-    const account = networkAccounts
-      ? networkAccounts[network].accountDefinition
-      : undefined;
-    const totalIncentives = networkAccounts
-      ? networkAccounts[network].totalIncentives
-      : undefined;
+    const account = networkAccounts ? networkAccounts.get(network) : undefined;
+    const totalIncentives =
+      networkAccounts && networkAccounts[network]
+        ? networkAccounts[network].totalIncentives
+        : undefined;
     const unclaimedNOTE =
       totalIncentives && totalIncentives['NOTE']
         ? totalIncentives['NOTE'].current
@@ -207,7 +203,7 @@ export function usePortfolioNOTETable() {
         fontWeightBold: true,
       },
     ],
-    [theme]
+    []
   );
 
   const filteredResult = result.filter((r) => r !== null);

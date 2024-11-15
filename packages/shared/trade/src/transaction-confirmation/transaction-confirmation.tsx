@@ -9,7 +9,6 @@ import {
   ErrorMessage,
   ScrollToTop,
 } from '@notional-finance/mui';
-import { TokenDefinition } from '@notional-finance/core-entities';
 import {
   StatusHeading,
   TransactionButtons,
@@ -24,6 +23,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { PopulatedTransaction } from 'ethers';
+import { observer } from 'mobx-react-lite';
 
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
@@ -32,120 +32,118 @@ export interface TransactionConfirmationProps {
   isWithdraw?: boolean;
 }
 
-export const TransactionConfirmation = ({
-  heading,
-  onCancel,
-  onReturnToForm,
-}: TransactionConfirmationProps) => {
-  const theme = useTheme();
-  const [p, setPopulatedTransaction] = useState<{
-    populatedTransaction?: PopulatedTransaction;
-    transactionError?: string;
-  }>({
-    populatedTransaction: undefined,
-    transactionError: undefined,
-  });
-  const location = useLocation();
-  const trade = useCurrentTradeContext();
-  const { debt, collateral } = trade?.selectedTokens ?? {};
-  const tradeType = trade?.tradeType;
-  const selectedNetwork = trade?.selectedNetwork;
-  const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
-    useTransactionStatus(selectedNetwork);
-
-  const onTxnCancel = useCallback(() => {
-    trade?.clearTradeState();
-  }, [trade]);
-
-  useEffect(() => {
-    if (
-      trade &&
-      p.populatedTransaction === undefined &&
-      p.transactionError === undefined
-    ) {
-      trade.buildTransaction().then(setPopulatedTransaction);
-    }
-  }, [trade, p]);
-
-  useEffect(() => {
-    trackEvent(TRACKING_EVENTS.CONFIRMATION, {
-      selectedNetwork,
-      tradeType,
-      path: location.pathname,
-      routeType: location.state?.routeType || 'unknown',
+export const TransactionConfirmation = observer(
+  ({ heading, onCancel, onReturnToForm }: TransactionConfirmationProps) => {
+    const theme = useTheme();
+    const [p, setPopulatedTransaction] = useState<{
+      populatedTransaction?: PopulatedTransaction;
+      transactionError?: string;
+    }>({
+      populatedTransaction: undefined,
+      transactionError: undefined,
     });
-    // NOTE: only execute once on page load
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const location = useLocation();
+    const trade = useCurrentTradeContext();
+    const tradeType = trade?.tradeType;
+    const selectedNetwork = trade?.selectedNetwork;
+    const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
+      useTransactionStatus(selectedNetwork);
 
-  return (
-    <Box sx={{ minHeight: theme.spacing(162) }}>
-      <ScrollToTop />
-      <StatusHeading
-        heading={heading}
-        transactionStatus={
-          p.transactionError
-            ? TransactionStatus.ERROR_BUILDING
-            : transactionStatus
-        }
-      />
-      <TermsOfService theme={theme}>
-        {transactionStatus === TransactionStatus.NONE && (
-          <FormattedMessage
-            defaultMessage={
-              'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
-            }
-            values={{
-              a: (msg: React.ReactNode) => (
-                <ExternalLink
-                  href="/terms"
-                  style={{ color: theme.palette.primary.light }}
-                >
-                  {msg}
-                </ExternalLink>
-              ),
-            }}
-          />
-        )}
-        {transactionStatus === TransactionStatus.SUBMITTED && (
-          <FormattedMessage
-            defaultMessage={
-              'You will be notified when the transaction is complete.'
-            }
-          />
-        )}
-      </TermsOfService>
+    const onTxnCancel = useCallback(() => {
+      trade?.clearTradeState();
+    }, [trade]);
 
-      <Divider
-        variant="fullWidth"
-        sx={{ background: 'white', marginBottom: theme.spacing(6) }}
-      />
+    useEffect(() => {
+      if (
+        trade &&
+        p.populatedTransaction === undefined &&
+        p.transactionError === undefined
+      ) {
+        trade.buildTransaction().then(setPopulatedTransaction);
+      }
+    }, [trade, p]);
 
-      <OrderDetails />
-      {transactionHash && (
-        <PendingTransaction
-          hash={transactionHash}
-          transactionStatus={transactionStatus}
-          selectedNetwork={selectedNetwork}
+    useEffect(() => {
+      trackEvent(TRACKING_EVENTS.CONFIRMATION, {
+        selectedNetwork,
+        tradeType,
+        path: location.pathname,
+        routeType: location.state?.routeType || 'unknown',
+      });
+      // NOTE: only execute once on page load
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return (
+      <Box sx={{ minHeight: theme.spacing(162) }}>
+        <ScrollToTop />
+        <StatusHeading
+          heading={heading}
+          transactionStatus={
+            p.transactionError
+              ? TransactionStatus.ERROR_BUILDING
+              : transactionStatus
+          }
         />
-      )}
-      {(transactionStatus === TransactionStatus.REVERT ||
-        p.transactionError) && (
-        <Box sx={{ height: theme.spacing(8), marginBottom: theme.spacing(6) }}>
-          <ErrorMessage
-            variant="error"
-            marginBottom
-            message={
-              p.transactionError ? (
-                p.transactionError
-              ) : (
-                <FormattedMessage defaultMessage={'Transaction Reverted'} />
-              )
-            }
+        <TermsOfService theme={theme}>
+          {transactionStatus === TransactionStatus.NONE && (
+            <FormattedMessage
+              defaultMessage={
+                'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
+              }
+              values={{
+                a: (msg: React.ReactNode) => (
+                  <ExternalLink
+                    href="/terms"
+                    style={{ color: theme.palette.primary.light }}
+                  >
+                    {msg}
+                  </ExternalLink>
+                ),
+              }}
+            />
+          )}
+          {transactionStatus === TransactionStatus.SUBMITTED && (
+            <FormattedMessage
+              defaultMessage={
+                'You will be notified when the transaction is complete.'
+              }
+            />
+          )}
+        </TermsOfService>
+
+        <Divider
+          variant="fullWidth"
+          sx={{ background: 'white', marginBottom: theme.spacing(6) }}
+        />
+
+        <OrderDetails />
+        {transactionHash && (
+          <PendingTransaction
+            hash={transactionHash}
+            transactionStatus={transactionStatus}
+            selectedNetwork={selectedNetwork}
           />
-        </Box>
-      )}
-      {/* {simulationError && (
+        )}
+        {(transactionStatus === TransactionStatus.REVERT ||
+          p.transactionError) && (
+          <Box
+            sx={{ height: theme.spacing(8), marginBottom: theme.spacing(6) }}
+          >
+            <ErrorMessage
+              variant="error"
+              marginBottom
+              message={
+                p.transactionError ? (
+                  p.transactionError
+                ) : (
+                  <FormattedMessage defaultMessage={'Transaction Reverted'} />
+                )
+              }
+            />
+          </Box>
+        )}
+        {/* {simulationError && (
         <Box sx={{ marginBottom: theme.spacing(6) }}>
           <ErrorMessage
             variant="warning"
@@ -154,41 +152,36 @@ export const TransactionConfirmation = ({
           />
         </Box>
       )} */}
-      {(transactionStatus === TransactionStatus.NONE ||
-        transactionStatus === TransactionStatus.WAIT_USER_CONFIRM) &&
-        p.transactionError === undefined && (
-          <PortfolioCompare populatedTransaction={p.populatedTransaction} />
-        )}
-      <TransactionButtons
-        network={selectedNetwork}
-        transactionStatus={
-          p.transactionError
-            ? TransactionStatus.ERROR_BUILDING
-            : transactionStatus
-        }
-        onSubmit={() =>
-          onSubmit(
-            tradeType || 'unknown',
-            p.populatedTransaction,
-            [debt, collateral].filter(
-              (t) => t !== undefined
-            ) as TokenDefinition[]
-          )
-        }
-        onCancel={() => {
-          onTxnCancel();
-          if (onCancel) onCancel();
-        }}
-        onReturnToForm={() => {
-          onTxnCancel();
-          if (onReturnToForm) onReturnToForm();
-        }}
-        isDisabled={isReadOnlyAddress || !!p.transactionError}
-        isLoaded={p.populatedTransaction !== undefined}
-      />
-    </Box>
-  );
-};
+        {(transactionStatus === TransactionStatus.NONE ||
+          transactionStatus === TransactionStatus.WAIT_USER_CONFIRM) &&
+          p.transactionError === undefined && (
+            <PortfolioCompare populatedTransaction={p.populatedTransaction} />
+          )}
+        <TransactionButtons
+          network={selectedNetwork}
+          transactionStatus={
+            p.transactionError
+              ? TransactionStatus.ERROR_BUILDING
+              : transactionStatus
+          }
+          onSubmit={() =>
+            onSubmit(tradeType || 'unknown', p.populatedTransaction)
+          }
+          onCancel={() => {
+            onTxnCancel();
+            if (onCancel) onCancel();
+          }}
+          onReturnToForm={() => {
+            onTxnCancel();
+            if (onReturnToForm) onReturnToForm();
+          }}
+          isDisabled={isReadOnlyAddress || !!p.transactionError}
+          isLoaded={p.populatedTransaction !== undefined}
+        />
+      </Box>
+    );
+  }
+);
 
 export const TermsOfService = styled(HeadingSubtitle)(
   ({ theme }) => `

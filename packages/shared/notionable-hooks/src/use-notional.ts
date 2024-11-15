@@ -44,23 +44,6 @@ export function useAppContext() {
   return { appState: app, appState$, updateAppState };
 }
 
-export function useNotionalContext() {
-  const { global, global$, updateGlobalState } = useContext(NotionalContext);
-  const initialState$ = useObservable(pluckFirst, [global]);
-
-  // Ensures that listeners receive the initial global state
-  const _globalState$ = useObservable(
-    (s$) => concat(initialState$.pipe(take(1)), s$.pipe(switchMap(([g]) => g))),
-    [global$]
-  );
-
-  return {
-    globalState: global,
-    updateNotional: updateGlobalState,
-    globalState$: _globalState$,
-  };
-}
-
 export function useNOTE(network: Network | undefined) {
   return useObserver(() =>
     network ? getNetworkModel(network).getTokenBySymbol('NOTE') : undefined

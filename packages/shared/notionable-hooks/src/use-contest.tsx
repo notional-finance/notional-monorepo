@@ -8,7 +8,6 @@ import {
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { Contract } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
-import { useNotionalContext } from './use-notional';
 import { useTransactionStatus } from './use-transaction';
 import moment from 'moment';
 
@@ -87,25 +86,16 @@ export function useMintPass() {
     transactionStatus,
   } = useTransactionStatus(Network.arbitrum);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const {
-    globalState: { communityMembership, wallet },
-  } = useNotionalContext();
-  const community = communityMembership?.find((c) =>
-    ContestPartners.includes(c.name)
-  );
+  const community = undefined;
   const [mintedAddress, setMintedAddress] = useState<string | undefined>(
-    wallet?.selectedAddress
+    undefined
   );
-
-  useEffect(() => {
-    if (wallet?.selectedAddress) setMintedAddress(wallet?.selectedAddress);
-  }, [wallet?.selectedAddress]);
 
   const onMintPass = useCallback(async () => {
     setErrorMessage('');
     if (!isWalletConnectedToNetwork || isReadOnlyAddress || !mintedAddress)
       return;
-    const communityId = community?.name ? CommunityId[community.name] : 0;
+    const communityId = 0;
     const txn = await NotionalPass.populateTransaction.safeMint(
       mintedAddress,
       CURRENT_CONTEST_ID,
@@ -126,13 +116,7 @@ export function useMintPass() {
           : 'Error occurred';
       setErrorMessage(message);
     }
-  }, [
-    onSubmit,
-    isWalletConnectedToNetwork,
-    isReadOnlyAddress,
-    community?.name,
-    mintedAddress,
-  ]);
+  }, [onSubmit, isWalletConnectedToNetwork, isReadOnlyAddress, mintedAddress]);
 
   return {
     onMintPass,

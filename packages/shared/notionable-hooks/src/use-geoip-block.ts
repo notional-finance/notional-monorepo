@@ -1,7 +1,8 @@
 import { useNavigate, useLocation } from 'react-router';
-import { useAppContext, useNotionalContext } from './use-notional';
+import { useAppContext } from './use-notional';
 import { useEffect } from 'react';
 import { isTestHost } from '@notional-finance/util';
+import { useWalletStore } from './context/use-root-store';
 
 const env = process.env['NODE_ENV'];
 // https://orpa.princeton.edu/export-controls/sanctioned-countries
@@ -40,10 +41,7 @@ export function useSanctionsBlock() {
   const {
     appState: { country },
   } = useAppContext();
-  const {
-    globalState: { isSanctionedAddress },
-  } = useNotionalContext();
-
+  const { isSanctionedAddress } = useWalletStore();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
