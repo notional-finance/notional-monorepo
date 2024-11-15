@@ -51,7 +51,7 @@ export const useBorrowTerms = (
   const formatOptions = useCallback((options: any[]) => {
     const result = [] as any[];
     // First sort options by maturity
-    options.sort((a, b) => {
+    options.slice().sort((a, b) => {
       if (a?.token?.maturity && b?.token?.maturity) {
         return a.token.maturity - b.token.maturity;
       } else {

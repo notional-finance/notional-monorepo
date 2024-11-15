@@ -9,6 +9,7 @@ import { SxProps, useTheme } from '@mui/material';
 export const useTotalsData = (state: TradeState, baseCurrency: FiatKeys) => {
   const theme = useTheme();
   const { deposit } = state;
+  // todo: fix this...
   const currentNetworkStore = useCurrentNetworkStore();
   const totalsData = currentNetworkStore.getNTokenTotalsData(deposit);
 
