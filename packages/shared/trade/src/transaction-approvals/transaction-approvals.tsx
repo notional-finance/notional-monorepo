@@ -2,10 +2,8 @@ import { useTheme, Divider } from '@mui/material';
 import { StatusHeading } from '../transaction-confirmation/components/status-heading';
 import { Button, ScrollToTop } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import {
-  TransactionStatus,
-  useCurrentTradeContext,
-} from '@notional-finance/notionable-hooks';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import { TransactionStatus } from '@notional-finance/util';
 import { TermsOfService } from '../transaction-confirmation/transaction-confirmation';
 import { ApprovalButton } from './components/approval-button';
 import { messages } from './messages';

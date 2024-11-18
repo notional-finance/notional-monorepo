@@ -9,6 +9,7 @@ import {
   getFromLocalStorage,
   Network,
   THEME_VARIANTS,
+  TransactionStatus,
 } from '@notional-finance/util';
 import { AppStoreModel } from './app-store';
 import { WalletModel } from './wallet-store';
@@ -73,6 +74,10 @@ export const createRootStore = (): RootStoreType => {
     walletStore: {
       isSanctionedAddress: false,
       isAccountPending: false,
+      transactionStatus: TransactionStatus.NONE,
+      transactionHash: '',
+      sentTransactions: [],
+      pendingPnL: {},
       userWallet: {
         selectedChain: undefined,
         selectedAddress: '',

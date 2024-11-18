@@ -1,6 +1,8 @@
-import { CONTEST_SIGN_UP_STEPS } from '@notional-finance/util';
 import {
+  CONTEST_SIGN_UP_STEPS,
   TransactionStatus,
+} from '@notional-finance/util';
+import {
   useAccountReady,
   useMintPass,
   useSelectedNetwork,

@@ -2,7 +2,6 @@ import { useTheme, Divider, Box } from '@mui/material';
 import { StatusHeading } from '../transaction-confirmation/components/status-heading';
 import { Button, ScrollToTop } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { TransactionStatus } from '@notional-finance/notionable-hooks';
 import { TermsOfService } from '../transaction-confirmation/transaction-confirmation';
 import { ApprovalButton } from './components/approval-button';
 import { messages } from './messages';
@@ -10,6 +9,7 @@ import {
   getNetworkSymbol,
   getNetworkTitle,
   Network,
+  TransactionStatus,
 } from '@notional-finance/util';
 import { useChangeNetwork } from './hooks/use-change-network';
 import { useState } from 'react';

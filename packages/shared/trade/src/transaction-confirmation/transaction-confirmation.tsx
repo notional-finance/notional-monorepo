@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { trackEvent } from '@notional-finance/helpers';
-import { TRACKING_EVENTS } from '@notional-finance/util';
+import { TRACKING_EVENTS, TransactionStatus } from '@notional-finance/util';
 import { Divider, styled, useTheme, Box } from '@mui/material';
 import { useLocation } from 'react-router';
 import {
@@ -17,13 +17,13 @@ import {
   PendingTransaction,
 } from './components';
 import {
-  TransactionStatus,
-  useTransactionStatus,
   useCurrentTradeContext,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { PopulatedTransaction } from 'ethers';
 import { observer } from 'mobx-react-lite';
+import { useConnectWallet } from '@web3-onboard/react';
 
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
@@ -43,15 +43,29 @@ export const TransactionConfirmation = observer(
       transactionError: undefined,
     });
     const location = useLocation();
+    const [{ wallet }] = useConnectWallet();
     const trade = useCurrentTradeContext();
     const tradeType = trade?.tradeType;
     const selectedNetwork = trade?.selectedNetwork;
-    const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
-      useTransactionStatus(selectedNetwork);
+    const {
+      submitTxn,
+      transactionStatus,
+      transactionHash,
+      userWallet,
+      setTransactionStatus,
+      setTransactionHash,
+    } = useWalletStore();
 
     const onTxnCancel = useCallback(() => {
       trade?.clearTradeState();
     }, [trade]);
+
+    useEffect(() => {
+      return () => {
+        setTransactionStatus(TransactionStatus.NONE);
+        setTransactionHash('');
+      };
+    }, [setTransactionHash, setTransactionStatus]);
 
     useEffect(() => {
       if (
@@ -165,7 +179,13 @@ export const TransactionConfirmation = observer(
               : transactionStatus
           }
           onSubmit={() =>
-            onSubmit(tradeType || 'unknown', p.populatedTransaction)
+            p.populatedTransaction && wallet
+              ? submitTxn(
+                  tradeType || 'unknown',
+                  p.populatedTransaction,
+                  wallet
+                )
+              : null
           }
           onCancel={() => {
             onTxnCancel();
@@ -175,7 +195,7 @@ export const TransactionConfirmation = observer(
             onTxnCancel();
             if (onReturnToForm) onReturnToForm();
           }}
-          isDisabled={isReadOnlyAddress || !!p.transactionError}
+          isDisabled={userWallet?.isReadOnlyAddress || !!p.transactionError}
           isLoaded={p.populatedTransaction !== undefined}
         />
       </Box>

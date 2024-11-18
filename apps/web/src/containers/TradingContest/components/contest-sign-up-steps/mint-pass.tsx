@@ -11,14 +11,10 @@ import { FormattedMessage } from 'react-intl';
 import { ethers } from 'ethers';
 import { useWalletStore } from '@notional-finance/notionable-hooks';
 import { useMintPass } from '@notional-finance/notionable-hooks';
-import { ContestButtonBar } from '../contest-button-bar';
-import { useChangeNetwork } from '@notional-finance/trade';
-import { Network } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
 
 const MintPass = ({
   isReadOnlyAddress,
-  isWalletConnectedToNetwork,
   onMintPass,
   mintedAddress,
   setMintedAddress,
@@ -28,7 +24,6 @@ const MintPass = ({
   const theme = useTheme();
   const { userWallet } = useWalletStore();
   const [error, setError] = useState<string>('');
-  const { changeNetwork: onSwitchNetwork } = useChangeNetwork(undefined);
 
   useEffect(() => {
     if (errorMessage) {
@@ -125,7 +120,7 @@ const MintPass = ({
             </Box>
           </Box>
 
-          <ContestButtonBar
+          {/* <ContestButtonBar
             buttonOneText={<FormattedMessage defaultMessage={'Back'} />}
             buttonOnePathTo="community-partners"
             buttonTwoText={
@@ -140,7 +135,7 @@ const MintPass = ({
                 ? handleMint()
                 : onSwitchNetwork(Network.arbitrum)
             }
-          />
+          /> */}
         </>
       )}
     </StepContainer>

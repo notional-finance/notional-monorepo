@@ -2,11 +2,10 @@ import { MouseEventHandler } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { TransactionStatus } from '@notional-finance/notionable-hooks';
 import { DiscordIcon } from '@notional-finance/icons';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useLocation } from 'react-router';
-import { Network } from '@notional-finance/util';
+import { Network, TransactionStatus } from '@notional-finance/util';
 
 const ButtonContainer = styled(Box)(
   ({ theme }) => `
@@ -30,7 +29,7 @@ const ButtonContainer = styled(Box)(
 );
 
 export interface TransactionButtonsProps {
-  transactionStatus: TransactionStatus;
+  transactionStatus: TransactionStatus | undefined;
   onSubmit: MouseEventHandler<HTMLButtonElement>;
   onCancel: MouseEventHandler<HTMLButtonElement>;
   isLoaded: boolean;

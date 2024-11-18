@@ -20,28 +20,28 @@ import { useCallback } from 'react';
 import {
   useAccountDefinition,
   useWalletConnectedNetwork,
-  useTransactionStatus,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { SNOTEWeightedPool } from '@notional-finance/core-entities';
 
 export const CoolDownDrawer = () => {
   const theme = useTheme();
   const account = useAccountDefinition(Network.mainnet);
-  const { isReadOnlyAddress, onSubmit, transactionStatus, transactionHash } =
-    useTransactionStatus(Network.mainnet);
+  const { userWallet, submitTxn, transactionStatus, transactionHash } =
+    useWalletStore();
   const { days, coolDownEnd, coolDownBegin } = useCoolDownDrawer();
   const walletConnectedNetwork = useWalletConnectedNetwork();
   const mustSwitchNetwork = Network.mainnet !== walletConnectedNetwork;
 
   const handleClick = useCallback(async () => {
-    if (isReadOnlyAddress || !account) return;
+    if (userWallet?.isReadOnlyAddress || !account) return;
 
     const populatedTxn = await SNOTEWeightedPool.sNOTE_Contract
       .connect(getProviderFromNetwork(Network.mainnet))
       .populateTransaction.startCoolDown();
 
-    onSubmit('StartSNOTECooldown', populatedTxn);
-  }, [isReadOnlyAddress, account, onSubmit]);
+    submitTxn('StartSNOTECooldown', populatedTxn);
+  }, [userWallet?.isReadOnlyAddress, account, submitTxn]);
 
   return (
     <Box>
@@ -160,7 +160,7 @@ export const CoolDownDrawer = () => {
         variant="contained"
         size="large"
         sx={{ width: '100%', marginTop: theme.spacing(12) }}
-        disabled={isReadOnlyAddress || mustSwitchNetwork}
+        disabled={userWallet?.isReadOnlyAddress || mustSwitchNetwork}
       >
         <FormattedMessage
           defaultMessage={'Start {days} Day Cooldown'}

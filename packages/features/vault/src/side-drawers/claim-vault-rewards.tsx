@@ -1,8 +1,8 @@
 import {
   useCurrentNetworkAccount,
-  useTransactionStatus,
   useVaultPosition,
   useWalletAddress,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useContext } from 'react';
 import { VaultActionContext } from '../vault';
@@ -21,6 +21,7 @@ import {
 } from '@notional-finance/contracts';
 import { Contract } from 'ethers';
 import { observer } from 'mobx-react-lite';
+import { useConnectWallet } from '@web3-onboard/react';
 
 export const ClaimVaultRewards = observer(() => {
   const context = useContext(VaultActionContext);
@@ -28,6 +29,7 @@ export const ClaimVaultRewards = observer(() => {
     state: { vaultAddress, selectedNetwork },
   } = context;
   const navigate = useNavigate();
+  const [{ wallet }] = useConnectWallet();
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const account = useWalletAddress();
   const networkAccount = useCurrentNetworkAccount();
@@ -39,22 +41,26 @@ export const ClaimVaultRewards = observer(() => {
     }
   }, [vaultAddress, networkAccount]);
 
-  const { isReadOnlyAddress, onSubmit } = useTransactionStatus(
-    selectedNetwork,
-    clearRewardClaims
-  );
+  const { userWallet, submitTxn } = useWalletStore();
 
   const handleSubmit = useCallback(async () => {
-    if (!isReadOnlyAddress && vaultAddress && account) {
+    if (!userWallet?.isReadOnlyAddress && vaultAddress && account && wallet) {
       const contract = new Contract(
         vaultAddress,
         ISingleSidedLPStrategyVaultABI
       ) as ISingleSidedLPStrategyVault;
       const populatedTxn =
         await contract.populateTransaction.claimAccountRewards(account);
-      onSubmit('Claim Vault Rewards', populatedTxn);
+      submitTxn('Claim Vault Rewards', populatedTxn, wallet, clearRewardClaims);
     }
-  }, [isReadOnlyAddress, onSubmit, vaultAddress, account]);
+  }, [
+    userWallet?.isReadOnlyAddress,
+    submitTxn,
+    vaultAddress,
+    account,
+    clearRewardClaims,
+    wallet,
+  ]);
 
   const tableData =
     vaultPosition?.vaultMetadata.rewardClaims?.map((a) => ({
@@ -70,7 +76,7 @@ export const ClaimVaultRewards = observer(() => {
       helptext={defineMessage({
         defaultMessage: 'Claim the rewards earned from your vault.',
       })}
-      canSubmit={!mustSwitchNetwork && !isReadOnlyAddress}
+      canSubmit={!mustSwitchNetwork && !userWallet?.isReadOnlyAddress}
       handleSubmit={handleSubmit}
       onCancelCallback={() => {
         navigate(-1);
