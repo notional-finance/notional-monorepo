@@ -8,8 +8,8 @@ import {
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { Contract } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
-import { useTransactionStatus } from './use-transaction';
 import moment from 'moment';
+import { useWalletStore } from './context/use-root-store';
 
 export const showContestNavLink = true;
 // Millisecond time stamp for Feb 26th 10:00 AM EST
@@ -78,13 +78,8 @@ export function useContestPass() {
 }
 
 export function useMintPass() {
-  const {
-    onSubmit,
-    isWalletConnectedToNetwork,
-    isReadOnlyAddress,
-    transactionHash,
-    transactionStatus,
-  } = useTransactionStatus(Network.arbitrum);
+  const { submitTxn, transactionHash, transactionStatus, userWallet } =
+    useWalletStore();
   const [errorMessage, setErrorMessage] = useState<string>('');
   const community = undefined;
   const [mintedAddress, setMintedAddress] = useState<string | undefined>(
@@ -93,8 +88,7 @@ export function useMintPass() {
 
   const onMintPass = useCallback(async () => {
     setErrorMessage('');
-    if (!isWalletConnectedToNetwork || isReadOnlyAddress || !mintedAddress)
-      return;
+    if (userWallet?.isReadOnlyAddress || !mintedAddress) return;
     const communityId = 0;
     const txn = await NotionalPass.populateTransaction.safeMint(
       mintedAddress,
@@ -102,7 +96,7 @@ export function useMintPass() {
       communityId
     );
 
-    onSubmit('Mint Contest Pass', txn);
+    submitTxn('Mint Contest Pass', txn);
     try {
       await NotionalPass.estimateGas.safeMint(
         mintedAddress,
@@ -116,12 +110,11 @@ export function useMintPass() {
           : 'Error occurred';
       setErrorMessage(message);
     }
-  }, [onSubmit, isWalletConnectedToNetwork, isReadOnlyAddress, mintedAddress]);
+  }, [submitTxn, userWallet?.isReadOnlyAddress, mintedAddress]);
 
   return {
     onMintPass,
-    isWalletConnectedToNetwork,
-    isReadOnlyAddress,
+    isReadOnlyAddress: userWallet?.isReadOnlyAddress,
     transactionHash,
     transactionStatus,
     mintedAddress,

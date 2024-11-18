@@ -50,7 +50,6 @@ export const PortfolioFeatureShell = observer(() => {
   useEffect(() => {
     if (
       !isAccountLoading &&
-      !hasNoteOrSNote &&
       !isAcctAndBalanceReady &&
       params.sideDrawerKey !== 'cool-down'
     ) {

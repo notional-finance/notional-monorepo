@@ -7,7 +7,7 @@ import {
   ProgressIndicator,
   LargeInputTextEmphasized,
 } from '@notional-finance/mui';
-import { TransactionStatus } from '@notional-finance/notionable-hooks';
+import { TransactionStatus } from '@notional-finance/util';
 
 const Heading = styled(LargeInputTextEmphasized)`
   margin-bottom: 1.25rem;
@@ -21,7 +21,7 @@ const StatusIcon = styled(Box)`
 `;
 interface StatusHeadingProps {
   heading: React.ReactNode;
-  transactionStatus: TransactionStatus;
+  transactionStatus: TransactionStatus | undefined;
 }
 
 export const StatusHeading = ({

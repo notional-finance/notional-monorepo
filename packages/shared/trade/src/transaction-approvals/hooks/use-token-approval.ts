@@ -1,7 +1,7 @@
 import { Contract, constants, ethers } from 'ethers';
 import {
   useAccountDefinition,
-  useTransactionStatus,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { Network, NotionalAddress, sNOTE } from '@notional-finance/util';
 import { useCallback } from 'react';
@@ -15,8 +15,7 @@ export const useTokenApproval = (
   const currentTokenStatus = account?.allowances?.find(
     (t) => t.amount.symbol === symbol
   );
-  const { isReadOnlyAddress, transactionStatus, onSubmit } =
-    useTransactionStatus(network);
+  const { userWallet, transactionStatus, submitTxn } = useWalletStore();
 
   const enableToken = useCallback(
     async (approve: boolean) => {
@@ -37,7 +36,7 @@ export const useTokenApproval = (
           }
 
           const allowance = approve ? constants.MaxUint256 : constants.Zero;
-          onSubmit(
+          submitTxn(
             'ApproveToken',
             await erc20.populateTransaction.approve(spender, allowance)
           );
@@ -46,13 +45,13 @@ export const useTokenApproval = (
         // todo
       }
     },
-    [currentTokenStatus, network, onSubmit, symbol]
+    [currentTokenStatus, network, submitTxn, symbol]
   );
 
   return {
     tokenStatus: currentTokenStatus,
     tokenApprovalTxnStatus: transactionStatus,
-    isSignerConnected: account && !isReadOnlyAddress,
+    isSignerConnected: account && !userWallet?.isReadOnlyAddress,
     enableToken,
   };
 };

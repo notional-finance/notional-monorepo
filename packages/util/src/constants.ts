@@ -274,3 +274,14 @@ export const NOTEAddress: Record<Network, string> = {
   [Network.mainnet]: '0xCFEAead4947f0705A14ec42aC3D44129E1Ef3eD5',
   [Network.arbitrum]: '0x019bE259BC299F3F653688c7655C87F998Bc7bC1',
 };
+
+export enum TransactionStatus {
+  NONE = 'none',
+  BUILT = 'built',
+  ERROR_BUILDING = 'error-building',
+  WAIT_USER_CONFIRM = 'wait-user-confirm',
+  SUBMITTED = 'submitted',
+  CONFIRMED = 'confirmed',
+  REVERT = 'revert',
+  APPROVAL_PENDING = 'approval-pending',
+}

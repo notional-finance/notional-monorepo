@@ -8,8 +8,8 @@ import {
   useAccountDefinition,
   useSelectedNetwork,
   useTotalIncentives,
-  useTransactionStatus,
   useWalletConnectedNetwork,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { ClaimNOTE } from '@notional-finance/transaction';
 import {
@@ -72,7 +72,7 @@ export const ClaimNoteButton = observer(() => {
   const [networkError, setNetworkError] = useState(false);
   const walletNetwork = useWalletConnectedNetwork();
   const account = useAccountDefinition(network);
-  const { isReadOnlyAddress, onSubmit } = useTransactionStatus(network);
+  const { submitTxn, userWallet } = useWalletStore();
   const [hover, setHover] = useState(false);
   const totalIncentives = useTotalIncentives(network);
 
@@ -97,7 +97,7 @@ export const ClaimNoteButton = observer(() => {
   }, [networkError]);
 
   const handleClick = useCallback(async () => {
-    if (isReadOnlyAddress || !account || !network) return;
+    if (userWallet?.isReadOnlyAddress || !account || !network) return;
 
     if (walletNetwork !== network) {
       setNetworkError(true);
@@ -110,8 +110,14 @@ export const ClaimNoteButton = observer(() => {
       accountBalances: [],
       maxWithdraw: false,
     });
-    onSubmit('ClaimNOTE', await txn);
-  }, [onSubmit, isReadOnlyAddress, account, network, walletNetwork]);
+    submitTxn('ClaimNOTE', await txn);
+  }, [
+    submitTxn,
+    userWallet?.isReadOnlyAddress,
+    account,
+    network,
+    walletNetwork,
+  ]);
 
   return (
     <Box

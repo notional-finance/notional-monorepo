@@ -6,18 +6,17 @@ import { getEtherscanTransactionLink } from '@notional-finance/util';
 import { colors } from '@notional-finance/styles';
 import { truncateAddress } from '@notional-finance/helpers';
 import { CopyCaption } from '@notional-finance/mui';
-import { Network } from '@notional-finance/util';
-import { TransactionStatus } from '@notional-finance/notionable-hooks';
+import { Network, TransactionStatus } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
 import { trackOutboundLink } from '@notional-finance/helpers';
 
 interface PendingTransactionProps {
   hash: string;
-  transactionStatus: string;
+  transactionStatus: TransactionStatus | undefined;
   selectedNetwork: Network | undefined;
 }
 interface ContainerProps {
-  transactionStatus: string;
+  transactionStatus: TransactionStatus | undefined;
   theme: NotionalTheme;
 }
 

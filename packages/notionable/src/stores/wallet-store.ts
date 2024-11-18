@@ -4,13 +4,24 @@ import {
   NotionalTypes,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { Network, SupportedNetworks } from '@notional-finance/util';
+import {
+  Network,
+  SupportedNetworks,
+  TRACKING_EVENTS,
+  TransactionStatus,
+} from '@notional-finance/util';
 import { checkSanctionedAddress } from '../global/account/communities';
 import { updateWalletTracking } from '../global/account/tracking';
-import { identify } from '@notional-finance/helpers';
-import { Provider, TransactionResponse } from '@ethersproject/providers';
+import { identify, trackEvent } from '@notional-finance/helpers';
+import {
+  Provider,
+  TransactionReceipt,
+  TransactionResponse,
+} from '@ethersproject/providers';
 import { AccountPortfolioModel } from './PortfolioModel';
 import { RootStoreInterface } from './root-store';
+import { ethers, PopulatedTransaction } from 'ethers';
+import { WalletState } from '@web3-onboard/core';
 
 const UserWalletModel = types.model('UserWalletModel', {
   selectedChain: types.maybe(NotionalTypes.Network),
@@ -29,7 +40,7 @@ const SentTransactionModel = types.model('SentTransactionModel', {
 const TransactionReceiptModel = types.model('TransactionReceiptModel', {
   to: types.string,
   from: types.string,
-  contractAddress: types.string,
+  contractAddress: types.maybeNull(types.string),
   transactionIndex: types.number,
   root: types.maybe(types.string),
   gasUsed: NotionalTypes.BigNumber,
@@ -44,8 +55,6 @@ const TransactionReceiptModel = types.model('TransactionReceiptModel', {
   type: types.number,
   status: types.maybe(types.number),
 });
-
-const CompletedTransactionModel = types.map(TransactionReceiptModel);
 
 const PendingPnLModel = types.model('PendingPnLModel', {
   link: types.string,
@@ -62,8 +71,15 @@ export const WalletModel = types
     networkAccounts: types.optional(types.map(AccountPortfolioModel), {}),
     totalPoints: types.maybe(types.number),
     sentTransactions: types.optional(types.array(SentTransactionModel), []),
-    completedTransactions: types.optional(CompletedTransactionModel, {}),
+    completedTransactions: types.optional(
+      types.array(TransactionReceiptModel),
+      []
+    ),
     pendingPnL: types.optional(types.map(types.array(PendingPnLModel)), {}),
+    transactionHash: types.maybe(types.string),
+    transactionStatus: types.maybe(
+      types.enumeration<TransactionStatus>(Object.values(TransactionStatus))
+    ),
   })
   .views((self) => ({
     getAccountDefinition(network: Network) {
@@ -122,6 +138,14 @@ export const WalletModel = types
       return isSanctionedAddress;
     };
 
+    const setCompletedTransactions = (receipt: TransactionReceipt) => {
+      if (receipt.transactionHash) {
+        self.completedTransactions.push(
+          TransactionReceiptModel.create(receipt)
+        );
+      }
+    };
+
     const setSentTransactions = (
       sentTxns: {
         hash: string;
@@ -132,6 +156,94 @@ export const WalletModel = types
     ) => {
       self.sentTransactions.push(...sentTxns);
     };
+
+    const setTransactionStatus = (status: TransactionStatus) => {
+      self.transactionStatus = status;
+    };
+
+    const setTransactionHash = (hash: string) => {
+      self.transactionHash = hash;
+    };
+
+    const refreshPortfolio = () => {
+      return new Promise<void>((resolve) => {
+        setTimeout(() => {
+          const account = self.userWallet?.selectedChain
+            ? root.getNetworkAccount(self.userWallet?.selectedChain)
+            : undefined;
+          if (account) {
+            account.refreshPortfolio();
+          }
+          resolve();
+        }, 3000);
+      });
+    };
+
+    const submitTxn = flow(function* (
+      transactionLabel: string,
+      populatedTransaction: PopulatedTransaction,
+      wallet?: WalletState,
+      onTxnConfirmed?: () => void,
+      expectedTokenChanges?: TokenDefinition[]
+    ) {
+      if (!wallet || !self.userWallet?.selectedChain)
+        throw Error('provider undefined');
+      const provider = new ethers.providers.Web3Provider(wallet?.provider);
+      const signer = provider?.getSigner();
+
+      if (!signer) throw Error('Signer undefined');
+      if (populatedTransaction) {
+        setTransactionStatus(TransactionStatus.WAIT_USER_CONFIRM);
+      }
+      try {
+        const tx = yield signer.sendTransaction(populatedTransaction);
+        setTransactionStatus(TransactionStatus.SUBMITTED);
+        trackEvent(TRACKING_EVENTS.SUBMIT_TXN, {
+          url: window.location.pathname,
+          transactionLabel,
+          selectedNetwork: self.userWallet?.selectedChain,
+        });
+        const { hash } = tx;
+        setTransactionHash(hash);
+
+        setSentTransactions([
+          {
+            network: self.userWallet?.selectedChain,
+            response: tx,
+            tokens: expectedTokenChanges,
+            hash,
+          },
+        ]);
+
+        const receipt = yield provider.waitForTransaction(hash);
+        // receipt status 1 is success
+        if (receipt.status === 1) {
+          setTransactionStatus(TransactionStatus.CONFIRMED);
+          trackEvent(TRACKING_EVENTS.SUCCESSFUL_TXN, {
+            url: window.location.pathname,
+            transactionLabel,
+            selectedNetwork: self.userWallet?.selectedChain,
+          });
+          if (onTxnConfirmed) onTxnConfirmed();
+          yield refreshPortfolio();
+        } else if (receipt.status === 0) {
+          setTransactionStatus(TransactionStatus.REVERT);
+          trackEvent(TRACKING_EVENTS.TXN_ERROR, {
+            url: window.location.pathname,
+            transactionLabel,
+            selectedNetwork: self.userWallet?.selectedChain,
+          });
+        }
+        setCompletedTransactions(receipt);
+      } catch (error) {
+        trackEvent(TRACKING_EVENTS.REJECT_TXN, {
+          url: window.location.pathname,
+          transactionLabel,
+          selectedNetwork: self.userWallet?.selectedChain,
+        });
+        setTransactionStatus(TransactionStatus.NONE);
+      }
+    });
 
     const setUserWallet = flow(function* (
       userWallet: Instance<typeof UserWalletModel> | undefined,
@@ -160,7 +272,12 @@ export const WalletModel = types
     });
 
     return {
+      submitTxn,
+      refreshPortfolio,
       setUserWallet,
       setSentTransactions,
+      setTransactionStatus,
+      setTransactionHash,
+      setCompletedTransactions,
     };
   });

@@ -182,7 +182,9 @@ export enum TRACKING_EVENTS {
   NFT_UNLOCK = 'NFTUnlock',
   SUBMIT_TXN = 'SubmitTxn',
   REJECT_TXN = 'RejectTxn',
+  TXN_ERROR = 'TxnError',
   CONFIRMATION = 'Confirmation',
+  SUCCESSFUL_TXN = 'SuccessfulTxn',
   DISCONNECT_WALLET = 'DisconnectWallet',
   WALLET_CONNECTED = 'WalletConnected',
 }
