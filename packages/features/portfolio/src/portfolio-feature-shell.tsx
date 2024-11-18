@@ -45,6 +45,7 @@ export const PortfolioFeatureShell = observer(() => {
   const network = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
+  const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   useEffect(() => {
     if (
