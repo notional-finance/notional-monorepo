@@ -71,7 +71,10 @@ export const WalletModel = types
     networkAccounts: types.optional(types.map(AccountPortfolioModel), {}),
     totalPoints: types.maybe(types.number),
     sentTransactions: types.optional(types.array(SentTransactionModel), []),
-    completedTransactions: types.maybe(TransactionReceiptModel),
+    completedTransactions: types.optional(
+      types.array(TransactionReceiptModel),
+      []
+    ),
     pendingPnL: types.optional(types.map(types.array(PendingPnLModel)), {}),
     transactionHash: types.maybe(types.string),
     transactionStatus: types.maybe(
@@ -137,7 +140,9 @@ export const WalletModel = types
 
     const setCompletedTransactions = (receipt: TransactionReceipt) => {
       if (receipt.transactionHash) {
-        self.completedTransactions = TransactionReceiptModel.create(receipt);
+        self.completedTransactions.push(
+          TransactionReceiptModel.create(receipt)
+        );
       }
     };
 
@@ -230,7 +235,7 @@ export const WalletModel = types
           });
         }
         setCompletedTransactions(receipt);
-      } catch (error: any) {
+      } catch (error) {
         trackEvent(TRACKING_EVENTS.REJECT_TXN, {
           url: window.location.pathname,
           transactionLabel,
