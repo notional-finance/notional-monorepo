@@ -45,10 +45,12 @@ export const PortfolioFeatureShell = observer(() => {
   const network = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
+  const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   useEffect(() => {
     if (
       !isAccountLoading &&
+      !hasNoteOrSNote &&
       !isAcctAndBalanceReady &&
       params.sideDrawerKey !== 'cool-down'
     ) {
@@ -63,6 +65,7 @@ export const PortfolioFeatureShell = observer(() => {
     navigate,
     network,
     params.sideDrawerKey,
+    hasNoteOrSNote,
   ]);
 
   return !network || isAccountLoading ? (
