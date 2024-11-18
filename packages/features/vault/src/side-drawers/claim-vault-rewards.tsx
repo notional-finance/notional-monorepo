@@ -20,8 +20,9 @@ import {
   ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
 import { Contract } from 'ethers';
+import { observer } from 'mobx-react-lite';
 
-export const ClaimVaultRewards = () => {
+export const ClaimVaultRewards = observer(() => {
   const context = useContext(VaultActionContext);
   const {
     state: { vaultAddress, selectedNetwork },
@@ -104,4 +105,4 @@ export const ClaimVaultRewards = () => {
       />
     </ActionSidebar>
   );
-};
+});

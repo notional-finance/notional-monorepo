@@ -56,6 +56,12 @@ export function useWalletAddress() {
   return userWallet?.selectedAddress;
 }
 
+export function useWalletNetworkAccounts() {
+  const walletStore = useWalletStore();
+
+  return walletStore.isAccountPending ? undefined : walletStore.networkAccounts;
+}
+
 export function useTruncatedAddress() {
   const { userWallet } = useWalletStore();
 

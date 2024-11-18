@@ -61,11 +61,11 @@ export const PortfolioFeatureShell = observer(() => {
     }
   }, [
     isAccountLoading,
-    hasNoteOrSNote,
     isAcctAndBalanceReady,
     navigate,
     network,
     params.sideDrawerKey,
+    hasNoteOrSNote,
   ]);
 
   return !network || isAccountLoading ? (

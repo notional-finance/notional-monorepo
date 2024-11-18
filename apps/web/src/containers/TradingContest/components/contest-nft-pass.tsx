@@ -5,7 +5,6 @@ import { Player } from '@lottiefiles/react-lottie-player';
 import { ProgressIndicator } from '@notional-finance/mui';
 import betaPass from '../assets/betaPass.svg';
 import betaPassOverlay from '../assets/beta-pass-overlay.json';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { BETA_ACCESS } from '@notional-finance/notionable';
 
 // NOTE* Keeping this component incase we want to bring back the beta pass transition at some point
@@ -15,21 +14,20 @@ export const ContestNftPass = () => {
     AnimationItem | undefined
   >();
   const [hideImg, setHideImg] = useState(false);
-  const {
-    globalState: { hasContestNFT },
-  } = useNotionalContext();
+  // NOTE: If we ever bring back the contest update this.
+  const hasContestNFT = BETA_ACCESS.CONFIRMED;
 
   useEffect(() => {
     if (lottieInstance !== undefined) {
       if (hasContestNFT === BETA_ACCESS.CONFIRMED) {
         lottieInstance.play();
       }
-      if (hasContestNFT === BETA_ACCESS.REJECTED) {
-        setHideImg(false);
-        if (lottieInstance.isLoaded) {
-          lottieInstance.stop();
-        }
-      }
+      // if (hasContestNFT === BETA_ACCESS.REJECTED) {
+      //   setHideImg(false);
+      //   if (lottieInstance.isLoaded) {
+      //     lottieInstance.stop();
+      //   }
+      // }
     }
   }, [lottieInstance, hasContestNFT]);
 

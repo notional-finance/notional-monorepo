@@ -9,7 +9,7 @@ import { DisplayCell, ViewAsAddressCell } from '@notional-finance/mui';
 import {
   formatHealthFactorValues,
   useFetchAnalyticsData,
-  useNotionalContext,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
 import { useObserver } from 'mobx-react-lite';
@@ -40,8 +40,7 @@ export const useAllAccounts = (
   baseCurrency: FiatKeys
 ) => {
   const theme = useTheme();
-  const { updateNotional } = useNotionalContext();
-
+  const walletStore = useWalletStore();
   const navigate = useNavigate();
   const [healthFactorOptions, setHealthFactorOptions] = useState([]);
   const [crossCurrencyRiskOptions, setCrossCurrencyRiskOptions] = useState([]);
@@ -65,19 +64,16 @@ export const useAllAccounts = (
 
   const addressClick = useCallback(
     (address: string, network) => {
-      updateNotional({
-        wallet: {
-          signer: undefined,
-          selectedAddress: address,
-          isReadOnlyAddress: true,
-          label: 'ReadOnly',
-        },
-        selectedNetwork: network,
+      walletStore?.setUserWallet({
+        selectedChain: selectedNetwork || Network.mainnet,
+        selectedAddress: address,
+        isReadOnlyAddress: true,
+        label: 'ReadOnly',
       });
 
       navigate(`/portfolio/${network}/overview`);
     },
-    [navigate, updateNotional]
+    [navigate, walletStore, selectedNetwork]
   );
 
   const tableColumns = [

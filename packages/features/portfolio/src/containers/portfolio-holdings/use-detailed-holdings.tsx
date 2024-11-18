@@ -19,7 +19,7 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const totals = useTotalPortfolioHoldings(network);
-  const pendingTokens = usePendingPnLCalculation(network).flatMap(
+  const pendingTokens = usePendingPnLCalculation(network)?.flatMap(
     ({ tokens }) => tokens
   );
 
@@ -105,7 +105,7 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
         return {
           sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,
-          isPending: !!pendingTokens.find((t) => t.id === b.tokenId),
+          isPending: !!pendingTokens?.find((t) => t.id === b.tokenId),
           asset: {
             symbol: icon,
             symbolBottom: '',

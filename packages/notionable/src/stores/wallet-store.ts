@@ -1,11 +1,14 @@
 import spindl from '@spindl-xyz/attribution';
 import { types, Instance, flow, getRoot } from 'mobx-state-tree';
-import { NotionalTypes } from '@notional-finance/core-entities';
+import {
+  NotionalTypes,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import { Network, SupportedNetworks } from '@notional-finance/util';
 import { checkSanctionedAddress } from '../global/account/communities';
 import { updateWalletTracking } from '../global/account/tracking';
 import { identify } from '@notional-finance/helpers';
-import { Provider } from '@ethersproject/providers';
+import { Provider, TransactionResponse } from '@ethersproject/providers';
 import { AccountPortfolioModel } from './PortfolioModel';
 import { RootStoreInterface } from './root-store';
 
@@ -16,6 +19,41 @@ const UserWalletModel = types.model('UserWalletModel', {
   label: types.maybe(types.string),
 });
 
+const SentTransactionModel = types.model('SentTransactionModel', {
+  hash: types.string,
+  network: types.enumeration(Object.values(Network)),
+  response: types.frozen<TransactionResponse>(),
+  tokens: types.maybe(types.array(types.frozen<TokenDefinition>())),
+});
+
+const TransactionReceiptModel = types.model('TransactionReceiptModel', {
+  to: types.string,
+  from: types.string,
+  contractAddress: types.string,
+  transactionIndex: types.number,
+  root: types.maybe(types.string),
+  gasUsed: NotionalTypes.BigNumber,
+  logsBloom: types.string,
+  blockHash: types.string,
+  transactionHash: types.string,
+  blockNumber: types.number,
+  confirmations: types.number,
+  cumulativeGasUsed: NotionalTypes.BigNumber,
+  effectiveGasPrice: NotionalTypes.BigNumber,
+  byzantium: types.boolean,
+  type: types.number,
+  status: types.maybe(types.number),
+});
+
+const CompletedTransactionModel = types.map(TransactionReceiptModel);
+
+const PendingPnLModel = types.model('PendingPnLModel', {
+  link: types.string,
+  hash: types.string,
+  blockNumber: types.number,
+  tokens: types.array(types.frozen<TokenDefinition>()),
+});
+
 export const WalletModel = types
   .model('WalletModel', {
     userWallet: types.maybe(UserWalletModel),
@@ -23,6 +61,9 @@ export const WalletModel = types
     isAccountPending: types.boolean,
     networkAccounts: types.optional(types.map(AccountPortfolioModel), {}),
     totalPoints: types.maybe(types.number),
+    sentTransactions: types.optional(types.array(SentTransactionModel), []),
+    completedTransactions: types.optional(CompletedTransactionModel, {}),
+    pendingPnL: types.optional(types.map(types.array(PendingPnLModel)), {}),
   })
   .views((self) => ({
     getAccountDefinition(network: Network) {
@@ -81,6 +122,17 @@ export const WalletModel = types
       return isSanctionedAddress;
     };
 
+    const setSentTransactions = (
+      sentTxns: {
+        hash: string;
+        network: Network;
+        response: TransactionResponse;
+        tokens: TokenDefinition[] | undefined;
+      }[]
+    ) => {
+      self.sentTransactions.push(...sentTxns);
+    };
+
     const setUserWallet = flow(function* (
       userWallet: Instance<typeof UserWalletModel> | undefined,
       provider?: Provider
@@ -109,5 +161,6 @@ export const WalletModel = types
 
     return {
       setUserWallet,
+      setSentTransactions,
     };
   });

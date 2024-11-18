@@ -41,7 +41,7 @@ export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
 export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
   const network = useSelectedNetwork();
   const groupedTokens = useGroupedHoldings(network) || [];
-  const pendingTokens = usePendingPnLCalculation(network).flatMap(
+  const pendingTokens = usePendingPnLCalculation(network)?.flatMap(
     ({ tokens }) => tokens
   );
   const navigate = useNavigate();
@@ -91,7 +91,7 @@ export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
               : `Leveraged ${underlying.symbol} Lend`,
           caption: formatCaption(asset, debt) || '',
         },
-        isPending: !!pendingTokens.find(
+        isPending: !!pendingTokens?.find(
           (t) => t.id === asset.tokenId || t.id === debt.tokenId
         ),
         marketApy: {

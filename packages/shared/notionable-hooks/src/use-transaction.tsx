@@ -2,7 +2,6 @@ import { trackEvent } from '@notional-finance/helpers';
 import { logError, TRACKING_EVENTS, Network } from '@notional-finance/util';
 import { ethers, PopulatedTransaction } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
-import { useNotionalContext } from './use-notional';
 import { useLocation } from 'react-router';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { useWalletStore } from './context/use-root-store';
@@ -20,11 +19,7 @@ export enum TransactionStatus {
 }
 
 function useSubmitTransaction() {
-  const {
-    globalState: { sentTransactions },
-    updateNotional,
-  } = useNotionalContext();
-  const { userWallet } = useWalletStore();
+  const { userWallet, setSentTransactions } = useWalletStore();
   const { pathname } = useLocation();
   const [{ wallet }] = useConnectWallet();
 
@@ -51,16 +46,13 @@ function useSubmitTransaction() {
         userWallet,
       });
 
-      updateNotional({
-        sentTransactions: [
-          ...sentTransactions,
-          { network: userWallet?.selectedChain, response: tx, tokens, hash },
-        ],
-      });
+      setSentTransactions([
+        { network: userWallet?.selectedChain, response: tx, tokens, hash },
+      ]);
 
       return hash;
     },
-    [updateNotional, sentTransactions, pathname, userWallet, wallet]
+    [setSentTransactions, pathname, userWallet, wallet]
   );
 
   return {
@@ -70,9 +62,7 @@ function useSubmitTransaction() {
 }
 
 function usePendingTransaction(hash?: string) {
-  const {
-    globalState: { completedTransactions },
-  } = useNotionalContext();
+  const { completedTransactions } = useWalletStore();
 
   // Returns the completed transaction receipt
   const transactionReceipt = hash ? completedTransactions[hash] : undefined;
@@ -81,9 +71,7 @@ function usePendingTransaction(hash?: string) {
 }
 
 export function usePendingPnLCalculation(network: Network | undefined) {
-  const {
-    globalState: { pendingPnL },
-  } = useNotionalContext();
+  const { pendingPnL } = useWalletStore();
 
   return network ? pendingPnL[network] : [];
 }
