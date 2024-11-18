@@ -241,9 +241,13 @@ function getFeeItems(
       feeItems.push({
         label: {
           text: defineMessages({
-            content: { defaultMessage: 'Trade Slippage' },
+            content: { defaultMessage: 'Slippage from Oracle Price' },
           }),
         },
+        // toolTipContent: {
+        //   defaultMessage:
+        //     'Trading costs associated with entering a vault position',
+        // },
         value: {
           data: [
             {
