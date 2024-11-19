@@ -86,16 +86,12 @@ export function LendFixed({
       ]
     );
   } else {
-    if (
-      depositBalance.decimals < INTERNAL_TOKEN_DECIMALS &&
-      tradeType === 'LendFixed'
-    ) {
-      // If decimals on the deposit balance is less than 8 then decrease the fCash balance
-      // to mitigate dust deposit issues. This is an absolute value so it will not change
-      // based on how much lending occurs. This is only done on the LendFixed page so that
+    if (tradeType === 'LendFixed') {
+      // Mitigate dust deposit issues (similar to the comment above). This is only done on the LendFixed page so that
       // RepayFixed does not result in dust fCash balances.
-      collateralBalance = collateralBalance.sub(
-        collateralBalance.copy(INTERNAL_PRECISION_DUST)
+      collateralBalance = collateralBalance.scale(
+        RATE_PRECISION - BASIS_POINT,
+        RATE_PRECISION
       );
     }
 
