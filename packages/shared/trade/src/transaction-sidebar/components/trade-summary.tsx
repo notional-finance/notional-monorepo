@@ -56,6 +56,7 @@ export const TradeSummary = ({
             accessorKey: 'value',
             cell: MultiValueCell,
             textAlign: 'right',
+            fontWeightBold: true,
           },
         ]}
       />

@@ -96,7 +96,6 @@ export const DataTableBody = ({
               marginLeft: `-${theme.spacing(3)}`,
               marginRight: `-${theme.spacing(3)}`,
               marginBottom: `-${theme.spacing(3)}`,
-              borderRadius: theme.shape.borderRadius,
               padding: theme.spacing(2, 3),
               height: theme.spacing(6.5),
               background: theme.palette.background.paper,
@@ -203,6 +202,11 @@ export const DataTableBody = ({
                             row.original?.isTotalRow &&
                             'end',
                           paddingTop: row.original?.isEarningsRow ? '0px' : '',
+                          paddingLeft:
+                            row.original?.isSlippageRow &&
+                            cell.column.id === 'value'
+                              ? '0px'
+                              : '',
                         }}
                       >
                         {flexRender(

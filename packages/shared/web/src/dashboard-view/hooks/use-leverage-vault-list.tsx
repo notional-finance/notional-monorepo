@@ -218,7 +218,7 @@ export const useLeverageVaultList = (
         tvl: vault.vaultTVL ? vault.vaultTVL.toFiat(baseCurrency).toFloat() : 0,
         view: profile
           ? `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/IncreaseVaultPosition`
-          : `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`,
+          : `${PRODUCTS.VAULTS}/${network}/${vault.vaultAddress}/CreateVaultPosition`,
         symbol: vault.primaryToken.symbol,
         borrowTerms: {
           data: [
