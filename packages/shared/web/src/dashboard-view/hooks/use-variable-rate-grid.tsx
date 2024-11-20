@@ -8,6 +8,7 @@ import {
   useAllMarkets,
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
+import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
 import {
   formatNumberAsPercent,
   Network,
@@ -29,6 +30,7 @@ export const useVariableRateGrid = (
   const {
     globalState: { isStarterBoostUser },
   } = useNotionalContext();
+  const validBoostDate = checkBoostEndDate();
 
   const allData = yieldData
     .map((y) => {
@@ -50,7 +52,7 @@ export const useVariableRateGrid = (
             : 0
         }`,
         bottomLeftValue:
-          isStarterBoost && !isBorrow
+          isStarterBoost && !isBorrow && validBoostDate
             ? `starter boost: ${formatNumberAsPercent(y.totalAPY + 5)} APY`
             : '',
         network: y.token.network,
@@ -66,7 +68,7 @@ export const useVariableRateGrid = (
   const { newUserBoostedData, nonBoostedData } = getBoostedData(allData);
 
   const gridData =
-    isStarterBoostUser && !isBorrow
+    isStarterBoostUser && !isBorrow && validBoostDate
       ? [
           {
             sectionTitle: 'STARTER BOOST',
