@@ -19,7 +19,6 @@ import {
   formatMaturity,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { useNavigate } from 'react-router-dom';
 
 export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   if (asset.tokenType === 'nToken' && debt.tokenType === 'PrimeDebt') {
@@ -46,7 +45,6 @@ export function useGroupedHoldingsTable() {
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
-  const navigate = useNavigate();
 
   const groupedRows = groupedTokens.map(
     ({
@@ -193,21 +191,13 @@ export function useGroupedHoldingsTable() {
           buttonBarData: [
             {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
-              callback: () => {
-                navigate(
-                  `/liquidity-leveraged/${network}/Manage/${underlying.symbol}`
-                );
-              },
+              link: `/liquidity-leveraged/${network}/Manage/${underlying.symbol}`,
             },
             {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
-              callback: () => {
-                navigate(
-                  `/liquidity-leveraged/${network}/Withdraw/${
-                    underlying.symbol
-                  }${isHighUtilization ? `?warning=${isHighUtilization}` : ''}`
-                );
-              },
+              link: `/liquidity-leveraged/${network}/Withdraw/${
+                underlying.symbol
+              }${isHighUtilization ? `?warning=${isHighUtilization}` : ''}`,
             },
           ],
           txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(

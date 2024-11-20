@@ -103,7 +103,14 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             {!disabledCard ? (
               <>
                 <H5>{card?.apyTitle}</H5>
-                <ApyText>
+                <ApyText
+                  sx={{
+                    color:
+                      card.apy !== undefined && card.apy < 0
+                        ? theme.palette.error.main
+                        : theme.palette.typography.main,
+                  }}
+                >
                   <CountUp
                     value={card.apy}
                     suffix={card?.isTotalAPYSuffix ? '% Total APY' : '% APY'}
