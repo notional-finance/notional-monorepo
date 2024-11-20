@@ -49,7 +49,7 @@ export enum Network {
   arbitrum = 'arbitrum',
 }
 
-export const boostEndDate = new Date('2024-11-20T23:59:59Z');
+export const boostEndDate = new Date('2024-11-19T23:59:59Z');
 export const boostEndDateString = getDateString(boostEndDate.getTime() / 1000);
 
 export const NetworkId: Record<Network, number> = {

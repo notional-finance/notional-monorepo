@@ -104,7 +104,7 @@ export async function checkNewUserAddress(account: string) {
 
   return eligibleAddresses
     ?.map((addr) => addr.toLowerCase())
-    .includes(account.toLocaleLowerCase());
+    .includes(account.toLowerCase());
 }
 
 export function checkBoostEndDate() {
