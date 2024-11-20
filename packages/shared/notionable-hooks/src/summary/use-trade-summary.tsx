@@ -236,30 +236,6 @@ function getFeeItems(
       );
     }
 
-    if (vaultTradeMetadata && vaultTradeMetadata['slippageForSY']) {
-      const slippageForSY = vaultTradeMetadata['slippageForSY'] as TokenBalance;
-      feeItems.push({
-        label: {
-          text: defineMessages({
-            content: { defaultMessage: 'Trade Slippage' },
-          }),
-        },
-        value: {
-          data: [
-            {
-              displayValue: slippageForSY.toDisplayStringWithSymbol(
-                4,
-                true,
-                false
-              ),
-              isNegative: slippageForSY.isNegative(),
-              showPositiveAsGreen: slippageForSY.isPositive(),
-            },
-          ],
-        },
-      });
-    }
-
     return feeItems;
   } else if (
     collateralBalance &&
@@ -984,8 +960,43 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
         ],
       },
     };
-
     summary.push(earningsRow);
+  }
+
+  if (vaultTradeMetadata && vaultTradeMetadata['slippageForSY']) {
+    const slippageForSY = vaultTradeMetadata['slippageForSY'] as TokenBalance;
+    const slippageRow = {
+      isTotalRow: true,
+      isEarningsRow: true,
+      isSlippageRow: true,
+      isDebt: true,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      label: {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        text: {
+          content: defineMessage({
+            defaultMessage: 'Difference from Oracle Price',
+          }),
+        },
+      },
+      value: {
+        data: [
+          {
+            displayValue: slippageForSY.toDisplayStringWithSymbol(
+              4,
+              true,
+              false
+            ),
+            // Show red when earnings are negative in leverage scenarios
+            isNegative: slippageForSY.isNegative(),
+            showPositiveAsGreen: false,
+          },
+        ],
+      },
+    };
+    summary.push(slippageRow);
   }
 
   return { summary, earnings, totalAtMaturity };

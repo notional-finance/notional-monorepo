@@ -22,6 +22,15 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
   const isPending =
     column.columnDef.showLoadingSpinner && row.original.isPending;
 
+  const borderStyles = row.original?.isSlippageRow
+    ? {
+        borderTop: `1px solid ${theme.palette.borders.paper}`,
+        height: '100%',
+        width: '100%',
+        paddingTop: theme.spacing(1),
+      }
+    : {};
+
   return (
     <Box
       className="multi-value-cell"
@@ -29,6 +38,7 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
         display: 'flex',
         justifyContent: column.columnDef.textAlign,
         alignItems: 'center',
+        ...borderStyles,
       }}
     >
       <Box>
