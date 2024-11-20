@@ -4,6 +4,7 @@ import { RocketIcon } from '@notional-finance/icons';
 import { Body, CountUp, LabelValue } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
 import { boostEndDateString, RATE_PRECISION } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
@@ -21,7 +22,7 @@ export const StarterBoost = ({ sx, state }: StarterBoostProps) => {
   const boostValue = depositBalance?.mulInRatePrecision(
     Math.floor((0.05 / 52) * RATE_PRECISION)
   );
-
+  const validBoostDate = checkBoostEndDate();
   const isStarterBoost = checkStarterBoostToken(
     state?.selectedDepositToken || '',
     isStarterBoostUser
@@ -29,6 +30,7 @@ export const StarterBoost = ({ sx, state }: StarterBoostProps) => {
 
   const starterBoostActive =
     isStarterBoost &&
+    validBoostDate &&
     (state.tradeType === 'LendFixed' ||
       state.tradeType === 'LendVariable' ||
       state.tradeType === 'MintNToken');

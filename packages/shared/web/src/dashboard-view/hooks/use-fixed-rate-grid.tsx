@@ -15,6 +15,7 @@ import {
 import { defineMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { useAppState } from '@notional-finance/notionable-hooks';
+import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
 
 export const useFixedRateGrid = (
   network: Network | undefined,
@@ -26,6 +27,7 @@ export const useFixedRateGrid = (
   const {
     globalState: { isStarterBoostUser },
   } = useNotionalContext();
+  const validBoostDate = checkBoostEndDate();
   const navigate = useNavigate();
   const { baseCurrency } = useAppState();
   const tokenObj = {};
@@ -59,7 +61,7 @@ export const useFixedRateGrid = (
       )}`,
       // TODO: ADD WALLET CHECK HERE
       bottomLeftValue:
-        isStarterBoost && !isBorrow
+        isStarterBoost && !isBorrow && validBoostDate
           ? `starter boost: ${formatNumberAsPercent(y.totalAPY + 5)} APY`
           : '',
       network: y.token.network,
@@ -104,7 +106,7 @@ export const useFixedRateGrid = (
   const { newUserBoostedData, nonBoostedData } = getBoostedData(sortedData);
 
   const gridData =
-    isStarterBoostUser && !isBorrow
+    isStarterBoostUser && !isBorrow && validBoostDate
       ? [
           {
             sectionTitle: 'STARTER BOOST',
