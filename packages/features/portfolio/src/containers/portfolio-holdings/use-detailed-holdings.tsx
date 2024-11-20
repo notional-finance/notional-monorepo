@@ -152,7 +152,7 @@ export function useDetailedHoldingsTable() {
           ];
 
           if (isStarterBoost && !isDebt) {
-            const boostValue = totals?.amountPaid?.mulInRatePrecision(
+            const boostValue = s?.accumulatedCostRealized?.mulInRatePrecision(
               Math.floor((0.05 / 52) * RATE_PRECISION)
             );
             const currentDate = new Date();

@@ -1,5 +1,6 @@
 import {
   Network,
+  boostEndDate,
   getProviderFromNetwork,
   getProviderURLFromNetwork,
 } from '@notional-finance/util';
@@ -99,7 +100,10 @@ export function checkSanctionedAddress(account: string) {
 }
 
 export async function checkNewUserAddress(account: string) {
+  if (new Date() > boostEndDate) return false;
+
   const eligibleAddresses = await fetchNewcomerBoostData();
+
   return eligibleAddresses
     ?.map((addr) => addr.toLowerCase())
     .includes(account.toLocaleLowerCase());
