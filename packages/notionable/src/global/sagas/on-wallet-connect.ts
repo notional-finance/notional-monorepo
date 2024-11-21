@@ -36,6 +36,7 @@ import { calculateAccruedIncentives } from '../account/incentives';
 import {
   checkCommunityMembership,
   checkSanctionedAddress,
+  checkNewUserAddress,
 } from '../account/communities';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { update } from '@intercom/messenger-js-sdk';
@@ -366,6 +367,8 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
       );
       // check sanctioned address
       const isSanctionedAddress = await checkSanctionedAddress(selectedAddress);
+      // check new user address
+      const isStarterBoostUser = await checkNewUserAddress(selectedAddress);
 
       if (!isSanctionedAddress) {
         spindl.attribute(selectedAddress);
@@ -374,6 +377,7 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
       return {
         communityMembership,
         isSanctionedAddress,
+        isStarterBoostUser,
         isAccountPending: false,
       };
     }),

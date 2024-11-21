@@ -192,7 +192,9 @@ export interface TradeState
 
 export interface VaultTradeState
   extends BaseTradeState,
-    Partial<Omit<VaultAccountRiskSummary, 'postTradeBalances'>> {}
+    Partial<Omit<VaultAccountRiskSummary, 'postTradeBalances'>> {
+  vaultTradeMetadata?: unknown;
+}
 
 export interface NOTETradeState extends BaseTradeState {
   useOptimalETH?: boolean;

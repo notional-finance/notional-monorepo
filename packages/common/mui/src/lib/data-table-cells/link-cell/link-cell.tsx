@@ -10,6 +10,7 @@ export const LinkCell = (): JSX.Element => {
     <TableCell
       sx={{
         color: theme.palette.typography.accent,
+        cursor: 'pointer',
         textDecoration: 'underline',
       }}
     >

@@ -63,7 +63,7 @@ export const useLeveragedVaultGrid = (
             navigate(
               profile
                 ? `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/IncreaseVaultPosition`
-                : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition?borrowOption=${y?.leveraged?.vaultDebt?.id}`
+                : `/${PRODUCTS.VAULTS}/${network}/${vaultAddress}/CreateVaultPosition`
             ),
           vaultType:
             vaultProduct === PRODUCTS.LEVERAGED_YIELD_FARMING

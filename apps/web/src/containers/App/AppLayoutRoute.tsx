@@ -40,7 +40,7 @@ const AppLayoutRoute = ({
   const globalState = useGlobalContext();
   const { themeVariant } = useAppState();
   const params = useParams();
-  const notionalTheme = useNotionalTheme(themeVariant);
+  const notionalTheme = useNotionalTheme(themeVariant, 'product');
   const slicedPath = path
     .match(/\/[^/]+/)?.[0]
     ?.slice(1) as META_TAG_CATEGORIES;

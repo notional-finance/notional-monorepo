@@ -1,6 +1,19 @@
-import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import { useAppState, useAllMarkets } from '@notional-finance/notionable-hooks';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import {
+  checkStarterBoostToken,
+  formatNumberAsAbbr,
+  getBoostedData,
+} from '@notional-finance/helpers';
+import {
+  useAppState,
+  useAllMarkets,
+  useNotionalContext,
+} from '@notional-finance/notionable-hooks';
+import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
+import {
+  formatNumberAsPercent,
+  Network,
+  PRODUCTS,
+} from '@notional-finance/util';
 import { useNavigate } from 'react-router-dom';
 
 export const useVariableRateGrid = (
@@ -12,22 +25,19 @@ export const useVariableRateGrid = (
   } = useAllMarkets(network);
   const navigate = useNavigate();
   const { baseCurrency } = useAppState();
-  // const totalArbPoints = useTotalArbPoints();
-  // const currentSeason = useCurrentSeason();
   const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
   const yieldData = isBorrow ? variableBorrow : variableLend;
+  const {
+    globalState: { isStarterBoostUser },
+  } = useNotionalContext();
+  const validBoostDate = checkBoostEndDate();
 
   const allData = yieldData
     .map((y) => {
-      // const pointsBoost = getArbBoosts(y.token, isBorrow);
-      // const pointsAPY = getPointsAPY(
-      //   pointsBoost,
-      //   totalArbPoints[currentSeason.db_name],
-      //   currentSeason.totalArb,
-      //   currentSeason.startDate,
-      //   currentSeason.endDate
-      // );
-
+      const isStarterBoost = checkStarterBoostToken(
+        y.underlying.symbol,
+        isStarterBoostUser
+      );
       return {
         ...y,
         symbol: y.underlying.symbol,
@@ -41,42 +51,10 @@ export const useVariableRateGrid = (
               )
             : 0
         }`,
-        bottomLeftValue: undefined,
-        // pointsBoost > 0 && network === Network.arbitrum ? (
-        //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        //     <PointsIcon
-        //       sx={{
-        //         marginRight: theme.spacing(1),
-        //         height: theme.spacing(1.75),
-        //         width: theme.spacing(1.75),
-        //       }}
-        //     />
-        //     {`${pointsBoost}x ARB POINTS`}
-        //     <Box sx={{ marginLeft: theme.spacing(0.5) }}>
-        //       {pointsAPY !== Infinity &&
-        //         `(+${formatNumberAsPercent(pointsAPY, 2)} APY)`}
-        //     </Box>
-        //   </Box>
-        // ) : !isBorrow && network === Network.arbitrum ? (
-        //   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        //     <LeafIcon
-        //       fill={theme.palette.typography.main}
-        //       sx={{
-        //         marginRight: theme.spacing(1),
-        //         height: theme.spacing(1.75),
-        //         width: theme.spacing(1.75),
-        //       }}
-        //     />
-        //     <FormattedMessage defaultMessage={'Organic APY'} />
-        //   </Box>
-        // ) : network === Network.arbitrum ? (
-        //   <Box
-        //     sx={{
-        //       display: 'flex',
-        //       alignItems: 'center',
-        //     }}
-        //   />
-        // ) : undefined,
+        bottomLeftValue:
+          isStarterBoost && !isBorrow && validBoostDate
+            ? `starter boost: ${formatNumberAsPercent(y.totalAPY + 5)} APY`
+            : '',
         network: y.token.network,
         hasPosition: false,
         apy: y.totalAPY,
@@ -87,13 +65,29 @@ export const useVariableRateGrid = (
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);
 
-  const gridData = [
-    {
-      sectionTitle: '',
-      data: allData,
-      hasLeveragedPosition: false,
-    },
-  ];
+  const { newUserBoostedData, nonBoostedData } = getBoostedData(allData);
+
+  const gridData =
+    isStarterBoostUser && !isBorrow && validBoostDate
+      ? [
+          {
+            sectionTitle: 'STARTER BOOST',
+            data: newUserBoostedData,
+            hasBoost: true,
+          },
+          {
+            sectionTitle: 'NO BOOST',
+            data: nonBoostedData,
+            hasLeveragedPosition: false,
+          },
+        ]
+      : [
+          {
+            sectionTitle: '',
+            data: allData,
+            hasLeveragedPosition: false,
+          },
+        ];
 
   return {
     gridData: allData.length > 0 ? gridData : [],

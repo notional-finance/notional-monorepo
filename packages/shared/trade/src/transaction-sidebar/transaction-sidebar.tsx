@@ -20,7 +20,7 @@ import {
 import { TokenBalance } from '@notional-finance/core-entities';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import TransactionConfirmation from '../transaction-confirmation/transaction-confirmation';
-import { LiquidationRisk } from './components';
+import { LiquidationRisk, StarterBoost } from './components';
 import {
   TransactionHeadings,
   CombinedTokenTypes,
@@ -235,6 +235,7 @@ export const TransactionSidebar = ({
       {children}
       {riskComponent || <LiquidationRisk state={state as TradeState} />}
       {tradeType !== 'StakeNOTECoolDown' && <TradeSummary state={state} />}
+      <StarterBoost state={state} />
     </ActionSidebar>
   );
 

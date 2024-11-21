@@ -953,7 +953,7 @@ export function calculateVaultCollateral({
   debtPool: fCashMarket;
   debtBalance: TokenBalance;
   depositBalance?: TokenBalance;
-}): ReturnType<typeof calculateCollateral> {
+}): ReturnType<typeof calculateCollateral> & { vaultTradeMetadata?: unknown } {
   if (debtBalance.tokenType !== 'VaultDebt') throw Error('Invalid inputs');
 
   const { localPrime: localDebtPrime, fees: debtFee } = exchangeToLocalPrime(
@@ -977,7 +977,7 @@ export function calculateVaultCollateral({
     : localDebtPrime.toUnderlying().neg();
 
   // This value accounts for slippage...
-  const { netVaultSharesForUnderlying, feesPaid } =
+  const { netVaultSharesForUnderlying, feesPaid, vaultTradeMetadata } =
     vaultAdapter.getNetVaultSharesMinted(
       netRealizedCollateralBalance,
       collateral
@@ -996,6 +996,7 @@ export function calculateVaultCollateral({
       : netRealizedCollateralBalance.add(feesPaid.toUnderlying()),
     // This properly accounts for the borrow fee in the trade summary
     netRealizedDebtBalance: localDebtPrime.add(debtFee).neg().toUnderlying(),
+    vaultTradeMetadata,
   };
 }
 

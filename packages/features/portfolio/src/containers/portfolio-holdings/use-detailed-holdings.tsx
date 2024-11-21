@@ -1,11 +1,14 @@
 import { TokenBalance } from '@notional-finance/core-entities';
 import {
+  checkStarterBoostToken,
   formatCryptoWithFiat,
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
+import { H4, LinkText } from '@notional-finance/mui';
+import { LaunchIcon, RocketIcon } from '@notional-finance/icons';
 import {
   useFiatToken,
   useNOTE,
@@ -13,23 +16,30 @@ import {
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
+  useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import {
+  boostEndDate,
   Network,
   PORTFOLIO_ACTIONS,
+  RATE_PRECISION,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
+import { Box, useTheme } from '@mui/material';
 
 export function useDetailedHoldingsTable() {
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
+  const theme = useTheme();
+  const {
+    globalState: { isStarterBoostUser },
+  } = useNotionalContext();
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
-  // const arbPoints = useArbPoints();
   const navigate = useNavigate();
   const { baseCurrency } = useAppState();
   const fiatToken = useFiatToken();
@@ -106,9 +116,10 @@ export function useDetailedHoldingsTable() {
           const isDebt = b.isNegative();
           const { icon, formattedTitle, titleWithMaturity, title } =
             formatTokenType(b.token, isDebt);
-          // const pointsPerDay = getPointsPerDay(b);
-          // const totalPoints =
-          //   arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
+          const isStarterBoost = checkStarterBoostToken(
+            b.underlying.symbol,
+            isStarterBoostUser
+          );
           const marketApy = marketYield?.totalAPY;
           const noteIncentives = marketYield?.noteIncentives?.incentiveAPY;
           const secondaryIncentives =
@@ -140,32 +151,59 @@ export function useDetailedHoldingsTable() {
             },
           ];
 
-          // if (totalPoints > 0) {
-          //   subRowData.push({
-          //     label: <FormattedMessage defaultMessage={'Points Earned'} />,
-          //     value: (
-          //       <H4 sx={{ display: 'flex' }}>
-          //         <PointsIcon sx={{ marginRight: theme.spacing(0.5) }} />
-          //         {formatNumberAsAbbr(totalPoints, 2, 'USD', {
-          //           hideSymbol: true,
-          //         })}
-          //         <Body
-          //           sx={{
-          //             marginLeft: theme.spacing(0.5),
-          //             display: 'flex',
-          //             alignItems: 'center',
-          //           }}
-          //         >
-          //           (
-          //           {formatNumberAsAbbr(pointsPerDay, 2, 'USD', {
-          //             hideSymbol: true,
-          //           })}
-          //           )/day
-          //         </Body>
-          //       </H4>
-          //     ),
-          //   });
-          // }
+          if (isStarterBoost && !isDebt) {
+            const boostValue = s?.accumulatedCostRealized?.mulInRatePrecision(
+              Math.floor((0.05 / 52) * RATE_PRECISION)
+            );
+            const currentDate = new Date();
+
+            subRowData.push({
+              label: (
+                <FormattedMessage defaultMessage={'STARTER BOOST BONUS'} />
+              ),
+              value:
+                currentDate >= boostEndDate ? (
+                  <LinkText
+                    // TODO: ADD DISTRIBUTION LINK
+                    href={''}
+                    sx={{
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    <Box component={'span'}>
+                      <FormattedMessage defaultMessage={'See Distribution'} />
+                    </Box>
+                    <LaunchIcon
+                      sx={{
+                        marginLeft: theme.spacing(0.5),
+                      }}
+                    />
+                  </LinkText>
+                ) : (
+                  <H4 sx={{ display: 'flex', alignItems: 'center' }}>
+                    <RocketIcon
+                      sx={{
+                        marginRight: theme.spacing(0.5),
+                        height: theme.spacing(2.5),
+                        width: theme.spacing(2.5),
+                      }}
+                    />
+                    <Box
+                      component={'span'}
+                      sx={{
+                        marginLeft: theme.spacing(0.5),
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      {boostValue?.toDisplayStringWithSymbol() || '-'}
+                    </Box>
+                  </H4>
+                ),
+            });
+          }
 
           if (hasNToken) {
             buttonBarData.push({

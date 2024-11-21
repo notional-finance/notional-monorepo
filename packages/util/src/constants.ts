@@ -1,4 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
+import { getDateString } from './time';
 
 export const UNLIMITED_APPROVAL = BigNumber.from(2).pow(96);
 export const INTERNAL_TOKEN_PRECISION = 1e8;
@@ -47,6 +48,9 @@ export enum Network {
   mainnet = 'mainnet',
   arbitrum = 'arbitrum',
 }
+
+export const boostEndDate = new Date('2024-11-19T23:59:59Z');
+export const boostEndDateString = getDateString(boostEndDate.getTime() / 1000);
 
 export const NetworkId: Record<Network, number> = {
   [Network.all]: 1,
