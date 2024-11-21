@@ -979,6 +979,10 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
           content: defineMessage({
             defaultMessage: 'Difference from Oracle Price',
           }),
+          toolTipContent: defineMessage({
+            defaultMessage:
+              'The difference between the position value at oracle prices vs. traded market prices.',
+          }),
         },
       },
       value: {

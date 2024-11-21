@@ -36,7 +36,8 @@ export const VaultSummary = () => {
     selectedNetwork,
     deposit?.symbol,
     points,
-    vaultType
+    vaultType,
+    vaultAddress
   );
 
   return (
