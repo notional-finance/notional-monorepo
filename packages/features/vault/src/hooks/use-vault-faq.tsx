@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import { Body } from '@notional-finance/mui';
 import { RiskFaq } from '../components';
 import { HowItWorksFaq, HowItWorksFaqPendle } from '../components';
-import { VaultType } from '@notional-finance/core-entities';
+import { getVaultDocsLink, VaultType } from '@notional-finance/core-entities';
 import {
   getEtherscanAddressLink,
   Network,
@@ -22,11 +22,13 @@ export const useVaultFaq = (
   selectedNetwork: Network | undefined,
   tokenSymbol: string | undefined,
   points: Record<string, number> | undefined,
-  currentVaultType?: VaultType | undefined
+  currentVaultType?: VaultType | undefined,
+  vaultAddress?: string
 ) => {
+  const docsLink = getVaultDocsLink(vaultAddress, selectedNetwork);
   const faqHeaderLinks = [
     {
-      href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',
+      href: docsLink,
       text: (
         <FormattedMessage defaultMessage={'Leveraged Vault Documentation'} />
       ),

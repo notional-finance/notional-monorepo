@@ -221,3 +221,30 @@ export function getVaultType(
     return 'SingleSidedLP_AutoReinvest';
   }
 }
+
+export function getVaultDocsLink(
+  vaultAddress?: string,
+  network?: Network
+): string {
+  if (
+    vaultAddress &&
+    network &&
+    PendlePTVaults[network].includes(vaultAddress.toLowerCase())
+  ) {
+    return 'https://docs.notional.finance/notional-v3/product-guides/leveraged-pendle-pts';
+  } else if (
+    vaultAddress &&
+    network &&
+    SingleSidedLP_DirectClaim[network].includes(vaultAddress.toLowerCase())
+  ) {
+    return 'https://docs.notional.finance/notional-v3/product-guides/leveraged-yield-farming';
+  } else if (
+    vaultAddress &&
+    network &&
+    Object.keys(PointsMultipliers[network]).includes(vaultAddress.toLowerCase())
+  ) {
+    return 'https://docs.notional.finance/notional-v3/product-guides/leveraged-points-farming';
+  } else {
+    return 'https://docs.notional.finance/notional-v3/product-guides/leveraged-yield-farming';
+  }
+}
