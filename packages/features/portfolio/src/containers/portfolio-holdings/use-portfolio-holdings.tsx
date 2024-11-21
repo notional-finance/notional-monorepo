@@ -11,6 +11,7 @@ import {
   usePendingPnLCalculation,
   useLeverageBlock,
   useSelectedNetwork,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { FiatKeys } from '@notional-finance/core-entities';
 import { ExpandedState } from '@tanstack/react-table';
@@ -62,6 +63,12 @@ export function usePortfolioHoldings(baseCurrency: FiatKeys) {
   const { detailedHoldings, totalHoldingsRow } =
     useDetailedHoldingsTable(baseCurrency);
   const { groupedRows, groupedTokens } = useGroupedHoldingsTable(baseCurrency);
+
+  const { getLatestProcessedTxnBlock } = useWalletStore();
+
+  const pnl = getLatestProcessedTxnBlock();
+
+  console.log('============== PNL ==============', pnl);
 
   const filteredHoldings = detailedHoldings.filter(
     ({ tokenId }) => !groupedTokens.includes(tokenId)

@@ -280,4 +280,17 @@ export const WalletModel = types
       setTransactionHash,
       setCompletedTransactions,
     };
+  })
+  .views((self) => {
+    const getLatestProcessedTxnBlock = () => {
+      return Math.max(
+        ...(self.completedTransactions?.map(
+          ({ blockNumber }) => blockNumber
+        ) || [0])
+      );
+    };
+
+    return {
+      getLatestProcessedTxnBlock,
+    };
   });
