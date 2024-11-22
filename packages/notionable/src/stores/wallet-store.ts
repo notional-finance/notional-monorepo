@@ -282,6 +282,9 @@ export const WalletModel = types
     };
   })
   .views((self) => {
+    //NOTE use accountHistory instead of completedTransactions
+    // Compare accountHistory and completedTransactions return the values
+    // that are not in accountHistory. Compare by blockNumber
     const getLatestProcessedTxnBlock = () => {
       return Math.max(
         ...(self.completedTransactions?.map(

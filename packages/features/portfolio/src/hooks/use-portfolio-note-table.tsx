@@ -141,7 +141,7 @@ export function usePortfolioNOTETable() {
         buttonBarData: [
           {
             buttonText: <FormattedMessage defaultMessage={'Unstake'} />,
-            callback: () => console.log('Unstake'), // TODO: add unstake logic
+            link: '/note-staking/cool-down',
           },
           {
             buttonText: <FormattedMessage defaultMessage={'Stake More'} />,
