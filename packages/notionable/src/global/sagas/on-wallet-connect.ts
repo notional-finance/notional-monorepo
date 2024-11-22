@@ -304,7 +304,7 @@ async function updateWalletTracking(
   });
 
   update({
-    userId: selectedAddress,
+    user_id: selectedAddress,
     name: selectedAddress,
     customAttributes: {
       TotalWalletBalance: balanceData.walletBalance,
