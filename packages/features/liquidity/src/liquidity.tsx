@@ -26,10 +26,8 @@ const LiquidityView = ({
   mainContent: React.ReactElement;
 }) => {
   const context = useTradeContext(tradeType);
-
-  const {
-    state: { isReady, confirm },
-  } = context;
+  const isReady = context.tradeModel?.isReady;
+  const confirm = context.tradeModel?.confirm;
 
   return (
     <LiquidityContext.Provider value={context}>

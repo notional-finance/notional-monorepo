@@ -107,6 +107,11 @@ export const TradeModel = types
       'ConvertAsset',
       'RepayDebt',
       'RollDebt',
+      'LeveragedNToken',
+      'LeveragedNTokenAdjustLeverage',
+      'IncreaseLeveragedNToken',
+      'Deleverage',
+      'DeleverageWithdraw',
       'StakeNOTECoolDown',
       'StakeNOTERedeem',
       'StakeNOTE',
@@ -486,33 +491,7 @@ export const TradeModel = types
         }
       }
 
-      if (
-        isDeleverageWithSwappedTokens({
-          tradeType: self.tradeType,
-          collateral: self.collateral as TokenDefinition,
-        })
-      ) {
-        const l = root()
-          .getNetworkClient(self.selectedNetwork)
-          .getLeverageRatios(
-            // Swap the collateral and debt in this case
-            self.debt as TokenDefinition,
-            self.collateral as TokenDefinition
-          );
-        self.defaultLeverageRatio = l.defaultLeverageRatio;
-        self.minLeverageRatio = l.minLeverageRatio;
-        self.maxLeverageRatio = l.maxLeverageRatio;
-      } else if (isLeveragedTrade(self.tradeType)) {
-        const l = root()
-          .getNetworkClient(self.selectedNetwork)
-          .getLeverageRatios(
-            self.collateral as TokenDefinition,
-            self.debt as TokenDefinition
-          );
-        self.defaultLeverageRatio = l.defaultLeverageRatio;
-        self.minLeverageRatio = l.minLeverageRatio;
-        self.maxLeverageRatio = l.maxLeverageRatio;
-      } else if (isNOTEStake(self.tradeType)) {
+      if (isNOTEStake(self.tradeType)) {
         const stakeNOTEStatus = root().getAccountDefinition(
           self.selectedNetwork
         )?.stakeNOTEStatus;
@@ -546,6 +525,35 @@ export const TradeModel = types
       setAvailableDepositTokens();
       setAvailableCollateralTokens();
       setAvailableDebtTokens();
+
+      if (
+        isDeleverageWithSwappedTokens({
+          tradeType: self.tradeType,
+          collateral: self.collateral as TokenDefinition,
+        })
+      ) {
+        const l = root()
+          .getNetworkClient(self.selectedNetwork)
+          .getLeverageRatios(
+            // Swap the collateral and debt in this case
+            self.debt as TokenDefinition,
+            self.collateral as TokenDefinition
+          );
+        self.defaultLeverageRatio = l.defaultLeverageRatio;
+        self.minLeverageRatio = l.minLeverageRatio;
+        self.maxLeverageRatio = l.maxLeverageRatio;
+      } else if (isLeveragedTrade(self.tradeType)) {
+        const l = root()
+          .getNetworkClient(self.selectedNetwork)
+          .getLeverageRatios(
+            self.collateral as TokenDefinition,
+            self.debt as TokenDefinition
+          );
+        self.defaultLeverageRatio = l.defaultLeverageRatio;
+        self.minLeverageRatio = l.minLeverageRatio;
+        self.maxLeverageRatio = l.maxLeverageRatio;
+      }
+
       setInitialComputedOptions();
 
       console.log(
