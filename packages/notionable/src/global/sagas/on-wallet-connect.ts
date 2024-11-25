@@ -314,7 +314,7 @@ async function updateWalletTracking(
       TotalNotionalBalance: balanceData.notionalBalance,
       TotalBalance: totalBalance,
       DeBankNetWorth: debankNetWorth,
-      isOnWhitelist: isStarterBoostUser,
+      IsOnWhitelist: isStarterBoostUser,
       IsLender:
         lendingProtocols && lendingProtocols.length > 0 ? isLender : undefined,
       LendingProtocols: lendingProtocols,
