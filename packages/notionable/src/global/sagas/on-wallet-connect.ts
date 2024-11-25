@@ -231,6 +231,9 @@ async function updateWalletTracking(
       lendingProtocols = debankData.lendingProtocols;
     }
   );
+
+  const isStarterBoostUser = await checkNewUserAddress(selectedAddress);
+
   const accounts = Registry.getAccountRegistry();
 
   SupportedNetworks.forEach((network) => {
@@ -311,6 +314,7 @@ async function updateWalletTracking(
       TotalNotionalBalance: balanceData.notionalBalance,
       TotalBalance: totalBalance,
       DeBankNetWorth: debankNetWorth,
+      isOnWhitelist: isStarterBoostUser,
       IsLender:
         lendingProtocols && lendingProtocols.length > 0 ? isLender : undefined,
       LendingProtocols: lendingProtocols,
