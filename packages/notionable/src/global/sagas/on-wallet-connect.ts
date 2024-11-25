@@ -305,7 +305,7 @@ async function updateWalletTracking(
 
   update({
     user_id: selectedAddress,
-    name: selectedAddress,
+    name: selectedAddress.toLowerCase(),
     customAttributes: {
       TotalWalletBalance: balanceData.walletBalance,
       TotalNotionalBalance: balanceData.notionalBalance,
