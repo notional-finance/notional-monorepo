@@ -8,11 +8,13 @@ import { ReactNode } from 'react';
 export interface AppBarProps extends MuiAppBarProps {
   children: ReactNode | ReactNode[];
   showBorder?: boolean;
+  showBanner?: boolean;
 }
 
 export const AppBar = ({
   children,
   showBorder = false,
+  showBanner = false,
   ...rest
 }: AppBarProps) => {
   const theme = useTheme();
@@ -31,6 +33,7 @@ export const AppBar = ({
             : 'transparent',
           boxShadow: 'none',
         },
+        marginTop: showBanner ? '50px !important' : '0px',
       }}
       {...rest}
     >
