@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { LinkText } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
@@ -6,6 +6,7 @@ import { colors } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 
 export const CustomBanner = () => {
+  const theme = useTheme();
   const {
     globalState: { isStarterBoostUser },
   } = useNotionalContext();
@@ -13,7 +14,7 @@ export const CustomBanner = () => {
   return isStarterBoostUser && pathname.includes('portfolio') ? (
     <Box
       sx={{
-        height: '50px',
+        height: theme.spacing(7),
         width: '100%',
         backgroundColor: colors.neonTurquoise,
         color: colors.black,
@@ -34,7 +35,7 @@ export const CustomBanner = () => {
           padding: '0 32px',
         }}
       >
-        <LinkText to="/new-user" style={{ color: 'black' }}>
+        <LinkText to="/new-user" style={{ color: 'black', fontSize: '16px' }}>
           <FormattedMessage defaultMessage="You're eligible: Earn boosted APYs on new deposits until Dec 10th!" />
         </LinkText>
       </Box>
