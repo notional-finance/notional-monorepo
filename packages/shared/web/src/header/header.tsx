@@ -43,7 +43,7 @@ export function Header({ children }: HeaderProps) {
       : appTheme;
   const { navLinks } = useNavLinks(false, theme);
   const {
-    globalState: { networkAccounts },
+    globalState: { networkAccounts, isStarterBoostUser },
   } = useNotionalContext();
 
   const subGraphError =
@@ -71,7 +71,11 @@ export function Header({ children }: HeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="fixed" showBorder={pathname !== '/'}>
+      <AppBar
+        position="fixed"
+        showBorder={pathname !== '/'}
+        showBanner={isStarterBoostUser && pathname.includes('portfolio')}
+      >
         <Toolbar
           sx={{
             '&.MuiToolbar-root': {
