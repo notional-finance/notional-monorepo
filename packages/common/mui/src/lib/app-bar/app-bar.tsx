@@ -33,7 +33,7 @@ export const AppBar = ({
             : 'transparent',
           boxShadow: 'none',
         },
-        marginTop: showBanner ? '50px !important' : '0px',
+        marginTop: showBanner ? `${theme.spacing(7)} !important` : '0px',
       }}
       {...rest}
     >
