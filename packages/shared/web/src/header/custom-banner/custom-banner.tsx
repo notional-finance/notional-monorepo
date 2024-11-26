@@ -6,7 +6,6 @@ import { colors } from '@notional-finance/styles';
 import { useLocation } from 'react-router-dom';
 
 export const CustomBanner = () => {
-  // const theme = useTheme();
   const {
     globalState: { isStarterBoostUser },
   } = useNotionalContext();
