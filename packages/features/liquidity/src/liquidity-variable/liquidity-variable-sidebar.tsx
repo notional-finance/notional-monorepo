@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import {
   DepositInput,
   MobileTradeActionSummary,
@@ -6,16 +5,17 @@ import {
 } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
-import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
 import { TransactionNetworkSelector } from '@notional-finance/wallet';
 import { Box, useTheme } from '@mui/material';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
 export const LiquidityVariableSidebar = () => {
   const theme = useTheme();
-  const context = useContext(LiquidityContext);
+  const trade = useCurrentTradeContext();
   const { currencyInputRef } = useCurrencyInputRef();
-  const { selectedNetwork, selectedDepositToken } = context.state;
+  const selectedNetwork = trade?.selectedNetwork;
+  const selectedDepositToken = trade?.selectedDepositToken;
 
   return (
     <Box>

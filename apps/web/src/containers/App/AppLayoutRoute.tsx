@@ -1,10 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import {
-  FeatureLoader,
-  Footer,
-  TrackingConsent,
-} from '@notional-finance/shared-web';
+import { FeatureLoader, Footer } from '@notional-finance/shared-web';
 import {
   Header,
   MetaTagManager,
@@ -63,7 +59,6 @@ const AppLayoutRoute = ({
       <CssBaseline />
       <NotionalContext.Provider value={globalState}>
         <FeatureLoader>
-          <TrackingConsent />
           <InitIntercom />
           <InitPageTrack routeType={routeType} />
           <InitSanctionsBlock />

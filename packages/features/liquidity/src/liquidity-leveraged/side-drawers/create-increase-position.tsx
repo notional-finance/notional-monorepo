@@ -7,11 +7,11 @@ import {
   useLeveragedNTokenPositions,
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
-import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
-import { LiquidityContext } from '../../liquidity';
 import { LiquidityDetailsTable } from '../components';
 import { TransactionNetworkSelector } from '@notional-finance/wallet';
+import { useContext } from 'react';
+import { LiquidityContext } from '../../liquidity';
 
 export const CreateOrIncreasePosition = () => {
   const context = useContext(LiquidityContext);

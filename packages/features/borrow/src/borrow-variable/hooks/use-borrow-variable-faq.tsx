@@ -1,8 +1,8 @@
-import { useContext, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material';
 import { Body } from '@notional-finance/mui';
-import { BorrowVariableContext } from '../borrow-variable';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
@@ -17,10 +17,10 @@ interface FaqProps {
 
 export const useBorrowVariableFaq = () => {
   const theme = useTheme();
-  const context = useContext(BorrowVariableContext);
-  const {
-    state: { debt, selectedNetwork, selectedDepositToken },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const selectedDepositToken = trade?.selectedDepositToken;
+  const selectedNetwork = trade?.selectedNetwork;
+  const debt = trade?.debt;
 
   const faqHeaderLinks = [
     {

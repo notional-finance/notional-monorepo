@@ -7,18 +7,19 @@ import {
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
-import { BorrowFixedContext } from '../borrow-fixed';
-import { useContext } from 'react';
-import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  usePrimeCashBalance,
+} from '@notional-finance/notionable-hooks';
 import { TransactionNetworkSelector } from '@notional-finance/wallet';
 import { Box, useTheme } from '@mui/material';
-
-export const BorrowFixedSidebar = () => {
+import { observer } from 'mobx-react-lite';
+export const BorrowFixedSidebar = observer(() => {
   const theme = useTheme();
   const { currencyInputRef } = useCurrencyInputRef();
-  const context = useContext(BorrowFixedContext);
-  const selectedDepositToken = context.tradeModel?.selectedDepositToken;
-  const selectedNetwork = context.tradeModel?.selectedNetwork;
+  const trade = useCurrentTradeContext();
+  const selectedDepositToken = trade?.selectedDepositToken;
+  const selectedNetwork = trade?.selectedNetwork;
   const cashBalance = usePrimeCashBalance(
     selectedDepositToken,
     selectedNetwork
@@ -65,6 +66,6 @@ export const BorrowFixedSidebar = () => {
       </TransactionSidebar>
     </Box>
   );
-};
+});
 
 export default BorrowFixedSidebar;

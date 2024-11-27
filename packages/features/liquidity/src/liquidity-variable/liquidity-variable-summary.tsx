@@ -22,12 +22,11 @@ import {
   useLiquidityPoolsTable,
 } from './hooks';
 import { FormattedMessage } from 'react-intl';
-import { useContext } from 'react';
-import { LiquidityContext } from '../liquidity';
 import { HowItWorksFaq } from './components';
 import {
   useAssetPriceHistory,
   useChartData,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { ChartType } from '@notional-finance/core-entities';
 import { useAppStore } from '@notional-finance/notionable-hooks';
@@ -35,10 +34,10 @@ import { useAppStore } from '@notional-finance/notionable-hooks';
 const LiquidityVariableSummary = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
-  const { state } = useContext(LiquidityContext);
+  const trade = useCurrentTradeContext();
   const { baseCurrency } = useAppStore();
-  const { selectedDepositToken, collateral, deposit } = state;
-  const tokenSymbol = selectedDepositToken || '';
+  const { collateral, deposit } = trade?.selectedTokens ?? {};
+  const tokenSymbol = trade?.selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const { totalsData } = useTotalsData(deposit, baseCurrency);
   const { returnDriversColumns, returnDriversData, infoBoxData } =

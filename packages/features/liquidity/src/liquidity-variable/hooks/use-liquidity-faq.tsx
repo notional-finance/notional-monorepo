@@ -1,18 +1,16 @@
-import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Body } from '@notional-finance/mui';
-import { LiquidityContext } from '../../liquidity';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
 } from '@notional-finance/util';
 import { RiskFaq } from '../components';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
 export const useLiquidityFaq = (tokenSymbol: string) => {
-  const context = useContext(LiquidityContext);
-  const {
-    state: { collateral, selectedNetwork },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const { collateral } = trade?.selectedTokens ?? {};
+  const selectedNetwork = trade?.selectedNetwork;
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/providing-liquidity',

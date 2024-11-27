@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { ErrorMessage, useCurrencyInputRef } from '@notional-finance/mui';
 import {
   DepositInput,
@@ -8,17 +7,20 @@ import {
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { BorrowVariableContext } from '../borrow-variable';
-import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
+import {
+  usePrimeCashBalance,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 import { TransactionNetworkSelector } from '@notional-finance/wallet';
 import { Box, useTheme } from '@mui/material';
+import { observer } from 'mobx-react-lite';
 
-export const BorrowVariableSidebar = () => {
+export const BorrowVariableSidebar = observer(() => {
   const theme = useTheme();
-  const context = useContext(BorrowVariableContext);
-  const {
-    state: { selectedDepositToken, debtOptions, selectedNetwork },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const selectedDepositToken = trade?.selectedDepositToken;
+  const selectedNetwork = trade?.selectedNetwork;
+  const debtOptions = trade?.debtOptions;
   const { currencyInputRef } = useCurrencyInputRef();
   const cashBalance = usePrimeCashBalance(
     selectedDepositToken,
@@ -76,6 +78,6 @@ export const BorrowVariableSidebar = () => {
       </TransactionSidebar>
     </Box>
   );
-};
+});
 
 export default BorrowVariableSidebar;
