@@ -36,6 +36,7 @@ import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { StakeNOTE } from '../../containers/StakeNOTE';
 import { LandingPageView } from '../../containers/LandingPageView';
+import { NewUserView } from '../../containers/NewUserView';
 import {
   ContestHome,
   ContestRules,
@@ -425,6 +426,16 @@ const AllRoutes = observer(() => {
               path="/contest-sign-up/:selectedNetwork"
               component={ContestSignUp}
               routeType="Contest"
+            />
+          }
+        />
+        <Route
+          path="/new-user"
+          element={
+            <AppLayoutRoute
+              path="/new-user"
+              component={NewUserView}
+              routeType="NewUser"
             />
           }
         />

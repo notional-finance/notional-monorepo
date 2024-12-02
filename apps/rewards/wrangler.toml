@@ -11,14 +11,11 @@ logpush = true
 [env.dev]
 name = "rewards-dev"
 kv_namespaces = [
-  { binding = "REWARDS_KV", id = "5d1577f627494c08ad97338960a5a4a8" }
+  { binding = "REWARDS_KV", id = "5d1577f627494c08ad97338960a5a4a8" },
 ]
 
 [env.dev.vars]
 NETWORKS = ["arbitrum", "mainnet"]
 
 [triggers]
-# Run two times every other hour, once to claim tokens and then again to reinvest
-# reinvestment and claim will only happen once in specified reinvestment time window(in code)
-# it is tightly coupled to how we are triggering claiming and reinvestment
-crons = ["0 */2 * * *", "10 */2 * * *"]
+crons = ["0 */2 * * *"]

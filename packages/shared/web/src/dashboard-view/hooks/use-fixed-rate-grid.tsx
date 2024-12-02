@@ -85,14 +85,29 @@ export const useFixedRateGrid = (
   };
 
   const sortedData = sortGridData(isBorrow, allData);
+  const { newUserBoostedData, nonBoostedData } = getBoostedData(sortedData);
 
-  const gridData = [
-    {
-      sectionTitle: '',
-      data: sortedData,
-      hasLeveragedPosition: false,
-    },
-  ];
+  const gridData =
+    isStarterBoostUser && !isBorrow && validBoostDate
+      ? [
+          {
+            sectionTitle: 'STARTER BOOST',
+            data: newUserBoostedData,
+            hasBoost: true,
+          },
+          {
+            sectionTitle: 'NO BOOST',
+            data: nonBoostedData,
+            hasLeveragedPosition: false,
+          },
+        ]
+      : [
+          {
+            sectionTitle: '',
+            data: sortedData,
+            hasLeveragedPosition: false,
+          },
+        ];
 
   return {
     gridData: sortedData.length > 0 ? gridData : [],

@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import { Body } from '@notional-finance/mui';
 import { RiskFaq } from '../components';
 import { HowItWorksFaq, HowItWorksFaqPendle } from '../components';
-import { VaultType } from '@notional-finance/core-entities';
+import { getVaultDocsLink, VaultType } from '@notional-finance/core-entities';
 import {
   getEtherscanAddressLink,
   Network,
@@ -22,11 +22,13 @@ export const useVaultFaq = (
   selectedNetwork: Network | undefined,
   tokenSymbol: string | undefined,
   hasPoints: boolean,
-  currentVaultType?: VaultType | undefined
+  currentVaultType?: VaultType | undefined,
+  vaultAddress?: string
 ) => {
+  const docsLink = getVaultDocsLink(vaultAddress, selectedNetwork);
   const faqHeaderLinks = [
     {
-      href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',
+      href: docsLink,
       text: (
         <FormattedMessage defaultMessage={'Leveraged Vault Documentation'} />
       ),
@@ -81,7 +83,7 @@ export const useVaultFaq = (
       ),
       answer: (
         <FormattedMessage
-          defaultMessage={`At maturity your PTs stop earning the fixed PT yield and you should exit the vault to take your principal and profits.`}
+          defaultMessage={`At maturity, your PTs stop earning the fixed PT yield and you should exit the vault by withdrawing on the Notional UI. The vault will redeem your PTs, convert them back into the currency you deposited, and transfer that to you.`}
         />
       ),
     },

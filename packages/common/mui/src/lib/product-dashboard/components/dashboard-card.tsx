@@ -120,6 +120,7 @@ export const DashboardCard = ({
           {PointsSubTitle && <PointsSubTitle />}
           <LargeInputTextEmphasized
             sx={{
+              textAlign: apySubTitle ? 'right' : '',
               fontWeight: 700,
               color:
                 apy < 0

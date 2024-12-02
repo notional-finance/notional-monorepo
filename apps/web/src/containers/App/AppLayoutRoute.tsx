@@ -1,10 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import {
-  FeatureLoader,
-  Footer,
-  TrackingConsent,
-} from '@notional-finance/shared-web';
+import { FeatureLoader, Footer } from '@notional-finance/shared-web';
 import {
   Header,
   MetaTagManager,
@@ -44,8 +40,7 @@ const AppLayoutRoute = ({
   const { themeVariant } = useAppStore();
   const { setRoute } = useRootStore();
   const params = useParams();
-  const notionalTheme = useNotionalTheme(themeVariant);
-
+  const notionalTheme = useNotionalTheme(themeVariant, 'product');
   const slicedPath = path
     .match(/\/[^/]+/)?.[0]
     ?.slice(1) as META_TAG_CATEGORIES;
@@ -63,7 +58,6 @@ const AppLayoutRoute = ({
       <CssBaseline />
       <NotionalContext.Provider value={globalState}>
         <FeatureLoader>
-          <TrackingConsent />
           <InitIntercom />
           <InitPageTrack routeType={routeType} />
           <InitSanctionsBlock />

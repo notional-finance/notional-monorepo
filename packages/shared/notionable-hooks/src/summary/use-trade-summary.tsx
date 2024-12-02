@@ -183,6 +183,7 @@ function getFeeItems(
   collateralFee: TokenBalance | undefined,
   debtFee: TokenBalance | undefined,
   tradeType: AllTradeTypes | undefined,
+  vaultTradeMetadata: unknown | undefined,
   theme: NotionalTheme
 ): DetailItem[] {
   const zeroUnderlying = TokenBalance.zero(underlying);
@@ -842,6 +843,7 @@ export function useTradeSummary() {
     collateralFee,
     debtFee,
     tradeType,
+    vaultTradeMetadata,
     theme
   );
 
@@ -1058,8 +1060,47 @@ export function useTradeSummary() {
         ],
       },
     };
-
     summary.push(earningsRow);
+  }
+
+  if (vaultTradeMetadata && vaultTradeMetadata['slippageForSY']) {
+    const slippageForSY = vaultTradeMetadata['slippageForSY'] as TokenBalance;
+    const slippageRow = {
+      isTotalRow: true,
+      isEarningsRow: true,
+      isSlippageRow: true,
+      isDebt: true,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      label: {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        text: {
+          content: defineMessage({
+            defaultMessage: 'Difference from Oracle Price',
+          }),
+          toolTipContent: defineMessage({
+            defaultMessage:
+              'The difference between the position value at oracle prices vs. traded market prices.',
+          }),
+        },
+      },
+      value: {
+        data: [
+          {
+            displayValue: slippageForSY.toDisplayStringWithSymbol(
+              4,
+              true,
+              false
+            ),
+            // Show red when earnings are negative in leverage scenarios
+            isNegative: slippageForSY.isNegative(),
+            showPositiveAsGreen: false,
+          },
+        ],
+      },
+    };
+    summary.push(slippageRow);
   }
 
   return { summary, earnings, totalAtMaturity, tradeType, collateral };

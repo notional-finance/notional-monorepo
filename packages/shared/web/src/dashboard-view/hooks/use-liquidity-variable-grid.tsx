@@ -68,13 +68,29 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);
 
-  const gridData = [
-    {
-      sectionTitle: '',
-      data: allData,
-      hasLeveragedPosition: false,
-    },
-  ];
+  const { newUserBoostedData, nonBoostedData } = getBoostedData(allData);
+
+  const gridData =
+    isStarterBoostUser && validBoostDate
+      ? [
+          {
+            sectionTitle: 'STARTER BOOST',
+            data: newUserBoostedData,
+            hasBoost: true,
+          },
+          {
+            sectionTitle: 'NO BOOST',
+            data: nonBoostedData,
+            hasLeveragedPosition: false,
+          },
+        ]
+      : [
+          {
+            sectionTitle: '',
+            data: allData,
+            hasLeveragedPosition: false,
+          },
+        ];
 
   return {
     gridData: allData.length > 0 ? gridData : [],

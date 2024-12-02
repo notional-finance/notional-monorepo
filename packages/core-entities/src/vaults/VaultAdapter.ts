@@ -47,6 +47,7 @@ export abstract class VaultAdapter {
   ): {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
+    vaultTradeMetadata?: unknown;
   };
 
   abstract getDepositParameters(

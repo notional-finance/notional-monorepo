@@ -10,6 +10,7 @@ import {
 import { VaultTradeState } from '@notional-finance/notionable';
 import {
   calculateDepositValue,
+  useCurrentNetworkStore,
   useSpotMaturityData,
   useVaultAdapter,
 } from '@notional-finance/notionable-hooks';
@@ -43,6 +44,14 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
   } = useVaultExistingFactors();
   const adapter = useVaultAdapter(vaultAddress) as PendlePT | undefined;
   const spotData = useSpotMaturityData(debt ? [debt] : undefined);
+  const currentNetworkStore = useCurrentNetworkStore();
+  const borrowedCurrencyId = adapter?.borrowedToken.currencyId;
+
+  const primeDebtSpotRate = borrowedCurrencyId
+    ? currentNetworkStore.getSpotAPY(
+        currentNetworkStore.getPrimeDebt(borrowedCurrencyId)?.id
+      )?.totalAPY
+    : undefined;
 
   const nowMidnight = floorToMidnight(getNowSeconds());
   const ptExpires = adapter?.expiry;
@@ -62,11 +71,12 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
 
   const primeBorrowRate =
     debtOptions &&
+    fixedBorrowMaturity === undefined &&
     debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
       ? debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
           ?.interestRate
       : priorDebt?.maturity === PRIME_CASH_VAULT_MATURITY
-      ? priorBorrowRate
+      ? primeDebtSpotRate // Use the spot rate when the fixed borrow maturity is defined
       : undefined;
 
   const ptAPY =
