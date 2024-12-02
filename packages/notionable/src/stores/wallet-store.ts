@@ -282,15 +282,19 @@ export const WalletModel = types
     };
   })
   .views((self) => {
-    //NOTE use accountHistory instead of completedTransactions
-    // Compare accountHistory and completedTransactions return the values
-    // that are not in accountHistory. Compare by blockNumber
     const getLatestProcessedTxnBlock = () => {
-      return Math.max(
-        ...(self.completedTransactions?.map(
-          ({ blockNumber }) => blockNumber
-        ) || [0])
-      );
+      for (const n of SupportedNetworks) {
+        const latestProcessedTxnBlock = Math.max(
+          ...(self?.completedTransactions?.map(
+            ({ blockNumber }) => blockNumber
+          ) || [0])
+        );
+
+        self.pendingPnL[n] = self.pendingPnL[n]?.filter(
+          ({ blockNumber }) => latestProcessedTxnBlock < blockNumber
+        );
+      }
+      return { pendingPnL: self.pendingPnL };
     };
 
     return {

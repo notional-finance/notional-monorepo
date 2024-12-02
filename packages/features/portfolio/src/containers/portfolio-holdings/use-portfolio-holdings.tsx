@@ -69,6 +69,10 @@ export function usePortfolioHoldings(baseCurrency: FiatKeys) {
   const pnl = getLatestProcessedTxnBlock();
 
   console.log('============== PNL ==============', pnl);
+  console.log(
+    '============== pendingTokenData ==============',
+    pendingTokenData
+  );
 
   const filteredHoldings = detailedHoldings.filter(
     ({ tokenId }) => !groupedTokens.includes(tokenId)
