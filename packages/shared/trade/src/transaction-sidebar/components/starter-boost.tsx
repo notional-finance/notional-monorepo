@@ -3,7 +3,7 @@ import { checkStarterBoostToken } from '@notional-finance/helpers';
 import { RocketIcon } from '@notional-finance/icons';
 import { Body, CountUp, LabelValue } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { useWalletStore } from '@notional-finance/notionable-hooks';
 import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
 import { boostEndDateString, RATE_PRECISION } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -15,9 +15,7 @@ interface StarterBoostProps {
 
 export const StarterBoost = ({ sx, state }: StarterBoostProps) => {
   const theme = useTheme();
-  const {
-    globalState: { isStarterBoostUser },
-  } = useNotionalContext();
+  const { isStarterBoostUser } = useWalletStore();
   const { depositBalance } = state;
   const boostValue = depositBalance?.mulInRatePrecision(
     Math.floor((0.05 / 52) * RATE_PRECISION)

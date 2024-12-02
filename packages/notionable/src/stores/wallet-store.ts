@@ -10,7 +10,10 @@ import {
   TRACKING_EVENTS,
   TransactionStatus,
 } from '@notional-finance/util';
-import { checkSanctionedAddress } from '../global/account/communities';
+import {
+  checkNewUserAddress,
+  checkSanctionedAddress,
+} from '../global/account/communities';
 import { updateWalletTracking } from '../global/account/tracking';
 import { identify, trackEvent } from '@notional-finance/helpers';
 import {
@@ -67,6 +70,7 @@ export const WalletModel = types
   .model('WalletModel', {
     userWallet: types.maybe(UserWalletModel),
     isSanctionedAddress: types.boolean,
+    isStarterBoostUser: types.boolean,
     isAccountPending: types.boolean,
     networkAccounts: types.optional(types.map(AccountPortfolioModel), {}),
     totalPoints: types.maybe(types.number),
@@ -265,6 +269,9 @@ export const WalletModel = types
           self.networkAccounts.set(network, m);
         });
         self.isSanctionedAddress = yield executeUserTracking(userWallet);
+        self.isStarterBoostUser = yield checkNewUserAddress(
+          userWallet.selectedAddress
+        );
         self.isAccountPending = false;
       }
 

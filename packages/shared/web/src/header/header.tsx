@@ -16,6 +16,7 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
   useSelectedNetwork,
   useWalletNetworkAccounts,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
@@ -33,6 +34,7 @@ export function Header({ children }: HeaderProps) {
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');
   const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
   const contestTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
+  const { isStarterBoostUser } = useWalletStore();
   const appTheme = useTheme();
   const { pathname } = useLocation();
   const theme =
@@ -69,7 +71,11 @@ export function Header({ children }: HeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="fixed" showBorder={pathname !== '/'}>
+      <AppBar
+        position="fixed"
+        showBorder={pathname !== '/'}
+        showBanner={isStarterBoostUser && pathname.includes('portfolio')}
+      >
         <Toolbar
           sx={{
             '&.MuiToolbar-root': {

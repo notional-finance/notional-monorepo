@@ -1,12 +1,14 @@
-import { formatNumberAsAbbr } from '@notional-finance/helpers';
+import { formatNumberAsAbbr, getBoostedData } from '@notional-finance/helpers';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import {
   useAppStore,
   useCurrentNetworkStore,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { ProductAPY } from '@notional-finance/core-entities';
+import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
 
 export const useFixedRateGrid = (
   network: Network | undefined,
@@ -17,6 +19,8 @@ export const useFixedRateGrid = (
   const tokenObj = {};
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
   const currentNetworkStore = useCurrentNetworkStore();
+  const { isStarterBoostUser } = useWalletStore();
+  const validBoostDate = checkBoostEndDate();
 
   let yieldData: ProductAPY[] = [];
   if (product === PRODUCTS.LEND_FIXED) {

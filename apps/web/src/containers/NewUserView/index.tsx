@@ -50,7 +50,7 @@ export const NewUserView = () => {
 
   return (
     <ThemeProvider theme={landingTheme}>
-      <Box>
+      <Box sx={{ background: colors.iceWhite }}>
         <TopContainer>
           <Box
             sx={{
@@ -98,7 +98,9 @@ export const NewUserView = () => {
                   <FormattedMessage defaultMessage={'Promotion Dates'} />
                 </Caption>
                 <H4>
-                  <FormattedMessage defaultMessage={'Nov 1st - 15th 2024'} />
+                  <FormattedMessage
+                    defaultMessage={'Nov 26th - Dec 10th 2024'}
+                  />
                 </H4>
               </DateBox>
             </Box>
@@ -157,7 +159,7 @@ export const NewUserView = () => {
                 <FormattedMessage defaultMessage="• Bonus APY is paid in deposit token (USDC or ETH)" />
               </Body>
               <Body>
-                <FormattedMessage defaultMessage="• Users can deposit any time between November 1st and November 15th" />
+                <FormattedMessage defaultMessage="• Users can deposit any time between November 26th and December 10th" />
               </Body>
             </Box>
             <Box sx={{ marginBottom: landingTheme.spacing(6) }}>
@@ -192,7 +194,7 @@ export const NewUserView = () => {
                 <FormattedMessage defaultMessage={'Reward Distribution'} />
               </CurrencyTitle>
               <Body>
-                <FormattedMessage defaultMessage="• Reward tokens will be transferred to eligible users on December 15th" />
+                <FormattedMessage defaultMessage="• Reward tokens will be transferred to eligible users on January 15th" />
               </Body>
             </Box>
           </TextContainer>
@@ -376,7 +378,7 @@ const DateBox = styled(Box)(
     margin-top: ${theme.spacing(10)};
     padding: ${theme.spacing(2)} ${theme.spacing(4)};
     border-radius: ${theme.shape.borderRadius()};
-    width: ${theme.spacing(46)};
+    width: fit-content;
     ${theme.breakpoints.down('md')} {
       width: 100%;
     };

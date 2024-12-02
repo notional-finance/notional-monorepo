@@ -8,22 +8,26 @@ import {
   MultiValueIconCell,
   MultiValueCell,
 } from '@notional-finance/mui';
-import { useAllMarkets, useAppState } from '@notional-finance/notionable-hooks';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+} from '@notional-finance/notionable-hooks';
 import {
   formatMaturity,
   formatNumberAsPercent,
   Network,
-  PRIME_CASH_VAULT_MATURITY,
+  PRODUCTS,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { RocketIcon } from '@notional-finance/icons';
 
 export const useProductsTable = (selectedNetwork: Network) => {
   const theme = useTheme();
-  const { baseCurrency } = useAppState();
-  const {
-    yields: { fCashLend, variableLend, liquidity },
-  } = useAllMarkets(selectedNetwork);
+  const { baseCurrency } = useAppStore();
+  const currentNetworkStore = useCurrentNetworkStore();
+  const fCashLend = currentNetworkStore.getAllFCashYields();
+  const variableLend = currentNetworkStore.getAllPrimeCashYields();
+  const liquidity = currentNetworkStore.getAllNTokenYields();
 
   const tableColumns: DataTableColumn[] = [
     {
@@ -109,13 +113,25 @@ export const useProductsTable = (selectedNetwork: Network) => {
           data.underlying.symbol === 'USDC' || data.underlying.symbol === 'ETH'
       )
       .map((data) => {
-        const { underlying, product, tvl, link, totalAPY } = data;
+        const { underlying, token, tvl, apy } = data;
+        let link = '';
+        let productTitle = '';
+        if (token.tokenType === 'fCash') {
+          productTitle = 'Fixed Lend';
+          link = `${PRODUCTS.LEND_FIXED}/${selectedNetwork}/${underlying.symbol}`;
+        } else if (token.tokenType === 'PrimeCash') {
+          productTitle = 'Provide Liquidity';
+          link = `${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedNetwork}/${underlying.symbol}`;
+        } else if (token.tokenType === 'nToken') {
+          productTitle = 'Variable Lend';
+          link = `${PRODUCTS.LEND_VARIABLE}/${selectedNetwork}/${underlying.symbol}`;
+        }
 
         return {
           currency: underlying.symbol,
           product: {
             data: [
-              { displayValue: product, isNegtive: false },
+              { displayValue: productTitle, isNegtive: false },
               {
                 displayValue: data.token.maturity
                   ? formatMaturity(data.token.maturity)
@@ -124,8 +140,8 @@ export const useProductsTable = (selectedNetwork: Network) => {
               },
             ],
           },
-          boostedAPY: totalAPY + 5,
-          apy: totalAPY,
+          boostedAPY: apy?.totalAPY + 5,
+          apy: apy?.totalAPY,
           tvl: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
           multiValueCellData: {
             currency: {
