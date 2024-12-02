@@ -7,10 +7,9 @@ import {
 import {
   useAnalyticsReady,
   useAppContext,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
-import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { LiquidityContext } from '../../liquidity';
 import {
   formatMaturity,
   getEtherscanTransactionLink,
@@ -20,9 +19,9 @@ import { useTheme } from '@mui/material';
 
 export const useLiquidityPoolsTable = () => {
   const theme = useTheme();
-  const {
-    state: { deposit, selectedNetwork },
-  } = useContext(LiquidityContext);
+  const trade = useCurrentTradeContext();
+  const { deposit } = trade?.selectedTokens ?? {};
+  const selectedNetwork = trade?.selectedNetwork;
   const isReady = useAnalyticsReady(selectedNetwork);
   const {
     appState: { historicalTrading },

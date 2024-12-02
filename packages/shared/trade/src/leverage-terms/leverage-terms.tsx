@@ -1,5 +1,8 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import {
+  TradeContext,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 import {
   Body,
   ButtonText,
@@ -14,8 +17,8 @@ import { LeverageSlider } from '../leverage-slider/leverage-slider';
 import { useNavigate } from 'react-router-dom';
 
 interface TermsProps {
-  context: BaseTradeContext;
   CustomLeverageSlider?: typeof LeverageSlider;
+  context: TradeContext;
 }
 
 interface ManageTermsProps {
@@ -24,11 +27,10 @@ interface ManageTermsProps {
   linkString: string;
 }
 
-export const CustomTerms = ({ context, CustomLeverageSlider }: TermsProps) => {
+export const CustomTerms = ({ CustomLeverageSlider, context }: TermsProps) => {
   const theme = useTheme();
-  const {
-    state: { deposit },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const { deposit } = trade?.selectedTokens ?? {};
 
   return (
     <Terms

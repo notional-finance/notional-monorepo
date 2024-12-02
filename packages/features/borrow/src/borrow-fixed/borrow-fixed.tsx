@@ -1,31 +1,24 @@
 import { BorrowFixedSidebar } from './components';
 import BorrowFixedTradeSummary from './components/borrow-fixed-trade-summary';
 import { SideBarLayout } from '@notional-finance/mui';
-import {
-  createTradeContext,
-  useTradeContext,
-} from '@notional-finance/notionable-hooks';
+import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
-
-export const BorrowFixedContext = createTradeContext('BorrowFixed');
-
-export const BorrowFixed = () => {
+import { observer } from 'mobx-react-lite';
+export const BorrowFixed = observer(() => {
   const context = useTradeContext('BorrowFixed');
   const {
     state: { isReady, confirm },
   } = context;
 
   return (
-    <BorrowFixedContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
-        <SideBarLayout
-          showTransactionConfirmation={confirm}
-          sideBar={<BorrowFixedSidebar />}
-          mainContent={<BorrowFixedTradeSummary />}
-        />
-      </FeatureLoader>
-    </BorrowFixedContext.Provider>
+    <FeatureLoader featureLoaded={isReady}>
+      <SideBarLayout
+        showTransactionConfirmation={confirm}
+        sideBar={<BorrowFixedSidebar />}
+        mainContent={<BorrowFixedTradeSummary />}
+      />
+    </FeatureLoader>
   );
-};
+});
 
 export default BorrowFixed;

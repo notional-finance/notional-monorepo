@@ -6,8 +6,8 @@ import {
   useSliderInputRef,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { MessageDescriptor } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { isDeleverageWithSwappedTokens } from '@notional-finance/notionable';
@@ -54,6 +54,7 @@ export const LeverageSlider = ({
     },
     updateState,
   } = context;
+
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
   const borrowRate = isDeleverageWithSwappedTokens(context.state)
     ? collateralOptions?.find((o) => o.token.id === collateral?.id)
@@ -76,20 +77,17 @@ export const LeverageSlider = ({
     return deposit ? TokenBalance.zero(deposit) : undefined;
   }, [deposit]);
 
-  const onChangeCommitted = useCallback(
-    (leverageRatio: number) => {
-      if (!isFinite(leverageRatio)) return;
+  const onChangeCommitted = useCallback((leverageRatio: number) => {
+    if (!isFinite(leverageRatio)) return;
 
-      updateState({
-        riskFactorLimit: {
-          riskFactor: 'leverageRatio',
-          limit: leverageRatio,
-          args: leverageCurrencyId ? [leverageCurrencyId] : undefined,
-        },
-      });
-    },
-    [updateState, leverageCurrencyId]
-  );
+    updateState({
+      riskFactorLimit: {
+        riskFactor: 'leverageRatio',
+        limit: leverageRatio,
+        args: leverageCurrencyId ? [leverageCurrencyId] : undefined,
+      },
+    });
+  }, []);
 
   useEffect(() => {
     // If the component is mounted and the ref does not match the defined limit, set it

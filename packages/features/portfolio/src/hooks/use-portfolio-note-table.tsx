@@ -138,16 +138,7 @@ export function usePortfolioNOTETable() {
             value: '',
           },
         ],
-        buttonBarData: [
-          {
-            buttonText: <FormattedMessage defaultMessage={'Unstake'} />,
-            callback: () => console.log('Unstake'), // TODO: add unstake logic
-          },
-          {
-            buttonText: <FormattedMessage defaultMessage={'Stake More'} />,
-            link: '/stake/ETH',
-          },
-        ],
+        buttonBarData: [],
         txnHistory: ``,
       },
     };

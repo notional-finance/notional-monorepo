@@ -8,25 +8,23 @@ import {
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { observer } from 'mobx-react-lite';
 
 export const BorrowVariableContext = createTradeContext('BorrowVariable');
-
-export const BorrowVariable = () => {
+export const BorrowVariable = observer(() => {
   const context = useTradeContext('BorrowVariable');
   const { state } = context;
   const { isReady, confirm } = state;
 
   return (
-    <BorrowVariableContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
-        <SideBarLayout
-          showTransactionConfirmation={confirm}
-          sideBar={<BorrowVariableSidebar />}
-          mainContent={<BorrowVariableTradeSummary />}
-        />
-      </FeatureLoader>
-    </BorrowVariableContext.Provider>
+    <FeatureLoader featureLoaded={isReady}>
+      <SideBarLayout
+        showTransactionConfirmation={confirm}
+        sideBar={<BorrowVariableSidebar />}
+        mainContent={<BorrowVariableTradeSummary />}
+      />
+    </FeatureLoader>
   );
-};
+});
 
 export default BorrowVariable;

@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useBorrowVariableFaq } from '../hooks';
@@ -13,17 +12,20 @@ import {
   MultiDisplayChart,
   AreaChart,
 } from '@notional-finance/mui';
-import { BorrowVariableContext } from '../../borrow-variable/borrow-variable';
 import { TradeActionSummary, useVariableTotals } from '@notional-finance/trade';
-import { useChartData } from '@notional-finance/notionable-hooks';
+import {
+  useChartData,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 import { ChartType } from '@notional-finance/core-entities';
 
-export const BorrowVariableTradeSummary = () => {
+export const BorrowVariableTradeSummary = observer(() => {
   const theme = useTheme();
   const { pathname } = useLocation();
-  const context = useContext(BorrowVariableContext);
-  const { state } = context;
-  const { deposit, debt } = state;
+  const trade = useCurrentTradeContext();
+  const { debt, deposit } = trade?.selectedTokens ?? {};
+
   const {
     areaChartData,
     chartToolTipData,
@@ -147,6 +149,6 @@ export const BorrowVariableTradeSummary = () => {
       )}
     </TradeActionSummary>
   );
-};
+});
 
 export default BorrowVariableTradeSummary;

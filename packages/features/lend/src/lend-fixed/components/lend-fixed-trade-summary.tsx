@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { HowItWorksFaq } from './how-it-works-faq';
@@ -17,20 +16,23 @@ import {
   useTotalsData,
   useLendFixedMultiChart,
 } from '../hooks';
-import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 import {
   TradeActionSummary,
   useFixedLiquidityPoolsTable,
 } from '@notional-finance/trade';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import {
+  useAppStore,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 
-const LendFixedTradeSummary = () => {
+const LendFixedTradeSummary = observer(() => {
   const theme = useTheme();
   const { pathname } = useLocation();
-  const context = useContext(LendFixedContext);
-  const { state } = context;
-  const { selectedDepositToken, deposit, selectedNetwork, collateral } = state;
+  const trade = useCurrentTradeContext();
+  const selectedDepositToken = trade?.selectedDepositToken;
+  const { collateral, deposit } = trade?.selectedTokens ?? {};
+  const selectedNetwork = trade?.selectedNetwork;
   const { tableColumns, tableData } = useFixedLiquidityPoolsTable(deposit);
   const { faqHeaderLinks, faqs } = useLendFixedFaq(selectedNetwork);
   const { baseCurrency } = useAppStore();
@@ -120,6 +122,6 @@ const LendFixedTradeSummary = () => {
       )}
     </TradeActionSummary>
   );
-};
+});
 
-export default observer(LendFixedTradeSummary);
+export default LendFixedTradeSummary;
