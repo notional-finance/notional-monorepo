@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useTotalsData, useBorrowFixedFaq } from '../hooks';
@@ -13,21 +12,24 @@ import {
   DataTable,
   MultiDisplayChart,
 } from '@notional-finance/mui';
-import { BorrowFixedContext } from '../../borrow-fixed/borrow-fixed';
 import {
   TradeActionSummary,
   useFixedLiquidityPoolsTable,
 } from '@notional-finance/trade';
 import { useBorrowFixedMultiChart } from '../hooks';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import {
+  useAppStore,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 
-const BorrowFixedTradeSummary = () => {
+const BorrowFixedTradeSummary = observer(() => {
   const theme = useTheme();
   const { pathname } = useLocation();
-  const context = useContext(BorrowFixedContext);
-  const { state } = context;
-  const { selectedDepositToken, deposit, selectedNetwork, debt } = state;
+  const trade = useCurrentTradeContext();
+  const selectedDepositToken = trade?.selectedDepositToken;
+  const { debt, deposit } = trade?.selectedTokens ?? {};
+  const selectedNetwork = trade?.selectedNetwork;
   const { tableColumns, tableData } = useFixedLiquidityPoolsTable(deposit);
   const multiChartData = useBorrowFixedMultiChart();
   const { faqs, faqHeaderLinks } = useBorrowFixedFaq(selectedNetwork);
@@ -109,6 +111,6 @@ const BorrowFixedTradeSummary = () => {
       )}
     </TradeActionSummary>
   );
-};
+});
 
-export default observer(BorrowFixedTradeSummary);
+export default BorrowFixedTradeSummary;

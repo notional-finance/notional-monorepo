@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
@@ -7,17 +6,17 @@ import {
   TransactionSidebar,
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
-import { LendVariableContext } from '../../lend-variable/lend-variable';
 import { TransactionNetworkSelector } from '@notional-finance/wallet';
 import { Box, useTheme } from '@mui/material';
 import { observer } from 'mobx-react-lite';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
 export const LendVariableSidebar = observer(() => {
   const theme = useTheme();
-  const context = useContext(LendVariableContext);
+  const trade = useCurrentTradeContext();
   const { currencyInputRef } = useCurrencyInputRef();
-  const selectedDepositToken = context.tradeModel?.selectedDepositToken;
-  const selectedNetwork = context.tradeModel?.selectedNetwork;
+  const selectedDepositToken = trade?.selectedDepositToken;
+  const selectedNetwork = trade?.selectedNetwork;
 
   return (
     <Box>

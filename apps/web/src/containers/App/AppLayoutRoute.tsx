@@ -1,14 +1,12 @@
 import { useParams } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import {
-  FeatureLoader,
-  Footer,
-  CustomBanner,
-} from '@notional-finance/shared-web';
-import {
   Header,
   MetaTagManager,
   metaTagData,
+  FeatureLoader,
+  Footer,
+  CustomBanner,
 } from '@notional-finance/shared-web';
 import {
   NotionalContext,

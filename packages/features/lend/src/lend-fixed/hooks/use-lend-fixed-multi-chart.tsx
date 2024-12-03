@@ -1,17 +1,18 @@
-import { useContext } from 'react';
 import { InteractiveAreaChart, AreaChart } from '@notional-finance/mui';
-import { useChartData } from '@notional-finance/notionable-hooks';
+import {
+  useChartData,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 import {
   useMaturitySelect,
   useInteractiveMaturityChart,
 } from '@notional-finance/trade';
-import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 import { ChartType } from '@notional-finance/core-entities';
 
 export const useLendFixedMultiChart = () => {
-  const context = useContext(LendFixedContext);
-  const { deposit } = context.tradeModel?.selectedTokens ?? {};
+  const trade = useCurrentTradeContext();
+  const { deposit } = trade?.selectedTokens ?? {};
   const { areaChartData, apyToolTipData } =
     useInteractiveMaturityChart(deposit);
   const { selectedfCashId, onSelect } = useMaturitySelect('Collateral');

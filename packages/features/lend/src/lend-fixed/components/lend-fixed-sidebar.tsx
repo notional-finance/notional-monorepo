@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import { defineMessage } from 'react-intl';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
@@ -8,16 +7,17 @@ import {
   TransactionSidebar,
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
-import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 import { TransactionNetworkSelector } from '@notional-finance/wallet';
 import { Box, useTheme } from '@mui/material';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
-export const LendFixedSidebar = () => {
+export const LendFixedSidebar = observer(() => {
   const theme = useTheme();
-  const context = useContext(LendFixedContext);
+  const trade = useCurrentTradeContext();
   const { currencyInputRef } = useCurrencyInputRef();
-  const selectedNetwork = context.tradeModel?.selectedNetwork;
-  const selectedDepositToken = context.tradeModel?.selectedDepositToken;
+  const selectedNetwork = trade?.selectedNetwork;
+  const selectedDepositToken = trade?.selectedDepositToken;
 
   return (
     <Box>
@@ -54,6 +54,6 @@ export const LendFixedSidebar = () => {
       </TransactionSidebar>
     </Box>
   );
-};
+});
 
 export default LendFixedSidebar;

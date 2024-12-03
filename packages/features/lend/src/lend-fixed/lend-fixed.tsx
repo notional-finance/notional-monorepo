@@ -1,29 +1,24 @@
 import { SideBarLayout } from '@notional-finance/mui';
-import {
-  createTradeContext,
-  useTradeContext,
-} from '@notional-finance/notionable-hooks';
+import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { LendFixedSidebar } from './components';
 import LendFixedTradeSummary from './components/lend-fixed-trade-summary';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { observer } from 'mobx-react-lite';
 
-export const LendFixedContext = createTradeContext('LendFixed');
-export const LendFixed = () => {
+export const LendFixed = observer(() => {
   const context = useTradeContext('LendFixed');
   const isReady = context.tradeModel?.isReady;
   const confirm = context.tradeModel?.confirm;
 
   return (
-    <LendFixedContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
-        <SideBarLayout
-          showTransactionConfirmation={confirm}
-          sideBar={<LendFixedSidebar />}
-          mainContent={<LendFixedTradeSummary />}
-        />
-      </FeatureLoader>
-    </LendFixedContext.Provider>
+    <FeatureLoader featureLoaded={isReady}>
+      <SideBarLayout
+        showTransactionConfirmation={confirm}
+        sideBar={<LendFixedSidebar />}
+        mainContent={<LendFixedTradeSummary />}
+      />
+    </FeatureLoader>
   );
-};
+});
 
 export default LendFixed;

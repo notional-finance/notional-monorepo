@@ -35,7 +35,11 @@ export const useBorrowTerms = (
   const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
 
   const spotMaturityData = useSpotMaturityData(
-    deposit ? availableDebtTokens : []
+    deposit
+      ? Array.from(availableDebtTokens || []).map(
+          (t) => t as unknown as TokenDefinition
+        )
+      : []
   );
 
   const assetAPY =

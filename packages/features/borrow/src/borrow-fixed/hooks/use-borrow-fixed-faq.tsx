@@ -1,9 +1,9 @@
-import { useContext, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Box, useTheme } from '@mui/material';
 import { ExternalLink, Body } from '@notional-finance/mui';
 import { ExitEarlyFaq } from '../components';
-import { BorrowFixedContext } from '../borrow-fixed';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import {
   getEtherscanAddressLink,
   Network,
@@ -19,9 +19,8 @@ interface FaqProps {
 
 export const useBorrowFixedFaq = (selectedNetwork: Network | undefined) => {
   const theme = useTheme();
-  const {
-    state: { selectedDepositToken },
-  } = useContext(BorrowFixedContext);
+  const trade = useCurrentTradeContext();
+  const selectedDepositToken = trade?.selectedDepositToken;
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/fixed-rate-borrowing',

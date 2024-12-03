@@ -1,8 +1,8 @@
 import { Caption, CountUp, H4, H5 } from '@notional-finance/mui';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useBorrowTerms } from './use-borrow-terms';
 import { Box, Checkbox, styled, useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 
 interface BorrowTermsProps {
   context: BaseTradeContext;
