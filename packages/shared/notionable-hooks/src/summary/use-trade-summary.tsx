@@ -819,6 +819,7 @@ export function useTradeSummary() {
   const calculationSuccess = trade?.calculationSuccess;
   const netRealizedCollateralBalance = trade?.netRealizedCollateralBalance;
   const netRealizedDebtBalance = trade?.netRealizedDebtBalance;
+  const vaultTradeMetadata = trade?.vaultTradeMetadata;
   const totalAPY = trade?.getAPYFactors()?.totalAPY;
 
   const underlying =

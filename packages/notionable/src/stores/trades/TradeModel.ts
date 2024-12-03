@@ -234,6 +234,8 @@ export const TradeModel = types
     ethRedeem: types.maybe(NotionalTypes.TokenBalance),
     /** True if the optimal ETH amount should be used for NOTE staking */
     useOptimalETH: types.optional(types.boolean, false),
+
+    vaultTradeMetadata: types.optional(types.maybe(types.frozen()), undefined),
   })
   .actions((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
@@ -1499,18 +1501,24 @@ function computeCollateralOptions(
   return options.map((c) => {
     const i = { ...inputs, collateral: c };
     try {
-      const { collateralBalance, netRealizedCollateralBalance } = calculationFn(
+      const {
+        collateralBalance,
+        netRealizedCollateralBalance,
+        vaultTradeMetadata,
+      } = calculationFn(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         i as any
       ) as {
         collateralFee: TokenBalance;
         collateralBalance: TokenBalance;
         netRealizedCollateralBalance: TokenBalance;
+        vaultTradeMetadata?: unknown;
       };
 
       return {
         token: c as Instance<typeof TokenDefinitionModel>,
         balance: collateralBalance,
+        vaultTradeMetadata,
         error: undefined,
         ..._getTradedInterestRate(
           netRealizedCollateralBalance,
@@ -1518,7 +1526,8 @@ function computeCollateralOptions(
           fCashMarket,
           tradeType,
           vaultAdapter,
-          model
+          model,
+          vaultTradeMetadata
         ),
       };
     } catch (e) {
@@ -1526,6 +1535,7 @@ function computeCollateralOptions(
       return {
         token: c as Instance<typeof TokenDefinitionModel>,
         balance: undefined,
+        vaultTradeMetadata: undefined,
         utilization: undefined,
         interestRate: undefined,
         error: (e as Error).toString(),
@@ -1570,7 +1580,8 @@ function computeDebtOptions(
           fCashMarket,
           tradeType,
           undefined, // Vault Adapter is not used for debt
-          model
+          model,
+          undefined // No vault trade metadata for debt
         ),
       };
     } catch (e) {
@@ -1592,7 +1603,8 @@ function _getTradedInterestRate(
   fCashMarket: fCashMarket | undefined,
   tradeType: AllTradeTypes | NOTETradeType | undefined,
   vaultAdapter: VaultAdapter | undefined,
-  model: NetworkClientModelType
+  model: NetworkClientModelType,
+  vaultTradeMetadata: unknown | undefined
 ): {
   interestRate: number | undefined;
   utilization: number | undefined;
@@ -1646,7 +1658,14 @@ function _getTradedInterestRate(
     (tradeType === 'IncreaseVaultPosition' ||
       tradeType === 'CreateVaultPosition')
   ) {
-    const impliedExchangeRate = amount.toFloat() / realized.toFloat();
+    const amountInSy =
+      // If the borrow is NOT the same as the asset then use the tokens in sy to mark the
+      // realized amount so that the interest rate does not include any exchange rate deviations
+      // from the borrowed asset to the PT accounting asset.
+      !(vaultAdapter as PendlePT).isBorrowSameAsAsset && vaultTradeMetadata
+        ? (vaultTradeMetadata as { tokensInSy: TokenBalance }).tokensInSy
+        : realized;
+    const impliedExchangeRate = amount.toFloat() / amountInSy.toFloat();
     const timeToMaturity = (vaultAdapter as PendlePT).timeToExpiry;
     interestRate = Math.trunc(
       ((Math.log(impliedExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
