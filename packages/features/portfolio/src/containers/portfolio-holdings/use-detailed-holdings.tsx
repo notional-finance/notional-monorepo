@@ -43,7 +43,7 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
       }) => {
         const isDebt = b.isNegative();
         const { icon, formattedTitle, titleWithMaturity, title } =
-          formatTokenType(b.token, isDebt);
+          formatTokenType(b.token, isDebt, true);
         // const pointsPerDay = getPointsPerDay(b);
         // const totalPoints =
         //   arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
@@ -133,6 +133,7 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
                     : noteIncentives
                     ? `${formatNumberAsPercent(noteIncentives)} NOTE`
                     : b.token.tokenType === 'fCash' &&
+                      !hasMatured &&
                       impliedFixedRate !== undefined
                     ? `${formatNumberAsPercent(
                         impliedFixedRate
