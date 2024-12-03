@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { VaultActionContext } from '../vault';
+import { getVaultDocsLink } from '@notional-finance/core-entities';
 
 export interface VaultsDataProps {
   vaultName: string;
@@ -12,7 +13,9 @@ export interface VaultsDataProps {
 
 export const useVaultStrategyData = () => {
   const { state } = useContext(VaultActionContext);
-  const { vaultConfig, deposit } = state;
+  const { vaultConfig, deposit, selectedNetwork, vaultAddress } = state;
+  const docsLink = getVaultDocsLink(vaultAddress, selectedNetwork);
+
   if (!vaultConfig) return undefined;
 
   return {
@@ -20,7 +23,6 @@ export const useVaultStrategyData = () => {
     boosterProtocol: vaultConfig.boosterProtocol,
     primaryBorrowCurrency: deposit?.symbol,
     poolName: vaultConfig.poolName,
-    docsLink:
-      'https://docs.notional.finance/notional-v3/product-guides/leveraged-vaults',
+    docsLink,
   };
 };

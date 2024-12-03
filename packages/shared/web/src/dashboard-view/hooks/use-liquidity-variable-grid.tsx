@@ -1,7 +1,8 @@
-import { formatNumberAsAbbr } from '@notional-finance/helpers';
+import { formatNumberAsAbbr, getBoostedData } from '@notional-finance/helpers';
 import {
   useAppStore,
   useCurrentNetworkStore,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { Network, PRODUCTS } from '@notional-finance/util';
@@ -9,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
+import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
 
 export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const theme = useTheme();
@@ -16,7 +18,8 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const navigate = useNavigate();
   const currentNetworkStore = useCurrentNetworkStore();
   const nTokenYield = currentNetworkStore.getAllNTokenYields();
-
+  const { isStarterBoostUser } = useWalletStore();
+  const validBoostDate = checkBoostEndDate();
   const allData = nTokenYield
     .map(({ token, apy, tvl, underlying }) => {
       return {
@@ -68,13 +71,29 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);
 
-  const gridData = [
-    {
-      sectionTitle: '',
-      data: allData,
-      hasLeveragedPosition: false,
-    },
-  ];
+  const { newUserBoostedData, nonBoostedData } = getBoostedData(allData);
+
+  const gridData =
+    isStarterBoostUser && validBoostDate
+      ? [
+          {
+            sectionTitle: 'STARTER BOOST',
+            data: newUserBoostedData,
+            hasBoost: true,
+          },
+          {
+            sectionTitle: 'NO BOOST',
+            data: nonBoostedData,
+            hasLeveragedPosition: false,
+          },
+        ]
+      : [
+          {
+            sectionTitle: '',
+            data: allData,
+            hasLeveragedPosition: false,
+          },
+        ];
 
   return {
     gridData: allData.length > 0 ? gridData : [],

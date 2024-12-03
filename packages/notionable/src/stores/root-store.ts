@@ -73,6 +73,7 @@ export const createRootStore = (): RootStoreType => {
   const rootStore = RootStore.create({
     walletStore: {
       isSanctionedAddress: false,
+      isStarterBoostUser: false,
       isAccountPending: false,
       transactionStatus: TransactionStatus.NONE,
       transactionHash: '',

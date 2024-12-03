@@ -52,6 +52,7 @@ export const TradeSummary = observer(() => {
             accessorKey: 'value',
             cell: MultiValueCell,
             textAlign: 'right',
+            fontWeightBold: true,
           },
         ]}
       />

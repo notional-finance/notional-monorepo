@@ -1,22 +1,27 @@
-import { formatNumberAsAbbr } from '@notional-finance/helpers';
+import { formatNumberAsAbbr, getBoostedData } from '@notional-finance/helpers';
 import { PRODUCTS } from '@notional-finance/util';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   useAppStore,
   useCurrentNetworkStore,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { ProductAPY } from '@notional-finance/core-entities';
+import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
 
 export const useVariableRateGrid = (product: PRODUCTS) => {
+  const { pathname } = useLocation();
+  const isBorrow = pathname.includes('borrow');
   const currentNetworkStore = useCurrentNetworkStore();
   const network = currentNetworkStore.network;
-
+  const { isStarterBoostUser } = useWalletStore();
   let yieldData: ProductAPY[] = [];
   if (product === PRODUCTS.LEND_VARIABLE) {
     yieldData = currentNetworkStore.getAllPrimeCashYields();
   } else if (product === PRODUCTS.BORROW_VARIABLE) {
     yieldData = currentNetworkStore.getAllPrimeCashDebt();
   }
+  const validBoostDate = checkBoostEndDate();
 
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
@@ -46,13 +51,29 @@ export const useVariableRateGrid = (product: PRODUCTS) => {
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);
 
-  const gridData = [
-    {
-      sectionTitle: '',
-      data: allData,
-      hasLeveragedPosition: false,
-    },
-  ];
+  const { newUserBoostedData, nonBoostedData } = getBoostedData(allData);
+
+  const gridData =
+    isStarterBoostUser && !isBorrow && validBoostDate
+      ? [
+          {
+            sectionTitle: 'STARTER BOOST',
+            data: newUserBoostedData,
+            hasBoost: true,
+          },
+          {
+            sectionTitle: 'NO BOOST',
+            data: nonBoostedData,
+            hasLeveragedPosition: false,
+          },
+        ]
+      : [
+          {
+            sectionTitle: '',
+            data: allData,
+            hasLeveragedPosition: false,
+          },
+        ];
 
   return {
     gridData: allData.length > 0 ? gridData : [],

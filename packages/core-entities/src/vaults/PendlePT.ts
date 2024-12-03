@@ -75,6 +75,16 @@ export class PendlePT extends VaultAdapter {
     return [this.vaultAddress].join(':');
   }
 
+  get isBorrowSameAsAsset(): boolean {
+    return this.market.assetTokenId === this.borrowedToken.id;
+  }
+
+  get assetToken(): TokenDefinition {
+    return getNetworkModel(this.network).getTokenByID(
+      this.market.assetTokenId
+    );
+  }
+
   getInitialVaultShareValuation(): ExchangeRate {
     const oneAssetUnit = new TokenBalance(
       this.market.ptExchangeRate,
@@ -245,6 +255,7 @@ export class PendlePT extends VaultAdapter {
   ): {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
+    vaultTradeMetadata?: unknown;
   } {
     if (netUnderlying.isPositive()) {
       // On way in, netUnderlying is traded to tokenInSy
@@ -254,6 +265,11 @@ export class PendlePT extends VaultAdapter {
       // Calculate the amount received for selling the PT
       const { tokensOut: ptTokensOut, feesPaid } =
         this.market.calculateTokenTrade(tokensInSy, this.market.PT_TOKEN_INDEX);
+
+      const slippageForSY = tokensInSy
+        .toToken(netUnderlying.token)
+        .sub(netUnderlying)
+        .add(tradingFeesPaid);
 
       return {
         netVaultSharesForUnderlying: TokenBalance.from(
@@ -265,6 +281,10 @@ export class PendlePT extends VaultAdapter {
           // Ensure that this is converted to the underlying
           .toToken(netUnderlying.token)
           .add(tradingFeesPaid),
+        vaultTradeMetadata: {
+          slippageForSY,
+          tokensInSy,
+        },
       };
     } else {
       // On way out, tokenOutSy is traded to netUnderlying, need to figure out how many PTs to sell
@@ -277,33 +297,40 @@ export class PendlePT extends VaultAdapter {
         this.market.ptExchangeRate * RATE_PRECISION
       );
 
-      const { ptTokensIn, feesPaid } = doSecantSearch(
-        Math.floor(approxPTExchangeRate / 2),
-        approxPTExchangeRate,
-        (exRate: number) => {
-          const ptTokensIn = initialPtTokens.mulInRatePrecision(exRate);
+      const { ptTokensIn, feesPaid, slippageForSY, tokenOutSy } =
+        doSecantSearch(
+          Math.floor(approxPTExchangeRate / 2),
+          approxPTExchangeRate,
+          (exRate: number) => {
+            const ptTokensIn = initialPtTokens.mulInRatePrecision(exRate);
 
-          const { tokensOut: _tokenOutSy, feesPaid } =
-            this.market.calculateTokenTrade(
-              ptTokensIn,
-              this.market.TOKEN_IN_INDEX
-            );
-          const tokenOutSy = this.unwrapToSyOutToken(_tokenOutSy);
-          const { underlyingOut, tradingFeesPaid } =
-            this.calculateTradeFromSy(tokenOutSy);
+            const { tokensOut: _tokenOutSy, feesPaid } =
+              this.market.calculateTokenTrade(
+                ptTokensIn,
+                this.market.TOKEN_IN_INDEX
+              );
+            const tokenOutSy = this.unwrapToSyOutToken(_tokenOutSy);
+            const { underlyingOut, tradingFeesPaid } =
+              this.calculateTradeFromSy(tokenOutSy);
 
-          return {
-            fx: underlyingOut.toFloat() - netUnderlying.neg().toFloat(),
-            value: {
-              ptTokensIn,
-              feesPaid: this.market
-                .convertSyToAsset(feesPaid[0])
-                .toToken(netUnderlying.token)
-                .add(tradingFeesPaid),
-            },
-          };
-        }
-      );
+            const slippageForSY = netUnderlying
+              .sub(tokenOutSy.toToken(netUnderlying.token))
+              .add(tradingFeesPaid);
+
+            return {
+              fx: underlyingOut.toFloat() - netUnderlying.neg().toFloat(),
+              value: {
+                ptTokensIn,
+                feesPaid: this.market
+                  .convertSyToAsset(feesPaid[0])
+                  .toToken(netUnderlying.token)
+                  .add(tradingFeesPaid),
+                slippageForSY,
+                tokenOutSy,
+              },
+            };
+          }
+        );
 
       return {
         netVaultSharesForUnderlying: TokenBalance.from(
@@ -311,6 +338,10 @@ export class PendlePT extends VaultAdapter {
           vaultShare
         ).neg(),
         feesPaid: feesPaid,
+        vaultTradeMetadata: {
+          slippageForSY,
+          tokenOutSy,
+        },
       };
     }
   }

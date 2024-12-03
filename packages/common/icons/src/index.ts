@@ -37,6 +37,7 @@ export * from './lib/gbp-icon/gbp-icon';
 export * from './lib/chf-icon/chf-icon';
 export * from './lib/eur-icon/eur-icon';
 export * from './lib/resources-icon/resources-icon';
+export * from './lib/rocket-icon/rocket-icon';
 export * from './lib/signature-icon/signature-icon';
 export * from './lib/sparkles-icon/sparkles-icon';
 export * from './lib/notional-icon/notional-icon';

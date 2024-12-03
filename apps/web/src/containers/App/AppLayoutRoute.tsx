@@ -1,10 +1,12 @@
 import { useParams } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import { FeatureLoader, Footer } from '@notional-finance/shared-web';
 import {
   Header,
   MetaTagManager,
   metaTagData,
+  FeatureLoader,
+  Footer,
+  CustomBanner,
 } from '@notional-finance/shared-web';
 import {
   NotionalContext,
@@ -40,8 +42,7 @@ const AppLayoutRoute = ({
   const { themeVariant } = useAppStore();
   const { setRoute } = useRootStore();
   const params = useParams();
-  const notionalTheme = useNotionalTheme(themeVariant);
-
+  const notionalTheme = useNotionalTheme(themeVariant, 'product');
   const slicedPath = path
     .match(/\/[^/]+/)?.[0]
     ?.slice(1) as META_TAG_CATEGORIES;
@@ -67,6 +68,7 @@ const AppLayoutRoute = ({
               <MetaTagManager metaTagCategory={slicedPath} />
             )}
             <AppShell>
+              <CustomBanner />
               <Header>
                 <WalletSelector />
               </Header>

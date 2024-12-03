@@ -55,6 +55,7 @@ export interface DashboardGridProps {
     sectionTitle?: string;
     data: DashboardDataProps[];
     hasLeveragedPosition?: boolean;
+    hasBoost?: boolean;
     hasNegativePosition?: boolean;
   }[];
   showNegativeYields?: boolean;

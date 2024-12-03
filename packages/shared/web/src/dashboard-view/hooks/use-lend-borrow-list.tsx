@@ -88,18 +88,6 @@ export const useLendBorrowList = (
       accessorKey: 'maturity',
       textAlign: 'right',
     },
-    // {
-    //   header: (
-    //     <FormattedMessage
-    //       defaultMessage="Points Boost"
-    //       description={'Points Boost header'}
-    //     />
-    //   ),
-    //   cell: MultiValueIconCell,
-    //   showPointsIcon: true,
-    //   accessorKey: 'pointsBoost',
-    //   textAlign: 'right',
-    // },
     {
       header: (
         <FormattedMessage defaultMessage="APY" description={'APY header'} />

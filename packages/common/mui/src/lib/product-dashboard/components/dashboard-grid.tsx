@@ -5,9 +5,11 @@ import { DashboardGridProps } from '../product-dashboard';
 import { DashboardStateZero } from './dashboard-state-zero';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
+import { RocketIcon } from '@notional-finance/icons';
 
 interface ContainerProps {
   hasLeveragedPosition?: boolean;
+  hasBoost?: boolean;
   threeWideGrid?: boolean;
   theme: NotionalTheme;
 }
@@ -24,52 +26,66 @@ export const DashboardGrid = ({
   return (
     <Box>
       {gridData &&
-        gridData.map(({ sectionTitle, data, hasLeveragedPosition }, index) => (
-          <Container
-            key={index}
-            hasLeveragedPosition={hasLeveragedPosition}
-            theme={theme}
-          >
-            <Caption
-              sx={{
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                textAlign: 'left',
-                marginBottom: theme.spacing(2),
-                letterSpacing: '1.4px',
-              }}
+        gridData.map(
+          ({ sectionTitle, data, hasLeveragedPosition, hasBoost }, index) => (
+            <Container
+              key={index}
+              hasLeveragedPosition={hasLeveragedPosition || hasBoost}
+              theme={theme}
             >
-              {sectionTitle}
-            </Caption>
-            {!dataAvailable && !showNegativeYields ? (
-              <DashboardStateZero />
-            ) : (
-              <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
-                {data.map((d, index) => (
-                  <div key={index}>
-                    <DashboardCard key={index} {...d} />
-                  </div>
-                ))}
-              </GridCardContainer>
-            )}
-            {!hasLeveragedPosition && setShowNegativeYields && (
-              <LinkText
-                onClick={() => setShowNegativeYields(!showNegativeYields)}
-                sx={{
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  paddingTop: theme.spacing(4),
-                }}
-              >
-                {showNegativeYields ? (
-                  <FormattedMessage defaultMessage={'Hide negative yields'} />
-                ) : (
-                  <FormattedMessage defaultMessage={'See negative yields'} />
+              <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                {hasBoost && (
+                  <RocketIcon
+                    sx={{
+                      height: theme.spacing(2.5),
+                      width: theme.spacing(2.5),
+                      marginRight: theme.spacing(1),
+                    }}
+                  />
                 )}
-              </LinkText>
-            )}
-          </Container>
-        ))}
+                <Caption
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    textAlign: 'left',
+                    marginBottom: theme.spacing(2),
+                    letterSpacing: '1.4px',
+                  }}
+                >
+                  {sectionTitle}
+                </Caption>
+              </Box>
+              {!dataAvailable && !showNegativeYields ? (
+                <DashboardStateZero />
+              ) : (
+                <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
+                  {data.map((d, index) => (
+                    <div key={index}>
+                      <DashboardCard key={index} {...d} />
+                    </div>
+                  ))}
+                </GridCardContainer>
+              )}
+              {!hasLeveragedPosition && setShowNegativeYields && (
+                <LinkText
+                  onClick={() => setShowNegativeYields(!showNegativeYields)}
+                  sx={{
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    paddingTop: theme.spacing(4),
+                  }}
+                >
+                  {showNegativeYields ? (
+                    <FormattedMessage defaultMessage={'Hide negative yields'} />
+                  ) : (
+                    <FormattedMessage defaultMessage={'See negative yields'} />
+                  )}
+                </LinkText>
+              )}
+            </Container>
+          )
+        )}
     </Box>
   );
 };

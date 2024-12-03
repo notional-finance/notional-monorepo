@@ -475,13 +475,18 @@ function computeCollateralOptions(
   return options.map((c) => {
     const i = { ...inputs, collateral: c };
     try {
-      const { collateralBalance, netRealizedCollateralBalance } = calculationFn(
+      const {
+        collateralBalance,
+        netRealizedCollateralBalance,
+        vaultTradeMetadata,
+      } = calculationFn(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         i as any
       ) as {
         collateralFee: TokenBalance;
         collateralBalance: TokenBalance;
         netRealizedCollateralBalance: TokenBalance;
+        vaultTradeMetadata?: unknown;
       };
 
       return {
@@ -492,7 +497,8 @@ function computeCollateralOptions(
           collateralBalance,
           fCashMarket,
           tradeType,
-          vaultAdapter
+          vaultAdapter,
+          vaultTradeMetadata
         ),
       };
     } catch (e) {
@@ -542,7 +548,8 @@ function computeDebtOptions(
           debtBalance,
           fCashMarket,
           tradeType,
-          undefined // Vault Adapter is not used for debt
+          undefined, // Vault Adapter is not used for debt
+          undefined // Fees paid is not used for debt
         ),
       };
     } catch (e) {
@@ -561,7 +568,8 @@ function _getTradedInterestRate(
   _amount: TokenBalance,
   fCashMarket: fCashMarket | undefined,
   tradeType: AllTradeTypes | NOTETradeType | undefined,
-  vaultAdapter: VaultAdapter | undefined
+  vaultAdapter: VaultAdapter | undefined,
+  metadata?: unknown
 ) {
   let interestRate: number | undefined;
   let utilization: number | undefined;
@@ -614,8 +622,16 @@ function _getTradedInterestRate(
     (tradeType === 'IncreaseVaultPosition' ||
       tradeType === 'CreateVaultPosition')
   ) {
-    const impliedExchangeRate = amount.toFloat() / realized.toFloat();
     const timeToMaturity = (vaultAdapter as PendlePT).timeToExpiry;
+    const amountInSy =
+      // If the borrow is NOT the same as the asset then use the tokens in sy to mark the
+      // realized amount so that the interest rate does not include any exchange rate deviations
+      // from the borrowed asset to the PT accounting asset.
+      !(vaultAdapter as PendlePT).isBorrowSameAsAsset && metadata
+        ? (metadata as { tokensInSy: TokenBalance }).tokensInSy
+        : realized;
+
+    const impliedExchangeRate = amount.toFloat() / amountInSy.toFloat();
     interestRate = Math.trunc(
       ((Math.log(impliedExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
         timeToMaturity) *

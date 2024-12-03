@@ -14,8 +14,23 @@ export const ToolTipCell = ({ cell, row }): JSX.Element => {
     ? (value.text.toolTipContent as MessageDescriptor)
     : undefined;
 
+  const borderStyles = row.original?.isSlippageRow
+    ? {
+        borderTop: `1px solid ${theme.palette.borders.paper}`,
+        height: '100%',
+        width: '100%',
+        paddingTop: theme.spacing(1),
+      }
+    : {};
+
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        ...borderStyles,
+      }}
+    >
       <TableCell
         style={{
           lineHeight: 'normal',
