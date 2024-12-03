@@ -115,7 +115,7 @@ export function useDetailedHoldingsTable() {
         }) => {
           const isDebt = b.isNegative();
           const { icon, formattedTitle, titleWithMaturity, title } =
-            formatTokenType(b.token, isDebt);
+            formatTokenType(b.token, isDebt, true);
           const isStarterBoost = checkStarterBoostToken(
             b.underlying.symbol,
             isStarterBoostUser
@@ -269,6 +269,7 @@ export function useDetailedHoldingsTable() {
                       : noteIncentives
                       ? `${formatNumberAsPercent(noteIncentives)} NOTE`
                       : b.token.tokenType === 'fCash' &&
+                        !hasMatured &&
                         s?.impliedFixedRate !== undefined
                       ? `${formatNumberAsPercent(
                           s.impliedFixedRate
