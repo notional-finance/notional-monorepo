@@ -6,6 +6,7 @@ import {
 import {
   PRIME_CASH_VAULT_MATURITY,
   formatMaturity,
+  getNowSeconds,
 } from '@notional-finance/util';
 
 export function truncateAddress(
@@ -27,7 +28,8 @@ export function truncateText(text: string, numOfChars: number) {
 /** Used with the transaction history table */
 export function formatTokenType(
   token: TokenDefinition,
-  isDebt?: boolean
+  isDebt?: boolean,
+  switchMaturedFCash?: boolean
 ): {
   title: string;
   icon: string;
@@ -70,17 +72,34 @@ export function formatTokenType(
         formattedTitle: `Variable ${underlying.symbol} Lend`,
       };
     case 'fCash': {
-      return {
-        title: `f${underlying.symbol}`,
-        formattedTitle: `Fixed ${underlying.symbol} ${
-          isDebt ? 'Borrow' : 'Lend'
-        }`,
-        caption: formatMaturity(token.maturity || 0),
-        icon: `f${underlying.symbol}`,
-        titleWithMaturity: `f${underlying.symbol} ${formatMaturity(
-          token.maturity || 0
-        )}`,
-      };
+      if (
+        switchMaturedFCash &&
+        token.maturity &&
+        token.maturity < getNowSeconds()
+      ) {
+        return {
+          title: `f${underlying.symbol}`,
+          icon: `f${underlying.symbol}`,
+          titleWithMaturity: `Matured ${formatMaturity(token.maturity)} f${
+            underlying.symbol
+          }`,
+          formattedTitle: isDebt
+            ? `Variable ${underlying.symbol} Borrow`
+            : `Variable ${underlying.symbol} Lend`,
+        };
+      } else {
+        return {
+          title: `f${underlying.symbol}`,
+          formattedTitle: `Fixed ${underlying.symbol} ${
+            isDebt ? 'Borrow' : 'Lend'
+          }`,
+          caption: formatMaturity(token.maturity || 0),
+          icon: `f${underlying.symbol}`,
+          titleWithMaturity: `f${underlying.symbol} ${formatMaturity(
+            token.maturity || 0
+          )}`,
+        };
+      }
     }
     case 'VaultShare': {
       const maturity =
