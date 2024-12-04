@@ -65,8 +65,8 @@ export default class TreasuryManager {
     const duration = (Date.now() - lastInvestmentStartOfDay.getTime()) / 1000;
     if (
       // force run it twice (sellComp & burnNote) at Saturday midnight and after that respect TREASURY_REINVESTMENT_INTERVAL
-      (new Date('2024-11-10T00:00:00.000Z').getTime() <= Date.now() &&
-        Date.now() < new Date('2024-11-10T00:15:00.000Z').getTime()) ||
+      (new Date('2024-12-08T00:00:00.000Z').getTime() <= Date.now() &&
+        Date.now() < new Date('2024-12-08T00:15:00.000Z').getTime()) ||
       duration > Config.TREASURY_REINVESTMENT_INTERVAL
     ) {
       if (runType === RunType.burnNOTE) {
