@@ -265,13 +265,15 @@ export class SingleSidedLP extends VaultAdapter {
           ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
         )
         .map((r) =>
-          Object.keys(r.returnDrivers)
-            .filter(
-              (r) =>
-                r.toLowerCase().includes('incentive') ||
-                r.toLowerCase().includes('points')
-            )
-            .reduce((t, i) => t + (r.returnDrivers[i] || 0), 0)
+          r['returnDrivers']
+            ? Object.keys(r['returnDrivers'])
+                .filter(
+                  (r) =>
+                    r.toLowerCase().includes('incentive') ||
+                    r.toLowerCase().includes('points')
+                )
+                .reduce((t, i) => t + (r.returnDrivers[i] || 0), 0)
+            : null
         )
         .filter((apy) => apy !== null) || ([] as number[]);
 

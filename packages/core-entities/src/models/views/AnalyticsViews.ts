@@ -4,7 +4,7 @@ import { ChartType, TimeSeriesResponse } from '../ModelTypes';
 import { Network } from '@notional-finance/util';
 
 const REGISTRY_HOSTNAME =
-  (process.env['NX_REGISTRY_HOSTNAME'] as string) ||
+  (process.env['NX_REGISTRY_URL'] as string) ||
   'https://registry.notional.finance';
 
 export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
