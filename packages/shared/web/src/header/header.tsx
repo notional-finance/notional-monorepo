@@ -76,14 +76,25 @@ export function Header({ children }: HeaderProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, [setIsMobileView, isMobileView]);
 
-  window.addEventListener('scroll', () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    if (scrollTop > 0) {
-      setIsTop(false);
+  useEffect(() => {
+    if (pathname === '/') {
+      const handleScroll = () => {
+        const scrollTop =
+          window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop > 0) {
+          setIsTop(false);
+        } else {
+          setIsTop(true);
+        }
+      };
+
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
     } else {
-      setIsTop(true);
+      setIsTop(false);
+      return undefined;
     }
-  });
+  }, [pathname]);
 
   return (
     <ThemeProvider theme={theme}>
