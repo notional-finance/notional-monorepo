@@ -6,3 +6,4 @@ export * from './settings-side-drawer/settings-side-drawer';
 export * from './hooks';
 export * from './onboard-context';
 export * from './network-selector/network-selector';
+export * from './mobile-network-selector/mobile-network-selector';

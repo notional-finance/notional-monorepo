@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Toolbar, Box, useTheme, ThemeProvider, styled } from '@mui/material';
 import { AppBar, AppBarProps, Body, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
@@ -14,6 +14,7 @@ import MobileNavigation from './mobile-navigation/mobile-navigation';
 import { useLocation } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
+  useAppStore,
   useSelectedNetwork,
   useWalletNetworkAccounts,
   useWalletStore,
@@ -31,6 +32,8 @@ export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
   const selectedNetwork = useSelectedNetwork();
   const [hideError, setHideError] = useState(false);
+  const { setIsMobileView, isMobileView } = useAppStore();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');
   const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
   const contestTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
@@ -60,14 +63,38 @@ export function Header({ children }: HeaderProps) {
     setInLocalStorage('hideSubGraphError', true);
   };
 
-  window.addEventListener('scroll', () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    if (scrollTop > 0) {
-      setIsTop(false);
-    } else {
-      setIsTop(true);
+  useEffect(() => {
+    if (window.innerWidth <= 768 && !isMobileView) {
+      setIsMobileView(true);
+    } else if (window.innerWidth > 768 && isMobileView) {
+      setIsMobileView(false);
     }
-  });
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [setIsMobileView, isMobileView]);
+
+  useEffect(() => {
+    if (pathname === '/') {
+      const handleScroll = () => {
+        const scrollTop =
+          window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop > 0) {
+          setIsTop(false);
+        } else {
+          setIsTop(true);
+        }
+      };
+
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    } else {
+      setIsTop(false);
+      return undefined;
+    }
+  }, [pathname]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -82,15 +109,21 @@ export function Header({ children }: HeaderProps) {
               minHeight: '100%',
               maxWidth: { xs: '100vw', sm: '100vw', md: '100%' },
               transition: 'background 0.3s ease-in-out',
-              background: isTop
-                ? 'transparent'
-                : theme.palette.background.default,
+              background:
+                isMobile && pathname !== '/'
+                  ? theme.palette.background.paper
+                  : isTop
+                  ? 'transparent'
+                  : theme.palette.background.default,
+              padding: isMobile ? '0px' : '',
             },
           }}
         >
-          <H4 to="/">
-            <NotionalLogo />
-          </H4>
+          {!isMobile && (
+            <H4 to="/">
+              <NotionalLogo />
+            </H4>
+          )}
           <NavContainer>
             <Navigation navLinks={navLinks} />
           </NavContainer>

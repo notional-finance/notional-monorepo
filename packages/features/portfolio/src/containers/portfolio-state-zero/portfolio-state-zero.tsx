@@ -183,6 +183,9 @@ const TopContentContainer = styled(Box)(
       align-items: baseline;
       height: ${theme.spacing(25)};
     }
+    ${theme.breakpoints.down('sm')} {
+      display: none;
+    }
   `
 );
 

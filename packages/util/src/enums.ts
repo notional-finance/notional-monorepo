@@ -52,6 +52,7 @@ export enum MOBILE_SUB_NAV_ACTIONS {
   EARN_YIELD = 'earn-yield',
   SETTINGS = 'settings',
   NOTIFICATIONS = 'notifications',
+  LEVERAGE = 'leverage',
   VAULTS = 'vaults',
   BORROW = 'borrow',
   PROVIDE_LIQUIDITY = 'provide-liquidity',

@@ -108,7 +108,7 @@ const Container = styled(Box)(
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: ${theme.palette.background.paper};
+    background: ${theme.palette.background.default};
   }
   `
 );

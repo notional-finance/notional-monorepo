@@ -3,6 +3,7 @@ import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Caption, H4, H5, LabelValue, Paragraph } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover, SxProps } from '@mui/material';
 import {
@@ -40,6 +41,8 @@ export interface NetworkSelectorButtonProps {
   network: Network;
   handleClick: (network: Network) => void;
   balance?: TokenBalance;
+  sx?: SxProps;
+  showCheck?: boolean;
 }
 
 export const NetworkSelectorButton = ({
@@ -49,6 +52,8 @@ export const NetworkSelectorButton = ({
   handleClick,
   balance,
   hideNetWorth,
+  showCheck,
+  sx,
 }: NetworkSelectorButtonProps) => {
   const theme = useTheme();
   return (
@@ -59,6 +64,7 @@ export const NetworkSelectorButton = ({
       theme={theme}
       sx={{
         borderRadius: isSelected && isLast ? '0px 0px 6px 6px' : '0px',
+        ...sx,
       }}
     >
       <Box sx={{ marginRight: theme.spacing(1), lineHeight: 1 }}>
@@ -75,6 +81,9 @@ export const NetworkSelectorButton = ({
       >
         {network}
       </H4>
+      {isSelected && showCheck && (
+        <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
+      )}
       {balance && !hideNetWorth && (
         <Box
           sx={{
@@ -114,6 +123,7 @@ export function TransactionNetworkSelector({ product }: { product: PRODUCTS }) {
       availableNetworks={availableNetworks}
       selectedNetwork={selectedNetwork}
       walletBalances={walletBalances}
+      hideOnMobile
     />
   );
 }
@@ -138,6 +148,7 @@ export function PortfolioNetworkSelector({
       sx={sx}
       isPortfolio
       onNetworkChange={(network) => portfolioStore.setNetwork(network)}
+      hideOnMobile
     />
   );
 }
@@ -148,6 +159,7 @@ function NetworkSelector({
   walletBalances,
   hideNetWorth,
   isPortfolio,
+  hideOnMobile,
   sx,
   onNetworkChange,
 }: {
@@ -157,6 +169,7 @@ function NetworkSelector({
   walletBalances: Record<Network, TokenBalance>;
   hideNetWorth?: boolean;
   isPortfolio?: boolean;
+  hideOnMobile?: boolean;
   sx?: SxProps;
 }) {
   const theme = useTheme();
@@ -183,7 +196,9 @@ function NetworkSelector({
   };
 
   return (
-    <NetworkSelectorWrapper sx={{ ...sx }}>
+    <NetworkSelectorWrapper
+      sx={{ ...sx, display: hideOnMobile ? 'none' : 'block' }}
+    >
       <DropdownButton
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
@@ -304,10 +319,6 @@ const NetworkSelectorWrapper = styled(Box)(
     border-radius: 50px;
     #basic-menu {
       border-radius: ${theme.shape.borderRadius()};
-    }
-    ${theme.breakpoints.down('sm')} {
-      margin-left: 0px;
-      margin-bottom: ${theme.spacing(3)};
     }
   `
 );

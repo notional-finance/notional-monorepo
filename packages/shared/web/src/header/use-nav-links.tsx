@@ -1,13 +1,10 @@
 import {
   PortfolioIcon,
-  // StackIcon,
   NoteOutlineIcon,
-  DocsIcon,
-  NotionalPlainIcon,
-  ResourcesIcon,
   BarChartIcon,
   CoinsIcon,
   GearIcon,
+  LightningOutlineIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS, Network } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
@@ -91,17 +88,30 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     },
   ];
 
-  const mobileNavLinks = navLinks.filter(
-    (navLink) =>
-      navLink.key !== 'earn' &&
-      navLink.key !== 'borrow' &&
-      navLink.key !== 'leverage'
-  );
+  const mobileNavLinks: INavLink[] = [
+    {
+      key: 'portfolio',
+      label: <FormattedMessage defaultMessage={'Portfolio'} />,
+      link: wallet?.accounts[0].address
+        ? `/portfolio/${network}/overview`
+        : `/portfolio/${network}/welcome`,
+      iconImg: (
+        <PortfolioIcon
+          className="color-fill"
+          sx={{
+            fontSize: '1.125rem',
+            fill: textColor,
+            stroke: 'transparent',
+          }}
+        />
+      ),
+    },
+  ];
 
   const mobileSubNavLinks: INavLink[] = [
     {
       key: MOBILE_SUB_NAV_ACTIONS.EARN_YIELD,
-      label: <FormattedMessage defaultMessage={'Earn Yield'} />,
+      label: <FormattedMessage defaultMessage={'Earn'} />,
       link: '',
       iconImg: (
         <BarChartIcon
@@ -122,40 +132,21 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       ),
     },
     {
-      key: MOBILE_SUB_NAV_ACTIONS.RESOURCES,
-      label: <FormattedMessage defaultMessage={'Resources'} />,
-      link: '/resources',
+      key: MOBILE_SUB_NAV_ACTIONS.LEVERAGE,
+      label: <FormattedMessage defaultMessage={'Leverage'} />,
+      link: '',
       iconImg: (
-        <DocsIcon
-          sx={{ color: theme.palette.common.black, fontSize: '24px' }}
-        />
-      ),
-    },
-    {
-      key: MOBILE_SUB_NAV_ACTIONS.SECURITY,
-      label: <FormattedMessage defaultMessage={'Security'} />,
-      link: '/security',
-      iconImg: (
-        <ResourcesIcon
-          sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
-        />
-      ),
-    },
-    {
-      key: MOBILE_SUB_NAV_ACTIONS.COMPANY,
-      label: <FormattedMessage defaultMessage={'Company'} />,
-      link: '/company',
-      iconImg: (
-        <NotionalPlainIcon
-          sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
+        <LightningOutlineIcon
+          className="color-stroke"
+          sx={{ fontSize: '1.125rem' }}
         />
       ),
     },
     {
       key: MOBILE_SUB_NAV_ACTIONS.SETTINGS,
-      label: <FormattedMessage defaultMessage={'Settings'} />,
+      label: <FormattedMessage defaultMessage={'Wallet Settings'} />,
       link: '',
-      iconImg: <GearIcon sx={{ fontSize: '24px' }} />,
+      iconImg: <GearIcon sx={{ fontSize: '1.125rem' }} />,
     },
   ];
 
