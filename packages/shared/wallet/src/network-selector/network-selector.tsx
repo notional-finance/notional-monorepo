@@ -3,8 +3,17 @@ import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Caption, H4, H5, LabelValue, Paragraph } from '@notional-finance/mui';
-import { useTheme, Box, Button, styled, Popover, SxProps } from '@mui/material';
+import {
+  useTheme,
+  Box,
+  Button,
+  styled,
+  Popover,
+  SxProps,
+  Drawer,
+} from '@mui/material';
 import {
   PRODUCTS,
   SupportedNetworks,
@@ -40,6 +49,8 @@ export interface NetworkSelectorButtonProps {
   network: Network;
   handleClick: (network: Network) => void;
   balance?: TokenBalance;
+  sx?: SxProps;
+  showCheck?: boolean;
 }
 
 export const NetworkSelectorButton = ({
@@ -49,6 +60,8 @@ export const NetworkSelectorButton = ({
   handleClick,
   balance,
   hideNetWorth,
+  showCheck,
+  sx,
 }: NetworkSelectorButtonProps) => {
   const theme = useTheme();
   return (
@@ -59,6 +72,7 @@ export const NetworkSelectorButton = ({
       theme={theme}
       sx={{
         borderRadius: isSelected && isLast ? '0px 0px 6px 6px' : '0px',
+        ...sx,
       }}
     >
       <Box sx={{ marginRight: theme.spacing(1), lineHeight: 1 }}>
@@ -75,6 +89,9 @@ export const NetworkSelectorButton = ({
       >
         {network}
       </H4>
+      {isSelected && showCheck && (
+        <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
+      )}
       {balance && !hideNetWorth && (
         <Box
           sx={{
@@ -114,6 +131,7 @@ export function TransactionNetworkSelector({ product }: { product: PRODUCTS }) {
       availableNetworks={availableNetworks}
       selectedNetwork={selectedNetwork}
       walletBalances={walletBalances}
+      hideOnMobile
     />
   );
 }
@@ -138,16 +156,32 @@ export function PortfolioNetworkSelector({
       sx={sx}
       isPortfolio
       onNetworkChange={(network) => portfolioStore.setNetwork(network)}
+      hideOnMobile
     />
   );
 }
 
-function NetworkSelector({
+export function MobileNetworkSelector() {
+  const selectedNetwork = useSelectedNetwork();
+  const walletBalances = useAccountNetWorth();
+  const portfolioStore = usePortfolioStore();
+
+  return (
+    <NetworkSelectorDrawer
+      availableNetworks={SupportedNetworks}
+      selectedNetwork={selectedNetwork}
+      walletBalances={walletBalances}
+      isPortfolio
+      onNetworkChange={(network) => portfolioStore.setNetwork(network)}
+    />
+  );
+}
+
+function NetworkSelectorDrawer({
   selectedNetwork,
   availableNetworks,
   walletBalances,
   hideNetWorth,
-  isPortfolio,
   sx,
   onNetworkChange,
 }: {
@@ -157,6 +191,156 @@ function NetworkSelector({
   walletBalances: Record<Network, TokenBalance>;
   hideNetWorth?: boolean;
   isPortfolio?: boolean;
+  sx?: SxProps;
+}) {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const userSettings = getFromLocalStorage('userSettings');
+  const [isOpen, setIsOpen] = useState(false);
+  const canSelect = availableNetworks.length > 1;
+
+  const handleClose = (network?: Network) => {
+    setIsOpen(false);
+    if (network && !pathname.includes(network) && selectedNetwork) {
+      if (onNetworkChange && network) onNetworkChange(network);
+      setInLocalStorage('userSettings', { ...userSettings, network: network });
+      navigate(pathname.replace(selectedNetwork, network));
+    }
+  };
+
+  return (
+    <NetworkSelectorWrapper sx={{ ...sx }}>
+      <DropdownButton
+        id="basic-button"
+        aria-controls={isOpen ? 'basic-menu' : undefined}
+        variant="outlined"
+        aria-expanded={isOpen ? 'true' : undefined}
+        disabled={!canSelect}
+        onClick={() => setIsOpen(!isOpen)}
+        startIcon={
+          <TokenIcon
+            symbol={getNetworkSymbol(selectedNetwork)}
+            size={'medium'}
+          />
+        }
+        endIcon={
+          canSelect ? (
+            <Box
+              sx={{
+                borderRadius: '50%',
+                background: theme.palette.info.light,
+                height: theme.spacing(2),
+                width: theme.spacing(2),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <ArrowIcon
+                sx={{
+                  transform: isOpen ? 'rotate(0deg)' : 'rotate(-180deg)',
+                  transition: '.5s ease',
+                  width: theme.spacing(1.5),
+                  color: theme.palette.secondary.light,
+                }}
+              />
+            </Box>
+          ) : undefined
+        }
+        sx={{
+          boxShadow: 'none',
+          padding: '6px 12px',
+          borderRadius: '50px',
+          border: theme.shape.borderStandard,
+          color: theme.palette.typography.main,
+          '&:hover': {
+            boxShadow: 'none',
+          },
+          '.MuiButton-endIcon': {
+            marginLeft: '0px',
+          },
+          '.MuiButton-startIcon': {
+            marginStart: '0px',
+          },
+        }}
+      />
+      <Drawer
+        anchor="top"
+        open={isOpen}
+        onClose={() => handleClose()}
+        sx={{
+          '& .MuiDrawer-paper': {
+            height: 'fit-content',
+            borderBottomLeftRadius: theme.shape.borderRadius(),
+            borderBottomRightRadius: theme.shape.borderRadius(),
+            boxShadow: theme.shape.shadowLarge(),
+            border: theme.shape.borderStandard,
+            background: theme.palette.background.default,
+          },
+        }}
+      >
+        <NetworkInnerWrapper
+          hideNetWorth={hideNetWorth}
+          theme={theme}
+          sx={{ marginTop: '72px', padding: '16px !important' }}
+        >
+          <Box sx={{ padding: theme.spacing(3), paddingLeft: '0px' }}>
+            <H4 sx={{ fontWeight: 700, color: theme.palette.typography.light }}>
+              <FormattedMessage defaultMessage={'NETWORK'} />
+            </H4>
+          </Box>
+          <Box
+            sx={{
+              margin: 'auto',
+              maxHeight: 'calc(50vh - 80px)', // Account for header
+              overflowY: 'auto',
+            }}
+          >
+            {availableNetworks.map((n, i) => (
+              <NetworkSelectorButton
+                key={n}
+                isLast={i === availableNetworks.length - 1}
+                isSelected={n === selectedNetwork}
+                network={n}
+                handleClick={() => handleClose(n)}
+                balance={walletBalances[n]}
+                hideNetWorth={true}
+                showCheck
+                sx={{
+                  borderRadius: theme.shape.borderRadius(),
+                  marginBottom: theme.spacing(2),
+                  background:
+                    n === selectedNetwork
+                      ? theme.palette.info.light
+                      : theme.palette.background.paper,
+                }}
+              />
+            ))}
+          </Box>
+        </NetworkInnerWrapper>
+      </Drawer>
+    </NetworkSelectorWrapper>
+  );
+}
+
+function NetworkSelector({
+  selectedNetwork,
+  availableNetworks,
+  walletBalances,
+  hideNetWorth,
+  isPortfolio,
+  hideOnMobile,
+  sx,
+  onNetworkChange,
+}: {
+  onNetworkChange?: (network: Network) => void;
+  selectedNetwork?: Network;
+  availableNetworks: Network[];
+  walletBalances: Record<Network, TokenBalance>;
+  hideNetWorth?: boolean;
+  isPortfolio?: boolean;
+  hideOnMobile?: boolean;
   sx?: SxProps;
 }) {
   const theme = useTheme();
@@ -183,7 +367,9 @@ function NetworkSelector({
   };
 
   return (
-    <NetworkSelectorWrapper sx={{ ...sx }}>
+    <NetworkSelectorWrapper
+      sx={{ ...sx, display: hideOnMobile ? 'none' : 'block' }}
+    >
       <DropdownButton
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
@@ -304,10 +490,6 @@ const NetworkSelectorWrapper = styled(Box)(
     border-radius: 50px;
     #basic-menu {
       border-radius: ${theme.shape.borderRadius()};
-    }
-    ${theme.breakpoints.down('sm')} {
-      margin-left: 0px;
-      margin-bottom: ${theme.spacing(3)};
     }
   `
 );

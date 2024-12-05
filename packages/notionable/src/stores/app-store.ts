@@ -2,8 +2,6 @@ import { flow, Instance, types } from 'mobx-state-tree';
 import { FIAT_NAMES, FiatKeys } from '@notional-finance/core-entities';
 import { THEME_VARIANTS } from '@notional-finance/util';
 
-
-
 const ErrorModel = types.model('ErrorModel', {
   code: types.number,
   msg: types.string,
@@ -59,6 +57,7 @@ export const AppStoreModel = types
     heroStats: HeroStatsModel,
     globalError: GlobalErrorModel,
     isAppReady: types.optional(types.boolean, false),
+    isMobileView: types.optional(types.boolean, false),
   })
   .actions((self) => ({
     setBaseCurrency(currency: FiatKeys) {
@@ -69,6 +68,9 @@ export const AppStoreModel = types
     },
     setIsAppReady(isReady: boolean) {
       self.isAppReady = isReady;
+    },
+    setIsMobileView(isMobile: boolean) {
+      self.isMobileView = isMobile;
     },
     afterCreate() {
       self.heroStats.fetchKpiData();

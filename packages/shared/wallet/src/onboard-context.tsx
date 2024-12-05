@@ -99,6 +99,7 @@ const email = process.env['NX_CONTACT_EMAIL'] as string;
 const appUrl = process.env['NX_APP_URL'] as string;
 
 const wcV2InitOptions = {
+  version: 2,
   projectId: '4c1aab455337c5172aeeaa076b5104e4',
   requiredChains: [42161, 1],
   dappUrl: 'https://notional.finance/',
@@ -137,5 +138,8 @@ export const OnboardContext: OnboardAPI = init({
     recommendedInjectedWallets: [
       { name: 'MetaMask', url: 'https://metamask.io' },
     ],
+    icon: '/favicon.svg',
+    logo: '/favicon.svg',
+    explore: 'https://notional.finance/',
   },
 });

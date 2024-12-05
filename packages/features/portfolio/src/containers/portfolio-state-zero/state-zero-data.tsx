@@ -16,109 +16,111 @@ interface TokenBoxProps {
   active: boolean;
 }
 
-const StateZeroData = ({
-  productGroupData,
-  defaultSymbol,
-  tokenList,
-  selectedTabIndex,
-}: {
-  productGroupData: StateZeroItemType | [];
-  defaultSymbol: string;
-  tokenList: string[];
-  selectedTabIndex: number;
-}) => {
-  const theme = useTheme();
-  const [activeToken, setActiveToken] = useState<string>(defaultSymbol);
-  const tokenData = getAPYDataForToken(activeToken, productGroupData);
-
-  const { options, title, displaySymbols } = useMoreDropdown(
+const StateZeroData = observer(
+  ({
+    productGroupData,
+    defaultSymbol,
     tokenList,
-    setActiveToken
-  );
-
-  useEffect(() => {
-    if (!tokenList.includes(activeToken)) {
-      setActiveToken(defaultSymbol);
-    }
-  }, [tokenList, activeToken, defaultSymbol]);
-
-  const cardData = useCardData(
     selectedTabIndex,
-    activeToken,
-    tokenData,
-    productGroupData
-  );
+  }: {
+    productGroupData: StateZeroItemType | [];
+    defaultSymbol: string;
+    tokenList: string[];
+    selectedTabIndex: number;
+  }) => {
+    const theme = useTheme();
+    const [activeToken, setActiveToken] = useState<string>(defaultSymbol);
+    const tokenData = getAPYDataForToken(activeToken, productGroupData);
 
-  return (
-    <>
-      <TokenContainer>
-        <PortfolioNetworkSelector
-          sx={{
-            marginLeft: '0px',
-            marginTop: theme.spacing(1),
-            width: 'fit-content',
-          }}
-          hideNetWorth={true}
-        />
+    const { options, title, displaySymbols } = useMoreDropdown(
+      tokenList,
+      setActiveToken
+    );
+
+    useEffect(() => {
+      if (!tokenList.includes(activeToken)) {
+        setActiveToken(defaultSymbol);
+      }
+    }, [tokenList, activeToken, defaultSymbol]);
+
+    const cardData = useCardData(
+      selectedTabIndex,
+      activeToken,
+      tokenData,
+      productGroupData
+    );
+
+    return (
+      <>
+        <TokenContainer>
+          <PortfolioNetworkSelector
+            sx={{
+              marginLeft: '0px',
+              marginTop: theme.spacing(1),
+              width: 'fit-content',
+            }}
+            hideNetWorth={true}
+          />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'end',
+              marginLeft: {
+                sm: '0px',
+                md: theme.spacing(3),
+                lg: theme.spacing(3),
+              },
+              flexWrap: 'wrap',
+            }}
+          >
+            {displaySymbols.map((token, index) => (
+              <TokenBox
+                key={index}
+                theme={theme}
+                onClick={() => setActiveToken(token)}
+                active={activeToken === token}
+              >
+                <TokenIcon symbol={token} size="small" />
+                <LabelValue sx={{ marginLeft: theme.spacing(1) }}>
+                  {token}
+                </LabelValue>
+              </TokenBox>
+            ))}
+            {options && options.length > 0 && (
+              <SimpleDropdown
+                options={options}
+                title={title}
+                altDropdownArrow={true}
+                sx={{ marginTop: theme.spacing(1) }}
+                innerWrapperSx={{ width: '200px', fontSize: '14px' }}
+              />
+            )}
+          </Box>
+        </TokenContainer>
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'end',
-            marginLeft: {
-              sm: '0px',
+            width: '99%',
+            margin: 'auto',
+            marginTop: theme.spacing(4),
+            gap: {
+              sm: theme.spacing(6),
               md: theme.spacing(3),
               lg: theme.spacing(3),
             },
+            display: 'flex',
             flexWrap: 'wrap',
           }}
         >
-          {displaySymbols.map((token, index) => (
-            <TokenBox
-              key={index}
-              theme={theme}
-              onClick={() => setActiveToken(token)}
-              active={activeToken === token}
-            >
-              <TokenIcon symbol={token} size="small" />
-              <LabelValue sx={{ marginLeft: theme.spacing(1) }}>
-                {token}
-              </LabelValue>
-            </TokenBox>
+          {cardData.map((card, index) => (
+            <StateZeroCard index={index} card={card} key={index} />
           ))}
-          {options && options.length > 0 && (
-            <SimpleDropdown
-              options={options}
-              title={title}
-              altDropdownArrow={true}
-              sx={{ marginTop: theme.spacing(1) }}
-              innerWrapperSx={{ width: '200px', fontSize: '14px' }}
-            />
-          )}
         </Box>
-      </TokenContainer>
-      <Box
-        sx={{
-          width: '99%',
-          margin: 'auto',
-          marginTop: theme.spacing(4),
-          gap: {
-            sm: theme.spacing(6),
-            md: theme.spacing(3),
-            lg: theme.spacing(3),
-          },
-          display: 'flex',
-          flexWrap: 'wrap',
-        }}
-      >
-        {cardData.map((card, index) => (
-          <StateZeroCard index={index} card={card} key={index} />
-        ))}
-      </Box>
-    </>
-  );
-};
+      </>
+    );
+  }
+);
 
-export default observer(StateZeroData);
+export default StateZeroData;
 
 const TokenBox = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'active',
@@ -173,7 +175,7 @@ const TokenContainer = styled(Box)(
         flex-direction: column;
       }
       ${theme.breakpoints.down('sm')} {
-        margin-top: ${theme.spacing(25)};
+        margin-top: 0px;
       }
     `
 );

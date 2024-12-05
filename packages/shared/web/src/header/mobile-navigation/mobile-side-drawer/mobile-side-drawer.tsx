@@ -3,15 +3,11 @@ import { Toolbar, Box, Tabs, useTheme } from '@mui/material';
 import { useSideDrawerLinks } from '../use-side-drawer-links';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import { ArrowIcon } from '@notional-finance/icons';
-import MobileSideDrawerResources from '../mobile-side-drawer-resources/mobile-side-drawer-resources';
 import MobileNavTab from '../mobile-nav-tab/mobile-nav-tab';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
-import {
-  SettingsSideDrawer,
-  NotificationsSideDrawer,
-} from '@notional-finance/wallet';
+import { SettingsSideDrawer } from '@notional-finance/wallet';
 import { FormattedMessage } from 'react-intl';
-import { H4 } from '@notional-finance/mui';
+import { H4, SectionTitle } from '@notional-finance/mui';
 import { KeyboardEvent, MouseEvent } from 'react';
 
 interface MobileSideDrawer {
@@ -26,7 +22,7 @@ const MobileSideDrawer = ({
   setDrawerOpen,
 }: MobileSideDrawer) => {
   const theme = useTheme();
-  const sideDrawerLinks = useSideDrawerLinks(dataKey);
+  const { linkData, label } = useSideDrawerLinks(dataKey);
 
   const toggleDrawer =
     (open: boolean) => (event: MouseEvent | KeyboardEvent) => {
@@ -40,11 +36,17 @@ const MobileSideDrawer = ({
   return (
     <SwipeableDrawer
       sx={{
+        marginTop: '72px',
+        backgroundColor: theme.palette.background.default,
         '&.MuiModal-root, .MuiDrawer-root': {
-          zIndex: '9999',
+          marginTop: '72px',
+          zIndex: '1200',
+          backgroundColor: theme.palette.background.default,
         },
         '.MuiPaper-root': {
+          marginTop: '72px',
           width: '100%',
+          backgroundColor: theme.palette.background.default,
         },
       }}
       anchor="right"
@@ -55,16 +57,11 @@ const MobileSideDrawer = ({
       <Toolbar
         sx={{
           display:
-            dataKey === MOBILE_SUB_NAV_ACTIONS.SETTINGS ||
-            dataKey === MOBILE_SUB_NAV_ACTIONS.NOTIFICATIONS
-              ? 'none'
-              : 'flex',
+            dataKey === MOBILE_SUB_NAV_ACTIONS.SETTINGS ? 'none' : 'flex',
           '&.MuiToolbar-root': {
             minHeight: theme.spacing(9),
             padding: '0px',
             zIndex: '10',
-            boxShadow: '0px 0px 6px rgb(25 19 102 / 11%)',
-            borderBottom: `1px solid ${theme.palette.borders.default}`,
           },
         }}
       >
@@ -88,10 +85,10 @@ const MobileSideDrawer = ({
             <H4
               sx={{
                 marginLeft: theme.spacing(1),
-                fontWeight: theme.typography.fontWeightRegular,
+                fontWeight: theme.typography.fontWeightMedium,
               }}
             >
-              <FormattedMessage defaultMessage="Back" />
+              <FormattedMessage defaultMessage="Menu" />
             </H4>
           </Box>
         </Box>
@@ -113,20 +110,30 @@ const MobileSideDrawer = ({
             display: 'none',
           },
           '.MuiTabs-scroller': {
-            backgroundColor: theme.palette.background.paper,
+            backgroundColor: theme.palette.background.default,
           },
         }}
       >
-        {dataKey === MOBILE_SUB_NAV_ACTIONS.RESOURCES ? (
-          <MobileSideDrawerResources />
-        ) : dataKey === MOBILE_SUB_NAV_ACTIONS.SETTINGS ? (
+        {dataKey !== MOBILE_SUB_NAV_ACTIONS.SETTINGS && (
+          <SectionTitle
+            sx={{
+              width: '90%',
+              margin: 'auto',
+              marginTop: theme.spacing(2),
+              fontWeight: 600,
+              color: theme.palette.typography.light,
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              fontSize: '12px',
+            }}
+          >
+            {label}
+          </SectionTitle>
+        )}
+        {dataKey === MOBILE_SUB_NAV_ACTIONS.SETTINGS ? (
           <SettingsSideDrawer toggleDrawer={setDrawerOpen} />
-        ) : dataKey === MOBILE_SUB_NAV_ACTIONS.NOTIFICATIONS ? (
-          <NotificationsSideDrawer toggleDrawer={setDrawerOpen} />
         ) : (
-          sideDrawerLinks.map((data) => (
-            <MobileNavTab key={data.key} data={data} />
-          ))
+          linkData.map((data) => <MobileNavTab key={data.key} data={data} />)
         )}
       </Tabs>
     </SwipeableDrawer>

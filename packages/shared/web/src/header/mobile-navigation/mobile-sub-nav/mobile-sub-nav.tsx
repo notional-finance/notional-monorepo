@@ -21,20 +21,23 @@ const MobileSubNav = ({ handleSideDrawer }: MobileSubNavProps) => {
           key={data.key}
           sx={{
             display: 'flex',
-            background:
-              data.key === MOBILE_SUB_NAV_ACTIONS.SETTINGS ||
-              data.key === MOBILE_SUB_NAV_ACTIONS.NOTIFICATIONS
-                ? theme.palette.background.paper
-                : theme.palette.info.light,
-            boxShadow:
-              data.key === MOBILE_SUB_NAV_ACTIONS.COMPANY
-                ? theme.shape.shadowStandard
-                : 'none',
+            background: theme.palette.background.default,
+            boxShadow: 'none',
             alignItems: 'center',
-            zIndex: data.key === MOBILE_SUB_NAV_ACTIONS.COMPANY ? 3 : 2,
+            borderTop:
+              data.key === MOBILE_SUB_NAV_ACTIONS.SETTINGS
+                ? theme.shape.borderStandard
+                : '',
+            marginTop:
+              data.key === MOBILE_SUB_NAV_ACTIONS.SETTINGS
+                ? theme.spacing(2)
+                : '',
+            paddingTop:
+              data.key === MOBILE_SUB_NAV_ACTIONS.SETTINGS
+                ? theme.spacing(2)
+                : '',
           }}
         >
-          {' '}
           <MobileNavTab data={data} handleClick={handleSideDrawer} />
           <Box
             sx={{

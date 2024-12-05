@@ -80,6 +80,7 @@ const Container = styled(Box)(
     padding: ${theme.spacing(2)};
     ${theme.breakpoints.down('sm')} {
       width: 100vw;
+      background: ${theme.palette.background.default};
     }
   `
 );

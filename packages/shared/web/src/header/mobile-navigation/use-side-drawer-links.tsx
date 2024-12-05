@@ -17,6 +17,8 @@ import {
   BarChartLateralIcon,
   CoinsCircleIcon,
   CoinsIcon,
+  PointsIcon,
+  PendleIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import {
@@ -170,11 +172,23 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
   const theme = useTheme();
   const network = useSelectedNetwork();
 
+  const mobileSubNavLabels = {
+    [MOBILE_SUB_NAV_ACTIONS.EARN_YIELD]: (
+      <FormattedMessage defaultMessage={'Earn Products'} />
+    ),
+    [MOBILE_SUB_NAV_ACTIONS.LEVERAGE]: (
+      <FormattedMessage defaultMessage={'Leverage Products'} />
+    ),
+    [MOBILE_SUB_NAV_ACTIONS.BORROW]: (
+      <FormattedMessage defaultMessage={'Borrow Products'} />
+    ),
+  };
+
   const mobileSubNavData = {
     [MOBILE_SUB_NAV_ACTIONS.EARN_YIELD]: [
       {
         key: 'lend-fixed',
-        label: <FormattedMessage defaultMessage={'Lend Fixed'} />,
+        label: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
         link: `/lend-fixed/${network}`,
         iconImg: (
           <BarChartLateralIcon
@@ -185,7 +199,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       },
       {
         key: 'lend-variable',
-        label: <FormattedMessage defaultMessage={'Lend Variable'} />,
+        label: <FormattedMessage defaultMessage={'Lending'} />,
         link: `/lend-variable/${network}`,
         iconImg: (
           <BarChartIcon
@@ -200,32 +214,6 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
         key: 'liquidity-variable',
         label: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
         link: `/liquidity-variable/${network}`,
-        iconImg: (
-          <PieChartIcon
-            className="color-stroke"
-            sx={{
-              fontSize: '1.125rem',
-              stroke: 'transparent',
-              fill: theme.palette.common.black,
-            }}
-          />
-        ),
-      },
-      {
-        key: 'vaults',
-        label: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
-        link: `/vaults/${network}`,
-        iconImg: (
-          <VaultIcon
-            className="color-stroke"
-            sx={{ fontSize: '1.125rem', fill: theme.palette.common.black }}
-          />
-        ),
-      },
-      {
-        key: 'liquidity-leveraged',
-        label: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
-        link: `/liquidity-leveraged/${network}`,
         iconImg: (
           <PieChartIcon
             className="color-stroke"
@@ -252,6 +240,67 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       //     />
       //   ),
       // },
+    ],
+    [MOBILE_SUB_NAV_ACTIONS.LEVERAGE]: [
+      {
+        key: 'liquidity-leveraged',
+        label: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
+        link: `/liquidity-leveraged/${network}`,
+        iconImg: (
+          <PieChartIcon
+            className="color-stroke"
+            sx={{
+              fontSize: '1.125rem',
+              stroke: 'transparent',
+              fill: theme.palette.common.black,
+            }}
+          />
+        ),
+      },
+      {
+        key: 'leveraged-yield-farming',
+        label: <FormattedMessage defaultMessage={'Leveraged Yield Farming'} />,
+        link: `/leveraged-yield-farming/${network}`,
+        iconImg: (
+          <VaultIcon
+            className="color-stroke"
+            sx={{
+              fontSize: '1.125rem',
+              stroke: 'transparent',
+              fill: theme.palette.common.black,
+            }}
+          />
+        ),
+      },
+      {
+        key: 'leveraged-point-farming',
+        label: <FormattedMessage defaultMessage={'Leveraged Point Farming'} />,
+        link: `/leveraged-point-farming/${network}`,
+        iconImg: (
+          <PointsIcon
+            className="color-stroke"
+            fill={theme.palette.typography.main}
+            sx={{
+              fontSize: '1.125rem',
+            }}
+          />
+        ),
+      },
+      {
+        key: 'leveraged-pendle',
+        label: <FormattedMessage defaultMessage={'Leveraged Pendle'} />,
+        link: `/leveraged-pendle/${network}`,
+        iconImg: (
+          <PendleIcon
+            className="color-stroke"
+            stroke={theme.palette.typography.main}
+            sx={{
+              fontSize: '1.125rem',
+              fill: 'transparent',
+            }}
+          />
+        ),
+      },
     ],
     [MOBILE_SUB_NAV_ACTIONS.BORROW]: [
       {
@@ -357,5 +406,8 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
     ],
   };
 
-  return mobileSubNavData[dataKey];
+  return {
+    linkData: mobileSubNavData[dataKey],
+    label: mobileSubNavLabels[dataKey],
+  };
 };

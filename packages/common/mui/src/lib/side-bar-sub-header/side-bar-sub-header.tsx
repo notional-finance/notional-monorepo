@@ -54,6 +54,9 @@ const ContentWrapper = styled(Box)(
   cursor: pointer;
   ${theme.breakpoints.down('sm')} {
     padding-top: 0px;
+    h4 {
+      font-weight: ${theme.typography.fontWeightMedium};
+    }
   }
   `
 );

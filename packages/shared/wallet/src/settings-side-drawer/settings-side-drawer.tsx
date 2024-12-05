@@ -68,14 +68,14 @@ export const SettingsSideDrawer = ({
         <SideBarSubHeader
           paddingTop={`${theme.spacing(1)}`}
           callback={() => toggleDrawer(false)}
-          titleText={defineMessage({ defaultMessage: 'Back' })}
+          titleText={defineMessage({ defaultMessage: 'Menu' })}
         />
       )}
       <Box
         ref={containerRef}
         sx={{ visibility: settingsItem === null ? 'visible' : 'hidden' }}
       >
-        <Title sx={{ marginTop: theme.spacing(5) }}>
+        <Title sx={{ marginTop: theme.spacing(5) }} className="account-title">
           <FormattedMessage defaultMessage="Account" />
         </Title>
         {accountData.map((data) => (
@@ -193,6 +193,7 @@ const SettingsContainer = styled(Box)(
     background: ${theme.palette.background.paper};
     ${theme.breakpoints.down('sm')} {
       height: 100vh;
+      background: ${theme.palette.background.default};
     }
   }
   `
