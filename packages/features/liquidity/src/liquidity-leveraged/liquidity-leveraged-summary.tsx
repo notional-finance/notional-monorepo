@@ -8,29 +8,32 @@ import {
 import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
-import {
-  useLeveragedLiquidityFaq,
-  useSummaryState,
-  useTotalsData,
-} from './hooks';
+import { useLeveragedLiquidityFaq, useTotalsData } from './hooks';
 import { FormattedMessage } from 'react-intl';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
-export const LiquidityLeveragedSummary = () => {
+export const LiquidityLeveragedSummary = observer(() => {
   const theme = useTheme();
-  const state = useSummaryState();
+  const trade = useCurrentTradeContext();
   const { pathname } = useLocation();
-  const { baseCurrency } = useAppStore();
-  const { selectedDepositToken } = state;
-  const tokenSymbol = selectedDepositToken || '';
-  const { totalsData } = useTotalsData(state, baseCurrency);
-  const { faqs, faqHeaderLinks } = useLeveragedLiquidityFaq(tokenSymbol);
+  const selectedDepositToken = trade?.selectedTokens?.deposit.symbol || '';
+  const { currentHoldings } = trade?.getLeveragedNTokenPositions() || {};
+  const { totalsData } = useTotalsData();
+  const { faqs, faqHeaderLinks } =
+    useLeveragedLiquidityFaq(selectedDepositToken);
 
   return (
     <TradeActionSummary>
-      <PerformanceChart state={state} />
+      <PerformanceChart
+        currentPositionFactors={{
+          borrowRate: currentHoldings?.borrowAPY,
+          isPrimeBorrow: currentHoldings?.debt.balance.maturity === undefined,
+          leverageRatio: currentHoldings?.leverageRatio,
+        }}
+      />
       <TotalRow totalsData={totalsData} />
-      <LeveragedLiquidityLiquidationChart state={state} />
+      <LeveragedLiquidityLiquidationChart />
       <Box sx={{ marginTop: theme.spacing(5) }}>
         <FaqHeader
           title={
@@ -68,6 +71,6 @@ export const LiquidityLeveragedSummary = () => {
       </Box>
     </TradeActionSummary>
   );
-};
+});
 
 export default LiquidityLeveragedSummary;

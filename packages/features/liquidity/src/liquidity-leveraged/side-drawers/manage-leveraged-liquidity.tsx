@@ -13,8 +13,10 @@ import {
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { formatMaturity } from '@notional-finance/util';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
-import { useLeveragedNTokenPositions } from '@notional-finance/trade';
-import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentNetworkStore,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 
 export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();
@@ -23,10 +25,8 @@ export const ManageLeveragedLiquidity = () => {
   } = useContext(LiquidityContext);
   const currentNetworkStore = useCurrentNetworkStore();
   const liquidity = currentNetworkStore.getAllNTokenYields();
-  const { currentPosition } = useLeveragedNTokenPositions(
-    selectedNetwork,
-    selectedDepositToken
-  );
+  const trade = useCurrentTradeContext();
+  const { currentPosition } = trade?.getLeveragedNTokenPositions() || {};
   const nTokenAPY = liquidity.find(
     (y) => y.token.id === currentPosition?.asset?.balance.tokenId
   )?.apy.totalAPY;

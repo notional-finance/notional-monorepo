@@ -131,10 +131,13 @@ export function formatHealthFactorValues(
 export function useTradeLiquidationPrice() {
   const trade = useCurrentTradeContext();
   const l = trade?.getTradeLiquidationPrices();
-  return trade?.collateral
+  const collateral = trade?.selectedTokens?.collateral;
+  const priceId = trade?.hasSwappedTokens() ? trade?.debt?.id : collateral?.id;
+
+  return priceId
     ? (
-        l?.postTrade?.find((p) => p.asset.id === trade.collateral?.id) ||
-        l?.preTrade?.find((p) => p.asset === trade.collateral?.id)
+        l?.postTrade?.find((p) => p.asset.id === priceId) ||
+        l?.preTrade?.find((p) => p.asset === priceId)
       )?.threshold?.toUnderlying()
     : undefined;
 }

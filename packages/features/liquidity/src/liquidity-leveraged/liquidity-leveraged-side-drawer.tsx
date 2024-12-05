@@ -1,10 +1,8 @@
 import { useContext, useEffect } from 'react';
-import {
-  SideDrawerRouter,
-  useLeveragedNTokenPositions,
-} from '@notional-finance/trade';
+import { SideDrawerRouter } from '@notional-finance/trade';
 import { LiquidityContext } from '../liquidity';
 import {
+  useCurrentTradeContext,
   useQueryParams,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
@@ -42,10 +40,8 @@ export const LiquidityLeveragedSideDrawer = () => {
   } = context;
   const loaded = deposit && deposit?.symbol === selectedDepositToken;
 
-  const { currentPosition } = useLeveragedNTokenPositions(
-    selectedNetwork,
-    selectedDepositToken
-  );
+  const trade = useCurrentTradeContext();
+  const { currentPosition } = trade?.getLeveragedNTokenPositions() || {};
   const currentPositionState = {
     collateral: currentPosition?.asset.balance.token,
     debt: currentPosition?.debt.balance.token,

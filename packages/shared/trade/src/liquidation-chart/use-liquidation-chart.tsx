@@ -8,20 +8,28 @@ import {
   LEGEND_LINE_TYPES,
   AreaChartStylesProps,
 } from '@notional-finance/mui';
-import { TradeState } from '@notional-finance/notionable';
 import {
   useAssetPriceHistory,
+  useCurrentTradeContext,
   useTradeLiquidationPrice,
 } from '@notional-finance/notionable-hooks';
 import { getDateString } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { AxisDomain } from 'recharts/types/util/types';
 
-export function useLiquidationChart(state: TradeState) {
+export function useLiquidationChart() {
   const theme = useTheme();
-  const { collateral, inputsSatisfied, calculationSuccess } = state;
+  const trade = useCurrentTradeContext();
+  const {
+    collateral: _collateral,
+    deposit: _deposit,
+    debt: _debt,
+  } = trade?.selectedTokens || {};
+  const inputsSatisfied = trade?.inputsSatisfied;
+  const calculationSuccess = trade?.calculationSuccess;
   const liquidationPrice = useTradeLiquidationPrice();
-  const deposit = state.deposit || liquidationPrice?.underlying;
+  const deposit = _deposit || liquidationPrice?.underlying;
+  const collateral = trade?.hasSwappedTokens() ? _debt : _collateral;
 
   const areaChartData = useAssetPriceHistory(collateral).map(
     ({ timestamp, assetPrice }) => ({

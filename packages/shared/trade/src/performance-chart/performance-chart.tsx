@@ -4,31 +4,39 @@ import {
   ChartComponentsProps,
   BarChart,
 } from '@notional-finance/mui';
-import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { usePerformanceChart } from './use-performance-chart';
 import { Box, useTheme } from '@mui/material';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import useApyChart from './use-apy-chart';
-import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
+import {
+  useAssetPriceHistory,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 
 export const PerformanceChart = ({
-  state,
-  priorVaultFactors,
+  currentPositionFactors,
 }: {
-  state: TradeState | VaultTradeState;
-  priorVaultFactors?: {
+  currentPositionFactors?: {
     vaultShare?: TokenDefinition;
     isPrimeBorrow: boolean;
-    vaultBorrowRate?: number;
+    borrowRate?: number;
     leverageRatio?: number;
   };
 }) => {
   const theme = useTheme();
+  const trade = useCurrentTradeContext();
+  const {
+    collateral: _collateral,
+    deposit,
+    debt: _debt,
+  } = trade?.selectedTokens || {};
+  const collateral = trade?.hasSwappedTokens()
+    ? _debt
+    : _collateral || currentPositionFactors?.vaultShare;
+
   const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
-    usePerformanceChart(state, priorVaultFactors);
-  const { collateral: _collateral, deposit, selectedDepositToken } = state;
-  const collateral = _collateral || priorVaultFactors?.vaultShare;
+    usePerformanceChart(currentPositionFactors);
   const { barConfig, barChartData } = useApyChart(collateral);
   const priceData = useAssetPriceHistory(collateral);
 
@@ -73,7 +81,7 @@ export const PerformanceChart = ({
       title:
         collateral?.tokenType === 'VaultShare'
           ? 'Vault APY'
-          : `n${selectedDepositToken} APY`,
+          : `n${deposit?.symbol} APY`,
       hideTopGridLine: true,
       Component: (
         <BarChart

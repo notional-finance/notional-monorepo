@@ -20,10 +20,9 @@ export const VaultPerformanceChart = () => {
     <PendlePerformanceChart />
   ) : (
     <PerformanceChart
-      state={state}
-      priorVaultFactors={{
+      currentPositionFactors={{
         vaultShare,
-        vaultBorrowRate: priorBorrowRate,
+        borrowRate: priorBorrowRate,
         leverageRatio,
         isPrimeBorrow: vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
       }}

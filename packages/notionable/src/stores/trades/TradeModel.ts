@@ -980,6 +980,13 @@ export const TradeModel = types
       };
     };
 
+    const hasSwappedTokens = () => {
+      return isDeleverageWithSwappedTokens({
+        tradeType: self.tradeType,
+        collateral: self.collateral as TokenDefinition | undefined,
+      });
+    };
+
     const getPostTradeIncentives = () => {
       const account = root().getNetworkAccount(self.selectedNetwork);
       const accruedIncentives = account
@@ -1158,6 +1165,45 @@ export const TradeModel = types
           changeType: getChangeType(priorAPY, postAPY),
           greenOnArrowUp: true,
         },
+      };
+    };
+
+    const getLeveragedNTokenPositions = () => {
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const groupedHoldings = account?.groupedHoldings;
+      if (!groupedHoldings) {
+        return {
+          isLoading: true,
+          currentPosition: undefined,
+          depositTokensWithPositions: [] as string[],
+          currentHoldings: undefined,
+          nTokenPositions: undefined,
+        };
+      }
+
+      const nTokenPositions = groupedHoldings?.filter(
+        ({ asset }) => asset.balance.tokenType === 'nToken'
+      );
+      const currentPosition = nTokenPositions.find(
+        ({ asset }) =>
+          asset.balance.underlying.symbol === self.selectedDepositToken
+      );
+      const depositTokensWithPositions = nTokenPositions.map(
+        ({ asset }) => asset.balance.underlying.symbol
+      );
+      // The difference between currentPosition and currentHoldings is that current holdings
+      // has more metadata but it arrives a little later
+      const currentHoldings = groupedHoldings.find(
+        ({ asset }) =>
+          asset.balance.underlying.symbol === self.selectedDepositToken
+      );
+
+      return {
+        isLoading: false,
+        currentPosition,
+        depositTokensWithPositions,
+        currentHoldings,
+        nTokenPositions,
       };
     };
 
@@ -1446,6 +1492,7 @@ export const TradeModel = types
           debt: self.debtOptions as TokenOption[] | undefined,
         };
       },
+      getLeveragedNTokenPositions,
       getNetBalances,
       getAPYFactors,
       getRiskSummary,
@@ -1457,6 +1504,7 @@ export const TradeModel = types
       getVaultCapacity,
       getPostTradeIncentives,
       canSubmit,
+      hasSwappedTokens,
     };
   });
 

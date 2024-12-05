@@ -40,7 +40,14 @@ export const TradeActionSummary = observer(
     const theme = useTheme();
     const trade = useCurrentTradeContext();
     const tradeType = trade?.tradeType;
-    const { deposit, debt, collateral } = trade?.selectedTokens || {};
+    const {
+      deposit,
+      debt: _debt,
+      collateral: _collateral,
+    } = trade?.selectedTokens || {};
+    // Collateral and debt need to be swapped for leveraged ntoken trades
+    const collateral = trade?.hasSwappedTokens() ? _debt : _collateral;
+    const debt = trade?.hasSwappedTokens() ? _collateral : _debt;
     const vaultAddress = trade?.vaultAddress;
     const isVault = !!vaultAddress;
     const vaultConfig = useVaultProperties(vaultAddress);
