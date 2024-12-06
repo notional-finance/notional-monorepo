@@ -53,10 +53,7 @@ export const CreateVaultPosition = () => {
             linkString={`/vaults/${selectedNetwork}/${vaultAddress}/Manage`}
           />
         ) : (
-          <CustomTerms
-            context={context}
-            CustomLeverageSlider={VaultLeverageSlider}
-          />
+          <CustomTerms CustomLeverageSlider={VaultLeverageSlider} />
         )}
       </VaultSideDrawer>
     </Box>

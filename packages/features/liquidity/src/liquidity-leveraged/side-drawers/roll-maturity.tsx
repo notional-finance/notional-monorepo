@@ -1,15 +1,12 @@
-import { useContext } from 'react';
-import { LiquidityContext } from '../../liquidity';
 import { TransactionSidebar } from '@notional-finance/trade';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 import { MessageDescriptor, defineMessage } from 'react-intl';
 import { formatMaturity } from '@notional-finance/util';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
 export const RollMaturity = () => {
-  const context = useContext(LiquidityContext);
-  const {
-    state: { debt, collateral },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const { debt, collateral } = trade?.selectedTokens || {};
 
   let heading:
     | MessageDescriptor

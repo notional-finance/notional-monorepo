@@ -1,14 +1,15 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
-  BaseTradeContext,
+  useCurrentTradeContext,
   usePortfolioRiskProfile,
   useTradedValue,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
 
-export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
-  const { updateState, state } = context;
-  const { debt: nToken, collateral, selectedNetwork } = state;
+export function useMaxLiquidityWithdraw() {
+  const trade = useCurrentTradeContext();
+  const { debt: nToken, collateral } = trade?.selectedTokens ?? {};
+  const selectedNetwork = trade?.selectedNetwork;
   const profile = usePortfolioRiskProfile(selectedNetwork);
   const maxRepayBalance = profile?.balances.find(
     (t) => t.tokenId === collateral?.id
@@ -30,20 +31,18 @@ export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
     if (maxWithdrawUnderlying) {
       setCurrencyInput(maxWithdrawUnderlying?.toExactString(), false);
 
-      updateState({
-        maxWithdraw: true,
-        calculationSuccess: true,
-        depositBalance: maxWithdrawUnderlying.neg(),
-        collateralBalance: maxRepayBalance?.neg(),
-        debtBalance: nTokenBalance?.neg(),
-      });
+      trade?.setMaxWithdraw(
+        maxWithdrawUnderlying.neg(),
+        maxRepayBalance?.neg(),
+        nTokenBalance?.neg()
+      );
     }
   }, [
     maxWithdrawUnderlying,
     maxRepayBalance,
     nTokenBalance,
     setCurrencyInput,
-    updateState,
+    trade,
   ]);
 
   return {

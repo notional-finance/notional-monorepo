@@ -7,19 +7,16 @@ import {
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useCallback, useEffect, useMemo } from 'react';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { MessageDescriptor } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { isDeleverageWithSwappedTokens } from '@notional-finance/notionable';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
 interface LeverageSliderProps {
-  context: BaseTradeContext;
   inputLabel: MessageDescriptor;
   cashBorrowed?: TokenBalance;
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   bottomCaption?: JSX.Element;
-  leverageCurrencyId?: number;
   isDeleverage?: boolean;
   showMinMax?: boolean;
   additionalSliderInfo?: SliderInputProps['sliderLeverageInfo'];
@@ -32,31 +29,23 @@ export const LeverageSlider = ({
   infoMsg,
   cashBorrowed,
   bottomCaption,
-  context,
-  leverageCurrencyId,
   isDeleverage,
   showMinMax,
   additionalSliderInfo = [],
   onChange,
 }: LeverageSliderProps) => {
-  const {
-    state: {
-      riskFactorLimit,
-      debtBalance,
-      collateralBalance,
-      deposit,
-      maxLeverageRatio,
-      minLeverageRatio,
-      collateral,
-      debtOptions,
-      collateralOptions,
-      debt,
-    },
-    updateState,
-  } = context;
+  const trade = useCurrentTradeContext();
+  const debtBalance = trade?.debtBalance;
+  const collateralBalance = trade?.collateralBalance;
+  const maxLeverageRatio = trade?.maxLeverageRatio;
+  const minLeverageRatio = trade?.minLeverageRatio;
+  const { debt, collateral, deposit } = trade?.selectedTokens ?? {};
+  const { debt: debtOptions, collateral: collateralOptions } =
+    trade?.computedOptions ?? {};
+  const leverageRatio = trade?.leverageRatio;
 
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
-  const borrowRate = isDeleverageWithSwappedTokens(context.state)
+  const borrowRate = trade?.hasSwappedTokens()
     ? collateralOptions?.find((o) => o.token.id === collateral?.id)
         ?.interestRate
     : debtOptions?.find((o) => o.token.id === debt?.id)?.interestRate;
@@ -77,27 +66,24 @@ export const LeverageSlider = ({
     return deposit ? TokenBalance.zero(deposit) : undefined;
   }, [deposit]);
 
-  const onChangeCommitted = useCallback((leverageRatio: number) => {
-    if (!isFinite(leverageRatio)) return;
+  const onChangeCommitted = useCallback(
+    (leverageRatio: number) => {
+      if (!isFinite(leverageRatio)) return;
 
-    updateState({
-      riskFactorLimit: {
-        riskFactor: 'leverageRatio',
-        limit: leverageRatio,
-        args: leverageCurrencyId ? [leverageCurrencyId] : undefined,
-      },
-    });
-  }, []);
+      trade?.setLeverageRatio(leverageRatio);
+    },
+    [trade]
+  );
 
   useEffect(() => {
     // If the component is mounted and the ref does not match the defined limit, set it
     // to match the store. This happens because the slider initializes to a min value on
     // component mount.
     if (
-      !!riskFactorLimit?.limit &&
-      riskFactorLimit.limit !== sliderInputRef.current?.getInputValue()
+      !!leverageRatio &&
+      leverageRatio !== sliderInputRef.current?.getInputValue()
     ) {
-      setSliderInput(riskFactorLimit.limit as number, false);
+      setSliderInput(leverageRatio, false);
     }
   });
 

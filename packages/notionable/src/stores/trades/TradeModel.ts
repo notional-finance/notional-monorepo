@@ -11,6 +11,7 @@ import {
 } from '@notional-finance/core-entities';
 import {
   AllTradeTypes,
+  BaseTradeState,
   isDeleverageWithSwappedTokens,
   isLeveragedTrade,
   isNOTEStake,
@@ -53,6 +54,7 @@ import {
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
+import { getComparisonKey } from '../../utils';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -236,6 +238,9 @@ export const TradeModel = types
     useOptimalETH: types.optional(types.boolean, false),
 
     vaultTradeMetadata: types.optional(types.maybe(types.frozen()), undefined),
+
+    /** True if the trade is a deleverage */
+    isDeleverage: types.optional(types.boolean, false),
   })
   .actions((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
@@ -620,6 +625,14 @@ export const TradeModel = types
           acc['balances'] = root().getAccountDefinition(
             self.selectedNetwork
           )?.balances;
+        } else if (arg === 'riskFactorLimit') {
+          acc['riskFactorLimit'] = {
+            riskFactor: 'leverageRatio',
+            limit: self.leverageRatio,
+            args: isVaultTrade(self.tradeType)
+              ? undefined
+              : [self.collateral?.currencyId],
+          };
         } else if (arg === 'vaultLastUpdateTime' && self.vaultAddress) {
           const accountDefinition = root().getAccountDefinition(
             self.selectedNetwork
@@ -869,7 +882,101 @@ export const TradeModel = types
       calculate();
     };
 
+    const setRequiredSideDrawerState = (
+      requiredState: Record<string, unknown>,
+      path: string
+    ) => {
+      const pathname = window.location.pathname;
+      const allStateMatches = Object.keys(requiredState)
+        // NOTE: this means that required state cannot clear previously set state
+        .filter((k) => requiredState[k] !== undefined)
+        .every((k) => {
+          const s = getComparisonKey(
+            k,
+            self as unknown as Partial<BaseTradeState>
+          );
+          const r = getComparisonKey(k, requiredState);
+          return s === r;
+        });
+
+      if (
+        allStateMatches ||
+        // Use a "startsWith" here to support potential suffix to the path
+        // such as in roll debt
+        !pathname.startsWith(path)
+      )
+        return;
+
+      Object.keys(requiredState).forEach((k) => {
+        self[k] = requiredState[k];
+      });
+      calculate();
+    };
+
+    const setNTokenAdjustedLeverage = (leverageRatio: number) => {
+      if (!isFinite(leverageRatio)) return;
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const groupedHoldings = account?.groupedHoldings;
+      const nTokenPositions = groupedHoldings?.filter(
+        ({ asset }) => asset.balance.tokenType === 'nToken'
+      );
+      const currentPosition = nTokenPositions?.find(
+        ({ asset }) =>
+          asset.balance.underlying.symbol === self.selectedDepositToken
+      );
+      if (!currentPosition) return;
+
+      if (leverageRatio >= currentPosition.leverageRatio) {
+        self.isDeleverage = false;
+        self.collateral = currentPosition.asset.balance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+        self.debt = currentPosition.debt.balance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+      } else if (leverageRatio < currentPosition.leverageRatio) {
+        self.isDeleverage = true;
+        self.collateral = (
+          currentPosition.debt.balance.tokenType === 'PrimeDebt'
+            ? root()
+                .getNetworkClient(self.selectedNetwork)
+                .getPrimeCash(currentPosition.debt.balance.currencyId)
+            : currentPosition.debt.balance.token
+        ) as Instance<typeof TokenDefinitionModel>;
+        self.debt = currentPosition.asset.balance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+      }
+
+      self.collateralBalance = undefined;
+      self.debtBalance = undefined;
+      self.leverageRatio = leverageRatio;
+
+      calculate();
+    };
+
+    const setMaxWithdraw = (
+      depositBalance: TokenBalance,
+      collateralBalance: TokenBalance | undefined,
+      debtBalance: TokenBalance | undefined
+    ) => {
+      self.maxWithdraw = true;
+      self.calculationSuccess = true;
+      self.depositBalance = depositBalance;
+      self.collateralBalance = collateralBalance;
+      self.debtBalance = debtBalance;
+    };
+
+    const setLeverageRatio = (leverageRatio: number) => {
+      self.leverageRatio = leverageRatio;
+      calculate();
+    };
+
     return {
+      setNTokenAdjustedLeverage,
+      setMaxWithdraw,
+      setLeverageRatio,
+      setRequiredSideDrawerState,
       afterAttach,
       setHasInputErrors,
       setDepositBalance,

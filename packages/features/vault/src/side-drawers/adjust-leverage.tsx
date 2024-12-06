@@ -9,7 +9,6 @@ export const AdjustLeverage = () => {
   return (
     <VaultSideDrawer context={context}>
       <VaultLeverageSlider
-        context={context}
         inputLabel={messages['AdjustVaultLeverage'].leverage}
       />
     </VaultSideDrawer>

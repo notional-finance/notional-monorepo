@@ -2,18 +2,13 @@ import { Caption, CountUp, H4, H5 } from '@notional-finance/mui';
 import { useBorrowTerms } from './use-borrow-terms';
 import { Box, Checkbox, styled, useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
-interface BorrowTermsProps {
-  context: BaseTradeContext;
-}
-
-export const BorrowTerms = ({ context }: BorrowTermsProps) => {
+export const BorrowTerms = () => {
   const theme = useTheme();
-  const {
-    state: { debt },
-  } = context;
-  const { borrowOptions, onSelect } = useBorrowTerms(context);
+  const trade = useCurrentTradeContext();
+  const { debt } = trade?.selectedTokens || {};
+  const { borrowOptions, onSelect } = useBorrowTerms();
 
   return (
     <div>

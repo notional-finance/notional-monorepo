@@ -9,17 +9,13 @@ import { PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { LiquidityDetailsTable } from '../components';
 import { TransactionNetworkSelector } from '@notional-finance/wallet';
-import { useContext } from 'react';
-import { LiquidityContext } from '../../liquidity';
 import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
 export const CreateOrIncreasePosition = () => {
-  const context = useContext(LiquidityContext);
-  const {
-    state: { debt, selectedNetwork, deposit },
-  } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const trade = useCurrentTradeContext();
+  const { debt, deposit } = trade?.selectedTokens || {};
+  const selectedNetwork = trade?.selectedNetwork;
   const { currentPosition, depositTokensWithPositions } =
     trade?.getLeveragedNTokenPositions() || {};
 
@@ -60,7 +56,7 @@ export const CreateOrIncreasePosition = () => {
           linkString={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/Manage/${deposit?.symbol}`}
         />
       ) : (
-        <CustomTerms context={context} />
+        <CustomTerms />
       )}
     </TransactionSidebar>
   );

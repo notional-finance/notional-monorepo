@@ -1,6 +1,4 @@
-import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
-import { LiquidityContext } from '../../liquidity';
 import { FormattedMessage } from 'react-intl';
 import { PRODUCTS, leveragedYield } from '@notional-finance/util';
 import {
@@ -20,12 +18,12 @@ import {
 
 export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();
-  const {
-    state: { debtOptions, selectedDepositToken, selectedNetwork },
-  } = useContext(LiquidityContext);
   const currentNetworkStore = useCurrentNetworkStore();
   const liquidity = currentNetworkStore.getAllNTokenYields();
   const trade = useCurrentTradeContext();
+  const { debt: debtOptions } = trade?.computedOptions || {};
+  const selectedNetwork = trade?.selectedNetwork;
+  const selectedDepositToken = trade?.selectedDepositToken;
   const { currentPosition } = trade?.getLeveragedNTokenPositions() || {};
   const nTokenAPY = liquidity.find(
     (y) => y.token.id === currentPosition?.asset?.balance.tokenId

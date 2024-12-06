@@ -90,7 +90,6 @@ export const VaultActionSideDrawer = () => {
 
   return (
     <SideDrawerRouter
-      context={context}
       hasPosition={!!vaultPosition}
       routeMatch={`/vaults/${selectedNetwork}/${vaultAddress}/:path`}
       action={action}

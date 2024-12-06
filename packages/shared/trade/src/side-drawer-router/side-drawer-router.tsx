@@ -1,11 +1,7 @@
 import { useTheme } from '@mui/material';
 import { Drawer, SideBarSubHeader } from '@notional-finance/mui';
-import {
-  AllTradeTypes,
-  BaseTradeState,
-  getComparisonKey,
-} from '@notional-finance/notionable';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { AllTradeTypes, BaseTradeState } from '@notional-finance/notionable';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { useEffect } from 'react';
 import { defineMessage } from 'react-intl';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -25,7 +21,6 @@ interface SideDrawerRouterProps {
   defaultHasPosition: string;
   defaultNoPosition: string;
   routes: DrawerRouteProps[];
-  context: BaseTradeContext;
   routeMatch: string;
   action?: string;
 }
@@ -35,7 +30,6 @@ export const SideDrawerRouter = ({
   defaultHasPosition,
   defaultNoPosition,
   routes,
-  context,
   routeMatch,
   action,
 }: SideDrawerRouterProps) => {
@@ -71,7 +65,6 @@ export const SideDrawerRouter = ({
         <DrawerRoute
           key={route.slug}
           path={routeMatch.replace(':path', route.slug)}
-          context={context}
           Component={route.Component}
           isRootDrawer={route.isRootDrawer}
           onBack={route.onBack}
@@ -89,36 +82,17 @@ const DrawerRoute = ({
   onBack,
   path,
   requiredState,
-  context,
 }: DrawerRouteProps & {
   isRootDrawer?: boolean;
   path: string;
-  context: BaseTradeContext;
 }) => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { state, updateState } = context;
+  const trade = useCurrentTradeContext();
 
   useEffect(() => {
-    const allStateMatches = Object.keys(requiredState)
-      // NOTE: this means that required state cannot clear previously set state
-      .filter((k) => requiredState[k] !== undefined)
-      .every((k) => {
-        const s = getComparisonKey(k, state);
-        const r = getComparisonKey(k, requiredState);
-        return s === r;
-      });
-
-    if (
-      allStateMatches ||
-      // Use a "startsWith" here to support potential suffix to the path
-      // such as in roll debt
-      (state['pathname'] && !state['pathname'].startsWith(path))
-    )
-      return;
-
-    updateState(requiredState);
-  }, [updateState, requiredState, state, path]);
+    trade?.setRequiredSideDrawerState(requiredState, path);
+  }, [requiredState, path, trade]);
 
   return (
     <div>
