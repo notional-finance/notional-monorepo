@@ -967,6 +967,29 @@ export const TradeModel = types
       self.debtBalance = debtBalance;
     };
 
+    const setVaultMaxWithdraw = () => {
+      if (!self.vaultAddress) return;
+      const networkAccount = root().getNetworkAccount(self.selectedNetwork);
+      const vaultProfile = networkAccount?.vaultHoldings?.find(
+        ({ vaultAddress }) => vaultAddress === self.vaultAddress
+      );
+      const maxWithdrawValues = networkAccount?.maxVaultWithdraw(
+        self.vaultAddress
+      );
+
+      self.inputsSatisfied = true;
+      self.maxWithdraw = true;
+      self.calculationSuccess = true;
+      self.depositBalance = maxWithdrawValues?.maxWithdrawUnderlying.neg();
+      self.collateralBalance = vaultProfile?.vaultShares.neg();
+      self.debtBalance = vaultProfile?.vaultDebt.neg();
+      self.netRealizedCollateralBalance =
+        maxWithdrawValues?.netRealizedCollateralBalance;
+      self.netRealizedDebtBalance = maxWithdrawValues?.netRealizedDebtBalance;
+      self.debtFee = maxWithdrawValues?.debtFee;
+      self.collateralFee = maxWithdrawValues?.collateralFee;
+    };
+
     const setLeverageRatio = (leverageRatio: number) => {
       self.leverageRatio = leverageRatio;
       calculate();
@@ -989,6 +1012,7 @@ export const TradeModel = types
       setNOTEBalanceForStaking,
       setETHBalanceForStaking,
       setUseOptimalETHForStaking,
+      setVaultMaxWithdraw,
     };
   })
   .views((self) => {

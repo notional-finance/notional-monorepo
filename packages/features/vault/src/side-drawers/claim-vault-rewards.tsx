@@ -1,11 +1,11 @@
 import {
   useCurrentNetworkAccount,
+  useCurrentTradeContext,
   useVaultPosition,
   useWalletAddress,
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
-import { useCallback, useContext } from 'react';
-import { VaultActionContext } from '../vault';
+import { useCallback } from 'react';
 import {
   ActionSidebar,
   DataTable,
@@ -24,10 +24,10 @@ import { observer } from 'mobx-react-lite';
 import { useConnectWallet } from '@web3-onboard/react';
 
 export const ClaimVaultRewards = observer(() => {
-  const context = useContext(VaultActionContext);
-  const {
-    state: { vaultAddress, selectedNetwork },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const vaultAddress = trade?.vaultAddress;
+  const selectedNetwork = trade?.selectedNetwork;
+
   const navigate = useNavigate();
   const [{ wallet }] = useConnectWallet();
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
