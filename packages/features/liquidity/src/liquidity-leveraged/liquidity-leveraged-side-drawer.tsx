@@ -15,8 +15,9 @@ import {
 import { useParams } from 'react-router';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { observer } from 'mobx-react-lite';
 
-export const LiquidityLeveragedSideDrawer = () => {
+export const LiquidityLeveragedSideDrawer = observer(() => {
   const queryData = useQueryParams();
   // NOTE: need to use the URL parameter or infinite loop conditions will exist
   const selectedNetwork = useSelectedNetwork();
@@ -165,4 +166,4 @@ export const LiquidityLeveragedSideDrawer = () => {
       ]}
     />
   );
-};
+});

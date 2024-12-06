@@ -1,6 +1,3 @@
-import { useContext } from 'react';
-import { useEffect } from 'react';
-import { VaultActionContext } from '../vault';
 import {
   ManageVault,
   CreateVaultPosition,
@@ -15,34 +12,43 @@ import {
   useVaultPosition,
   useQueryParams,
   useVaultProperties,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router';
 import { ClaimVaultRewards } from '../side-drawers/claim-vault-rewards';
+import { observer } from 'mobx-react-lite';
 
-export const VaultActionSideDrawer = () => {
-  const context = useContext(VaultActionContext);
+export const VaultActionSideDrawer = observer(() => {
   const queryData = useQueryParams();
-  const { vaultAddress: vaultAddressParam, action } = useParams<{
+  const { action } = useParams<{
     vaultAddress?: string;
     action?: string;
   }>();
-  const {
-    state: {
-      vaultAddress,
-      deposit,
-      defaultLeverageRatio,
-      riskFactorLimit,
-      debt,
-      collateral,
-      selectedNetwork,
-      availableCollateralTokens,
-      availableDebtTokens,
-      tradeType,
-    },
-    updateState,
-  } = context;
+  const trade = useCurrentTradeContext();
+  const { deposit } = trade?.selectedTokens ?? {};
+  const defaultLeverageRatio = trade?.defaultLeverageRatio;
+  const { debt: availableDebtTokens, collateral: availableCollateralTokens } =
+    trade?.availableTokens ?? {};
+  const selectedNetwork = trade?.selectedNetwork;
+  const tradeType = trade?.tradeType;
+  const vaultAddress = trade?.vaultAddress;
 
-  const loaded = vaultAddress && vaultAddressParam === vaultAddress;
+  const defaultDebtToken =
+    tradeType === 'CreateVaultPosition'
+      ? availableDebtTokens?.find((t) => t.id === queryData.get('borrowOption'))
+      : undefined;
+  const defaultCollateralToken = availableCollateralTokens?.find(
+    (t) => t.maturity === defaultDebtToken?.maturity
+  );
+
+  const riskFactorLimit = trade?.leverageRatio
+    ? ({
+        riskFactor: 'leverageRatio',
+        limit: trade?.leverageRatio,
+        args: [],
+      } as RiskFactorLimit<'leverageRatio'>)
+    : undefined;
+
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     defaultLeverageRatio && !riskFactorLimit
       ? {
@@ -52,30 +58,6 @@ export const VaultActionSideDrawer = () => {
       : undefined;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const enabled = useVaultProperties(vaultAddress)?.enabled;
-
-  useEffect(() => {
-    const borrowOptionId = queryData.get('borrowOption');
-    if (
-      borrowOptionId &&
-      borrowOptionId !== debt?.id &&
-      tradeType === 'CreateVaultPosition'
-    ) {
-      const newDebt = availableDebtTokens?.find((t) => t.id === borrowOptionId);
-      if (newDebt) {
-        const collateral = availableCollateralTokens?.find(
-          (t) => t.maturity === newDebt?.maturity
-        );
-        updateState({ debt: newDebt, collateral });
-      }
-    }
-  }, [
-    debt,
-    availableDebtTokens,
-    availableCollateralTokens,
-    queryData,
-    updateState,
-    tradeType,
-  ]);
 
   const currentPosition = {
     collateral: vaultPosition?.vaultShares?.token,
@@ -105,8 +87,8 @@ export const VaultActionSideDrawer = () => {
             tradeType: 'CreateVaultPosition',
             riskFactorLimit: defaultRiskLimit,
             maxWithdraw: false,
-            debt: loaded ? debt : undefined,
-            collateral: loaded ? collateral : undefined,
+            debt: defaultDebtToken,
+            collateral: defaultCollateralToken,
           },
         },
         {
@@ -168,4 +150,4 @@ export const VaultActionSideDrawer = () => {
       ]}
     />
   );
-};
+});

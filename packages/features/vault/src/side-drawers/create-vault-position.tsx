@@ -1,7 +1,5 @@
-import { useContext } from 'react';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { Box, useTheme } from '@mui/material';
-import { VaultActionContext } from '../vault';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { VaultLeverageSlider } from '../components';
 import { useVaultActionErrors } from '../hooks';
@@ -11,17 +9,19 @@ import {
   ManageTerms,
 } from '@notional-finance/trade';
 import { messages } from '../messages';
-import { useVaultPosition } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useVaultPosition,
+} from '@notional-finance/notionable-hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
 export const CreateVaultPosition = () => {
   const theme = useTheme();
-  const context = useContext(VaultActionContext);
   const { currencyInputRef } = useCurrencyInputRef();
   const { inputErrorMsg } = useVaultActionErrors();
-  const {
-    state: { vaultAddress, selectedNetwork },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const vaultAddress = trade?.vaultAddress;
+  const selectedNetwork = trade?.selectedNetwork;
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
 
   return (
@@ -34,7 +34,7 @@ export const CreateVaultPosition = () => {
         },
       }}
     >
-      <VaultSideDrawer context={context}>
+      <VaultSideDrawer>
         <DepositInput
           ref={currencyInputRef}
           inputRef={currencyInputRef}

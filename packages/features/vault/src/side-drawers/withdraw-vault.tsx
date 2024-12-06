@@ -87,7 +87,7 @@ export const WithdrawVault = () => {
   if (!deposit || !primaryBorrowSymbol) return <PageLoading />;
 
   return (
-    <VaultSideDrawer context={context}>
+    <VaultSideDrawer>
       <Box>
         <InputLabel inputLabel={messages['WithdrawVault']['inputLabel']} />
         <CurrencyInput
