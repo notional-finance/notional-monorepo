@@ -11,40 +11,37 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { useConvertOptions } from './hooks/use-convert-options';
 import { PortfolioParams } from '../portfolio-feature-shell';
+import { observer } from 'mobx-react-lite';
 
-const ConvertDebt = () => {
+const ConvertDebt = observer(() => {
   const params = useParams<PortfolioParams>();
   const context = useTradeContext('RollDebt');
   const { currencyInputRef } = useCurrencyInputRef();
-  const {
-    state: { debtOptions, debt, collateral },
-    updateState,
-  } = context;
-  const { initialConvertFromBalance: balance } = useConvertOptions(
-    context.state
-  );
+  const { debt, collateral } = context?.tradeModel?.selectedTokens ?? {};
+  const { debt: debtOptions } = context.tradeModel?.computedOptions ?? {};
+  const { initialConvertFromBalance: balance } = useConvertOptions();
 
   const selectedDebt = debtOptions?.find(
     ({ token }) => token.id === params?.selectedCollateralToken
   );
 
   useEffect(() => {
-    if (!collateral) {
-      updateState({ collateralBalance: balance, collateral: balance?.token });
+    if (!collateral && balance) {
+      context?.tradeModel?.setInitialConvertAsset(balance);
     } else if (!debt && selectedDebt) {
-      updateState({ debt: selectedDebt.token });
+      context?.tradeModel?.setDebtByID(selectedDebt.token.id);
     }
-  }, [debt, balance, updateState, collateral, selectedDebt]);
+  }, [debt, balance, context, collateral, selectedDebt]);
 
   const onBalanceChange = (
     inputAmount: TokenBalance | undefined,
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
-    updateState({
-      collateralBalance: inputAmount,
-      maxWithdraw: maxBalance && inputAmount?.eq(maxBalance),
-    });
+    context?.tradeModel?.setCollateralBalance(
+      inputAmount,
+      (maxBalance && inputAmount?.eq(maxBalance)) ?? false
+    );
   };
 
   return (
@@ -56,7 +53,6 @@ const ConvertDebt = () => {
           <AssetInput
             ref={currencyInputRef}
             debtOrCollateral="Collateral"
-            context={context}
             prefillMax
             onBalanceChange={onBalanceChange}
             inputRef={currencyInputRef}
@@ -66,38 +62,33 @@ const ConvertDebt = () => {
       )}
     </DrawerTransition>
   );
-};
+});
 
-export const RollDebt = () => {
+export const RollDebt = observer(() => {
   const context = useTradeContext('RollDebt');
   const { action } = useParams<PortfolioParams>();
-  const {
-    updateState,
-    state: { collateral },
-  } = context;
-  const { initialConvertFromBalance: balance } = useConvertOptions(
-    context.state
-  );
+  const { collateral } = context?.tradeModel?.selectedTokens ?? {};
+  const { initialConvertFromBalance: balance } = useConvertOptions();
 
   useEffect(() => {
-    if (!collateral) {
-      updateState({ collateralBalance: balance, collateral: balance?.token });
+    if (!collateral && balance) {
+      context?.tradeModel?.setInitialConvertAsset(balance);
     }
-  }, [collateral, balance, updateState]);
+  }, [collateral, balance, context]);
 
   return (
     <Container>
       {action === 'manage' && (
         <DrawerTransition fade={true}>
           <Wrapper>
-            <SelectConvertAsset context={context} />
+            <SelectConvertAsset />
           </Wrapper>
         </DrawerTransition>
       )}
       {action === 'convertTo' && <ConvertDebt />}
     </Container>
   );
-};
+});
 
 const Container = styled(Box)(
   ({ theme }) => `

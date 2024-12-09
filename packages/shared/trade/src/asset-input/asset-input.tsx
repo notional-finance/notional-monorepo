@@ -10,12 +10,11 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import { useAssetInput } from './use-asset-input';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { CurrencySelectOption } from '@notional-finance/mui';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
 interface AssetInputProps {
-  context: BaseTradeContext;
   prefillMax?: boolean;
   onMaxValue?: () => void;
   onBalanceChange: (
@@ -47,7 +46,6 @@ export const AssetInput = React.forwardRef<
   (
     {
       prefillMax,
-      context,
       newRoute,
       warningMsg,
       onMaxValue,
@@ -66,8 +64,8 @@ export const AssetInput = React.forwardRef<
   ) => {
     const theme = useTheme();
     const navigate = useNavigate();
-    const { state, updateState } = context;
-    const { calculateError } = state;
+    const trade = useCurrentTradeContext();
+    const { calculateError } = trade?.state ?? {};
     const [hasUserTouched, setHasUserTouched] = useState(false);
 
     const {
@@ -79,7 +77,7 @@ export const AssetInput = React.forwardRef<
       maxBalance,
       errorMsg,
       setInputString,
-    } = useAssetInput(state, debtOrCollateral);
+    } = useAssetInput(debtOrCollateral);
 
     useEffect(() => {
       if (
@@ -99,7 +97,6 @@ export const AssetInput = React.forwardRef<
       // Exhaustive deps is disabled since we are using hashKeys for comparison
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
-      updateState,
       onBalanceChange,
       inputAmount?.hashKey,
       computedBalance?.hashKey,
@@ -107,10 +104,8 @@ export const AssetInput = React.forwardRef<
     ]);
 
     useEffect(() => {
-      updateState({
-        inputErrors: !!errorMsg || !!errorMsgOverride,
-      });
-    }, [updateState, errorMsg, errorMsgOverride]);
+      trade?.setHasInputErrors(!!errorMsg || !!errorMsgOverride);
+    }, [trade, errorMsg, errorMsgOverride]);
 
     const onInputChange = useCallback(
       (input: string) => {

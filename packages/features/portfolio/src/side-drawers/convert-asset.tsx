@@ -17,34 +17,31 @@ const ConvertCollateral = () => {
   const params = useParams<PortfolioParams>();
   const context = useTradeContext('ConvertAsset');
   const { currencyInputRef } = useCurrencyInputRef();
-  const {
-    updateState,
-    state: { collateralOptions, debt, collateral },
-  } = context;
-  const { initialConvertFromBalance: balance } = useConvertOptions(
-    context.state
-  );
+  const { debt, collateral } = context?.tradeModel?.selectedTokens ?? {};
+  const { collateral: collateralOptions } =
+    context.tradeModel?.computedOptions ?? {};
+  const { initialConvertFromBalance: balance } = useConvertOptions();
   const selectedCollateral = collateralOptions?.find(
     ({ token }) => token.id === params?.selectedCollateralToken
   );
 
   useEffect(() => {
-    if (!debt) {
-      updateState({ debtBalance: balance, debt: balance?.token });
+    if (!debt && balance) {
+      context?.tradeModel?.setInitialConvertAsset(balance);
     } else if (!collateral && selectedCollateral) {
-      updateState({ collateral: selectedCollateral.token });
+      context?.tradeModel?.setCollateralByID(selectedCollateral.token.id);
     }
-  }, [debt, balance, updateState, collateral, selectedCollateral]);
+  }, [debt, balance, context, collateral, selectedCollateral]);
 
   const onBalanceChange = (
     inputAmount: TokenBalance | undefined,
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
-    updateState({
-      debtBalance: inputAmount,
-      maxWithdraw: maxBalance && inputAmount?.neg().eq(maxBalance),
-    });
+    context?.tradeModel?.setDebtBalance(
+      inputAmount,
+      (maxBalance && inputAmount?.neg().eq(maxBalance)) ?? false
+    );
   };
 
   return (
@@ -56,7 +53,6 @@ const ConvertCollateral = () => {
             debtOrCollateral="Debt"
             prefillMax
             onBalanceChange={onBalanceChange}
-            context={context}
             inputRef={currencyInputRef}
             inputLabel={messages[PORTFOLIO_ACTIONS.CONVERT_ASSET]['inputLabel']}
           />
@@ -67,7 +63,8 @@ const ConvertCollateral = () => {
 };
 
 export const ConvertAsset = observer(() => {
-  const context = useTradeContext('ConvertAsset');
+  // This is here to set the trade context
+  useTradeContext('ConvertAsset');
   const { action } = useParams<PortfolioParams>();
 
   return (
@@ -75,7 +72,7 @@ export const ConvertAsset = observer(() => {
       {action === 'manage' && (
         <DrawerTransition fade={true}>
           <Wrapper>
-            <SelectConvertAsset context={context} />
+            <SelectConvertAsset />
           </Wrapper>
         </DrawerTransition>
       )}

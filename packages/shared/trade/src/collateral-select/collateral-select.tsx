@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react';
 import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import {
   TradeContext,
+  useCurrentTradeContext,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 
@@ -15,20 +16,16 @@ interface CollateralSelectProps {
 }
 
 export const CollateralSelect = ({
-  context,
   inputLabel,
   tightMarginTop,
 }: CollateralSelectProps) => {
-  const {
-    updateState,
-    state: {
-      deposit,
-      collateral,
-      depositBalance,
-      collateralOptions,
-      availableCollateralTokens,
-    },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const { deposit, collateral } = trade?.selectedTokens ?? {};
+  const depositBalance = trade?.depositBalance;
+  const { collateral: availableCollateralTokens } =
+    trade?.availableTokens ?? {};
+  const { collateral: collateralOptions } = trade?.computedOptions ?? {};
+
   const spotRates = useSpotMaturityData(
     deposit ? availableCollateralTokens : []
   );
@@ -80,9 +77,9 @@ export const CollateralSelect = ({
   const onSelect = useCallback(
     (id: string | null) => {
       const c = options?.find((t) => t.token.id === id);
-      updateState({ collateral: c?.token });
+      trade?.setCollateralByID(c?.token.id ?? undefined);
     },
-    [updateState, options]
+    [trade, options]
   );
 
   useEffect(() => {
@@ -93,16 +90,16 @@ export const CollateralSelect = ({
       deposit &&
       deposit.currencyId === options[0].token.currencyId
     ) {
-      updateState({ collateral: options[0].token });
+      trade?.setCollateralByID(options[0].token.id ?? undefined);
     }
-  }, [options, collateral, updateState, deposit]);
+  }, [options, collateral, trade, deposit]);
 
   useEffect(() => {
     // Clears previously selected collateral on route change
     if (deposit?.currencyId !== collateral?.currencyId) {
-      updateState({ collateral: undefined });
+      trade?.setCollateralByID(undefined);
     }
-  }, [deposit, collateral, updateState]);
+  }, [deposit, collateral, trade]);
 
   return (
     <AssetSelectDropdown

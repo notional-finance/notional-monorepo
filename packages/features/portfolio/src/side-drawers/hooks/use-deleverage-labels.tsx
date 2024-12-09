@@ -8,7 +8,7 @@ import {
   useCurrencyInputRef,
 } from '@notional-finance/mui';
 import {
-  BaseTradeContext,
+  useCurrentTradeContext,
   useMaxAssetBalance,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
@@ -39,12 +39,11 @@ const ValueString = (inputLabel: MessageDescriptor, b?: TokenBalance) => {
   );
 };
 
-export function useDeleverageLabels(context: BaseTradeContext) {
+export function useDeleverageLabels() {
   const { currencyInputRef: debtInputRef } = useCurrencyInputRef();
   const { currencyInputRef: collateralInputRef } = useCurrencyInputRef();
-  const {
-    state: { debt, collateral },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const { debt, collateral } = trade?.selectedTokens ?? {};
   // NOTE: debt and collateral inputs are reversed in this method on purpose
   const maxDebtBalance = useMaxAssetBalance(collateral);
   const maxCollateralBalance = useMaxAssetBalance(debt);

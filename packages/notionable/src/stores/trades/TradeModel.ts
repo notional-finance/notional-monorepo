@@ -860,6 +860,8 @@ export const TradeModel = types
       self.collateral = id
         ? self.availableCollateralTokens?.find((t) => t.id === id)
         : undefined;
+      self.debtBalance = undefined;
+      self.collateralBalance = undefined;
       calculate();
     };
 
@@ -867,6 +869,9 @@ export const TradeModel = types
       self.debt = id
         ? self.availableDebtTokens?.find((t) => t.id === id)
         : undefined;
+      self.debtBalance = undefined;
+      self.collateralBalance = undefined;
+
       calculate();
     };
 
@@ -995,7 +1000,53 @@ export const TradeModel = types
       calculate();
     };
 
+    const setInitialConvertAsset = (initialBalance: TokenBalance) => {
+      if (self.tradeType === 'ConvertAsset') {
+        self.debt = initialBalance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+        self.debtBalance = initialBalance;
+      } else {
+        self.collateral = initialBalance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+        self.collateralBalance = initialBalance;
+      }
+      calculate();
+    };
+
+    const setCollateralBalance = (
+      balance: TokenBalance | undefined,
+      maxWithdraw: boolean
+    ) => {
+      self.collateralBalance = balance;
+      self.maxWithdraw = maxWithdraw;
+      calculate();
+    };
+
+    const setDebtBalance = (
+      balance: TokenBalance | undefined,
+      maxWithdraw: boolean
+    ) => {
+      self.debtBalance = balance;
+      self.maxWithdraw = maxWithdraw;
+      calculate();
+    };
+
+    const setDebtAndCollateralBalance = (
+      debtBalance: TokenBalance | undefined,
+      collateralBalance: TokenBalance | undefined
+    ) => {
+      self.debtBalance = debtBalance;
+      self.collateralBalance = collateralBalance;
+      calculate();
+    };
+
     return {
+      setCollateralBalance,
+      setDebtBalance,
+      setDebtAndCollateralBalance,
+      setInitialConvertAsset,
       setNTokenAdjustedLeverage,
       setMaxWithdraw,
       setLeverageRatio,
