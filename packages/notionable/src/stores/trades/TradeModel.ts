@@ -272,12 +272,15 @@ export const TradeModel = types
       category: Category,
       tradeType?: AllTradeTypes
     ) => {
+      if (category === 'Collateral' && self.collateral) return self.collateral;
+      if (category === 'Debt' && self.debt) return self.debt;
+
       if (availableTokens.length === 1) {
         return availableTokens[0];
       } else if (selectedToken === undefined) {
         return getDefaultTokens(availableTokens, category, tradeType);
       } else {
-        return availableTokens.find((t) => t.symbol === selectedToken);
+        return availableTokens.find((t) => t.id === selectedToken);
       }
     };
 
