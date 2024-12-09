@@ -23,8 +23,9 @@ import {
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { SNOTEWeightedPool } from '@notional-finance/core-entities';
+import { observer } from 'mobx-react-lite';
 
-export const CoolDownDrawer = () => {
+export const CoolDownDrawer = observer(() => {
   const theme = useTheme();
   const account = useAccountDefinition(Network.mainnet);
   const { userWallet, submitTxn, transactionStatus, transactionHash } =
@@ -171,7 +172,7 @@ export const CoolDownDrawer = () => {
       </Button>
     </Box>
   );
-};
+});
 
 const ContentBox = styled(Box)(
   ({ theme }) => `

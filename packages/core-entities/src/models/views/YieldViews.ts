@@ -344,7 +344,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         netAmount.unwrapVaultToken().neg()
       );
       apyData.organicAPY =
-        100 * market.getPrimeDebtRate(apyData.utilization) || 0;
+        100 * (market.getPrimeDebtRate(apyData.utilization) / RATE_PRECISION) ||
+        0;
       if (
         netAmount.token.tokenType === 'VaultDebt' &&
         netAmount.maturity === PRIME_CASH_VAULT_MATURITY &&

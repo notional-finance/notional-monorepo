@@ -10,8 +10,9 @@ import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { useLocation, useParams } from 'react-router';
 import { PortfolioParams } from '@notional-finance/notionable-hooks';
 import { useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 
-export const RepayDebt = () => {
+export const RepayDebt = observer(() => {
   const context = useTradeContext('RepayDebt');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
   const { pathname } = useLocation();
@@ -34,7 +35,6 @@ export const RepayDebt = () => {
   return (
     <PortfolioSideDrawer requiredApprovalAmount={requiredApprovalAmount}>
       <PortfolioHoldingSelect
-        context={context}
         inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabel']}
       />
       <DepositInput
@@ -49,4 +49,4 @@ export const RepayDebt = () => {
       />
     </PortfolioSideDrawer>
   );
-};
+});

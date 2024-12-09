@@ -2,17 +2,16 @@ import { AssetSelectDropdown } from '@notional-finance/mui';
 import { useCallback } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import {
-  BaseTradeContext,
   usePrimeDebt,
   usePrimeCash,
   useCurrentNetworkAccount,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 
 interface PortfolioHoldingSelectProps {
-  context: BaseTradeContext;
   inputLabel: MessageDescriptor;
   isWithdraw?: boolean;
   errorMsg?: MessageDescriptor;
@@ -20,16 +19,14 @@ interface PortfolioHoldingSelectProps {
 }
 
 export const PortfolioHoldingSelect = ({
-  context,
   inputLabel,
   tightMarginTop,
   isWithdraw,
 }: PortfolioHoldingSelectProps) => {
   const { baseCurrency } = useAppStore();
   const theme = useTheme();
-  const {
-    state: { collateral, debt, deposit },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const { collateral, debt, deposit } = trade?.selectedTokens ?? {};
   const selectedToken = isWithdraw ? debt : collateral;
   const { pathname } = useLocation();
   const navigate = useNavigate();

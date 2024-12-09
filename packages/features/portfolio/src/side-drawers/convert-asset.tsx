@@ -13,7 +13,7 @@ import { useParams } from 'react-router';
 import { PortfolioParams } from '../portfolio-feature-shell';
 import { observer } from 'mobx-react-lite';
 
-const ConvertCollateral = () => {
+const ConvertCollateral = observer(() => {
   const params = useParams<PortfolioParams>();
   const context = useTradeContext('ConvertAsset');
   const { currencyInputRef } = useCurrencyInputRef();
@@ -60,7 +60,7 @@ const ConvertCollateral = () => {
       )}
     </DrawerTransition>
   );
-};
+});
 
 export const ConvertAsset = observer(() => {
   // This is here to set the trade context

@@ -6,8 +6,9 @@ import { defineMessage } from 'react-intl';
 import { Box, useTheme } from '@mui/material';
 import { useDeleverageLabels } from './hooks/use-deleverage-labels';
 import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 
-export const Deleverage = () => {
+export const Deleverage = observer(() => {
   const theme = useTheme();
   useTradeContext('Deleverage');
   // This defines which input field is "controlling" the other
@@ -63,4 +64,4 @@ export const Deleverage = () => {
       </Box>
     </PortfolioSideDrawer>
   );
-};
+});

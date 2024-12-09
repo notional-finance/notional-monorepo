@@ -16,8 +16,9 @@ import { messages } from './messages';
 import { FormattedMessage } from 'react-intl';
 import { useEffect } from 'react';
 import { TableActionRowWarning } from '../components';
+import { observer } from 'mobx-react-lite';
 
-export const Withdraw = () => {
+export const Withdraw = observer(() => {
   const context = useTradeContext('Withdraw');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
   const { pathname } = useLocation();
@@ -44,7 +45,6 @@ export const Withdraw = () => {
     <PortfolioSideDrawer isWithdraw>
       <PortfolioHoldingSelect
         isWithdraw
-        context={context}
         inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabelTwo']}
       />
       <DepositInput
@@ -69,4 +69,4 @@ export const Withdraw = () => {
       )}
     </PortfolioSideDrawer>
   );
-};
+});
