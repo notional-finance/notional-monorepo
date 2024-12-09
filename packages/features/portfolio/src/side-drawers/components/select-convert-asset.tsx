@@ -13,10 +13,10 @@ import {
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import {
-  TradeContext,
   usePrimeCash,
   usePrimeDebt,
   useCurrentNetworkStore,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import {
   formatNumberAsPercent,
@@ -28,20 +28,19 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { TransactionHeadings } from '@notional-finance/trade';
 import { useConvertOptions } from '../hooks/use-convert-options';
 
-interface SelectConvertAssetProps {
-  context: TradeContext;
-}
-
-export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
+export const SelectConvertAsset = () => {
   const theme = useTheme();
-  const { state, updateState } = context;
+  const trade = useCurrentTradeContext();
+  const { debt, collateral } = trade?.selectedTokens ?? {};
+  const debtBalance = trade?.debtBalance;
+  const collateralBalance = trade?.collateralBalance;
+  const tradeType = trade?.tradeType;
+
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { tradeType, debt, collateral, debtBalance, collateralBalance } = state;
   const currentNetworkStore = useCurrentNetworkStore();
   const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
-  const { options, initialConvertFromBalance: balance } =
-    useConvertOptions(state);
+  const { options, initialConvertFromBalance: balance } = useConvertOptions();
   let convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;
   const pCash = usePrimeCash(convertFromToken?.currencyId);
   const pDebt = usePrimeDebt(convertFromToken?.currencyId);
@@ -71,19 +70,14 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
       balance &&
       (convertFromToken === undefined || convertFromBalance === undefined)
     ) {
-      updateState(
-        tradeType === 'ConvertAsset'
-          ? { debtBalance: balance, debt: balance.token }
-          : { collateralBalance: balance, collateral: balance.token }
-      );
+      trade?.setInitialConvertAsset(balance);
     }
   }, [
     convertFromToken,
     convertFromBalance,
     selectedParamToken,
     balance,
-    updateState,
-    tradeType,
+    trade,
   ]);
 
   let heading: MessageDescriptor;
@@ -105,10 +99,10 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
       const onSelect = () => {
         if (tradeType === 'ConvertAsset') {
           navigate(`${pathname.replace('manage', 'convertTo')}/${o.token.id}`);
-          updateState({ collateral: o.token });
+          trade?.setCollateralByID(o.token.id);
         } else {
           navigate(`${pathname.replace('manage', 'convertTo')}/${o.token.id}`);
-          updateState({ debt: o.token });
+          trade?.setDebtByID(o.token.id);
         }
       };
       let text: string;
@@ -141,7 +135,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
         </SideDrawerButton>
       );
     },
-    [updateState, tradeType, theme, navigate, pathname]
+    [trade, tradeType, theme, navigate, pathname]
   );
 
   const fixedOptions =

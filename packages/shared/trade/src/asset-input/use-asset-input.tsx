@@ -1,28 +1,23 @@
 import {
   useAccountReady,
+  useCurrentTradeContext,
   useMaxAssetBalance,
 } from '@notional-finance/notionable-hooks';
 import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { useInputAmount } from '../common';
 import { tradeErrors } from '../tradeErrors';
-import { BaseTradeState } from '@notional-finance/notionable';
 
-export function useAssetInput(
-  state: BaseTradeState,
-  debtOrCollateral: 'Debt' | 'Collateral'
-) {
+export function useAssetInput(debtOrCollateral: 'Debt' | 'Collateral') {
+  const trade = useCurrentTradeContext();
   const [inputString, setInputString] = useState<string>('');
-  const {
-    debt,
-    collateral,
-    collateralBalance,
-    debtBalance,
-    availableCollateralTokens,
-    availableDebtTokens,
-    tradeType,
-    selectedNetwork
-  } = state;
+  const { debt, collateral } = trade?.selectedTokens ?? {};
+  const debtBalance = trade?.debtBalance;
+  const collateralBalance = trade?.collateralBalance;
+  const { collateral: availableCollateralTokens, debt: availableDebtTokens } =
+    trade?.availableTokens ?? {};
+  const tradeType = trade?.tradeType;
+  const selectedNetwork = trade?.selectedNetwork;
 
   const selectedToken = debtOrCollateral === 'Debt' ? debt : collateral;
   const computedBalance =
@@ -40,7 +35,11 @@ export function useAssetInput(
     availableTokens = [selectedToken];
 
   const maxBalance = useMaxAssetBalance(selectedToken);
-  const { inputAmount } = useInputAmount(selectedNetwork, inputString, selectedToken?.symbol);
+  const { inputAmount } = useInputAmount(
+    selectedNetwork,
+    inputString,
+    selectedToken?.symbol
+  );
   const isAccountReady = useAccountReady(selectedNetwork);
 
   const insufficientBalance =

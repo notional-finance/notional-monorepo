@@ -21,10 +21,8 @@ export const RepayDebt = () => {
     onMaxValue,
     errorMsg,
     requiredApprovalAmount,
-  } = useMaxRepay(context);
-  const {
-    state: { selectedNetwork },
-  } = context;
+  } = useMaxRepay();
+  const selectedNetwork = context?.tradeModel?.selectedNetwork;
 
   useEffect(() => {
     setCurrencyInput('');

@@ -11,6 +11,7 @@ import {
 } from '@notional-finance/core-entities';
 import {
   AllTradeTypes,
+  BaseTradeState,
   isDeleverageWithSwappedTokens,
   isLeveragedTrade,
   isNOTEStake,
@@ -53,6 +54,7 @@ import {
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
+import { getComparisonKey } from '../../utils';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -236,6 +238,9 @@ export const TradeModel = types
     useOptimalETH: types.optional(types.boolean, false),
 
     vaultTradeMetadata: types.optional(types.maybe(types.frozen()), undefined),
+
+    /** True if the trade is a deleverage */
+    isDeleverage: types.optional(types.boolean, false),
   })
   .actions((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
@@ -620,6 +625,14 @@ export const TradeModel = types
           acc['balances'] = root().getAccountDefinition(
             self.selectedNetwork
           )?.balances;
+        } else if (arg === 'riskFactorLimit') {
+          acc['riskFactorLimit'] = {
+            riskFactor: 'leverageRatio',
+            limit: self.leverageRatio,
+            args: isVaultTrade(self.tradeType)
+              ? undefined
+              : [self.collateral?.currencyId],
+          };
         } else if (arg === 'vaultLastUpdateTime' && self.vaultAddress) {
           const accountDefinition = root().getAccountDefinition(
             self.selectedNetwork
@@ -847,6 +860,8 @@ export const TradeModel = types
       self.collateral = id
         ? self.availableCollateralTokens?.find((t) => t.id === id)
         : undefined;
+      self.debtBalance = undefined;
+      self.collateralBalance = undefined;
       calculate();
     };
 
@@ -854,6 +869,9 @@ export const TradeModel = types
       self.debt = id
         ? self.availableDebtTokens?.find((t) => t.id === id)
         : undefined;
+      self.debtBalance = undefined;
+      self.collateralBalance = undefined;
+
       calculate();
     };
 
@@ -869,7 +887,170 @@ export const TradeModel = types
       calculate();
     };
 
+    const setRequiredSideDrawerState = (
+      requiredState: Record<string, unknown>,
+      path: string
+    ) => {
+      const pathname = window.location.pathname;
+      const allStateMatches = Object.keys(requiredState)
+        // NOTE: this means that required state cannot clear previously set state
+        .filter((k) => requiredState[k] !== undefined)
+        .every((k) => {
+          const s = getComparisonKey(
+            k,
+            self as unknown as Partial<BaseTradeState>
+          );
+          const r = getComparisonKey(k, requiredState);
+          return s === r;
+        });
+
+      if (
+        allStateMatches ||
+        // Use a "startsWith" here to support potential suffix to the path
+        // such as in roll debt
+        !pathname.startsWith(path)
+      )
+        return;
+
+      Object.keys(requiredState).forEach((k) => {
+        self[k] = requiredState[k];
+      });
+      calculate();
+    };
+
+    const setNTokenAdjustedLeverage = (leverageRatio: number) => {
+      if (!isFinite(leverageRatio)) return;
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const groupedHoldings = account?.groupedHoldings;
+      const nTokenPositions = groupedHoldings?.filter(
+        ({ asset }) => asset.balance.tokenType === 'nToken'
+      );
+      const currentPosition = nTokenPositions?.find(
+        ({ asset }) =>
+          asset.balance.underlying.symbol === self.selectedDepositToken
+      );
+      if (!currentPosition) return;
+
+      if (leverageRatio >= currentPosition.leverageRatio) {
+        self.isDeleverage = false;
+        self.collateral = currentPosition.asset.balance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+        self.debt = currentPosition.debt.balance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+      } else if (leverageRatio < currentPosition.leverageRatio) {
+        self.isDeleverage = true;
+        self.collateral = (
+          currentPosition.debt.balance.tokenType === 'PrimeDebt'
+            ? root()
+                .getNetworkClient(self.selectedNetwork)
+                .getPrimeCash(currentPosition.debt.balance.currencyId)
+            : currentPosition.debt.balance.token
+        ) as Instance<typeof TokenDefinitionModel>;
+        self.debt = currentPosition.asset.balance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+      }
+
+      self.collateralBalance = undefined;
+      self.debtBalance = undefined;
+      self.leverageRatio = leverageRatio;
+
+      calculate();
+    };
+
+    const setMaxWithdraw = (
+      depositBalance: TokenBalance,
+      collateralBalance: TokenBalance | undefined,
+      debtBalance: TokenBalance | undefined
+    ) => {
+      self.maxWithdraw = true;
+      self.calculationSuccess = true;
+      self.depositBalance = depositBalance;
+      self.collateralBalance = collateralBalance;
+      self.debtBalance = debtBalance;
+    };
+
+    const setVaultMaxWithdraw = () => {
+      if (!self.vaultAddress) return;
+      const networkAccount = root().getNetworkAccount(self.selectedNetwork);
+      const vaultProfile = networkAccount?.vaultHoldings?.find(
+        ({ vaultAddress }) => vaultAddress === self.vaultAddress
+      );
+      const maxWithdrawValues = networkAccount?.maxVaultWithdraw(
+        self.vaultAddress
+      );
+
+      self.inputsSatisfied = true;
+      self.maxWithdraw = true;
+      self.calculationSuccess = true;
+      self.depositBalance = maxWithdrawValues?.maxWithdrawUnderlying.neg();
+      self.collateralBalance = vaultProfile?.vaultShares.neg();
+      self.debtBalance = vaultProfile?.vaultDebt.neg();
+      self.netRealizedCollateralBalance =
+        maxWithdrawValues?.netRealizedCollateralBalance;
+      self.netRealizedDebtBalance = maxWithdrawValues?.netRealizedDebtBalance;
+      self.debtFee = maxWithdrawValues?.debtFee;
+      self.collateralFee = maxWithdrawValues?.collateralFee;
+    };
+
+    const setLeverageRatio = (leverageRatio: number) => {
+      self.leverageRatio = leverageRatio;
+      calculate();
+    };
+
+    const setInitialConvertAsset = (initialBalance: TokenBalance) => {
+      if (self.tradeType === 'ConvertAsset') {
+        self.debt = initialBalance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+        self.debtBalance = initialBalance;
+      } else {
+        self.collateral = initialBalance.token as Instance<
+          typeof TokenDefinitionModel
+        >;
+        self.collateralBalance = initialBalance;
+      }
+      calculate();
+    };
+
+    const setCollateralBalance = (
+      balance: TokenBalance | undefined,
+      maxWithdraw: boolean
+    ) => {
+      self.collateralBalance = balance;
+      self.maxWithdraw = maxWithdraw;
+      calculate();
+    };
+
+    const setDebtBalance = (
+      balance: TokenBalance | undefined,
+      maxWithdraw: boolean
+    ) => {
+      self.debtBalance = balance;
+      self.maxWithdraw = maxWithdraw;
+      calculate();
+    };
+
+    const setDebtAndCollateralBalance = (
+      debtBalance: TokenBalance | undefined,
+      collateralBalance: TokenBalance | undefined
+    ) => {
+      self.debtBalance = debtBalance;
+      self.collateralBalance = collateralBalance;
+      calculate();
+    };
+
     return {
+      setCollateralBalance,
+      setDebtBalance,
+      setDebtAndCollateralBalance,
+      setInitialConvertAsset,
+      setNTokenAdjustedLeverage,
+      setMaxWithdraw,
+      setLeverageRatio,
+      setRequiredSideDrawerState,
       afterAttach,
       setHasInputErrors,
       setDepositBalance,
@@ -882,6 +1063,7 @@ export const TradeModel = types
       setNOTEBalanceForStaking,
       setETHBalanceForStaking,
       setUseOptimalETHForStaking,
+      setVaultMaxWithdraw,
     };
   })
   .views((self) => {
@@ -978,6 +1160,13 @@ export const TradeModel = types
         postTrade,
         preTrade,
       };
+    };
+
+    const hasSwappedTokens = () => {
+      return isDeleverageWithSwappedTokens({
+        tradeType: self.tradeType,
+        collateral: self.collateral as TokenDefinition | undefined,
+      });
     };
 
     const getPostTradeIncentives = () => {
@@ -1158,6 +1347,45 @@ export const TradeModel = types
           changeType: getChangeType(priorAPY, postAPY),
           greenOnArrowUp: true,
         },
+      };
+    };
+
+    const getLeveragedNTokenPositions = () => {
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const groupedHoldings = account?.groupedHoldings;
+      if (!groupedHoldings) {
+        return {
+          isLoading: true,
+          currentPosition: undefined,
+          depositTokensWithPositions: [] as string[],
+          currentHoldings: undefined,
+          nTokenPositions: undefined,
+        };
+      }
+
+      const nTokenPositions = groupedHoldings?.filter(
+        ({ asset }) => asset.balance.tokenType === 'nToken'
+      );
+      const currentPosition = nTokenPositions.find(
+        ({ asset }) =>
+          asset.balance.underlying.symbol === self.selectedDepositToken
+      );
+      const depositTokensWithPositions = nTokenPositions.map(
+        ({ asset }) => asset.balance.underlying.symbol
+      );
+      // The difference between currentPosition and currentHoldings is that current holdings
+      // has more metadata but it arrives a little later
+      const currentHoldings = groupedHoldings.find(
+        ({ asset }) =>
+          asset.balance.underlying.symbol === self.selectedDepositToken
+      );
+
+      return {
+        isLoading: false,
+        currentPosition,
+        depositTokensWithPositions,
+        currentHoldings,
+        nTokenPositions,
       };
     };
 
@@ -1446,6 +1674,7 @@ export const TradeModel = types
           debt: self.debtOptions as TokenOption[] | undefined,
         };
       },
+      getLeveragedNTokenPositions,
       getNetBalances,
       getAPYFactors,
       getRiskSummary,
@@ -1457,6 +1686,7 @@ export const TradeModel = types
       getVaultCapacity,
       getPostTradeIncentives,
       canSubmit,
+      hasSwappedTokens,
     };
   });
 

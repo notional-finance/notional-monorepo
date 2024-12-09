@@ -1,5 +1,3 @@
-import { useContext } from 'react';
-import { LiquidityContext } from '../../liquidity';
 import { ErrorMessage } from '@notional-finance/mui';
 import { useQueryParams } from '@notional-finance/notionable-hooks';
 import {
@@ -30,11 +28,10 @@ const messages = {
 };
 
 export const Withdraw = () => {
-  const context = useContext(LiquidityContext);
   const search = useQueryParams();
   const warning = search.get('warning') as keyof typeof messages | undefined;
   const { currencyInputRef, onMaxValue, maxWithdrawUnderlying } =
-    useMaxLiquidityWithdraw(context);
+    useMaxLiquidityWithdraw();
 
   return (
     <TransactionSidebar

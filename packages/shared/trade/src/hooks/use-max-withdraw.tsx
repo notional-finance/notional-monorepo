@@ -1,6 +1,6 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
-  BaseTradeContext,
+  useCurrentTradeContext,
   usePortfolioMaxWithdraw,
   usePortfolioRiskProfile,
   usePrimeCash,
@@ -9,9 +9,10 @@ import {
 import { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
 
-export function useMaxWithdraw(context: BaseTradeContext) {
-  const { updateState, state } = context;
-  const { debt, selectedNetwork } = state;
+export function useMaxWithdraw() {
+  const trade = useCurrentTradeContext();
+  const selectedNetwork = trade?.selectedNetwork;
+  const { debt } = trade?.selectedTokens ?? {};
   const profile = usePortfolioRiskProfile(selectedNetwork);
   const primeCash = usePrimeCash(debt?.currencyId);
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
@@ -27,21 +28,19 @@ export function useMaxWithdraw(context: BaseTradeContext) {
     if (maxWithdrawUnderlying && maxWithdraw) {
       setCurrencyInput(maxWithdrawUnderlying.toExactString(), false);
 
-      updateState({
-        maxWithdraw: true,
-        calculationSuccess: true,
-        depositBalance: maxWithdrawUnderlying?.neg(),
-        debtBalance:
-          debt?.tokenType === 'PrimeDebt'
-            ? maxWithdraw.toToken(debt).neg()
-            : maxWithdraw.neg(),
-      });
+      trade?.setMaxWithdraw(
+        maxWithdrawUnderlying?.neg(),
+        undefined,
+        debt?.tokenType === 'PrimeDebt'
+          ? maxWithdraw.toToken(debt).neg()
+          : maxWithdraw.neg()
+      );
     }
-  }, [maxWithdraw, updateState, setCurrencyInput, debt, maxWithdrawUnderlying]);
+  }, [maxWithdraw, trade, setCurrencyInput, debt, maxWithdrawUnderlying]);
 
   const belowMaxWarning =
     balance &&
-    state.maxWithdraw &&
+    trade?.maxWithdraw &&
     maxWithdraw &&
     !!profile?.healthFactor &&
     maxWithdraw.ratioWith(balance).toNumber() < 0.999e9 ? (

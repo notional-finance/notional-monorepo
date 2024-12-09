@@ -1,5 +1,3 @@
-import { useContext } from 'react';
-import { LiquidityContext } from '../../liquidity';
 import {
   useCurrentTradeContext,
   usePortfolioLiquidationRisk,
@@ -8,7 +6,6 @@ import {
   formatLeverageRatio,
   formatNumberAsPercentWithUndefined,
 } from '@notional-finance/helpers';
-import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import {
   formatMaturity,
   RATE_PRECISION,
@@ -19,24 +16,18 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const useLiquidityDetails = () => {
-  const { state } = useContext(LiquidityContext);
   const trade = useCurrentTradeContext();
   const comparePortfolio = trade?.getPortfolioComparison();
-  const {
-    selectedDepositToken,
-    collateralBalance,
-    debtBalance,
-    debtOptions,
-    collateralOptions,
-    selectedNetwork,
-  } = state;
+  const selectedDepositToken = trade?.selectedDepositToken;
+  const collateralBalance = trade?.collateralBalance;
+  const debtBalance = trade?.debtBalance;
+  const { debt: debtOptions, collateral: collateralOptions } =
+    trade?.computedOptions || {};
+
   const { tableData, tooRisky, onlyCurrent } = usePortfolioLiquidationRisk();
   const currentNetworkStore = useCurrentNetworkStore();
   const liquidity = currentNetworkStore.getAllNTokenYields();
-  const { currentHoldings } = useLeveragedNTokenPositions(
-    selectedNetwork,
-    selectedDepositToken
-  );
+  const { currentHoldings } = trade?.getLeveragedNTokenPositions() || {};
   const newDebt = comparePortfolio?.find(
     ({ updated }) =>
       updated.underlying.symbol === selectedDepositToken &&

@@ -1,31 +1,28 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { CurrencyInputHandle } from '@notional-finance/mui';
-import { useAppStore } from '@notional-finance/notionable-hooks';
 import {
-  BaseTradeContext,
+  useAppStore,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
+import {
   usePortfolioRiskProfile,
   usePrimeTokens,
 } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 
 export const useDeleverage = (
-  context: BaseTradeContext,
   isPrimaryInput: boolean,
   inputRef: React.RefObject<CurrencyInputHandle>,
   debtOrCollateral: 'Debt' | 'Collateral'
 ) => {
-  const {
-    state: {
-      debt,
-      collateral,
-      availableCollateralTokens,
-      availableDebtTokens,
-      debtBalance,
-      collateralBalance,
-      selectedNetwork,
-    },
-    updateState,
-  } = context;
+  const trade = useCurrentTradeContext();
+  const selectedNetwork = trade?.selectedNetwork;
+  const { debt, collateral } = trade?.selectedTokens ?? {};
+  const { debt: availableDebtTokens, collateral: availableCollateralTokens } =
+    trade?.availableTokens ?? {};
+  const debtBalance = trade?.debtBalance;
+  const collateralBalance = trade?.collateralBalance;
+
   const { baseCurrency } = useAppStore();
   const computedBalance =
     debtOrCollateral === 'Debt' ? debtBalance : collateralBalance;
@@ -53,21 +50,13 @@ export const useDeleverage = (
 
   const updateDeleverageToken = useCallback(
     (tokenId: string | null) => {
-      updateState(
-        debtOrCollateral === 'Debt'
-          ? {
-              debt: availableTokens?.find((t) => t.id === tokenId),
-              debtBalance: undefined,
-              collateralBalance: undefined,
-            }
-          : {
-              collateral: availableTokens?.find((t) => t.id === tokenId),
-              collateralBalance: undefined,
-              debtBalance: undefined,
-            }
-      );
+      if (debtOrCollateral === 'Debt') {
+        trade?.setDebtByID(tokenId ?? undefined);
+      } else {
+        trade?.setCollateralByID(tokenId ?? undefined);
+      }
     },
-    [availableTokens, debtOrCollateral, updateState]
+    [debtOrCollateral, trade]
   );
 
   const updateBalances = useCallback(
@@ -88,20 +77,20 @@ export const useDeleverage = (
           return;
         }
 
-        updateState(
-          debtOrCollateral === 'Debt'
-            ? {
-                debtBalance: inputAmount?.neg(),
-                collateralBalance: TokenBalance.zero(collateral),
-              }
-            : {
-                collateralBalance: inputAmount,
-                debtBalance: TokenBalance.zero(debt),
-              }
-        );
+        if (debtOrCollateral === 'Debt') {
+          trade?.setDebtAndCollateralBalance(
+            inputAmount?.neg(),
+            TokenBalance.zero(collateral)
+          );
+        } else {
+          trade?.setDebtAndCollateralBalance(
+            TokenBalance.zero(debt),
+            inputAmount
+          );
+        }
       }
     },
-    [isPrimaryInput, debtOrCollateral, debt, collateral, updateState]
+    [isPrimaryInput, debtOrCollateral, debt, collateral, trade]
   );
 
   const options = useMemo(() => {

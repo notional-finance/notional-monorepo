@@ -6,14 +6,13 @@ import { CollateralSelect, DepositInput } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { messages } from './messages';
 import { useParams } from 'react-router';
+import { observer } from 'mobx-react-lite';
 
-export const DepositCollateral = () => {
+export const DepositCollateral = observer(() => {
   const context = useTradeContext('Deposit');
   const { currencyInputRef } = useCurrencyInputRef();
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
-  const {
-    state: { selectedNetwork },
-  } = context;
+  const selectedNetwork = context?.tradeModel?.selectedNetwork;
 
   return (
     <PortfolioSideDrawer>
@@ -32,4 +31,4 @@ export const DepositCollateral = () => {
       />
     </PortfolioSideDrawer>
   );
-};
+});

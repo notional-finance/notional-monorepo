@@ -3,9 +3,9 @@ import { useVaultActionErrors } from '../hooks';
 import { LeverageSlider } from '@notional-finance/trade';
 import {
   useVaultPoints,
-  VaultContext,
   usePointPrices,
   useVaultAdapter,
+  useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import {
   pointsMultiple,
@@ -17,23 +17,19 @@ import { ReactNode } from 'react';
 export const VaultLeverageSlider = ({
   inputLabel,
   sliderInfo,
-  context,
 }: {
   inputLabel: MessageDescriptor;
   sliderInfo?: MessageDescriptor;
-  context: VaultContext;
 }) => {
-  const {
-    state: {
-      netRealizedDebtBalance,
-      riskFactorLimit,
-      vaultAddress,
-      selectedNetwork,
-      debtBalance,
-      collateralBalance,
-      tradeType,
-    },
-  } = context;
+  const trade = useCurrentTradeContext();
+  const netRealizedDebtBalance = trade?.netRealizedDebtBalance;
+  const vaultAddress = trade?.vaultAddress;
+  const selectedNetwork = trade?.selectedNetwork;
+  const debtBalance = trade?.debtBalance;
+  const collateralBalance = trade?.collateralBalance;
+  const tradeType = trade?.tradeType;
+  const leverageRatio = trade?.leverageRatio;
+
   const points = useVaultPoints(vaultAddress);
   const adapter = useVaultAdapter(vaultAddress) as PendlePT | undefined;
 
@@ -45,7 +41,6 @@ export const VaultLeverageSlider = ({
   } = useVaultActionErrors();
   const errorMsg =
     leverageRatioError || underMinAccountBorrowError || inputErrorMsg;
-  const leverageRatio = riskFactorLimit?.limit as number;
   const vaultType =
     vaultAddress && selectedNetwork
       ? getVaultType(vaultAddress, selectedNetwork)
@@ -117,7 +112,6 @@ export const VaultLeverageSlider = ({
 
   return (
     <LeverageSlider
-      context={context}
       infoMsg={sliderInfo}
       errorMsg={errorMsg}
       showMinMax

@@ -1,12 +1,10 @@
 import { CurrencyInputHandle } from '@notional-finance/mui';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import React from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { AssetInput } from './asset-input';
 import { useDeleverage } from './use-deleverage';
 
 interface DeleverageInputProps {
-  context: BaseTradeContext;
   prefillMax?: boolean;
   isPrimaryInput: boolean;
   onMaxValue: () => void;
@@ -25,7 +23,6 @@ export const DeleverageInput = React.forwardRef<
 >(
   (
     {
-      context,
       debtOrCollateral,
       isPrimaryInput,
       setPrimaryInput,
@@ -38,7 +35,6 @@ export const DeleverageInput = React.forwardRef<
     ref
   ) => {
     const { options, updateBalances, updateDeleverageToken } = useDeleverage(
-      context,
       isPrimaryInput,
       inputRef,
       debtOrCollateral
@@ -47,7 +43,6 @@ export const DeleverageInput = React.forwardRef<
     return (
       <AssetInput
         ref={ref}
-        context={context}
         debtOrCollateral={debtOrCollateral}
         onBalanceChange={updateBalances}
         label={label}

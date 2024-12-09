@@ -7,45 +7,47 @@ import {
   AreaChartStylesProps,
   LEGEND_LINE_TYPES,
 } from '@notional-finance/mui';
-import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
+import { isVaultTrade } from '@notional-finance/notionable';
 import {
   calculateDepositValue,
+  useCurrentTradeContext,
   useLeveragedPerformance,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
-export function usePerformanceChart(
-  state: BaseTradeState,
-  priorVaultFactors?: {
-    vaultShare?: TokenDefinition;
-    isPrimeBorrow: boolean;
-    vaultBorrowRate?: number;
-    leverageRatio?: number;
-  }
-) {
+export function usePerformanceChart(currentPositionFactors?: {
+  vaultShare?: TokenDefinition;
+  isPrimeBorrow: boolean;
+  borrowRate?: number;
+  leverageRatio?: number;
+}) {
   const theme = useTheme();
+  const trade = useCurrentTradeContext();
   const {
-    debt,
-    debtOptions,
-    collateralOptions,
-    riskFactorLimit,
-    tradeType,
+    collateral: _collateral,
+    debt: _debt,
     deposit,
-  } = state;
+  } = trade?.selectedTokens || {};
+  const selectedLeverageRatio = trade?.leverageRatio;
+
+  // Allow the vault collateral to override the set collateral for the unset state
+  const collateral = trade?.hasSwappedTokens()
+    ? _debt
+    : _collateral || currentPositionFactors?.vaultShare;
+  const debt = trade?.hasSwappedTokens() ? _collateral : _debt;
+  const tradeType = trade?.tradeType;
+  const { collateral: collateralOptions, debt: debtOptions } =
+    trade?.computedOptions || {};
+
   const spotData = useSpotMaturityData(debt ? [debt] : undefined);
   const isVault = isVaultTrade(tradeType);
 
   const currentBorrowRate =
-    debtOptions?.find(
-      (t) => t.token.id === debt?.id
-      // Allow the historical vault borrow rate to be applied here
-    )?.interestRate ||
-    priorVaultFactors?.vaultBorrowRate ||
+    debtOptions?.find((t) => t.token.id === debt?.id)?.interestRate ||
+    // Allow the historical vault borrow rate to be applied here
+    currentPositionFactors?.borrowRate ||
     spotData.find((_) => true)?.tradeRate;
-
-  // Allow the vault collateral to override the set collateral for the unset state
-  const collateral = state.collateral || priorVaultFactors?.vaultShare;
 
   const leveragedLendFixedRate =
     tradeType === 'LeveragedLend' && collateral?.tokenType === 'fCash'
@@ -55,13 +57,13 @@ export function usePerformanceChart(
 
   // Always use the specified leverage ratio so that this figure matches
   // the header
-  const leverageRatio = (riskFactorLimit?.limit ||
-    priorVaultFactors?.leverageRatio) as number | undefined;
+  const leverageRatio = (selectedLeverageRatio ||
+    currentPositionFactors?.leverageRatio) as number | undefined;
   const data = useLeveragedPerformance(
     collateral,
     debt
       ? debt.tokenType === 'PrimeDebt'
-      : priorVaultFactors?.isPrimeBorrow || false,
+      : currentPositionFactors?.isPrimeBorrow || false,
     currentBorrowRate,
     leverageRatio,
     leveragedLendFixedRate

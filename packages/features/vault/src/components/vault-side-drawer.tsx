@@ -3,34 +3,28 @@ import { TransactionSidebar } from '@notional-finance/trade';
 import { useNavigate } from 'react-router-dom';
 import { messages } from '../messages';
 import {
-  VaultContext,
+  useCurrentTradeContext,
   useVaultProperties,
 } from '@notional-finance/notionable-hooks';
-import { VaultTradeType } from '@notional-finance/notionable';
 import { CreateVaultLiquidationRisk } from './create-vault-liquidation-risk';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
-  context: VaultContext;
 }
 
 export const VaultSideDrawer = ({
   children,
   advancedToggle,
-  context,
 }: VaultSideDrawerProps) => {
   const navigate = useNavigate();
-  const { state } = context;
-  const {
-    minBorrowSize,
-    vaultAddress,
-    tradeType: _tradeType,
-    selectedNetwork,
-  } = state;
+  const trade = useCurrentTradeContext();
+  const vaultAddress = trade?.vaultAddress;
+  const tradeType = trade?.tradeType;
+  const selectedNetwork = trade?.selectedNetwork;
+  const { minBorrowSize } = trade?.getVaultCapacity() ?? {};
   const props = useVaultProperties(vaultAddress);
   const { minDepositRequired } = props ?? {};
-  const tradeType = _tradeType as VaultTradeType;
 
   if (!tradeType) return null;
 

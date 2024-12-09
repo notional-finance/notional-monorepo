@@ -30,10 +30,8 @@ export const Withdraw = () => {
     onMaxValue,
     maxWithdrawUnderlying,
     belowMaxWarning,
-  } = useMaxWithdraw(context);
-  const {
-    state: { selectedNetwork },
-  } = context;
+  } = useMaxWithdraw();
+  const selectedNetwork = context?.tradeModel?.selectedNetwork;
 
   useEffect(() => {
     setCurrencyInput('');

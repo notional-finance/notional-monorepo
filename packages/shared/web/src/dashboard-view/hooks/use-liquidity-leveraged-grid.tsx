@@ -5,12 +5,12 @@ import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
 import { useNavigate } from 'react-router-dom';
-import { useLeveragedNTokenPositions } from '@notional-finance/trade';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import {
   useAppStore,
   useCurrentNetworkStore,
+  useGroupedHoldings,
 } from '@notional-finance/notionable-hooks';
 
 export const useLiquidityLeveragedGrid = (
@@ -20,7 +20,11 @@ export const useLiquidityLeveragedGrid = (
   const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
   const currentNetworkStore = useCurrentNetworkStore();
-  const { nTokenPositions } = useLeveragedNTokenPositions(network);
+  const groupedHoldings = useGroupedHoldings(network);
+  const nTokenPositions = groupedHoldings?.filter(
+    ({ asset }) => asset.balance.tokenType === 'nToken'
+  );
+
   const [showNegativeYields, setShowNegativeYields] = useState(false);
   const [hasNegativeApy, setHasNegativeApy] = useState(false);
   const yieldData = currentNetworkStore.getAllLeveragedNTokenYields();

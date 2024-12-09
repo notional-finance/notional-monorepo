@@ -1,4 +1,4 @@
-import { ReactNode, useContext, useEffect } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import {
   ButtonData,
@@ -8,17 +8,15 @@ import {
 } from '@notional-finance/mui';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
-import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { VaultDetailsTable } from '../components';
 import { useManageVault } from '../hooks/use-manage-vault';
 import { useTheme } from '@mui/material';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const ManageVault = () => {
   const theme = useTheme();
-  const {
-    state: { selectedNetwork },
-  } = useContext(VaultActionContext);
+  const selectedNetwork = useSelectedNetwork();
   const {
     manageVaultOptions,
     rollMaturityOptions,

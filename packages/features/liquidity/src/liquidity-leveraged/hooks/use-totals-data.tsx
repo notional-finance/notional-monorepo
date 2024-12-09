@@ -1,15 +1,19 @@
-import { FiatSymbols, FiatKeys } from '@notional-finance/core-entities';
-import { TradeState } from '@notional-finance/notionable';
-import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
+import { FiatSymbols } from '@notional-finance/core-entities';
+import {
+  useAppStore,
+  useCurrentNetworkStore,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 import { SparklesIcon } from '@notional-finance/icons';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { InfoTooltip } from '@notional-finance/mui';
 import { SxProps, useTheme } from '@mui/material';
 
-export const useTotalsData = (state: TradeState, baseCurrency: FiatKeys) => {
+export const useTotalsData = () => {
   const theme = useTheme();
-  const { deposit } = state;
-  // todo: fix this...
+  const { baseCurrency } = useAppStore();
+  const trade = useCurrentTradeContext();
+  const deposit = trade?.selectedTokens?.deposit;
   const currentNetworkStore = useCurrentNetworkStore();
   const totalsData = currentNetworkStore.getNTokenTotalsData(deposit);
 

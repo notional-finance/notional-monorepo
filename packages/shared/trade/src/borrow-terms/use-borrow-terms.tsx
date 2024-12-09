@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import {
-  BaseTradeContext,
+  useCurrentTradeContext,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { formatMaturity } from '@notional-finance/util';
@@ -11,24 +11,18 @@ import { Box } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
-export const useBorrowTerms = (
-  context: BaseTradeContext,
-  priorVaultFactors?: {
-    vaultShare?: TokenDefinition;
-    vaultBorrowRate?: number;
-    leverageRatio?: number;
-  }
-) => {
-  const {
-    state: {
-      debtOptions,
-      collateral,
-      availableDebtTokens,
-      collateralOptions,
-      riskFactorLimit,
-      deposit,
-    },
-  } = context;
+export const useBorrowTerms = (priorVaultFactors?: {
+  vaultShare?: TokenDefinition;
+  vaultBorrowRate?: number;
+  leverageRatio?: number;
+}) => {
+  const trade = useCurrentTradeContext();
+  const { deposit, collateral } = trade?.selectedTokens || {};
+  const { debt: debtOptions, collateral: collateralOptions } =
+    trade?.computedOptions ?? {};
+  const { debt: availableDebtTokens } = trade?.availableTokens ?? {};
+  const _leverageRatio = trade?.leverageRatio;
+
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const currentNetworkStore = useCurrentNetworkStore();
@@ -47,10 +41,9 @@ export const useBorrowTerms = (
       ?.interestRate ||
     nonLeveragedYields.find((y) => y.token.id === collateral?.id)?.apy.totalAPY;
 
-  const leverageRatio =
-    riskFactorLimit?.riskFactor === 'leverageRatio'
-      ? (riskFactorLimit.limit as number)
-      : priorVaultFactors?.leverageRatio;
+  const leverageRatio = _leverageRatio
+    ? _leverageRatio
+    : priorVaultFactors?.leverageRatio;
 
   const formatOptions = useCallback((options: any[]) => {
     const result = [] as any[];

@@ -1,10 +1,6 @@
-import { useContext, useEffect } from 'react';
+import { SideDrawerRouter } from '@notional-finance/trade';
 import {
-  SideDrawerRouter,
-  useLeveragedNTokenPositions,
-} from '@notional-finance/trade';
-import { LiquidityContext } from '../liquidity';
-import {
+  useCurrentTradeContext,
   useQueryParams,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
@@ -19,9 +15,9 @@ import {
 import { useParams } from 'react-router';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { observer } from 'mobx-react-lite';
 
-export const LiquidityLeveragedSideDrawer = () => {
-  const context = useContext(LiquidityContext);
+export const LiquidityLeveragedSideDrawer = observer(() => {
   const queryData = useQueryParams();
   // NOTE: need to use the URL parameter or infinite loop conditions will exist
   const selectedNetwork = useSelectedNetwork();
@@ -29,23 +25,25 @@ export const LiquidityLeveragedSideDrawer = () => {
     selectedDepositToken?: string;
     action?: string;
   }>();
-  const {
-    state: {
-      debt,
-      tradeType,
-      defaultLeverageRatio,
-      availableDebtTokens,
-      deposit,
-      riskFactorLimit,
-    },
-    updateState,
-  } = context;
-  const loaded = deposit && deposit?.symbol === selectedDepositToken;
+  const trade = useCurrentTradeContext();
+  const tradeType = trade?.tradeType;
+  const defaultLeverageRatio = trade?.defaultLeverageRatio;
+  const { debt: availableDebtTokens } = trade?.availableTokens ?? {};
+  const { deposit, debt } = trade?.selectedTokens ?? {};
+  const { currentPosition } = trade?.getLeveragedNTokenPositions() || {};
+  const defaultDebtToken =
+    tradeType === 'LeveragedNToken'
+      ? availableDebtTokens?.find((t) => t.id === queryData.get('borrowOption'))
+      : undefined;
 
-  const { currentPosition } = useLeveragedNTokenPositions(
-    selectedNetwork,
-    selectedDepositToken
-  );
+  const riskFactorLimit = trade?.leverageRatio
+    ? ({
+        riskFactor: 'leverageRatio',
+        limit: trade?.leverageRatio,
+        args: [deposit?.currencyId],
+      } as RiskFactorLimit<'leverageRatio'>)
+    : undefined;
+
   const currentPositionState = {
     collateral: currentPosition?.asset.balance.token,
     debt: currentPosition?.debt.balance.token,
@@ -58,14 +56,6 @@ export const LiquidityLeveragedSideDrawer = () => {
       : undefined,
   };
 
-  useEffect(() => {
-    const borrowOptionId = queryData.get('borrowOption');
-    if (borrowOptionId && tradeType === 'LeveragedNToken') {
-      const debt = availableDebtTokens?.find((t) => t.id === borrowOptionId);
-      updateState({ debt });
-    }
-  }, [availableDebtTokens, queryData, updateState, tradeType]);
-
   const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
     deposit && defaultLeverageRatio
       ? {
@@ -77,7 +67,6 @@ export const LiquidityLeveragedSideDrawer = () => {
 
   return (
     <SideDrawerRouter
-      context={context}
       hasPosition={!!currentPosition}
       routeMatch={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedNetwork}/:path/${selectedDepositToken}`}
       action={action}
@@ -90,7 +79,7 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: CreateOrIncreasePosition,
           requiredState: {
             tradeType: 'LeveragedNToken',
-            debt: loaded ? debt : undefined,
+            debt: debt || defaultDebtToken,
             riskFactorLimit: riskFactorLimit || defaultRiskLimit,
           },
         },
@@ -151,7 +140,7 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: AdjustLeverage,
           requiredState: {
             tradeType: 'LeveragedNTokenAdjustLeverage',
-            depositBalance: loaded ? TokenBalance.zero(deposit) : undefined,
+            depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
             // NOTE: debt and collateral will change based on where the requested
             // leverage ratio sits in relation to the current leverage
             riskFactorLimit: riskFactorLimit
@@ -177,4 +166,4 @@ export const LiquidityLeveragedSideDrawer = () => {
       ]}
     />
   );
-};
+});

@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 export const Deleverage = () => {
   const theme = useTheme();
-  const context = useTradeContext('Deleverage');
+  useTradeContext('Deleverage');
   // This defines which input field is "controlling" the other
   const [primaryInput, setPrimaryInput] = useState<'Debt' | 'Collateral'>(
     'Collateral'
@@ -20,7 +20,7 @@ export const Deleverage = () => {
     debtInputRef,
     collateralInputRef,
     onMaxValue,
-  } = useDeleverageLabels(context);
+  } = useDeleverageLabels();
 
   return (
     <PortfolioSideDrawer>
@@ -40,7 +40,6 @@ export const Deleverage = () => {
         >
           <DeleverageInput
             ref={debtInputRef}
-            context={context}
             inputRef={debtInputRef}
             isPrimaryInput={primaryInput === 'Collateral'}
             setPrimaryInput={setPrimaryInput}
@@ -52,7 +51,6 @@ export const Deleverage = () => {
           />
           <DeleverageInput
             ref={collateralInputRef}
-            context={context}
             inputRef={collateralInputRef}
             isPrimaryInput={primaryInput === 'Debt'}
             setPrimaryInput={setPrimaryInput}

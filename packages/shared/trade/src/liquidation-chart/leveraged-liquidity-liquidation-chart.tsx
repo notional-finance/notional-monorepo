@@ -1,15 +1,10 @@
 import { MultiDisplayChart, AreaChart } from '@notional-finance/mui';
-import { TradeState } from '@notional-finance/notionable';
 import { useLiquidationChart } from './use-liquidation-chart';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { TimeSeriesDataPoint } from '@notional-finance/core-entities';
 
-export const LeveragedLiquidityLiquidationChart = ({
-  state,
-}: {
-  state: TradeState;
-}) => {
+export const LeveragedLiquidityLiquidationChart = () => {
   const theme = useTheme();
   const {
     areaChartData,
@@ -18,7 +13,7 @@ export const LeveragedLiquidityLiquidationChart = ({
     chartToolTipData,
     yAxisDomain,
     showEmptyState,
-  } = useLiquidationChart(state);
+  } = useLiquidationChart();
 
   return (
     <Box marginBottom={theme.spacing(5)}>

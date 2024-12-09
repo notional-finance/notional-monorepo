@@ -1,6 +1,6 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
-  BaseTradeContext,
+  useCurrentTradeContext,
   useFCashMarket,
   usePortfolioRiskProfile,
   useWalletBalanceInputCheck,
@@ -15,11 +15,12 @@ import { MessageDescriptor } from 'react-intl';
 import { tradeErrors } from '../tradeErrors';
 import { TokenBalance } from '@notional-finance/core-entities';
 
-export function useMaxRepay(context: BaseTradeContext) {
-  const {
-    updateState,
-    state: { collateral, maxWithdraw, selectedNetwork },
-  } = context;
+export function useMaxRepay() {
+  const trade = useCurrentTradeContext();
+  const maxWithdraw = trade?.maxWithdraw;
+  const selectedNetwork = trade?.selectedNetwork;
+  const collateral = trade?.selectedTokens?.collateral;
+
   const fCashMarket = useFCashMarket(collateral);
   const profile = usePortfolioRiskProfile(selectedNetwork);
 
@@ -75,14 +76,9 @@ export function useMaxRepay(context: BaseTradeContext) {
     } else if (maxRepayAmount && maxRepay) {
       setCurrencyInput(maxRepayAmount.abs().toExactString(), false);
 
-      updateState({
-        maxWithdraw: true,
-        calculationSuccess: true,
-        depositBalance: maxRepayAmount.neg(),
-        collateralBalance: maxRepay.neg(),
-      });
+      trade?.setMaxWithdraw(maxRepayAmount.neg(), maxRepay.neg(), undefined);
     }
-  }, [maxRepay, updateState, setCurrencyInput, maxRepayAmount, maxBalance]);
+  }, [maxRepay, trade, setCurrencyInput, maxRepayAmount, maxBalance]);
 
   return {
     onMaxValue,

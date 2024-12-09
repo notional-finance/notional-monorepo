@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import {
@@ -9,38 +9,30 @@ import {
   PageLoading,
   useCurrencyInputRef,
 } from '@notional-finance/mui';
-import { VaultActionContext } from '../vault';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
 import {
   useCurrentTradeContext,
   useVaultMaxWithdraw,
-  useVaultPosition,
 } from '@notional-finance/notionable-hooks';
 import { useInputAmount } from '@notional-finance/trade/common';
 import { useVaultActionErrors } from '../hooks';
 
 export const WithdrawVault = () => {
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
-  const context = useContext(VaultActionContext);
   const trade = useCurrentTradeContext();
   const postVaultFactors = trade?.getPostVaultFactors();
-  const {
-    state: {
-      deposit,
-      depositBalance,
-      vaultAddress,
-      calculateError,
-      maxWithdraw,
-      selectedNetwork,
-    },
-    updateState,
-  } = context;
+  const { deposit } = trade?.selectedTokens ?? {};
+  const depositBalance = trade?.depositBalance;
+  const vaultAddress = trade?.vaultAddress;
+  const calculateError = trade?.calculateError;
+  const maxWithdraw = trade?.maxWithdraw;
+  const selectedNetwork = trade?.selectedNetwork;
+
   const [inputString, setInputString] = useState('');
   const { underMinAccountBorrowError } = useVaultActionErrors();
   const primaryBorrowSymbol = deposit?.symbol;
   const isFullRepayment = postVaultFactors?.leverageRatio === null;
-  const profile = useVaultPosition(selectedNetwork, vaultAddress);
   const maxWithdrawValues = useVaultMaxWithdraw(selectedNetwork, vaultAddress);
 
   const { inputAmount } = useInputAmount(
@@ -48,46 +40,24 @@ export const WithdrawVault = () => {
     inputString,
     primaryBorrowSymbol
   );
+
   useEffect(() => {
-    updateState({
-      depositBalance: inputAmount?.neg(),
-      maxWithdraw: false,
-    });
+    trade?.setDepositBalance(inputAmount?.neg());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updateState, inputAmount?.hashKey]);
+  }, [trade, inputAmount?.hashKey]);
 
-  const onMaxValue = useCallback(() => {
-    if (profile && maxWithdrawValues) {
-      const {
-        maxWithdrawUnderlying,
-        netRealizedCollateralBalance,
-        netRealizedDebtBalance,
-        debtFee,
-        collateralFee,
-      } = maxWithdrawValues;
-      setCurrencyInput(maxWithdrawUnderlying.toExactString(), false);
-
-      updateState({
-        inputsSatisfied: true,
-        maxWithdraw: true,
-        calculationSuccess: true,
-        depositBalance: maxWithdrawUnderlying.neg(),
-        calculateError: undefined,
-        collateralBalance: profile.vaultShares.neg(),
-        debtBalance: profile.vaultDebt.neg(),
-        netRealizedCollateralBalance,
-        netRealizedDebtBalance,
-        debtFee,
-        collateralFee,
-      });
-    }
-  }, [profile, setCurrencyInput, updateState, maxWithdrawValues]);
   const maxWithdrawUnderlying = maxWithdrawValues?.maxWithdrawUnderlying;
+  const onMaxValue = useCallback(() => {
+    if (maxWithdrawUnderlying) {
+      setCurrencyInput(maxWithdrawUnderlying?.toExactString(), false);
+      trade?.setVaultMaxWithdraw();
+    }
+  }, [trade, maxWithdrawUnderlying, setCurrencyInput]);
 
   if (!deposit || !primaryBorrowSymbol) return <PageLoading />;
 
   return (
-    <VaultSideDrawer context={context}>
+    <VaultSideDrawer>
       <Box>
         <InputLabel inputLabel={messages['WithdrawVault']['inputLabel']} />
         <CurrencyInput
