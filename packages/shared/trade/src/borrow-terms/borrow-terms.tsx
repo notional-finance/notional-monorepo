@@ -3,8 +3,9 @@ import { useBorrowTerms } from './use-borrow-terms';
 import { Box, Checkbox, styled, useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
-export const BorrowTerms = () => {
+export const BorrowTerms = observer(() => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
   const { debt } = trade?.selectedTokens || {};
@@ -79,7 +80,7 @@ export const BorrowTerms = () => {
       })}
     </div>
   );
-};
+});
 
 const BorrowTermsButton = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'isSelected',
