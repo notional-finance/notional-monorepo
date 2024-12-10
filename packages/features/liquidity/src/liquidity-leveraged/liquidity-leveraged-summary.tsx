@@ -28,7 +28,8 @@ export const LiquidityLeveragedSummary = observer(() => {
       <PerformanceChart
         currentPositionFactors={{
           borrowRate: currentHoldings?.borrowAPY,
-          isPrimeBorrow: currentHoldings?.debt.balance.maturity === undefined,
+          isPrimeBorrow:
+            currentHoldings?.debt.balance.token.maturity === undefined,
           leverageRatio: currentHoldings?.leverageRatio,
         }}
       />

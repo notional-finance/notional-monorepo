@@ -147,7 +147,15 @@ export function usePortfolioLiquidationRisk() {
   const intl = useIntl();
   const { baseCurrency } = useAppStore();
   const theme = useTheme();
-  if (!trade) throw new Error('No trade model');
+  if (!trade) {
+    return {
+      onlyCurrent: false,
+      tooRisky: false,
+      priorAccountNoRisk: true,
+      postAccountNoRisk: true,
+      tableData: [],
+    };
+  }
 
   const {
     onlyCurrent,
