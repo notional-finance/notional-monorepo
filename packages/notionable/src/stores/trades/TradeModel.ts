@@ -980,6 +980,7 @@ export const TradeModel = types
       self.depositBalance = depositBalance;
       self.collateralBalance = collateralBalance;
       self.debtBalance = debtBalance;
+      calculate();
     };
 
     const setVaultMaxWithdraw = () => {

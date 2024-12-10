@@ -91,7 +91,9 @@ const DrawerRoute = ({
   const trade = useCurrentTradeContext();
 
   useEffect(() => {
-    trade?.setRequiredSideDrawerState(requiredState, path);
+    if (trade) {
+      trade.setRequiredSideDrawerState(requiredState, path);
+    }
   }, [requiredState, path, trade]);
 
   return (
