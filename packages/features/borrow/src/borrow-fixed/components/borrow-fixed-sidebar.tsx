@@ -20,10 +20,7 @@ export const BorrowFixedSidebar = observer(() => {
   const trade = useCurrentTradeContext();
   const selectedDepositToken = trade?.selectedDepositToken;
   const selectedNetwork = trade?.selectedNetwork;
-  const cashBalance = usePrimeCashBalance(
-    selectedDepositToken,
-    selectedNetwork
-  );
+  const cashBalance = usePrimeCashBalance(selectedDepositToken);
 
   return (
     <Box>

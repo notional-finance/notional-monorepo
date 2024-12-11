@@ -461,9 +461,16 @@ export const TradeModel = types
 
       // Set selected portfolio token
       if (self.selectedToken) {
-        const selected = model.getTokenByID(self.selectedToken) as Instance<
-          typeof TokenDefinitionModel
-        >;
+        let selected: Instance<typeof TokenDefinitionModel>;
+        try {
+          selected = model.getTokenByID(self.selectedToken) as Instance<
+            typeof TokenDefinitionModel
+          >;
+        } catch (e) {
+          selected = model.getTokenBySymbol(self.selectedToken) as Instance<
+            typeof TokenDefinitionModel
+          >;
+        }
         if (self.tradeType === 'Deposit') {
           self.deposit = model.getTokenBySymbol(self.selectedToken) as Instance<
             typeof TokenDefinitionModel

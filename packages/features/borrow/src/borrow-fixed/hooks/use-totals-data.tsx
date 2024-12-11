@@ -13,6 +13,9 @@ export const useTotalsData = (
 ) => {
   const currentNetworkStore = useCurrentNetworkStore();
   const fCashDebt = currentNetworkStore.getFCashTotalsData(deposit, debt, true);
+  const debtFactor = debt
+    ? currentNetworkStore.getDebtOrCollateralFactor(debt, true)
+    : undefined;
 
   return [
     {
@@ -29,8 +32,8 @@ export const useTotalsData = (
       prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
-      title: '',
-      value: '',
+      title: <FormattedMessage defaultMessage={'Debt Factor'} />,
+      value: debtFactor || '-',
     },
   ];
 };

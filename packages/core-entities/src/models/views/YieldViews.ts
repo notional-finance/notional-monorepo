@@ -315,14 +315,18 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
 
     if (netAmount.unwrapVaultToken().tokenType === 'fCash') {
       const market = getfCashMarket(netAmount.currencyId);
-      const realized = market.calculateTokenTrade(
-        netAmount.unwrapVaultToken(),
+      const { tokensOut, feesPaid } = market.calculateTokenTrade(
+        netAmount.unwrapVaultToken().neg(),
         0
-      ).tokensOut;
+      );
       // We net off the fee for fcash so that we show it as an up-front
       // trading fee rather than part of the implied yield
       apyData.organicAPY =
-        (100 * (market.getImpliedInterestRate(realized, netAmount) || 0)) /
+        (100 *
+          (market.getImpliedInterestRate(
+            tokensOut.add(feesPaid[0]),
+            netAmount
+          ) || 0)) /
         RATE_PRECISION;
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.unwrapVaultToken().tokenType === 'PrimeCash') {
