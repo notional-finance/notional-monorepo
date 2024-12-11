@@ -3,7 +3,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import {
   FeatureLoader,
   Footer,
-  CustomBanner,
+  // CustomBanner,
 } from '@notional-finance/shared-web';
 import {
   Header,
@@ -58,7 +58,7 @@ const AppLayoutRoute = ({
               <MetaTagManager metaTagCategory={slicedPath} />
             )}
             <AppShell>
-              <CustomBanner />
+              {/* <CustomBanner /> */}
               <Header>
                 <WalletSelector />
               </Header>

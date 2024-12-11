@@ -50,6 +50,7 @@ export enum Network {
 }
 
 export const boostEndDate = new Date('2024-12-10T23:59:59Z');
+export const starterBoostDistributionDate = new Date('2025-01-15T23:59:59Z');
 export const boostEndDateString = getDateString(boostEndDate.getTime() / 1000);
 
 export const NetworkId: Record<Network, number> = {

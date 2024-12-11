@@ -1,14 +1,13 @@
 import { TokenBalance } from '@notional-finance/core-entities';
 import {
-  checkStarterBoostToken,
   formatCryptoWithFiat,
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
-import { H4, LinkText } from '@notional-finance/mui';
-import { LaunchIcon, RocketIcon } from '@notional-finance/icons';
+import { H4 } from '@notional-finance/mui';
+import { RocketIcon } from '@notional-finance/icons';
 import {
   useFiatToken,
   useNOTE,
@@ -16,13 +15,12 @@ import {
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
-  useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import {
-  boostEndDate,
+  getDateString,
   Network,
   PORTFOLIO_ACTIONS,
-  RATE_PRECISION,
+  starterBoostDistributionDate,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
 import { useMemo } from 'react';
@@ -34,9 +32,6 @@ export function useDetailedHoldingsTable() {
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const theme = useTheme();
-  const {
-    globalState: { isStarterBoostUser },
-  } = useNotionalContext();
   const pendingTokens = usePendingPnLCalculation(network).flatMap(
     ({ tokens }) => tokens
   );
@@ -116,10 +111,6 @@ export function useDetailedHoldingsTable() {
           const isDebt = b.isNegative();
           const { icon, formattedTitle, titleWithMaturity, title } =
             formatTokenType(b.token, isDebt, true);
-          const isStarterBoost = checkStarterBoostToken(
-            b.underlying.symbol,
-            isStarterBoostUser
-          );
           const marketApy = marketYield?.totalAPY;
           const noteIncentives = marketYield?.noteIncentives?.incentiveAPY;
           const secondaryIncentives =
@@ -151,57 +142,30 @@ export function useDetailedHoldingsTable() {
             },
           ];
 
-          if (isStarterBoost && !isDebt) {
-            const boostValue = s?.accumulatedCostRealized?.mulInRatePrecision(
-              Math.floor((0.05 / 52) * RATE_PRECISION)
-            );
-            const currentDate = new Date();
-
+          // NOTE: Temporary hashKey check for one new user boost user
+          if (
+            b.hashKey ===
+            '0x5ae5b2bb9c4eb5945c56ae69f4d891fd2e498407b18a3b0e3028e4d6e1b35857'
+          ) {
             subRowData.push({
               label: (
                 <FormattedMessage defaultMessage={'STARTER BOOST BONUS'} />
               ),
-              value:
-                currentDate >= boostEndDate ? (
-                  <LinkText
-                    // TODO: ADD DISTRIBUTION LINK
-                    href={''}
-                    sx={{
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                    }}
-                  >
-                    <Box component={'span'}>
-                      <FormattedMessage defaultMessage={'See Distribution'} />
-                    </Box>
-                    <LaunchIcon
-                      sx={{
-                        marginLeft: theme.spacing(0.5),
+              value: (
+                <H4 sx={{ display: 'flex', alignItems: 'center' }}>
+                  <RocketIcon sx={{ marginRight: theme.spacing(0.5) }} />
+                  <Box component={'span'}>
+                    <FormattedMessage
+                      defaultMessage={'Distribution: {endDate}'}
+                      values={{
+                        endDate: getDateString(
+                          starterBoostDistributionDate.getTime() / 1000
+                        ),
                       }}
                     />
-                  </LinkText>
-                ) : (
-                  <H4 sx={{ display: 'flex', alignItems: 'center' }}>
-                    <RocketIcon
-                      sx={{
-                        marginRight: theme.spacing(0.5),
-                        height: theme.spacing(2.5),
-                        width: theme.spacing(2.5),
-                      }}
-                    />
-                    <Box
-                      component={'span'}
-                      sx={{
-                        marginLeft: theme.spacing(0.5),
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {boostValue?.toDisplayStringWithSymbol() || '-'}
-                    </Box>
-                  </H4>
-                ),
+                  </Box>
+                </H4>
+              ),
             });
           }
 
