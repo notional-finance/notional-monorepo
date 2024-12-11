@@ -32,11 +32,12 @@ import { observer } from 'mobx-react-lite';
 
 interface TradeActionSummaryProps {
   stakedNOTEApy?: number;
+  isLeveragedNToken?: boolean;
   children?: ReactNode | ReactNode[];
 }
 
 export const TradeActionSummary = observer(
-  ({ stakedNOTEApy, children }: TradeActionSummaryProps) => {
+  ({ stakedNOTEApy, isLeveragedNToken, children }: TradeActionSummaryProps) => {
     const theme = useTheme();
     const trade = useCurrentTradeContext();
     const tradeType = trade?.tradeType;
@@ -55,7 +56,10 @@ export const TradeActionSummary = observer(
 
     const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
     const headerText =
-      messages?.headerText || defineMessage({ defaultMessage: 'unknown ' });
+      messages?.headerText ||
+      (isLeveragedNToken
+        ? defineMessage({ defaultMessage: 'Manage Leveraged Liquidity' })
+        : defineMessage({ defaultMessage: 'unknown' }));
     const isLeveraged = isLeveragedTrade(tradeType) || isVault;
     const vaultType = useVaultProperties(vaultAddress)?.vaultType;
     const points = useVaultPoints(vaultAddress);

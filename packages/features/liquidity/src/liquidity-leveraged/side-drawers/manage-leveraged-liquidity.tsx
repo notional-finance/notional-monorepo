@@ -30,9 +30,7 @@ export const ManageLeveragedLiquidity = () => {
   )?.apy.totalAPY;
 
   const rollMaturityOptions = (debtOptions || [])
-    .filter(
-      (o) => o.token.currencyId === currentPosition?.asset.balance.currencyId
-    )
+    .filter((o) => o.token.id !== currentPosition?.debt.balance.tokenId)
     .map((o) => {
       const label =
         o.token.tokenType === 'fCash' ? (

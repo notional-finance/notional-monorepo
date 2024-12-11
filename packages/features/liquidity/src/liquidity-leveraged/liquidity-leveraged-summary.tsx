@@ -24,7 +24,7 @@ export const LiquidityLeveragedSummary = observer(() => {
     useLeveragedLiquidityFaq(selectedDepositToken);
 
   return (
-    <TradeActionSummary>
+    <TradeActionSummary isLeveragedNToken>
       <PerformanceChart
         currentPositionFactors={{
           borrowRate: currentHoldings?.borrowAPY,
