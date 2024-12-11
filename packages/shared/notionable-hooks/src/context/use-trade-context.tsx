@@ -32,14 +32,12 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
 
   useEffect(() => {
     // NOTE: this is intended to reset the trade model on every network change
-    if (network) {
-      root.setTradeModel({
-        tradeType,
-        selectedNetwork: network,
-        selectedDepositToken: params.selectedDepositToken,
-        selectedToken: params.selectedToken,
-      });
-    }
+    root.setTradeModel({
+      tradeType,
+      selectedNetwork: network,
+      selectedDepositToken: params.selectedDepositToken,
+      selectedToken: params.selectedToken,
+    });
 
     return () => {
       root.clearTradeModel();

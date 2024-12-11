@@ -923,6 +923,18 @@ export const TradeModel = types
         return;
 
       Object.keys(requiredState).forEach((k) => {
+        if (k === 'debt' && requiredState[k]) {
+          const model = root().getNetworkClient(self.selectedNetwork);
+          self.debt = model.getTokenByID(
+            (requiredState[k] as TokenDefinition).id
+          ) as Instance<typeof TokenDefinitionModel>;
+        } else if (k === 'collateral' && requiredState[k]) {
+          const model = root().getNetworkClient(self.selectedNetwork);
+          self.collateral = model.getTokenByID(
+            (requiredState[k] as TokenDefinition).id
+          ) as Instance<typeof TokenDefinitionModel>;
+        }
+
         self[k] = requiredState[k];
       });
       calculate();
