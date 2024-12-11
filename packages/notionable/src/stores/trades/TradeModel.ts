@@ -26,6 +26,7 @@ import {
   getRoot,
   getType,
   Instance,
+  isAlive,
   types,
 } from 'mobx-state-tree';
 import { NetworkClientModelType, RootStoreInterface } from '../root-store';
@@ -583,6 +584,8 @@ export const TradeModel = types
     };
 
     const calculate = () => {
+      if (!isAlive(self)) return;
+
       const {
         requiredArgs,
         calculationFn,
@@ -767,6 +770,7 @@ export const TradeModel = types
       balance: TokenBalance | undefined,
       setETHInput: (value: string, emitChange: boolean) => void
     ) => {
+      if (!isAlive(self)) return;
       self.secondaryDepositBalance = balance;
       calculateStakingWithOptimalETH(setETHInput);
     };
@@ -776,6 +780,7 @@ export const TradeModel = types
       hasTouchedETH: boolean,
       setETHInput: (value: string, emitChange: boolean) => void
     ) => {
+      if (!isAlive(self)) return;
       self.useOptimalETH =
         (balance === undefined || balance.isZero()) && !hasTouchedETH;
       self.depositBalance = balance;
@@ -787,6 +792,7 @@ export const TradeModel = types
       useOptimalETH: boolean,
       setETHInput: (value: string, emitChange: boolean) => void
     ) => {
+      if (!isAlive(self)) return;
       self.useOptimalETH = useOptimalETH;
       calculateStakingWithOptimalETH(setETHInput);
     };
@@ -795,16 +801,19 @@ export const TradeModel = types
       balance: TokenBalance | undefined,
       maxWithdraw = false
     ) => {
+      if (!isAlive(self)) return;
       self.depositBalance = balance;
       self.maxWithdraw = maxWithdraw;
       calculate();
     };
 
     const setHasInputErrors = (inputErrors: boolean) => {
+      if (!isAlive(self)) return;
       self.inputErrors = inputErrors;
     };
 
     const setConfirm = (confirm: boolean) => {
+      if (!isAlive(self)) return;
       self.confirm = confirm;
     };
 
@@ -867,6 +876,7 @@ export const TradeModel = types
     };
 
     const setCollateralByID = (id: string | undefined) => {
+      if (!isAlive(self)) return;
       self.collateral = id
         ? self.availableCollateralTokens?.find((t) => t.id === id)
         : undefined;
@@ -876,6 +886,7 @@ export const TradeModel = types
     };
 
     const setDebtByID = (id: string | undefined) => {
+      if (!isAlive(self)) return;
       self.debt = id
         ? self.availableDebtTokens?.find((t) => t.id === id)
         : undefined;
@@ -886,6 +897,7 @@ export const TradeModel = types
     };
 
     const setVaultDebtByID = (id: string | undefined) => {
+      if (!isAlive(self)) return;
       self.debt = id
         ? self.availableDebtTokens?.find((t) => t.id === id)
         : undefined;
@@ -901,6 +913,7 @@ export const TradeModel = types
       requiredState: Record<string, unknown>,
       path: string
     ) => {
+      if (!isAlive(self)) return;
       const pathname = window.location.pathname;
       const allStateMatches = Object.keys(requiredState)
         // NOTE: this means that required state cannot clear previously set state
@@ -941,6 +954,7 @@ export const TradeModel = types
     };
 
     const setNTokenAdjustedLeverage = (leverageRatio: number) => {
+      if (!isAlive(self)) return;
       if (!isFinite(leverageRatio)) return;
       const account = root().getNetworkAccount(self.selectedNetwork);
       const groupedHoldings = account?.groupedHoldings;
@@ -987,6 +1001,7 @@ export const TradeModel = types
       collateralBalance: TokenBalance | undefined,
       debtBalance: TokenBalance | undefined
     ) => {
+      if (!isAlive(self)) return;
       self.maxWithdraw = true;
       self.calculationSuccess = true;
       self.depositBalance = depositBalance;
@@ -996,6 +1011,7 @@ export const TradeModel = types
     };
 
     const setVaultMaxWithdraw = () => {
+      if (!isAlive(self)) return;
       if (!self.vaultAddress) return;
       const networkAccount = root().getNetworkAccount(self.selectedNetwork);
       const vaultProfile = networkAccount?.vaultHoldings?.find(
@@ -1019,11 +1035,13 @@ export const TradeModel = types
     };
 
     const setLeverageRatio = (leverageRatio: number) => {
+      if (!isAlive(self)) return;
       self.leverageRatio = leverageRatio;
       calculate();
     };
 
     const setInitialConvertAsset = (initialBalance: TokenBalance) => {
+      if (!isAlive(self)) return;
       if (self.tradeType === 'ConvertAsset') {
         self.debt = initialBalance.token as Instance<
           typeof TokenDefinitionModel
@@ -1042,6 +1060,7 @@ export const TradeModel = types
       balance: TokenBalance | undefined,
       maxWithdraw: boolean
     ) => {
+      if (!isAlive(self)) return;
       self.collateralBalance = balance;
       self.maxWithdraw = maxWithdraw;
       calculate();
@@ -1051,6 +1070,7 @@ export const TradeModel = types
       balance: TokenBalance | undefined,
       maxWithdraw: boolean
     ) => {
+      if (!isAlive(self)) return;
       self.debtBalance = balance;
       self.maxWithdraw = maxWithdraw;
       calculate();
@@ -1060,6 +1080,7 @@ export const TradeModel = types
       debtBalance: TokenBalance | undefined,
       collateralBalance: TokenBalance | undefined
     ) => {
+      if (!isAlive(self)) return;
       self.debtBalance = debtBalance;
       self.collateralBalance = collateralBalance;
       calculate();
