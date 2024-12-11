@@ -1,9 +1,11 @@
-import { useCallback, useContext, useState } from 'react';
-import { NOTEContext } from '..';
+import { useCallback, useState } from 'react';
 import { useTheme } from '@mui/material';
 import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { useNOTE } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useNOTE,
+} from '@notional-finance/notionable-hooks';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -11,11 +13,10 @@ import { observer } from 'mobx-react-lite';
 
 export const Stake = observer(() => {
   const theme = useTheme();
-  const context = useContext(NOTEContext);
-  const setNOTEBalanceForStaking = context.tradeModel?.setNOTEBalanceForStaking;
-  const setETHBalanceForStaking = context.tradeModel?.setETHBalanceForStaking;
-  const setUseOptimalETHForStaking =
-    context.tradeModel?.setUseOptimalETHForStaking;
+  const trade = useCurrentTradeContext();
+  const setNOTEBalanceForStaking = trade?.setNOTEBalanceForStaking;
+  const setETHBalanceForStaking = trade?.setETHBalanceForStaking;
+  const setUseOptimalETHForStaking = trade?.setUseOptimalETHForStaking;
 
   const [hasTouchedETH, setHasTouchedETH] = useState(false);
   const NOTE = useNOTE(Network.mainnet);

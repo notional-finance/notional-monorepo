@@ -3,13 +3,11 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useCallback, useEffect } from 'react';
 import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import {
-  TradeContext,
   useCurrentTradeContext,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 
 interface CollateralSelectProps {
-  context: TradeContext;
   inputLabel: MessageDescriptor;
   errorMsg?: MessageDescriptor;
   tightMarginTop?: boolean;

@@ -1,9 +1,6 @@
 import { SideBarLayout } from '@notional-finance/mui';
 import { TradeType } from '@notional-finance/notionable';
-import {
-  createTradeContext,
-  useTradeContext,
-} from '@notional-finance/notionable-hooks';
+import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import React from 'react';
 import {
@@ -12,8 +9,6 @@ import {
 } from './liquidity-leveraged';
 import { LiquidityVariableSidebar } from './liquidity-variable';
 import LiquidityVariableSummary from './liquidity-variable/liquidity-variable-summary';
-
-export const LiquidityContext = createTradeContext('Liquidity');
 
 const LiquidityView = ({
   tradeType,
@@ -29,15 +24,13 @@ const LiquidityView = ({
   const confirm = context.tradeModel?.confirm;
 
   return (
-    <LiquidityContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
-        <SideBarLayout
-          showTransactionConfirmation={confirm}
-          sideBar={sidebar}
-          mainContent={mainContent}
-        />
-      </FeatureLoader>
-    </LiquidityContext.Provider>
+    <FeatureLoader featureLoaded={isReady}>
+      <SideBarLayout
+        showTransactionConfirmation={confirm}
+        sideBar={sidebar}
+        mainContent={mainContent}
+      />
+    </FeatureLoader>
   );
 };
 

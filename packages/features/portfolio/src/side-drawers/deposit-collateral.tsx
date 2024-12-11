@@ -26,7 +26,6 @@ export const DepositCollateral = observer(() => {
       />
       <CollateralSelect
         tightMarginTop
-        context={context}
         inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabelTwo']}
       />
     </PortfolioSideDrawer>

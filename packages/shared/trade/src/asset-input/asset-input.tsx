@@ -65,7 +65,7 @@ export const AssetInput = React.forwardRef<
     const theme = useTheme();
     const navigate = useNavigate();
     const trade = useCurrentTradeContext();
-    const { calculateError } = trade?.state ?? {};
+    const calculateError = trade?.calculateError;
     const [hasUserTouched, setHasUserTouched] = useState(false);
 
     const {

@@ -1,5 +1,4 @@
 import {
-  BaseTradeState,
   TradeState,
   AllTradeTypes,
   initialBaseTradeState,
@@ -17,10 +16,6 @@ export function createTradeContext(displayName: string) {
     initialBaseTradeState as TradeState
   );
 }
-
-const defaultUpdateState = (_state: Partial<BaseTradeState>) => {
-  return;
-};
 
 const useTradeModel = (tradeType: AllTradeTypes) => {
   const network = useSelectedNetwork();
@@ -55,19 +50,9 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
 
 export function useTradeContext(tradeType: AllTradeTypes) {
   const tradeModel = useTradeModel(tradeType);
-  const state = useObserver(() => {
-    if (tradeModel?.isReady) {
-      return tradeModel.state as unknown as BaseTradeState;
-    } else {
-      return initialBaseTradeState;
-    }
-  });
 
   return {
-    updateState: defaultUpdateState,
-    state,
     tradeModel,
-    actions: tradeModel?.actions,
   };
 }
 
