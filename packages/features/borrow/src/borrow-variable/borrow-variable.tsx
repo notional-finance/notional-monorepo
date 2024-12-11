@@ -13,8 +13,8 @@ import { observer } from 'mobx-react-lite';
 export const BorrowVariableContext = createTradeContext('BorrowVariable');
 export const BorrowVariable = observer(() => {
   const context = useTradeContext('BorrowVariable');
-  const { state } = context;
-  const { isReady, confirm } = state;
+  const isReady = context.tradeModel?.isReady;
+  const confirm = context.tradeModel?.confirm;
 
   return (
     <FeatureLoader featureLoaded={isReady}>

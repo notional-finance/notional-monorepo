@@ -22,10 +22,7 @@ export const BorrowVariableSidebar = observer(() => {
   const selectedNetwork = trade?.selectedNetwork;
   const debtOptions = trade?.debtOptions;
   const { currencyInputRef } = useCurrencyInputRef();
-  const cashBalance = usePrimeCashBalance(
-    selectedDepositToken,
-    selectedNetwork
-  );
+  const cashBalance = usePrimeCashBalance(selectedDepositToken);
   const insufficientLiquidity = debtOptions?.find((_) => !!_)?.error
     ? tradeErrors.insufficientLiquidity
     : undefined;

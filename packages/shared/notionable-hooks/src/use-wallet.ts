@@ -24,19 +24,14 @@ import {
   useWalletStore,
 } from './context/use-root-store';
 
-export function usePrimeCashBalance(
-  selectedToken: string | undefined | null,
-  selectedNetwork: Network | undefined
-) {
-  const model = getNetworkModel(selectedNetwork);
-  const token =
-    selectedToken && selectedNetwork
-      ? model.getTokenBySymbol(selectedToken)
-      : undefined;
-  const primeCash =
-    selectedNetwork && token?.currencyId
-      ? model.getPrimeCash(token.currencyId)
-      : undefined;
+export function usePrimeCashBalance(selectedToken: string | undefined | null) {
+  const model = useCurrentNetworkStore();
+  const token = selectedToken
+    ? model.getTokenBySymbol(selectedToken)
+    : undefined;
+  const primeCash = token?.currencyId
+    ? model.getPrimeCash(token.currencyId)
+    : undefined;
 
   return useMaxAssetBalance(primeCash);
 }

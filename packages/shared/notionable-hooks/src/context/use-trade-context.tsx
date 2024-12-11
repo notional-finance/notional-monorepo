@@ -1,5 +1,4 @@
 import {
-  BaseTradeState,
   TradeState,
   AllTradeTypes,
   initialBaseTradeState,
@@ -18,10 +17,6 @@ export function createTradeContext(displayName: string) {
   );
 }
 
-const defaultUpdateState = (_state: Partial<BaseTradeState>) => {
-  return;
-};
-
 const useTradeModel = (tradeType: AllTradeTypes) => {
   const network = useSelectedNetwork();
   const root = useRootStore();
@@ -32,14 +27,12 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
 
   useEffect(() => {
     // NOTE: this is intended to reset the trade model on every network change
-    if (network) {
-      root.setTradeModel({
-        tradeType,
-        selectedNetwork: network,
-        selectedDepositToken: params.selectedDepositToken,
-        selectedToken: params.selectedToken,
-      });
-    }
+    root.setTradeModel({
+      tradeType,
+      selectedNetwork: network,
+      selectedDepositToken: params.selectedDepositToken,
+      selectedToken: params.selectedToken,
+    });
 
     return () => {
       root.clearTradeModel();
@@ -57,19 +50,9 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
 
 export function useTradeContext(tradeType: AllTradeTypes) {
   const tradeModel = useTradeModel(tradeType);
-  const state = useObserver(() => {
-    if (tradeModel?.isReady) {
-      return tradeModel.state as unknown as BaseTradeState;
-    } else {
-      return initialBaseTradeState;
-    }
-  });
 
   return {
-    updateState: defaultUpdateState,
-    state,
     tradeModel,
-    actions: tradeModel?.actions,
   };
 }
 

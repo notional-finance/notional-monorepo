@@ -2,6 +2,8 @@ import { useTheme } from '@mui/material';
 import { Drawer, SideBarSubHeader } from '@notional-finance/mui';
 import { AllTradeTypes, BaseTradeState } from '@notional-finance/notionable';
 import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
+import { isAlive } from 'mobx-state-tree';
 import { useEffect } from 'react';
 import { defineMessage } from 'react-intl';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -76,36 +78,38 @@ export const SideDrawerRouter = ({
   );
 };
 
-const DrawerRoute = ({
-  Component,
-  isRootDrawer,
-  onBack,
-  path,
-  requiredState,
-}: DrawerRouteProps & {
-  isRootDrawer?: boolean;
-  path: string;
-}) => {
-  const navigate = useNavigate();
-  const theme = useTheme();
-  const trade = useCurrentTradeContext();
+const DrawerRoute = observer(
+  ({
+    Component,
+    isRootDrawer,
+    onBack,
+    path,
+    requiredState,
+  }: DrawerRouteProps & {
+    isRootDrawer?: boolean;
+    path: string;
+  }) => {
+    const navigate = useNavigate();
+    const theme = useTheme();
+    const trade = useCurrentTradeContext();
 
-  useEffect(() => {
-    if (trade) {
-      trade.setRequiredSideDrawerState(requiredState, path);
-    }
-  }, [requiredState, path, trade]);
+    useEffect(() => {
+      if (trade && isAlive(trade)) {
+        trade.setRequiredSideDrawerState(requiredState, path);
+      }
+    }, [requiredState, path, trade]);
 
-  return (
-    <div>
-      {!isRootDrawer && (
-        <SideBarSubHeader
-          paddingTop={theme.spacing(5)}
-          callback={onBack || (() => navigate(-1))}
-          titleText={defineMessage({ defaultMessage: 'Back' })}
-        />
-      )}
-      <Component />
-    </div>
-  );
-};
+    return (
+      <div>
+        {!isRootDrawer && (
+          <SideBarSubHeader
+            paddingTop={theme.spacing(5)}
+            callback={onBack || (() => navigate(-1))}
+            titleText={defineMessage({ defaultMessage: 'Back' })}
+          />
+        )}
+        <Component />
+      </div>
+    );
+  }
+);

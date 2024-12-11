@@ -6,9 +6,8 @@ import { FeatureLoader } from '@notional-finance/shared-web';
 import { observer } from 'mobx-react-lite';
 export const BorrowFixed = observer(() => {
   const context = useTradeContext('BorrowFixed');
-  const {
-    state: { isReady, confirm },
-  } = context;
+  const isReady = context.tradeModel?.isReady;
+  const confirm = context.tradeModel?.confirm;
 
   return (
     <FeatureLoader featureLoaded={isReady}>

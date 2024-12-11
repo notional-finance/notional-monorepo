@@ -23,7 +23,6 @@ const DEBUG = process.env['NODE_ENV'] === 'development';
 export interface ObservableContext<T> {
   updateState: (args: Partial<T>) => void;
   state: T;
-  actions?: Instance<typeof TradeModel>['actions'];
   tradeModel?: Instance<typeof TradeModel>;
 }
 

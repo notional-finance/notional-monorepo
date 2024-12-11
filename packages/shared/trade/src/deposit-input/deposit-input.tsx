@@ -78,8 +78,8 @@ export const DepositInput = React.forwardRef<
     const tradeType = trade?.tradeType;
     const selectedNetwork = trade?.selectedNetwork;
     const calculateError = trade?.calculateError;
-    const setDepositBalance = trade?.actions?.setDepositBalance;
-    const setHasInputErrors = trade?.actions?.setHasInputErrors;
+    const setDepositBalance = trade?.setDepositBalance;
+    const setHasInputErrors = trade?.setHasInputErrors;
 
     const {
       inputAmount,

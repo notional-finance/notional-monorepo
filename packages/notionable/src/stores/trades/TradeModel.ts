@@ -26,6 +26,7 @@ import {
   getRoot,
   getType,
   Instance,
+  isAlive,
   types,
 } from 'mobx-state-tree';
 import { NetworkClientModelType, RootStoreInterface } from '../root-store';
@@ -460,9 +461,16 @@ export const TradeModel = types
 
       // Set selected portfolio token
       if (self.selectedToken) {
-        const selected = model.getTokenByID(self.selectedToken) as Instance<
-          typeof TokenDefinitionModel
-        >;
+        let selected: Instance<typeof TokenDefinitionModel>;
+        try {
+          selected = model.getTokenByID(self.selectedToken) as Instance<
+            typeof TokenDefinitionModel
+          >;
+        } catch (e) {
+          selected = model.getTokenBySymbol(self.selectedToken) as Instance<
+            typeof TokenDefinitionModel
+          >;
+        }
         if (self.tradeType === 'Deposit') {
           self.deposit = model.getTokenBySymbol(self.selectedToken) as Instance<
             typeof TokenDefinitionModel
@@ -583,6 +591,8 @@ export const TradeModel = types
     };
 
     const calculate = () => {
+      if (!isAlive(self)) return;
+
       const {
         requiredArgs,
         calculationFn,
@@ -767,6 +777,7 @@ export const TradeModel = types
       balance: TokenBalance | undefined,
       setETHInput: (value: string, emitChange: boolean) => void
     ) => {
+      if (!isAlive(self)) return;
       self.secondaryDepositBalance = balance;
       calculateStakingWithOptimalETH(setETHInput);
     };
@@ -776,6 +787,7 @@ export const TradeModel = types
       hasTouchedETH: boolean,
       setETHInput: (value: string, emitChange: boolean) => void
     ) => {
+      if (!isAlive(self)) return;
       self.useOptimalETH =
         (balance === undefined || balance.isZero()) && !hasTouchedETH;
       self.depositBalance = balance;
@@ -787,6 +799,7 @@ export const TradeModel = types
       useOptimalETH: boolean,
       setETHInput: (value: string, emitChange: boolean) => void
     ) => {
+      if (!isAlive(self)) return;
       self.useOptimalETH = useOptimalETH;
       calculateStakingWithOptimalETH(setETHInput);
     };
@@ -795,16 +808,19 @@ export const TradeModel = types
       balance: TokenBalance | undefined,
       maxWithdraw = false
     ) => {
+      if (!isAlive(self)) return;
       self.depositBalance = balance;
       self.maxWithdraw = maxWithdraw;
       calculate();
     };
 
     const setHasInputErrors = (inputErrors: boolean) => {
+      if (!isAlive(self)) return;
       self.inputErrors = inputErrors;
     };
 
     const setConfirm = (confirm: boolean) => {
+      if (!isAlive(self)) return;
       self.confirm = confirm;
     };
 
@@ -867,6 +883,7 @@ export const TradeModel = types
     };
 
     const setCollateralByID = (id: string | undefined) => {
+      if (!isAlive(self)) return;
       self.collateral = id
         ? self.availableCollateralTokens?.find((t) => t.id === id)
         : undefined;
@@ -876,6 +893,7 @@ export const TradeModel = types
     };
 
     const setDebtByID = (id: string | undefined) => {
+      if (!isAlive(self)) return;
       self.debt = id
         ? self.availableDebtTokens?.find((t) => t.id === id)
         : undefined;
@@ -886,6 +904,7 @@ export const TradeModel = types
     };
 
     const setVaultDebtByID = (id: string | undefined) => {
+      if (!isAlive(self)) return;
       self.debt = id
         ? self.availableDebtTokens?.find((t) => t.id === id)
         : undefined;
@@ -901,6 +920,7 @@ export const TradeModel = types
       requiredState: Record<string, unknown>,
       path: string
     ) => {
+      if (!isAlive(self)) return;
       const pathname = window.location.pathname;
       const allStateMatches = Object.keys(requiredState)
         // NOTE: this means that required state cannot clear previously set state
@@ -923,12 +943,25 @@ export const TradeModel = types
         return;
 
       Object.keys(requiredState).forEach((k) => {
+        if (k === 'debt' && requiredState[k]) {
+          const model = root().getNetworkClient(self.selectedNetwork);
+          self.debt = model.getTokenByID(
+            (requiredState[k] as TokenDefinition).id
+          ) as Instance<typeof TokenDefinitionModel>;
+        } else if (k === 'collateral' && requiredState[k]) {
+          const model = root().getNetworkClient(self.selectedNetwork);
+          self.collateral = model.getTokenByID(
+            (requiredState[k] as TokenDefinition).id
+          ) as Instance<typeof TokenDefinitionModel>;
+        }
+
         self[k] = requiredState[k];
       });
       calculate();
     };
 
     const setNTokenAdjustedLeverage = (leverageRatio: number) => {
+      if (!isAlive(self)) return;
       if (!isFinite(leverageRatio)) return;
       const account = root().getNetworkAccount(self.selectedNetwork);
       const groupedHoldings = account?.groupedHoldings;
@@ -975,6 +1008,7 @@ export const TradeModel = types
       collateralBalance: TokenBalance | undefined,
       debtBalance: TokenBalance | undefined
     ) => {
+      if (!isAlive(self)) return;
       self.maxWithdraw = true;
       self.calculationSuccess = true;
       self.depositBalance = depositBalance;
@@ -984,6 +1018,7 @@ export const TradeModel = types
     };
 
     const setVaultMaxWithdraw = () => {
+      if (!isAlive(self)) return;
       if (!self.vaultAddress) return;
       const networkAccount = root().getNetworkAccount(self.selectedNetwork);
       const vaultProfile = networkAccount?.vaultHoldings?.find(
@@ -1007,11 +1042,13 @@ export const TradeModel = types
     };
 
     const setLeverageRatio = (leverageRatio: number) => {
+      if (!isAlive(self)) return;
       self.leverageRatio = leverageRatio;
       calculate();
     };
 
     const setInitialConvertAsset = (initialBalance: TokenBalance) => {
+      if (!isAlive(self)) return;
       if (self.tradeType === 'ConvertAsset') {
         self.debt = initialBalance.token as Instance<
           typeof TokenDefinitionModel
@@ -1030,6 +1067,7 @@ export const TradeModel = types
       balance: TokenBalance | undefined,
       maxWithdraw: boolean
     ) => {
+      if (!isAlive(self)) return;
       self.collateralBalance = balance;
       self.maxWithdraw = maxWithdraw;
       calculate();
@@ -1039,6 +1077,7 @@ export const TradeModel = types
       balance: TokenBalance | undefined,
       maxWithdraw: boolean
     ) => {
+      if (!isAlive(self)) return;
       self.debtBalance = balance;
       self.maxWithdraw = maxWithdraw;
       calculate();
@@ -1048,6 +1087,7 @@ export const TradeModel = types
       debtBalance: TokenBalance | undefined,
       collateralBalance: TokenBalance | undefined
     ) => {
+      if (!isAlive(self)) return;
       self.debtBalance = debtBalance;
       self.collateralBalance = collateralBalance;
       calculate();
@@ -1557,61 +1597,67 @@ export const TradeModel = types
         collateral: self.collateral as TokenDefinition | undefined,
       });
 
-      if (self.vaultAddress) {
-        const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
-        const totalAPY = postVaultRisk?.totalAPY || priorVaultRisk?.totalAPY;
-        const leverageRatio =
-          postVaultRisk?.leverageRatio() || priorVaultRisk?.leverageRatio();
-        const assetAPY =
-          postVaultRisk?.strategyAPY || priorVaultRisk?.strategyAPY;
-        const debtAPY = postVaultRisk?.borrowAPY || priorVaultRisk?.borrowAPY;
-        const vaultShareId =
-          self.collateral?.id || priorVaultRisk?.vaultShares?.tokenId;
-        const apy = vaultShareId ? model.getSpotAPY(vaultShareId) : undefined;
-        const apySpread =
-          assetAPY !== undefined && debtAPY !== undefined
-            ? assetAPY - debtAPY
-            : undefined;
+      try {
+        if (self.vaultAddress) {
+          const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
+          const totalAPY = postVaultRisk?.totalAPY || priorVaultRisk?.totalAPY;
+          const leverageRatio =
+            postVaultRisk?.leverageRatio() || priorVaultRisk?.leverageRatio();
+          const assetAPY =
+            postVaultRisk?.strategyAPY || priorVaultRisk?.strategyAPY;
+          const debtAPY = postVaultRisk?.borrowAPY || priorVaultRisk?.borrowAPY;
+          const vaultShareId =
+            self.collateral?.id || priorVaultRisk?.vaultShares?.tokenId;
+          const apy = vaultShareId ? model.getSpotAPY(vaultShareId) : undefined;
+          const apySpread =
+            assetAPY !== undefined && debtAPY !== undefined
+              ? assetAPY - debtAPY
+              : undefined;
 
-        return {
-          totalAPY,
-          leverageRatio,
-          debtAPY,
-          assetAPY,
-          apySpread,
-          organicAPY: leveragedYield(apy?.organicAPY, debtAPY, leverageRatio),
-          incentiveAPY: leveragedYield(
-            apy?.incentiveAPY,
+          return {
+            totalAPY,
+            leverageRatio,
             debtAPY,
-            leverageRatio
-          ),
-        } as APYData;
-      } else if (isLeveragedTrade(self.tradeType) || isSwapped) {
-        if (self.collateral && self.debt && self.leverageRatio) {
-          // If all inputs are available then we can calculate the leveraged APY
-          const collateralBalance =
-            self.collateralBalance ||
-            TokenBalance.zero(self.collateral as TokenDefinition);
-          const debtBalance =
-            self.debtBalance || TokenBalance.zero(self.debt as TokenDefinition);
-          return model.getLeveragedAPY(
-            isSwapped ? debtBalance : collateralBalance,
-            isSwapped ? collateralBalance : debtBalance,
-            self.leverageRatio
-          );
+            assetAPY,
+            apySpread,
+            organicAPY: leveragedYield(apy?.organicAPY, debtAPY, leverageRatio),
+            incentiveAPY: leveragedYield(
+              apy?.incentiveAPY,
+              debtAPY,
+              leverageRatio
+            ),
+          } as APYData;
+        } else if (isLeveragedTrade(self.tradeType) || isSwapped) {
+          if (self.collateral && self.debt && self.leverageRatio) {
+            // If all inputs are available then we can calculate the leveraged APY
+            const collateralBalance =
+              self.collateralBalance ||
+              TokenBalance.zero(self.collateral as TokenDefinition);
+            const debtBalance =
+              self.debtBalance ||
+              TokenBalance.zero(self.debt as TokenDefinition);
+            return model.getLeveragedAPY(
+              isSwapped ? debtBalance : collateralBalance,
+              isSwapped ? collateralBalance : debtBalance,
+              self.leverageRatio
+            );
+          } else {
+            // The collateral and debt should always be defined for leveraged trades
+            return undefined;
+          }
+        } else if (self.collateralBalance) {
+          return model.getSimulatedAPY(self.collateralBalance);
+        } else if (self.debtBalance) {
+          return model.getSimulatedAPY(self.debtBalance);
+        } else if (self.collateral) {
+          return model.getSpotAPY(self.collateral.id);
+        } else if (self.debt) {
+          return model.getSpotAPY(self.debt.id);
         } else {
-          // The collateral and debt should always be defined for leveraged trades
           return undefined;
         }
-      } else if (self.collateralBalance) {
-        return model.getSimulatedAPY(self.collateralBalance);
-      } else if (self.debtBalance) {
-        return model.getSimulatedAPY(self.debtBalance);
-      } else if (self.collateral) {
-        return model.getSpotAPY(self.collateral.id);
-      } else if (self.debt) {
-        return model.getSpotAPY(self.debt.id);
-      } else {
+      } catch (e) {
+        console.error(e);
         return undefined;
       }
     };
@@ -1649,20 +1695,6 @@ export const TradeModel = types
     };
 
     return {
-      get actions() {
-        return {
-          setDepositBalance: self.setDepositBalance,
-          setHasInputErrors: self.setHasInputErrors,
-          setConfirm: self.setConfirm,
-          buildTransaction: self.buildTransaction,
-        };
-      },
-      get state() {
-        // NOTE: this is slow....
-        return {
-          ...self,
-        };
-      },
       get selectedTokens() {
         return {
           deposit: self.deposit as TokenDefinition,
