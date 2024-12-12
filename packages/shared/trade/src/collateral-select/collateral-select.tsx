@@ -75,7 +75,7 @@ export const CollateralSelect = ({
   const onSelect = useCallback(
     (id: string | null) => {
       const c = options?.find((t) => t.token.id === id);
-      trade?.setCollateralByID(c?.token.id ?? undefined);
+      trade?.setCollateralByID(c?.token.id ?? undefined, true);
     },
     [trade, options]
   );
@@ -88,14 +88,14 @@ export const CollateralSelect = ({
       deposit &&
       deposit.currencyId === options[0].token.currencyId
     ) {
-      trade?.setCollateralByID(options[0].token.id ?? undefined);
+      trade?.setCollateralByID(options[0].token.id ?? undefined, true);
     }
   }, [options, collateral, trade, deposit]);
 
   useEffect(() => {
     // Clears previously selected collateral on route change
     if (deposit?.currencyId !== collateral?.currencyId) {
-      trade?.setCollateralByID(undefined);
+      trade?.setCollateralByID(undefined, true);
     }
   }, [deposit, collateral, trade]);
 

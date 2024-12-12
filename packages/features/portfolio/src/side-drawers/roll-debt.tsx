@@ -1,7 +1,10 @@
 import { Box, styled } from '@mui/material';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { DrawerTransition, useCurrencyInputRef } from '@notional-finance/mui';
-import { useCurrentTradeContext, useTradeContext } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useTradeContext,
+} from '@notional-finance/notionable-hooks';
 import { AssetInput } from '@notional-finance/trade';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
@@ -20,7 +23,7 @@ const ConvertDebt = observer(() => {
 
   useEffect(() => {
     if (!debt && params?.selectedCollateralToken) {
-      trade?.setDebtByID(params?.selectedCollateralToken);
+      trade?.setDebtByID(params?.selectedCollateralToken, false);
     }
   }, [trade, debt, params?.selectedCollateralToken]);
 

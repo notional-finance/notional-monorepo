@@ -39,12 +39,12 @@ export const useMaturitySelect = (category: 'Collateral' | 'Debt') => {
   const onSelect = useCallback(
     (selectedId: string | undefined) => {
       if (category === 'Collateral') {
-        tradeContext?.setCollateralByID(selectedId);
+        tradeContext?.setCollateralByID(selectedId, true);
       } else if (isVault) {
         // Selects the matching vault collateral asset when the debt asset is selected
         tradeContext?.setVaultDebtByID(selectedId);
       } else {
-        tradeContext?.setDebtByID(selectedId);
+        tradeContext?.setDebtByID(selectedId, true);
       }
     },
     [category, isVault, tradeContext]

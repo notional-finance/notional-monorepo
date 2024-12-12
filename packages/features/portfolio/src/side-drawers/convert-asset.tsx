@@ -22,17 +22,17 @@ const ConvertCollateral = observer(() => {
   const { collateral } = trade?.selectedTokens ?? {};
 
   useEffect(() => {
-    if (!collateral && params?.selectedCollateralToken) {
-      trade?.setCollateralByID(params?.selectedCollateralToken);
+    if (params?.selectedCollateralToken) {
+      trade?.setCollateralByID(params?.selectedCollateralToken, false);
     }
-  }, [trade, collateral, params?.selectedCollateralToken]);
+  }, [trade, params?.selectedCollateralToken]);
 
   const onBalanceChange = (
     inputAmount: TokenBalance | undefined,
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
-    trade?.setCollateralBalance(
+    trade?.setDebtBalance(
       inputAmount,
       (maxBalance && inputAmount?.neg().eq(maxBalance)) ?? false
     );
