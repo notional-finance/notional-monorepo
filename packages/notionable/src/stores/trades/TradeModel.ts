@@ -485,10 +485,7 @@ export const TradeModel = types
                   typeof TokenDefinitionModel
                 >)
               : selected;
-        } else if (
-          self.tradeType === 'Withdraw' ||
-          self.tradeType === 'RollDebt'
-        ) {
+        } else if (self.tradeType === 'Withdraw') {
           self.debt =
             selected.tokenType === 'PrimeCash'
               ? (model.getPrimeDebt(selected.currencyId) as Instance<
@@ -509,7 +506,17 @@ export const TradeModel = types
                   typeof TokenDefinitionModel
                 >)
               : selected;
-          self.debtBalance = debtBalance?.toPrimeDebt();
+          self.debtBalance = debtBalance?.toPrimeDebt().neg();
+        } else if (self.tradeType === 'RollDebt') {
+          const account = root().getNetworkAccount(self.selectedNetwork);
+          const priorBalances = account?.portfolioRiskProfile?.balances;
+          const collateralBalance = priorBalances?.find(
+            (t) => t.tokenId === self.selectedToken
+          );
+          self.collateral = collateralBalance?.token as Instance<
+            typeof TokenDefinitionModel
+          >;
+          self.collateralBalance = collateralBalance;
         }
       }
 

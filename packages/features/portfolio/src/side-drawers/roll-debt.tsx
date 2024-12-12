@@ -1,7 +1,7 @@
 import { Box, styled } from '@mui/material';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { DrawerTransition, useCurrencyInputRef } from '@notional-finance/mui';
-import { useTradeContext } from '@notional-finance/notionable-hooks';
+import { useCurrentTradeContext, useTradeContext } from '@notional-finance/notionable-hooks';
 import { AssetInput } from '@notional-finance/trade';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
@@ -9,36 +9,27 @@ import { SelectConvertAsset } from './components/select-convert-asset';
 import { messages } from './messages';
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
-import { useConvertOptions } from './hooks/use-convert-options';
 import { PortfolioParams } from '../portfolio-feature-shell';
 import { observer } from 'mobx-react-lite';
 
 const ConvertDebt = observer(() => {
   const params = useParams<PortfolioParams>();
-  const context = useTradeContext('RollDebt');
+  const trade = useCurrentTradeContext();
   const { currencyInputRef } = useCurrencyInputRef();
-  const { debt, collateral } = context?.tradeModel?.selectedTokens ?? {};
-  const { debt: debtOptions } = context.tradeModel?.computedOptions ?? {};
-  const { initialConvertFromBalance: balance } = useConvertOptions();
-
-  const selectedDebt = debtOptions?.find(
-    ({ token }) => token.id === params?.selectedCollateralToken
-  );
+  const { debt } = trade?.selectedTokens ?? {};
 
   useEffect(() => {
-    if (!collateral && balance) {
-      context?.tradeModel?.setInitialConvertAsset(balance);
-    } else if (!debt && selectedDebt) {
-      context?.tradeModel?.setDebtByID(selectedDebt.token.id);
+    if (!debt && params?.selectedCollateralToken) {
+      trade?.setDebtByID(params?.selectedCollateralToken);
     }
-  }, [debt, balance, context, collateral, selectedDebt]);
+  }, [trade, debt, params?.selectedCollateralToken]);
 
   const onBalanceChange = (
     inputAmount: TokenBalance | undefined,
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
-    context?.tradeModel?.setCollateralBalance(
+    trade?.setCollateralBalance(
       inputAmount,
       (maxBalance && inputAmount?.eq(maxBalance)) ?? false
     );
@@ -65,16 +56,8 @@ const ConvertDebt = observer(() => {
 });
 
 export const RollDebt = observer(() => {
-  const context = useTradeContext('RollDebt');
+  useTradeContext('RollDebt');
   const { action } = useParams<PortfolioParams>();
-  const { collateral } = context?.tradeModel?.selectedTokens ?? {};
-  const { initialConvertFromBalance: balance } = useConvertOptions();
-
-  useEffect(() => {
-    if (!collateral && balance) {
-      context?.tradeModel?.setInitialConvertAsset(balance);
-    }
-  }, [collateral, balance, context]);
 
   return (
     <Container>

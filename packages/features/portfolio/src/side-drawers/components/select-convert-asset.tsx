@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { Box, useTheme } from '@mui/material';
 import {
   LargeInputTextEmphasized,
@@ -15,8 +15,8 @@ import { messages } from '../messages';
 import {
   usePrimeCash,
   usePrimeDebt,
-  useCurrentNetworkStore,
   useCurrentTradeContext,
+  usePortfolioHoldings,
 } from '@notional-finance/notionable-hooks';
 import {
   formatNumberAsPercent,
@@ -24,23 +24,29 @@ import {
 } from '@notional-finance/helpers';
 import { PORTFOLIO_ACTIONS, formatMaturity } from '@notional-finance/util';
 import { TokenOption } from '@notional-finance/notionable';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { TransactionHeadings } from '@notional-finance/trade';
-import { useConvertOptions } from '../hooks/use-convert-options';
 
 export const SelectConvertAsset = () => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
+  const holdings = usePortfolioHoldings(trade?.selectedNetwork);
+  const { selectedToken: selectedParamToken } = useParams<{
+    selectedToken: string;
+  }>();
+  const holding = holdings?.find(
+    (h) => h.balance.tokenId === selectedParamToken
+  );
+
   const { debt, collateral } = trade?.selectedTokens ?? {};
   const debtBalance = trade?.debtBalance;
   const collateralBalance = trade?.collateralBalance;
   const tradeType = trade?.tradeType;
 
-  const navigate = useNavigate();
+  const { debt: debtOptions, collateral: collateralOptions } =
+    trade?.computedOptions ?? {};
+
   const { pathname } = useLocation();
-  const currentNetworkStore = useCurrentNetworkStore();
-  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
-  const { options, initialConvertFromBalance: balance } = useConvertOptions();
   let convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;
   const pCash = usePrimeCash(convertFromToken?.currencyId);
   const pDebt = usePrimeDebt(convertFromToken?.currencyId);
@@ -56,29 +62,9 @@ export const SelectConvertAsset = () => {
       convertFromToken
     );
 
-  const marketApy = nonLeveragedYields.find(
-    (y) => y.token.id === convertFromToken?.id
-  )?.apy.totalAPY;
-  const { selectedToken: selectedParamToken } = useParams<{
-    selectedToken: string;
-  }>();
-
-  // Set the initial balance to the selected token
-  useEffect(() => {
-    if (
-      selectedParamToken &&
-      balance &&
-      (convertFromToken === undefined || convertFromBalance === undefined)
-    ) {
-      trade?.setInitialConvertAsset(balance);
-    }
-  }, [
-    convertFromToken,
-    convertFromBalance,
-    selectedParamToken,
-    balance,
-    trade,
-  ]);
+  const options = (
+    tradeType === 'ConvertAsset' ? collateralOptions : debtOptions
+  )?.filter((o) => o.token.id !== convertFromToken?.id);
 
   let heading: MessageDescriptor;
   let fixedHeading: MessageDescriptor;
@@ -96,15 +82,6 @@ export const SelectConvertAsset = () => {
 
   const createTokenOption = useCallback(
     (o: TokenOption) => {
-      const onSelect = () => {
-        if (tradeType === 'ConvertAsset') {
-          navigate(`${pathname.replace('manage', 'convertTo')}/${o.token.id}`);
-          trade?.setCollateralByID(o.token.id);
-        } else {
-          navigate(`${pathname.replace('manage', 'convertTo')}/${o.token.id}`);
-          trade?.setDebtByID(o.token.id);
-        }
-      };
       let text: string;
       if (o.token.tokenType === 'fCash') {
         text = formatMaturity(o.token.maturity || 0);
@@ -120,7 +97,7 @@ export const SelectConvertAsset = () => {
       return (
         <SideDrawerButton
           key={o.token.id}
-          onClick={onSelect}
+          to={`${pathname.replace('manage', 'convertTo')}/${o.token.id}`}
           sx={{
             cursor: 'pointer',
             height: theme.spacing(8),
@@ -135,7 +112,7 @@ export const SelectConvertAsset = () => {
         </SideDrawerButton>
       );
     },
-    [trade, tradeType, theme, navigate, pathname]
+    [theme, pathname]
   );
 
   const fixedOptions =
@@ -195,7 +172,9 @@ export const SelectConvertAsset = () => {
           },
           {
             detail: <FormattedMessage defaultMessage={'Market APY'} />,
-            value: `${formatNumberAsPercent(marketApy || 0)} APY`,
+            value: `${formatNumberAsPercent(
+              holding?.marketYield?.totalAPY || 0
+            )} APY`,
           },
         ]}
       />
