@@ -10,6 +10,7 @@ import {
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
 interface PortfolioHoldingSelectProps {
   inputLabel: MessageDescriptor;
@@ -18,54 +19,52 @@ interface PortfolioHoldingSelectProps {
   tightMarginTop?: boolean;
 }
 
-export const PortfolioHoldingSelect = ({
-  inputLabel,
-  tightMarginTop,
-  isWithdraw,
-}: PortfolioHoldingSelectProps) => {
-  const { baseCurrency } = useAppStore();
-  const theme = useTheme();
-  const trade = useCurrentTradeContext();
-  const { collateral, debt, deposit } = trade?.selectedTokens ?? {};
-  const selectedToken = isWithdraw ? debt : collateral;
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const { selectedToken: _paramToken } = useParams<{
-    selectedToken: string;
-  }>();
-  const account = useCurrentNetworkAccount();
-  const options = isWithdraw
-    ? account?.getWithdrawAmounts()
-    : account?.getRepayAmounts(baseCurrency);
+export const PortfolioHoldingSelect = observer(
+  ({ inputLabel, tightMarginTop, isWithdraw }: PortfolioHoldingSelectProps) => {
+    const { baseCurrency } = useAppStore();
+    const theme = useTheme();
+    const trade = useCurrentTradeContext();
+    const { collateral, debt, deposit } = trade?.selectedTokens ?? {};
+    const selectedToken = isWithdraw ? debt : collateral;
+    const { pathname } = useLocation();
+    const navigate = useNavigate();
+    const { selectedToken: _paramToken } = useParams<{
+      selectedToken: string;
+    }>();
+    const account = useCurrentNetworkAccount();
+    const options = isWithdraw
+      ? account?.getWithdrawAmounts()
+      : account?.getRepayAmounts(baseCurrency);
 
-  const primeDebt = usePrimeDebt(deposit?.currencyId);
-  const primeCash = usePrimeCash(deposit?.currencyId);
+    const primeDebt = usePrimeDebt(deposit?.currencyId);
+    const primeCash = usePrimeCash(deposit?.currencyId);
 
-  // NOTE: need to flip prime cash and prime debt for the select box
-  const selectedTokenId =
-    !isWithdraw && selectedToken?.tokenType === 'PrimeCash'
-      ? primeDebt?.id
-      : isWithdraw && selectedToken?.tokenType === 'PrimeDebt'
-      ? primeCash?.id
-      : selectedToken?.id;
+    // NOTE: need to flip prime cash and prime debt for the select box
+    const selectedTokenId =
+      !isWithdraw && selectedToken?.tokenType === 'PrimeCash'
+        ? primeDebt?.id
+        : isWithdraw && selectedToken?.tokenType === 'PrimeDebt'
+        ? primeCash?.id
+        : selectedToken?.id;
 
-  const onSelect = useCallback(
-    (id: string | null) => {
-      const newPath = `${pathname.split('/').slice(0, -1).join('/')}/${id}`;
-      navigate(newPath);
-    },
-    [navigate, pathname]
-  );
+    const onSelect = useCallback(
+      (id: string | null) => {
+        const newPath = `${pathname.split('/').slice(0, -1).join('/')}/${id}`;
+        navigate(newPath);
+      },
+      [navigate, pathname]
+    );
 
-  return (
-    <Box sx={{ marginBottom: theme.spacing(6) }}>
-      <AssetSelectDropdown
-        tightMarginTop={tightMarginTop}
-        selectedTokenId={selectedTokenId}
-        inputLabel={inputLabel}
-        onSelect={onSelect}
-        options={options}
-      />
-    </Box>
-  );
-};
+    return (
+      <Box sx={{ marginBottom: theme.spacing(6) }}>
+        <AssetSelectDropdown
+          tightMarginTop={tightMarginTop}
+          selectedTokenId={selectedTokenId}
+          inputLabel={inputLabel}
+          onSelect={onSelect}
+          options={options}
+        />
+      </Box>
+    );
+  }
+);

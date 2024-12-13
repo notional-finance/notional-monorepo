@@ -252,7 +252,7 @@ const _AccountPortfolioModel = types
     };
 
     const getRepayAmounts = (baseCurrency: FiatKeys) => {
-      const balances = self.balances.filter(
+      const balances = getAccountRiskProfile().balances.filter(
         (b) =>
           b.isNegative() &&
           (b.tokenType === 'PrimeCash' || b.tokenType === 'fCash')
@@ -271,7 +271,7 @@ const _AccountPortfolioModel = types
     };
 
     const getWithdrawAmounts = () => {
-      const balances = self.balances.filter(
+      const balances = getAccountRiskProfile().balances.filter(
         (b) =>
           b.isPositive() &&
           (b.tokenType === 'PrimeCash' ||
