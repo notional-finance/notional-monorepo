@@ -61,7 +61,7 @@ const LiquidityVariableSummary = () => {
                 xAxisTickFormat="date"
                 isStackedBar
                 barConfig={barConfig}
-                barChartData={barChartData?.data || []}
+                barChartData={barChartData || []}
                 yAxisTickFormat="percent"
               />
             ),

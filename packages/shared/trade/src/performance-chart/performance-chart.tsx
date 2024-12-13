@@ -37,7 +37,7 @@ export const PerformanceChart = ({
 
   const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
     usePerformanceChart(currentPositionFactors);
-  const { barConfig, barChartData } = useApyChart(collateral);
+  const { barConfig, barChartData } = useApyChart(collateral, 90);
   const priceData = useAssetPriceHistory(collateral);
 
   const chartComponents: ChartComponentsProps[] = [
@@ -88,7 +88,7 @@ export const PerformanceChart = ({
           xAxisTickFormat="date"
           isStackedBar
           barConfig={barConfig}
-          barChartData={barChartData?.data || []}
+          barChartData={barChartData || []}
           yAxisTickFormat="percent"
         />
       ),
