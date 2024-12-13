@@ -1,12 +1,14 @@
 import { Box, styled } from '@mui/material';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { DrawerTransition, useCurrencyInputRef } from '@notional-finance/mui';
-import { useTradeContext } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useTradeContext,
+} from '@notional-finance/notionable-hooks';
 import { AssetInput } from '@notional-finance/trade';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { SelectConvertAsset } from './components/select-convert-asset';
-import { useConvertOptions } from './hooks/use-convert-options';
 import { messages } from './messages';
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
@@ -15,30 +17,22 @@ import { observer } from 'mobx-react-lite';
 
 const ConvertCollateral = observer(() => {
   const params = useParams<PortfolioParams>();
-  const context = useTradeContext('ConvertAsset');
+  const trade = useCurrentTradeContext();
   const { currencyInputRef } = useCurrencyInputRef();
-  const { debt, collateral } = context?.tradeModel?.selectedTokens ?? {};
-  const { collateral: collateralOptions } =
-    context.tradeModel?.computedOptions ?? {};
-  const { initialConvertFromBalance: balance } = useConvertOptions();
-  const selectedCollateral = collateralOptions?.find(
-    ({ token }) => token.id === params?.selectedCollateralToken
-  );
+  const { collateral } = trade?.selectedTokens ?? {};
 
   useEffect(() => {
-    if (!debt && balance) {
-      context?.tradeModel?.setInitialConvertAsset(balance);
-    } else if (!collateral && selectedCollateral) {
-      context?.tradeModel?.setCollateralByID(selectedCollateral.token.id);
+    if (params?.selectedCollateralToken) {
+      trade?.setCollateralByID(params?.selectedCollateralToken, false);
     }
-  }, [debt, balance, context, collateral, selectedCollateral]);
+  }, [trade, params?.selectedCollateralToken]);
 
   const onBalanceChange = (
     inputAmount: TokenBalance | undefined,
     _: TokenBalance | undefined,
     maxBalance: TokenBalance | undefined
   ) => {
-    context?.tradeModel?.setDebtBalance(
+    trade?.setDebtBalance(
       inputAmount,
       (maxBalance && inputAmount?.neg().eq(maxBalance)) ?? false
     );

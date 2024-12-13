@@ -51,9 +51,9 @@ export const useDeleverage = (
   const updateDeleverageToken = useCallback(
     (tokenId: string | null) => {
       if (debtOrCollateral === 'Debt') {
-        trade?.setDebtByID(tokenId ?? undefined);
+        trade?.setDebtByID(tokenId ?? undefined, false);
       } else {
-        trade?.setCollateralByID(tokenId ?? undefined);
+        trade?.setCollateralByID(tokenId ?? undefined, false);
       }
     },
     [debtOrCollateral, trade]

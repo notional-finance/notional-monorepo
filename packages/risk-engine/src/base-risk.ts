@@ -93,18 +93,19 @@ export abstract class BaseRiskProfile implements RiskFactors {
     _network?: Network
   ) {
     this.settledBalances = [];
-    this.balances = BaseRiskProfile.merge(balances.map((b) => this._settle(b)));
 
-    if (this.balances.length === 0) {
+    if (balances.length === 0) {
       // Allow this to pass but none of the methods will really return any values
       if (!_network) throw Error('network must be defined');
       this.network = _network;
     } else {
-      const network = unique(this.balances.map((b) => b.network));
+      const network = unique(balances.map((b) => b.network));
       if (network.length > 1)
         throw Error('All balances must be on same network');
       this.network = network[0];
     }
+
+    this.balances = BaseRiskProfile.merge(balances.map((b) => this._settle(b)));
   }
 
   /** All currency ids represented in the account */

@@ -485,10 +485,7 @@ export const TradeModel = types
                   typeof TokenDefinitionModel
                 >)
               : selected;
-        } else if (
-          self.tradeType === 'Withdraw' ||
-          self.tradeType === 'RollDebt'
-        ) {
+        } else if (self.tradeType === 'Withdraw') {
           self.debt =
             selected.tokenType === 'PrimeCash'
               ? (model.getPrimeDebt(selected.currencyId) as Instance<
@@ -509,7 +506,17 @@ export const TradeModel = types
                   typeof TokenDefinitionModel
                 >)
               : selected;
-          self.debtBalance = debtBalance?.toPrimeDebt();
+          self.debtBalance = debtBalance?.toPrimeDebt().neg();
+        } else if (self.tradeType === 'RollDebt') {
+          const account = root().getNetworkAccount(self.selectedNetwork);
+          const priorBalances = account?.portfolioRiskProfile?.balances;
+          const collateralBalance = priorBalances?.find(
+            (t) => t.tokenId === self.selectedToken
+          );
+          self.collateral = collateralBalance?.token as Instance<
+            typeof TokenDefinitionModel
+          >;
+          self.collateralBalance = collateralBalance;
         }
       }
 
@@ -882,23 +889,30 @@ export const TradeModel = types
       self.netRealizedDebtBalance = undefined;
     };
 
-    const setCollateralByID = (id: string | undefined) => {
+    const setCollateralByID = (
+      id: string | undefined,
+      clearBalances: boolean
+    ) => {
       if (!isAlive(self)) return;
       self.collateral = id
         ? self.availableCollateralTokens?.find((t) => t.id === id)
         : undefined;
-      self.debtBalance = undefined;
-      self.collateralBalance = undefined;
+      if (clearBalances) {
+        self.debtBalance = undefined;
+        self.collateralBalance = undefined;
+      }
       calculate();
     };
 
-    const setDebtByID = (id: string | undefined) => {
+    const setDebtByID = (id: string | undefined, clearBalances: boolean) => {
       if (!isAlive(self)) return;
       self.debt = id
         ? self.availableDebtTokens?.find((t) => t.id === id)
         : undefined;
-      self.debtBalance = undefined;
-      self.collateralBalance = undefined;
+      if (clearBalances) {
+        self.debtBalance = undefined;
+        self.collateralBalance = undefined;
+      }
 
       calculate();
     };
