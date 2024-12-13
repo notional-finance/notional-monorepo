@@ -81,7 +81,6 @@ export async function processMarket(
 
 async function run(env: Env) {
   for (const network of env.NETWORKS) {
-    env.NETWORK = network;
     console.log(`Processing network: ${env.NETWORK}`);
 
     const provider = getProviderFromNetwork(network, true);
