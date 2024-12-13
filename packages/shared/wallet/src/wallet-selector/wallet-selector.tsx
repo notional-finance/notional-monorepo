@@ -128,7 +128,7 @@ const WalletSelector = () => {
             sx={{ background: theme.palette.info.light }}
             onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.SETTINGS)}
           >
-            <GearIcon stroke={theme.palette.typography.main} />
+            <GearIcon fill={theme.palette.typography.main} />
           </IconContainer>
         </Container>
       </OuterContainer>
