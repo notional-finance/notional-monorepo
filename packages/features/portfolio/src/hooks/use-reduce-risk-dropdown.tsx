@@ -23,12 +23,6 @@ export const useReduceRiskDropdown = () => {
         navigate(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}/ETH`);
       },
     },
-    {
-      label: <FormattedMessage defaultMessage={'Deleverage'} />,
-      callback: () => {
-        navigate(`${currentPath}/${PORTFOLIO_ACTIONS.DELEVERAGE}`);
-      },
-    },
   ];
 
   if (debtData?.length) {
