@@ -98,6 +98,8 @@ export const useWalletModules = () => {
 const email = process.env['NX_CONTACT_EMAIL'] as string;
 const appUrl = process.env['NX_APP_URL'] as string;
 
+// const isMobile = window.innerWidth < 756;
+
 const wcV2InitOptions = {
   version: 2,
   projectId: '4c1aab455337c5172aeeaa076b5104e4',
@@ -125,7 +127,7 @@ export const OnboardContext: OnboardAPI = init({
       containerElement: '#root',
     },
     mobile: {
-      enabled: false,
+      enabled: true,
       containerElement: '#root',
     },
   },
@@ -137,6 +139,7 @@ export const OnboardContext: OnboardAPI = init({
     description: 'Select a wallet to connect to Notional',
     recommendedInjectedWallets: [
       { name: 'MetaMask', url: 'https://metamask.io' },
+      { name: 'Coinbase Wallet', url: 'https://wallet.coinbase.com/' }, // Ensure Coinbase Wallet is included
     ],
     icon: '/favicon.svg',
     logo: '/favicon.svg',

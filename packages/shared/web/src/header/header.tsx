@@ -10,7 +10,7 @@ import {
 import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
-import MobileNavigation from './mobile-navigation/mobile-navigation';
+import { MobileNavigation } from './mobile-navigation/mobile-navigation';
 import { useLocation } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
@@ -24,6 +24,7 @@ import ScrollIndicator from './scroll-indicator/scroll-indicator';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { AlertIcon } from '@notional-finance/icons';
+import { update } from '@intercom/messenger-js-sdk';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {}
@@ -66,6 +67,7 @@ export function Header({ children }: HeaderProps) {
   useEffect(() => {
     if (window.innerWidth <= 768 && !isMobileView) {
       setIsMobileView(true);
+      update({ hideDefaultLauncher: true });
     } else if (window.innerWidth > 768 && isMobileView) {
       setIsMobileView(false);
     }

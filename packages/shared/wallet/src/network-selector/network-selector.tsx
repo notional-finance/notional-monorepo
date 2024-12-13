@@ -123,7 +123,6 @@ export function TransactionNetworkSelector({ product }: { product: PRODUCTS }) {
       availableNetworks={availableNetworks}
       selectedNetwork={selectedNetwork}
       walletBalances={walletBalances}
-      hideOnMobile
     />
   );
 }
@@ -138,7 +137,6 @@ export function PortfolioNetworkSelector({
   const selectedNetwork = useSelectedNetwork();
   const walletBalances = useAccountNetWorth();
   const portfolioStore = usePortfolioStore();
-
   return (
     <NetworkSelector
       availableNetworks={SupportedNetworks}
@@ -148,7 +146,6 @@ export function PortfolioNetworkSelector({
       sx={sx}
       isPortfolio
       onNetworkChange={(network) => portfolioStore.setNetwork(network)}
-      hideOnMobile
     />
   );
 }
@@ -159,7 +156,6 @@ function NetworkSelector({
   walletBalances,
   hideNetWorth,
   isPortfolio,
-  hideOnMobile,
   sx,
   onNetworkChange,
 }: {
@@ -169,7 +165,6 @@ function NetworkSelector({
   walletBalances: Record<Network, TokenBalance>;
   hideNetWorth?: boolean;
   isPortfolio?: boolean;
-  hideOnMobile?: boolean;
   sx?: SxProps;
 }) {
   const theme = useTheme();
@@ -196,9 +191,7 @@ function NetworkSelector({
   };
 
   return (
-    <NetworkSelectorWrapper
-      sx={{ ...sx, display: hideOnMobile ? 'none' : 'block' }}
-    >
+    <NetworkSelectorWrapper sx={{ ...sx }}>
       <DropdownButton
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
@@ -319,6 +312,9 @@ const NetworkSelectorWrapper = styled(Box)(
     border-radius: 50px;
     #basic-menu {
       border-radius: ${theme.shape.borderRadius()};
+    }
+    ${theme.breakpoints.down('sm')} {
+      display: none;
     }
   `
 );

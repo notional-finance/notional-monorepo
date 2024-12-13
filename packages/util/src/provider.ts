@@ -2,7 +2,6 @@ import { ethers, providers } from 'ethers';
 import {
   AlchemyNFTUrl,
   AlchemyUrl,
-  IS_TEST_ENV,
   Network,
   NetworkId,
   SupportedNetworks,

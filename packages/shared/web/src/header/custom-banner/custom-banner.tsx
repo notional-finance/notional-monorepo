@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { LinkText } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useWalletStore } from '@notional-finance/notionable-hooks';
@@ -9,18 +9,7 @@ export const CustomBanner = () => {
   const { isStarterBoostUser } = useWalletStore();
   const { pathname } = useLocation();
   return isStarterBoostUser && pathname.includes('portfolio') ? (
-    <Box
-      sx={{
-        height: '50px',
-        width: '100%',
-        backgroundColor: colors.neonTurquoise,
-        color: colors.black,
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 999,
-      }}
-    >
+    <Container>
       <Box
         sx={{
           display: 'flex',
@@ -36,6 +25,22 @@ export const CustomBanner = () => {
           <FormattedMessage defaultMessage="You're eligible: Earn boosted APYs on new deposits until Dec 10th!" />
         </LinkText>
       </Box>
-    </Box>
+    </Container>
   ) : null;
 };
+
+const Container = styled(Box)(
+  ({ theme }) => `
+    height: ${theme.spacing(6.25)};
+    width: 100%;
+    background-color: ${colors.neonTurquoise};
+    color: ${colors.black};
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    ${theme.breakpoints.down('sm')} {
+     display: none;
+    }
+      `
+);

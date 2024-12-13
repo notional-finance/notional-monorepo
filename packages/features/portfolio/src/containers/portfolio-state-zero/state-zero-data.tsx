@@ -10,6 +10,8 @@ import StateZeroCard from './state-zero-card';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
 import { StateZeroItemType } from '@notional-finance/notionable';
+import { useAppStore } from '@notional-finance/notionable-hooks';
+import { MobileCurrencySelector } from '@notional-finance/wallet';
 
 interface TokenBoxProps {
   theme: NotionalTheme;
@@ -29,6 +31,7 @@ const StateZeroData = observer(
     selectedTabIndex: number;
   }) => {
     const theme = useTheme();
+    const { isMobileView } = useAppStore();
     const [activeToken, setActiveToken] = useState<string>(defaultSymbol);
     const tokenData = getAPYDataForToken(activeToken, productGroupData);
 
@@ -86,13 +89,20 @@ const StateZeroData = observer(
                 </LabelValue>
               </TokenBox>
             ))}
-            {options && options.length > 0 && (
+            {options && options.length > 0 && !isMobileView ? (
               <SimpleDropdown
                 options={options}
                 title={title}
                 altDropdownArrow={true}
                 sx={{ marginTop: theme.spacing(1) }}
                 innerWrapperSx={{ width: '200px', fontSize: '14px' }}
+              />
+            ) : (
+              <MobileCurrencySelector
+                options={options}
+                title={title}
+                sx={{ marginTop: theme.spacing(1) }}
+                activeToken={activeToken}
               />
             )}
           </Box>
@@ -160,7 +170,7 @@ const TokenContainer = styled(Box)(
       #basic-button {
         height: ${theme.spacing(5.25)};
         border: ${theme.shape.borderStandard};
-        background: ${theme.palette.common.white};
+        background: ${theme.palette.background.paper};
         color: ${theme.palette.typography.main};
         padding: ${theme.spacing(1, 1.5)};
         border-radius: 50px;

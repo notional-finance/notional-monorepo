@@ -1,11 +1,21 @@
-import { useTheme, Box } from '@mui/material';
+import { useTheme, Box, SxProps } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { HeadingSubtitle } from '@notional-finance/mui';
 
-export const RiskScoreIndicator = (props) => {
+interface RiskScoreIndicatorProps {
+  riskLevel: string;
+  hideText?: boolean;
+  showThemeColors?: boolean;
+  sx?: SxProps;
+}
+
+export const RiskScoreIndicator = ({
+  riskLevel,
+  hideText,
+  showThemeColors,
+}: RiskScoreIndicatorProps) => {
   const theme = useTheme();
-  const { riskLevel } = props;
   const riskData = {
     veryLow: {
       activeBars: [true, false, false, false, false],
@@ -25,6 +35,13 @@ export const RiskScoreIndicator = (props) => {
     },
   };
 
+  const bgColor = showThemeColors
+    ? theme.palette.borders.paper
+    : colors.matteGreen;
+  const activeBgColor = showThemeColors
+    ? theme.palette.primary.light
+    : colors.neonTurquoise;
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box
@@ -39,13 +56,15 @@ export const RiskScoreIndicator = (props) => {
             sx={{
               width: '3px',
               marginRight: '3px',
-              background: active ? colors.neonTurquoise : colors.matteGreen,
+              background: active ? activeBgColor : bgColor,
               height: theme.spacing(2),
             }}
           ></Box>
         ))}
       </Box>
-      <HeadingSubtitle>{riskData[riskLevel].title}</HeadingSubtitle>
+      {!hideText && (
+        <HeadingSubtitle>{riskData[riskLevel].title}</HeadingSubtitle>
+      )}
     </Box>
   );
 };

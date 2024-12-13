@@ -22,6 +22,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { useNetworkTokenData } from './hooks/use-network-token-data';
 import StateZeroData from './state-zero-data';
+import MobileWelcomeNav from './mobile-welcome-nav/mobile-welcome-nav';
 
 // const stateZeroBanner = {
 //   title: defineMessage({
@@ -41,7 +42,7 @@ import StateZeroData from './state-zero-data';
 //   }),
 // };
 
-const PortfolioStateZero = () => {
+const PortfolioStateZero = observer(() => {
   const theme = useTheme();
   const navigate = useNavigate();
   const params = useParams<{ sideDrawerKey?: string }>();
@@ -140,9 +141,10 @@ const PortfolioStateZero = () => {
         tokenList={tokenList || []}
         selectedTabIndex={selectedTabIndex}
       />
+      <MobileWelcomeNav />
     </PortfolioMainContent>
   );
-};
+});
 
 const PortfolioMainContent = styled(Box)(
   ({ theme }) => `
@@ -165,10 +167,11 @@ const PortfolioMainContent = styled(Box)(
       margin-top: ${theme.spacing(3)};
     }
     ${theme.breakpoints.down('sm')} {
+      min-height: 0px;
       min-width: 100%;
       max-width: 70vw;
       margin: ${theme.spacing(10)} auto;
-      margin-bottom: ${theme.spacing(20)};
+      margin-bottom: ${theme.spacing(3)};
     };
   `
 );
@@ -189,4 +192,4 @@ const TopContentContainer = styled(Box)(
   `
 );
 
-export default observer(PortfolioStateZero);
+export default PortfolioStateZero;

@@ -21,7 +21,7 @@ export function LaunchAppButton() {
       to={
         walletActive
           ? `/portfolio/${network}/overview`
-          : `/portfolio/${network}/welcome`
+          : `/portfolio/${network}/welcome/earn`
       }
       variant="outlined"
       color="primary"

@@ -34,7 +34,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
       link: wallet?.accounts[0].address
         ? `/portfolio/${network}/overview`
-        : `/portfolio/${network}/welcome`,
+        : `/portfolio/${network}/welcome/earn`,
       iconImg: (
         <PortfolioIcon
           className="color-fill"
@@ -94,7 +94,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
       link: wallet?.accounts[0].address
         ? `/portfolio/${network}/overview`
-        : `/portfolio/${network}/welcome`,
+        : `/portfolio/${network}/welcome/earn`,
       iconImg: (
         <PortfolioIcon
           className="color-fill"
@@ -146,7 +146,12 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       key: MOBILE_SUB_NAV_ACTIONS.SETTINGS,
       label: <FormattedMessage defaultMessage={'Wallet Settings'} />,
       link: '',
-      iconImg: <GearIcon sx={{ fontSize: '1.125rem' }} />,
+      iconImg: (
+        <GearIcon
+          sx={{ fontSize: '1.125rem' }}
+          stroke={theme.palette.typography.main}
+        />
+      ),
     },
   ];
 

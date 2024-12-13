@@ -34,6 +34,9 @@ export const AppBar = ({
           boxShadow: 'none',
         },
         marginTop: showBanner ? '50px !important' : '0px',
+        [theme.breakpoints.down('sm')]: {
+          marginTop: '0px !important',
+        },
       }}
       {...rest}
     >
