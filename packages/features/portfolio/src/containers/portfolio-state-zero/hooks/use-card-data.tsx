@@ -2,6 +2,7 @@ import { useTheme } from '@mui/material';
 import {
   BarChartIcon,
   BarChartLateralIcon,
+  CheckmarkIcon,
   CoinsCircleIcon,
   CoinsIcon,
   PieChartIcon,
@@ -14,6 +15,7 @@ import { FormattedMessage } from 'react-intl';
 import { sumAndFormatIncentives } from '@notional-finance/shared-web/dashboard-view/hooks/utils';
 import { getAvailableVaults } from './use-network-token-data';
 import { StateZeroItemType } from '@notional-finance/notionable';
+import RiskScoreIndicator from '@notional-finance/shared-web/card-container/card-table/risk-score-indicator/risk-score-indicator';
 
 export const useCardData = (
   selectedTabIndex: number,
@@ -45,6 +47,38 @@ export const useCardData = (
           <FormattedMessage defaultMessage={'No Fee'} />,
           <FormattedMessage defaultMessage={'Always Redeemable'} />,
         ],
+        modalContent: {
+          title: <FormattedMessage defaultMessage={'Lending'} />,
+          description: (
+            <FormattedMessage
+              defaultMessage={
+                'This product offers variable, passive yield. No fees required, no risk of loss, and position is redeemable anytime.'
+              }
+            />
+          ),
+          productDetails: [
+            {
+              title: 'TXN Fees',
+              textValue: 'Yes',
+            },
+            {
+              title: 'Collateral',
+              compValue: (
+                <CheckmarkIcon sx={{ fill: theme.palette.primary.light }} />
+              ),
+            },
+            {
+              title: 'Risk Score',
+              compValue: (
+                <RiskScoreIndicator
+                  riskLevel="veryLow"
+                  hideText
+                  showThemeColors
+                />
+              ),
+            },
+          ],
+        },
       },
       {
         accentTitle: <FormattedMessage defaultMessage={'Guaranteed Yield'} />,
@@ -61,6 +95,38 @@ export const useCardData = (
             defaultMessage={'Early Exit Subject to Liquidity'}
           />,
         ],
+        modalContent: {
+          title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
+          description: (
+            <FormattedMessage
+              defaultMessage={
+                'This product guarantees yield if held to maturity. Early withdrawals are subject to liquidity availability. Upon maturity, the loan automatically transitions to variable-rate lending if not withdrawn.'
+              }
+            />
+          ),
+          productDetails: [
+            {
+              title: 'TXN Fees',
+              textValue: 'Yes',
+            },
+            {
+              title: 'Collateral',
+              compValue: (
+                <CheckmarkIcon sx={{ fill: theme.palette.primary.light }} />
+              ),
+            },
+            {
+              title: 'Risk Score',
+              compValue: (
+                <RiskScoreIndicator
+                  riskLevel="veryLow"
+                  hideText
+                  showThemeColors
+                />
+              ),
+            },
+          ],
+        },
       },
       {
         accentTitle: <FormattedMessage defaultMessage={'High yield'} />,
@@ -92,6 +158,32 @@ export const useCardData = (
           <FormattedMessage defaultMessage={'Possible IL'} />,
           <FormattedMessage defaultMessage={'Possible Illiquidity'} />,
         ],
+        modalContent: {
+          title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
+          description: (
+            <FormattedMessage
+              defaultMessage={`This product earns passive yield by providing liquidity to Notional's fixed rate markets. Assets earn interest, fees, and NOTE incentives. Redemption anytime subject to liquidity.`}
+            />
+          ),
+          productDetails: [
+            {
+              title: 'TXN Fees',
+              textValue: 'Yes',
+            },
+            {
+              title: 'Collateral',
+              compValue: (
+                <CheckmarkIcon sx={{ fill: theme.palette.primary.light }} />
+              ),
+            },
+            {
+              title: 'Risk Score',
+              compValue: (
+                <RiskScoreIndicator riskLevel="low" hideText showThemeColors />
+              ),
+            },
+          ],
+        },
       },
     ];
   } else if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE) {
@@ -131,10 +223,39 @@ export const useCardData = (
           <FormattedMessage defaultMessage={'Max NOTE Incentives'} />,
           <FormattedMessage defaultMessage={'Possible Illiquidity'} />,
         ],
+        modalContent: {
+          title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
+          description: (
+            <FormattedMessage
+              defaultMessage={`<p>This product provides liquidity using leverage sourced from Notional, earning both organic yield and NOTE incentives. It earns yield from providing fixed rate liquidity - the interest, fixed rate trading fees, and NOTE incentives.</p>
+                <p>Risks include: IL risk, negative APY risk, and liquidity risk. It's best for users that want to earn maximum NOTE incentives and hold the position for the medium-term.</p>`}
+              values={{
+                // Required when using HTML tags
+                p: (chunks: any) => <p>{chunks}</p>,
+              }}
+            />
+          ),
+          productDetails: [
+            {
+              title: 'Yield Type',
+              textValue: 'Organic + NOTE',
+            },
+            {
+              title: 'Risk Score',
+              compValue: (
+                <RiskScoreIndicator
+                  riskLevel="medium"
+                  hideText
+                  showThemeColors
+                />
+              ),
+            },
+          ],
+        },
       },
       {
         accentTitle: <FormattedMessage defaultMessage={'Organic Yield'} />,
-        title: <FormattedMessage defaultMessage={'Leveraged Yield Farming'} />,
+        title: <FormattedMessage defaultMessage={'Leveraged Yield Farm'} />,
         icon: <VaultIcon />,
         apy: farmingVault?.apy?.totalAPY,
         apyTitle: <FormattedMessage defaultMessage={'As High As'} />,
@@ -153,10 +274,36 @@ export const useCardData = (
           <FormattedMessage defaultMessage={'Low IL'} />,
           <FormattedMessage defaultMessage={'Pegged Asset Pools'} />,
         ],
+        modalContent: {
+          title: (
+            <FormattedMessage defaultMessage={'Leveraged Points Farming'} />
+          ),
+          description: (
+            <FormattedMessage
+              defaultMessage={`<p>This product earns yield from providing liquidity on pegged-asset liquidity pools on Balancer and Curve. Leverage comes from Notional, deploys into a liquidity pool, and then harvests and auto-reinvests the earned incentives.</p>
+                <p>This strategy pays organic yield in the deposit token. This is a good strategy for active users who want to maximize their APY and are comfortable with APY volatility.</p>`}
+              values={{
+                p: (chunks: any) => <p>{chunks}</p>,
+              }}
+            />
+          ),
+          productDetails: [
+            {
+              title: 'Yield Type',
+              textValue: 'Organic',
+            },
+            {
+              title: 'Risk Score',
+              compValue: (
+                <RiskScoreIndicator riskLevel="low" hideText showThemeColors />
+              ),
+            },
+          ],
+        },
       },
       {
         accentTitle: <FormattedMessage defaultMessage={'Points Yield'} />,
-        title: <FormattedMessage defaultMessage={'Leveraged Points Farming'} />,
+        title: <FormattedMessage defaultMessage={'Leveraged Points Farm'} />,
         icon: <PointsIcon fill={theme.palette.typography.main} />,
         apy: pointsVault?.apy?.totalAPY,
         apyTitle: <FormattedMessage defaultMessage={'As High as'} />,
@@ -175,6 +322,32 @@ export const useCardData = (
           <FormattedMessage defaultMessage={'Low IL'} />,
           <FormattedMessage defaultMessage={'Pegged Asset Pools'} />,
         ],
+        modalContent: {
+          title: (
+            <FormattedMessage defaultMessage={'Leveraged Points Farming'} />
+          ),
+          description: (
+            <FormattedMessage
+              defaultMessage={`<p>This product earns points from partner protocols + yield from providing liquidity on pegged-asset liquidity pools on Balancer and Curve.</p>
+                <p>Leveraged points farming is the same as leveraged yield farming but you also get leveraged points!</p>`}
+              values={{
+                p: (chunks: any) => <p>{chunks}</p>,
+              }}
+            />
+          ),
+          productDetails: [
+            {
+              title: 'Yield Type',
+              textValue: 'Points',
+            },
+            {
+              title: 'Risk Score',
+              compValue: (
+                <RiskScoreIndicator riskLevel="low" hideText showThemeColors />
+              ),
+            },
+          ],
+        },
       },
     ];
   } else if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.BORROW) {
@@ -197,6 +370,30 @@ export const useCardData = (
           <FormattedMessage defaultMessage={'Fully Flexible'} />,
           <FormattedMessage defaultMessage={'Exit Anytime at No Cost'} />,
         ],
+        modalContent: {
+          title: <FormattedMessage defaultMessage={'Borrowing'} />,
+          description: (
+            <FormattedMessage
+              defaultMessage={`<p>This product borrows against your crypto at a variable rate. Collateral is required. Fixed Rate Lending, Lending, Provide Liquidity, and Leveraged Liquidity positions are automatically counted as collateral.</p>
+                <p>Liquidation occurs if the value of collateral falls below the liquidation price.</p>`}
+              values={{
+                p: (chunks: any) => <p>{chunks}</p>,
+              }}
+            />
+          ),
+          productDetails: [
+            {
+              title: 'TXN Fees',
+              textValue: 'Yes',
+            },
+            {
+              title: 'Redeemable Anytime',
+              compValue: (
+                <CheckmarkIcon sx={{ fill: theme.palette.primary.light }} />
+              ),
+            },
+          ],
+        },
       },
       {
         accentTitle: (
@@ -222,6 +419,30 @@ export const useCardData = (
           <FormattedMessage defaultMessage={'Exit Anytime'} />,
           <FormattedMessage defaultMessage={'Entry and Early Exit Fees'} />,
         ],
+        modalContent: {
+          title: <FormattedMessage defaultMessage={'Fixed Rate Borrowing'} />,
+          description: (
+            <FormattedMessage
+              defaultMessage={`<p>This product borrows against your crypto at a guaranteed rate if held to maturity. Collateral is required. Fixed Rate Lending, Lending, Provide Liquidity, and Leveraged Liquidity positions are automatically counted as collateral.</p>
+                <p>Liquidation occurs if the value of collateral falls below the liquidation price.</p>`}
+              values={{
+                p: (chunks: any) => <p>{chunks}</p>,
+              }}
+            />
+          ),
+          productDetails: [
+            {
+              title: 'TXN Fees',
+              textValue: 'Yes',
+            },
+            {
+              title: 'Redeemable Anytime',
+              compValue: (
+                <CheckmarkIcon sx={{ fill: theme.palette.primary.light }} />
+              ),
+            },
+          ],
+        },
       },
     ];
   }

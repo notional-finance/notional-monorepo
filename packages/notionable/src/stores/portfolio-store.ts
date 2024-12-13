@@ -52,7 +52,16 @@ const getUniqueUnderlyingSymbols = (productGroupData: any[][]) => {
     .map((item) => item?.symbol)
     .filter((symbol): symbol is string => symbol !== undefined);
 
-  return unique(uniqueUnderlyingSymbols);
+  const uniqueSymbols = unique(uniqueUnderlyingSymbols);
+  const otherSymbols = uniqueSymbols.filter(
+    (symbol) => symbol !== 'USDC' && symbol !== 'ETH'
+  );
+
+  return [
+    ...(uniqueSymbols.includes('USDC') ? ['USDC'] : []),
+    ...(uniqueSymbols.includes('ETH') ? ['ETH'] : []),
+    ...otherSymbols,
+  ];
 };
 
 const getGreatestUniqueUnderlyingSymbols = (productGroupData: any[][]) => {
@@ -65,9 +74,16 @@ const getGreatestUniqueUnderlyingSymbols = (productGroupData: any[][]) => {
     }
   });
 
-  return Array.from(symbolAPYMap.entries())
+  const sortedSymbols = Array.from(symbolAPYMap.entries())
     .sort(([, a], [, b]) => b - a)
-    .map(([symbol]) => symbol);
+    .map(([symbol]) => symbol)
+    .filter((symbol) => symbol !== 'USDC' && symbol !== 'ETH');
+
+  return [
+    ...(symbolAPYMap.has('USDC') ? ['USDC'] : []),
+    ...(symbolAPYMap.has('ETH') ? ['ETH'] : []),
+    ...sortedSymbols,
+  ];
 };
 
 const APYDataModel = types.model('APYData', {

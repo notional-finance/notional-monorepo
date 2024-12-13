@@ -31,6 +31,7 @@ export const useNetworkTokenData = (selectedTabIndex: number) => {
     if (data.length === 0) {
       portfolioStore.setStateZeroEarnData();
     }
+
     return {
       tokenList: tokenList || [],
       productGroupData: data || [],
@@ -39,6 +40,7 @@ export const useNetworkTokenData = (selectedTabIndex: number) => {
   } else if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE) {
     const { data, tokenList, defaultSymbol } =
       portfolioStore.stateZeroLeveragedData;
+
     if (data.length === 0) {
       portfolioStore.setStateZeroLeveragedData();
     }
@@ -50,13 +52,14 @@ export const useNetworkTokenData = (selectedTabIndex: number) => {
   } else {
     const { data, tokenList, defaultSymbol } =
       portfolioStore.stateZeroBorrowData;
+
     if (data.length === 0) {
       portfolioStore.setStateZeroBorrowData();
     }
     return {
       tokenList: tokenList || [],
       productGroupData: data || [],
-      defaultSymbol: defaultSymbol || '',
+      defaultSymbol: defaultSymbol || tokenList[0],
     };
   }
 };

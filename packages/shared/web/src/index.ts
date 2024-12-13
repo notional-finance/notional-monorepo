@@ -12,3 +12,4 @@ export * from './header/launch-app-button/launch-app-button';
 export { default as FeatureLoader } from './feature-loader/feature-loader';
 export * from './dashboard-view/dashboard-view';
 export * from './meta-tag-manager/meta-tag-manager';
+export * from './mobile-footer/mobile-footer';

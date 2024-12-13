@@ -26,7 +26,7 @@ export const useEmptyPortfolio = () => {
           description: 'empty overview button text',
         },
       }),
-      link: `/portfolio/${selectedNetwork}/welcome`,
+      link: `/portfolio/${selectedNetwork}/welcome/earn`,
     },
     [PORTFOLIO_CATEGORIES.OVERVIEW]: {
       messages: defineMessages({
@@ -39,7 +39,7 @@ export const useEmptyPortfolio = () => {
           description: 'empty overview button text',
         },
       }),
-      link: `/portfolio/${selectedNetwork}/welcome`,
+      link: `/portfolio/${selectedNetwork}/welcome/earn`,
     },
     [PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY]: {
       messages: defineMessages({
@@ -52,7 +52,7 @@ export const useEmptyPortfolio = () => {
           description: 'empty overview button text',
         },
       }),
-      link: `/portfolio/${selectedNetwork}/welcome`,
+      link: `/portfolio/${selectedNetwork}/welcome/earn`,
     },
     [PORTFOLIO_CATEGORIES.NOTE_STAKING]: {
       messages: defineMessages({

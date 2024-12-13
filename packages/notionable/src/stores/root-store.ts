@@ -124,6 +124,7 @@ export const createRootStore = (): RootStoreType => {
       globalError: {
         error: undefined,
       },
+      mobileNavOpen: false,
     },
   });
 

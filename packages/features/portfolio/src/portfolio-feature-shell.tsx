@@ -5,6 +5,7 @@ import {
   useAccountReady,
   useAccountAndBalanceReady,
   useSelectedNetwork,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import {
@@ -29,7 +30,7 @@ import {
 } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { observer } from 'mobx-react-lite';
-
+import { MobileFooter } from '@notional-finance/shared-web';
 export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
@@ -91,6 +92,7 @@ export const PortfolioFeatureShell = observer(() => {
 const Portfolio = () => {
   const params = useParams<PortfolioParams>();
   const { clearSideDrawer } = useSideDrawerManager();
+  const { isMobileView } = useAppStore();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const network = useSelectedNetwork();
   const navigate = useNavigate();
@@ -154,27 +156,30 @@ const Portfolio = () => {
         <SideNav />
       </PortfolioSidebar>
       {params.category !== PORTFOLIO_CATEGORIES.WELCOME && (
-        <PortfolioMainContent>
-          {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-            params.category === undefined) && <PortfolioOverview />}
-          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-            <PortfolioHoldings />
-          )}
-          {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-            <PortfolioVaults />
-          )}
-          {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
-            <PortfolioNoteStaking />
-          )}
-          {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
-            <PortfolioTransactionHistory />
-          )}
-        </PortfolioMainContent>
+        <>
+          <PortfolioMainContent>
+            {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+              params.category === undefined) && <PortfolioOverview />}
+            {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+              <PortfolioHoldings />
+            )}
+            {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+              <PortfolioVaults />
+            )}
+            {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
+              <PortfolioNoteStaking />
+            )}
+            {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
+              <PortfolioTransactionHistory />
+            )}
+          </PortfolioMainContent>
+          <PortfolioMobileNav />
+        </>
       )}
       {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
         <PortfolioStateZero />
       )}
-      <PortfolioMobileNav />
+      {isMobileView && <MobileFooter />}
     </PortfolioContainer>
   ) : (
     <PortfolioContainer>
@@ -210,6 +215,7 @@ const Portfolio = () => {
             <EmptyPortfolio />
           </PortfolioMainContent>
         )}
+      {isMobileView && <MobileFooter />}
     </PortfolioContainer>
   );
 };

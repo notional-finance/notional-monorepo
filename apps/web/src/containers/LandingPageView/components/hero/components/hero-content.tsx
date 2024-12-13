@@ -31,7 +31,7 @@ export const HeroContent = () => {
           to={
             walletActive
               ? `/portfolio/${network}/overview`
-              : `/portfolio/${network}/welcome`
+              : `/portfolio/${network}/welcome/earn`
           }
           sx={{
             marginRight: theme.spacing(6),

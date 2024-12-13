@@ -19,6 +19,7 @@ import {
 } from '@notional-finance/util';
 import { truncateAddress } from '@notional-finance/helpers';
 import {
+  useAppStore,
   useSideDrawerState,
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
@@ -30,6 +31,7 @@ import { Button, H4, SectionTitle } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { MobileNetworkSelector } from '@notional-finance/wallet';
 import { NotionalIcon } from '@notional-finance/icons';
+import { observer } from 'mobx-react-lite';
 
 // Define a type for the props
 type StyledBurgerProps = {
@@ -80,23 +82,24 @@ const StyledBurger = styled('button', {
   },
 }));
 
-export function MobileNavigation({ ...rest }: TabsProps) {
+export const MobileNavigation = observer(({ ...rest }: TabsProps) => {
   const theme = useTheme();
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const walletStore = useWalletStore();
+  const { mobileNavOpen, setMobileNavOpen } = useAppStore();
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { mobileNavLinks } = useNavLinks(true, theme);
   const [selectedTab, setSelectedTab] = useState<string | false>(false);
-  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const [mainNavOpen, setMainNavOpen] = useState<boolean>(false);
   const { currentSideDrawerKey } = useSideDrawerState();
 
   const currentTab = mobileNavLinks.find(({ link }) => link === pathname);
 
   useEffect(() => {
     setSelectedTab(currentTab?.link || false);
-    setAnchorElNav(null);
+    setMainNavOpen(false);
   }, [currentTab?.link]);
 
   const [sideDrawerDataKey, setSideDrawerDataKey] =
@@ -113,15 +116,17 @@ export function MobileNavigation({ ...rest }: TabsProps) {
     }
   };
 
-  const handleOpenNavMenu = (event: MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget);
+  const handleOpenNavMenu = () => {
+    setMainNavOpen(true);
+    setMobileNavOpen(true);
   };
 
   const handleCloseNavMenu = (event: MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    setAnchorElNav(null);
+    setMainNavOpen(false);
     clearWalletSideDrawer();
     setDrawerOpen(false);
+    setMobileNavOpen(false);
   };
 
   const handleSideDrawer = (event: any) => {
@@ -152,7 +157,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
           alignItems: 'center',
         }}
       >
-        {currentSideDrawerKey !== 'connect-wallet' && anchorElNav === null && (
+        {currentSideDrawerKey !== 'connect-wallet' && !mobileNavOpen && (
           <Box
             sx={{
               display: 'flex',
@@ -191,14 +196,14 @@ export function MobileNavigation({ ...rest }: TabsProps) {
         )}
         <StyledBurger
           open={
-            anchorElNav || currentSideDrawerKey === 'connect-wallet'
+            mobileNavOpen || currentSideDrawerKey === 'connect-wallet'
               ? true
               : false
           }
           onClick={
-            anchorElNav || currentSideDrawerKey === 'connect-wallet'
+            mobileNavOpen || currentSideDrawerKey === 'connect-wallet'
               ? (event) => handleCloseNavMenu(event)
-              : (event) => handleOpenNavMenu(event)
+              : () => handleOpenNavMenu()
           }
           theme={theme}
         >
@@ -212,7 +217,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
         id="menu-notional"
         anchor="top"
         keepMounted
-        open={Boolean(anchorElNav)}
+        open={mainNavOpen}
         onClose={handleCloseNavMenu}
         BackdropProps={{ invisible: true }}
         sx={{
@@ -312,6 +317,4 @@ export function MobileNavigation({ ...rest }: TabsProps) {
   ) : (
     <Box></Box>
   );
-}
-
-export default MobileNavigation;
+});

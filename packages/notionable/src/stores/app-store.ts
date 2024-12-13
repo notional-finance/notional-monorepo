@@ -58,6 +58,7 @@ export const AppStoreModel = types
     globalError: GlobalErrorModel,
     isAppReady: types.optional(types.boolean, false),
     isMobileView: types.optional(types.boolean, false),
+    mobileNavOpen: types.optional(types.boolean, false),
   })
   .actions((self) => ({
     setBaseCurrency(currency: FiatKeys) {
@@ -71,6 +72,9 @@ export const AppStoreModel = types
     },
     setIsMobileView(isMobile: boolean) {
       self.isMobileView = isMobile;
+    },
+    setMobileNavOpen(isOpen: boolean) {
+      self.mobileNavOpen = isOpen;
     },
     afterCreate() {
       self.heroStats.fetchKpiData();

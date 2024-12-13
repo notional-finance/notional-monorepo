@@ -6,6 +6,7 @@ import { ReactNode, useState } from 'react';
 export interface SimpleOptionProps {
   label: ReactNode;
   callback: () => void;
+  symbol?: string;
 }
 
 export interface SimpleDropdown {

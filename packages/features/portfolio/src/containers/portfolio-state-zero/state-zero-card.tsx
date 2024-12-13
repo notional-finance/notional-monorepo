@@ -1,15 +1,22 @@
 import { Box, alpha, styled, useTheme } from '@mui/material';
-import { TokenIcon } from '@notional-finance/icons';
+import { InfoIcon, TokenIcon } from '@notional-finance/icons';
 import {
+  Button,
   Caption,
   CountUp,
   H3,
   H5,
+  Modal,
   LargeInputTextEmphasized,
   LinkText,
 } from '@notional-finance/mui';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  useAppStore,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { NotionalTheme, colors } from '@notional-finance/styles';
+import { Network } from '@notional-finance/util';
+import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,6 +35,15 @@ interface StateZeroCardProps {
     bottomText: string;
     pillData: string[];
     availableSymbols?: string[];
+    modalContent: {
+      title: string;
+      description: string;
+      productDetails: {
+        title: string;
+        textValue?: string;
+        compValue?: React.ReactNode;
+      }[];
+    };
   };
   index: number;
 }
@@ -37,21 +53,149 @@ interface CardDataProps {
   disabled: boolean;
 }
 
-export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
+interface CardContentProps {
+  card: StateZeroCardProps['card'];
+  disabledCard: boolean;
+  selectedNetwork: Network;
+  index: number;
+}
+
+const MobileCardContent = ({
+  index,
+  card,
+  disabledCard,
+  selectedNetwork,
+}: CardContentProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const selectedNetwork = useSelectedNetwork();
-  const disabledCard = card.apy === undefined ? true : false;
+  const [activeModal, setActiveModal] = useState<number | null>(null);
 
   return (
-    <CardBoxContainer>
+    <>
+      <BoxContainer
+        theme={theme}
+        disabled={disabledCard && !card?.availableSymbols ? true : false}
+      />
+      <Modal
+        index={index}
+        modalContent={card.modalContent}
+        activeModal={activeModal}
+        setActiveModal={setActiveModal}
+      />
+      <CardBox
+        theme={theme}
+        disabled={disabledCard}
+        sx={{
+          padding: theme.spacing(3),
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: theme.spacing(4),
+            svg: {
+              height: theme.spacing(4),
+              width: theme.spacing(4),
+              fill: theme.palette.typography.main,
+            },
+          }}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <H5
+              sx={{
+                color: theme.palette.primary.light,
+                fontWeight: 600,
+              }}
+            >
+              {card.accentTitle}
+            </H5>
+            <ProductName>{card.title}</ProductName>
+          </Box>
+          <InfoButton onClick={() => setActiveModal(index)}>
+            <InfoIcon
+              fill={theme.palette.primary.light}
+              style={{
+                width: theme.spacing(2),
+                height: theme.spacing(2),
+              }}
+            />
+          </InfoButton>
+        </Box>
+        <Box
+          sx={{
+            background: theme.palette.background.default,
+            padding: theme.spacing(1, 2),
+            borderRadius: theme.shape.borderRadius(),
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <TokenIcon
+            symbol={card.symbol}
+            size="large"
+            style={{
+              marginRight: theme.spacing(2),
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            network={selectedNetwork}
+          />
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            {!disabledCard ? (
+              <>
+                <H5>{card?.apyTitle}</H5>
+                <ApyText
+                  sx={{
+                    color:
+                      card.apy !== undefined && card.apy < 0
+                        ? theme.palette.error.main
+                        : theme.palette.typography.main,
+                  }}
+                >
+                  <CountUp
+                    value={card.apy}
+                    suffix={card?.isTotalAPYSuffix ? '% Total APY' : '% APY'}
+                    duration={1}
+                    decimals={2}
+                  />
+                </ApyText>
+              </>
+            ) : (
+              <H3>-</H3>
+            )}
+          </Box>
+        </Box>
+        <Button
+          onClick={() => (!disabledCard ? navigate(card.cardLink) : null)}
+          variant="contained"
+          sx={{ width: '100%', marginTop: theme.spacing(2) }}
+        >
+          <FormattedMessage defaultMessage={'Supply'} />
+        </Button>
+      </CardBox>
+    </>
+  );
+};
+
+const CardContent = ({
+  card,
+  disabledCard,
+  selectedNetwork,
+}: CardContentProps) => {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  return (
+    <>
       <BoxContainer
         theme={theme}
         disabled={disabledCard && !card?.availableSymbols ? true : false}
       />
       <CardBox
         theme={theme}
-        key={index}
         disabled={disabledCard}
         onClick={() => (!disabledCard ? navigate(card.cardLink) : null)}
       >
@@ -178,6 +322,32 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
         )}
       </CardBox>
       <LinkTextBox to={card.bottomLink}>{card.bottomText}</LinkTextBox>
+    </>
+  );
+};
+
+export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
+  const { isMobileView } = useAppStore();
+  const selectedNetwork = useSelectedNetwork();
+  const disabledCard = card.apy === undefined ? true : false;
+
+  return (
+    <CardBoxContainer key={index}>
+      {isMobileView ? (
+        <MobileCardContent
+          index={index}
+          card={card}
+          disabledCard={disabledCard}
+          selectedNetwork={selectedNetwork}
+        />
+      ) : (
+        <CardContent
+          index={index}
+          card={card}
+          disabledCard={disabledCard}
+          selectedNetwork={selectedNetwork}
+        />
+      )}
     </CardBoxContainer>
   );
 };
@@ -202,13 +372,14 @@ const ProductName = styled(LargeInputTextEmphasized)(
   ({ theme }) => `
          white-space: nowrap;
          ${theme.breakpoints.down('sm')} {
-            font-size: 20px;
+            font-size: 22px;
          };
       `
 );
 
 const ApyText = styled(H3)(
   ({ theme }) => `
+        line-height: 1;
          ${theme.breakpoints.down('sm')} {
             font-size: 20px;
          };
@@ -233,6 +404,18 @@ const PillContainer = styled(Box)(
         ${theme.breakpoints.down('sm')} {
            flex-wrap: wrap;
          };
+      `
+);
+
+const InfoButton = styled(Box)(
+  ({ theme }) => `
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: ${theme.shape.borderRadius()};
+        padding: ${theme.spacing(1)};
+        border: 1px solid ${theme.palette.primary.light};
+        background: ${theme.palette.background.default};
       `
 );
 
@@ -270,7 +453,7 @@ const CardBox = styled(Box, {
         border-radius: ${theme.shape.borderRadius()};
         border: ${theme.shape.borderStandard};
         background: ${theme.palette.background.paper};
-        ${theme.breakpoints.up('sm')} {
+          ${theme.breakpoints.up('sm')} {
           ${
             disabled
               ? ''
@@ -279,28 +462,23 @@ const CardBox = styled(Box, {
                   theme.palette.info.light
                 )
           }
+          
+          ${
+            disabled
+              ? ''
+              : `&:hover {
+                  z-index: 5;
+                  overflow: visible;
+                  cursor: pointer;
+                  border: 1px solid ${theme.palette.primary.light};
+                  transition: 0.3s ease;
+                  transform: scale(1.02);
+                  #incentive {
+                      background: rgba(19, 187, 194, 0.10);
+                  }
+                }`
+          }
         }
-      ${
-        disabled
-          ? ''
-          : `&:hover {
-          z-index: 5;
-          overflow: visible;
-          cursor: pointer;
-          border: 1px solid ${theme.palette.primary.light};
-          transition: 0.3s ease;
-          transform: scale(1.02);
-          #incentive {
-              background: rgba(19, 187, 194, 0.10);
-          }
-        }`
-      }
-      ${theme.breakpoints.down('sm')} {
-          &:hover {
-            border: ${theme.shape.borderStandard};
-          background: ${theme.palette.background.paper};
-          }
-       };
       `
 );
 
