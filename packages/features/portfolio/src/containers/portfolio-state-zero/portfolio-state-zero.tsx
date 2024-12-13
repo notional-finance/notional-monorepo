@@ -211,15 +211,15 @@ export const PortfolioStateZero = () => {
           marginTop: theme.spacing(4),
           gap: {
             sm: theme.spacing(6),
-            md: theme.spacing(3),
-            lg: theme.spacing(3),
+            md: theme.spacing(6, 3),
+            lg: theme.spacing(6, 3),
           },
           display: 'flex',
           flexWrap: 'wrap',
         }}
       >
         {cardData.map((card, index) => (
-          <StateZeroCard index={index} card={card} />
+          <StateZeroCard key={index} card={card} />
         ))}
       </Box>
     </PortfolioMainContent>
