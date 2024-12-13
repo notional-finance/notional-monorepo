@@ -41,8 +41,6 @@ export const MobileCurrencySelector = observer(
       setIsOpen(true);
     };
 
-    console.log({ title });
-
     return (
       <Box>
         <DropdownButton
