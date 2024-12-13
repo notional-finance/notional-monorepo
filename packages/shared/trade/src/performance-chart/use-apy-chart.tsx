@@ -6,7 +6,7 @@ import { BarConfigProps } from '@notional-finance/mui';
 import { useMemo } from 'react';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 
-export const useApyChart = (token?: TokenDefinition) => {
+export const useApyChart = (token?: TokenDefinition, numDays = 60) => {
   const { data: apyData } = useChartData(token, ChartType.APY);
   const { themeVariant } = useAppStore();
   const BarColors = useMemo(
@@ -49,7 +49,7 @@ export const useApyChart = (token?: TokenDefinition) => {
           })
       : [];
 
-  return { barConfig, barChartData: apyData };
+  return { barConfig, barChartData: apyData?.data.slice(-numDays) };
 };
 
 export default useApyChart;

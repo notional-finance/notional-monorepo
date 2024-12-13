@@ -146,11 +146,14 @@ export function calculateDepositValue(
   }, [] as { timestamp: number; vaultShareMultiple: number; borrowRateMultiple: number; area: number }[]);
 }
 
-export function useAssetPriceHistory(token: TokenDefinition | undefined) {
+export function useAssetPriceHistory(
+  token: TokenDefinition | undefined,
+  numDays = 60
+) {
   const { data: tokenPrice } = useChartData(token, ChartType.PRICE);
 
   const chart = fillChartDaily(
-    tokenPrice?.data?.map((d) => ({
+    tokenPrice?.data?.slice(-numDays).map((d) => ({
       timestamp: d.timestamp,
       assetPrice: d['priceToUnderlying'] || 0,
     })) || [],
