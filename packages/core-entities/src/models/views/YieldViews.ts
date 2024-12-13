@@ -196,6 +196,15 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     return incentives;
   };
 
+  const getNTokenFeeAPY = (token: TokenDefinition) => {
+    const feeRate = self.oracles.get(
+      `${token.underlying}:${token.id}:nTokenFeeRate`
+    );
+    return feeRate
+      ? (100 * (feeRate.latestRate?.rate?.toNumber() || 0)) / RATE_PRECISION
+      : 0;
+  };
+
   const getSpotAPY = (tokenId: string) => {
     const apyData: APYData = { totalAPY: 0 };
 
@@ -224,12 +233,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     } else if (token.tokenType === 'nToken') {
       const market = getfCashMarket(token.currencyId);
       apyData.organicAPY = market.getNTokenBlendedYield();
-      const feeRate = self.oracles.get(
-        `${token.underlying}:${token.id}:nTokenFeeRate`
-      );
-      apyData.feeAPY = feeRate
-        ? (100 * (feeRate.latestRate?.rate?.toNumber() || 0)) / RATE_PRECISION
-        : 0;
+      apyData.feeAPY = getNTokenFeeAPY(token);
       const tvl = getTVL(token);
       apyData.incentives = getIncentiveAPY(token, tvl);
       apyData.totalAPY =
@@ -367,8 +371,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         netAmount,
         netPrimeDebt
       );
-      // FIXME: maybe add it to the oracle views and add this to the organicAPY
-      apyData.feeAPY = 0;
+      apyData.feeAPY = getNTokenFeeAPY(netAmount.token);
 
       const simulatedTVL = getTVL(netAmount.token).add(
         netAmount.toUnderlying()
