@@ -80,7 +80,11 @@ export async function processMarket(
 }
 
 async function run(env: Env) {
+  const allErrors: Error[] = [];
   for (const network of env.NETWORKS) {
+    // NETWORKS to be processed are set as env variable, NETWORK is empty so we need to set
+    // it here on each iteration
+    env.NETWORK = network;
     console.log(`Processing network: ${env.NETWORK}`);
 
     const provider = getProviderFromNetwork(network, true);
@@ -92,11 +96,21 @@ async function run(env: Env) {
       return sendTxThroughRelayer({ env: env, ...tx });
     };
 
-    await processMarket(
-      env,
-      provider,
-      sendTransaction as unknown as Signer['sendTransaction']
-    );
+    try {
+      await processMarket(
+        env,
+        provider,
+        sendTransaction as unknown as Signer['sendTransaction']
+      );
+    } catch (error) {
+      allErrors.push(error as Error);
+    }
+  }
+
+  // in case there is any error throw it here so worker execution can be properly
+  // marked as failed and alarms can be triggered
+  if (allErrors.length) {
+    throw allErrors[0];
   }
 }
 
