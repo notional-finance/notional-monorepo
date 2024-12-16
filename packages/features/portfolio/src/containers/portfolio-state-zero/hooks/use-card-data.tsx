@@ -5,6 +5,7 @@ import {
   CheckmarkIcon,
   CoinsCircleIcon,
   CoinsIcon,
+  PendleIcon,
   PieChartIcon,
   PointsIcon,
   VaultIcon,
@@ -59,7 +60,7 @@ export const useCardData = (
           productDetails: [
             {
               title: 'TXN Fees',
-              textValue: 'Yes',
+              textValue: 'No',
             },
             {
               title: 'Collateral',
@@ -190,6 +191,7 @@ export const useCardData = (
     const leveragedNToken = tokenData[0];
     const farmingVault = tokenData[1];
     const pointsVault = tokenData[2];
+    const leveragedPendle = tokenData[3];
 
     cardData = [
       {
@@ -276,7 +278,7 @@ export const useCardData = (
         ],
         modalContent: {
           title: (
-            <FormattedMessage defaultMessage={'Leveraged Points Farming'} />
+            <FormattedMessage defaultMessage={'Leveraged Yield Farming'} />
           ),
           description: (
             <FormattedMessage
@@ -344,6 +346,63 @@ export const useCardData = (
               title: 'Risk Score',
               compValue: (
                 <RiskScoreIndicator riskLevel="low" hideText showThemeColors />
+              ),
+            },
+          ],
+        },
+      },
+      {
+        accentTitle: <FormattedMessage defaultMessage={'Fixed Yield'} />,
+        title: <FormattedMessage defaultMessage={'Leveraged Pendle'} />,
+        icon: (
+          <PendleIcon
+            stroke={theme.palette.typography.main}
+            sx={{
+              fill: 'transparent !important',
+            }}
+          />
+        ),
+        apy: leveragedPendle?.apy?.totalAPY,
+        apyTitle: <FormattedMessage defaultMessage={'As High as'} />,
+        symbol: activeToken,
+        availableSymbols:
+          productGroupData[3]?.length > 0
+            ? getAvailableVaults(productGroupData[3])
+            : [],
+        cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedPendle?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedPendle?.debtTokenId}`,
+        bottomValue: `Max Leverage: ${leveragedPendle?.maxLeverageRatio?.toFixed(
+          2
+        )}x`,
+        bottomLink: `/${PRODUCTS.LEVERAGED_PENDLE}/${selectedNetwork}`,
+        bottomText: 'All Leveraged Pendle',
+        pillData: [
+          <FormattedMessage defaultMessage={'Possible Illiquidity'} />,
+          <FormattedMessage defaultMessage={'Fixed Yield at Maturity'} />,
+        ],
+        modalContent: {
+          title: <FormattedMessage defaultMessage={'Leveraged Pendle'} />,
+          description: (
+            <FormattedMessage
+              defaultMessage={`<p>This product earns fixed yield from Pendle PTs with leverage. This strategy borrows from Notional at a fixed or variable rate and then buys a specific PT on Pendle.</p>
+                <p>This strategy gives organic yield paid in the deposit token (ex USDC) even if the PT is based in a different token (ex USDe).</p>`}
+              values={{
+                p: (chunks: any) => <p>{chunks}</p>,
+              }}
+            />
+          ),
+          productDetails: [
+            {
+              title: 'Yield Type',
+              textValue: 'Organic',
+            },
+            {
+              title: 'Risk Score',
+              compValue: (
+                <RiskScoreIndicator
+                  riskLevel="medium"
+                  hideText
+                  showThemeColors
+                />
               ),
             },
           ],

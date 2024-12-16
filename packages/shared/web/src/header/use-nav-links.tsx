@@ -149,7 +149,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       iconImg: (
         <GearIcon
           sx={{ fontSize: '1.125rem' }}
-          stroke={theme.palette.typography.main}
+          fill={theme.palette.typography.main}
         />
       ),
     },

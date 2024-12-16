@@ -268,16 +268,18 @@ export const PortfolioStoreModel = types
                 v.vaultType === 'SingleSidedLP_AutoReinvest' ||
                 v.vaultType === 'SingleSidedLP_DirectClaim'
             ),
+            pendleVaults: vaultsData.filter((v) => v.vaultType === 'PendlePT'),
           };
         };
 
         const getStateZeroLeveragedData = () => {
-          const { pointsVaults, farmingVaults } = getVaultsData();
+          const { pointsVaults, farmingVaults, pendleVaults } = getVaultsData();
           const leveragedNTokenData = getAllLeveragedNTokenYields();
           const leveragedGroupData = [
             leveragedNTokenData,
             pointsVaults,
             farmingVaults,
+            pendleVaults,
           ];
           const tokenList =
             getGreatestUniqueUnderlyingSymbols(leveragedGroupData);
