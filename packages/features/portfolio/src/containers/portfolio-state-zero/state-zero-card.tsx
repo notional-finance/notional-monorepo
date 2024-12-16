@@ -29,7 +29,7 @@ interface StateZeroCardProps {
     pillData: string[];
     availableSymbols?: string[];
   };
-  index: number;
+  key: number;
 }
 
 interface CardDataProps {
@@ -37,21 +37,20 @@ interface CardDataProps {
   disabled: boolean;
 }
 
-export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
+export const StateZeroCard = ({ card, key }: StateZeroCardProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const selectedNetwork = useSelectedNetwork();
   const disabledCard = card.apy === undefined ? true : false;
 
   return (
-    <CardBoxContainer>
+    <CardBoxContainer key={key}>
       <BoxContainer
         theme={theme}
         disabled={disabledCard && !card?.availableSymbols ? true : false}
       />
       <CardBox
         theme={theme}
-        key={index}
         disabled={disabledCard}
         onClick={() => (!disabledCard ? navigate(card.cardLink) : null)}
       >
@@ -133,7 +132,7 @@ export const StateZeroCard = ({ card, index }: StateZeroCardProps) => {
             marginTop: theme.spacing(0.5),
           }}
         >
-          {card.bottomValue && !card?.availableSymbols && !disabledCard ? (
+          {card.bottomValue && !disabledCard ? (
             card.bottomValue
           ) : disabledCard && card?.availableSymbols ? (
             <FormattedMessage

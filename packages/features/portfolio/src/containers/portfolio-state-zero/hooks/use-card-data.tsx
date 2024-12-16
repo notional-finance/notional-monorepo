@@ -5,6 +5,7 @@ import {
   BarChartLateralIcon,
   CoinsCircleIcon,
   CoinsIcon,
+  PendleIcon,
   PieChartIcon,
   PointsIcon,
   VaultIcon,
@@ -38,6 +39,7 @@ export const useCardData = (
 
   const yieldFarmingTokens: string[] = [];
   const pointsFarmingTokens: string[] = [];
+  const pendleTokens: string[] = [];
 
   listedVaults.map(({ vaultAddress }) => {
     const y = getMax(
@@ -48,7 +50,17 @@ export const useCardData = (
       !pointsFarmingTokens.includes(y?.underlying?.symbol)
     ) {
       pointsFarmingTokens.push(y?.underlying?.symbol);
-    } else if (y && !yieldFarmingTokens.includes(y?.underlying?.symbol)) {
+    } else if (
+      y?.vaultName?.includes('PT') &&
+      !pendleTokens.includes(y?.underlying?.symbol)
+    ) {
+      pendleTokens.push(y?.underlying?.symbol);
+    } else if (
+      y &&
+      !y?.pointMultiples &&
+      !y?.vaultName?.includes('PT') &&
+      !yieldFarmingTokens.includes(y?.underlying?.symbol)
+    ) {
       yieldFarmingTokens.push(y?.underlying?.symbol);
     }
     return { yieldFarmingTokens, pointsFarmingTokens };
@@ -60,13 +72,22 @@ export const useCardData = (
   const leveragedYieldFarming = activeTokenData
     ?.filter(
       (data) =>
-        data.product === 'Leveraged Vault' && data.pointMultiples === undefined
+        data.product === 'Leveraged Vault' &&
+        data.pointMultiples === undefined &&
+        !data?.vaultName?.includes('PT')
     )
     .sort((a, b) => b.totalAPY - a.totalAPY)[0];
 
   const leveragedPointsFarming = activeTokenData
     ?.filter(
       (data) => data.product === 'Leveraged Vault' && data.pointMultiples
+    )
+    .sort((a, b) => b.totalAPY - a.totalAPY)[0];
+
+  const leveragedPendle = activeTokenData
+    ?.filter(
+      (data) =>
+        data.product === 'Leveraged Vault' && data?.vaultName?.includes('PT')
     )
     .sort((a, b) => b.totalAPY - a.totalAPY)[0];
 
@@ -180,11 +201,9 @@ export const useCardData = (
       symbol: activeToken,
       availableSymbols: yieldFarmingTokens,
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedYieldFarming?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedYieldFarming?.leveraged?.vaultDebt?.id}`,
-      bottomValue: `Max Leverage: ${
-        leveragedYieldFarming?.leveraged?.maxLeverageRatio
-          ? leveragedYieldFarming?.leveraged?.maxLeverageRatio?.toFixed(2)
-          : 0
-      }x`,
+      bottomValue: `Max Leverage: ${leveragedYieldFarming?.leveraged?.maxLeverageRatio?.toFixed(
+        2
+      )}x`,
       bottomLink: `/${PRODUCTS.LEVERAGED_YIELD_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Yield Farming',
       pillData: [
@@ -201,16 +220,40 @@ export const useCardData = (
       symbol: activeToken,
       availableSymbols: pointsFarmingTokens,
       cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedPointsFarming?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedPointsFarming?.leveraged?.vaultDebt?.id}`,
-      bottomValue: `Max Leverage: ${
-        leveragedPointsFarming?.leveraged?.maxLeverageRatio
-          ? leveragedPointsFarming?.leveraged?.maxLeverageRatio?.toFixed(2)
-          : 0
-      }x`,
+      bottomValue: `Max Leverage: ${leveragedPointsFarming?.leveraged?.maxLeverageRatio?.toFixed(
+        2
+      )}x`,
       bottomLink: `/${PRODUCTS.LEVERAGED_POINTS_FARMING}/${selectedNetwork}`,
       bottomText: 'All Leveraged Points Farming',
       pillData: [
         <FormattedMessage defaultMessage={'Low IL'} />,
         <FormattedMessage defaultMessage={'Pegged Asset Pools'} />,
+      ],
+    },
+    {
+      accentTitle: <FormattedMessage defaultMessage={'Fixed Yield'} />,
+      title: <FormattedMessage defaultMessage={'Leveraged Pendle'} />,
+      icon: (
+        <PendleIcon
+          stroke={theme.palette.typography.main}
+          sx={{
+            fill: 'transparent !important',
+          }}
+        />
+      ),
+      apy: leveragedPendle?.totalAPY,
+      apyTitle: <FormattedMessage defaultMessage={'As High as'} />,
+      symbol: activeToken,
+      availableSymbols: pendleTokens,
+      cardLink: `/${PRODUCTS.VAULTS}/${selectedNetwork}/${leveragedPendle?.token?.vaultAddress}/CreateVaultPosition?borrowOption=${leveragedPendle?.leveraged?.vaultDebt?.id}`,
+      bottomValue: `Max Leverage: ${leveragedPendle?.leveraged?.maxLeverageRatio?.toFixed(
+        2
+      )}x`,
+      bottomLink: `/${PRODUCTS.LEVERAGED_PENDLE}/${selectedNetwork}`,
+      bottomText: 'All Leveraged Pendle',
+      pillData: [
+        <FormattedMessage defaultMessage={'Possible Illiquidity'} />,
+        <FormattedMessage defaultMessage={'Fixed Yield at Maturity'} />,
       ],
     },
   ];
