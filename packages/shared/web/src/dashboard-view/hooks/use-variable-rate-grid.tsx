@@ -1,5 +1,5 @@
 import {
-  checkStarterBoostToken,
+  checkBoostToken,
   formatNumberAsAbbr,
   getBoostedData,
 } from '@notional-finance/helpers';
@@ -28,16 +28,13 @@ export const useVariableRateGrid = (
   const isBorrow = product === PRODUCTS.BORROW_VARIABLE;
   const yieldData = isBorrow ? variableBorrow : variableLend;
   const {
-    globalState: { isStarterBoostUser },
+    globalState: { isBoostUser },
   } = useNotionalContext();
   const validBoostDate = checkBoostEndDate();
 
   const allData = yieldData
     .map((y) => {
-      const isStarterBoost = checkStarterBoostToken(
-        y.underlying.symbol,
-        isStarterBoostUser
-      );
+      const boostUser = checkBoostToken(y.underlying.symbol, isBoostUser);
       return {
         ...y,
         symbol: y.underlying.symbol,
@@ -52,8 +49,8 @@ export const useVariableRateGrid = (
             : 0
         }`,
         bottomLeftValue:
-          isStarterBoost && !isBorrow && validBoostDate
-            ? `starter boost: ${formatNumberAsPercent(y.totalAPY + 5)} APY`
+          boostUser && !isBorrow && validBoostDate
+            ? `boost: ${formatNumberAsPercent(y.totalAPY + 5)} APY`
             : '',
         network: y.token.network,
         hasPosition: false,
@@ -68,10 +65,10 @@ export const useVariableRateGrid = (
   const { newUserBoostedData, nonBoostedData } = getBoostedData(allData);
 
   const gridData =
-    isStarterBoostUser && !isBorrow && validBoostDate
+    isBoostUser && !isBorrow && validBoostDate
       ? [
           {
-            sectionTitle: 'STARTER BOOST',
+            sectionTitle: 'Season of Deposits',
             data: newUserBoostedData,
             hasBoost: true,
           },

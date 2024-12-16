@@ -29,6 +29,7 @@ import {
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
+import { isBoostDateActive } from '@notional-finance/helpers';
 
 export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
@@ -100,6 +101,7 @@ const Portfolio = () => {
   const isAccountReady = useAccountReady(network);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const { hasNoteOrSNote } = usePortfolioNOTETable();
+  const boostDateActive = isBoostDateActive();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -149,6 +151,7 @@ const Portfolio = () => {
         openDrawer={openDrawer}
         CustomHeader={CustomHeader}
         zIndex={1202}
+        isBoostDateActive={boostDateActive}
       >
         {SideDrawerComponent && <SideDrawerComponent />}
       </SideDrawer>
@@ -158,11 +161,7 @@ const Portfolio = () => {
       {params.category !== PORTFOLIO_CATEGORIES.WELCOME && (
         <PortfolioMainContent>
           {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-            params.category === undefined) && (
-            <>
-              <PortfolioOverview />
-            </>
-          )}
+            params.category === undefined) && <PortfolioOverview />}
           {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
             <PortfolioHoldings />
           )}
@@ -201,9 +200,7 @@ const Portfolio = () => {
       )}
 
       {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
-        <>
-          <PortfolioStateZero />
-        </>
+        <PortfolioStateZero />
       )}
       {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&
         hasNoteOrSNote && (

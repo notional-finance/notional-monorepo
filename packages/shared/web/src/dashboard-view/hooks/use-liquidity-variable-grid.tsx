@@ -1,5 +1,5 @@
 import {
-  checkStarterBoostToken,
+  checkBoostToken,
   formatNumberAsAbbr,
   getBoostedData,
 } from '@notional-finance/helpers';
@@ -25,7 +25,7 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
     yields: { liquidity },
   } = useAllMarkets(network);
   const {
-    globalState: { isStarterBoostUser },
+    globalState: { isBoostUser },
   } = useNotionalContext();
   const theme = useTheme();
   const validBoostDate = checkBoostEndDate();
@@ -34,10 +34,7 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
 
   const allData = liquidity
     .map((y) => {
-      const isStarterBoost = checkStarterBoostToken(
-        y.underlying.symbol,
-        isStarterBoostUser
-      );
+      const boostUser = checkBoostToken(y.underlying.symbol, isBoostUser);
       return {
         ...y,
         symbol: y.underlying.symbol,
@@ -74,9 +71,9 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
             ''
           ),
         apySubTitle:
-          isStarterBoost && validBoostDate
+          boostUser && validBoostDate
             ? defineMessage({
-                defaultMessage: `starter boost: {boostApy}% APY`,
+                defaultMessage: `boost: {boostApy}% APY`,
                 description: 'subtitle',
                 values: {
                   boostApy: formatNumberAsPercent(y.totalAPY + 5),
@@ -108,10 +105,10 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const { newUserBoostedData, nonBoostedData } = getBoostedData(allData);
 
   const gridData =
-    isStarterBoostUser && validBoostDate
+    isBoostUser && validBoostDate
       ? [
           {
-            sectionTitle: 'STARTER BOOST',
+            sectionTitle: 'Season of Deposits',
             data: newUserBoostedData,
             hasBoost: true,
           },

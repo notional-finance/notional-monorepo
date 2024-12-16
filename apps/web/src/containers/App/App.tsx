@@ -35,7 +35,7 @@ import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { StakeNOTE } from '../../containers/StakeNOTE';
 import { LandingPageView } from '../../containers/LandingPageView';
-import { NewUserView } from '../../containers/NewUserView';
+import { BoostView } from '../BoostView';
 import {
   ContestHome,
   ContestRules,
@@ -407,11 +407,11 @@ const AllRoutes = () => {
           }
         />
         <Route
-          path="/new-user"
+          path="/boost-view"
           element={
             <AppLayoutRoute
-              path="/new-user"
-              component={NewUserView}
+              path="/boost-view"
+              component={BoostView}
               routeType="NewUser"
             />
           }

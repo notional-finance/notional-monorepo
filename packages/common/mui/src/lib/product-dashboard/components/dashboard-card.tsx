@@ -7,10 +7,14 @@ import {
   LargeInputTextEmphasized,
 } from '../../typography/typography';
 import { FormattedMessage } from 'react-intl';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import {
+  checkBoostToken,
+  formatNumberAsPercent,
+} from '@notional-finance/helpers';
 import { NotionalTheme } from '@notional-finance/styles';
 import SliderBasic from '../../slider-basic/slider-basic';
 import ReinvestPill from '../../reinvest-pill/reinvest-pill';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
 interface GridCardApyProps {
   hideApySubTitle: boolean;
@@ -72,6 +76,10 @@ export const DashboardCard = ({
 }: DashboardDataProps) => {
   const theme = useTheme();
   const hideFooter = !bottomLeftValue && !incentiveSymbols && !bottomRightValue;
+  const {
+    globalState: { isBoostUser },
+  } = useNotionalContext();
+  const boostUser = checkBoostToken(symbol, isBoostUser);
 
   return (
     <GridCard onClick={() => routeCallback()}>
@@ -169,6 +177,7 @@ export const DashboardCard = ({
               justifySelf: 'flex-start',
               justifyContent: 'center',
               alignItems: 'center',
+              color: boostUser ? theme.palette.primary.light : '',
             }}
           >
             {bottomLeftValue}

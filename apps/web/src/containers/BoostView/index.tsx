@@ -1,5 +1,12 @@
-import { useEffect } from 'react';
-import { alpha, Box, Button, styled, ThemeProvider } from '@mui/material';
+import { useState } from 'react';
+import {
+  alpha,
+  Box,
+  Button,
+  styled,
+  ThemeProvider,
+  useTheme,
+} from '@mui/material';
 import {
   Body,
   Caption,
@@ -8,53 +15,65 @@ import {
   H1,
   H2,
   H4,
+  Input,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import discordIcon from '@notional-finance/assets/images/logos/discord-two-tone.svg';
-import twitterIcon from '@notional-finance/assets/images/logos/twitter-two-tone.svg';
+import discordIcon from '@notional-finance/assets/images/logos/discord-two-tone-white.svg';
+import twitterIcon from '@notional-finance/assets/images/logos/twitter-two-tone-white.svg';
 import { colors, useNotionalTheme } from '@notional-finance/styles';
 import { useProductsTable } from './use-products-table';
 import { Network, THEME_VARIANTS } from '@notional-finance/util';
 import { useNetworkToggle } from '../AnalyticsViews/hooks';
-import newcomer from './newcomer.png';
-import { useNavigate } from 'react-router-dom';
-import { useWalletAddress } from '@notional-finance/notionable-hooks';
-import { fetchNewcomerBoostData } from '@notional-finance/helpers';
+import tree from './tree.svg';
+import { fetchBoostData } from '@notional-finance/helpers';
+import { CheckmarkIcon, CloseCircleIcon } from '@notional-finance/icons';
 
-export const NewUserView = () => {
-  const navigate = useNavigate();
-  const selectedAccount = useWalletAddress();
-  const landingTheme = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
-  const productTheme = useNotionalTheme(THEME_VARIANTS.LIGHT, 'product');
+export const BoostView = () => {
+  const theme = useTheme();
+  const [inputValue, setInputValue] = useState<string>('');
+  const [isEligible, setIsEligible] = useState<boolean | null>(null);
+  const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
+  const productTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
   const networkToggleData = useNetworkToggle();
   const selectedNetwork: Network =
     networkToggleData.toggleKey === 0 ? Network.arbitrum : Network.mainnet;
   const { productsTableColumns, productsTableData } =
     useProductsTable(selectedNetwork);
 
-  useEffect(() => {
-    const loadEligibleAddresses = async () => {
-      const eligibleAddresses = await fetchNewcomerBoostData();
-      if (selectedAccount && eligibleAddresses.length > 0) {
-        const ineligible = !eligibleAddresses
-          .map((addr) => addr.toLowerCase())
-          .includes(selectedAccount.toLowerCase());
-        if (ineligible) {
-          navigate('/');
-        }
-      }
-    };
-    loadEligibleAddresses();
-  }, [selectedAccount, navigate]);
+  const loadEligibleAddresses = async (address: string) => {
+    const eligibleAddresses = await fetchBoostData();
+    if (address && eligibleAddresses.length > 0) {
+      const eligibleStatus = eligibleAddresses
+        .map((addr) => addr.toLowerCase())
+        .includes(address.toLowerCase());
+      return eligibleStatus;
+    }
+    return null;
+  };
+
+  const handleChange = async (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    const value = e?.target?.value;
+    setInputValue(value);
+    const eligible = await loadEligibleAddresses(value);
+    if (eligible) {
+      setIsEligible(true);
+    } else if (eligible === false) {
+      setIsEligible(false);
+    } else {
+      setIsEligible(null);
+    }
+  };
 
   return (
     <ThemeProvider theme={landingTheme}>
-      <Box sx={{ background: colors.iceWhite }}>
+      <Box sx={{ background: colors.darkGreen }}>
         <TopContainer>
           <Box
             sx={{
-              background: colors.iceWhite,
+              background: colors.darkGreen,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -65,6 +84,7 @@ export const NewUserView = () => {
                 display: 'flex',
                 alignItems: 'start',
                 flexDirection: 'column',
+                marginRight: { sm: '0px', md: '60px', lg: '100px' },
               }}
             >
               <Box
@@ -73,11 +93,8 @@ export const NewUserView = () => {
                   flexDirection: 'column',
                 }}
               >
-                <H1>
-                  <FormattedMessage defaultMessage={'Newcomer'} />
-                </H1>
-                <H1>
-                  <FormattedMessage defaultMessage={'Starter Boost'} />
+                <H1 sx={{ textWrap: 'nowrap' }}>
+                  <FormattedMessage defaultMessage={'Season of Deposits'} />
                 </H1>
               </Box>
 
@@ -89,7 +106,7 @@ export const NewUserView = () => {
               >
                 <FormattedMessage
                   defaultMessage={
-                    'Lend now on Notional and receive an APY boost for all new users for the first 30 days.'
+                    'Boost your USDC deposits by at least 5,000 USDC  before December 31st and earn an extra 5% APY for two weeks. Celebrate the season of growth with Notional!'
                   }
                 />
               </Body>
@@ -98,17 +115,15 @@ export const NewUserView = () => {
                   <FormattedMessage defaultMessage={'Promotion Dates'} />
                 </Caption>
                 <H4>
-                  <FormattedMessage
-                    defaultMessage={'Nov 26th - Dec 10th 2024'}
-                  />
+                  <FormattedMessage defaultMessage={'Dec 16th - 31st 2024'} />
                 </H4>
               </DateBox>
             </Box>
             <Box>
               <img
-                src={newcomer}
-                alt="rocket"
-                style={{ height: '600px', width: '560px' }}
+                src={tree}
+                alt="tree"
+                style={{ height: '631px', width: '651px' }}
               />
             </Box>
           </Box>
@@ -122,20 +137,78 @@ export const NewUserView = () => {
             borderWidth: `0 0 ${landingTheme.spacing(
               25
             )} ${landingTheme.spacing(350)}`,
-            borderColor: 'transparent transparent #FFFFFF transparent',
+            borderColor: `transparent transparent ${colors.black} transparent`,
             transform: 'rotate(0deg)',
           }}
         />
         <Box
           sx={{
-            background: colors.white,
+            background: colors.black,
           }}
         >
           <TextContainer>
+            <Box sx={{ marginBottom: landingTheme.spacing(6) }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <CurrencyTitle
+                  sx={{
+                    color: landingTheme.palette.typography.main,
+                    marginBottom: landingTheme.spacing(2),
+                  }}
+                >
+                  <FormattedMessage
+                    defaultMessage={'Check if you’re Eligible'}
+                  />
+                </CurrencyTitle>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {isEligible && (
+                    <CheckmarkIcon
+                      fill={colors.neonTurquoise}
+                      sx={{ height: theme.spacing(3), width: theme.spacing(3) }}
+                    />
+                  )}
+                  {isEligible === false && (
+                    <CloseCircleIcon
+                      fill={colors.red}
+                      sx={{ height: theme.spacing(3), width: theme.spacing(3) }}
+                    />
+                  )}
+                  <H4
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '16px',
+                      marginLeft: landingTheme.spacing(1),
+                      color: isEligible ? colors.neonTurquoise : colors.red,
+                    }}
+                  >
+                    {isEligible && (
+                      <FormattedMessage
+                        defaultMessage={'Address is eligible'}
+                      />
+                    )}
+                    {isEligible === false && (
+                      <FormattedMessage
+                        defaultMessage={'Address is not eligible'}
+                      />
+                    )}
+                  </H4>
+                </Box>
+              </Box>
+              <Input
+                handleChange={handleChange}
+                inputValue={inputValue}
+                placeholder="Enter your address"
+              />
+            </Box>
             <Body sx={{ marginBottom: landingTheme.spacing(6) }}>
               <FormattedMessage
                 defaultMessage={
-                  'Introducing the Newcomer Starter Boost Program: new users get an extra 5% APY for their first week when they deposit USDC or ETH on Mainnet or Arbitrum! Get ready to boost your earnings!'
+                  'It’s the Season of Deposits and Notional is giving the gift of growth! For existing USDC depositors only: increase your deposit by at least 5,000 USDC before the end of the year and get an extra 5% APY for two weeks on the additional amount you deposited.'
                 }
               />
             </Body>
@@ -150,16 +223,16 @@ export const NewUserView = () => {
                 <FormattedMessage defaultMessage={'Campaign Details'} />
               </CurrencyTitle>
               <Body>
-                <FormattedMessage defaultMessage="• Users must deposit at least 5,000 USDC or 2 ETH" />
+                <FormattedMessage defaultMessage="Eligible users must increase their USDC deposits on Notional by at least 5,000 USDC on Ethereum or Arbitrum." />
               </Body>
               <Body>
-                <FormattedMessage defaultMessage="• Users can deposit in any earn product: lending, fixed rate lending, or provide liquidity" />
+                <FormattedMessage defaultMessage="Users can deposit in the form of providing liquidity or lending at a fixed or variable rate." />
               </Body>
               <Body>
-                <FormattedMessage defaultMessage="• Bonus APY is paid in deposit token (USDC or ETH)" />
+                <FormattedMessage defaultMessage="Users can deposit any time between December 16th and December 31st." />
               </Body>
               <Body>
-                <FormattedMessage defaultMessage="• Users can deposit any time between November 26th and December 10th" />
+                <FormattedMessage defaultMessage="Max reward of 2,000 USDC per user." />
               </Body>
             </Box>
             <Box sx={{ marginBottom: landingTheme.spacing(6) }}>
@@ -172,16 +245,16 @@ export const NewUserView = () => {
                 <FormattedMessage defaultMessage={'Eligibility'} />
               </CurrencyTitle>
               <Body>
-                <FormattedMessage defaultMessage="• Wallet must not have used Notional before" />
+                <FormattedMessage defaultMessage="Eligibility will be determined based on a market snapshot on December 15th UTC 0. At the time of this snapshot:" />
               </Body>
               <Body>
-                <FormattedMessage defaultMessage="• Must not withdraw for at least 30 days after deposit" />
+                <FormattedMessage defaultMessage="You must hold USDC liquidity, variable lend, or fixed lend position on Ethereum and Arbitrum." />
               </Body>
               <Body>
-                <FormattedMessage defaultMessage="• Individual users can deposit up to 500,000 USDC or 200 ETH" />
+                <FormattedMessage defaultMessage="You must not be borrowing USDC. (USDC leveraged liquidity users are ineligible)." />
               </Body>
               <Body>
-                <FormattedMessage defaultMessage="• Only the first 5M USDC and 2000 ETH deposited by new users are eligible for rewards" />
+                <FormattedMessage defaultMessage="You must not make any withdrawal for 30 days after your additional deposit." />
               </Body>
             </Box>
             <Box sx={{ marginBottom: landingTheme.spacing(6) }}>
@@ -194,7 +267,7 @@ export const NewUserView = () => {
                 <FormattedMessage defaultMessage={'Reward Distribution'} />
               </CurrencyTitle>
               <Body>
-                <FormattedMessage defaultMessage="• Reward tokens will be transferred to eligible users on January 15th" />
+                <FormattedMessage defaultMessage="• Rewards will be distributed on February 10th." />
               </Body>
             </Box>
           </TextContainer>
@@ -222,7 +295,7 @@ export const NewUserView = () => {
         </Box>
         <Box
           sx={{
-            background: colors.iceWhite,
+            background: colors.darkGreen,
           }}
         >
           <ContactContainer>
@@ -241,8 +314,8 @@ export const NewUserView = () => {
                 href="https://discord.notional.finance"
                 target="_blank"
                 sx={{
-                  background: colors.white,
-                  color: colors.black,
+                  background: colors.black,
+                  color: colors.white,
                   width: landingTheme.spacing(30),
                   height: landingTheme.spacing(7),
                   fontSize: '16px',
@@ -269,8 +342,8 @@ export const NewUserView = () => {
                 href="https://twitter.com/NotionalFinance"
                 target="_blank"
                 sx={{
-                  background: colors.white,
-                  color: colors.black,
+                  background: colors.black,
+                  color: colors.white,
                   width: landingTheme.spacing(30),
                   height: landingTheme.spacing(7),
                   fontSize: '16px',
@@ -371,7 +444,7 @@ const ButtonContainer = styled(Box)(
 
 const DateBox = styled(Box)(
   ({ theme }) => `
-    background: ${colors.purpleGrey};
+    background: ${colors.black};
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -385,4 +458,4 @@ const DateBox = styled(Box)(
     `
 );
 
-export default NewUserView;
+export default BoostView;

@@ -36,7 +36,7 @@ import { calculateAccruedIncentives } from '../account/incentives';
 import {
   checkCommunityMembership,
   checkSanctionedAddress,
-  checkNewUserAddress,
+  checkBoostAddress,
 } from '../account/communities';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { update } from '@intercom/messenger-js-sdk';
@@ -232,7 +232,7 @@ async function updateWalletTracking(
     }
   );
 
-  const isStarterBoostUser = await checkNewUserAddress(selectedAddress);
+  const isBoostUser = await checkBoostAddress(selectedAddress);
 
   const accounts = Registry.getAccountRegistry();
 
@@ -314,7 +314,7 @@ async function updateWalletTracking(
       TotalNotionalBalance: balanceData.notionalBalance,
       TotalBalance: totalBalance,
       DeBankNetWorth: debankNetWorth,
-      IsOnWhitelist: isStarterBoostUser,
+      IsOnWhitelist: isBoostUser,
       IsLender:
         lendingProtocols && lendingProtocols.length > 0 ? isLender : undefined,
       LendingProtocols: lendingProtocols,
@@ -372,7 +372,7 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
       // check sanctioned address
       const isSanctionedAddress = await checkSanctionedAddress(selectedAddress);
       // check new user address
-      const isStarterBoostUser = await checkNewUserAddress(selectedAddress);
+      const isBoostUser = await checkBoostAddress(selectedAddress);
 
       if (!isSanctionedAddress) {
         spindl.attribute(selectedAddress);
@@ -381,7 +381,7 @@ function onSyncAccountInfo$(global$: Observable<GlobalState>) {
       return {
         communityMembership,
         isSanctionedAddress,
-        isStarterBoostUser,
+        isBoostUser,
         isAccountPending: false,
       };
     }),

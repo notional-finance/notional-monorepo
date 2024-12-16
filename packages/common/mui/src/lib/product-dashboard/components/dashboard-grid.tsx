@@ -5,7 +5,7 @@ import { DashboardGridProps } from '../product-dashboard';
 import { DashboardStateZero } from './dashboard-state-zero';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import { RocketIcon } from '@notional-finance/icons';
+import { TreeIcon } from '@notional-finance/icons';
 
 interface ContainerProps {
   hasLeveragedPosition?: boolean;
@@ -35,7 +35,7 @@ export const DashboardGrid = ({
             >
               <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
                 {hasBoost && (
-                  <RocketIcon
+                  <TreeIcon
                     sx={{
                       height: theme.spacing(2.5),
                       width: theme.spacing(2.5),

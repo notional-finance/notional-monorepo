@@ -7,6 +7,8 @@ import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import { useWalletSideDrawer } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 import { useCallback } from 'react';
+import { isBoostDateActive } from '@notional-finance/helpers';
+import { useLocation } from 'react-router-dom';
 
 interface SettingsButtonProps {
   theme: NotionalTheme;
@@ -78,6 +80,8 @@ const ConnectWalletHeader = () => {
 };
 
 export function WalletSideDrawer() {
+  const { pathname } = useLocation();
+  const boostDateActive = isBoostDateActive();
   const { clearWalletSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer, currentSideDrawerKey } =
     useWalletSideDrawer();
@@ -94,6 +98,7 @@ export function WalletSideDrawer() {
       callback={handleDrawer}
       openDrawer={openDrawer}
       CustomHeader={showSettingsHeader ? SettingsHeader : ConnectWalletHeader}
+      isBoostDateActive={boostDateActive && pathname.includes('portfolio')}
     >
       {SideDrawerComponent && <SideDrawerComponent />}
     </SideDrawer>

@@ -11,6 +11,7 @@ export interface SideDrawerProps {
   zIndex?: number;
   marginTop?: string;
   disableBackDrop?: boolean;
+  isBoostDateActive?: boolean;
 }
 
 export function SideDrawer({
@@ -21,9 +22,9 @@ export function SideDrawer({
   zIndex,
   marginTop,
   disableBackDrop = false,
+  isBoostDateActive,
 }: SideDrawerProps) {
   const theme = useTheme();
-
   const [isBannerActive, setIsBannerActive] = useState(false);
 
   useEffect(() => {
@@ -66,7 +67,8 @@ export function SideDrawer({
           position: { xs: 'absolute', sm: 'absolute', md: 'relative' },
         },
         '&.MuiPaper-root, .MuiPaper-elevation': {
-          marginTop: isBannerActive ? theme.spacing(6) : '0px',
+          marginTop:
+            isBannerActive || isBoostDateActive ? theme.spacing(6) : '0px',
           overflowX: 'hidden',
           maxWidth: { xs: '100%', sm: '100%', md: '543px' },
           width: { xs: '100%', sm: '100%', md: '100%' },

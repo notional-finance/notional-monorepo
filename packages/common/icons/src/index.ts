@@ -104,3 +104,4 @@ export * from './lib/received-icon/received-icon';
 export * from './lib/sent-icon/sent-icon';
 export * from './lib/warning-icon/warning-icon';
 export * from './lib/points-icon/points-icon';
+export * from './lib/tree-icon/tree-icon';
