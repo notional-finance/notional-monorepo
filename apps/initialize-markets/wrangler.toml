@@ -11,13 +11,7 @@ logpush = true
 name = "initialize-markets-dev"
 
 [env.dev.vars]
-NETWORKS = ["arbitrum", "mainnet"]
-
-[env.prod]
-name = "initialize-markets"
-
-[env.prod.vars]
-NETWORKS = ["arbitrum", "mainnet"]
+NETWORKS = ["mainnet", "arbitrum"]
 
 [triggers]
 # runs once each day
