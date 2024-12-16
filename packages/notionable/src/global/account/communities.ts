@@ -1,12 +1,12 @@
 import {
   Network,
-  boostEndDate,
+  christmasBoostEndDate,
   getProviderFromNetwork,
   getProviderURLFromNetwork,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { COMMUNITY_NAMES } from '../global-state';
-import { fetchNewcomerBoostData } from '@notional-finance/helpers';
+import { fetchBoostData } from '@notional-finance/helpers';
 export const GATED_VAULTS: Record<string, COMMUNITY_NAMES[]> = {};
 
 export interface Community {
@@ -99,8 +99,8 @@ export function checkSanctionedAddress(account: string) {
   return sanctionList['isSanctioned'](account) as Promise<boolean>;
 }
 
-export async function checkNewUserAddress(account: string) {
-  const eligibleAddresses = await fetchNewcomerBoostData();
+export async function checkBoostAddress(account: string) {
+  const eligibleAddresses = await fetchBoostData();
 
   return eligibleAddresses
     ?.map((addr) => addr.toLowerCase())
@@ -108,7 +108,7 @@ export async function checkNewUserAddress(account: string) {
 }
 
 export function checkBoostEndDate() {
-  if (new Date() > boostEndDate) {
+  if (new Date() > christmasBoostEndDate) {
     return false;
   } else {
     return true;

@@ -1,11 +1,14 @@
 import { Box, styled, SxProps, useTheme } from '@mui/material';
-import { checkStarterBoostToken } from '@notional-finance/helpers';
-import { RocketIcon } from '@notional-finance/icons';
+import { checkBoostToken } from '@notional-finance/helpers';
+import { TreeIcon } from '@notional-finance/icons';
 import { Body, CountUp, LabelValue } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
-import { boostEndDateString, RATE_PRECISION } from '@notional-finance/util';
+import {
+  RATE_PRECISION,
+  christmasDistributionDateString,
+} from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 interface StarterBoostProps {
@@ -16,20 +19,16 @@ interface StarterBoostProps {
 export const StarterBoost = ({ sx, state }: StarterBoostProps) => {
   const theme = useTheme();
   const {
-    globalState: { isStarterBoostUser },
+    globalState: { isBoostUser },
   } = useNotionalContext();
-  const { depositBalance } = state;
-  const boostValue = depositBalance?.mulInRatePrecision(
-    Math.floor((0.05 / 52) * RATE_PRECISION)
-  );
   const validBoostDate = checkBoostEndDate();
-  const isStarterBoost = checkStarterBoostToken(
+  const boostUser = checkBoostToken(
     state?.selectedDepositToken || '',
-    isStarterBoostUser
+    isBoostUser
   );
 
   const starterBoostActive =
-    isStarterBoost &&
+    boostUser &&
     validBoostDate &&
     (state.tradeType === 'LendFixed' ||
       state.tradeType === 'LendVariable' ||
@@ -47,14 +46,14 @@ export const StarterBoost = ({ sx, state }: StarterBoostProps) => {
         }}
       >
         <LabelValue sx={{ display: 'flex', alignItems: 'center' }}>
-          <RocketIcon
+          <TreeIcon
             sx={{
               height: theme.spacing(2),
               width: theme.spacing(2),
               marginRight: theme.spacing(1),
             }}
           />
-          <FormattedMessage defaultMessage={'Starter Boost Bonus'} />
+          <FormattedMessage defaultMessage={'Season of Deposits Boost'} />
         </LabelValue>
         <LabelValue
           sx={{
@@ -62,11 +61,7 @@ export const StarterBoost = ({ sx, state }: StarterBoostProps) => {
             paddingBottom: theme.spacing(0.5),
           }}
         >
-          <CountUp
-            value={boostValue?.toFloat() || 0}
-            suffix={` ${state.selectedDepositToken}`}
-            decimals={4}
-          />
+          <CountUp value={5} prefix={`+`} suffix={`% APY`} decimals={2} />
         </LabelValue>
       </Box>
       <Body sx={{ width: '100%' }}>
@@ -74,7 +69,9 @@ export const StarterBoost = ({ sx, state }: StarterBoostProps) => {
           defaultMessage={
             'Bonus will be distributed {endDate} if held for 30 days.'
           }
-          values={{ endDate: boostEndDateString }}
+          values={{
+            endDate: christmasDistributionDateString,
+          }}
         />
       </Body>
     </Container>

@@ -13,10 +13,9 @@ import {
   formatMaturity,
   formatNumberAsPercent,
   Network,
-  PRIME_CASH_VAULT_MATURITY,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { RocketIcon } from '@notional-finance/icons';
+import { TreeIcon } from '@notional-finance/icons';
 
 export const useProductsTable = (selectedNetwork: Network) => {
   const theme = useTheme();
@@ -104,10 +103,7 @@ export const useProductsTable = (selectedNetwork: Network) => {
   const formatMarketData = (allMarketsData) => {
     return allMarketsData
       .filter((data) => data.product !== 'Leveraged Liquidity')
-      .filter(
-        (data) =>
-          data.underlying.symbol === 'USDC' || data.underlying.symbol === 'ETH'
-      )
+      .filter((data) => data.underlying.symbol === 'USDC')
       .map((data) => {
         const { underlying, product, tvl, link, totalAPY } = data;
 
@@ -141,7 +137,7 @@ export const useProductsTable = (selectedNetwork: Network) => {
           },
           view: link,
           iconCellData: {
-            icon: RocketIcon,
+            icon: TreeIcon,
           },
         };
       });

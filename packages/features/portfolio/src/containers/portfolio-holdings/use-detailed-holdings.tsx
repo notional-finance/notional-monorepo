@@ -6,8 +6,6 @@ import {
   formatTokenType,
   getHoldingsSortOrder,
 } from '@notional-finance/helpers';
-import { H4 } from '@notional-finance/mui';
-import { RocketIcon } from '@notional-finance/icons';
 import {
   useFiatToken,
   useNOTE,
@@ -17,16 +15,18 @@ import {
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import {
+  starterBoostDistributionDate,
   getDateString,
   Network,
   PORTFOLIO_ACTIONS,
-  starterBoostDistributionDate,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
 import { useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
+import { H4 } from '@notional-finance/mui';
+import { RocketIcon } from '@notional-finance/icons';
 
 export function useDetailedHoldingsTable() {
   const network = useSelectedNetwork();
@@ -111,6 +111,10 @@ export function useDetailedHoldingsTable() {
           const isDebt = b.isNegative();
           const { icon, formattedTitle, titleWithMaturity, title } =
             formatTokenType(b.token, isDebt, true);
+          // const christmasBoostAvailable = checkBoostToken(
+          //   b.underlying.symbol,
+          //   isBoostUser
+          // );
           const marketApy = marketYield?.totalAPY;
           const noteIncentives = marketYield?.noteIncentives?.incentiveAPY;
           const secondaryIncentives =
@@ -141,6 +145,41 @@ export function useDetailedHoldingsTable() {
                 .toDisplayString(4)} ${b.underlying.symbol}`,
             },
           ];
+
+          // TODO: Add Christmas boost check against actual transactions when available
+          // if (christmasBoostAvailable && !isDebt) {
+          //   subRowData.push({
+          //     label: (
+          //       <FormattedMessage defaultMessage={'Season of deposits Bonus'} />
+          //     ),
+          //     value: (
+          //       <H4 sx={{ display: 'flex', alignItems: 'center' }}>
+          //         <TreeIcon
+          //           sx={{
+          //             marginRight: theme.spacing(0.5),
+          //             height: theme.spacing(2.5),
+          //             width: theme.spacing(2.5),
+          //           }}
+          //         />
+          //         <Box
+          //           component={'span'}
+          //           sx={{
+          //             marginLeft: theme.spacing(0.5),
+          //             display: 'flex',
+          //             alignItems: 'center',
+          //           }}
+          //         >
+          //           <FormattedMessage
+          //             defaultMessage={'Distribution: {endDate}'}
+          //             values={{
+          //               endDate: christmasDistributionDateString,
+          //             }}
+          //           />
+          //         </Box>
+          //       </H4>
+          //     ),
+          //   });
+          // }
 
           // NOTE: Temporary hashKey check for one new user boost user
           if (

@@ -1,17 +1,13 @@
 import { Box, useTheme } from '@mui/material';
 import { LinkText } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
-import { useLocation } from 'react-router-dom';
+import { TreeIcon } from '@notional-finance/icons';
 
 export const CustomBanner = () => {
   const theme = useTheme();
-  const {
-    globalState: { isStarterBoostUser },
-  } = useNotionalContext();
-  const { pathname } = useLocation();
-  return isStarterBoostUser && pathname.includes('portfolio') ? (
+
+  return (
     <Box
       sx={{
         height: theme.spacing(7),
@@ -22,6 +18,9 @@ export const CustomBanner = () => {
         top: 0,
         left: 0,
         zIndex: 999,
+        [theme.breakpoints.down('sm')]: {
+          display: 'none',
+        },
       }}
     >
       <Box
@@ -33,12 +32,23 @@ export const CustomBanner = () => {
           height: '100%',
           margin: '0 auto',
           padding: '0 32px',
+          color: colors.black,
+          fontSize: '16px',
         }}
       >
-        <LinkText to="/new-user" style={{ color: 'black', fontSize: '16px' }}>
-          <FormattedMessage defaultMessage="You're eligible: Earn boosted APYs on new deposits until Dec 10th!" />
+        <TreeIcon fill={colors.black} sx={{ marginRight: theme.spacing(1) }} />
+        <FormattedMessage defaultMessage="Introducing Season of Deposits! Earn an extra 5.0% APY!" />
+        <LinkText
+          to="/boost-view"
+          style={{
+            color: colors.black,
+            fontSize: '16px',
+            marginLeft: theme.spacing(1),
+          }}
+        >
+          <FormattedMessage defaultMessage="See Details" />
         </LinkText>
       </Box>
     </Box>
-  ) : null;
+  );
 };

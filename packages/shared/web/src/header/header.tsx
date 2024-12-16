@@ -71,7 +71,11 @@ export function Header({ children }: HeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="fixed" showBorder={pathname !== '/'}>
+      <AppBar
+        position="fixed"
+        showBorder={pathname !== '/'}
+        showBanner={pathname.includes('portfolio')}
+      >
         <Toolbar
           sx={{
             '&.MuiToolbar-root': {

@@ -49,9 +49,19 @@ export enum Network {
   arbitrum = 'arbitrum',
 }
 
-export const boostEndDate = new Date('2024-12-10T23:59:59Z');
+export const boostWhitelistUrl =
+  'https://registry.notional.finance/christmas_whitelist.json';
+
+export const christmasBoostStartDate = new Date('2024-12-16T23:59:59Z');
+export const christmasBoostEndDate = new Date('2024-12-31T23:59:59Z');
+export const christmasDistributionDate = new Date('2025-02-10T23:59:59Z');
+export const christmasDistributionDateString = getDateString(
+  christmasDistributionDate.getTime() / 1000
+);
+
+// export const boostEndDate = new Date('2024-12-10T23:59:59Z');
 export const starterBoostDistributionDate = new Date('2025-01-15T23:59:59Z');
-export const boostEndDateString = getDateString(boostEndDate.getTime() / 1000);
+// export const boostEndDateString = getDateString(boostEndDate.getTime() / 1000);
 
 export const NetworkId: Record<Network, number> = {
   [Network.all]: 1,

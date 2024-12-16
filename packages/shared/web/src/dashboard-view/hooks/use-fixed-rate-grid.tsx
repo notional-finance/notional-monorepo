@@ -1,7 +1,7 @@
 import {
   getBoostedData,
   formatNumberAsAbbr,
-  checkStarterBoostToken,
+  checkBoostToken,
 } from '@notional-finance/helpers';
 import {
   useAllMarkets,
@@ -25,7 +25,7 @@ export const useFixedRateGrid = (
     yields: { fCashLend, fCashBorrow },
   } = useAllMarkets(network);
   const {
-    globalState: { isStarterBoostUser },
+    globalState: { isBoostUser },
   } = useNotionalContext();
   const validBoostDate = checkBoostEndDate();
   const navigate = useNavigate();
@@ -46,10 +46,7 @@ export const useFixedRateGrid = (
         });
 
   const allData = yieldData.map((y) => {
-    const isStarterBoost = checkStarterBoostToken(
-      y.underlying.symbol,
-      isStarterBoostUser
-    );
+    const boostUser = checkBoostToken(y.underlying.symbol, isBoostUser);
     return {
       ...y,
       symbol: y.underlying.symbol,
@@ -61,8 +58,8 @@ export const useFixedRateGrid = (
       )}`,
       // TODO: ADD WALLET CHECK HERE
       bottomLeftValue:
-        isStarterBoost && !isBorrow && validBoostDate
-          ? `starter boost: ${formatNumberAsPercent(y.totalAPY + 5)} APY`
+        boostUser && !isBorrow && validBoostDate
+          ? `boost: ${formatNumberAsPercent(y.totalAPY + 5)} APY`
           : '',
       network: y.token.network,
       hasPosition: false,
@@ -106,10 +103,10 @@ export const useFixedRateGrid = (
   const { newUserBoostedData, nonBoostedData } = getBoostedData(sortedData);
 
   const gridData =
-    isStarterBoostUser && !isBorrow && validBoostDate
+    isBoostUser && !isBorrow && validBoostDate
       ? [
           {
-            sectionTitle: 'STARTER BOOST',
+            sectionTitle: 'Season of Deposits',
             data: newUserBoostedData,
             hasBoost: true,
           },
