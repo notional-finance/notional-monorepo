@@ -7,12 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps } from '@notional-finance/mui';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
-import {
-  AutoReinvestIcon,
-  DirectIcon,
-  PointsIcon,
-} from '@notional-finance/icons';
-import { Box } from '@mui/material';
+import { AutoReinvestIcon, DirectIcon } from '@notional-finance/icons';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { defineMessage } from 'react-intl';
 import { VaultType } from '@notional-finance/core-entities';
@@ -22,7 +17,7 @@ export const useLeveragedVaultGrid = (
   vaultProduct: PRODUCTS
 ): DashboardGridProps => {
   const navigate = useNavigate();
-  const { baseCurrency } = useAppStore();
+  const { baseCurrency, isMobileView } = useAppStore();
   const listedVaults = useAllVaults(vaultProduct);
   const vaultHoldings = useVaultHoldings(network);
   const [showNegativeYields, setShowNegativeYields] = useState(false);
@@ -74,23 +69,24 @@ export const useLeveragedVaultGrid = (
                 }),
               }
             : undefined,
+
         reinvestmentTypeString: vaultConfig.vaultType as VaultType | undefined,
         vaultUtilization: vaultConfig.vaultUtilization,
         rewardTokens: vaultConfig.rewardTokens.map((t) => t.symbol),
-        PointsSubTitle: points
-          ? () => (
-              <Box
-                sx={{
-                  display: 'flex',
-                  fontSize: 'inherit',
-                  alignItems: 'center',
-                }}
-              >
-                <PointsIcon sx={{ fontSize: 'inherit' }} />
-                &nbsp;
-                {` ${Object.keys(points).join('/')} Points`}
-              </Box>
-            )
+        apySubTitle:
+          vaultConfig.vaultType === 'PendlePT' && isMobileView
+            ? defineMessage({
+                defaultMessage: 'MAX APY',
+                description: 'Pendle PT mobile subtitle',
+              })
+            : undefined,
+        vaultType:
+          vaultConfig.vaultType === 'SingleSidedLP_DirectClaim' ||
+          vaultConfig.vaultType === 'SingleSidedLP_AutoReinvest'
+            ? vaultConfig.vaultType
+            : undefined,
+        pointsSubTitle: points
+          ? ` ${Object.keys(points).join('/')} Points`
           : undefined,
       };
     })

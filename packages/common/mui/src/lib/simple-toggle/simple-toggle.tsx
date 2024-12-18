@@ -35,7 +35,6 @@ export const SimpleToggle = ({
     <Container theme={theme}>
       <StyledTabs
         theme={theme}
-        selectionFollowsFocus={true}
         variant={tabVariant}
         defaultValue={0}
         value={selectedTabIndex}

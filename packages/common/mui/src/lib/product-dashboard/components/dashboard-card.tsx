@@ -1,5 +1,5 @@
 import { Box, useTheme, styled } from '@mui/material';
-import { MultiTokenIcon, TokenIcon } from '@notional-finance/icons';
+import { MultiTokenIcon, PointsIcon, TokenIcon } from '@notional-finance/icons';
 import { DashboardDataProps } from '../product-dashboard';
 import {
   H4,
@@ -11,7 +11,7 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { NotionalTheme } from '@notional-finance/styles';
 import SliderBasic from '../../slider-basic/slider-basic';
 import ReinvestPill from '../../reinvest-pill/reinvest-pill';
-
+import { checkMobileView, PRODUCTS } from '@notional-finance/util';
 interface GridCardApyProps {
   hideApySubTitle: boolean;
   theme: NotionalTheme;
@@ -26,6 +26,9 @@ const UtilizationBar = ({ vaultUtilization }: { vaultUtilization: number }) => {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'end',
+        [theme.breakpoints.down('sm')]: {
+          display: 'none',
+        },
       }}
     >
       <CaptionContainer>
@@ -61,17 +64,28 @@ export const DashboardCard = ({
   bottomRightValue,
   apySubTitle,
   vaultType,
+  reinvestOptions,
   vaultUtilization,
   rewardTokens,
-  PointsSubTitle,
+  pointsSubTitle,
   routeCallback,
   incentiveValue,
   incentiveSymbols,
   hasPosition,
   network,
+  routeKey,
 }: DashboardDataProps) => {
   const theme = useTheme();
   const hideFooter = !bottomLeftValue && !incentiveSymbols && !bottomRightValue;
+  const isMobile = checkMobileView();
+  const isVault =
+    routeKey === PRODUCTS.LEVERAGED_PENDLE ||
+    routeKey === PRODUCTS.LEVERAGED_YIELD_FARMING ||
+    routeKey === PRODUCTS.LEVERAGED_POINTS_FARMING;
+
+  const isMobileVaultCard = isMobile && isVault;
+  const subtitleValue = isMobileVaultCard ? bottomRightValue : subTitle;
+  const lowerLeftValue = isMobileVaultCard ? subTitle : bottomLeftValue;
 
   return (
     <GridCard onClick={() => routeCallback()}>
@@ -92,7 +106,7 @@ export const DashboardCard = ({
           <Box component="div" sx={{ textAlign: 'left', margin: 'auto' }}>
             <GridCardTitle>{title}</GridCardTitle>
             <GridCardSubTitle id="grid-card-sub-title">
-              {subTitle}
+              {subtitleValue}
             </GridCardSubTitle>
           </Box>
         </Box>
@@ -104,7 +118,9 @@ export const DashboardCard = ({
           }}
           theme={theme}
         >
-          {vaultType && <ReinvestPill vaultType={vaultType} />}
+          {reinvestOptions && vaultType && (
+            <ReinvestPill vaultType={vaultType} />
+          )}
           {apySubTitle && (
             <SectionTitle
               sx={{
@@ -117,7 +133,22 @@ export const DashboardCard = ({
               <FormattedMessage {...apySubTitle} />
             </SectionTitle>
           )}
-          {PointsSubTitle && <PointsSubTitle />}
+
+          {pointsSubTitle && (
+            <Box
+              sx={{
+                display: 'flex',
+                fontSize: 'inherit',
+                alignItems: 'center',
+              }}
+            >
+              <PointsIcon
+                sx={{ fontSize: 'inherit', marginRight: theme.spacing(0.5) }}
+                fill={isMobile ? theme.palette.typography.main : ''}
+              />
+              {pointsSubTitle}
+            </Box>
+          )}
           <LargeInputTextEmphasized
             sx={{
               textAlign: apySubTitle ? 'right' : '',
@@ -128,7 +159,9 @@ export const DashboardCard = ({
                   : theme.palette.typography.main,
             }}
           >
-            {vaultUtilization !== undefined ? (
+            {isMobile ? (
+              formatNumberAsPercent(apy, 0) + ' APY'
+            ) : vaultUtilization !== undefined ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <MultiTokenIcon
                   symbols={rewardTokens || []}
@@ -162,7 +195,7 @@ export const DashboardCard = ({
         {vaultUtilization !== undefined && (
           <UtilizationBar vaultUtilization={vaultUtilization} />
         )}
-        {bottomLeftValue && (
+        {lowerLeftValue && (
           <SectionTitle
             sx={{
               display: 'flex',
@@ -171,7 +204,7 @@ export const DashboardCard = ({
               alignItems: 'center',
             }}
           >
-            {bottomLeftValue}
+            {lowerLeftValue}
           </SectionTitle>
         )}
         {incentiveSymbols && incentiveSymbols.length > 0 && (
@@ -217,7 +250,7 @@ export const DashboardCard = ({
             )}
           </SectionTitle>
         )}
-        {bottomRightValue && (
+        {bottomRightValue && !isMobileVaultCard && (
           <SectionTitle
             sx={{
               display: 'flex',
@@ -228,6 +261,25 @@ export const DashboardCard = ({
           >
             {bottomRightValue}
           </SectionTitle>
+        )}
+        {isMobileVaultCard && vaultUtilization !== undefined && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              justifySelf: 'flex-end',
+            }}
+          >
+            <SectionTitle sx={{ marginRight: theme.spacing(0.5) }}>
+              Utilization:{' '}
+            </SectionTitle>
+            <SectionTitle
+              sx={{ fontWeight: 700, color: theme.palette.typography.main }}
+            >
+              {formatNumberAsPercent(vaultUtilization, 1)}
+            </SectionTitle>
+          </Box>
         )}
       </GridCardFooter>
     </GridCard>
@@ -253,18 +305,24 @@ const GridCard = styled(Box)(
       display: flex;
       flex-direction: column;
       box-shadow: ${theme.shape.shadowStandard};
-      ${theme.gradient.hoverTransition(
-        theme.palette.background.paper,
-        theme.palette.info.light
-      )};
-      &:hover {
-        cursor: pointer;
-        border: 1px solid ${theme.palette.primary.light};
-        transition: 0.3s ease;
-        transform: scale(1.02);
-        #incentive {
+      ${theme.breakpoints.up('sm')} {
+        ${theme.gradient.hoverTransition(
+          theme.palette.background.paper,
+          theme.palette.info.light
+        )};
+        &:hover {
+          cursor: pointer;
+          border: 1px solid ${theme.palette.primary.light};
+          transition: 0.3s ease;
+          transform: scale(1.02);
+          #incentive {
             background: rgba(19, 187, 194, 0.10);
+          }
         }
+      }
+
+      ${theme.breakpoints.down('sm')} {
+        background: ${theme.palette.background.paper};
       }
         `
 );

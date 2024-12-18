@@ -6,6 +6,7 @@ import {
 import { types, Instance } from 'mobx-state-tree';
 import { PortfolioStoreModel } from './portfolio-store';
 import {
+  checkMobileView,
   getFromLocalStorage,
   Network,
   THEME_VARIANTS,
@@ -125,6 +126,7 @@ export const createRootStore = (): RootStoreType => {
         error: undefined,
       },
       mobileNavOpen: false,
+      isMobileView: checkMobileView(),
     },
   });
 

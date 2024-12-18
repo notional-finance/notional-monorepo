@@ -97,7 +97,6 @@ const MobileSideDrawer = ({
         orientation="vertical"
         variant="scrollable"
         aria-label="Notional site Mobilenavigation"
-        selectionFollowsFocus={true}
         value={false}
         sx={{
           '&.MuiTabs-root': {

@@ -42,7 +42,7 @@ export const useMobileWelcomeNav = () => {
           }}
         />
       ),
-      link: `/portfolio/${selectedNetwork}/welcome/earn`,
+      to: `/portfolio/${selectedNetwork}/welcome/earn`,
     },
     {
       id: 'leverage',
@@ -58,7 +58,7 @@ export const useMobileWelcomeNav = () => {
           }}
         />
       ),
-      link: `/portfolio/${selectedNetwork}/welcome/leverage`,
+      to: `/portfolio/${selectedNetwork}/welcome/leverage`,
     },
     {
       id: 'borrow',
@@ -75,7 +75,7 @@ export const useMobileWelcomeNav = () => {
           }}
         />
       ),
-      link: `/portfolio/${selectedNetwork}/welcome/borrow`,
+      to: `/portfolio/${selectedNetwork}/welcome/borrow`,
     },
   ];
 

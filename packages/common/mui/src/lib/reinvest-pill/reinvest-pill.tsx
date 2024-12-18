@@ -62,6 +62,12 @@ export const ReinvestPill = ({
           fill: theme.palette.pending.main,
           marginRight: theme.spacing(1),
         },
+        [theme.breakpoints.down('sm')]: {
+          background: 'transparent',
+          textTransform: 'uppercase',
+          color: theme.palette.pending.main,
+          fontWeight: 600,
+        },
         ...sx,
       }}
     >

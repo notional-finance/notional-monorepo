@@ -41,7 +41,6 @@ export const TabToggle = ({
     <Container>
       <StyledTabs
         theme={theme}
-        selectionFollowsFocus={true}
         variant="fullWidth"
         defaultValue={0}
         value={selectedTabIndex}

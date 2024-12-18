@@ -4,7 +4,11 @@ import FeatureLoader from '../feature-loader/feature-loader';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLocation, useParams } from 'react-router-dom';
-import { ProductDashboard, DashboardViewProps } from '@notional-finance/mui';
+import {
+  ProductDashboard,
+  DashboardViewProps,
+  MobileProductDashboard,
+} from '@notional-finance/mui';
 import { PRODUCTS } from '@notional-finance/util';
 import {
   setInLocalStorage,
@@ -25,6 +29,34 @@ import {
 import { sortGridData, sortListData } from './hooks/utils';
 import { observer } from 'mobx-react-lite';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useProductModal } from '../hooks';
+import { FormattedMessage } from 'react-intl';
+
+const mobileTitles = {
+  [PRODUCTS.LEND_FIXED]: (
+    <FormattedMessage defaultMessage="Fixed Rate Lending" />
+  ),
+  [PRODUCTS.LEND_VARIABLE]: <FormattedMessage defaultMessage="Lending" />,
+  [PRODUCTS.LIQUIDITY_VARIABLE]: (
+    <FormattedMessage defaultMessage="Provide Liquidity" />
+  ),
+  [PRODUCTS.BORROW_FIXED]: (
+    <FormattedMessage defaultMessage="Fixed Rate Borrowing" />
+  ),
+  [PRODUCTS.BORROW_VARIABLE]: <FormattedMessage defaultMessage="Borrowing" />,
+  [PRODUCTS.LIQUIDITY_LEVERAGED]: (
+    <FormattedMessage defaultMessage="Leveraged Liquidity" />
+  ),
+  [PRODUCTS.LEVERAGED_POINTS_FARMING]: (
+    <FormattedMessage defaultMessage="Leveraged Points Farming" />
+  ),
+  [PRODUCTS.LEVERAGED_YIELD_FARMING]: (
+    <FormattedMessage defaultMessage="Leveraged Yield Farming" />
+  ),
+  [PRODUCTS.LEVERAGED_PENDLE]: (
+    <FormattedMessage defaultMessage="Leveraged Pendle" />
+  ),
+};
 
 export const DashboardView = ({
   gridData,
@@ -40,6 +72,7 @@ export const DashboardView = ({
   const { pathname } = useLocation();
   const [_, routeKey] = pathname.split('/');
   const userSettings = getFromLocalStorage('userSettings');
+  const productModalContent = useProductModal();
   const [tokenGroup, setTokenGroup] = useState<number>(
     userSettings.tokenGroup || 0
   );
@@ -76,6 +109,7 @@ export const DashboardView = ({
     routeKey === PRODUCTS.LEVERAGED_YIELD_FARMING && gridData
       ? sortGridData(gridData, reinvestmentType)
       : gridData;
+  const modalContent = productModalContent[routeKey];
 
   return (
     <ThemeProvider theme={themeLanding}>
@@ -101,6 +135,14 @@ export const DashboardView = ({
             handleReinvestmentType={handleReinvestmentType}
             dashboardTab={dashboardTab}
             handleDashboardTab={handleDashboardTab}
+          />
+          <MobileProductDashboard
+            gridData={sortedGridData || []}
+            showNegativeYields={showNegativeYields}
+            setShowNegativeYields={setShowNegativeYields}
+            modalContent={modalContent}
+            mobileTitle={mobileTitles[routeKey as PRODUCTS]}
+            routeKey={routeKey}
           />
         </CardContainer>
       </FeatureLoader>

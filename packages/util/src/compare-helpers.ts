@@ -39,3 +39,7 @@ export function containsNonZeroNumber(str: string) {
   // Check if the string contains any digit other than 0 and is negative
   return /\d*[1-9]\d*/.test(cleanedStr);
 }
+
+export function checkMobileView() {
+  return window.innerWidth < 768 ? true : false;
+}
