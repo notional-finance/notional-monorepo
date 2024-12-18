@@ -11,7 +11,7 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { NotionalTheme } from '@notional-finance/styles';
 import SliderBasic from '../../slider-basic/slider-basic';
 import ReinvestPill from '../../reinvest-pill/reinvest-pill';
-import { PRODUCTS } from '@notional-finance/util';
+import { checkMobileView, PRODUCTS } from '@notional-finance/util';
 interface GridCardApyProps {
   hideApySubTitle: boolean;
   theme: NotionalTheme;
@@ -77,7 +77,7 @@ export const DashboardCard = ({
 }: DashboardDataProps) => {
   const theme = useTheme();
   const hideFooter = !bottomLeftValue && !incentiveSymbols && !bottomRightValue;
-  const isMobile = window.innerWidth < 756;
+  const isMobile = checkMobileView();
   const isVault =
     routeKey === PRODUCTS.LEVERAGED_PENDLE ||
     routeKey === PRODUCTS.LEVERAGED_YIELD_FARMING ||

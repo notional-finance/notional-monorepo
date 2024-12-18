@@ -85,12 +85,20 @@ const AppLayoutRoute = ({
   );
 };
 
-const AppShell = styled(Box)`
+const AppShell = styled(Box)(
+  ({ theme }) => `
   display: flex;
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
-`;
+  
+  ${theme.breakpoints.down('sm')} {
+    .intercom-lightweight-app {
+      display: none !important;
+    }
+  }
+`
+);
 
 const MainContent = styled('div')`
   padding-top: 67px;

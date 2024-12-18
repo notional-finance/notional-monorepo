@@ -14,7 +14,11 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ReactNode } from 'react';
-import { getDateString, ONE_WEEK } from '@notional-finance/util';
+import {
+  checkMobileView,
+  getDateString,
+  ONE_WEEK,
+} from '@notional-finance/util';
 import { useTheme, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 
@@ -78,7 +82,7 @@ export const BarChart = ({
     return getDateString(date, { hideYear: true });
   };
 
-  const isMobile = window.innerWidth < 756;
+  const isMobile = checkMobileView();
 
   return (
     <Box sx={{ overflowX: isMobile ? 'scroll' : '' }}>

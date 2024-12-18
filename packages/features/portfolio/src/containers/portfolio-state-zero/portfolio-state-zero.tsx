@@ -1,21 +1,16 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { H2, Subtitle } from '@notional-finance/mui';
-// import { Banner, H2, Subtitle } from '@notional-finance/mui';
-// import {
-//   useAppStore,
-//   useSideDrawerManager,
-// } from '@notional-finance/notionable-hooks';
+import { Banner, H2, Subtitle } from '@notional-finance/mui';
+import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
 import {
   PORTFOLIO_STATE_ZERO_OPTIONS,
-  // SETTINGS_SIDE_DRAWERS,
+  SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/util';
-// import { FormattedMessage, defineMessage, defineMessages } from 'react-intl';
-import { FormattedMessage } from 'react-intl';
-// import connectImage from './connect-wallet.svg';
+import { FormattedMessage, defineMessage, defineMessages } from 'react-intl';
+import connectImage from './connect-wallet.svg';
 import { useEffect, useState } from 'react';
 import {
   PortfolioParams,
-  // useAccountReady,
+  useAccountReady,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import StateZeroToggle from './state-zero-toggle';
@@ -26,31 +21,31 @@ import StateZeroData from './state-zero-data';
 import { useMobileWelcomeNav } from './hooks';
 import { BottomMobileNav } from '@notional-finance/shared-web';
 
-// const stateZeroBanner = {
-//   title: defineMessage({
-//     defaultMessage: 'Please, connect your wallet',
-//     description: 'empty note staking overview title',
-//   }),
-//   messages: defineMessages({
-//     promptText: {
-//       defaultMessage:
-//         'Connect your wallet to see your portfolio or personalized recommendations.',
-//       description: 'empty note staking overview prompt text',
-//     },
-//     buttonText: {
-//       defaultMessage: 'Connect Wallet',
-//       description: 'empty note staking button text',
-//     },
-//   }),
-// };
+const stateZeroBanner = {
+  title: defineMessage({
+    defaultMessage: 'Please, connect your wallet',
+    description: 'empty note staking overview title',
+  }),
+  messages: defineMessages({
+    promptText: {
+      defaultMessage:
+        'Connect your wallet to see your portfolio or personalized recommendations.',
+      description: 'empty note staking overview prompt text',
+    },
+    buttonText: {
+      defaultMessage: 'Connect Wallet',
+      description: 'empty note staking button text',
+    },
+  }),
+};
 
 const PortfolioStateZero = observer(() => {
   const theme = useTheme();
   const navigate = useNavigate();
   const params = useParams<{ sideDrawerKey?: string }>();
-  // const { setWalletSideDrawer } = useSideDrawerManager();
+  const { setWalletSideDrawer } = useSideDrawerManager();
   const selectedNetwork = useSelectedNetwork();
-  // const isAccountReady = useAccountReady(selectedNetwork);
+  const isAccountReady = useAccountReady(selectedNetwork);
   const { sideDrawerKey } = useParams<PortfolioParams>();
   const options = useMobileWelcomeNav();
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
@@ -88,7 +83,7 @@ const PortfolioStateZero = observer(() => {
 
   return (
     <PortfolioMainContent>
-      {/* {!isAccountReady && (
+      {!isAccountReady && (
         <Box sx={{ marginTop: theme.spacing(6) }}>
           <Banner
             messages={stateZeroBanner.messages}
@@ -100,7 +95,7 @@ const PortfolioStateZero = observer(() => {
             }
           />
         </Box>
-      )} */}
+      )}
       <TopContentContainer>
         <Box sx={{ marginTop: theme.spacing(6) }}>
           <Box sx={{ display: 'flex' }}>
