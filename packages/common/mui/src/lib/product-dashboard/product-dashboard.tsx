@@ -29,9 +29,14 @@ export interface DashboardDataProps {
   currency?: {
     symbol: string;
   };
-  PointsSubTitle?: React.FC;
+  pointsSubTitle?: string;
   incentiveValue?: string;
   incentiveSymbols?: (string | undefined)[] | [];
+  routeKey?: string;
+  reinvestOptions?: {
+    Icon: React.FC;
+    label: MessageDescriptor;
+  };
 }
 
 export interface DashboardHeaderProps {
@@ -65,6 +70,7 @@ export interface DashboardGridProps {
   ComingSoonComponent?: React.FC;
   hideApyTitle?: boolean;
   hasPosition?: boolean;
+  routeKey?: string;
 }
 export interface DashboardViewProps extends DashboardGridProps {
   listData: Array<any>;
@@ -172,7 +178,7 @@ const MainContainer = styled(Box)(
     box-shadow: 0px 30px 54px -15px rgba(20, 42, 74, 0.30);
     margin: ${theme.spacing(6)};
     ${theme.breakpoints.down('sm')} {
-      margin: 0px;
+      display: none;
     }
       `
 );

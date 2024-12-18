@@ -125,6 +125,7 @@ export const createRootStore = (): RootStoreType => {
         error: undefined,
       },
       mobileNavOpen: false,
+      isMobileView: window.innerWidth < 756 ? true : false,
     },
   });
 

@@ -1,12 +1,4 @@
-import {
-  Tab,
-  Tabs,
-  TabsProps,
-  Drawer,
-  Box,
-  useTheme,
-  styled,
-} from '@mui/material';
+import { Tab, Tabs, Drawer, Box, useTheme, styled } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { SyntheticEvent } from 'react';
@@ -82,7 +74,7 @@ const StyledBurger = styled('button', {
   },
 }));
 
-export const MobileNavigation = observer(({ ...rest }: TabsProps) => {
+export const MobileNavigation = observer(() => {
   const theme = useTheme();
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const navigate = useNavigate();
@@ -219,7 +211,6 @@ export const MobileNavigation = observer(({ ...rest }: TabsProps) => {
         keepMounted
         open={mainNavOpen}
         onClose={handleCloseNavMenu}
-        BackdropProps={{ invisible: true }}
         sx={{
           height: '100vh',
           display: { xs: 'block', lg: 'none' },
@@ -234,7 +225,6 @@ export const MobileNavigation = observer(({ ...rest }: TabsProps) => {
         }}
       >
         <Tabs
-          {...rest}
           value={selectedTab}
           onChange={handleChange}
           orientation="vertical"

@@ -1,12 +1,16 @@
 import { styled, Box, useTheme, SxProps } from '@mui/material';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import { HeadingSubtitle, H1, ExternalLink } from '@notional-finance/mui';
 import { CardSubNav } from './card-sub-nav/card-sub-nav';
 import { CardTable } from './card-table/card-table';
-import { CardMobileNav } from './card-mobile-nav/card-mobile-nav';
 import { LightningIcon } from '@notional-finance/icons';
+import BottomMobileNav from '../bottom-mobile-nav/bottom-mobile-nav';
+import { useLocation } from 'react-router-dom';
+import useCardMobileNav from './mobile-card-dropdown/use-card-mobile-nav';
+import { MobileCardDropdown } from './mobile-card-dropdown/mobile-card-dropdown';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export interface CardContainerProps {
   heading: MessageDescriptor;
@@ -28,11 +32,21 @@ export function CardContainer({
   sx,
 }: CardContainerProps) {
   const theme = useTheme();
+  const { pathname } = useLocation();
+  const { setMobileNavOpen } = useAppStore();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  const { visibleOptions } = useCardMobileNav();
+  const productKey = pathname.split('/')[1];
 
   const isMobile = window.innerWidth < 756;
+
+  const handleOpen = () => {
+    setMobileNavOpen(true);
+    setIsOpen(true);
+  };
 
   return (
     <MainContainer sx={{ ...sx }}>
@@ -111,7 +125,17 @@ export function CardContainer({
       <Box sx={{ width: '100%', textAlign: 'center' }}>
         <StyledCardList>{children}</StyledCardList>
       </Box>
-      <CardMobileNav />
+      <BottomMobileNav
+        options={visibleOptions}
+        navKey={productKey}
+        showMore
+        callback={handleOpen}
+      />
+      <MobileCardDropdown
+        activeToken={productKey}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      />
     </MainContainer>
   );
 }
@@ -146,6 +170,9 @@ const Background = styled(Box)(
   ${theme.breakpoints.down('md')} {
     height: ${theme.spacing(94)};
   }
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  }
 `
 );
 
@@ -167,6 +194,7 @@ const InnerContentContainer = styled(Box)(
     flex-direction: column;
     align-items: center;
     margin-bottom: ${theme.spacing(10)};
+    max-width: 90%;
   }
 `
 );
@@ -201,5 +229,11 @@ const StyledCardList = styled('ul')(
   width: 100%;
   max-width: ${theme.spacing(187.5)};
   grid-gap: ${theme.spacing(5)};
+  ${theme.breakpoints.down('sm')} {
+    width: 95%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+  }
 `
 );

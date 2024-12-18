@@ -14,6 +14,7 @@ import { FormattedMessage } from 'react-intl';
 // import connectImage from './connect-wallet.svg';
 import { useEffect, useState } from 'react';
 import {
+  PortfolioParams,
   // useAccountReady,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
@@ -22,7 +23,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { useNetworkTokenData } from './hooks/use-network-token-data';
 import StateZeroData from './state-zero-data';
-import MobileWelcomeNav from './mobile-welcome-nav/mobile-welcome-nav';
+import { useMobileWelcomeNav } from './hooks';
+import { BottomMobileNav } from '@notional-finance/shared-web';
 
 // const stateZeroBanner = {
 //   title: defineMessage({
@@ -49,6 +51,8 @@ const PortfolioStateZero = observer(() => {
   // const { setWalletSideDrawer } = useSideDrawerManager();
   const selectedNetwork = useSelectedNetwork();
   // const isAccountReady = useAccountReady(selectedNetwork);
+  const { sideDrawerKey } = useParams<PortfolioParams>();
+  const options = useMobileWelcomeNav();
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
   const { tokenList, productGroupData, defaultSymbol } =
     useNetworkTokenData(selectedTabIndex);
@@ -141,7 +145,7 @@ const PortfolioStateZero = observer(() => {
         tokenList={tokenList || []}
         selectedTabIndex={selectedTabIndex}
       />
-      <MobileWelcomeNav />
+      <BottomMobileNav options={options} navKey={sideDrawerKey} />
     </PortfolioMainContent>
   );
 });

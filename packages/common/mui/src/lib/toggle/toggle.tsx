@@ -32,7 +32,6 @@ export const Toggle = ({
       <StyledTabs
         minHeight={minHeight}
         theme={theme}
-        selectionFollowsFocus={true}
         variant="fullWidth"
         defaultValue={0}
         value={selectedTabIndex}

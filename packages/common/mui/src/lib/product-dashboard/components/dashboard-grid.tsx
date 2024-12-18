@@ -19,6 +19,7 @@ export const DashboardGrid = ({
   setShowNegativeYields,
   showNegativeYields,
   threeWideGrid,
+  routeKey,
 }: DashboardGridProps) => {
   const theme = useTheme();
   const dataAvailable = gridData && gridData[0]?.data.length > 0 ? true : false;
@@ -62,7 +63,7 @@ export const DashboardGrid = ({
                 <GridCardContainer threeWideGrid={threeWideGrid} theme={theme}>
                   {data.map((d, index) => (
                     <div key={index}>
-                      <DashboardCard key={index} {...d} />
+                      <DashboardCard key={index} {...d} routeKey={routeKey} />
                     </div>
                   ))}
                 </GridCardContainer>
@@ -98,16 +99,16 @@ const Container = styled(Box, {
       padding-top: ${theme.spacing(4)};
       padding-left: ${theme.spacing(3)};
       padding-right: ${theme.spacing(3)};
-      ${theme.breakpoints.down('sm')} {
-        padding-left: ${theme.spacing(2)};
-        padding-right: ${theme.spacing(2)};
-    }
       ${
         hasLeveragedPosition
           ? `
         background: ${theme.palette.background.default};
         `
           : ``
+      }
+      ${theme.breakpoints.down('sm')} {
+          padding: 0px;
+          width: 100%;
       }
     `
 );
