@@ -106,7 +106,8 @@ const wcV2InitOptions = {
   version: 2,
   projectId: '4c1aab455337c5172aeeaa076b5104e4',
   requiredChains: [42161, 1],
-  dappUrl: 'https://notional.finance/',
+  // FOR TESTING:
+  dappUrl: 'https://dev.notional.finance/',
 };
 
 const wallets = [
