@@ -63,10 +63,10 @@ export const useWalletModules = () => {
           label: 'Coinbase Wallet',
           icon: CoinbaseWallet,
         },
-        // {
-        //   label: 'WalletConnect',
-        //   icon: WalletConnect,
-        // },
+        {
+          label: 'WalletConnect',
+          icon: WalletConnect,
+        },
       ]
     : [
         {
@@ -127,6 +127,11 @@ const wcV2InitOptions = {
   requiredChains: [42161, 1],
   // FOR TESTING:
   dappUrl: 'https://dev.notional.finance/',
+  qrModalOptions: {
+    enableExplorer: true,
+    mobileWallets: isMobile,
+    desktopWallets: !isMobile,
+  },
 };
 
 const wallets = isMobile
@@ -136,11 +141,12 @@ const wallets = isMobile
           extensionOnly: false,
           dappMetadata: {
             name: 'notional finance',
+            url: 'https://dev.notional.finance/',
           },
         },
       }),
       coinbaseModule(),
-      // walletConnectModule(wcV2InitOptions),
+      walletConnectModule(wcV2InitOptions),
     ]
   : [
       injectedModule(),
