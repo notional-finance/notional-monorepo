@@ -1,5 +1,8 @@
 import { trackEvent } from '@notional-finance/helpers';
-import { useWalletStore } from '@notional-finance/notionable-hooks';
+import {
+  useAppStore,
+  useWalletStore,
+} from '@notional-finance/notionable-hooks';
 import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';
@@ -19,6 +22,7 @@ export const useConnect = () => {
     _setWalletModules,
     setPrimaryWallet,
   ] = useConnectWallet();
+  const { isMobileView } = useAppStore();
   const currentLabel = wallet?.label;
   const [{ connectedChain }] = useSetChain(currentLabel);
   const walletStore = useWalletStore();
@@ -35,11 +39,15 @@ export const useConnect = () => {
 
   const connectWallet = useCallback(
     (walletLabel?: string) => {
-      // No change to wallets, nothing to do here.
       if (!walletLabel || currentLabel === walletLabel) return;
-      connect({ autoSelect: { label: walletLabel, disableModals: true } });
+      connect({
+        autoSelect: {
+          label: walletLabel,
+          disableModals: !isMobileView, // Enable modals on mobile for deep linking
+        },
+      });
     },
-    [connect, currentLabel]
+    [connect, currentLabel, isMobileView]
   );
 
   const disconnectWallet = useCallback(() => {
