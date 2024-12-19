@@ -1479,9 +1479,11 @@ export const TradeModel = types
       let minBorrowSize: string | undefined = undefined;
       let underMinAccountBorrow = false;
       let maxPoolShare: string | undefined;
-      const vaultAdapter = root()
-        .getNetworkClient(self.selectedNetwork)
-        .getVaultAdapter(self.selectedNetwork);
+      const vaultAdapter = self.vaultAddress
+        ? root()
+            .getNetworkClient(self.selectedNetwork)
+            .getVaultAdapter(self.vaultAddress)
+        : undefined;
       const vaultCapacity = self.debtBalance?.token
         ? {
             minAccountBorrowSize: TokenBalance.zero(self.debtBalance.token),
@@ -1564,7 +1566,7 @@ export const TradeModel = types
         underMinAccountBorrow,
         totalCapacityRemaining,
         totalPoolCapacityRemaining,
-        vaultTVL: vaultAdapter.getVaultTVL(),
+        vaultTVL: vaultAdapter?.getVaultTVL(),
         vaultCapacityError:
           self.tradeType === 'WithdrawVault'
             ? false

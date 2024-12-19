@@ -17,7 +17,7 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
     self.timeSeriesState.set(id, { id, isLoading: true });
 
     const response = yield fetch(
-      `${REGISTRY_HOSTNAME}/${self.network}/views-dev/${id}`
+      `${REGISTRY_HOSTNAME}/${self.network}/views/${id}`
     );
     if (!response.ok) {
       self.timeSeriesState.set(id, {
