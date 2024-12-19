@@ -1,7 +1,6 @@
 import { init } from '@web3-onboard/react';
 import { OnboardAPI } from '@web3-onboard/core';
 import injectedModule from '@web3-onboard/injected-wallets';
-import { EIP1193Provider } from '@web3-onboard/common';
 import {
   EIP6963AnnounceProviderEvent,
   EIP6963ProviderDetail,
@@ -21,6 +20,7 @@ import {
   Network,
   NetworkId,
 } from '@notional-finance/util';
+import { EIP1193Provider } from '@web3-onboard/common';
 
 export const chains = [
   {
@@ -107,12 +107,6 @@ const wcV2InitOptions = {
   projectId: '4c1aab455337c5172aeeaa076b5104e4',
   requiredChains: [42161, 1],
   dappUrl: 'https://notional.finance/',
-  qrModalOptions: {
-    mobileLinks: ['metamask', 'coinbase', 'trust', 'rainbow'],
-  },
-  enableExplorer: true,
-  explorerExcludedWalletIds: 'ALL',
-  showQrModal: true,
 };
 
 const wallets = [
