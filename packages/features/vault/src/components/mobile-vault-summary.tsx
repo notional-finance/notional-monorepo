@@ -1,16 +1,12 @@
-import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { H5, LargeInputTextEmphasized, CountUp } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
-import { VaultActionContext } from '../vault';
 import { FormattedMessage } from 'react-intl';
+import { useVaultNameInfo } from '../hooks';
 
 export const MobileVaultSummary = () => {
   const theme = useTheme();
-  const {
-    state: { deposit, vaultConfig },
-  } = useContext(VaultActionContext);
-  const vaultName = vaultConfig?.name;
+  const { primaryBorrowCurrency, name } = useVaultNameInfo() ?? {};
   // TODO: refactor this to get it from the trade action summary
   const headlineApy = undefined;
 
@@ -26,14 +22,14 @@ export const MobileVaultSummary = () => {
     >
       <Box sx={{ display: 'flex' }}>
         <Box sx={{ flex: 1 }}>
-          <H5 sx={{ whiteSpace: 'nowrap' }}>{vaultName}</H5>
-          {deposit && (
+          <H5 sx={{ whiteSpace: 'nowrap' }}>{name}</H5>
+          {primaryBorrowCurrency && (
             <LargeInputTextEmphasized
               sx={{ flex: 1, display: 'flex', alignItems: 'center' }}
             >
-              {deposit.symbol}
+              {primaryBorrowCurrency}
               <TokenIcon
-                symbol={deposit.symbol}
+                symbol={primaryBorrowCurrency}
                 size="large"
                 style={{
                   marginLeft: theme.spacing(2),

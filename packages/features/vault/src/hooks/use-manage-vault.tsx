@@ -1,7 +1,6 @@
-import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { VaultActionContext } from '../vault';
 import {
+  useCurrentTradeContext,
   useVaultPosition,
   useVaultProperties,
 } from '@notional-finance/notionable-hooks';
@@ -21,9 +20,11 @@ interface OptionsList {
 }
 
 export function useManageVault() {
-  const {
-    state: { vaultAddress, debtOptions, selectedNetwork },
-  } = useContext(VaultActionContext);
+  const trade = useCurrentTradeContext();
+  const vaultAddress = trade?.vaultAddress;
+  const selectedNetwork = trade?.selectedNetwork;
+  const { debt: debtOptions } = trade?.computedOptions ?? {};
+
   const vaultData = useVaultProperties(vaultAddress);
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const vaultType = vaultData?.vaultType;

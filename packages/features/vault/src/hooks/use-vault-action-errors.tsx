@@ -1,32 +1,31 @@
 import { CountUp, LabelValue } from '@notional-finance/mui';
 import { formatLeverageRatio } from '@notional-finance/helpers';
-import { useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
-import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { tradeErrors } from '@notional-finance/trade';
-import { useVaultPosition } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useVaultPosition,
+} from '@notional-finance/notionable-hooks';
 
 export function useVaultActionErrors() {
-  const {
-    state: {
-      depositBalance,
-      debt,
-      calculateError,
-      minLeverageRatio,
-      maxLeverageRatio,
-      riskFactorLimit,
-      minBorrowSize,
-      overCapacityError,
-      overPoolCapacityError,
-      selectedNetwork,
-      vaultAddress,
-      underMinAccountBorrow,
-      netRealizedDebtBalance,
-    },
-  } = useContext(VaultActionContext);
+  const trade = useCurrentTradeContext();
+  const { debt } = trade?.selectedTokens ?? {};
+  const depositBalance = trade?.depositBalance;
+  const selectedNetwork = trade?.selectedNetwork;
+  const vaultAddress = trade?.vaultAddress;
+  const calculateError = trade?.calculateError;
+  const minLeverageRatio = trade?.minLeverageRatio;
+  const maxLeverageRatio = trade?.maxLeverageRatio;
+  const selectedLeverageRatio = trade?.leverageRatio;
+  const capacity = trade?.getVaultCapacity();
+  const minBorrowSize = capacity?.minBorrowSize;
+  const overCapacityError = capacity?.overCapacityError;
+  const overPoolCapacityError = capacity?.overPoolCapacityError;
+  const underMinAccountBorrow = capacity?.underMinAccountBorrow;
+  const netRealizedDebtBalance = trade?.netRealizedDebtBalance;
+
   const currentPosition = useVaultPosition(selectedNetwork, vaultAddress);
-  const selectedLeverageRatio = riskFactorLimit?.limit as number | undefined;
 
   let inputErrorMsg: MessageDescriptor | undefined;
   if (depositBalance && !debt) {

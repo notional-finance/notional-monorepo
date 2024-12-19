@@ -1,12 +1,14 @@
 import {
   APYData,
   fCashMarket,
+  getVaultType,
   NotionalTypes,
   PendlePT,
   SingleSidedLP,
   TokenBalance,
   TokenDefinition,
   TokenDefinitionModel,
+  VAULT_TYPES,
   VaultAdapter,
 } from '@notional-finance/core-entities';
 import {
@@ -118,6 +120,11 @@ export const TradeModel = types
       'StakeNOTECoolDown',
       'StakeNOTERedeem',
       'StakeNOTE',
+      'CreateVaultPosition',
+      'IncreaseVaultPosition',
+      'AdjustVaultLeverage',
+      'RollVaultPosition',
+      'WithdrawVault',
     ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),
@@ -242,6 +249,12 @@ export const TradeModel = types
 
     /** True if the trade is a deleverage */
     isDeleverage: types.optional(types.boolean, false),
+
+    /** Vault type */
+    vaultType: types.optional(
+      types.maybe(types.enumeration('VaultType', VAULT_TYPES)),
+      undefined
+    ),
   })
   .actions((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
@@ -458,6 +471,10 @@ export const TradeModel = types
             typeof TokenDefinitionModel
           >)
         : undefined;
+
+      if (self.vaultAddress) {
+        self.vaultType = getVaultType(self.vaultAddress, self.selectedNetwork);
+      }
 
       // Set selected portfolio token
       if (self.selectedToken) {
@@ -1709,6 +1726,19 @@ export const TradeModel = types
     };
 
     return {
+      get vaultName() {
+        if (!self.vaultAddress) return undefined;
+        const model = root().getNetworkClient(self.selectedNetwork);
+        const config = model.getVaultConfig(self.vaultAddress);
+
+        return {
+          name: config?.name,
+          poolName: config?.poolName,
+          technicalName: config?.technicalName,
+          boosterProtocol: config?.boosterProtocol,
+          baseProtocol: config?.baseProtocol,
+        };
+      },
       get selectedTokens() {
         return {
           deposit: self.deposit as TokenDefinition,

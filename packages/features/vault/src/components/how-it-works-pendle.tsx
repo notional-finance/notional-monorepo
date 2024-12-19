@@ -2,7 +2,7 @@ import { Body, ExternalLink, H5 } from '@notional-finance/mui';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { useVaultStrategyData } from '../hooks';
+import { useVaultNameInfo } from '../hooks';
 import PTVaultImg from './pt-vault-img';
 
 interface HowItWorksFaqProps {
@@ -11,10 +11,10 @@ interface HowItWorksFaqProps {
 
 export const HowItWorksFaqPendle = ({ tokenSymbol }: HowItWorksFaqProps) => {
   const theme = useTheme();
-  const vaultStrategyData = useVaultStrategyData();
-  if (!vaultStrategyData) return null;
+  const vaultNameInfo = useVaultNameInfo();
+  if (!vaultNameInfo) return null;
 
-  const { docsLink, primaryBorrowCurrency } = vaultStrategyData;
+  const { docsLink, primaryBorrowCurrency } = vaultNameInfo;
 
   return (
     <div>

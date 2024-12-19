@@ -1,16 +1,15 @@
-import { useContext } from 'react';
-import { VaultActionContext } from '../vault';
 import {
   useCurrentTradeContext,
   useVaultPosition,
 } from '@notional-finance/notionable-hooks';
 
 export function useVaultExistingFactors() {
-  const { state } = useContext(VaultActionContext);
-  const { vaultAddress, selectedNetwork } = state;
   const trade = useCurrentTradeContext();
   const postVaultFactors = trade?.getPostVaultFactors();
-  const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
+  const vaultPosition = useVaultPosition(
+    trade?.selectedNetwork,
+    trade?.vaultAddress
+  );
 
   const vaultShare = vaultPosition?.vaultShares.token;
 

@@ -23,6 +23,7 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
   const params = useParams<{
     selectedDepositToken?: string;
     selectedToken?: string;
+    vaultAddress?: string;
   }>();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
       selectedNetwork: network,
       selectedDepositToken: params.selectedDepositToken,
       selectedToken: params.selectedToken,
+      vaultAddress: params.vaultAddress,
     });
 
     return () => {
