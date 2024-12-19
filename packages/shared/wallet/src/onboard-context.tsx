@@ -1,11 +1,11 @@
 import { init } from '@web3-onboard/react';
 import { OnboardAPI } from '@web3-onboard/core';
-import injectedModule from '@web3-onboard/injected-wallets';
 import {
   EIP6963AnnounceProviderEvent,
   EIP6963ProviderDetail,
 } from '@web3-onboard/injected-wallets/dist/types';
 import walletConnectModule from '@web3-onboard/walletconnect';
+import metamaskSDK from '@web3-onboard/metamask';
 import safeModule from '@web3-onboard/gnosis';
 import coinbaseModule from '@web3-onboard/coinbase';
 import MetaMask from './images/meta-mask.svg';
@@ -109,8 +109,16 @@ const wcV2InitOptions = {
 };
 
 const wallets = [
-  injectedModule(),
+  // injectedModule(),
   coinbaseModule(),
+  metamaskSDK({
+    options: {
+      extensionOnly: false,
+      dappMetadata: {
+        name: 'notional finance',
+      },
+    },
+  }),
   walletConnectModule(wcV2InitOptions),
   trezorModule({
     email,
