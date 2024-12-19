@@ -1,9 +1,11 @@
 import { init } from '@web3-onboard/react';
 import { OnboardAPI } from '@web3-onboard/core';
 import injectedModule from '@web3-onboard/injected-wallets';
+import { EIP1193Provider } from '@web3-onboard/common';
 import {
   EIP6963AnnounceProviderEvent,
   EIP6963ProviderDetail,
+  InjectedNameSpace,
 } from '@web3-onboard/injected-wallets/dist/types';
 import walletConnectModule from '@web3-onboard/walletconnect';
 import safeModule from '@web3-onboard/gnosis';
@@ -105,10 +107,48 @@ const wcV2InitOptions = {
   projectId: '4c1aab455337c5172aeeaa076b5104e4',
   requiredChains: [42161, 1],
   dappUrl: 'https://notional.finance/',
+  qrModalOptions: {
+    mobileLinks: ['metamask', 'coinbase', 'trust', 'rainbow'],
+  },
+  enableExplorer: true,
+  explorerExcludedWalletIds: 'ALL',
+  showQrModal: true,
 };
 
 const wallets = [
-  injectedModule(),
+  injectedModule({
+    custom: [
+      // Add support for Coinbase Wallet browser extension and mobile app
+      {
+        label: 'Coinbase Wallet',
+        injectedNamespace: InjectedNameSpace.Ethereum,
+        checkProviderIdentity: ({ provider }) => !!provider?.isCoinbaseWallet,
+        getIcon: async () =>
+          (await import('./images/coinbase-wallet.svg')).default,
+        getInterface: async () => {
+          if (!window.ethereum) throw new Error('No provider found');
+          return {
+            provider: window.ethereum as unknown as EIP1193Provider,
+          };
+        },
+        platforms: ['desktop', 'mobile'],
+      },
+      // Add support for MetaMask mobile app
+      {
+        label: 'MetaMask',
+        injectedNamespace: InjectedNameSpace.Ethereum,
+        checkProviderIdentity: ({ provider }) => !!provider?.isMetaMask,
+        getIcon: async () => (await import('./images/meta-mask.svg')).default,
+        getInterface: async () => {
+          if (!window.ethereum) throw new Error('No provider found');
+          return {
+            provider: window.ethereum as unknown as EIP1193Provider,
+          };
+        },
+        platforms: ['desktop', 'mobile'],
+      },
+    ],
+  }),
   coinbaseModule(),
   walletConnectModule(wcV2InitOptions),
   trezorModule({
@@ -133,6 +173,8 @@ export const OnboardContext: OnboardAPI = init({
   },
   connect: {
     autoConnectLastWallet: true,
+    disableClose: true,
+    removeWhereIsMyWalletWarning: true,
   },
   appMetadata: {
     name: 'Notional',
