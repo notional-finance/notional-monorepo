@@ -47,7 +47,8 @@ export const MobileCardDropdown = observer(
         sx={{
           '& .MuiDrawer-paper': {
             marginTop: theme.spacing(9),
-            height: 'fit-content',
+            height: '100vh',
+            overflow: 'scroll',
             borderBottomLeftRadius: theme.shape.borderRadius(),
             borderBottomRightRadius: theme.shape.borderRadius(),
             border: theme.shape.borderStandard,

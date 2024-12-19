@@ -5,6 +5,11 @@ export const NormalizeCss = `
     body {
       margin-bottom: 0px;
     }
+    @media (max-width: 768px) {
+      .intercom-lightweight-app {
+        display: none !important;
+      }
+    }
   }
   main {
     display: block;

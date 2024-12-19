@@ -84,7 +84,14 @@ const PortfolioStateZero = observer(() => {
   return (
     <PortfolioMainContent>
       {!isAccountReady && (
-        <Box sx={{ marginTop: theme.spacing(6) }}>
+        <Box
+          sx={{
+            marginTop: theme.spacing(6),
+            [theme.breakpoints.down('sm')]: {
+              display: 'none',
+            },
+          }}
+        >
           <Banner
             messages={stateZeroBanner.messages}
             buttonSuffix={``}
