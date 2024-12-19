@@ -129,8 +129,8 @@ const wcV2InitOptions = {
   dappUrl: 'https://dev.notional.finance/',
   qrModalOptions: {
     enableExplorer: true,
-    mobileWallets: isMobile,
-    desktopWallets: !isMobile,
+    mobileWallets: true,
+    desktopWallets: true,
   },
 };
 
