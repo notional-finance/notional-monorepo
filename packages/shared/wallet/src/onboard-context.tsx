@@ -5,6 +5,7 @@ import {
   EIP6963ProviderDetail,
 } from '@web3-onboard/injected-wallets/dist/types';
 import walletConnectModule from '@web3-onboard/walletconnect';
+import injectedModule from '@web3-onboard/injected-wallets';
 import metamaskSDK from '@web3-onboard/metamask';
 import safeModule from '@web3-onboard/gnosis';
 import coinbaseModule from '@web3-onboard/coinbase';
@@ -15,6 +16,7 @@ import trezorModule from '@web3-onboard/trezor';
 import WalletConnect from './images/wallet-connect.svg';
 import Trezor from './images/trezor.svg';
 import {
+  checkMobileView,
   getProviderURLFromNetwork,
   Network,
   NetworkId,
@@ -48,57 +50,76 @@ interface ResultInterface {
   label: string;
   icon: string;
 }
+const isMobile = checkMobileView();
 
 export const useWalletModules = () => {
-  const modules = [
-    {
-      label: 'MetaMask',
-      icon: MetaMask,
-    },
-    {
-      label: 'Coinbase Wallet',
-      icon: CoinbaseWallet,
-    },
-    {
-      label: 'WalletConnect',
-      icon: WalletConnect,
-    },
-    {
-      label: 'Trezor',
-      icon: Trezor,
-    },
-    {
-      label: 'Safe',
-      icon: Safe,
-    },
-  ];
-  const checkProvider = new Map<string, boolean>();
-  const injectedWallets: ResultInterface[] = [];
+  const modules = isMobile
+    ? [
+        {
+          label: 'MetaMask',
+          icon: MetaMask,
+        },
+        {
+          label: 'Coinbase Wallet',
+          icon: CoinbaseWallet,
+        },
+        // {
+        //   label: 'WalletConnect',
+        //   icon: WalletConnect,
+        // },
+      ]
+    : [
+        {
+          label: 'MetaMask',
+          icon: MetaMask,
+        },
+        {
+          label: 'Coinbase Wallet',
+          icon: CoinbaseWallet,
+        },
+        {
+          label: 'WalletConnect',
+          icon: WalletConnect,
+        },
+        {
+          label: 'Trezor',
+          icon: Trezor,
+        },
+        {
+          label: 'Safe',
+          icon: Safe,
+        },
+      ];
 
-  providers
-    .filter(
-      ({ info }) =>
-        !info.name?.includes('Coinbase') && !info.name?.includes('MetaMask')
-    )
-    .forEach(({ info }) => {
-      if (checkProvider.has(info.name)) return info;
-      checkProvider.set(info.name, true);
-      injectedWallets.push({
-        label: info.name,
-        icon: info.icon,
+  if (isMobile) {
+    return modules;
+  } else {
+    const checkProvider = new Map<string, boolean>();
+    const injectedWallets: ResultInterface[] = [];
+
+    providers
+      .filter(
+        ({ info }) =>
+          !info.name?.includes('Coinbase') && !info.name?.includes('MetaMask')
+      )
+      .forEach(({ info }) => {
+        if (checkProvider.has(info.name)) return info;
+        checkProvider.set(info.name, true);
+        injectedWallets.push({
+          label: info.name,
+          icon: info.icon,
+        });
+        return info;
       });
-      return info;
-    });
 
-  return injectedWallets.length > 0
-    ? [...injectedWallets, ...modules]
-    : modules;
+    return injectedWallets.length > 0
+      ? [...injectedWallets, ...modules]
+      : modules;
+  }
 };
 
 const email = process.env['NX_CONTACT_EMAIL'] as string;
 const appUrl = process.env['NX_APP_URL'] as string;
-
-// const isMobile = window.innerWidth < 756;
 
 const wcV2InitOptions = {
   version: 2,
@@ -108,24 +129,28 @@ const wcV2InitOptions = {
   dappUrl: 'https://dev.notional.finance/',
 };
 
-const wallets = [
-  // injectedModule(),
-  coinbaseModule(),
-  metamaskSDK({
-    options: {
-      extensionOnly: false,
-      dappMetadata: {
-        name: 'notional finance',
-      },
-    },
-  }),
-  walletConnectModule(wcV2InitOptions),
-  trezorModule({
-    email,
-    appUrl,
-  }),
-  safeModule(),
-];
+const wallets = isMobile
+  ? [
+      metamaskSDK({
+        options: {
+          extensionOnly: false,
+          dappMetadata: {
+            name: 'notional finance',
+          },
+        },
+      }),
+      coinbaseModule(),
+      // walletConnectModule(wcV2InitOptions),
+    ]
+  : [
+      injectedModule(),
+      walletConnectModule(wcV2InitOptions),
+      trezorModule({
+        email,
+        appUrl,
+      }),
+      safeModule(),
+    ];
 
 export const OnboardContext: OnboardAPI = init({
   wallets,
@@ -133,11 +158,11 @@ export const OnboardContext: OnboardAPI = init({
   accountCenter: {
     desktop: {
       enabled: false,
-      containerElement: '#root',
+      containerElement: 'body',
     },
     mobile: {
       enabled: true,
-      containerElement: '#root',
+      containerElement: 'body',
     },
   },
   connect: {
@@ -148,12 +173,6 @@ export const OnboardContext: OnboardAPI = init({
   appMetadata: {
     name: 'Notional',
     description: 'Select a wallet to connect to Notional',
-    recommendedInjectedWallets: [
-      { name: 'MetaMask', url: 'https://metamask.io' },
-      { name: 'Coinbase Wallet', url: 'https://wallet.coinbase.com/' }, // Ensure Coinbase Wallet is included
-    ],
-    icon: '/favicon.svg',
-    logo: '/favicon.svg',
     explore: 'https://dev.notional.finance/',
   },
 });
