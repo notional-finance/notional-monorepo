@@ -66,22 +66,18 @@ export async function refreshViews(env: BaseDOEnv) {
   // const logger = createLogger(env, 'views');
   const analyticsServer = new AnalyticsServer(env);
 
-  await Promise.all(
-    env.SUPPORTED_NETWORKS.flatMap((network) => {
-      return [
-        fetchAllDBViews(env, network),
-        fetchAllGraphViews(analyticsServer, env, network),
-        // Saves time series data to R2 for the registry to serve
-        analyticsServer.fetchTimeSeries(network).then((resp) => {
-          return resp.map((v) => {
-            return putStorageKey(
-              env,
-              `${network}/views/${v.id}`,
-              JSON.stringify(v)
-            );
-          });
-        }),
-      ];
-    })
-  );
+  for (const network of env.SUPPORTED_NETWORKS) {
+    await fetchAllDBViews(env, network);
+    await fetchAllGraphViews(analyticsServer, env, network);
+    // Saves time series data to R2 for the registry to serve
+    await analyticsServer.fetchTimeSeries(network).then((resp) => {
+      return resp.map((v) => {
+        return putStorageKey(
+          env,
+          `${network}/views/${v.id}`,
+          JSON.stringify(v)
+        );
+      });
+    });
+  }
 }
