@@ -129,8 +129,12 @@ const wcV2InitOptions = {
   dappUrl: 'https://dev.notional.finance/',
   qrModalOptions: {
     enableExplorer: true,
-    mobileWallets: true,
-    desktopWallets: true,
+    explorerRecommendedWalletIds: undefined,
+    explorerExcludedWalletIds: undefined,
+    privacyPolicyUrl: undefined,
+    termsOfServiceUrl: undefined,
+    themeMode: 'dark',
+    walletImages: undefined,
   },
 };
 
@@ -167,18 +171,22 @@ export const OnboardContext: OnboardAPI = init({
       containerElement: 'body',
     },
     mobile: {
-      enabled: true,
+      enabled: false,
       containerElement: 'body',
     },
   },
   connect: {
     autoConnectLastWallet: true,
-    disableClose: true,
+    disableClose: false,
     removeWhereIsMyWalletWarning: true,
   },
   appMetadata: {
     name: 'Notional',
     description: 'Select a wallet to connect to Notional',
     explore: 'https://dev.notional.finance/',
+    recommendedInjectedWallets: [
+      { name: 'MetaMask', url: 'https://metamask.io' },
+      { name: 'Coinbase Wallet', url: 'https://wallet.coinbase.com/' },
+    ],
   },
 });
