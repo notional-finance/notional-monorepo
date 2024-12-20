@@ -444,6 +444,8 @@ export type BalanceSnapshot = {
   _accumulatedBalance: Scalars['BigInt'];
   /** Cumulative realized cost for internal PnL calculations */
   _accumulatedCostRealized: Scalars['BigInt'];
+  /** Internal interest accumulator */
+  _lastInterestAccumulator: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
   /** Snapshots of the secondary incentives */
   incentives?: Maybe<Array<IncentiveSnapshot>>;
@@ -635,6 +637,14 @@ export type BalanceSnapshot_filter = {
   _accumulatedCostRealized_lte?: InputMaybe<Scalars['BigInt']>;
   _accumulatedCostRealized_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _accumulatedCostRealized_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _lastInterestAccumulator?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_not?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_gt?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_lt?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_gte?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_lte?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _lastInterestAccumulator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
@@ -667,6 +677,7 @@ export type BalanceSnapshot_orderBy =
   | 'previousSnapshot__impliedFixedRate'
   | 'previousSnapshot___accumulatedBalance'
   | 'previousSnapshot___accumulatedCostRealized'
+  | 'previousSnapshot___lastInterestAccumulator'
   | 'balance'
   | 'balance__id'
   | 'balance__firstUpdateBlockNumber'
@@ -685,6 +696,7 @@ export type BalanceSnapshot_orderBy =
   | 'impliedFixedRate'
   | '_accumulatedBalance'
   | '_accumulatedCostRealized'
+  | '_lastInterestAccumulator'
   | 'profitLossLineItems'
   | 'incentives';
 
@@ -876,6 +888,7 @@ export type Balance_orderBy =
   | 'current__impliedFixedRate'
   | 'current___accumulatedBalance'
   | 'current___accumulatedCostRealized'
+  | 'current___lastInterestAccumulator'
   | 'snapshots';
 
 export type BlockChangedFilter = {
@@ -2341,6 +2354,7 @@ export type IncentiveSnapshot_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
+  | 'balanceSnapshot___lastInterestAccumulator'
   | 'rewardToken'
   | 'rewardToken__id'
   | 'rewardToken__firstUpdateBlockNumber'
@@ -2893,8 +2907,10 @@ export type OracleType =
   | 'PrimeDebtToMoneyMarketExchangeRate'
   | 'MoneyMarketToUnderlyingExchangeRate'
   | 'VaultShareOracleRate'
+  | 'VaultShareInterestAccrued'
   | 'nTokenToUnderlyingExchangeRate'
   | 'nTokenBlendedInterestRate'
+  | 'nTokenInterestAccrued'
   | 'nTokenFeeRate'
   | 'nTokenIncentiveRate'
   | 'nTokenSecondaryIncentiveRate';
@@ -3597,6 +3613,8 @@ export type ProfitLossLineItem = {
   isTransientLineItem: Scalars['Boolean'];
   /** Set to a value that points to the token that generated an incentive payment */
   incentivizedToken?: Maybe<Token>;
+  /** Set to the amount of fees paid, if applicable */
+  feesPaid?: Maybe<Scalars['BigInt']>;
 };
 
 export type ProfitLossLineItem_filter = {
@@ -3823,6 +3841,14 @@ export type ProfitLossLineItem_filter = {
   incentivizedToken_not_ends_with?: InputMaybe<Scalars['String']>;
   incentivizedToken_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   incentivizedToken_?: InputMaybe<Token_filter>;
+  feesPaid?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_not?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_gt?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_lt?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_gte?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_lte?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  feesPaid_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<ProfitLossLineItem_filter>>>;
@@ -3860,6 +3886,7 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
+  | 'balanceSnapshot___lastInterestAccumulator'
   | 'account'
   | 'account__id'
   | 'account__firstUpdateBlockNumber'
@@ -3943,7 +3970,8 @@ export type ProfitLossLineItem_orderBy =
   | 'incentivizedToken__isfCashDebt'
   | 'incentivizedToken__maturity'
   | 'incentivizedToken__vaultAddress'
-  | 'incentivizedToken__tokenAddress';
+  | 'incentivizedToken__tokenAddress'
+  | 'feesPaid';
 
 export type Query = {
   token?: Maybe<Token>;
@@ -8007,21 +8035,21 @@ export type ResolversParentTypes = ResolversObject<{
 
 export type entityDirectiveArgs = { };
 
-export type entityDirectiveResolver<Result, Parent, ContextType = MeshContext & { apiKey: string, subgraphId: string }, Args = entityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type entityDirectiveResolver<Result, Parent, ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, Args = entityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type subgraphIdDirectiveArgs = {
   id: Scalars['String'];
 };
 
-export type subgraphIdDirectiveResolver<Result, Parent, ContextType = MeshContext & { apiKey: string, subgraphId: string }, Args = subgraphIdDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type subgraphIdDirectiveResolver<Result, Parent, ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, Args = subgraphIdDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type derivedFromDirectiveArgs = {
   field: Scalars['String'];
 };
 
-export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext & { apiKey: string, subgraphId: string }, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type AccountResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = ResolversObject<{
+export type AccountResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   firstUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   firstUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8042,7 +8070,7 @@ export type AccountResolvers<ContextType = MeshContext & { apiKey: string, subgr
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ActiveMarketResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ActiveMarket'] = ResolversParentTypes['ActiveMarket']> = ResolversObject<{
+export type ActiveMarketResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['ActiveMarket'] = ResolversParentTypes['ActiveMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8053,7 +8081,7 @@ export type ActiveMarketResolvers<ContextType = MeshContext & { apiKey: string, 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BalanceResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Balance'] = ResolversParentTypes['Balance']> = ResolversObject<{
+export type BalanceResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Balance'] = ResolversParentTypes['Balance']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   account?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
@@ -8068,7 +8096,7 @@ export type BalanceResolvers<ContextType = MeshContext & { apiKey: string, subgr
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BalanceSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['BalanceSnapshot'] = ResolversParentTypes['BalanceSnapshot']> = ResolversObject<{
+export type BalanceSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['BalanceSnapshot'] = ResolversParentTypes['BalanceSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8085,6 +8113,7 @@ export type BalanceSnapshotResolvers<ContextType = MeshContext & { apiKey: strin
   impliedFixedRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   _accumulatedBalance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _accumulatedCostRealized?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  _lastInterestAccumulator?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   profitLossLineItems?: Resolver<Maybe<Array<ResolversTypes['ProfitLossLineItem']>>, ParentType, ContextType, RequireFields<BalanceSnapshotprofitLossLineItemsArgs, 'skip' | 'first'>>;
   incentives?: Resolver<Maybe<Array<ResolversTypes['IncentiveSnapshot']>>, ParentType, ContextType, RequireFields<BalanceSnapshotincentivesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -8102,7 +8131,7 @@ export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversType
   name: 'Bytes';
 }
 
-export type CurrencyConfigurationResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['CurrencyConfiguration'] = ResolversParentTypes['CurrencyConfiguration']> = ResolversObject<{
+export type CurrencyConfigurationResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['CurrencyConfiguration'] = ResolversParentTypes['CurrencyConfiguration']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8147,7 +8176,7 @@ export type CurrencyConfigurationResolvers<ContextType = MeshContext & { apiKey:
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ExchangeRateResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ExchangeRate'] = ResolversParentTypes['ExchangeRate']> = ResolversObject<{
+export type ExchangeRateResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['ExchangeRate'] = ResolversParentTypes['ExchangeRate']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8158,7 +8187,7 @@ export type ExchangeRateResolvers<ContextType = MeshContext & { apiKey: string, 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ExternalLendingResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ExternalLending'] = ResolversParentTypes['ExternalLending']> = ResolversObject<{
+export type ExternalLendingResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['ExternalLending'] = ResolversParentTypes['ExternalLending']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8172,7 +8201,7 @@ export type ExternalLendingResolvers<ContextType = MeshContext & { apiKey: strin
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ExternalLendingSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ExternalLendingSnapshot'] = ResolversParentTypes['ExternalLendingSnapshot']> = ResolversObject<{
+export type ExternalLendingSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['ExternalLendingSnapshot'] = ResolversParentTypes['ExternalLendingSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -8194,7 +8223,7 @@ export type ExternalLendingSnapshotResolvers<ContextType = MeshContext & { apiKe
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type IncentiveResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Incentive'] = ResolversParentTypes['Incentive']> = ResolversObject<{
+export type IncentiveResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Incentive'] = ResolversParentTypes['Incentive']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8217,7 +8246,7 @@ export type IncentiveResolvers<ContextType = MeshContext & { apiKey: string, sub
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type IncentiveSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['IncentiveSnapshot'] = ResolversParentTypes['IncentiveSnapshot']> = ResolversObject<{
+export type IncentiveSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['IncentiveSnapshot'] = ResolversParentTypes['IncentiveSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8235,7 +8264,7 @@ export interface Int8ScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'Int8';
 }
 
-export type InterestRateCurveResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['InterestRateCurve'] = ResolversParentTypes['InterestRateCurve']> = ResolversObject<{
+export type InterestRateCurveResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['InterestRateCurve'] = ResolversParentTypes['InterestRateCurve']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8251,7 +8280,7 @@ export type InterestRateCurveResolvers<ContextType = MeshContext & { apiKey: str
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type OracleResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Oracle'] = ResolversParentTypes['Oracle']> = ResolversObject<{
+export type OracleResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Oracle'] = ResolversParentTypes['Oracle']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8269,7 +8298,7 @@ export type OracleResolvers<ContextType = MeshContext & { apiKey: string, subgra
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type OracleRegistryResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['OracleRegistry'] = ResolversParentTypes['OracleRegistry']> = ResolversObject<{
+export type OracleRegistryResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['OracleRegistry'] = ResolversParentTypes['OracleRegistry']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastRefreshBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastRefreshTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8279,7 +8308,7 @@ export type OracleRegistryResolvers<ContextType = MeshContext & { apiKey: string
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PrimeCashMarketResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['PrimeCashMarket'] = ResolversParentTypes['PrimeCashMarket']> = ResolversObject<{
+export type PrimeCashMarketResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['PrimeCashMarket'] = ResolversParentTypes['PrimeCashMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8292,7 +8321,7 @@ export type PrimeCashMarketResolvers<ContextType = MeshContext & { apiKey: strin
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PrimeCashMarketSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['PrimeCashMarketSnapshot'] = ResolversParentTypes['PrimeCashMarketSnapshot']> = ResolversObject<{
+export type PrimeCashMarketSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['PrimeCashMarketSnapshot'] = ResolversParentTypes['PrimeCashMarketSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8312,7 +8341,7 @@ export type PrimeCashMarketSnapshotResolvers<ContextType = MeshContext & { apiKe
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ProfitLossLineItemResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['ProfitLossLineItem'] = ResolversParentTypes['ProfitLossLineItem']> = ResolversObject<{
+export type ProfitLossLineItemResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['ProfitLossLineItem'] = ResolversParentTypes['ProfitLossLineItem']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8330,10 +8359,11 @@ export type ProfitLossLineItemResolvers<ContextType = MeshContext & { apiKey: st
   impliedFixedRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   isTransientLineItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   incentivizedToken?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
+  feesPaid?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type QueryResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+export type QueryResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   token?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokenArgs, 'id' | 'subgraphError'>>;
   tokens?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokensArgs, 'skip' | 'first' | 'subgraphError'>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QuerytransferArgs, 'id' | 'subgraphError'>>;
@@ -8393,7 +8423,7 @@ export type QueryResolvers<ContextType = MeshContext & { apiKey: string, subgrap
   _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
 }>;
 
-export type ReinvestmentResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Reinvestment'] = ResolversParentTypes['Reinvestment']> = ResolversObject<{
+export type ReinvestmentResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Reinvestment'] = ResolversParentTypes['Reinvestment']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8408,7 +8438,7 @@ export type ReinvestmentResolvers<ContextType = MeshContext & { apiKey: string, 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type SubscriptionResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
+export type SubscriptionResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
   token?: SubscriptionResolver<Maybe<ResolversTypes['Token']>, "token", ParentType, ContextType, RequireFields<SubscriptiontokenArgs, 'id' | 'subgraphError'>>;
   tokens?: SubscriptionResolver<Array<ResolversTypes['Token']>, "tokens", ParentType, ContextType, RequireFields<SubscriptiontokensArgs, 'skip' | 'first' | 'subgraphError'>>;
   transfer?: SubscriptionResolver<Maybe<ResolversTypes['Transfer']>, "transfer", ParentType, ContextType, RequireFields<SubscriptiontransferArgs, 'id' | 'subgraphError'>>;
@@ -8472,7 +8502,7 @@ export interface TimestampScalarConfig extends GraphQLScalarTypeConfig<Resolvers
   name: 'Timestamp';
 }
 
-export type TokenResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
+export type TokenResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   firstUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   firstUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8501,7 +8531,7 @@ export type TokenResolvers<ContextType = MeshContext & { apiKey: string, subgrap
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TradingModulePermissionResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['TradingModulePermission'] = ResolversParentTypes['TradingModulePermission']> = ResolversObject<{
+export type TradingModulePermissionResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['TradingModulePermission'] = ResolversParentTypes['TradingModulePermission']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8517,7 +8547,7 @@ export type TradingModulePermissionResolvers<ContextType = MeshContext & { apiKe
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TransactionResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = ResolversObject<{
+export type TransactionResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8531,7 +8561,7 @@ export type TransactionResolvers<ContextType = MeshContext & { apiKey: string, s
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TransferResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = ResolversObject<{
+export type TransferResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8552,7 +8582,7 @@ export type TransferResolvers<ContextType = MeshContext & { apiKey: string, subg
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TransferBundleResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['TransferBundle'] = ResolversParentTypes['TransferBundle']> = ResolversObject<{
+export type TransferBundleResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['TransferBundle'] = ResolversParentTypes['TransferBundle']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8565,7 +8595,7 @@ export type TransferBundleResolvers<ContextType = MeshContext & { apiKey: string
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type UnderlyingSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['UnderlyingSnapshot'] = ResolversParentTypes['UnderlyingSnapshot']> = ResolversObject<{
+export type UnderlyingSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['UnderlyingSnapshot'] = ResolversParentTypes['UnderlyingSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -8577,7 +8607,7 @@ export type UnderlyingSnapshotResolvers<ContextType = MeshContext & { apiKey: st
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type VaultConfigurationResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['VaultConfiguration'] = ResolversParentTypes['VaultConfiguration']> = ResolversObject<{
+export type VaultConfigurationResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['VaultConfiguration'] = ResolversParentTypes['VaultConfiguration']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -8614,7 +8644,7 @@ export type VaultConfigurationResolvers<ContextType = MeshContext & { apiKey: st
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type WhitelistedContractResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['WhitelistedContract'] = ResolversParentTypes['WhitelistedContract']> = ResolversObject<{
+export type WhitelistedContractResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['WhitelistedContract'] = ResolversParentTypes['WhitelistedContract']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8625,7 +8655,7 @@ export type WhitelistedContractResolvers<ContextType = MeshContext & { apiKey: s
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type _Block_Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['_Block_'] = ResolversParentTypes['_Block_']> = ResolversObject<{
+export type _Block_Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['_Block_'] = ResolversParentTypes['_Block_']> = ResolversObject<{
   hash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -8633,14 +8663,14 @@ export type _Block_Resolvers<ContextType = MeshContext & { apiKey: string, subgr
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type _Meta_Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['_Meta_'] = ResolversParentTypes['_Meta_']> = ResolversObject<{
+export type _Meta_Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['_Meta_'] = ResolversParentTypes['_Meta_']> = ResolversObject<{
   block?: Resolver<ResolversTypes['_Block_'], ParentType, ContextType>;
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type fCashMarketResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['fCashMarket'] = ResolversParentTypes['fCashMarket']> = ResolversObject<{
+export type fCashMarketResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['fCashMarket'] = ResolversParentTypes['fCashMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8656,7 +8686,7 @@ export type fCashMarketResolvers<ContextType = MeshContext & { apiKey: string, s
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type fCashMarketSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['fCashMarketSnapshot'] = ResolversParentTypes['fCashMarketSnapshot']> = ResolversObject<{
+export type fCashMarketSnapshotResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['fCashMarketSnapshot'] = ResolversParentTypes['fCashMarketSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8675,7 +8705,7 @@ export type fCashMarketSnapshotResolvers<ContextType = MeshContext & { apiKey: s
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type nTokenFeeBufferResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }, ParentType extends ResolversParentTypes['nTokenFeeBuffer'] = ResolversParentTypes['nTokenFeeBuffer']> = ResolversObject<{
+export type nTokenFeeBufferResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }, ParentType extends ResolversParentTypes['nTokenFeeBuffer'] = ResolversParentTypes['nTokenFeeBuffer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -8685,7 +8715,7 @@ export type nTokenFeeBufferResolvers<ContextType = MeshContext & { apiKey: strin
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }> = ResolversObject<{
+export type Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }> = ResolversObject<{
   Account?: AccountResolvers<ContextType>;
   ActiveMarket?: ActiveMarketResolvers<ContextType>;
   Balance?: BalanceResolvers<ContextType>;
@@ -8725,7 +8755,7 @@ export type Resolvers<ContextType = MeshContext & { apiKey: string, subgraphId: 
   nTokenFeeBuffer?: nTokenFeeBufferResolvers<ContextType>;
 }>;
 
-export type DirectiveResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string }> = ResolversObject<{
+export type DirectiveResolvers<ContextType = MeshContext & { apiKey: string, subgraphId: string, network: string }> = ResolversObject<{
   entity?: entityDirectiveResolver<any, any, ContextType>;
   subgraphId?: subgraphIdDirectiveResolver<any, any, ContextType>;
   derivedFrom?: derivedFromDirectiveResolver<any, any, ContextType>;
@@ -8776,7 +8806,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://gateway-arbitrum.network.thegraph.com/api/f9f58a6131e8807672eaa304ed6abef8/subgraphs/id/{context.subgraphId:4oVxkMtN4cFepbiYrSKz1u6HWnJym435k5DQRAFt2vHW}"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/60626/notional-v3-{context.network:arbitrum}/version/latest"},
               baseDir,
               cache,
               pubsub,
@@ -8990,7 +9020,7 @@ export type AccountBalanceStatementQuery = { account?: Maybe<(
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
       ), current: (
-        Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>
+        Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | '_lastInterestAccumulator' | 'impliedFixedRate'>
         & { incentives?: Maybe<Array<(
           Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed'>
           & { rewardToken: Pick<Token, 'id' | 'symbol'> }
@@ -9254,6 +9284,7 @@ export const AccountBalanceStatementDocument = gql`
         totalILAndFeesAtSnapshot
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
+        _lastInterestAccumulator
         impliedFixedRate
         incentives {
           rewardToken {

@@ -152,6 +152,7 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
       const data = await execute(query, variables, {
         subgraphId: SubgraphId[network],
         apiKey,
+        network,
       });
       if (data['errors']) console.error(data['errors']);
 
@@ -170,6 +171,7 @@ export async function fetchGraph<T, R, V extends { [key: string]: unknown }>(
     const data = await execute(query, variables, {
       subgraphId: SubgraphId[network],
       apiKey,
+      network,
     });
     const finalResults = transform(data['data']);
     const blockNumber = data['data']._meta?.block.number || 0;

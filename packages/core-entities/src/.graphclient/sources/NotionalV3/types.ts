@@ -422,6 +422,8 @@ export type BalanceSnapshot = {
   _accumulatedBalance: Scalars['BigInt'];
   /** Cumulative realized cost for internal PnL calculations */
   _accumulatedCostRealized: Scalars['BigInt'];
+  /** Internal interest accumulator */
+  _lastInterestAccumulator: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
   /** Snapshots of the secondary incentives */
   incentives?: Maybe<Array<IncentiveSnapshot>>;
@@ -613,6 +615,14 @@ export type BalanceSnapshot_filter = {
   _accumulatedCostRealized_lte?: InputMaybe<Scalars['BigInt']>;
   _accumulatedCostRealized_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _accumulatedCostRealized_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _lastInterestAccumulator?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_not?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_gt?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_lt?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_gte?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_lte?: InputMaybe<Scalars['BigInt']>;
+  _lastInterestAccumulator_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _lastInterestAccumulator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
@@ -645,6 +655,7 @@ export type BalanceSnapshot_orderBy =
   | 'previousSnapshot__impliedFixedRate'
   | 'previousSnapshot___accumulatedBalance'
   | 'previousSnapshot___accumulatedCostRealized'
+  | 'previousSnapshot___lastInterestAccumulator'
   | 'balance'
   | 'balance__id'
   | 'balance__firstUpdateBlockNumber'
@@ -663,6 +674,7 @@ export type BalanceSnapshot_orderBy =
   | 'impliedFixedRate'
   | '_accumulatedBalance'
   | '_accumulatedCostRealized'
+  | '_lastInterestAccumulator'
   | 'profitLossLineItems'
   | 'incentives';
 
@@ -854,6 +866,7 @@ export type Balance_orderBy =
   | 'current__impliedFixedRate'
   | 'current___accumulatedBalance'
   | 'current___accumulatedCostRealized'
+  | 'current___lastInterestAccumulator'
   | 'snapshots';
 
 export type BlockChangedFilter = {
@@ -2319,6 +2332,7 @@ export type IncentiveSnapshot_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
+  | 'balanceSnapshot___lastInterestAccumulator'
   | 'rewardToken'
   | 'rewardToken__id'
   | 'rewardToken__firstUpdateBlockNumber'
@@ -2871,8 +2885,10 @@ export type OracleType =
   | 'PrimeDebtToMoneyMarketExchangeRate'
   | 'MoneyMarketToUnderlyingExchangeRate'
   | 'VaultShareOracleRate'
+  | 'VaultShareInterestAccrued'
   | 'nTokenToUnderlyingExchangeRate'
   | 'nTokenBlendedInterestRate'
+  | 'nTokenInterestAccrued'
   | 'nTokenFeeRate'
   | 'nTokenIncentiveRate'
   | 'nTokenSecondaryIncentiveRate';
@@ -3575,6 +3591,8 @@ export type ProfitLossLineItem = {
   isTransientLineItem: Scalars['Boolean'];
   /** Set to a value that points to the token that generated an incentive payment */
   incentivizedToken?: Maybe<Token>;
+  /** Set to the amount of fees paid, if applicable */
+  feesPaid?: Maybe<Scalars['BigInt']>;
 };
 
 export type ProfitLossLineItem_filter = {
@@ -3801,6 +3819,14 @@ export type ProfitLossLineItem_filter = {
   incentivizedToken_not_ends_with?: InputMaybe<Scalars['String']>;
   incentivizedToken_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   incentivizedToken_?: InputMaybe<Token_filter>;
+  feesPaid?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_not?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_gt?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_lt?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_gte?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_lte?: InputMaybe<Scalars['BigInt']>;
+  feesPaid_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  feesPaid_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<ProfitLossLineItem_filter>>>;
@@ -3838,6 +3864,7 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
+  | 'balanceSnapshot___lastInterestAccumulator'
   | 'account'
   | 'account__id'
   | 'account__firstUpdateBlockNumber'
@@ -3921,7 +3948,8 @@ export type ProfitLossLineItem_orderBy =
   | 'incentivizedToken__isfCashDebt'
   | 'incentivizedToken__maturity'
   | 'incentivizedToken__vaultAddress'
-  | 'incentivizedToken__tokenAddress';
+  | 'incentivizedToken__tokenAddress'
+  | 'feesPaid';
 
 export type Query = {
   token?: Maybe<Token>;
@@ -7948,6 +7976,6 @@ export type nTokenFeeBuffer_orderBy =
 
   export type Context = {
       ["NotionalV3"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
-      ["subgraphId"]: Scalars['ID']
+      ["network"]: Scalars['ID']
     };
 }
