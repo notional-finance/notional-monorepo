@@ -62,10 +62,10 @@ export const useWalletModules = () => {
           label: 'Coinbase Wallet',
           icon: CoinbaseWallet,
         },
-        {
-          label: 'WalletConnect',
-          icon: WalletConnect,
-        },
+        // {
+        //   label: 'WalletConnect',
+        //   icon: WalletConnect,
+        // },
       ]
     : [
         {
@@ -125,7 +125,7 @@ const wcV2InitOptions = {
   projectId: '4c1aab455337c5172aeeaa076b5104e4',
   requiredChains: [42161, 1],
   // FOR TESTING:
-  dappUrl: 'https://dev.notional.finance/',
+  dappUrl: appUrl || 'https://dev.notional.finance/',
 };
 
 const wallets = isMobile
@@ -140,7 +140,8 @@ const wallets = isMobile
         },
       }),
       coinbaseModule(),
-      walletConnectModule(wcV2InitOptions),
+      // TODO: Fix issues of wallet connect not launching on mobile
+      // walletConnectModule(wcV2InitOptions),
     ]
   : [
       injectedModule(),
@@ -171,7 +172,7 @@ export const OnboardContext = init({
   appMetadata: {
     name: 'Notional',
     description: 'Select a wallet to connect to Notional',
-    explore: 'https://dev.notional.finance/',
+    explore: appUrl || 'https://dev.notional.finance/',
     recommendedInjectedWallets: [
       { name: 'MetaMask', url: 'https://metamask.io' },
       { name: 'Coinbase Wallet', url: 'https://wallet.coinbase.com/' },
