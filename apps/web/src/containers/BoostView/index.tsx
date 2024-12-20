@@ -251,7 +251,7 @@ export const BoostView = () => {
                 <FormattedMessage defaultMessage="You must hold USDC liquidity, variable lend, or fixed lend position on Ethereum and Arbitrum." />
               </Body>
               <Body>
-                <FormattedMessage defaultMessage="You must not be borrowing USDC. (USDC leveraged liquidity users are ineligible)." />
+                <FormattedMessage defaultMessage="You must not be borrowing USDC or any other stablecoin. (stablecoin leveraged liquidity users are ineligible)." />
               </Body>
               <Body>
                 <FormattedMessage defaultMessage="You must not make any withdrawal for 30 days after your additional deposit." />
