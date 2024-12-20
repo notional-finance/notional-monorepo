@@ -109,6 +109,14 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   marketProfitLoss: NotionalTypes.TokenBalance,
   totalILAndFees: NotionalTypes.TokenBalance,
   totalInterestAccrual: NotionalTypes.TokenBalance,
+  assetInterestAccrual: NotionalTypes.TokenBalance,
+  debtInterestAccrual: NotionalTypes.TokenBalance,
+  assetFeesPaid: NotionalTypes.TokenBalance,
+  debtFeesPaid: NotionalTypes.TokenBalance,
+  assetEarnings: NotionalTypes.TokenBalance,
+  debtEarnings: NotionalTypes.TokenBalance,
+  assetMarketPnL: NotionalTypes.TokenBalance,
+  debtMarketPnL: NotionalTypes.TokenBalance,
   vaultMetadata: types.model({
     rewardClaims: types.optional(types.array(NotionalTypes.TokenBalance), []),
     vaultType: types.string,
@@ -187,6 +195,9 @@ const PortfolioModel = types.model('PortfolioModel', {
         totalEarnings: NotionalTypes.TokenBalance,
         assets: NotionalTypes.TokenBalance,
         debts: NotionalTypes.TokenBalance,
+        accruedInterest: NotionalTypes.TokenBalance,
+        marketPNL: NotionalTypes.TokenBalance,
+        feesPaid: NotionalTypes.TokenBalance,
       })
     ),
     undefined
@@ -397,9 +408,7 @@ export const AccountPortfolioActions = (
             statement.totalILAndFees.toFiat(baseCurrency)
           );
           t.earnings = totalEarningsWithIncentives
-            ? t.earnings.add(
-                totalEarningsWithIncentives.toFiat(baseCurrency)
-              )
+            ? t.earnings.add(totalEarningsWithIncentives.toFiat(baseCurrency))
             : t.earnings.add(statement.totalProfitAndLoss.toFiat(baseCurrency));
 
           const totalNOTEEarnings = perIncentiveEarnings.find(
@@ -467,6 +476,15 @@ export const AccountPortfolioActions = (
             vault.totalAssets.toFiat(baseCurrency)
           ),
           debts: accumulator.debts.add(vault.totalDebt.toFiat(baseCurrency)),
+          accruedInterest: accumulator.accruedInterest.add(
+            vault.totalInterestAccrual.toFiat(baseCurrency)
+          ),
+          marketPNL: accumulator.marketPNL.add(
+            vault.marketProfitLoss.toFiat(baseCurrency)
+          ),
+          feesPaid: accumulator.feesPaid.add(
+            vault.totalILAndFees.toFiat(baseCurrency)
+          ),
         };
       },
       {
@@ -475,6 +493,9 @@ export const AccountPortfolioActions = (
         totalEarnings: new TokenBalance(0, baseCurrency, Network.all),
         assets: new TokenBalance(0, baseCurrency, Network.all),
         debts: new TokenBalance(0, baseCurrency, Network.all),
+        accruedInterest: new TokenBalance(0, baseCurrency, Network.all),
+        marketPNL: new TokenBalance(0, baseCurrency, Network.all),
+        feesPaid: new TokenBalance(0, baseCurrency, Network.all),
       }
     );
 
