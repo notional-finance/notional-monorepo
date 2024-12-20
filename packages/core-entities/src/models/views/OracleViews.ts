@@ -389,7 +389,24 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
     return oracle.latestRate.rate;
   };
 
-  return { getExchangeRateBetweenTokens, getNTokenOracleRate };
+  const getInterestAccrualRate = (token: TokenDefinition) => {
+    const oracle = self.oracles.get(
+      `${token.underlying}:${token.id}:${
+        token.tokenType === 'VaultShare'
+          ? 'VaultShareInterestAccrued'
+          : 'nTokenInterestAccrued'
+      }`
+    );
+    if (!oracle || !oracle.latestRate.rate)
+      throw Error('Interest Accrual Rate not found');
+    return oracle.latestRate;
+  };
+
+  return {
+    getExchangeRateBetweenTokens,
+    getNTokenOracleRate,
+    getInterestAccrualRate,
+  };
 };
 
 export const buildOracleGraph = (

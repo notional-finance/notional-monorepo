@@ -2,9 +2,9 @@ import {
   INTERNAL_TOKEN_PRECISION,
   Network,
   RATE_PRECISION,
-  // SCALAR_PRECISION,
-  // SECONDS_IN_YEAR,
-  // getNowSeconds,
+  SCALAR_PRECISION,
+  SECONDS_IN_YEAR,
+  getNowSeconds,
 } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
 // import { BigNumber } from 'ethers';
@@ -61,29 +61,20 @@ export function parseCurrentBalanceStatement(
   const incentives =
     current.incentives?.map((i) => ({
       // PartOf: Incentive Earnings
-      adjustedClaimed: getNetworkModel(network).getTokenBalanceFromSymbol(
+      adjustedClaimed: model.getTokenBalanceFromSymbol(
         i.adjustedClaimed,
         i.rewardToken.symbol
       ),
-      totalClaimed: getNetworkModel(network).getTokenBalanceFromSymbol(
+      totalClaimed: model.getTokenBalanceFromSymbol(
         i.totalClaimed,
         i.rewardToken.symbol
       ),
     })) || [];
 
-  const totalInterestAccrual: TokenBalance = currentProfitAndLoss;
-  /*
-  FIXME: add this back in for earnings breakdown
+  let totalInterestAccrual: TokenBalance = currentProfitAndLoss;
+
   if (token.tokenType === 'VaultShare' || token.tokenType === 'nToken') {
-    const a = Registry.getOracleRegistry().getLatestFromSubject(
-      network,
-      `${token.underlying}:${token.id}:${
-        token.tokenType === 'VaultShare'
-          ? 'VaultShareInterestAccrued'
-          : 'nTokenInterestAccrued'
-      }`,
-      0
-    )?.latestRate;
+    const a = model.getInterestAccrualRate(token);
     // This interest accumulator is always in 18 decimals
     const currentInterestAccumulator = a?.rate;
     if (currentInterestAccumulator) {
@@ -120,7 +111,6 @@ export function parseCurrentBalanceStatement(
     // For Prime Cash and Prime Debt, the entire PNL is interest accrual
     totalInterestAccrual = currentProfitAndLoss;
   }
-  */
 
   // Total Earnings = Organic Earnings + Incentive Earnings
   return {

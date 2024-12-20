@@ -187,6 +187,8 @@ export function calculateHoldings(
         statement?.totalInterestAccrual.toFiat('USD') ||
           new TokenBalance(0, 'USD', Network.all)
       ),
+      feesPaid: statement?.totalILAndFees,
+      totalInterestAccrual: statement?.totalInterestAccrual,
       hasMatured: balance.hasMatured,
       isHighUtilization: false,
       // TODO: add this back in
