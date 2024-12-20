@@ -1,5 +1,4 @@
 import { init } from '@web3-onboard/react';
-import { OnboardAPI } from '@web3-onboard/core';
 import {
   EIP6963AnnounceProviderEvent,
   EIP6963ProviderDetail,
@@ -127,15 +126,6 @@ const wcV2InitOptions = {
   requiredChains: [42161, 1],
   // FOR TESTING:
   dappUrl: 'https://dev.notional.finance/',
-  qrModalOptions: {
-    enableExplorer: true,
-    explorerRecommendedWalletIds: undefined,
-    explorerExcludedWalletIds: undefined,
-    privacyPolicyUrl: undefined,
-    termsOfServiceUrl: undefined,
-    themeMode: 'dark',
-    walletImages: undefined,
-  },
 };
 
 const wallets = isMobile
@@ -162,7 +152,7 @@ const wallets = isMobile
       safeModule(),
     ];
 
-export const OnboardContext: OnboardAPI = init({
+export const OnboardContext = init({
   wallets,
   chains,
   accountCenter: {
@@ -177,8 +167,6 @@ export const OnboardContext: OnboardAPI = init({
   },
   connect: {
     autoConnectLastWallet: true,
-    disableClose: false,
-    removeWhereIsMyWalletWarning: true,
   },
   appMetadata: {
     name: 'Notional',
