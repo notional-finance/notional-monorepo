@@ -60,7 +60,7 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
       : undefined;
   const ptExpires = adapter?.expiry;
   const dataPoints = ptExpires
-    ? Math.ceil((ptExpires - nowMidnight) / SECONDS_IN_DAY) + 1
+    ? Math.max(0, Math.ceil((ptExpires - nowMidnight) / SECONDS_IN_DAY) + 1)
     : 90;
 
   const leverageRatio = (riskFactorLimit?.limit || priorLeverageRatio) as
