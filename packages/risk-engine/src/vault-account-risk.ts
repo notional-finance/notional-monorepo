@@ -398,7 +398,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     // Returns the net amount remaining after repaying all the debt
     const maxWithdrawUnderlying = netUnderlyingForVaultShares.gt(costToRepay)
       ? netUnderlyingForVaultShares.sub(costToRepay)
-      : this.vaultShares.copy(0);
+      : this.vaultShares.copy(0).toUnderlying();
 
     return {
       maxWithdrawUnderlying: maxWithdrawUnderlying,
