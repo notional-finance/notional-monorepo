@@ -1,10 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import {
-  FeatureLoader,
-  Footer,
-  CustomBanner,
-} from '@notional-finance/shared-web';
+import { FeatureLoader, Footer } from '@notional-finance/shared-web';
 import {
   Header,
   MetaTagManager,
@@ -58,7 +54,7 @@ const AppLayoutRoute = ({
               <MetaTagManager metaTagCategory={slicedPath} />
             )}
             <AppShell>
-              <CustomBanner />
+              {/* <CustomBanner /> */}
               <Header>
                 <WalletSelector />
               </Header>

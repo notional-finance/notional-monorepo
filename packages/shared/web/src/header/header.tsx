@@ -74,7 +74,9 @@ export function Header({ children }: HeaderProps) {
       <AppBar
         position="fixed"
         showBorder={pathname !== '/'}
-        showBanner={pathname.includes('portfolio')}
+        // NOTE: this is a hack to offset the header on the portfolio page
+        showBanner={false}
+        // showBanner={pathname.includes('portfolio')}
       >
         <Toolbar
           sx={{
