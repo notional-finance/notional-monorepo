@@ -53,6 +53,7 @@ export function postVaultAccountRisk(
       ([, p], [, c]) =>
         p.tradeType === c.tradeType &&
         p.calculationSuccess === c.calculationSuccess &&
+        p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey &&
         p.inputErrors === c.inputErrors
