@@ -397,8 +397,8 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
           : 'nTokenInterestAccrued'
       }`
     );
-    if (!oracle || !oracle.latestRate.rate)
-      throw Error('Interest Accrual Rate not found');
+    // TODO: PendlePT vaults don't have interest accrual rates
+    if (!oracle || !oracle.latestRate.rate) return undefined;
     return oracle.latestRate;
   };
 

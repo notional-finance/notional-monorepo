@@ -134,7 +134,7 @@ export function useVaultEarnings(isGrouped: boolean) {
         }) => {
           return {
             vault: {
-              symbol: formatTokenType(underlying).icon,
+              symbol: underlying,
               label: name,
               caption:
                 maturity === PRIME_CASH_VAULT_MATURITY
@@ -173,7 +173,7 @@ export function useVaultEarnings(isGrouped: boolean) {
             true
           );
           const vaultCell = {
-            symbol: formatTokenType(underlying).icon,
+            symbol: underlying,
             label: name,
             caption:
               maturity === PRIME_CASH_VAULT_MATURITY

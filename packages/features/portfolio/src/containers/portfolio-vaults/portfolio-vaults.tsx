@@ -56,8 +56,8 @@ const ClaimableRewards = ({
 
 enum PortfolioVaultsTabs {
   POSITIONS = 0,
-  LIQUIDATION_RISK = 1,
-  EARNINGS_BREAKDOWN = 2,
+  EARNINGS_BREAKDOWN = 1,
+  LIQUIDATION_RISK = 2,
 }
 
 export const PortfolioVaults = () => {
