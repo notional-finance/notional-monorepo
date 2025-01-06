@@ -614,7 +614,6 @@ export const TradeModel = types
         self.defaultLeverageRatio = l.defaultLeverageRatio;
         self.minLeverageRatio = l.minLeverageRatio;
         self.maxLeverageRatio = l.maxLeverageRatio;
-        // TODO: set the default leverage ratio here
       } else if (isLeveragedTrade(self.tradeType)) {
         const l = root()
           .getNetworkClient(self.selectedNetwork)
@@ -625,7 +624,6 @@ export const TradeModel = types
         self.defaultLeverageRatio = l.defaultLeverageRatio;
         self.minLeverageRatio = l.minLeverageRatio;
         self.maxLeverageRatio = l.maxLeverageRatio;
-        // TODO: set the default leverage ratio here
         self.leverageRatio = l.defaultLeverageRatio;
       }
 
