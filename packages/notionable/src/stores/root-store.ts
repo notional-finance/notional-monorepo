@@ -48,6 +48,7 @@ const RootStore = types
       tradeType: AllTradeTypes;
       selectedDepositToken?: string;
       selectedToken?: string;
+      vaultAddress?: string;
     }) {
       self.tradeModel = TradeModel.create(props);
     },

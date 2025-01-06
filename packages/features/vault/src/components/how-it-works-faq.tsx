@@ -3,10 +3,9 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { CurveVaultImg } from './curve-vault-img';
-import { useVaultStrategyData } from '../hooks';
 import { BalancerVaultImg } from './balancer-vault-img';
 import { VaultType } from '@notional-finance/core-entities';
-
+import { useVaultNameInfo } from '../hooks';
 interface HowItWorksFaqProps {
   tokenSymbol: string;
   currentVaultType: VaultType | undefined;
@@ -17,9 +16,9 @@ export const HowItWorksFaq = ({
   currentVaultType,
 }: HowItWorksFaqProps) => {
   const theme = useTheme();
-  const vaultStrategyData = useVaultStrategyData();
+  const vaultNameInfo = useVaultNameInfo();
 
-  if (!vaultStrategyData) return null;
+  if (!vaultNameInfo) return null;
 
   const {
     docsLink,
@@ -27,7 +26,7 @@ export const HowItWorksFaq = ({
     boosterProtocol,
     primaryBorrowCurrency,
     poolName,
-  } = vaultStrategyData;
+  } = vaultNameInfo;
 
   return (
     <div>

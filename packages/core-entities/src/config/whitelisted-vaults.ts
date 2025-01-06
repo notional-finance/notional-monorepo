@@ -197,11 +197,14 @@ const SingleSidedLP_DirectClaim: Record<Network, string[]> = {
   [Network.all]: [],
 };
 
-export type VaultType =
-  | 'SingleSidedLP_AutoReinvest'
-  | 'SingleSidedLP_DirectClaim'
-  | 'SingleSidedLP_Points'
-  | 'PendlePT';
+export const VAULT_TYPES = [
+  'SingleSidedLP_AutoReinvest',
+  'SingleSidedLP_DirectClaim',
+  'SingleSidedLP_Points',
+  'PendlePT',
+] as const;
+
+export type VaultType = (typeof VAULT_TYPES)[number];
 
 export function getVaultType(
   vaultAddress: string,

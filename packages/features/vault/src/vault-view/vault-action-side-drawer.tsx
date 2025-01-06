@@ -20,8 +20,13 @@ import { observer } from 'mobx-react-lite';
 
 export const VaultActionSideDrawer = observer(() => {
   const queryData = useQueryParams();
-  const { action } = useParams<{
+  const {
+    action,
+    vaultAddress: vaultAddressParam,
+    selectedNetwork: selectedNetworkParam,
+  } = useParams<{
     vaultAddress?: string;
+    selectedNetwork?: string;
     action?: string;
   }>();
   const trade = useCurrentTradeContext();
@@ -73,7 +78,8 @@ export const VaultActionSideDrawer = observer(() => {
   return (
     <SideDrawerRouter
       hasPosition={!!vaultPosition}
-      routeMatch={`/vaults/${selectedNetwork}/${vaultAddress}/:path`}
+      // NOTE: need to use the params here to ensure that we can properly navigate
+      routeMatch={`/vaults/${selectedNetworkParam}/${vaultAddressParam}/:path`}
       action={action}
       // If a vault is disabled, then default them to the withdraw vault screen
       defaultHasPosition={enabled ? 'IncreaseVaultPosition' : 'WithdrawVault'}

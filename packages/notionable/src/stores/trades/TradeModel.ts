@@ -1,12 +1,14 @@
 import {
   APYData,
   fCashMarket,
+  getVaultType,
   NotionalTypes,
   PendlePT,
   SingleSidedLP,
   TokenBalance,
   TokenDefinition,
   TokenDefinitionModel,
+  VAULT_TYPES,
   VaultAdapter,
 } from '@notional-finance/core-entities';
 import {
@@ -118,6 +120,11 @@ export const TradeModel = types
       'StakeNOTECoolDown',
       'StakeNOTERedeem',
       'StakeNOTE',
+      'CreateVaultPosition',
+      'IncreaseVaultPosition',
+      'AdjustVaultLeverage',
+      'RollVaultPosition',
+      'WithdrawVault',
     ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),
@@ -242,6 +249,12 @@ export const TradeModel = types
 
     /** True if the trade is a deleverage */
     isDeleverage: types.optional(types.boolean, false),
+
+    /** Vault type */
+    vaultType: types.optional(
+      types.maybe(types.enumeration('VaultType', VAULT_TYPES)),
+      undefined
+    ),
   })
   .actions((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
@@ -289,6 +302,8 @@ export const TradeModel = types
     const setAvailableDepositTokens = () => {
       // Skip this for NOTE staking
       if (isNOTEStake(self.tradeType)) return;
+      // Skip this for vaults
+      if (self.vaultAddress) return;
 
       const model = root().getNetworkClient(self.selectedNetwork);
       const account = root().getAccountDefinition(self.selectedNetwork);
@@ -430,9 +445,19 @@ export const TradeModel = types
             };
           })
         );
+      } else if (self.tradeType === 'BorrowFixed') {
+        self.debtOptions.replace(
+          self.availableDebtTokens.map((t) => ({
+            token: t,
+            balance: TokenBalance.zero(t as TokenDefinition),
+            interestRate: model.getSpotAPY(t.id).totalAPY,
+            error: undefined,
+            utilization: undefined,
+          }))
+        );
       } else if (
-        self.tradeType === 'BorrowFixed' ||
-        self.tradeType === 'LeveragedNToken'
+        self.tradeType === 'LeveragedNToken' ||
+        self.tradeType === 'CreateVaultPosition'
       ) {
         self.debtOptions.replace(
           self.availableDebtTokens.map((t) => ({
@@ -442,6 +467,17 @@ export const TradeModel = types
             error: undefined,
             utilization: undefined,
           }))
+        );
+        self.collateralOptions.replace(
+          self.availableCollateralTokens.map((t) => {
+            return {
+              token: t,
+              balance: TokenBalance.zero(t as TokenDefinition),
+              interestRate: model.getSpotAPY(t.id).totalAPY,
+              error: undefined,
+              utilization: undefined,
+            };
+          })
         );
       } else if (isNOTEStake(self.tradeType)) {
         calculate();
@@ -458,6 +494,13 @@ export const TradeModel = types
             typeof TokenDefinitionModel
           >)
         : undefined;
+
+      if (self.vaultAddress) {
+        self.vaultType = getVaultType(self.vaultAddress, self.selectedNetwork);
+        self.deposit = model.getVaultConfig(self.vaultAddress)
+          ?.primaryToken as Instance<typeof TokenDefinitionModel>;
+        self.availableDepositTokens.replace([self.deposit]);
+      }
 
       // Set selected portfolio token
       if (self.selectedToken) {
@@ -571,7 +614,6 @@ export const TradeModel = types
         self.defaultLeverageRatio = l.defaultLeverageRatio;
         self.minLeverageRatio = l.minLeverageRatio;
         self.maxLeverageRatio = l.maxLeverageRatio;
-        // TODO: set the default leverage ratio here
       } else if (isLeveragedTrade(self.tradeType)) {
         const l = root()
           .getNetworkClient(self.selectedNetwork)
@@ -582,7 +624,6 @@ export const TradeModel = types
         self.defaultLeverageRatio = l.defaultLeverageRatio;
         self.minLeverageRatio = l.minLeverageRatio;
         self.maxLeverageRatio = l.maxLeverageRatio;
-        // TODO: set the default leverage ratio here
         self.leverageRatio = l.defaultLeverageRatio;
       }
 
@@ -1462,16 +1503,22 @@ export const TradeModel = types
       let minBorrowSize: string | undefined = undefined;
       let underMinAccountBorrow = false;
       let maxPoolShare: string | undefined;
-      const vaultAdapter = root()
-        .getNetworkClient(self.selectedNetwork)
-        .getVaultAdapter(self.selectedNetwork);
-      const vaultCapacity = self.debtBalance?.token
+      const vaultAdapter = self.vaultAddress
+        ? root()
+            .getNetworkClient(self.selectedNetwork)
+            .getVaultAdapter(self.vaultAddress)
+        : undefined;
+      const vaultCapacity = self.deposit
         ? {
-            minAccountBorrowSize: TokenBalance.zero(self.debtBalance.token),
-            totalUsedPrimaryBorrowCapacity: TokenBalance.zero(
-              self.debtBalance.token
+            minAccountBorrowSize: TokenBalance.zero(
+              self.deposit as TokenDefinition
             ),
-            maxPrimaryBorrowCapacity: TokenBalance.zero(self.debtBalance.token),
+            totalUsedPrimaryBorrowCapacity: TokenBalance.zero(
+              self.deposit as TokenDefinition
+            ),
+            maxPrimaryBorrowCapacity: TokenBalance.zero(
+              self.deposit as TokenDefinition
+            ),
           }
         : undefined;
       const priorVaultBalances = getPriorVaultBalances();
@@ -1547,7 +1594,7 @@ export const TradeModel = types
         underMinAccountBorrow,
         totalCapacityRemaining,
         totalPoolCapacityRemaining,
-        vaultTVL: vaultAdapter.getVaultTVL(),
+        vaultTVL: vaultAdapter?.getVaultTVL(),
         vaultCapacityError:
           self.tradeType === 'WithdrawVault'
             ? false
@@ -1709,6 +1756,19 @@ export const TradeModel = types
     };
 
     return {
+      get vaultName() {
+        if (!self.vaultAddress) return undefined;
+        const model = root().getNetworkClient(self.selectedNetwork);
+        const config = model.getVaultConfig(self.vaultAddress);
+
+        return {
+          name: config?.name,
+          poolName: config?.poolName,
+          technicalName: config?.technicalName,
+          boosterProtocol: config?.boosterProtocol,
+          baseProtocol: config?.baseProtocol,
+        };
+      },
       get selectedTokens() {
         return {
           deposit: self.deposit as TokenDefinition,

@@ -61,7 +61,7 @@ export const TradeActionSummary = observer(
         ? defineMessage({ defaultMessage: 'Manage Leveraged Liquidity' })
         : defineMessage({ defaultMessage: 'unknown' }));
     const isLeveraged = isLeveragedTrade(tradeType) || isVault;
-    const vaultType = useVaultProperties(vaultAddress)?.vaultType;
+    const vaultType = isVault ? vaultConfig?.vaultType : undefined;
     const points = useVaultPoints(vaultAddress);
     const rewardTokens = useVaultRewardTokens(vaultAddress);
 

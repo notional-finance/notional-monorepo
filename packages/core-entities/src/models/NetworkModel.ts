@@ -99,11 +99,9 @@ export const NetworkServerModel = NetworkModelWithViews.named(
       self.lastUpdatedBlock = blockNumber;
     }
 
-    const [exchanges, oracles, vaults] = yield Promise.all([
-      exchangeRegistry.fetchForModel(self.network),
-      oracleRegistry.fetchForModel(self.network),
-      vaultRegistry.fetchForModel(self.network),
-    ]);
+    const vaults = yield vaultRegistry.fetchForModel(self.network);
+    const exchanges = yield exchangeRegistry.fetchForModel(self.network);
+    const oracles = yield oracleRegistry.fetchForModel(self.network);
 
     self.exchanges.replace(exchanges);
 

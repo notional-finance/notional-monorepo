@@ -1,28 +1,23 @@
 import { Box, useTheme } from '@mui/material';
 import { Faq, FaqHeader } from '@notional-finance/mui';
-import { useContext } from 'react';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import {
   MobileVaultSummary,
   VaultModal,
   VaultPerformanceChart,
-  VaultReinvestmentHistory,
   VaultTotalRow,
 } from '../components';
-import { VaultActionContext } from '../vault';
-import { getVaultType } from '@notional-finance/core-entities';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { useVaultFaq } from '../hooks';
 
 export const VaultSummary = () => {
   const theme = useTheme();
-  const { state } = useContext(VaultActionContext);
-  const { selectedNetwork, deposit, vaultAddress } = state;
-  const vaultType =
-    vaultAddress && selectedNetwork
-      ? getVaultType(vaultAddress, selectedNetwork)
-      : undefined;
-
+  const trade = useCurrentTradeContext();
+  const { deposit } = trade?.selectedTokens ?? {};
+  const vaultAddress = trade?.vaultAddress;
+  const selectedNetwork = trade?.selectedNetwork;
+  const vaultType = trade?.vaultType;
   const hasPoints = vaultType === 'SingleSidedLP_Points';
 
   const { faqHeaderLinks, faqs } = useVaultFaq(
@@ -68,7 +63,7 @@ export const VaultSummary = () => {
           <TradeActionSummary>
             <VaultPerformanceChart />
             <VaultTotalRow />
-            <VaultReinvestmentHistory />
+            {/* <VaultReinvestmentHistory /> */}
             <FaqHeader
               title={
                 <FormattedMessage defaultMessage={'Leveraged Vault FAQ'} />

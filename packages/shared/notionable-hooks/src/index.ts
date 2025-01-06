@@ -6,7 +6,6 @@ import {
 import { ObservableContext } from './context/ObservableContext';
 
 export * from './context/use-trade-context';
-export * from './context/use-vault-context';
 export * from './context/use-note-context';
 export * from './context/NotionalContext';
 export * from './context/use-root-store';

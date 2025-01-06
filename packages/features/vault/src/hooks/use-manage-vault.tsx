@@ -1,7 +1,6 @@
-import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { VaultActionContext } from '../vault';
 import {
+  useCurrentTradeContext,
   useVaultPosition,
   useVaultProperties,
 } from '@notional-finance/notionable-hooks';
@@ -21,9 +20,11 @@ interface OptionsList {
 }
 
 export function useManageVault() {
-  const {
-    state: { vaultAddress, debtOptions, selectedNetwork },
-  } = useContext(VaultActionContext);
+  const trade = useCurrentTradeContext();
+  const vaultAddress = trade?.vaultAddress;
+  const selectedNetwork = trade?.selectedNetwork;
+  const { debt: debtOptions } = trade?.computedOptions ?? {};
+
   const vaultData = useVaultProperties(vaultAddress);
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const vaultType = vaultData?.vaultType;
@@ -128,6 +129,7 @@ export function useManageVault() {
             );
 
           return {
+            maturity: o.token.maturity,
             label,
             link: `/vaults/${selectedNetwork}/${vaultAddress}/RollVaultPosition/${o.token.id}`,
             key: 'RollVaultPosition',
@@ -136,7 +138,8 @@ export function useManageVault() {
               : undefined,
           };
         })
-        .filter((_) => !!_.totalAPY) || [];
+        .filter((_) => !!_.totalAPY && _.maturity !== vaultPosition.maturity) ||
+      [];
   }
 
   return {

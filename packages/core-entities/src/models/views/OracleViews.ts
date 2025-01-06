@@ -82,7 +82,7 @@ export function interestToExchangeRate(
   maturity: number,
   currentTime = getNowSeconds()
 ) {
-  if (maturity < currentTime) throw Error('Matured interest rate');
+  if (maturity < currentTime) return SCALAR_PRECISION;
 
   // exchange rate = e ^ (rt)
   return BigNumber.from(
@@ -389,7 +389,24 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
     return oracle.latestRate.rate;
   };
 
-  return { getExchangeRateBetweenTokens, getNTokenOracleRate };
+  const getInterestAccrualRate = (token: TokenDefinition) => {
+    const oracle = self.oracles.get(
+      `${token.underlying}:${token.id}:${
+        token.tokenType === 'VaultShare'
+          ? 'VaultShareInterestAccrued'
+          : 'nTokenInterestAccrued'
+      }`
+    );
+    // TODO: PendlePT vaults don't have interest accrual rates
+    if (!oracle || !oracle.latestRate.rate) return undefined;
+    return oracle.latestRate;
+  };
+
+  return {
+    getExchangeRateBetweenTokens,
+    getNTokenOracleRate,
+    getInterestAccrualRate,
+  };
 };
 
 export const buildOracleGraph = (

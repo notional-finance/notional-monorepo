@@ -187,6 +187,8 @@ export function calculateHoldings(
         statement?.totalInterestAccrual.toFiat('USD') ||
           new TokenBalance(0, 'USD', Network.all)
       ),
+      feesPaid: statement?.totalILAndFees,
+      totalInterestAccrual: statement?.totalInterestAccrual,
       hasMatured: balance.hasMatured,
       isHighUtilization: false,
       // TODO: add this back in
@@ -383,6 +385,17 @@ export function calculateVaultHoldings(
     const marketProfitLoss = profit.sub(totalInterestAccrual);
     const vaultType = getVaultType(v.vaultAddress, v.network);
 
+    const assetInterestAccrual = assetPnL?.totalInterestAccrual || zeroDenom;
+    const debtInterestAccrual = debtPnL?.totalInterestAccrual || zeroDenom;
+    const assetEarnings = assetPnL?.totalProfitAndLoss || zeroDenom;
+    const debtEarnings = debtPnL?.totalProfitAndLoss || zeroDenom;
+    const assetFeesPaid = assetPnL?.totalILAndFees || zeroDenom;
+    const debtFeesPaid = debtPnL?.totalILAndFees || zeroDenom;
+    const assetMarketPnL = assetEarnings?.sub(
+      assetInterestAccrual || zeroDenom
+    );
+    const debtMarketPnL = debtEarnings?.sub(debtInterestAccrual || zeroDenom);
+
     const vaultMetadata = {
       rewardClaims: rewardClaims[v.vaultAddress],
       vaultType,
@@ -419,6 +432,14 @@ export function calculateVaultHoldings(
       totalILAndFees,
       totalInterestAccrual,
       vaultMetadata,
+      assetInterestAccrual,
+      debtInterestAccrual,
+      assetMarketPnL,
+      debtMarketPnL,
+      assetEarnings,
+      debtEarnings,
+      assetFeesPaid,
+      debtFeesPaid,
     };
   });
 }

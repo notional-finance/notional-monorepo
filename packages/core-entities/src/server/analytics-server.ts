@@ -32,7 +32,10 @@ import { formatUnits } from 'ethers/lib/utils';
 import { OracleType, TimeSeriesDataPoint } from '../models/ModelTypes';
 import { getSecondaryTokenIncentive } from '../config/whitelisted-tokens';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { HistoricalOracleValuesQuery } from '../.graphclient';
+import {
+  HistoricalOracleValuesQuery,
+  VaultReinvestmentQuery,
+} from '../.graphclient';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { interestToExchangeRate } from '../models/views/OracleViews';
 
@@ -93,16 +96,106 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     return parseFloat(formatUnits(value, decimals)) * 100;
   }
 
+  protected _priceChange(daysAgo: number, timeSeries: TimeSeriesResponse) {
+    try {
+      const currentPrice = timeSeries.data[timeSeries.data.length - 1];
+      const pastPrice = timeSeries.data[timeSeries.data.length - daysAgo];
+
+      return {
+        asset: timeSeries.id.split(':')[1],
+        pastDate: pastPrice.timestamp,
+        currentUnderlying: currentPrice.priceToUnderlying,
+        currentFiat: currentPrice.priceToUSD,
+        pastUnderlying: pastPrice.priceToUnderlying,
+        pastFiat: pastPrice.priceToUSD,
+        fiatChange:
+          ((currentPrice.priceToUSD - pastPrice.priceToUSD) /
+            pastPrice.priceToUSD) *
+          100,
+        underlyingChange:
+          ((currentPrice.priceToUnderlying - pastPrice.priceToUnderlying) /
+            pastPrice.priceToUnderlying) *
+          100,
+      };
+    } catch {
+      return undefined;
+    }
+  }
+
+  protected calculatePriceChanges(timeSeries: TimeSeriesResponse[]): Map<
+    string,
+    {
+      oneDay: ReturnType<AnalyticsServer['_priceChange']>;
+      threeDay: ReturnType<AnalyticsServer['_priceChange']>;
+      sevenDay: ReturnType<AnalyticsServer['_priceChange']>;
+    }
+  > {
+    return timeSeries
+      .filter((t) => t.id.includes(ChartType.PRICE))
+      .reduce(
+        (acc, ts) => {
+          const quote = ts.id.split(':')[1];
+          acc.set(quote, {
+            oneDay: this._priceChange(1, ts),
+            threeDay: this._priceChange(3, ts),
+            sevenDay: this._priceChange(7, ts),
+          });
+
+          return acc;
+        },
+        new Map<
+          string,
+          {
+            oneDay: ReturnType<AnalyticsServer['_priceChange']>;
+            threeDay: ReturnType<AnalyticsServer['_priceChange']>;
+            sevenDay: ReturnType<AnalyticsServer['_priceChange']>;
+          }
+        >()
+      );
+  }
+
   public async fetchTimeSeries(network: Network) {
+    const { VaultReinvestmentDocument } = await loadGraphClientDeferred();
+
     const allNetworkPrices = await this.allNetworkPrices();
     if (network === Network.all) {
-      return allNetworkPrices;
+      return {
+        timeSeries: allNetworkPrices,
+        priceChanges: this.calculatePriceChanges(allNetworkPrices),
+      };
     }
+
     const notePrices = allNetworkPrices.find(
       (p) => p.id === `eth:note:${ChartType.PRICE}`
     );
 
-    return this._fetchTokenTimeSeries(network, notePrices);
+    const timeSeries = await this._fetchTokenTimeSeries(network, notePrices);
+    const priceChanges = this.calculatePriceChanges(timeSeries);
+
+    const vaultReinvestmentResult = (
+      await fetchGraphPaginate(
+        network,
+        VaultReinvestmentDocument,
+        'reinvestments',
+        this.env.NX_SUBGRAPH_API_KEY,
+        { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY }
+      )
+    )['data'] as VaultReinvestmentQuery;
+
+
+    const vaultReinvestment = groupArrayToMap(
+      vaultReinvestmentResult.reinvestments.map((i) => ({
+        ...i,
+        vault: i.vault.id,
+      })),
+      (t) => t.vault
+    );
+
+    return {
+      timeSeries,
+      priceChanges,
+      vaultReinvestment,
+    };
   }
 
   protected reduceTimeSeriesToMidnight<T extends { timestamp: number }>(
@@ -587,58 +680,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     //   this.env.NX_SUBGRAPH_API_KEY,
     //   { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY },
     //   'tradingActivity'
-    // );
-
-    // const { finalResults: vaultReinvestment } = await fetchGraph(
-    //   network,
-    //   VaultReinvestmentDocument,
-    //   // Key = vault id
-    //   (r) =>
-    //     Object.fromEntries(
-    //       groupArrayToMap(
-    //         r.reinvestments.map((i) => ({ ...i, vault: i.vault.id })),
-    //         (t) => t.vault
-    //       )
-    //     ),
-    //   this.env.NX_SUBGRAPH_API_KEY,
-    //   { minTimestamp },
-    //   'reinvestments'
-    // );
-
-    // const { finalResults: activeAccounts } = await fetchGraph(
-    //   network,
-    //   ActiveAccountsDocument,
-    //   (r) => {
-    //     const activeAccounts = r.accounts
-    //       .flatMap(
-    //         (a) =>
-    //           a.balances
-    //             ?.filter((b) => b.current.currentBalance !== '0')
-    //             .map(
-    //               (b) =>
-    //                 `${
-    //                   b.token.tokenType === 'fCash' && b.token.isfCashDebt
-    //                     ? 'fCashDebt'
-    //                     : b.token.tokenType
-    //                 }:${b.token.currencyId}`
-    //             ) || []
-    //       )
-    //       .reduce((acc, v) => {
-    //         if (acc[v]) acc[v] += 1;
-    //         else acc[v] = 1;
-    //         return acc;
-    //       }, {} as Record<string, number>);
-    //     const totalActive = r.accounts.filter(
-    //       (a) =>
-    //         (a.balances?.filter((b) => b.current.currentBalance !== '0') || [])
-    //           .length > 0
-    //     ).length;
-
-    //     return Object.assign(activeAccounts, { totalActive });
-    //   },
-    //   this.env.NX_SUBGRAPH_API_KEY,
-    //   {},
-    //   'accounts'
     // );
 
     return {

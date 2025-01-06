@@ -1,39 +1,33 @@
-import { useEffect } from 'react';
 import { SideBarLayout } from '@notional-finance/mui';
 import { VaultActionSideDrawer } from './vault-view/vault-action-side-drawer';
 import { VaultSummary } from './vault-view/vault-summary';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import {
-  createVaultContext,
-  useVaultContext,
-} from '@notional-finance/notionable-hooks';
 import { Box, styled } from '@mui/material';
-
-export const VaultActionContext = createVaultContext();
+import { useTradeContext } from '@notional-finance/notionable-hooks';
+import { useEffect } from 'react';
 
 export const VaultView = () => {
-  const context = useVaultContext();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-  const {
-    state: { isReady, confirm },
-  } = context;
+
+  const context = useTradeContext('CreateVaultPosition');
+
+  const isReady = context.tradeModel?.isReady;
+  const confirm = context.tradeModel?.confirm;
 
   return (
-    <VaultActionContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady}>
-        <SideBarLayout
-          showTransactionConfirmation={confirm}
-          sideBar={
-            <SummaryWrapper>
-              <VaultActionSideDrawer />
-            </SummaryWrapper>
-          }
-          mainContent={<VaultSummary />}
-        />
-      </FeatureLoader>
-    </VaultActionContext.Provider>
+    <FeatureLoader featureLoaded={isReady}>
+      <SideBarLayout
+        showTransactionConfirmation={confirm}
+        sideBar={
+          <SummaryWrapper>
+            <VaultActionSideDrawer />
+          </SummaryWrapper>
+        }
+        mainContent={<VaultSummary />}
+      />
+    </FeatureLoader>
   );
 };
 

@@ -1,17 +1,17 @@
 import { InfoTooltip, TotalRow } from '@notional-finance/mui';
-import { useVaultProperties } from '@notional-finance/notionable-hooks';
-import { VaultActionContext } from '../vault';
-import { useContext } from 'react';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { SxProps, useTheme } from '@mui/material';
 import { defineMessage } from 'react-intl';
-import { getVaultType, TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+import { useVaultNameInfo } from '../hooks';
+import { observer } from 'mobx-react-lite';
 
 const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
-  const { state } = useContext(VaultActionContext);
-  const { maxPoolShare, vaultAddress } = state;
+  const trade = useCurrentTradeContext();
+  const maxPoolShare = trade?.getVaultCapacity()?.maxPoolShare;
   const theme = useTheme();
-  const vaultData = useVaultProperties(vaultAddress);
+  const { baseProtocol, boosterProtocol } = useVaultNameInfo() ?? {};
 
   const toopTipData = {
     borrowCapacity: defineMessage({
@@ -23,8 +23,8 @@ const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
         'This vault can only hold {maxPoolShare} of total LP tokens in the {boosterProtocol} / {baseProtocol} pool. Remaining pool capacity can change as liquidity in the {boosterProtocol} / {baseProtocol} pool increases or decreases.',
       values: {
         maxPoolShare: maxPoolShare,
-        baseProtocol: vaultData?.baseProtocol,
-        boosterProtocol: vaultData?.boosterProtocol,
+        baseProtocol: baseProtocol,
+        boosterProtocol: boosterProtocol,
       },
     }),
     poolCapWithMaxShareSameProtocol: defineMessage({
@@ -32,14 +32,14 @@ const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
         'This vault can only hold {maxPoolShare} of total LP tokens in the {boosterProtocol} pool. Remaining pool capacity can change as liquidity in the {boosterProtocol} pool increases or decreases.',
       values: {
         maxPoolShare: maxPoolShare,
-        boosterProtocol: vaultData?.boosterProtocol,
+        boosterProtocol: boosterProtocol,
       },
     }),
   };
 
   const currentTip = title?.includes('Borrow Capacity')
     ? toopTipData.borrowCapacity
-    : vaultData?.baseProtocol === vaultData?.boosterProtocol
+    : baseProtocol === boosterProtocol
     ? toopTipData.poolCapWithMaxShareSameProtocol
     : toopTipData.poolCapWithMaxShare;
 
@@ -54,10 +54,11 @@ const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
 };
 
 const TotalRowSingleSidedLP = () => {
-  const { state } = useContext(VaultActionContext);
+  const trade = useCurrentTradeContext();
   const { baseCurrency } = useAppStore();
+  const props = trade?.getVaultCapacity();
   const { totalCapacityRemaining, totalPoolCapacityRemaining, vaultTVL } =
-    state;
+    props ?? {};
   const tvl = vaultTVL?.toFiat(baseCurrency);
   const totalsData = [
     {
@@ -89,9 +90,11 @@ const TotalRowSingleSidedLP = () => {
 };
 
 const TotalRowPendlePT = () => {
-  const { state } = useContext(VaultActionContext);
+  const trade = useCurrentTradeContext();
   const { baseCurrency } = useAppStore();
-  const { totalCapacityRemaining, vaultTVL, collateral } = state;
+  const { collateral } = trade?.selectedTokens ?? {};
+  const props = trade?.getVaultCapacity();
+  const { totalCapacityRemaining, vaultTVL } = props ?? {};
   const tvl = vaultTVL?.toFiat(baseCurrency);
   const totalsData = [
     {
@@ -121,13 +124,9 @@ const TotalRowPendlePT = () => {
   return <TotalRow totalsData={totalsData} />;
 };
 
-export const VaultTotalRow = () => {
-  const { state } = useContext(VaultActionContext);
-  const { vaultAddress, selectedNetwork } = state;
-  const vaultType =
-    vaultAddress && selectedNetwork
-      ? getVaultType(vaultAddress, selectedNetwork)
-      : undefined;
+export const VaultTotalRow = observer(() => {
+  const trade = useCurrentTradeContext();
+  const vaultType = trade?.vaultType;
 
   if (vaultType?.startsWith('SingleSidedLP')) {
     return <TotalRowSingleSidedLP />;
@@ -136,4 +135,4 @@ export const VaultTotalRow = () => {
   } else {
     return null;
   }
-};
+});

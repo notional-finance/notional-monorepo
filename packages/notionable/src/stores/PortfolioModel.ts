@@ -59,6 +59,8 @@ const DetailedHoldingModel = types.model('DetailedHolding', {
   earnings: types.maybe(NotionalTypes.TokenBalance),
   totalAtMaturity: types.maybe(NotionalTypes.TokenBalance),
   impliedFixedRate: types.maybe(types.number),
+  feesPaid: types.maybe(NotionalTypes.TokenBalance),
+  totalInterestAccrual: types.maybe(NotionalTypes.TokenBalance),
 });
 
 const GroupedHoldingModel = types.model('GroupedHoldingModel', {
@@ -107,6 +109,14 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   marketProfitLoss: NotionalTypes.TokenBalance,
   totalILAndFees: NotionalTypes.TokenBalance,
   totalInterestAccrual: NotionalTypes.TokenBalance,
+  assetInterestAccrual: NotionalTypes.TokenBalance,
+  debtInterestAccrual: NotionalTypes.TokenBalance,
+  assetFeesPaid: NotionalTypes.TokenBalance,
+  debtFeesPaid: NotionalTypes.TokenBalance,
+  assetEarnings: NotionalTypes.TokenBalance,
+  debtEarnings: NotionalTypes.TokenBalance,
+  assetMarketPnL: NotionalTypes.TokenBalance,
+  debtMarketPnL: NotionalTypes.TokenBalance,
   vaultMetadata: types.model({
     rewardClaims: types.optional(types.array(NotionalTypes.TokenBalance), []),
     vaultType: types.string,
@@ -168,6 +178,10 @@ const PortfolioModel = types.model('PortfolioModel', {
         nonNoteEarnings: NotionalTypes.TokenBalance,
         perIncentiveEarnings: types.array(NotionalTypes.TokenBalance),
         noteEarnings: NotionalTypes.TokenBalance,
+        marketPNL: NotionalTypes.TokenBalance,
+        feesPaid: NotionalTypes.TokenBalance,
+        incentiveEarnings: NotionalTypes.TokenBalance,
+        accruedInterest: NotionalTypes.TokenBalance,
       })
     ),
     undefined
@@ -181,6 +195,9 @@ const PortfolioModel = types.model('PortfolioModel', {
         totalEarnings: NotionalTypes.TokenBalance,
         assets: NotionalTypes.TokenBalance,
         debts: NotionalTypes.TokenBalance,
+        accruedInterest: NotionalTypes.TokenBalance,
+        marketPNL: NotionalTypes.TokenBalance,
+        feesPaid: NotionalTypes.TokenBalance,
       })
     ),
     undefined
@@ -356,27 +373,44 @@ export const AccountPortfolioActions = (
     const NOTE = root().getNetworkClient(self.network).getTokenBySymbol('NOTE');
 
     const totalPortfolioHoldings = detailedHoldings.reduce(
-      (t, { balance, statement, perIncentiveEarnings }) => {
-        const totalEarningsWithNOTE = statement?.totalProfitAndLoss
-          .toFiat(baseCurrency)
-          .add(
-            perIncentiveEarnings.reduce(
-              (s, i) => s.add(i.toFiat(baseCurrency)),
-              zeroFiat
-            )
-          );
-
+      (
+        t,
+        {
+          balance,
+          statement,
+          perIncentiveEarnings,
+          marketProfitLoss,
+          totalIncentiveEarnings,
+          totalEarningsWithIncentives,
+        }
+      ) => {
         if (statement) {
           t.amountPaid = t.amountPaid.add(
             statement.accumulatedCostRealized.toFiat(baseCurrency)
           );
           t.presentValue = t.presentValue.add(balance.toFiat(baseCurrency));
-          t.earnings = totalEarningsWithNOTE
-            ? t.earnings.add(totalEarningsWithNOTE.toFiat(baseCurrency))
-            : t.earnings.add(statement.totalProfitAndLoss.toFiat(baseCurrency));
           t.nonNoteEarnings = t.nonNoteEarnings.add(
             statement.totalProfitAndLoss.toFiat(baseCurrency)
           );
+
+          t.incentiveEarnings = t.incentiveEarnings.add(
+            totalIncentiveEarnings.toFiat(baseCurrency)
+          );
+          t.accruedInterest = statement.totalInterestAccrual
+            ? t.accruedInterest.add(
+                statement.totalInterestAccrual.toFiat(baseCurrency)
+              )
+            : t.accruedInterest;
+          t.marketPNL = marketProfitLoss
+            ? t.marketPNL.add(marketProfitLoss.toFiat(baseCurrency))
+            : t.marketPNL;
+          t.feesPaid = t.feesPaid.add(
+            statement.totalILAndFees.toFiat(baseCurrency)
+          );
+          t.earnings = totalEarningsWithIncentives
+            ? t.earnings.add(totalEarningsWithIncentives.toFiat(baseCurrency))
+            : t.earnings.add(statement.totalProfitAndLoss.toFiat(baseCurrency));
+
           const totalNOTEEarnings = perIncentiveEarnings.find(
             (t) => t.symbol === 'NOTE'
           );
@@ -401,8 +435,12 @@ export const AccountPortfolioActions = (
       {
         amountPaid: zeroFiat,
         presentValue: zeroFiat,
-        earnings: zeroFiat,
         nonNoteEarnings: zeroFiat,
+        feesPaid: zeroFiat,
+        incentiveEarnings: zeroFiat,
+        accruedInterest: zeroFiat,
+        marketPNL: zeroFiat,
+        earnings: zeroFiat,
         perIncentiveEarnings: [] as TokenBalance[],
         noteEarnings: TokenBalance.from(0, NOTE),
       }
@@ -438,6 +476,15 @@ export const AccountPortfolioActions = (
             vault.totalAssets.toFiat(baseCurrency)
           ),
           debts: accumulator.debts.add(vault.totalDebt.toFiat(baseCurrency)),
+          accruedInterest: accumulator.accruedInterest.add(
+            vault.totalInterestAccrual.toFiat(baseCurrency)
+          ),
+          marketPNL: accumulator.marketPNL.add(
+            vault.marketProfitLoss.toFiat(baseCurrency)
+          ),
+          feesPaid: accumulator.feesPaid.add(
+            vault.totalILAndFees.toFiat(baseCurrency)
+          ),
         };
       },
       {
@@ -446,6 +493,9 @@ export const AccountPortfolioActions = (
         totalEarnings: new TokenBalance(0, baseCurrency, Network.all),
         assets: new TokenBalance(0, baseCurrency, Network.all),
         debts: new TokenBalance(0, baseCurrency, Network.all),
+        accruedInterest: new TokenBalance(0, baseCurrency, Network.all),
+        marketPNL: new TokenBalance(0, baseCurrency, Network.all),
+        feesPaid: new TokenBalance(0, baseCurrency, Network.all),
       }
     );
 

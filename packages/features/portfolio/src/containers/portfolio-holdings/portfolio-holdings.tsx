@@ -9,7 +9,7 @@ import {
 import { Box } from '@mui/material';
 import PortfolioRisk from './portfolio-risk';
 import { useState } from 'react';
-// import { useEarningsBreakdown } from './use-earnings-breakdown';
+import { useEarningsBreakdown } from './use-earnings-breakdown';
 import { useLiquidationRisk } from './use-liquidation-risk';
 import {
   useAccountDefinition,
@@ -31,8 +31,9 @@ const PortfolioHoldings = () => {
     setExpandedRows,
     initialState,
   } = usePortfolioHoldings(baseCurrency);
-  // const { earningsBreakdownData, earningsBreakdownColumns } =
-  //   useEarningsBreakdown(toggleBarProps.toggleOption === 0);
+  const isGrouped = toggleBarProps.toggleOption === 0;
+  const { earningsBreakdownData, earningsBreakdownColumns } =
+    useEarningsBreakdown(isGrouped);
   const account = useAccountDefinition(network);
   const {
     liquidationRiskColumns,
@@ -49,11 +50,11 @@ const PortfolioHoldings = () => {
       data: portfolioHoldingsData,
       initialState,
     },
-    // 1: {
-    //   columns: earningsBreakdownColumns,
-    //   data: earningsBreakdownData,
-    // },
     1: {
+      columns: earningsBreakdownColumns,
+      data: earningsBreakdownData,
+    },
+    2: {
       columns: liquidationRiskColumns,
       data: liquidationRiskData,
       initialState: initialLiquidationState,
@@ -64,9 +65,9 @@ const PortfolioHoldings = () => {
     {
       title: <FormattedMessage defaultMessage="Positions" />,
     },
-    // {
-    //   title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
-    // },
+    {
+      title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
+    },
   ];
 
   if (hasDebts) {

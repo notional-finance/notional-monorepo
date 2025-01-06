@@ -7,7 +7,6 @@ import {
   LEGEND_LINE_TYPES,
   MultiDisplayChart,
 } from '@notional-finance/mui';
-import { VaultTradeState } from '@notional-finance/notionable';
 import {
   calculateDepositValue,
   useCurrentNetworkStore,
@@ -23,20 +22,21 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
-import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { VaultActionContext } from '../vault';
 import { useVaultExistingFactors } from '../hooks';
-import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
+import {
+  useAssetPriceHistory,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 
-const usePendlePerformanceChart = (state: VaultTradeState) => {
-  const {
-    debt,
-    debtOptions,
-    collateralOptions,
-    riskFactorLimit,
-    vaultAddress,
-  } = state;
+const usePendlePerformanceChart = () => {
+  const trade = useCurrentTradeContext();
+  const { debt } = trade?.selectedTokens ?? {};
+  const { debt: debtOptions, collateral: collateralOptions } =
+    trade?.computedOptions ?? {};
+  const vaultAddress = trade?.vaultAddress;
+  const selectedLeverageRatio = trade?.leverageRatio;
+
   const {
     priorBorrowRate,
     leverageRatio: priorLeverageRatio,
@@ -56,10 +56,10 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
   const nowMidnight = floorToMidnight(getNowSeconds());
   const ptExpires = adapter?.expiry;
   const dataPoints = ptExpires
-    ? Math.ceil((ptExpires - nowMidnight) / SECONDS_IN_DAY) + 1
+    ? Math.max(0, Math.ceil((ptExpires - nowMidnight) / SECONDS_IN_DAY) + 1)
     : 90;
 
-  const leverageRatio = (riskFactorLimit?.limit || priorLeverageRatio) as
+  const leverageRatio = (selectedLeverageRatio || priorLeverageRatio) as
     | number
     | undefined;
   const fixedBorrowMaturity =
@@ -125,15 +125,15 @@ const usePendlePerformanceChart = (state: VaultTradeState) => {
 
 export const PendlePerformanceChart = () => {
   const theme = useTheme();
-  const { state } = useContext(VaultActionContext);
-  const { deposit, collateral } = state;
+  const trade = useCurrentTradeContext();
+  const { deposit, collateral } = trade?.selectedTokens ?? {};
 
   const {
     areaChartData,
     ptExpires,
     fixedBorrowMaturity,
     xAxisDateTickInterval,
-  } = usePendlePerformanceChart(state);
+  } = usePendlePerformanceChart();
   const priceData = useAssetPriceHistory(collateral);
 
   const chartToolTipData: ChartToolTipDataProps = {
