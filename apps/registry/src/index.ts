@@ -15,17 +15,17 @@ export interface BaseDOEnv {
   DATA_SERVICE_AUTH_TOKEN: string;
 }
 
-async function execute(
-  env: BaseDOEnv,
-  network: Network,
-  isFullRefresh: boolean
-) {
+async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
+  if (onlyViews) {
+    await refreshViews(env, network);
+    return;
+  }
+
   const networkModel = NetworkServerModel.create({ network });
   networkModel.initialize(async (data: string) => {
     await putStorageKey(env, `${network}/snapshot`, data);
   }, env);
-  await networkModel.refresh(isFullRefresh);
-  await refreshViews(env, network);
+  await networkModel.refresh(true);
 }
 
 export default {
@@ -67,10 +67,10 @@ export default {
   async scheduled(event: ScheduledController, env: BaseDOEnv): Promise<void> {
     const currentMinute = new Date(event.scheduledTime).getMinutes();
     if (currentMinute % 10 === 0) {
-      await execute(env, Network.mainnet, true);
-      await execute(env, Network.all, true);
+      await execute(env, Network.mainnet, currentMinute === 10);
+      await execute(env, Network.all, currentMinute === 10);
     } else if (currentMinute % 5 === 0) {
-      await execute(env, Network.arbitrum, true);
+      await execute(env, Network.arbitrum, currentMinute === 5);
     }
   },
 };
