@@ -25,7 +25,7 @@ async function execute(
     await putStorageKey(env, `${network}/snapshot`, data);
   }, env);
   await networkModel.refresh(isFullRefresh);
-  await refreshViews(env);
+  await refreshViews(env, network);
 }
 
 export default {
@@ -66,10 +66,11 @@ export default {
   },
   async scheduled(event: ScheduledController, env: BaseDOEnv): Promise<void> {
     const currentMinute = new Date(event.scheduledTime).getMinutes();
-    await Promise.all(
-      env.SUPPORTED_NETWORKS.map((network) =>
-        execute(env, network, currentMinute % 10 === 0)
-      )
-    );
+    if (currentMinute % 10 === 0) {
+      await execute(env, Network.mainnet, true);
+      await execute(env, Network.all, true);
+    } else if (currentMinute % 5 === 0) {
+      await execute(env, Network.arbitrum, true);
+    }
   },
 };

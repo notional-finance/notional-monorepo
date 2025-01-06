@@ -14,9 +14,7 @@ r2_buckets = [
 ]
 
 [env.dev.triggers]
-crons = [
-  "*/10 * * * *"
-]
+crons = ["*/5 * * * *"]
 
 [env.dev.vars]
 NX_ENV = 'dev'
@@ -35,4 +33,4 @@ crons = ["* * * * *"]
 
 [env.prod.vars]
 NX_ENV = 'prod'
-SUPPORTED_NETWORKS = [ 'arbitrum', 'all', 'mainnet' ]
+SUPPORTED_NETWORKS = ['arbitrum', 'all', 'mainnet']
