@@ -72,6 +72,11 @@ export async function refreshViews(env: BaseDOEnv, network: Network) {
   const { timeSeries, priceChanges, vaultReinvestment } =
     await analyticsServer.fetchTimeSeries(network);
 
+  console.log(
+    'got timeSeries in network',
+    network,
+    timeSeries.map((v) => v.id)
+  );
   await Promise.all(
     timeSeries.map((v) =>
       putStorageKey(env, `${network}/views/${v.id}`, JSON.stringify(v))

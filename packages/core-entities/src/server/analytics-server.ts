@@ -172,16 +172,19 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     const timeSeries = await this._fetchTokenTimeSeries(network, notePrices);
     const priceChanges = this.calculatePriceChanges(timeSeries);
 
-    const vaultReinvestmentResult = (await fetchGraphPaginate(
-      network,
-      VaultReinvestmentDocument,
-      'reinvestments',
-      this.env.NX_SUBGRAPH_API_KEY,
-      { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY }
-    )['data']) as VaultReinvestmentQuery;
+    const vaultReinvestmentResult = (
+      await fetchGraphPaginate(
+        network,
+        VaultReinvestmentDocument,
+        'reinvestments',
+        this.env.NX_SUBGRAPH_API_KEY,
+        { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY }
+      )
+    )['data'] as VaultReinvestmentQuery;
+
 
     const vaultReinvestment = groupArrayToMap(
-      vaultReinvestmentResult['reinvestments'].map((i) => ({
+      vaultReinvestmentResult.reinvestments.map((i) => ({
         ...i,
         vault: i.vault.id,
       })),
