@@ -302,6 +302,8 @@ export const TradeModel = types
     const setAvailableDepositTokens = () => {
       // Skip this for NOTE staking
       if (isNOTEStake(self.tradeType)) return;
+      // Skip this for vaults
+      if (self.vaultAddress) return;
 
       const model = root().getNetworkClient(self.selectedNetwork);
       const account = root().getAccountDefinition(self.selectedNetwork);
@@ -474,6 +476,9 @@ export const TradeModel = types
 
       if (self.vaultAddress) {
         self.vaultType = getVaultType(self.vaultAddress, self.selectedNetwork);
+        self.deposit = model.getVaultConfig(self.vaultAddress)
+          ?.primaryToken as Instance<typeof TokenDefinitionModel>;
+        self.availableDepositTokens.replace([self.deposit]);
       }
 
       // Set selected portfolio token
