@@ -208,7 +208,9 @@ export function useVaultLiquidationRisk() {
   const { liquidationPrices, tooRisky, postAccountNoRisk, healthFactor } =
     useVaultDetails();
 
-  const liquidationRiskTableData = [...liquidationPrices, healthFactor];
+  const liquidationRiskTableData = healthFactor
+    ? [...liquidationPrices, healthFactor]
+    : [];
 
   return {
     tooRisky,
@@ -221,7 +223,18 @@ export function useVaultDetails() {
   const trade = useCurrentTradeContext();
   const intl = useIntl();
   const theme = useTheme();
-  if (!trade) throw new Error('No trade model');
+  if (!trade) {
+    return {
+      onlyCurrent: false,
+      tooRisky: false,
+      priorAccountNoRisk: true,
+      postAccountNoRisk: true,
+      tableData: [],
+      liquidationPrices: [],
+      healthFactor: undefined,
+    };
+  }
+
   const {
     onlyCurrent,
     priorAccountNoRisk,

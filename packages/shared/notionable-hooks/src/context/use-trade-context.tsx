@@ -43,6 +43,7 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
     root,
     tradeType,
     network,
+    params.vaultAddress,
     params.selectedDepositToken,
     params.selectedToken,
   ]);
