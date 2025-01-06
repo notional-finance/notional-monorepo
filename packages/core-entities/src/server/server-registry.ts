@@ -117,6 +117,7 @@ export async function fetchGraphPaginate<R, V>(
   const executionResult = await execute(query, variables, {
     subgraphId: SubgraphId[network],
     apiKey,
+    network,
   });
   if (executionResult['errors']) console.error(executionResult['errors']);
 
@@ -125,6 +126,7 @@ export async function fetchGraphPaginate<R, V>(
     const r = await execute(query, variables, {
       subgraphId: SubgraphId[network],
       apiKey,
+      network,
     });
 
     executionResult['data'][rootVariable].push(r['data'][rootVariable]);

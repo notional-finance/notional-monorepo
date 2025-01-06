@@ -8806,7 +8806,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/60626/notional-v3-{context.network:arbitrum}/version/latest"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/60626/notional-v3-{context.network:arbitrum}/version/latest","retry":2},
               baseDir,
               cache,
               pubsub,
