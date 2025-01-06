@@ -1510,13 +1510,17 @@ export const TradeModel = types
             .getNetworkClient(self.selectedNetwork)
             .getVaultAdapter(self.vaultAddress)
         : undefined;
-      const vaultCapacity = self.debtBalance?.token
+      const vaultCapacity = self.deposit
         ? {
-            minAccountBorrowSize: TokenBalance.zero(self.debtBalance.token),
-            totalUsedPrimaryBorrowCapacity: TokenBalance.zero(
-              self.debtBalance.token
+            minAccountBorrowSize: TokenBalance.zero(
+              self.deposit as TokenDefinition
             ),
-            maxPrimaryBorrowCapacity: TokenBalance.zero(self.debtBalance.token),
+            totalUsedPrimaryBorrowCapacity: TokenBalance.zero(
+              self.deposit as TokenDefinition
+            ),
+            maxPrimaryBorrowCapacity: TokenBalance.zero(
+              self.deposit as TokenDefinition
+            ),
           }
         : undefined;
       const priorVaultBalances = getPriorVaultBalances();

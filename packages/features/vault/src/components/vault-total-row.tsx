@@ -5,6 +5,7 @@ import { defineMessage } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { useVaultNameInfo } from '../hooks';
+import { observer } from 'mobx-react-lite';
 
 const ToolTip = ({ title, sx }: { title?: string; sx: SxProps }) => {
   const trade = useCurrentTradeContext();
@@ -123,7 +124,7 @@ const TotalRowPendlePT = () => {
   return <TotalRow totalsData={totalsData} />;
 };
 
-export const VaultTotalRow = () => {
+export const VaultTotalRow = observer(() => {
   const trade = useCurrentTradeContext();
   const vaultType = trade?.vaultType;
 
@@ -134,4 +135,4 @@ export const VaultTotalRow = () => {
   } else {
     return null;
   }
-};
+});

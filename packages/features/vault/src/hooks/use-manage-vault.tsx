@@ -129,6 +129,7 @@ export function useManageVault() {
             );
 
           return {
+            maturity: o.token.maturity,
             label,
             link: `/vaults/${selectedNetwork}/${vaultAddress}/RollVaultPosition/${o.token.id}`,
             key: 'RollVaultPosition',
@@ -137,7 +138,8 @@ export function useManageVault() {
               : undefined,
           };
         })
-        .filter((_) => !!_.totalAPY) || [];
+        .filter((_) => !!_.totalAPY && _.maturity !== vaultPosition.maturity) ||
+      [];
   }
 
   return {
