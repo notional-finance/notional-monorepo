@@ -1,15 +1,11 @@
 import { useCallback, useMemo } from 'react';
-import {
-  useCurrentTradeContext,
-  useSpotMaturityData,
-} from '@notional-finance/notionable-hooks';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { formatMaturity } from '@notional-finance/util';
 import { leveragedYield } from '@notional-finance/util';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 
 export const useBorrowTerms = (priorVaultFactors?: {
   vaultShare?: TokenDefinition;
@@ -17,7 +13,7 @@ export const useBorrowTerms = (priorVaultFactors?: {
   leverageRatio?: number;
 }) => {
   const trade = useCurrentTradeContext();
-  const { deposit, collateral } = trade?.selectedTokens || {};
+  const { collateral } = trade?.selectedTokens || {};
   const { debt: debtOptions, collateral: collateralOptions } =
     trade?.computedOptions ?? {};
   const { debt: availableDebtTokens } = trade?.availableTokens ?? {};
@@ -25,58 +21,28 @@ export const useBorrowTerms = (priorVaultFactors?: {
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const currentNetworkStore = useCurrentNetworkStore();
-  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
 
-  const spotMaturityData = useSpotMaturityData(
-    deposit
-      ? Array.from(availableDebtTokens || []).map(
-          (t) => t as unknown as TokenDefinition
-        )
-      : []
-  );
-
-  const assetAPY =
-    collateralOptions?.find((c) => c.token.id === collateral?.id)
-      ?.interestRate ||
-    nonLeveragedYields.find((y) => y.token.id === collateral?.id)?.apy.totalAPY;
+  const assetAPY = collateralOptions?.find(
+    (c) => c.token.id === collateral?.id
+  )?.interestRate;
 
   const leverageRatio = _leverageRatio
     ? _leverageRatio
     : priorVaultFactors?.leverageRatio;
 
-  const formatOptions = useCallback((options: any[]) => {
-    const result = [] as any[];
-    // First sort options by maturity
-    options.slice().sort((a, b) => {
-      if (a?.token?.maturity && b?.token?.maturity) {
-        return a.token.maturity - b.token.maturity;
-      } else {
-        return 0;
-      }
-    });
-    // then push variable debt to the beginning of the array
-    for (const option of options) {
-      if (
-        option.token.symbol.includes('open') ||
-        option.token.tokenType === 'PrimeDebt'
-      ) {
-        result.unshift(option);
-      } else {
-        result.push(option);
-      }
-    }
-
-    return result;
-  }, []);
-
   const borrowOptions = useMemo(() => {
-    // Note this is a any[] because there were conflicts when attempting to combine the debtOptions and spotMaturityData types
-    const options = debtOptions || spotMaturityData;
-    const formattedOptions = formatOptions(options);
+    // First sort options by maturity
+    const formattedOptions =
+      debtOptions?.slice().sort((a, b) => {
+        if (a?.token?.maturity && b?.token?.maturity) {
+          return a.token.maturity - b.token.maturity;
+        } else {
+          return 0;
+        }
+      }) || [];
 
     return formattedOptions.map((o, index) => {
-      const borrowRate = o?.interestRate || o?.tradeRate;
+      const borrowRate = o?.interestRate;
       const totalAPY = leveragedYield(assetAPY, borrowRate, leverageRatio);
       return {
         error:
@@ -109,7 +75,7 @@ export const useBorrowTerms = (priorVaultFactors?: {
           ),
       };
     });
-  }, [debtOptions, spotMaturityData, leverageRatio, assetAPY, formatOptions]);
+  }, [debtOptions, leverageRatio, assetAPY]);
 
   const onSelect = useCallback(
     (selectedId: string | null) => {

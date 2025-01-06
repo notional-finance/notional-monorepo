@@ -445,9 +445,19 @@ export const TradeModel = types
             };
           })
         );
+      } else if (self.tradeType === 'BorrowFixed') {
+        self.debtOptions.replace(
+          self.availableDebtTokens.map((t) => ({
+            token: t,
+            balance: TokenBalance.zero(t as TokenDefinition),
+            interestRate: model.getSpotAPY(t.id).totalAPY,
+            error: undefined,
+            utilization: undefined,
+          }))
+        );
       } else if (
-        self.tradeType === 'BorrowFixed' ||
-        self.tradeType === 'LeveragedNToken'
+        self.tradeType === 'LeveragedNToken' ||
+        self.tradeType === 'CreateVaultPosition'
       ) {
         self.debtOptions.replace(
           self.availableDebtTokens.map((t) => ({
@@ -457,6 +467,17 @@ export const TradeModel = types
             error: undefined,
             utilization: undefined,
           }))
+        );
+        self.collateralOptions.replace(
+          self.availableCollateralTokens.map((t) => {
+            return {
+              token: t,
+              balance: TokenBalance.zero(t as TokenDefinition),
+              interestRate: model.getSpotAPY(t.id).totalAPY,
+              error: undefined,
+              utilization: undefined,
+            };
+          })
         );
       } else if (isNOTEStake(self.tradeType)) {
         calculate();
