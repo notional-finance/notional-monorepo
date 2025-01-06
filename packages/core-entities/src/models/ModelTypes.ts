@@ -325,6 +325,8 @@ export const OracleType = [
   'PrimeDebtToMoneyMarketExchangeRate',
   'MoneyMarketToUnderlyingExchangeRate',
   'VaultShareOracleRate',
+  'VaultShareInterestAccrued',
+  'nTokenInterestAccrued',
   'nTokenToUnderlyingExchangeRate',
   'nTokenBlendedInterestRate',
   'nTokenFeeRate',

@@ -82,7 +82,7 @@ export function interestToExchangeRate(
   maturity: number,
   currentTime = getNowSeconds()
 ) {
-  if (maturity < currentTime) throw Error('Matured interest rate');
+  if (maturity < currentTime) return SCALAR_PRECISION;
 
   // exchange rate = e ^ (rt)
   return BigNumber.from(
