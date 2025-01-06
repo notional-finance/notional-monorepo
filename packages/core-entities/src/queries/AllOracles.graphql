@@ -1,22 +1,28 @@
 query AllOracles($skip: Int!) {
-  oracles(where: { oracleType_in: [
-    Chainlink,
-    fCashOracleRate,
-    fCashSettlementRate,
-    PrimeCashToUnderlyingExchangeRate,
-    PrimeDebtToUnderlyingExchangeRate,
-    VaultShareOracleRate,
-    nTokenToUnderlyingExchangeRate
-    fCashSpotRate,
-    nTokenFeeRate
-    # FIXME: add these back into the query for earnings breakdown
-    # VaultShareInterestAccrued,
-    # nTokenInterestAccrued
-  ], matured: false}, first: 1000, skip: $skip) {
+  oracles(
+    where: {
+      oracleType_in: [
+        Chainlink
+        fCashOracleRate
+        fCashSettlementRate
+        PrimeCashToUnderlyingExchangeRate
+        PrimeDebtToUnderlyingExchangeRate
+        VaultShareOracleRate
+        nTokenToUnderlyingExchangeRate
+        fCashSpotRate
+        nTokenFeeRate
+        VaultShareInterestAccrued
+        nTokenInterestAccrued
+      ]
+      matured: false
+    }
+    first: 1000
+    skip: $skip
+  ) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp
-    base { 
+    base {
       id
       decimals
     }
@@ -33,7 +39,7 @@ query AllOracles($skip: Int!) {
 
   _meta {
     block {
-        number
+      number
     }
   }
 }

@@ -9698,7 +9698,7 @@ export const AllConfigurationByBlockDocument = gql`
 export const AllOraclesDocument = gql`
     query AllOracles($skip: Int!) {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, fCashSpotRate, nTokenFeeRate], matured: false}
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, fCashSpotRate, nTokenFeeRate, VaultShareInterestAccrued, nTokenInterestAccrued], matured: false}
     first: 1000
     skip: $skip
   ) {
