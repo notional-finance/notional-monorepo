@@ -117,7 +117,7 @@ const AccountHistoryModel = types.model('AccountHistory', {
   account: types.maybe(types.string),
 });
 
-const HistoricalBalanceModel = types.model('HistoricalBalance', {
+export const HistoricalBalanceModel = types.model('HistoricalBalance', {
   timestamp: types.number,
   balance: NotionalTypes.TokenBalance,
 });

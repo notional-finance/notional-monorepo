@@ -422,6 +422,14 @@ export const TimeSeriesModel = types.model('TimeSeriesModel', {
   ),
 });
 
+export const PriceChangeModel = types.model('PriceChange', {
+  pastDate: types.number,
+  currentFiat: NotionalTypes.TokenBalance,
+  pastFiat: NotionalTypes.TokenBalance,
+  fiatChange: types.maybeNull(types.number),
+  underlyingChange: types.maybeNull(types.number),
+});
+
 const DateType = types.custom<string, Date>({
   name: 'Date',
   fromSnapshot(value: string) {
@@ -515,11 +523,10 @@ export const AnalyticsModel = types.model('Analytics', {
           blockNumber: types.number,
           timestamp: types.number,
           transactionHash: types.string,
-          rewardTokenSold: TokenDefinitionModel,
-          rewardAmountSold: NotionalTypes.BigNumber,
-          tokensReinvested: NotionalTypes.TokenBalance,
-          tokensPerVaultShare: NotionalTypes.TokenBalance,
-          underlyingAmountRealized: NotionalTypes.TokenBalance,
+          rewardAmountSold: NotionalTypes.TokenBalance,
+          tokensReinvested: NotionalTypes.BigNumber,
+          tokensPerVaultShare: NotionalTypes.BigNumber,
+          underlyingAmountRealized: NotionalTypes.BigNumber,
           vaultSharePrice: NotionalTypes.BigNumber,
         })
       )
@@ -574,16 +581,11 @@ export const AnalyticsModel = types.model('Analytics', {
     )
   ),
   priceChanges: types.maybe(
-    types.array(
+    types.map(
       types.model({
-        asset: TokenDefinitionModel,
-        pastDate: types.number,
-        currentUnderlying: NotionalTypes.TokenBalance,
-        currentFiat: NotionalTypes.TokenBalance,
-        pastUnderlying: NotionalTypes.TokenBalance,
-        pastFiat: NotionalTypes.TokenBalance,
-        fiatChange: types.number,
-        underlyingChange: types.number,
+        oneDay: types.maybe(PriceChangeModel),
+        threeDay: types.maybe(PriceChangeModel),
+        sevenDay: types.maybe(PriceChangeModel),
       })
     )
   ),

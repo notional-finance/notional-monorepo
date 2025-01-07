@@ -46,13 +46,13 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
       case 'historicalTrading':
         return `${network}/views/historical_trading`;
       case 'vaultReinvestment':
-        return `${network}/views/vault_reinvestment`;
+        return `${network}/views/vaultReinvestment`;
       case 'vaultAccountRisk':
         return `${network}/accounts/vaultRisk`;
       case 'accountPortfolioRisk':
         return `${network}/accounts/portfolioRisk`;
       case 'priceChanges':
-        return `${network}/views/price_changes`;
+        return `${network}/views/priceChanges`;
       default:
         throw new Error(`Unknown analytics key: ${String(key)}`);
     }
@@ -87,6 +87,7 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
       throw new Error(`Failed to fetch ${String(key)}: ${response.statusText}`);
     }
     try {
+      // TODO: fix this for vault reinvestment and price changes....
       const data = parseData(key, yield response.json());
       self.analytics[key] = data;
       return data;

@@ -59,14 +59,9 @@ export const useVaultReinvestmentTable = (
             const sharePrice = data?.vaultSharePrice
               ? TokenBalance.from(data.vaultSharePrice, deposit)
               : undefined;
-            const amountSold = new TokenBalance(
-              data.rewardAmountSold,
-              data?.rewardTokenSold.id,
-              network
-            );
             return {
               time: data.timestamp,
-              amountSold: amountSold.toDisplayStringWithSymbol(),
+              amountSold: data.rewardAmountSold.toDisplayStringWithSymbol(),
               vaultSharePrice: sharePrice?.toFloat().toFixed(4),
               txnHash: {
                 href: getEtherscanTransactionLink(

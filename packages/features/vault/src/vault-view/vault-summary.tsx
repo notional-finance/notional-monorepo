@@ -6,6 +6,7 @@ import {
   MobileVaultSummary,
   VaultModal,
   VaultPerformanceChart,
+  VaultReinvestmentHistory,
   VaultTotalRow,
 } from '../components';
 import { TradeActionSummary } from '@notional-finance/trade';
@@ -63,7 +64,7 @@ export const VaultSummary = () => {
           <TradeActionSummary>
             <VaultPerformanceChart />
             <VaultTotalRow />
-            {/* <VaultReinvestmentHistory /> */}
+            <VaultReinvestmentHistory />
             <FaqHeader
               title={
                 <FormattedMessage defaultMessage={'Leveraged Vault FAQ'} />

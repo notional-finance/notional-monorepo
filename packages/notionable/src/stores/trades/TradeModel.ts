@@ -1508,27 +1508,19 @@ export const TradeModel = types
             .getNetworkClient(self.selectedNetwork)
             .getVaultAdapter(self.vaultAddress)
         : undefined;
-      const vaultCapacity = self.deposit
-        ? {
-            minAccountBorrowSize: TokenBalance.zero(
-              self.deposit as TokenDefinition
-            ),
-            totalUsedPrimaryBorrowCapacity: TokenBalance.zero(
-              self.deposit as TokenDefinition
-            ),
-            maxPrimaryBorrowCapacity: TokenBalance.zero(
-              self.deposit as TokenDefinition
-            ),
-          }
+      const vaultConfig = self.vaultAddress
+        ? root()
+            .getNetworkClient(self.selectedNetwork)
+            .getVaultConfig(self.vaultAddress)
         : undefined;
       const priorVaultBalances = getPriorVaultBalances();
 
-      if (vaultCapacity) {
+      if (vaultConfig) {
         const {
           minAccountBorrowSize,
           totalUsedPrimaryBorrowCapacity,
           maxPrimaryBorrowCapacity,
-        } = vaultCapacity;
+        } = vaultConfig;
         // If the debt balance is the same as the current debt then
         // sum them together, otherwise just go with the new debt balance
         const priorDebtBalance = priorVaultBalances?.find(
@@ -1987,7 +1979,7 @@ function _getTradedInterestRate(
     if (_amount.tokenType === 'VaultDebt') {
       // Add the vault fee to the interest rate here..
       const annualizedFeeRate = model.getVaultConfig(
-        amount.vaultAddress
+        _amount.vaultAddress
       ).feeRateBasisPoints;
       interestRate += annualizedFeeRate;
     }
@@ -2019,6 +2011,12 @@ function _getTradedInterestRate(
         timeToMaturity) *
         RATE_PRECISION
     );
+  } else if (amount.tokenType === 'VaultShare' && vaultAdapter) {
+    // In other cases, just use the spot APY
+    return {
+      interestRate: vaultAdapter.getVaultAPY(),
+      utilization: undefined,
+    };
   }
 
   return {

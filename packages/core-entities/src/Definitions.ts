@@ -12,6 +12,8 @@ import {
   TransferType,
 } from './.graphclient';
 import { RegisterToken } from './exchanges/default-pools';
+import { PriceChangeModel } from './models/ModelTypes';
+import { Instance } from 'mobx-state-tree';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 export type {
   OracleType,
@@ -313,16 +315,7 @@ export interface DataPoint {
 }
 export type AnalyticsData = DataPoint[];
 
-export interface PriceChange {
-  asset: TokenDefinition;
-  pastDate: number;
-  currentUnderlying: TokenBalance;
-  currentFiat: TokenBalance;
-  pastUnderlying?: TokenBalance;
-  pastFiat?: TokenBalance;
-  fiatChange?: number;
-  underlyingChange?: number;
-}
+export type PriceChange = Instance<typeof PriceChangeModel>;
 
 export type VaultData = {
   vaultAddress: string;

@@ -396,8 +396,12 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     debtAmount: TokenBalance,
     leverageRatio: number
   ): APYData => {
-    const collateralAPY = getSimulatedAPY(collateralAmount);
-    const debtAPY = getSimulatedAPY(debtAmount);
+    const collateralAPY = collateralAmount.isZero()
+      ? getSpotAPY(collateralAmount.tokenId)
+      : getSimulatedAPY(collateralAmount);
+    const debtAPY = debtAmount.isZero()
+      ? getSpotAPY(debtAmount.tokenId)
+      : getSimulatedAPY(debtAmount);
     const apySpread =
       collateralAPY.totalAPY !== undefined && debtAPY.totalAPY !== undefined
         ? collateralAPY.totalAPY - debtAPY.totalAPY

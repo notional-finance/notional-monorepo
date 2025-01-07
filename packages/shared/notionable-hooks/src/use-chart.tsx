@@ -21,7 +21,9 @@ export const useChartData = (
   chartType: ChartType
 ) => {
   const tokenId =
-    token?.tokenType === 'VaultShare' ? token.vaultAddress : token?.id;
+    token?.tokenType === 'VaultShare' && chartType === ChartType.APY
+      ? token.vaultAddress
+      : token?.id;
   const network = token?.network;
 
   const d = useObserver(() => {
@@ -238,6 +240,7 @@ export function useAccountHistoryChart(
                   .unwrapVaultToken()
                   .toUnderlying()
                   .toFiat(baseCurrency, floorToMidnight(end))
+                  .neg()
               );
             }, new TokenBalance(0, baseCurrency, Network.all));
 

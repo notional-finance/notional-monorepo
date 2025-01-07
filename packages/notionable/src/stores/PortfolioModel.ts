@@ -53,7 +53,7 @@ const DetailedHoldingModel = types.model('DetailedHolding', {
   marketProfitLoss: types.maybe(NotionalTypes.TokenBalance),
   hasMatured: types.boolean,
   hasNToken: types.boolean,
-  isHighUtilization: types.boolean,
+  isHighUtilization: types.maybe(types.string),
   amountPaid: types.maybe(NotionalTypes.TokenBalance),
   entryPrice: types.maybe(NotionalTypes.TokenBalance),
   earnings: types.maybe(NotionalTypes.TokenBalance),
@@ -361,7 +361,8 @@ export const AccountPortfolioActions = (
       root().getNetworkClient(self.network),
       self.balances,
       self.balanceStatement as BalanceStatement[],
-      getAccountIncentives().accruedIncentives
+      getAccountIncentives().accruedIncentives,
+      self.historicalBalances
     );
     const groupedHoldings = calculateGroupedHoldings(
       self.balances,
