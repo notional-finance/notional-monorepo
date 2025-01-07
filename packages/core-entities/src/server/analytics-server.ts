@@ -134,7 +134,10 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       .filter((t) => t.id.includes(ChartType.PRICE))
       .reduce(
         (acc, ts) => {
-          const quote = ts.id.split(':')[1];
+          const quote =
+            ts.id.split(':').length === 3
+              ? ts.id.split(':')[1]
+              : ts.id.split(':')[0];
           acc.set(quote, {
             oneDay: this._priceChange(1, ts),
             threeDay: this._priceChange(3, ts),
@@ -181,7 +184,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY }
       )
     )['data'] as VaultReinvestmentQuery;
-
 
     const vaultReinvestment = groupArrayToMap(
       vaultReinvestmentResult.reinvestments.map((i) => ({
