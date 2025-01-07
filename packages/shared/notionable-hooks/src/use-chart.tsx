@@ -240,6 +240,7 @@ export function useAccountHistoryChart(
                   .unwrapVaultToken()
                   .toUnderlying()
                   .toFiat(baseCurrency, floorToMidnight(end))
+                  .neg()
               );
             }, new TokenBalance(0, baseCurrency, Network.all));
 
