@@ -19,7 +19,7 @@ import {
   SECONDS_IN_DAY,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumber, BigNumberish, utils } from 'ethers';
 import { ExecutionResult } from 'graphql';
 import { TypedDocumentNode } from '@apollo/client/core';
 import {
@@ -97,33 +97,89 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     return parseFloat(formatUnits(value, decimals)) * 100;
   }
 
-  protected _priceChange(daysAgo: number, timeSeries: TimeSeriesResponse) {
+  protected _priceChange(
+    daysAgo: number,
+    timeSeries: TimeSeriesResponse,
+    asset: string,
+    network: Network
+  ) {
     try {
       const currentPrice = timeSeries.data[timeSeries.data.length - 1];
-      const pastPrice = timeSeries.data[timeSeries.data.length - daysAgo];
-
-      return {
-        asset: timeSeries.id.split(':')[1],
-        pastDate: pastPrice.timestamp,
-        currentUnderlying: currentPrice.priceToUnderlying,
-        currentFiat: currentPrice.priceToUSD,
-        pastUnderlying: pastPrice.priceToUnderlying,
-        pastFiat: pastPrice.priceToUSD,
-        fiatChange:
-          ((currentPrice.priceToUSD - pastPrice.priceToUSD) /
-            pastPrice.priceToUSD) *
-          100,
-        underlyingChange:
-          ((currentPrice.priceToUnderlying - pastPrice.priceToUnderlying) /
-            pastPrice.priceToUnderlying) *
-          100,
-      };
+      const pastPrice = timeSeries.data[timeSeries.data.length - (daysAgo + 1)];
+      if (network === Network.all && asset === 'note') {
+        return {
+          pastDate: pastPrice.timestamp,
+          currentFiat: TokenBalance.toJSON(
+            utils.parseUnits(currentPrice.price.toString(), 18),
+            'ETH',
+            Network.all
+          ),
+          pastFiat: TokenBalance.toJSON(
+            utils.parseUnits(currentPrice.price.toString(), 18),
+            'ETH',
+            Network.all
+          ),
+          fiatChange:
+            ((currentPrice.price - pastPrice.price) / pastPrice.price) * 100,
+        };
+      } else if (network === Network.all) {
+        return {
+          pastDate: pastPrice.timestamp,
+          currentFiat: TokenBalance.toJSON(
+            BigNumber.from(Math.floor(currentPrice.price * 10 ** 6)),
+            'USD',
+            Network.all
+          ),
+          pastFiat: TokenBalance.toJSON(
+            BigNumber.from(Math.floor(pastPrice.price * 10 ** 6)),
+            'USD',
+            Network.all
+          ),
+          fiatChange:
+            ((currentPrice.price - pastPrice.price) / pastPrice.price) * 100,
+        };
+      } else {
+        return {
+          pastDate: pastPrice.timestamp,
+          currentUnderlying: TokenBalance.toJSON(
+            BigNumber.from(currentPrice.priceToUnderlying),
+            asset,
+            network
+          ),
+          currentFiat: TokenBalance.toJSON(
+            BigNumber.from(currentPrice.priceToUSD),
+            'USD',
+            Network.all
+          ),
+          pastUnderlying: TokenBalance.toJSON(
+            BigNumber.from(pastPrice.priceToUnderlying),
+            asset,
+            network
+          ),
+          pastFiat: TokenBalance.toJSON(
+            BigNumber.from(pastPrice.priceToUSD),
+            'USD',
+            Network.all
+          ),
+          fiatChange:
+            ((currentPrice.priceToUSD - pastPrice.priceToUSD) /
+              pastPrice.priceToUSD) *
+            100,
+          underlyingChange:
+            ((currentPrice.priceToUnderlying - pastPrice.priceToUnderlying) /
+              pastPrice.priceToUnderlying) *
+            100,
+        };
+      }
     } catch {
       return undefined;
     }
   }
 
-  protected calculatePriceChanges(timeSeries: TimeSeriesResponse[]): Map<
+  protected calculatePriceChanges(
+    timeSeries: TimeSeriesResponse[],
+    network: Network
+  ): Map<
     string,
     {
       oneDay: ReturnType<AnalyticsServer['_priceChange']>;
@@ -140,9 +196,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
               ? ts.id.split(':')[1]
               : ts.id.split(':')[0];
           acc.set(quote, {
-            oneDay: this._priceChange(1, ts),
-            threeDay: this._priceChange(3, ts),
-            sevenDay: this._priceChange(7, ts),
+            oneDay: this._priceChange(1, ts, quote, network),
+            threeDay: this._priceChange(3, ts, quote, network),
+            sevenDay: this._priceChange(7, ts, quote, network),
           });
 
           return acc;
@@ -165,7 +221,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     if (network === Network.all) {
       return {
         timeSeries: allNetworkPrices,
-        priceChanges: this.calculatePriceChanges(allNetworkPrices),
+        priceChanges: this.calculatePriceChanges(allNetworkPrices, network),
       };
     }
 
@@ -174,7 +230,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     );
 
     const timeSeries = await this._fetchTokenTimeSeries(network, notePrices);
-    const priceChanges = this.calculatePriceChanges(timeSeries);
+    const priceChanges = this.calculatePriceChanges(timeSeries, network);
 
     const vaultReinvestmentResult = (
       await fetchGraphPaginate(

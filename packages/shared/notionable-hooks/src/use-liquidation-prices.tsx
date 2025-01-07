@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   TokenDefinition,
   FiatKeys,
@@ -13,22 +12,16 @@ import {
 } from '@notional-finance/helpers';
 import { useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
-import {
-  Network,
-  SECONDS_IN_DAY,
-  getMidnightUTC,
-  percentChange,
-} from '@notional-finance/util';
-import { useAppContext, useNOTE } from './use-notional';
+import { Network } from '@notional-finance/util';
+import { useObserver } from 'mobx-react-lite';
+import { useFetchAnalyticsData } from './use-market';
 
 function usePriceChanges(network: Network | undefined) {
-  const {
-    appState: { priceChanges },
-  } = useAppContext();
-
-  return priceChanges && network && priceChanges[network]
-    ? priceChanges[network]
-    : { oneDay: [], sevenDay: [] };
+  const priceChanges = useObserver(() =>
+    network ? getNetworkModel(network).getPriceChanges() : undefined
+  );
+  useFetchAnalyticsData('priceChanges', !!priceChanges, network);
+  return priceChanges;
 }
 
 function parseFiatLiquidationPrice(
@@ -107,7 +100,7 @@ function parseUnderlyingLiquidationPrice(
       ? TokenBalance.unit(threshold.token)
           .toToken(debt)
           .toDisplayStringWithSymbol(4)
-      : oneDay?.currentUnderlying.toDisplayStringWithSymbol(4) || '';
+      : oneDay?.currentUnderlying?.toDisplayStringWithSymbol(4) || '';
 
   return {
     // Used on portfolio screen
@@ -135,8 +128,8 @@ function parseUnderlyingLiquidationPrice(
 
 export function useCurrentETHPrice() {
   // NOTE: the hardcoded network here doesn't really matter
-  const { oneDay } = usePriceChanges(Network.arbitrum);
-  const ethChange = oneDay.find(({ asset }) => asset.symbol === 'ETH');
+  const priceChanges = usePriceChanges(Network.all);
+  const ethChange = priceChanges?.get('eth')?.oneDay;
 
   return {
     ethPrice: ethChange?.currentFiat,
@@ -145,27 +138,10 @@ export function useCurrentETHPrice() {
 }
 
 export function useNotePrice() {
-  const [notePrice, setNOTEPrice] = useState<TokenBalance | undefined>();
-  const [notePriceChange, setNOTEPriceChange] = useState<number | undefined>();
-  const note = useNOTE(Network.all);
-
-  useEffect(() => {
-    const oneNote = note ? TokenBalance.unit(note) : undefined;
-    const price = oneNote?.toFiat('USD');
-    setNOTEPrice(price);
-    let notePriceYesterday = undefined as TokenBalance | undefined;
-    try {
-      notePriceYesterday = oneNote?.toFiat(
-        'USD',
-        getMidnightUTC() - SECONDS_IN_DAY
-      );
-    } catch {
-      notePriceYesterday = undefined;
-    }
-    setNOTEPriceChange(
-      percentChange(price?.toFloat(), notePriceYesterday?.toFloat())
-    );
-  }, [note]);
+  const priceChanges = usePriceChanges(Network.all);
+  const noteChange = priceChanges?.get('note')?.oneDay;
+  const notePriceChange = noteChange?.fiatChange || undefined;
+  const notePrice = noteChange?.currentFiat.toFiat('USD') || undefined;
 
   return { notePrice, notePriceChange };
 }
@@ -176,7 +152,7 @@ export function useCurrentLiquidationPrices(
 ) {
   const portfolio = usePortfolioLiquidationPrices(network);
   const vaults = useVaultHoldings(network);
-  const { oneDay, sevenDay } = usePriceChanges(network);
+  const priceChanges = usePriceChanges(network);
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;
 
@@ -187,12 +163,13 @@ export function useCurrentLiquidationPrices(
     }))
     .filter((p) => p.asset.tokenType === 'Underlying')
     .map(({ asset, threshold }) => {
+      const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
       return parseFiatLiquidationPrice(
         asset,
         baseCurrency,
         threshold,
-        oneDay.find((t) => t.asset.id === asset.id),
-        sevenDay.find((t) => t.asset.id === asset.id),
+        oneDay,
+        sevenDay,
         secondary
       );
     });
@@ -204,11 +181,12 @@ export function useCurrentLiquidationPrices(
     }))
     .filter((p) => p.asset.tokenType !== 'Underlying')
     .map(({ asset, threshold }) => {
+      const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
       return parseUnderlyingLiquidationPrice(
         asset as TokenDefinition,
         threshold,
-        oneDay.find((t) => t.asset.id === asset.id),
-        sevenDay.find((t) => t.asset.id === asset.id),
+        oneDay,
+        sevenDay,
         secondary
       );
     });
@@ -218,40 +196,43 @@ export function useCurrentLiquidationPrices(
       return {
         vaultAddress,
         liquidationPrices: liquidationPrices.map(
-          ({ asset, threshold, debt }) => ({
-            ...parseUnderlyingLiquidationPrice(
-              getNetworkModel(network).getTokenByID(asset),
-              threshold,
-              oneDay.find((t) => t.asset.id === asset),
-              sevenDay.find((t) => t.asset.id === asset),
-              secondary,
-              debt ? getNetworkModel(network).getTokenByID(debt) : undefined
-            ),
-            collateral: {
-              symbol: threshold?.underlying.symbol || '',
-              label: name,
-              caption: 'Leveraged Vault',
-            },
-            riskFactor: {
-              data: [
-                {
-                  displayValue: (
-                    <span>
-                      {getNetworkModel(network).getTokenByID(asset).symbol}
-                      <span style={{ color: secondary }}>
-                        &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+          ({ asset, threshold, debt }) => {
+            const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
+            return {
+              ...parseUnderlyingLiquidationPrice(
+                getNetworkModel(network).getTokenByID(asset),
+                threshold,
+                oneDay,
+                sevenDay,
+                secondary,
+                debt ? getNetworkModel(network).getTokenByID(debt) : undefined
+              ),
+              collateral: {
+                symbol: threshold?.underlying.symbol || '',
+                label: name,
+                caption: 'Leveraged Vault',
+              },
+              riskFactor: {
+                data: [
+                  {
+                    displayValue: (
+                      <span>
+                        {getNetworkModel(network).getTokenByID(asset).symbol}
+                        <span style={{ color: secondary }}>
+                          &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+                        </span>
                       </span>
-                    </span>
-                  ),
-                  isNegative: false,
-                },
-                {
-                  displayValue: 'Chainlink Oracle Price',
-                  isNegative: false,
-                },
-              ],
-            },
-          })
+                    ),
+                    isNegative: false,
+                  },
+                  {
+                    displayValue: 'Chainlink Oracle Price',
+                    isNegative: false,
+                  },
+                ],
+              },
+            };
+          }
         ),
       };
     }
