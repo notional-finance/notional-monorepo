@@ -1987,7 +1987,7 @@ function _getTradedInterestRate(
     if (_amount.tokenType === 'VaultDebt') {
       // Add the vault fee to the interest rate here..
       const annualizedFeeRate = model.getVaultConfig(
-        amount.vaultAddress
+        _amount.vaultAddress
       ).feeRateBasisPoints;
       interestRate += annualizedFeeRate;
     }
@@ -2019,6 +2019,12 @@ function _getTradedInterestRate(
         timeToMaturity) *
         RATE_PRECISION
     );
+  } else if (amount.tokenType === 'VaultShare' && vaultAdapter) {
+    // In other cases, just use the spot APY
+    return {
+      interestRate: vaultAdapter.getVaultAPY(),
+      utilization: undefined,
+    };
   }
 
   return {

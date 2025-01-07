@@ -1,6 +1,9 @@
 import { useCallback, useMemo } from 'react';
 import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
-import { formatMaturity } from '@notional-finance/util';
+import {
+  formatMaturity,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
 import { leveragedYield } from '@notional-finance/util';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
@@ -31,14 +34,19 @@ export const useBorrowTerms = (priorVaultFactors?: {
     : priorVaultFactors?.leverageRatio;
 
   const borrowOptions = useMemo(() => {
-    // First sort options by maturity
+    // First sort options by maturity ascending
     const formattedOptions =
       debtOptions?.slice().sort((a, b) => {
-        if (a?.token?.maturity && b?.token?.maturity) {
-          return a.token.maturity - b.token.maturity;
-        } else {
-          return 0;
-        }
+        return (
+          (a.token.maturity === undefined ||
+          a.token.maturity === PRIME_CASH_VAULT_MATURITY
+            ? 0
+            : a.token.maturity) -
+          (b.token.maturity === undefined ||
+          b.token.maturity === PRIME_CASH_VAULT_MATURITY
+            ? 0
+            : b.token.maturity)
+        );
       }) || [];
 
     return formattedOptions.map((o, index) => {
