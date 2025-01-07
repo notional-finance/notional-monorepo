@@ -38,6 +38,7 @@ import {
 } from '../.graphclient';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { interestToExchangeRate } from '../models/views/OracleViews';
+import { TokenBalance } from '../token-balance';
 
 export type GraphDocument = keyof Omit<
   Awaited<ReturnType<typeof loadGraphClientDeferred>>,
@@ -187,8 +188,21 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
     const vaultReinvestment = groupArrayToMap(
       vaultReinvestmentResult.reinvestments.map((i) => ({
-        ...i,
         vault: i.vault.id,
+        blockNumber: parseInt(i.blockNumber),
+        timestamp: i.timestamp,
+        transactionHash: i.transactionHash,
+        rewardAmountSold: TokenBalance.toJSON(
+          BigNumber.from(i.rewardAmountSold),
+          i.rewardTokenSold.id,
+          network
+        ),
+        tokensReinvested: BigNumber.from(i.tokensReinvested).toJSON(),
+        tokensPerVaultShare: BigNumber.from(i.tokensPerVaultShare).toJSON(),
+        underlyingAmountRealized: BigNumber.from(
+          i.underlyingAmountRealized
+        ).toJSON(),
+        vaultSharePrice: BigNumber.from(i.vaultSharePrice).toJSON(),
       })),
       (t) => t.vault
     );

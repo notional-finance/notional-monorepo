@@ -515,11 +515,10 @@ export const AnalyticsModel = types.model('Analytics', {
           blockNumber: types.number,
           timestamp: types.number,
           transactionHash: types.string,
-          rewardTokenSold: TokenDefinitionModel,
-          rewardAmountSold: NotionalTypes.BigNumber,
-          tokensReinvested: NotionalTypes.TokenBalance,
-          tokensPerVaultShare: NotionalTypes.TokenBalance,
-          underlyingAmountRealized: NotionalTypes.TokenBalance,
+          rewardAmountSold: NotionalTypes.TokenBalance,
+          tokensReinvested: NotionalTypes.BigNumber,
+          tokensPerVaultShare: NotionalTypes.BigNumber,
+          underlyingAmountRealized: NotionalTypes.BigNumber,
           vaultSharePrice: NotionalTypes.BigNumber,
         })
       )

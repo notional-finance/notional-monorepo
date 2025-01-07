@@ -21,7 +21,9 @@ export const useChartData = (
   chartType: ChartType
 ) => {
   const tokenId =
-    token?.tokenType === 'VaultShare' ? token.vaultAddress : token?.id;
+    token?.tokenType === 'VaultShare' && chartType === ChartType.APY
+      ? token.vaultAddress
+      : token?.id;
   const network = token?.network;
 
   const d = useObserver(() => {
