@@ -18,8 +18,8 @@ import {
   AccountHistory,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
-import { CalculatedPriceChanges } from '../global-state';
 import { Instance } from 'mobx-state-tree';
+import { HistoricalBalanceModel } from '../../stores/AccountModel';
 
 export type PortfolioHolding = ReturnType<typeof calculateHoldings>[number];
 export type GroupedHolding = ReturnType<
@@ -28,32 +28,29 @@ export type GroupedHolding = ReturnType<
 export type VaultHolding = ReturnType<typeof calculateVaultHoldings>[number];
 export type CurrentFactors = ReturnType<typeof calculateAccountCurrentFactors>;
 
-// TODO: move this to somewhere else
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function isHighUtilization(
   balance: TokenBalance,
-  priceChanges: CalculatedPriceChanges | undefined,
+  model: Instance<typeof NetworkClientModel>,
   positionEstablished = getNowSeconds(),
   threshold = -0.005
 ) {
   const token = balance.token;
   if (balance.hasMatured) return undefined;
+  const priceChanges = model.getPriceChanges();
 
   if (
     token.tokenType === 'nToken' ||
     // Only show this for positive fCash
     (token.tokenType === 'fCash' && balance.isPositive())
   ) {
-    const oneDay = priceChanges?.oneDay.find((p) => p.asset.id === token.id);
-    const threeDay = priceChanges?.threeDay.find(
-      (p) => p.asset.id === token.id
-    );
+    const oneDay = priceChanges?.get(token.id)?.oneDay;
+    const threeDay = priceChanges?.get(token.id)?.threeDay;
 
     if (
-      (oneDay?.underlyingChange !== undefined &&
+      (oneDay?.underlyingChange &&
         oneDay.underlyingChange < threshold &&
         positionEstablished < getNowSeconds() - SECONDS_IN_DAY) ||
-      (threeDay?.underlyingChange !== undefined &&
+      (threeDay?.underlyingChange &&
         threeDay.underlyingChange < threshold &&
         positionEstablished < getNowSeconds() - 3 * SECONDS_IN_DAY)
     ) {
@@ -74,7 +71,8 @@ export function calculateHoldings(
   model: Instance<typeof NetworkClientModel>,
   _balances: TokenBalance[],
   balanceStatements: BalanceStatement[],
-  accruedIncentives: AccruedIncentives[]
+  accruedIncentives: AccruedIncentives[],
+  historicalBalances: Instance<typeof HistoricalBalanceModel>[]
 ) {
   const balances = _balances
     .filter(
@@ -150,11 +148,12 @@ export function calculateHoldings(
       .toFiat('USD')
       .add(totalIncentiveEarnings);
 
-    // const positionEstablished = account?.historicalBalances
-    //   ?.reverse()
-    //   .find(
-    //     (h) => h.balance.tokenId === balance.tokenId && !balance.isZero()
-    //   )?.timestamp;
+    const positionEstablished = historicalBalances
+      ?.reverse()
+      .find(
+        (h) => h.balance.tokenId === balance.tokenId && !balance.isZero()
+      )?.timestamp;
+
     let hasNToken: boolean;
     try {
       hasNToken = !!model.getNToken(balance.currencyId);
@@ -190,13 +189,7 @@ export function calculateHoldings(
       feesPaid: statement?.totalILAndFees,
       totalInterestAccrual: statement?.totalInterestAccrual,
       hasMatured: balance.hasMatured,
-      isHighUtilization: false,
-      // TODO: add this back in
-      // isHighUtilization: isHighUtilization(
-      //   balance,
-      //   priceChanges,
-      //   positionEstablished
-      // ),
+      isHighUtilization: isHighUtilization(balance, model, positionEstablished),
       hasNToken,
     };
   });

@@ -101,7 +101,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     daysAgo: number,
     timeSeries: TimeSeriesResponse,
     asset: string,
-    network: Network
+    network: Network,
+    isFiat: boolean
   ) {
     try {
       const currentPrice = timeSeries.data[timeSeries.data.length - 1];
@@ -122,16 +123,16 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           fiatChange:
             ((currentPrice.price - pastPrice.price) / pastPrice.price) * 100,
         };
-      } else if (network === Network.all) {
+      } else if (isFiat) {
         return {
           pastDate: pastPrice.timestamp,
           currentFiat: TokenBalance.toJSON(
-            BigNumber.from(Math.floor(currentPrice.price * 10 ** 6)),
+            utils.parseUnits(currentPrice.price.toFixed(6), 6),
             'USD',
             Network.all
           ),
           pastFiat: TokenBalance.toJSON(
-            BigNumber.from(Math.floor(pastPrice.price * 10 ** 6)),
+            utils.parseUnits(pastPrice.price.toFixed(6), 6),
             'USD',
             Network.all
           ),
@@ -141,23 +142,13 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       } else {
         return {
           pastDate: pastPrice.timestamp,
-          currentUnderlying: TokenBalance.toJSON(
-            BigNumber.from(currentPrice.priceToUnderlying),
-            asset,
-            network
-          ),
           currentFiat: TokenBalance.toJSON(
-            BigNumber.from(currentPrice.priceToUSD),
+            utils.parseUnits(currentPrice.priceToUSD.toFixed(6), 6),
             'USD',
             Network.all
           ),
-          pastUnderlying: TokenBalance.toJSON(
-            BigNumber.from(pastPrice.priceToUnderlying),
-            asset,
-            network
-          ),
           pastFiat: TokenBalance.toJSON(
-            BigNumber.from(pastPrice.priceToUSD),
+            utils.parseUnits(pastPrice.priceToUSD.toFixed(6), 6),
             'USD',
             Network.all
           ),
@@ -171,7 +162,10 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
             100,
         };
       }
-    } catch {
+    } catch (e) {
+      if (asset === '0x0f13fb925edc3e1fe947209010d9c0e072986adc') {
+        console.error(e);
+      }
       return undefined;
     }
   }
@@ -195,10 +189,13 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
             ts.id.split(':').length === 3
               ? ts.id.split(':')[1]
               : ts.id.split(':')[0];
+          const isFiat =
+            ts.id.split(':')[0].toLowerCase() === FIAT_ADDRESS ||
+            network === Network.all;
           acc.set(quote, {
-            oneDay: this._priceChange(1, ts, quote, network),
-            threeDay: this._priceChange(3, ts, quote, network),
-            sevenDay: this._priceChange(7, ts, quote, network),
+            oneDay: this._priceChange(1, ts, quote, network, isFiat),
+            threeDay: this._priceChange(3, ts, quote, network, isFiat),
+            sevenDay: this._priceChange(7, ts, quote, network, isFiat),
           });
 
           return acc;
