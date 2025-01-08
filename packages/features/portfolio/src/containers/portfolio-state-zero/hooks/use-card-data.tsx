@@ -17,6 +17,7 @@ import {
   firstValue,
   PORTFOLIO_STATE_ZERO_OPTIONS,
   PRODUCTS,
+  RATE_PRECISION,
   unique,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -26,17 +27,20 @@ import { APYData } from '@notional-finance/core-entities';
 import { NetworkClientModelType } from '@notional-finance/notionable';
 
 const getAvailableVaults = (
-  vaults: ReturnType<NetworkClientModelType['getAllListedVaultsWithYield']>
+  vaults: ReturnType<NetworkClientModelType['getAllListedVaultsWithYield']>,
+  currencyId: number
 ) => {
   return {
     symbols: unique(
       vaults.map((v) => v.underlying?.symbol).filter((t) => t !== undefined)
     ),
-    best: vaults.reduce((max, current) => {
-      return (current.apy?.totalAPY || 0) > (max.apy?.totalAPY || 0)
-        ? current
-        : max;
-    }, {} as (typeof vaults)[number]),
+    best: vaults
+      .filter((v) => v.underlying?.currencyId === currencyId)
+      .reduce((max, current) => {
+        return (current.apy?.totalAPY || 0) > (max?.apy?.totalAPY || 0)
+          ? current
+          : max;
+      }, undefined as (typeof vaults)[number] | undefined),
   };
 };
 
@@ -150,16 +154,21 @@ export const useCardData = (
           (v) =>
             v.vaultConfig.vaultType === 'SingleSidedLP_AutoReinvest' ||
             v.vaultConfig.vaultType === 'SingleSidedLP_DirectClaim'
-        )
+        ),
+        currencyId
       );
     const { symbols: availablePointsVaults, best: bestPointsVault } =
       getAvailableVaults(
-        vaults.filter((v) => v.vaultConfig.vaultType === 'SingleSidedLP_Points')
+        vaults.filter(
+          (v) => v.vaultConfig.vaultType === 'SingleSidedLP_Points'
+        ),
+        currencyId
       );
 
     const { symbols: availablePendleVaults, best: bestPendleVault } =
       getAvailableVaults(
-        vaults.filter((v) => v.vaultConfig.vaultType === 'PendlePT')
+        vaults.filter((v) => v.vaultConfig.vaultType === 'PendlePT'),
+        currencyId
       );
 
     return [
@@ -280,11 +289,14 @@ export const useCardData = (
       ? tokens
           .filter((t) => t.tokenType === 'fCash')
           .map((t) => store.getSpotAPY(t.id))
-          .reduce((min, current) => {
-            return (current?.totalAPY || 0) < (min?.totalAPY || 0)
-              ? current
-              : min;
-          }, {} as APYData)
+          .reduce(
+            (min, current) => {
+              return (current?.totalAPY || 0) < (min?.totalAPY || 0)
+                ? current
+                : min;
+            },
+            { totalAPY: RATE_PRECISION } as APYData
+          )
       : undefined;
 
     return [

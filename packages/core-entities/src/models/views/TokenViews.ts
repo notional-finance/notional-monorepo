@@ -161,10 +161,10 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
         t.currencyId === currencyId &&
         t.tokenType !== 'VaultDebt' &&
         t.tokenType !== 'VaultCash' &&
-        t.isFCashDebt !== true &&
+        (t.isFCashDebt !== undefined ? !t.isFCashDebt : true) &&
         (t.tokenType === 'fCash' && t.maturity
           ? getNowSeconds() < t.maturity
-          : false)
+          : true)
     );
     return t;
   };
