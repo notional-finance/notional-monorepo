@@ -20,7 +20,6 @@ import {
   useProductNetwork,
   useWalletBalancesOnNetworks,
   useSelectedNetwork,
-  usePortfolioStore,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -136,7 +135,6 @@ export function PortfolioNetworkSelector({
 }) {
   const selectedNetwork = useSelectedNetwork();
   const walletBalances = useAccountNetWorth();
-  const portfolioStore = usePortfolioStore();
   return (
     <NetworkSelector
       availableNetworks={SupportedNetworks}
@@ -145,7 +143,6 @@ export function PortfolioNetworkSelector({
       hideNetWorth={hideNetWorth}
       sx={sx}
       isPortfolio
-      onNetworkChange={(network) => portfolioStore.setNetwork(network)}
     />
   );
 }

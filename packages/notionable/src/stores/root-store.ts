@@ -90,21 +90,6 @@ export const createRootStore = (): RootStoreType => {
     },
     portfolioStore: {
       network: userSettings?.network ? userSettings?.network : Network.mainnet,
-      stateZeroEarnData: {
-        defaultSymbol: '',
-        data: [],
-        tokenList: [],
-      },
-      stateZeroBorrowData: {
-        defaultSymbol: '',
-        data: [],
-        tokenList: [],
-      },
-      stateZeroLeveragedData: {
-        defaultSymbol: '',
-        data: [],
-        tokenList: [],
-      },
       pointsStore: {
         arbPoints: [],
         totalPoints: 0,

@@ -7,10 +7,11 @@ import {
   encodeERC1155Id,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
+  unique,
 } from '@notional-finance/util';
 import { BigNumberish } from 'ethers';
 import { TokenBalance } from '../../token-balance';
-import { TokenDefinition } from '../../Definitions';
+import { TokenDefinition, TokenType } from '../../Definitions';
 import { MaxCurrencyId } from '../../config/whitelisted-tokens';
 
 export const TokenViews = (self: Instance<typeof NetworkModel>) => {
@@ -143,7 +144,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return TokenBalance.from(n, token);
   };
 
-  const getTokensByType = (tokenType: string, excludeMatured = true) => {
+  const getTokensByType = (tokenType: TokenType, excludeMatured = true) => {
     const t = getAllTokens().filter((t) => t.tokenType === tokenType);
     if (excludeMatured) {
       return t.filter((t) =>
@@ -151,6 +152,20 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
       );
     }
 
+    return t;
+  };
+
+  const getTokensByCurrencyId = (currencyId: number) => {
+    const t = getAllTokens().filter(
+      (t) =>
+        t.currencyId === currencyId &&
+        t.tokenType !== 'VaultDebt' &&
+        t.tokenType !== 'VaultCash' &&
+        (t.isFCashDebt !== undefined ? !t.isFCashDebt : true) &&
+        (t.tokenType === 'fCash' && t.maturity
+          ? getNowSeconds() < t.maturity
+          : true)
+    );
     return t;
   };
 
@@ -176,7 +191,17 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     );
   };
 
+  const getUnderlyingSymbolsForTokenTypes = (tokenTypes: TokenType[]) => {
+    return unique(
+      tokenTypes.flatMap((t) => getTokensByType(t)).map((t) => t.underlying)
+    )
+      .filter((t) => t !== undefined)
+      .map((u) => getTokenByID(u).symbol);
+  };
+
   return {
+    getTokensByCurrencyId,
+    getUnderlyingSymbolsForTokenTypes,
     getAllTokens,
     getTokenByID,
     getTokenBySymbol,

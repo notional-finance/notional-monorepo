@@ -366,14 +366,17 @@ export class PendlePT extends VaultAdapter {
     let minPtOut: BigNumber;
     let approxParams: BigNumber[];
 
-    // Floor these values at zero if they are too small
-    if (minSYPurchaseAmount.toFloat() <= FLOATING_POINT_DUST) {
+    // Floor these values at zero if they are too small can happen
+    // during rolling the vault position and the Pendle API will fail
+    // if the valuation is under 0.01 USD.
+    if (totalDeposit.toFiat('USD').toFloat() <= 0.02) {
       minPtOut = BigNumber.from(0);
       minSYPurchaseAmount = minSYPurchaseAmount.copy(0);
 
       approxParams = [
         BigNumber.from(0),
-        BigNumber.from(SCALAR_PRECISION),
+        // Increase the max guess to ensure that the search will converge
+        BigNumber.from(SCALAR_PRECISION).mul(10),
         BigNumber.from(0),
         BigNumber.from(256),
         BigNumber.from(0.0001e18),
