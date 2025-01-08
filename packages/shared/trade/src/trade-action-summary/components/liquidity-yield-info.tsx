@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material';
+import { APYData } from '@notional-finance/core-entities';
 import { trackEvent } from '@notional-finance/helpers';
 import { CountUp, H4, InfoTooltip, Subtitle } from '@notional-finance/mui';
-import { APYData } from '@notional-finance/notionable';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { useLocation } from 'react-router-dom';

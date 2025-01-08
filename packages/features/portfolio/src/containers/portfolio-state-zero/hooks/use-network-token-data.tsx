@@ -1,65 +1,37 @@
-import { usePortfolioStore } from '@notional-finance/notionable-hooks';
+import { useCurrentNetworkStore } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 
-export const getAPYDataForToken = (
-  activeToken: string,
-  productGroupData: any[]
-) => {
-  return productGroupData
-    .flatMap((group) => {
-      return group.filter((item) => item?.symbol === activeToken);
-    })
-    .filter((item) => item !== null);
-};
-
-export const getAvailableVaults = (productGroupData) => {
-  const availableVaults: Set<string> = new Set();
-  productGroupData
-    .filter((item) => item.apy?.totalAPY > 0)
-    .forEach((item) => {
-      if (item?.symbol) {
-        availableVaults.add(item.symbol);
-      }
-    });
-  return Array.from(availableVaults);
-};
-
+/** Returns a list of underlying tokens for the selected tab */
 export const useNetworkTokenData = (selectedTabIndex: number) => {
-  const portfolioStore = usePortfolioStore();
+  const store = useCurrentNetworkStore();
   if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.EARN) {
-    const { data, tokenList, defaultSymbol } = portfolioStore.stateZeroEarnData;
-    if (data.length === 0) {
-      portfolioStore.setStateZeroEarnData();
-    }
-
+    const tokenList = store.getUnderlyingSymbolsForTokenTypes([
+      'fCash',
+      'nToken',
+      'PrimeCash',
+    ]);
     return {
       tokenList: tokenList || [],
-      productGroupData: data || [],
-      defaultSymbol: defaultSymbol || tokenList[0],
+      defaultSymbol: 'ETH',
     };
   } else if (selectedTabIndex === PORTFOLIO_STATE_ZERO_OPTIONS.LEVERAGE) {
-    const { data, tokenList, defaultSymbol } =
-      portfolioStore.stateZeroLeveragedData;
-
-    if (data.length === 0) {
-      portfolioStore.setStateZeroLeveragedData();
-    }
+    const tokenList = store.getUnderlyingSymbolsForTokenTypes([
+      'nToken',
+      'VaultShare',
+    ]);
     return {
-      tokenList: tokenList || [],
-      productGroupData: data || [],
-      defaultSymbol: defaultSymbol || tokenList[0],
+      tokenList: tokenList,
+      defaultSymbol: 'ETH',
     };
   } else {
-    const { data, tokenList, defaultSymbol } =
-      portfolioStore.stateZeroBorrowData;
-
-    if (data.length === 0) {
-      portfolioStore.setStateZeroBorrowData();
-    }
+    // Borrow Tokens
+    const tokenList = store.getUnderlyingSymbolsForTokenTypes([
+      'PrimeDebt',
+      'fCash',
+    ]);
     return {
-      tokenList: tokenList || [],
-      productGroupData: data || [],
-      defaultSymbol: defaultSymbol || tokenList[0],
+      tokenList: tokenList,
+      defaultSymbol: 'ETH',
     };
   }
 };

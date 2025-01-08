@@ -520,9 +520,13 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     return [...nTokenYields, ...fCashYields, ...primeCashYields];
   };
 
-  const getAllFCashYields = (): ProductAPY[] => {
+  const getAllFCashYields = (currencyId?: number): ProductAPY[] => {
     return getTokensByType('fCash')
-      .filter((data) => !data?.isFCashDebt)
+      .filter(
+        (data) =>
+          !data?.isFCashDebt &&
+          (currencyId ? data.currencyId === currencyId : true)
+      )
       .map((t) => {
         return {
           token: t,
@@ -658,63 +662,69 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     });
   };
 
-  const getAllLeveragedNTokenYields = (): ProductAPY[] => {
-    const leveragedNTokenData = getTokensByType('nToken').map((t) => {
-      const debtTokens = getDefaultLeveragedNTokenAPYs(t);
-      const leveragedNTokenData =
-        debtTokens.length > 0
-          ? debtTokens.reduce((max, current) => {
-              return current?.apy?.totalAPY &&
-                max?.apy?.totalAPY &&
-                current.apy.totalAPY > max.apy.totalAPY
-                ? current
-                : max;
-            }, debtTokens[0])
-          : undefined;
+  const getAllLeveragedNTokenYields = (currencyId?: number): ProductAPY[] => {
+    const leveragedNTokenData = getTokensByType('nToken')
+      .filter((t) => (currencyId ? t.currencyId === currencyId : true))
+      .map((t) => {
+        const debtTokens = getDefaultLeveragedNTokenAPYs(t);
+        const leveragedNTokenData =
+          debtTokens.length > 0
+            ? debtTokens.reduce((max, current) => {
+                return current?.apy?.totalAPY &&
+                  max?.apy?.totalAPY &&
+                  current.apy.totalAPY > max.apy.totalAPY
+                  ? current
+                  : max;
+              }, debtTokens[0])
+            : undefined;
 
-      return {
-        token: t,
-        apy: leveragedNTokenData?.apy as APYData,
-        tvl: getTVL(t),
-        maxLeverageRatio: getLeverageRatios(t).maxLeverageRatio,
-        liquidity: getLiquidity(t),
-        underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
-        collateralFactor: getDebtOrCollateralFactor(t, false),
-        debtToken: leveragedNTokenData?.debtToken,
-      };
-    });
+        return {
+          token: t,
+          apy: leveragedNTokenData?.apy as APYData,
+          tvl: getTVL(t),
+          maxLeverageRatio: getLeverageRatios(t).maxLeverageRatio,
+          liquidity: getLiquidity(t),
+          underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
+          collateralFactor: getDebtOrCollateralFactor(t, false),
+          debtToken: leveragedNTokenData?.debtToken,
+        };
+      });
     return leveragedNTokenData;
   };
 
-  const getAllListedVaultsWithYield = () => {
-    return getAllListedVaults().map((v) => {
-      const defaultAPYs = getDefaultVaultAPYs(v.vaultAddress || '');
-      const maxVaultAPY =
-        defaultAPYs.length > 0
-          ? defaultAPYs.reduce((max, current) => {
-              return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
-                ? current
-                : max;
-            }, defaultAPYs[0])
-          : undefined;
+  const getAllListedVaultsWithYield = (currencyId?: number) => {
+    return getAllListedVaults()
+      .filter((v) =>
+        currencyId ? v.primaryToken.currencyId === currencyId : true
+      )
+      .map((v) => {
+        const defaultAPYs = getDefaultVaultAPYs(v.vaultAddress || '');
+        const maxVaultAPY =
+          defaultAPYs.length > 0
+            ? defaultAPYs.reduce((max, current) => {
+                return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
+                  ? current
+                  : max;
+              }, defaultAPYs[0])
+            : undefined;
 
-      const vaultShare = maxVaultAPY?.vaultShare;
+        const vaultShare = maxVaultAPY?.vaultShare;
 
-      return {
-        token: vaultShare,
-        apy: maxVaultAPY?.apy,
-        tvl: v.vaultTVL,
-        maxLeverageRatio: vaultShare
-          ? getLeverageRatios(vaultShare).maxLeverageRatio
-          : undefined,
-        liquidity: v.vaultTVL,
-        underlying: vaultShare?.underlying
-          ? getTokenByID(vaultShare.underlying)
-          : undefined,
-        debtToken: maxVaultAPY?.debtToken,
-        vaultConfig: v,
-      };
-    });
+        return {
+          token: vaultShare,
+          apy: maxVaultAPY?.apy,
+          tvl: v.vaultTVL,
+          maxLeverageRatio: vaultShare
+            ? getLeverageRatios(vaultShare).maxLeverageRatio
+            : undefined,
+          liquidity: v.vaultTVL,
+          underlying: vaultShare?.underlying
+            ? getTokenByID(vaultShare.underlying)
+            : undefined,
+          debtToken: maxVaultAPY?.debtToken,
+          vaultConfig: v,
+        };
+      });
   };
 
   return {

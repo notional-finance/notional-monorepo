@@ -49,8 +49,7 @@ const PortfolioStateZero = observer(() => {
   const { sideDrawerKey } = useParams<PortfolioParams>();
   const options = useMobileWelcomeNav();
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
-  const { tokenList, productGroupData, defaultSymbol } =
-    useNetworkTokenData(selectedTabIndex);
+  const { tokenList, defaultSymbol } = useNetworkTokenData(selectedTabIndex);
 
   useEffect(() => {
     if (
@@ -142,7 +141,6 @@ const PortfolioStateZero = observer(() => {
         />
       </TopContentContainer>
       <StateZeroData
-        productGroupData={productGroupData || []}
         defaultSymbol={defaultSymbol || ''}
         tokenList={tokenList || []}
         selectedTabIndex={selectedTabIndex}

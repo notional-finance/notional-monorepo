@@ -1,5 +1,4 @@
 import { useTheme, Box, styled } from '@mui/material';
-import { getAPYDataForToken } from './hooks/use-network-token-data';
 import { useCardData, useMoreDropdown } from './hooks';
 import { useEffect, useState } from 'react';
 import { PortfolioNetworkSelector } from '@notional-finance/wallet';
@@ -7,9 +6,7 @@ import { TokenIcon } from '@notional-finance/icons';
 import { LabelValue, SimpleDropdown } from '@notional-finance/mui';
 import { NotionalTheme } from '@notional-finance/styles';
 import StateZeroCard from './state-zero-card';
-import { PORTFOLIO_STATE_ZERO_OPTIONS } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
-import { StateZeroItemType } from '@notional-finance/notionable';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { MobileCurrencySelector } from '@notional-finance/wallet';
 
@@ -20,12 +17,10 @@ interface TokenBoxProps {
 
 const StateZeroData = observer(
   ({
-    productGroupData,
     defaultSymbol,
     tokenList,
     selectedTabIndex,
   }: {
-    productGroupData: StateZeroItemType | [];
     defaultSymbol: string;
     tokenList: string[];
     selectedTabIndex: number;
@@ -33,7 +28,6 @@ const StateZeroData = observer(
     const theme = useTheme();
     const { isMobileView } = useAppStore();
     const [activeToken, setActiveToken] = useState<string>(defaultSymbol);
-    const tokenData = getAPYDataForToken(activeToken, productGroupData);
 
     const { options, title, displaySymbols } = useMoreDropdown(
       tokenList,
@@ -46,12 +40,7 @@ const StateZeroData = observer(
       }
     }, [tokenList, activeToken, defaultSymbol]);
 
-    const cardData = useCardData(
-      selectedTabIndex,
-      activeToken,
-      tokenData,
-      productGroupData
-    );
+    const cardData = useCardData(selectedTabIndex, activeToken);
 
     return (
       <>
