@@ -15,9 +15,25 @@ export interface BaseDOEnv {
   DATA_SERVICE_AUTH_TOKEN: string;
 }
 
+async function copyKeys(env: BaseDOEnv, key: string) {
+  const response = await fetch(`https://registry.notional.finance/${key}`);
+  const data = await response.text();
+  await env.VIEW_CACHE_R2.put(`${key}`, data);
+}
+
 async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
   if (onlyViews) {
     await refreshViews(env, network);
+
+    if (network === Network.all) {
+      // NOTE: copy these keys from registry prod
+      await copyKeys(env, 'NOTESupply');
+      await copyKeys(env, 'sNOTEPoolData');
+      await copyKeys(env, 'sNOTEReinvestments');
+      await copyKeys(env, 'all/views/points_prices');
+      await copyKeys(env, 'all/kpi');
+    }
+
     return;
   }
 
