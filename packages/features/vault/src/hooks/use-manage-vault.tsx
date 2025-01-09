@@ -90,6 +90,25 @@ export function useManageVault() {
           />
         ),
     };
+  } else if (vaultPosition.vaultDebt?.isZero()) {
+    manageVaultOptions = [
+      {
+        label: <FormattedMessage defaultMessage={'Withdraw'} />,
+        link: `/vaults/${selectedNetwork}/${vaultAddress}/WithdrawVault`,
+        key: 'WithdrawVault',
+      },
+    ];
+    infoMessage = {
+      variant: 'info',
+      title: <FormattedMessage defaultMessage={'No Debt'} />,
+      message: (
+        <FormattedMessage
+          defaultMessage={
+            'Your vault position has no debt. You are able to withdraw your funds.'
+          }
+        />
+      ),
+    };
   } else {
     manageVaultOptions = [
       {

@@ -497,9 +497,18 @@ export const TradeModel = types
 
       if (self.vaultAddress) {
         self.vaultType = getVaultType(self.vaultAddress, self.selectedNetwork);
-        self.deposit = model.getVaultConfig(self.vaultAddress)
-          ?.primaryToken as Instance<typeof TokenDefinitionModel>;
+        const config = model.getVaultConfig(self.vaultAddress);
+        self.deposit = config?.primaryToken as Instance<
+          typeof TokenDefinitionModel
+        >;
         self.availableDepositTokens.replace([self.deposit]);
+        self.minLeverageRatio =
+          RATE_PRECISION /
+          (config.maxRequiredAccountCollateralRatioBasisPoints as number);
+        self.defaultLeverageRatio =
+          RATE_PRECISION / config.maxDeleverageCollateralRatioBasisPoints;
+        self.maxLeverageRatio =
+          RATE_PRECISION / config.minCollateralRatioBasisPoints;
       }
 
       // Set selected portfolio token
@@ -601,7 +610,7 @@ export const TradeModel = types
       if (
         isDeleverageWithSwappedTokens({
           tradeType: self.tradeType,
-          collateral: self.collateral as TokenDefinition,
+          collateral: self.collateral as TokenDefinition | undefined,
         })
       ) {
         const l = root()
@@ -614,7 +623,11 @@ export const TradeModel = types
         self.defaultLeverageRatio = l.defaultLeverageRatio;
         self.minLeverageRatio = l.minLeverageRatio;
         self.maxLeverageRatio = l.maxLeverageRatio;
-      } else if (isLeveragedTrade(self.tradeType)) {
+      } else if (
+        // In vault situations, the leverage ratios are set above
+        self.collateral?.tokenType === 'nToken' &&
+        isLeveragedTrade(self.tradeType)
+      ) {
         const l = root()
           .getNetworkClient(self.selectedNetwork)
           .getLeverageRatios(
@@ -624,7 +637,6 @@ export const TradeModel = types
         self.defaultLeverageRatio = l.defaultLeverageRatio;
         self.minLeverageRatio = l.minLeverageRatio;
         self.maxLeverageRatio = l.maxLeverageRatio;
-        self.leverageRatio = l.defaultLeverageRatio;
       }
 
       setInitialComputedOptions();
@@ -889,17 +901,22 @@ export const TradeModel = types
       }
 
       const config = getTradeConfig(self.tradeType);
-      // Using the risk profile here ensures that we use settled balances
-      const accountBalances = new AccountRiskProfile(
-        account.balances,
-        account.network
-      ).balances;
+      const accountBalances = self.vaultAddress
+        ? account.balances.filter(
+            (b) => b.token.vaultAddress === self.vaultAddress
+          )
+        : // Using the risk profile here ensures that we use settled balances
+          new AccountRiskProfile(account.balances, account.network).balances;
 
       try {
         const populatedTransaction = yield config.transactionBuilder({
           ...self,
           accountBalances,
-          vaultLastUpdateTime: account.vaultLastUpdateTime || {},
+          vaultLastUpdateTime: account.vaultLastUpdateTime
+            ? Object.fromEntries(
+                account.vaultLastUpdateTime as unknown as Map<string, number>
+              )
+            : {},
           address: account.address,
           network: account.network,
         });
@@ -911,13 +928,13 @@ export const TradeModel = types
         // TODO: add simulation
       } catch (e) {
         // Log these errors in full to the console
-        const _reason = (e as { reason: string })['reason'];
-        const parsedReason = _reason.replace(/execution\sreverted:?/, '');
+        const _reason = (e as { reason: string | undefined })['reason'];
+        const parsedReason = _reason?.replace(/execution\sreverted:?/, '');
         return {
           populatedTransaction: undefined,
           transactionError: parsedReason
             ? `Transaction will revert: ${parsedReason}`
-            : 'Transaction will revert based on inputs.',
+            : (e as Error).toString(),
         };
       }
     });
