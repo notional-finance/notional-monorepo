@@ -124,7 +124,7 @@ export function useVaultMaxWithdraw(
 }
 
 export function usePortfolioLiquidationPrices(network: Network | undefined) {
-  return useNetworkAccounts(network)?.portfolioLiquidationPrices || [];
+  return useNetworkAccounts(network)?.portfolioLiquidationPrices;
 }
 
 export function useAccountCurrentFactors(network: Network | undefined) {

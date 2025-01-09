@@ -105,7 +105,7 @@ function parseUnderlyingLiquidationPrice(
       ? TokenBalance.unit(threshold.token)
           .toUnderlying()
           .toDisplayStringWithSymbol(4, false)
-      : undefined;
+      : '';
 
   return {
     // Used on portfolio screen
@@ -161,48 +161,50 @@ export function useCurrentLiquidationPrices(
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;
 
-  const exchangeRateRisk = (portfolio || [])
-    .map((p) => ({
-      ...p,
-      asset: getNetworkModel(network).getTokenByID(p.asset),
-    }))
-    .filter((p) => p.asset.tokenType === 'Underlying')
-    .map(({ asset, threshold }) => {
-      const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
-      return parseFiatLiquidationPrice(
-        asset,
-        baseCurrency,
-        threshold,
-        oneDay,
-        sevenDay,
-        secondary
-      );
-    });
+  const exchangeRateRisk =
+    portfolio
+      ?.map((p) => ({
+        ...p,
+        asset: getNetworkModel(network).getTokenByID(p.asset),
+      }))
+      .filter((p) => p.asset.tokenType === 'Underlying')
+      .map(({ asset, threshold }) => {
+        const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
+        return parseFiatLiquidationPrice(
+          asset,
+          baseCurrency,
+          threshold,
+          oneDay,
+          sevenDay,
+          secondary
+        );
+      }) || [];
 
-  const assetPriceRisk = (portfolio || [])
-    .map((p) => ({
-      ...p,
-      asset: getNetworkModel(network).getTokenByID(p.asset),
-    }))
-    .filter((p) => p.asset.tokenType !== 'Underlying')
-    .map(({ asset, threshold }) => {
-      const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
-      return parseUnderlyingLiquidationPrice(
-        asset as TokenDefinition,
-        threshold,
-        oneDay,
-        sevenDay,
-        secondary
-      );
-    });
+  const assetPriceRisk =
+    portfolio
+      ?.map((p) => ({
+        ...p,
+        asset: getNetworkModel(network).getTokenByID(p.asset),
+      }))
+      .filter((p) => p.asset.tokenType !== 'Underlying')
+      .map(({ asset, threshold }) => {
+        const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
+        return parseUnderlyingLiquidationPrice(
+          asset as TokenDefinition,
+          threshold,
+          oneDay,
+          sevenDay,
+          secondary
+        );
+      }) || [];
 
-  const vaultLiquidation = (vaults || []).map(
-    ({ vaultAddress, liquidationPrices, name }) => {
+  const vaultLiquidation =
+    vaults?.map(({ vaultAddress, liquidationPrices, name, underlying }) => {
       return {
         vaultAddress,
         liquidationPrices: liquidationPrices.map(
           ({ asset, threshold, debt }) => {
-            const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
+            const { oneDay, sevenDay } = priceChanges?.get(asset) || {};
             return {
               ...parseUnderlyingLiquidationPrice(
                 getNetworkModel(network).getTokenByID(asset),
@@ -224,7 +226,7 @@ export function useCurrentLiquidationPrices(
                       <span>
                         {getNetworkModel(network).getTokenByID(asset).symbol}
                         <span style={{ color: secondary }}>
-                          &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+                          &nbsp;/&nbsp;{underlying || ''}
                         </span>
                       </span>
                     ),
@@ -240,8 +242,7 @@ export function useCurrentLiquidationPrices(
           }
         ),
       };
-    }
-  );
+    }) || [];
 
   return { exchangeRateRisk, assetPriceRisk, vaultLiquidation };
 }
