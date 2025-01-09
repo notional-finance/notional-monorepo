@@ -50,10 +50,10 @@ export function PTVaultImg(props: PTVaultImgProps) {
           fill={theme.palette.typography.main}
           xmlSpace="preserve"
           style={{ whiteSpace: 'pre', fontFamily: 'Avenir Next' }}
-          font-family="Avenir Next"
-          font-size="10.9895"
-          font-weight="600"
-          letter-spacing="0.05em"
+          fontFamily="Avenir Next"
+          fontSize="10.9895"
+          fontWeight="600"
+          letterSpacing="0.05em"
         >
           <tspan x="108.23" y="26.9837">
             {' '}
@@ -64,10 +64,10 @@ export function PTVaultImg(props: PTVaultImgProps) {
           fill={theme.palette.typography.main}
           xmlSpace="preserve"
           style={{ whiteSpace: 'pre', fontFamily: 'Avenir Next' }}
-          font-family="Avenir Next"
-          font-size="10.9895"
-          font-weight="600"
-          letter-spacing="0.05em"
+          fontFamily="Avenir Next"
+          fontSize="10.9895"
+          fontWeight="600"
+          letterSpacing="0.05em"
         >
           <tspan x="318.045" y="26.9837">
             Buy PTs
@@ -76,7 +76,7 @@ export function PTVaultImg(props: PTVaultImgProps) {
         <path
           d="M428.764 14.2924L444 9.81868L459.236 14.2924L469.635 26.2931L471.894 42.0106L465.298 56.4548L451.94 65.0398H436.06L422.702 56.4548L416.106 42.0106L418.365 26.2931L428.764 14.2924Z"
           fill="url(#paint3_linear_13232_4410)"
-          fill-opacity="0.5"
+          fillOpacity="0.5"
           stroke="url(#paint4_linear_13232_4410)"
           strokeWidth="1.57103"
         />
@@ -99,10 +99,10 @@ export function PTVaultImg(props: PTVaultImgProps) {
           fill="#012E3A"
           xmlSpace="preserve"
           style={{ whiteSpace: 'pre', fontFamily: 'Avenir Next' }}
-          font-family="Avenir Next"
-          font-size="12.8211"
-          font-weight="600"
-          letter-spacing="0.02em"
+          fontFamily="Avenir Next"
+          fontSize="12.8211"
+          fontWeight="600"
+          letterSpacing="0.02em"
         >
           <tspan x="23.2342" y="98.0643">
             Vault User
@@ -112,10 +112,10 @@ export function PTVaultImg(props: PTVaultImgProps) {
           fill={theme.palette.typography.main}
           xmlSpace="preserve"
           style={{ whiteSpace: 'pre', fontFamily: 'Avenir Next' }}
-          font-family="Avenir Next"
-          font-size="12.8211"
-          font-weight="600"
-          letter-spacing="0.02em"
+          fontFamily="Avenir Next"
+          fontSize="12.8211"
+          fontWeight="600"
+          letterSpacing="0.02em"
         >
           <tspan x="207.467" y="218.064">
             Liquidity Pool
@@ -125,10 +125,10 @@ export function PTVaultImg(props: PTVaultImgProps) {
           fill={theme.palette.typography.main}
           xmlSpace="preserve"
           style={{ whiteSpace: 'pre', fontFamily: 'Avenir Next' }}
-          font-family="Avenir Next"
-          font-size="12.8211"
-          font-weight="600"
-          letter-spacing="0.02em"
+          fontFamily="Avenir Next"
+          fontSize="12.8211"
+          fontWeight="600"
+          letterSpacing="0.02em"
         >
           <tspan x="418.368" y="98.0643">
             Strategy
@@ -162,10 +162,10 @@ export function PTVaultImg(props: PTVaultImgProps) {
           fill={theme.palette.typography.main}
           xmlSpace="preserve"
           style={{ whiteSpace: 'pre', fontFamily: 'Avenir Next' }}
-          font-family="Avenir Next"
-          font-size="10.9895"
-          font-weight="600"
-          letter-spacing="0.05em"
+          fontFamily="Avenir Next"
+          fontSize="10.9895"
+          fontWeight="600"
+          letterSpacing="0.05em"
         >
           <tspan x="258" y="101.984">
             Borrow{' '}
@@ -307,10 +307,10 @@ export function PTVaultImg(props: PTVaultImgProps) {
           fill={theme.palette.typography.main}
           xmlSpace="preserve"
           style={{ whiteSpace: 'pre', fontFamily: 'Avenir Next' }}
-          font-family="Avenir Next"
-          font-size="10"
-          font-weight="600"
-          letter-spacing="0.02em"
+          fontFamily="Avenir Next"
+          fontSize="10"
+          fontWeight="600"
+          letterSpacing="0.02em"
         >
           <tspan x="236.847" y="42.17">
             Vault
@@ -325,8 +325,8 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="37.8873"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#053542" />
-            <stop offset="1" stop-color="#06657E" />
+            <stop stopColor="#053542" />
+            <stop offset="1" stopColor="#06657E" />
           </linearGradient>
           <linearGradient
             id="paint1_linear_13232_4410"
@@ -336,8 +336,8 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="33.3695"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#053542" />
-            <stop offset="1" stop-color="#06657E" />
+            <stop stopColor="#053542" />
+            <stop offset="1" stopColor="#06657E" />
           </linearGradient>
           <linearGradient
             id="paint2_linear_13232_4410"
@@ -347,8 +347,8 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="33.3695"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#053542" />
-            <stop offset="1" stop-color="#06657E" />
+            <stop stopColor="#053542" />
+            <stop offset="1" stopColor="#06657E" />
           </linearGradient>
           <linearGradient
             id="paint3_linear_13232_4410"
@@ -358,9 +358,9 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="9.43462"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#BFC9F5" stop-opacity="0.5" />
-            <stop offset="0.0001" stop-color="#8EA1F5" stop-opacity="0.5" />
-            <stop offset="1" stop-color="#26CBCF" />
+            <stop stopColor="#BFC9F5" stopOpacity="0.5" />
+            <stop offset="0.0001" stopColor="#8EA1F5" stopOpacity="0.5" />
+            <stop offset="1" stopColor="#26CBCF" />
           </linearGradient>
           <linearGradient
             id="paint4_linear_13232_4410"
@@ -370,9 +370,9 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="9.43462"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#BFC9F5" stop-opacity="0.5" />
-            <stop offset="0.0001" stop-color="#8EA1F5" stop-opacity="0.5" />
-            <stop offset="1" stop-color="#26CBCF" />
+            <stop stopColor="#BFC9F5" stopOpacity="0.5" />
+            <stop offset="0.0001" stopColor="#8EA1F5" stopOpacity="0.5" />
+            <stop offset="1" stopColor="#26CBCF" />
           </linearGradient>
           <linearGradient
             id="paint5_linear_13232_4410"
@@ -382,8 +382,8 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="38.601"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0.239095" stop-color="#053542" />
-            <stop offset="1" stop-color="#09809F" />
+            <stop offset="0.239095" stopColor="#053542" />
+            <stop offset="1" stopColor="#09809F" />
           </linearGradient>
           <linearGradient
             id="paint6_linear_13232_4410"
@@ -393,8 +393,8 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="38.601"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0.239095" stop-color="#053542" />
-            <stop offset="1" stop-color="#09809F" />
+            <stop offset="0.239095" stopColor="#053542" />
+            <stop offset="1" stopColor="#09809F" />
           </linearGradient>
           <linearGradient
             id="paint7_linear_13232_4410"
@@ -404,8 +404,8 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="182.897"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0.129846" stop-color="#27C1C7" />
-            <stop offset="1" stop-color="#62BAE0" />
+            <stop offset="0.129846" stopColor="#27C1C7" />
+            <stop offset="1" stopColor="#62BAE0" />
           </linearGradient>
           <linearGradient
             id="paint8_linear_13232_4410"
@@ -415,8 +415,8 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="139.432"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0.0001" stop-color="#296B8E" />
-            <stop offset="1" stop-color="#17909D" />
+            <stop offset="0.0001" stopColor="#296B8E" />
+            <stop offset="1" stopColor="#17909D" />
           </linearGradient>
           <linearGradient
             id="paint9_linear_13232_4410"
@@ -426,9 +426,9 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="139.435"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#BFC9F5" stop-opacity="0.5" />
-            <stop offset="0.0001" stop-color="#8EA1F5" stop-opacity="0.5" />
-            <stop offset="1" stop-color="#26CBCF" />
+            <stop stopColor="#BFC9F5" stopOpacity="0.5" />
+            <stop offset="0.0001" stopColor="#8EA1F5" stopOpacity="0.5" />
+            <stop offset="1" stopColor="#26CBCF" />
           </linearGradient>
           <linearGradient
             id="paint10_linear_13232_4410"
@@ -438,8 +438,8 @@ export function PTVaultImg(props: PTVaultImgProps) {
             y2="36.9581"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0.0001" stop-color="#C4CFFF" />
-            <stop offset="1" stop-color="#57D3D9" />
+            <stop offset="0.0001" stopColor="#C4CFFF" />
+            <stop offset="1" stopColor="#57D3D9" />
           </linearGradient>
         </defs>
       </svg>

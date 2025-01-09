@@ -226,6 +226,7 @@ export const AreaChart = ({
             referenceLineValue.map(({ value, color }) =>
               value ? (
                 <ReferenceLine
+                  key={value}
                   x={value}
                   strokeDasharray="5,5"
                   stroke={color}
