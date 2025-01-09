@@ -27,9 +27,9 @@ async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
 
     if (network === Network.all) {
       // NOTE: copy these keys from registry prod
-      await copyKeys(env, 'NOTESupply');
-      await copyKeys(env, 'sNOTEPoolData');
-      await copyKeys(env, 'sNOTEReinvestments');
+      await copyKeys(env, 'mainnet/note/NOTESupply');
+      await copyKeys(env, 'mainnet/note/sNOTEPoolData');
+      await copyKeys(env, 'mainnet/note/sNOTEReinvestments');
       await copyKeys(env, 'all/views/points_prices');
       await copyKeys(env, 'all/kpi');
     }

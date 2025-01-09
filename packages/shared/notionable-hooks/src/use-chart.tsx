@@ -84,7 +84,9 @@ export function useLeveragedPerformance(
   leveragedLendFixedRate: number | undefined
 ) {
   const currentNetworkStore = useCurrentNetworkStore();
-  const primeDebt = currentNetworkStore.getPrimeDebt(token?.currencyId);
+  const primeDebt = token
+    ? currentNetworkStore.getPrimeDebt(token.currencyId)
+    : undefined;
   const { data: tokenAPY } = useChartData(token, ChartType.APY);
   const { data: primeBorrowAPY } = useChartData(primeDebt, ChartType.APY);
 

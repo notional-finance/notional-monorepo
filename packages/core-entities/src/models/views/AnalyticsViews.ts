@@ -87,7 +87,6 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
       throw new Error(`Failed to fetch ${String(key)}: ${response.statusText}`);
     }
     try {
-      // TODO: fix this for vault reinvestment and price changes....
       const data = parseData(key, yield response.json());
       self.analytics[key] = data;
       return data;
