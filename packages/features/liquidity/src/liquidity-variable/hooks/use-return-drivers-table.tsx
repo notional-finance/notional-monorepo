@@ -80,12 +80,22 @@ export const useReturnDriversTable = (baseCurrency: FiatKeys) => {
       ...formattedFCashData,
       {
         asset: { symbol: 'trading_fees', label: 'Trading Fees' },
-        value: '-',
+        value: {
+          data: [
+            { displayValue: '-', isNegative: false },
+            { displayValue: '', isNegative: false },
+          ],
+        },
         apy: liquidityData?.apy.feeAPY || 0,
       },
       {
         asset: { symbol: 'note', label: 'NOTE Incentives' },
-        value: '-',
+        value: {
+          data: [
+            { displayValue: '-', isNegative: false },
+            { displayValue: '', isNegative: false },
+          ],
+        },
         apy:
           liquidityData?.apy?.incentives?.find(
             ({ symbol }) => symbol.toLowerCase() === 'note'
