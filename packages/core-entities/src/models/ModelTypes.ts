@@ -508,7 +508,7 @@ export const AnalyticsModel = types.model('Analytics', {
           timestamp: types.number,
           blockNumber: types.number,
           transactionHash: types.string,
-          fCashMaturity: types.number,
+          fCashMaturity: types.maybe(types.number),
         })
       )
     )

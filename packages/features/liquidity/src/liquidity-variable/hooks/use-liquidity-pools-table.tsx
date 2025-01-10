@@ -12,7 +12,9 @@ import {
 import { FormattedMessage } from 'react-intl';
 import {
   formatMaturity,
+  formatNumberAsPercent,
   getEtherscanTransactionLink,
+  RATE_PRECISION,
 } from '@notional-finance/util';
 import moment from 'moment';
 import { useTheme } from '@mui/material';
@@ -79,12 +81,12 @@ export const useLiquidityPoolsTable = () => {
         return {
           action: {
             data: [
-              { displayValue: action, isNegtive: false },
+              { displayValue: action, isNegative: false },
               {
                 displayValue: fCashMaturity
                   ? formatMaturity(fCashMaturity)
                   : '',
-                isNegtive: false,
+                isNegative: false,
               },
             ],
           },
@@ -96,7 +98,9 @@ export const useLiquidityPoolsTable = () => {
               false
             ),
           },
-          interestRate: interestRate,
+          interestRate: interestRate
+            ? formatNumberAsPercent((100 * interestRate) / RATE_PRECISION)
+            : '',
           time: moment(date).fromNow(),
           txn: {
             href: getEtherscanTransactionLink(transactionHash, selectedNetwork),
@@ -159,5 +163,5 @@ export const useLiquidityPoolsTable = () => {
     },
   ];
 
-  return { poolTableColumns, poolTableData };
+  return { poolTableColumns, poolTableData: poolTableData ?? [] };
 };

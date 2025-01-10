@@ -279,7 +279,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           currencyId: i.transfers[0].token.currencyId as number,
           fCashId: i.transfers[2].token.id,
           fCashValue: i.transfers[2].value,
-          fCashMaturity: i.transfers[2].token.maturity,
+          fCashMaturity: i.transfers[2].token.maturity
+            ? parseInt(i.transfers[2].token.maturity)
+            : undefined,
           pCash: i.transfers[0].value,
           pCashInUnderlying: i.transfers[0].valueInUnderlying,
           timestamp: i.timestamp,
