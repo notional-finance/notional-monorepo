@@ -46,28 +46,33 @@ export const useLiquidityPoolsTable = () => {
         bundleName,
         fCashId,
         fCashValue,
-        pCashInUnderlying,
+        valueInUnderlying,
         timestamp,
         transactionHash,
         fCashMaturity,
       }) => {
         let action = '';
-        if (bundleName.includes('Buy')) {
+        if (bundleName === 'Mint nToken') {
+          action = 'Provide Liquidity';
+        } else if (bundleName === 'Redeem nToken') {
+          action = 'Redeem Liquidity';
+        } else if (bundleName.includes('Buy')) {
           action = bundleName.includes('Vault') ? 'Lend (Vault)' : 'Lend';
         } else {
           action = bundleName.includes('Vault') ? 'Borrow (Vault)' : 'Borrow';
         }
         const underlyingTokenBalance =
           deposit && selectedNetwork
-            ? new TokenBalance(pCashInUnderlying, deposit.id, selectedNetwork)
+            ? new TokenBalance(valueInUnderlying, deposit.id, selectedNetwork)
             : undefined;
-        const fCash = selectedNetwork
-          ? new TokenBalance(
-              BigNumber.from(fCashValue),
-              fCashId,
-              selectedNetwork
-            )
-          : undefined;
+        const fCash =
+          selectedNetwork && fCashId
+            ? new TokenBalance(
+                BigNumber.from(fCashValue),
+                fCashId,
+                selectedNetwork
+              )
+            : undefined;
         const date = new Date(timestamp * 1000);
         const interestRate =
           underlyingTokenBalance && fCash

@@ -501,10 +501,9 @@ export const AnalyticsModel = types.model('Analytics', {
         types.model({
           bundleName: types.string,
           currencyId: types.number,
-          fCashId: types.string,
-          fCashValue: types.string,
-          pCash: types.string,
-          pCashInUnderlying: types.string,
+          fCashId: types.maybe(types.string),
+          fCashValue: types.maybe(types.string),
+          valueInUnderlying: types.string,
           timestamp: types.number,
           blockNumber: types.number,
           transactionHash: types.string,

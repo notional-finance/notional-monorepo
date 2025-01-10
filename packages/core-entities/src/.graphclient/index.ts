@@ -9955,7 +9955,7 @@ export const HistoricalOracleValuesDocument = gql`
 export const HistoricalTradingActivityDocument = gql`
     query HistoricalTradingActivity($skip: Int, $minTimestamp: Int) {
   tradingActivity: transferBundles(
-    where: {bundleName_in: ["Buy fCash", "Buy fCash Vault", "Sell fCash", "Sell fCash Vault"], timestamp_gt: $minTimestamp}
+    where: {bundleName_in: ["Buy fCash", "Buy fCash Vault", "Sell fCash", "Sell fCash Vault", "Mint nToken", "Redeem nToken"], timestamp_gt: $minTimestamp}
     orderBy: timestamp
     orderDirection: desc
     first: 1000

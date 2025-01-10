@@ -274,20 +274,31 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
     const historicalTrading = groupArrayToMap(
       historicalTradingResult.tradingActivity.map((i) => {
-        return {
-          bundleName: i.bundleName,
-          currencyId: i.transfers[0].token.currencyId as number,
-          fCashId: i.transfers[2].token.id,
-          fCashValue: i.transfers[2].value,
-          fCashMaturity: i.transfers[2].token.maturity
-            ? parseInt(i.transfers[2].token.maturity)
-            : undefined,
-          pCash: i.transfers[0].value,
-          pCashInUnderlying: i.transfers[0].valueInUnderlying,
-          timestamp: i.timestamp,
-          blockNumber: parseInt(i.blockNumber),
-          transactionHash: i.transactionHash.id,
-        };
+        return i.bundleName === 'Mint nToken' ||
+          i.bundleName === 'Redeem nToken'
+          ? {
+              bundleName: i.bundleName,
+              currencyId: i.transfers[0].token.currencyId as number,
+              // Spot underlying value of the nToken
+              valueInUnderlying: i.transfers[1].valueInUnderlying,
+              timestamp: i.timestamp,
+              blockNumber: parseInt(i.blockNumber),
+              transactionHash: i.transactionHash.id,
+            }
+          : // These are fCash transactions
+            {
+              bundleName: i.bundleName,
+              currencyId: i.transfers[0].token.currencyId as number,
+              fCashId: i.transfers[2].token.id,
+              fCashValue: i.transfers[2].value,
+              fCashMaturity: i.transfers[2].token.maturity
+                ? parseInt(i.transfers[2].token.maturity)
+                : undefined,
+              valueInUnderlying: i.transfers[0].valueInUnderlying,
+              timestamp: i.timestamp,
+              blockNumber: parseInt(i.blockNumber),
+              transactionHash: i.transactionHash.id,
+            };
       }),
       (t) => t.currencyId
     );
@@ -607,7 +618,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
             return {
               timestamp: r.timestamp,
-              [keyName]: apy,
+              [keyName]: apy || 0,
             };
           }
         );
@@ -628,7 +639,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
           // Add the total APY by summing all the other APYs
           totalAPY: Object.keys(d)
             .filter((k) => k !== 'timestamp')
-            .reduce((acc, k) => acc + d[k], 0),
+            .reduce((acc, k) => acc + (d[k] || 0), 0),
         }));
 
       apyLegend = Object.keys(firstValue(apyData) || {})

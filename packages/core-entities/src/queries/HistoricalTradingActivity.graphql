@@ -6,6 +6,8 @@ query HistoricalTradingActivity($skip: Int, $minTimestamp: Int) {
         "Buy fCash Vault"
         "Sell fCash"
         "Sell fCash Vault"
+        "Mint nToken"
+        "Redeem nToken"
       ]
       timestamp_gt: $minTimestamp
     }
