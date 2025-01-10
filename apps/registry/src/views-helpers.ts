@@ -69,7 +69,7 @@ export async function refreshViews(env: BaseDOEnv, network: Network) {
   await fetchAllDBViews(env, network);
   await fetchAllGraphViews(analyticsServer, env, network);
   // Saves time series data to R2 for the registry to serve
-  const { timeSeries, priceChanges, vaultReinvestment } =
+  const { timeSeries, priceChanges, vaultReinvestment, historicalTrading } =
     await analyticsServer.fetchTimeSeries(network);
 
   await putStorageKey(
@@ -77,11 +77,20 @@ export async function refreshViews(env: BaseDOEnv, network: Network) {
     `${network}/views/priceChanges`,
     JSON.stringify(Object.fromEntries(priceChanges))
   );
+
   if (vaultReinvestment) {
     await putStorageKey(
       env,
       `${network}/views/vaultReinvestment`,
       JSON.stringify(Object.fromEntries(vaultReinvestment))
+    );
+  }
+
+  if (historicalTrading) {
+    await putStorageKey(
+      env,
+      `${network}/views/historicalTrading`,
+      JSON.stringify(Object.fromEntries(historicalTrading))
     );
   }
 

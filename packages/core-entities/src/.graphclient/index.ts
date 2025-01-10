@@ -9226,7 +9226,7 @@ export type HistoricalTradingActivityQuery = { tradingActivity: Array<(
     Pick<TransferBundle, 'id' | 'bundleName' | 'blockNumber' | 'timestamp'>
     & { transactionHash: Pick<Transaction, 'id'>, transfers: Array<(
       Pick<Transfer, 'toSystemAccount' | 'fromSystemAccount' | 'value' | 'valueInUnderlying'>
-      & { to: Pick<Account, 'id'>, from: Pick<Account, 'id'>, token: Pick<Token, 'id' | 'currencyId'> }
+      & { to: Pick<Account, 'id'>, from: Pick<Account, 'id'>, token: Pick<Token, 'id' | 'currencyId' | 'maturity'> }
     )> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
@@ -9982,6 +9982,7 @@ export const HistoricalTradingActivityDocument = gql`
       token {
         id
         currencyId
+        maturity
       }
     }
   }

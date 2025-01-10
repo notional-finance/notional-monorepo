@@ -34,6 +34,8 @@ import { getSecondaryTokenIncentive } from '../config/whitelisted-tokens';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import {
   HistoricalOracleValuesQuery,
+  HistoricalTradingActivityDocument,
+  HistoricalTradingActivityQuery,
   VaultReinvestmentQuery,
 } from '../.graphclient';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
@@ -260,10 +262,39 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       (t) => t.vault
     );
 
+    const historicalTradingResult = (
+      await fetchGraphPaginate(
+        network,
+        HistoricalTradingActivityDocument,
+        'tradingActivity',
+        this.env.NX_SUBGRAPH_API_KEY,
+        { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY }
+      )
+    )['data'] as HistoricalTradingActivityQuery;
+
+    const historicalTrading = groupArrayToMap(
+      historicalTradingResult.tradingActivity.map((i) => {
+        return {
+          bundleName: i.bundleName,
+          currencyId: i.transfers[0].token.currencyId as number,
+          fCashId: i.transfers[2].token.id,
+          fCashValue: i.transfers[2].value,
+          fCashMaturity: i.transfers[2].token.maturity,
+          pCash: i.transfers[0].value,
+          pCashInUnderlying: i.transfers[0].valueInUnderlying,
+          timestamp: i.timestamp,
+          blockNumber: parseInt(i.blockNumber),
+          transactionHash: i.transactionHash.id,
+        };
+      }),
+      (t) => t.currencyId
+    );
+
     return {
       timeSeries,
       priceChanges,
       vaultReinvestment,
+      historicalTrading,
     };
   }
 
@@ -715,42 +746,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   }
 
   protected async _refresh(network: Network) {
-    // const { finalResults: historicalTrading } = await fetchGraph(
-    //   network,
-    //   HistoricalTradingActivityDocument,
-    //   (r) => {
-    //     // Key = currencyId
-    //     return Object.fromEntries(
-    //       groupArrayToMap(
-    //         r.tradingActivity.map((t) => {
-    //           // Simplify the trading activity information into a single line item
-    //           const fCashValue: string = t.transfers[2].value;
-    //           const fCashId: string = t.transfers[2].token.id;
-    //           const pCash: string = t.transfers[0].value;
-    //           const pCashInUnderlying: string =
-    //             t.transfers[0].valueInUnderlying;
-
-    //           return {
-    //             bundleName: t.bundleName,
-    //             currencyId: t.transfers[0].token.currencyId as number,
-    //             fCashId,
-    //             fCashValue,
-    //             pCash,
-    //             pCashInUnderlying,
-    //             timestamp: t.timestamp,
-    //             blockNumber: t.blockNumber as number,
-    //             transactionHash: t.transactionHash.id,
-    //           };
-    //         }),
-    //         (t) => t.currencyId
-    //       )
-    //     );
-    //   },
-    //   this.env.NX_SUBGRAPH_API_KEY,
-    //   { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY },
-    //   'tradingActivity'
-    // );
-
     return {
       values: [],
       network,

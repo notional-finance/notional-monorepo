@@ -508,8 +508,6 @@ export const AnalyticsModel = types.model('Analytics', {
           timestamp: types.number,
           blockNumber: types.number,
           transactionHash: types.string,
-          underlyingTokenBalance: NotionalTypes.TokenBalance,
-          interestRate: types.string,
           fCashMaturity: types.number,
         })
       )
