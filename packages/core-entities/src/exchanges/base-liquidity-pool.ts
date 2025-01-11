@@ -20,6 +20,9 @@ export default abstract class BaseLiquidityPool<
     public poolParams: P
   ) {
     super();
+    this._balances = this._balances.map(
+      (b) => new TokenBalance(b.n, b.tokenId.toLowerCase(), b.network)
+    );
   }
 
   public get balances() {

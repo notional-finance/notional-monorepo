@@ -20,20 +20,12 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { ProductAPY } from '@notional-finance/core-entities';
 
-export const useLiquidityList = (
-  product: PRODUCTS,
-  network: Network | undefined
-) => {
+export const useLiquidityVariableList = (network: Network | undefined) => {
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
   const currentNetworkStore = useCurrentNetworkStore();
 
-  let yieldData: ProductAPY[] = [];
-  if (product === PRODUCTS.LIQUIDITY_LEVERAGED) {
-    yieldData = currentNetworkStore.getAllLeveragedNTokenYields();
-  } else if (product === PRODUCTS.LIQUIDITY_VARIABLE) {
-    yieldData = currentNetworkStore.getAllNTokenYields();
-  }
+  const yieldData: ProductAPY[] = currentNetworkStore.getAllNTokenYields();
 
   let listColumns: DataTableColumn[] = [
     {
@@ -129,20 +121,6 @@ export const useLiquidityList = (
     {
       header: (
         <FormattedMessage
-          defaultMessage="Borrow Terms"
-          description={'Borrow Terms header'}
-        />
-      ),
-      cell: MultiValueIconCell,
-      sortingFn: 'basic',
-      enableSorting: true,
-      accessorKey: 'borrowTerms',
-      sortDescFirst: true,
-      textAlign: 'right',
-    },
-    {
-      header: (
-        <FormattedMessage
           defaultMessage="Collateral Factor"
           description={'Collateral Factor header'}
         />
@@ -165,17 +143,6 @@ export const useLiquidityList = (
 
   if (account === undefined) {
     listColumns = listColumns.filter((x) => x.accessorKey !== 'walletBalance');
-  }
-
-  if (product === PRODUCTS.LIQUIDITY_LEVERAGED) {
-    listColumns = listColumns.filter(
-      (x) =>
-        x.accessorKey !== 'collateralFactor' && x.accessorKey !== 'liquidity'
-    );
-  }
-
-  if (product === PRODUCTS.LIQUIDITY_VARIABLE) {
-    listColumns = listColumns.filter((x) => x.accessorKey !== 'borrowTerms');
   }
 
   const listData = yieldData
@@ -204,13 +171,8 @@ export const useLiquidityList = (
             : '',
         liquidity: y.tvl ? y.tvl.toFiat(baseCurrency).toFloat() : 0,
         collateralFactor: y?.collateralFactor ? y?.collateralFactor : '',
-        view:
-          product === PRODUCTS.LIQUIDITY_VARIABLE
-            ? `${product}/${network}/${y?.underlying?.symbol} || ''`
-            : `${product}/${network}/CreateLeveragedNToken/${y?.underlying?.symbol}?borrowOption=${y?.debtToken?.id}` ||
-              '',
+        view: `${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${y.underlying?.symbol}`,
         symbol: y?.underlying?.symbol || '',
-        borrowTerms: y?.debtToken?.maturity ? y?.debtToken?.maturity : 0,
         multiValueCellData: {
           currency: {
             symbol: y?.underlying?.symbol || '',

@@ -44,7 +44,7 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
       case 'pointPrices':
         return `${Network.all}/views/points_prices`;
       case 'historicalTrading':
-        return `${network}/views/historical_trading`;
+        return `${network}/views/historicalTrading`;
       case 'vaultReinvestment':
         return `${network}/views/vaultReinvestment`;
       case 'vaultAccountRisk':
@@ -87,7 +87,6 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
       throw new Error(`Failed to fetch ${String(key)}: ${response.statusText}`);
     }
     try {
-      // TODO: fix this for vault reinvestment and price changes....
       const data = parseData(key, yield response.json());
       self.analytics[key] = data;
       return data;
@@ -121,7 +120,8 @@ export const AnalyticsViews = (self: Instance<typeof NetworkModel>) => ({
   getSNOTEData: () => self.analytics.sNOTEData,
   getSNOTEReinvestment: () => self.analytics.sNOTEReinvestment,
   getPointPrices: () => self.analytics.pointPrices,
-  getHistoricalTrading: () => self.analytics.historicalTrading,
+  getHistoricalTrading: (currencyId: number) =>
+    self.analytics.historicalTrading?.get(currencyId.toString()),
   getVaultReinvestment: (vaultAddress: string) =>
     self.analytics.vaultReinvestment
       ? self.analytics.vaultReinvestment.get(vaultAddress)

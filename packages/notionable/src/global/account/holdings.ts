@@ -289,6 +289,12 @@ export function calculateGroupedHoldings(
               borrowApyData,
               leverageRatio
             ),
+            totalIncentiveAPY: assetHoldings.marketYield.incentives?.reduce(
+              (sum, incentive) =>
+                sum +
+                (leveragedYield(incentive.incentiveAPY, 0, leverageRatio) || 0),
+              0
+            ),
           });
         }
       }
@@ -308,6 +314,7 @@ export function calculateGroupedHoldings(
       hasMatured: boolean;
       borrowAPY: number | undefined;
       totalLeveragedApy: number | undefined;
+      totalIncentiveAPY: number | undefined;
     }[]
   );
 }

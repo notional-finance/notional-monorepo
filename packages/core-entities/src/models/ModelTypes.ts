@@ -108,8 +108,11 @@ export const NotionalTypes = {
       if (typeof snapshot.timestamp !== 'number') {
         throw new Error('Timestamp must be a number');
       }
-      Object.values(snapshot).forEach((value) => {
-        if (typeof value !== 'number') {
+      Object.entries(snapshot).forEach(([key, value]) => {
+        if (value === null) {
+          // This is a workaround for the fact that the server returns null for some values
+          snapshot[key] = 0;
+        } else if (typeof value !== 'number') {
           throw new Error('All values must be numbers');
         }
       });
@@ -133,7 +136,9 @@ export const NotionalTypes = {
       if (typeof value.timestamp !== 'number') {
         return 'Timestamp must be a number';
       }
-      if (!Object.values(value).every((v) => typeof v === 'number')) {
+      if (
+        !Object.values(value).every((v) => typeof v === 'number' || v === null)
+      ) {
         return 'All values must be numbers';
       }
       return '';
@@ -501,16 +506,13 @@ export const AnalyticsModel = types.model('Analytics', {
         types.model({
           bundleName: types.string,
           currencyId: types.number,
-          fCashId: types.string,
-          fCashValue: types.string,
-          pCash: types.string,
-          pCashInUnderlying: types.string,
+          fCashId: types.maybe(types.string),
+          fCashValue: types.maybe(types.string),
+          valueInUnderlying: types.string,
           timestamp: types.number,
           blockNumber: types.number,
           transactionHash: types.string,
-          underlyingTokenBalance: NotionalTypes.TokenBalance,
-          interestRate: types.string,
-          fCashMaturity: types.number,
+          fCashMaturity: types.maybe(types.number),
         })
       )
     )

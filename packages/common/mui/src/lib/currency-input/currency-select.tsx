@@ -251,7 +251,7 @@ const StyledItem = styled(Option)(
   line-height: 1.4;
   align-items: center;
   border-bottom: 1px solid ${theme.palette.borders.paper};
-  :first-child {
+  :first-of-type {
     margin-top: ${theme.spacing(-1)};  
   }
   :last-child {

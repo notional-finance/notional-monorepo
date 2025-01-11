@@ -1,13 +1,15 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   Allowance,
   getNetworkModel,
+  ProductAPY,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
 import {
   Network,
+  RATE_PRECISION,
   SupportedNetworks,
   getNetworkFromId,
   groupArrayToMap,
@@ -123,89 +125,52 @@ export function useWalletBalanceInputCheck(
   };
 }
 
+const getMax = (y: ProductAPY[]) => {
+  return y.reduce(
+    (m, t) => ((t.apy.totalAPY ?? 0) > m ? t.apy.totalAPY ?? 0 : m),
+    0
+  );
+};
+
+const getMin = (y: ProductAPY[]) => {
+  return y.reduce(
+    (m, t) => ((t.apy.totalAPY ?? 0) < m ? t.apy.totalAPY ?? 0 : m),
+    RATE_PRECISION
+  );
+};
+
+const getHeadlineYield = (y: ProductAPY[], isMax: boolean) => {
+  return Array.from(
+    groupArrayToMap(y, (t) => t?.underlying?.symbol).entries()
+  ).reduce((acc, [symbol, yields]) => {
+    if (symbol) {
+      acc[symbol] = isMax ? getMax(yields) : getMin(yields);
+    }
+    return acc;
+  }, {} as Record<string, number>);
+};
+
 function useApyValues(tradeType: string | undefined) {
   const currentNetworkStore = useCurrentNetworkStore();
-  // create a apyData object with a type of a Record with key of string and value of string
-  const apyData: Record<string, string> = {};
-
-  const getMax = useCallback((y: any[]) => {
-    return y.reduce((m, t) => (m === null || t.totalAPY > m.totalAPY ? t : m));
-  }, []);
-
-  const getMin = useCallback((y: any[]) => {
-    return y.reduce((m, t) => (m === null || t.totalAPY < m.totalAPY ? t : m));
-  }, []);
 
   if (tradeType === 'LendFixed') {
-    const fCashLend = currentNetworkStore.getAllFCashYields();
-    const cardData = [
-      ...groupArrayToMap(fCashLend, (t) => t?.underlying?.symbol).entries(),
-    ];
-    cardData.map(([symbol, yields]) => {
-      const indexSymbol = symbol ? symbol : '';
-      const maxRate = getMax(yields)?.totalAPY || 0;
-      apyData[indexSymbol] = `${formatNumberAsPercent(maxRate, 2)} APY`;
-      return apyData;
-    });
+    return getHeadlineYield(currentNetworkStore.getAllFCashYields(), true);
   } else if (tradeType === 'LendVariable') {
-    const variableLend = currentNetworkStore.getAllPrimeCashYields();
-    variableLend.map(({ underlying, apy }) => {
-      const indexSymbol = underlying?.symbol ? underlying?.symbol : '';
-      apyData[indexSymbol] = `${formatNumberAsPercent(
-        apy?.totalAPY || 0,
-        2
-      )} APY`;
-      return apyData;
-    });
+    return getHeadlineYield(currentNetworkStore.getAllPrimeCashYields(), true);
   } else if (tradeType === 'MintNToken') {
-    const liquidity = currentNetworkStore.getAllNTokenYields();
-    liquidity.map(({ underlying, apy }) => {
-      const indexSymbol = underlying?.symbol ? underlying?.symbol : '';
-      apyData[indexSymbol] = `${formatNumberAsPercent(
-        apy?.totalAPY || 0,
-        2
-      )} APY`;
-      return apyData;
-    });
+    return getHeadlineYield(currentNetworkStore.getAllNTokenYields(), true);
   } else if (tradeType === 'BorrowFixed') {
-    const fCashBorrow = currentNetworkStore.getAllFCashDebt();
-    const cardData = [
-      ...groupArrayToMap(fCashBorrow, (t) => t?.underlying?.symbol).entries(),
-    ];
-    cardData.map(([symbol, yields]) => {
-      const indexSymbol = symbol ? symbol : '';
-      const minRate = getMin(yields)?.totalAPY || 0;
-      apyData[indexSymbol] = `${formatNumberAsPercent(minRate, 2)} APY`;
-      return apyData;
-    });
+    return getHeadlineYield(currentNetworkStore.getAllFCashDebt(), false);
   } else if (tradeType === 'BorrowVariable') {
-    const variableBorrow = currentNetworkStore.getAllPrimeCashDebt();
-    variableBorrow.map(({ underlying, apy }) => {
-      const indexSymbol = underlying?.symbol ? underlying?.symbol : '';
-      apyData[indexSymbol] = `${formatNumberAsPercent(
-        apy?.totalAPY || 0,
-        2
-      )} APY`;
-      return apyData;
-    });
+    return getHeadlineYield(currentNetworkStore.getAllPrimeCashDebt(), false);
   } else if (tradeType === 'LeveragedNToken') {
-    const leveragedLiquidity =
-      currentNetworkStore.getAllLeveragedNTokenYields();
-    leveragedLiquidity
-      .filter((y) => y?.debtToken?.tokenType === 'PrimeDebt')
-      .map(({ underlying, apy }) => {
-        const indexSymbol = underlying?.symbol ? underlying?.symbol : '';
-        apyData[indexSymbol] = `${formatNumberAsPercent(
-          apy?.totalAPY || 0,
-          2
-        )} APY`;
-        return apyData;
-      });
+    return getHeadlineYield(
+      currentNetworkStore.getAllLeveragedNTokenYields(),
+      true
+    );
   } else {
-    return apyData;
+    return {} as Record<string, number>;
   }
-
-  return apyData;
 }
 
 export function useWalletBalancesOnNetworks(
@@ -252,14 +217,20 @@ export function useWalletBalances(
             usdBalance: maxBalance?.isPositive()
               ? maxBalance?.toFiat('USD').toFloat()
               : undefined,
-            apy: apyData[token.symbol] || undefined,
+            apyNumber: apyData[token.symbol] || 0,
+            apy: `${formatNumberAsPercent(apyData[token.symbol] || 0, 2)} APY`,
           },
         };
       })
       .sort((a, b) => {
-        // Sorts descending
+        // Sorts descending by balance first, then by APY if balances are equal
         const balanceA = a.content.usdBalance || 0;
         const balanceB = b.content.usdBalance || 0;
+        if (balanceA === 0 && balanceB === 0) {
+          const apyA = a.content.apyNumber || 0;
+          const apyB = b.content.apyNumber || 0;
+          return apyB - apyA;
+        }
         return balanceB - balanceA;
       });
   }, [tokens, account, apyData]);

@@ -47,6 +47,7 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
   const currentPositionState = {
     collateral: currentPosition?.asset.balance.token,
     debt: currentPosition?.debt.balance.token,
+    leverageRatio: currentPosition?.leverageRatio,
     riskFactorLimit: currentPosition?.leverageRatio
       ? ({
           riskFactor: 'leverageRatio',
@@ -81,6 +82,7 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
             tradeType: 'LeveragedNToken',
             debt: debt || defaultDebtToken,
             riskFactorLimit: riskFactorLimit || defaultRiskLimit,
+            leverageRatio: defaultLeverageRatio,
           },
         },
         {
@@ -98,6 +100,7 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
           Component: ManageLeveragedLiquidity,
           requiredState: {
             tradeType: 'RollDebt',
+            leverageRatio: currentPosition?.leverageRatio,
             ...(currentPosition?.debt.balance.tokenType === 'PrimeDebt'
               ? {
                   collateral: currentPosition?.debt.balance.toPrimeCash().token,

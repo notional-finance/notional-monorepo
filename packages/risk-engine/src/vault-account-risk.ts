@@ -182,6 +182,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get borrowAPY() {
+    if (this.vaultDebt.isZero()) return 0;
     const market = this.model.getNotionalMarket(this.vaultDebt.currencyId);
     return this.vaultDebt.maturity === PRIME_CASH_VAULT_MATURITY
       ? market.getSpotInterestRate(this.vaultDebt.unwrapVaultToken().token)
@@ -196,7 +197,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return leveragedYield(
       this.strategyAPY,
       this.borrowAPY,
-      this.leverageRatio()
+      this.leverageRatio() || 0
     );
   }
 

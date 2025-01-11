@@ -8,13 +8,7 @@ export function useVaultDetailsTable() {
   const trade = useCurrentTradeContext();
   const priorVaultBalances = trade?.getPriorVaultBalances();
   const collateralBalance = trade?.collateralBalance;
-  const {
-    tableData,
-    priorAccountNoRisk,
-    postAccountNoRisk,
-    tooRisky,
-    onlyCurrent,
-  } = useVaultDetails();
+  const { tableData, tooRisky, onlyCurrent } = useVaultDetails();
 
   const maturity =
     collateralBalance?.maturity ||
@@ -22,24 +16,21 @@ export function useVaultDetailsTable() {
 
   return {
     onlyCurrent,
-    tableData:
-      priorAccountNoRisk && postAccountNoRisk
-        ? []
-        : tableData.map(
-            ({ label, current, updated, changeType, greenOnArrowUp }) => {
-              return {
-                label,
-                current: current,
-                updated: {
-                  value: updated,
-                  arrowUp: changeType === 'increase',
-                  checkmark: changeType === 'cleared',
-                  greenOnCheckmark: true,
-                  greenOnArrowUp,
-                },
-              };
-            }
-          ),
+    tableData: tableData.map(
+      ({ label, current, updated, changeType, greenOnArrowUp }) => {
+        return {
+          label,
+          current: current,
+          updated: {
+            value: updated,
+            arrowUp: changeType === 'increase',
+            checkmark: changeType === 'cleared',
+            greenOnCheckmark: true,
+            greenOnArrowUp,
+          },
+        };
+      }
+    ),
     maturity: maturity ? formatMaturity(maturity) : '',
     tooRisky,
   };
