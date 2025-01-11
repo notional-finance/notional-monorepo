@@ -76,6 +76,7 @@ const GroupedHoldingModel = types.model('GroupedHoldingModel', {
   hasMatured: types.boolean,
   borrowAPY: types.maybe(types.number),
   totalLeveragedApy: types.maybe(types.number),
+  totalIncentiveAPY: types.maybe(types.number),
 });
 
 const VaultHoldingModel = types.model('VaultHoldingModel', {

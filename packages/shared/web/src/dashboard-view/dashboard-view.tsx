@@ -20,17 +20,18 @@ import {
   useVariableRateGrid,
   useDashboardConfig,
   useLendBorrowList,
-  useLiquidityList,
   useLeveragedVaultGrid,
   useLeverageVaultList,
   useLiquidityVariableGrid,
   useLiquidityLeveragedGrid,
+  useLiquidityVariableList,
 } from './hooks';
 import { sortGridData, sortListData } from './hooks/utils';
 import { observer } from 'mobx-react-lite';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { useProductModal } from '../hooks';
 import { FormattedMessage } from 'react-intl';
+import { useLiquidityLeveragedList } from './hooks/use-liquidity-leveraged-list';
 
 const mobileTitles = {
   [PRODUCTS.LEND_FIXED]: (
@@ -172,10 +173,7 @@ export const LeveragedVaultDashboard = () => {
 export const LiquidityLeveragedDashboard = () => {
   const network = useSelectedNetwork();
   const gridData = useLiquidityLeveragedGrid(network);
-  const { listColumns, listData } = useLiquidityList(
-    PRODUCTS.LIQUIDITY_LEVERAGED,
-    network
-  );
+  const { listColumns, listData } = useLiquidityLeveragedList(network);
 
   return (
     <DashboardView
@@ -189,10 +187,7 @@ export const LiquidityLeveragedDashboard = () => {
 export const LiquidityVariableDashboard = () => {
   const network = useSelectedNetwork();
   const gridData = useLiquidityVariableGrid(network);
-  const { listColumns, listData } = useLiquidityList(
-    PRODUCTS.LIQUIDITY_VARIABLE,
-    network
-  );
+  const { listColumns, listData } = useLiquidityVariableList(network);
   return (
     <DashboardView
       {...gridData}

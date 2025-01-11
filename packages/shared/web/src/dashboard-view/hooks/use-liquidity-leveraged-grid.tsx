@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import {
+  formatNumberAsPercent,
+  Network,
+  PRODUCTS,
+} from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
@@ -34,6 +38,14 @@ export const useLiquidityLeveragedGrid = (
       const currentPosition = nTokenPositions?.find(
         (n) => n.asset.balance.underlying.symbol === underlying?.symbol
       );
+      const incentiveValue = currentPosition
+        ? formatNumberAsPercent(currentPosition.totalIncentiveAPY || 0)
+        : apy?.incentives && apy?.incentives?.length > 0
+        ? sumAndFormatIncentives(apy.incentives)
+        : '';
+      const totalAPY = currentPosition
+        ? currentPosition.totalLeveragedApy || 0
+        : apy.totalAPY || 0;
 
       return {
         symbol: underlying?.symbol || '',
@@ -72,20 +84,17 @@ export const useLiquidityLeveragedGrid = (
           ) : (
             ''
           ),
-        incentiveValue:
-          apy?.incentives && apy?.incentives?.length > 0
-            ? sumAndFormatIncentives(apy.incentives)
-            : '',
+        incentiveValue,
         incentiveSymbols:
           apy?.incentives && apy?.incentives?.length > 0
             ? getIncentiveSymbols(apy.incentives)
             : undefined,
-        apy: apy.totalAPY || 0,
+        apy: totalAPY,
         routeCallback: () =>
           navigate(
             currentPosition
-              ? `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${underlying?.symbol}`
-              : `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${underlying?.symbol}?borrowOption=${debtToken?.id}`
+              ? `${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${underlying?.symbol}`
+              : `${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${underlying?.symbol}?borrowOption=${debtToken?.id}`
           ),
       };
     })
