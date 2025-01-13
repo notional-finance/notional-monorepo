@@ -13,12 +13,12 @@ import {
 import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
 import { TradeType } from './trade-config';
 import { Network } from '@notional-finance/util';
+import { NOTETradeType } from './note-trade-config';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
-import { NOTETradeType } from './note-manager';
 export type { TradeType } from './trade-config';
 export type { VaultTradeType } from './vault-trade-config';
-export type { NOTETradeType } from './note-manager';
+export type { NOTETradeType } from './note-trade-config';
 
 export type AllTradeTypes = TradeType | VaultTradeType | NOTETradeType;
 
@@ -291,3 +291,11 @@ export const clearTradeState: TransactionState = {
   netRealizedDebtBalance: undefined,
   postTradeBalances: undefined,
 };
+
+export interface ArbPointsType {
+  token: string;
+  points: number;
+  season_one: number;
+  season_two: number;
+  season_three: number;
+}

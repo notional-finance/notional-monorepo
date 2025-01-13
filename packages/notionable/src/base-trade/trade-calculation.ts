@@ -31,7 +31,7 @@ import {
   VaultTradeType,
   isVaultTrade,
 } from './base-trade-store';
-import { NOTETradeConfiguration } from './note-manager';
+import { NOTETradeConfiguration } from './note-trade-config';
 
 export function getTradeConfig(tradeType?: AllTradeTypes) {
   if (!tradeType) throw Error('Trade type undefined');

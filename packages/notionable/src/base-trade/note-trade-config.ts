@@ -1,38 +1,11 @@
-import { Network } from '@notional-finance/util';
-import { TradeState, TransactionConfig } from './base-trade-store';
-import { Observable, merge, of } from 'rxjs';
-import { selectedAccount } from '../global';
 import {
-  compareNOTEPortfolio,
-  initState,
-  setDepositToken,
-  stakedNOTEPool,
-} from './sagas/staked-note';
-import { buildTransaction } from './sagas';
-import {
+  calculateStake,
   StakeNOTE,
   StakeNOTECoolDown,
-  StakeNOTERedeem,
-  calculateStake,
   calculateUnstake,
+  StakeNOTERedeem,
 } from '@notional-finance/transaction';
-import { calculate } from './trade-calculation';
-
-export function createNOTEManager(
-  state$: Observable<TradeState>
-): Observable<Partial<TradeState>> {
-  const network$ = of(Network.mainnet);
-  const account$ = selectedAccount(network$);
-  const stakedNOTEPool$ = stakedNOTEPool(network$);
-
-  return merge(
-    buildTransaction(state$, account$),
-    compareNOTEPortfolio(state$, account$),
-    calculate(state$, of(undefined), stakedNOTEPool$, of(undefined), account$),
-    setDepositToken(state$),
-    initState(state$, account$, stakedNOTEPool$)
-  );
-}
+import { TransactionConfig } from './base-trade-store';
 
 export const NOTETradeConfiguration = {
   StakeNOTE: {

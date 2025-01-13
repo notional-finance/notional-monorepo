@@ -14,7 +14,7 @@ import {
 } from '@notional-finance/util';
 import { AppStoreModel } from './app-store';
 import { WalletModel } from './wallet-store';
-import { TradeModel } from './trades/TradeModel';
+import { TradeModel } from './TradeModel';
 import { AllTradeTypes } from '../base-trade/base-trade-store';
 import { AccountPortfolioModel } from './PortfolioModel';
 

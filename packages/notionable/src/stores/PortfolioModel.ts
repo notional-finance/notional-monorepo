@@ -12,13 +12,13 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { getRoot, Instance, types, cast, flow } from 'mobx-state-tree';
-import { calculateAccruedIncentives } from '../global/account/incentives';
+import { calculateAccruedIncentives } from '../account/incentives';
 import {
   calculateAccountCurrentFactors,
   calculateGroupedHoldings,
   calculateHoldings,
   calculateVaultHoldings,
-} from '../global/account/holdings';
+} from '../account/holdings';
 import { Network } from '@notional-finance/util';
 import { reaction } from 'mobx';
 import { simulateRewardClaims } from '@notional-finance/transaction';

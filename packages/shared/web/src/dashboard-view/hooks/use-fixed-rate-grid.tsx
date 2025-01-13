@@ -8,7 +8,7 @@ import {
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { ProductAPY } from '@notional-finance/core-entities';
-import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
+import { checkBoostEndDate } from '@notional-finance/notionable';
 
 export const useFixedRateGrid = (
   network: Network | undefined,

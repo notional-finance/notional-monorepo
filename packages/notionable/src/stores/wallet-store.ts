@@ -13,8 +13,8 @@ import {
 import {
   checkNewUserAddress,
   checkSanctionedAddress,
-} from '../global/account/communities';
-import { updateWalletTracking } from '../global/account/tracking';
+} from '../account/communities';
+import { updateWalletTracking } from '../account/tracking';
 import { identify, trackEvent } from '@notional-finance/helpers';
 import {
   Provider,
