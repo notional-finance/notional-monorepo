@@ -132,7 +132,7 @@ export const MultiValueCell = ({ cell, row, column }): JSX.Element => {
                 : '',
               fontWeight: column.columnDef?.fontWeightBold ? 600 : '',
               color:
-                typeof value == 'string' && value.includes('-')
+                typeof value == 'string' && value.includes('-') && value !== '-'
                   ? theme.palette.error.main
                   : column.columnDef?.showGreenText && !row.original.isDebt
                   ? theme.palette.primary.main
