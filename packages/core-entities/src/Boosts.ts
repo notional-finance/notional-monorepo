@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/util';
 import { TokenDefinition } from './Definitions';
 import { TokenBalance } from './token-balance';
-import { Registry } from './Registry';
+import { getNetworkModel } from './Models';
 
 export function getPointsPerDay(t: TokenBalance) {
   return (
@@ -65,10 +65,8 @@ export function getPointsAPY(
   seasonStart: Date,
   seasonEnd: Date
 ) {
-  const totalARBPerSeason = TokenBalance.fromFloat(
-    totalARB,
-    Registry.getTokenRegistry().getTokenBySymbol(Network.arbitrum, 'ARB')
-  );
+  const arb = getNetworkModel(Network.arbitrum).getTokenBySymbol('ARB');
+  const totalARBPerSeason = TokenBalance.fromFloat(totalARB, arb);
 
   const daysIntoSeason = Math.max(
     Math.ceil(

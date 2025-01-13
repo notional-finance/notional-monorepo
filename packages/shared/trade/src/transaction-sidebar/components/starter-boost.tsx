@@ -2,9 +2,8 @@ import { Box, styled, SxProps, useTheme } from '@mui/material';
 import { checkStarterBoostToken } from '@notional-finance/helpers';
 import { RocketIcon } from '@notional-finance/icons';
 import { Body, CountUp, LabelValue } from '@notional-finance/mui';
-import { BaseTradeState } from '@notional-finance/notionable';
+import { BaseTradeState, checkBoostEndDate } from '@notional-finance/notionable';
 import { useWalletStore } from '@notional-finance/notionable-hooks';
-import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
 import { boostEndDateString, RATE_PRECISION } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 

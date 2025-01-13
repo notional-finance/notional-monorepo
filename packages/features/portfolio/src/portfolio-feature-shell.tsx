@@ -6,6 +6,8 @@ import {
   useAccountAndBalanceReady,
   useSelectedNetwork,
   useAppStore,
+  useWalletConnected,
+  useAccountHasPositions,
 } from '@notional-finance/notionable-hooks';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import {
@@ -41,32 +43,8 @@ export interface PortfolioParams extends Record<string, string | undefined> {
 
 export const PortfolioFeatureShell = observer(() => {
   const theme = useTheme();
-  const navigate = useNavigate();
-  const params = useParams<PortfolioParams>();
   const network = useSelectedNetwork();
   const isAccountLoading = useAccountLoading();
-  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
-  const { hasNoteOrSNote } = usePortfolioNOTETable();
-
-  useEffect(() => {
-    if (
-      !isAccountLoading &&
-      !isAcctAndBalanceReady &&
-      params.sideDrawerKey !== 'cool-down'
-    ) {
-      const toggleKey = params.sideDrawerKey ? params.sideDrawerKey : '';
-      navigate(
-        `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}/${toggleKey}`
-      );
-    }
-  }, [
-    isAccountLoading,
-    isAcctAndBalanceReady,
-    navigate,
-    network,
-    params.sideDrawerKey,
-    hasNoteOrSNote,
-  ]);
 
   return !network || isAccountLoading ? (
     <PortfolioContainer>
@@ -89,7 +67,7 @@ export const PortfolioFeatureShell = observer(() => {
   );
 });
 
-const Portfolio = () => {
+const Portfolio = observer(() => {
   const params = useParams<PortfolioParams>();
   const { clearSideDrawer } = useSideDrawerManager();
   const { isMobileView } = useAppStore();
@@ -100,6 +78,32 @@ const Portfolio = () => {
   const isAccountReady = useAccountReady(network);
   const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const { hasNoteOrSNote } = usePortfolioNOTETable();
+
+  const isWalletConnected = useWalletConnected();
+  const isAccountLoading = useAccountLoading();
+  const hasPositions = useAccountHasPositions();
+
+  const isWelcomeScreen =
+    isWalletConnected &&
+    isAccountLoading === false &&
+    (hasNoteOrSNote || hasPositions.length > 0)
+      ? false
+      : true;
+
+  useEffect(() => {
+    if (isWelcomeScreen && params.sideDrawerKey !== 'cool-down') {
+      const toggleKey = params.sideDrawerKey ? params.sideDrawerKey : '';
+      navigate(
+        `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}/${toggleKey}`
+      );
+    }
+  }, [
+    isWelcomeScreen,
+    navigate,
+    network,
+    params.sideDrawerKey,
+    hasNoteOrSNote,
+  ]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -218,7 +222,7 @@ const Portfolio = () => {
       {isMobileView && <MobileFooter />}
     </PortfolioContainer>
   );
-};
+});
 
 const PortfolioContainer = styled(Box)(
   ({ theme }) => `

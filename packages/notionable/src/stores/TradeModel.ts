@@ -20,8 +20,8 @@ import {
   isVaultTrade,
   NOTETradeType,
   TokenOption,
-  TradeState,
-} from '../../base-trade/base-trade-store';
+  getTradeConfig,
+} from '../base-trade/base-trade-store';
 import {
   flow,
   getParent,
@@ -31,8 +31,7 @@ import {
   isAlive,
   types,
 } from 'mobx-state-tree';
-import { NetworkClientModelType, RootStoreInterface } from '../root-store';
-import { getTradeConfig } from '../../base-trade/trade-calculation';
+import { NetworkClientModelType, RootStoreInterface } from './root-store';
 import {
   formatNumberAsPercent,
   getChangeType,
@@ -57,7 +56,7 @@ import {
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
-import { getComparisonKey } from '../../utils';
+import { getComparisonKey } from '../utils';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -317,7 +316,7 @@ export const TradeModel = types
             ? depositFilter(
                 t,
                 account,
-                self as unknown as TradeState,
+                self as unknown as BaseTradeState,
                 listedTokens
               )
             : true

@@ -1,6 +1,5 @@
 import {
   AccountDefinition,
-  ConfigurationClient,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -11,14 +10,14 @@ import {
   TransactionBuilder,
 } from '@notional-finance/transaction';
 import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
-import { TradeType } from './trade-config';
+import { TradeConfiguration, TradeType } from './trade-config';
 import { Network } from '@notional-finance/util';
+import { NOTETradeConfiguration, NOTETradeType } from './note-trade-config';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
-import { NOTETradeType } from './note-manager';
 export type { TradeType } from './trade-config';
 export type { VaultTradeType } from './vault-trade-config';
-export type { NOTETradeType } from './note-manager';
+export type { NOTETradeType } from './note-trade-config';
 
 export type AllTradeTypes = TradeType | VaultTradeType | NOTETradeType;
 
@@ -54,7 +53,13 @@ export interface TransactionConfig {
 
 interface VaultState {
   vaultAddress?: string;
-  vaultConfig?: ReturnType<ConfigurationClient['getVaultConfig']>;
+  vaultConfig?: {
+    vaultAddress?: string;
+    maxBorrowMarketIndex?: number;
+    primaryBorrowCurrency: {
+      id: string;
+    };
+  };
   /** True if the vault amount is under the minimum borrow size */
   vaultCapacityError?: boolean;
   underMinAccountBorrow?: boolean;
@@ -291,3 +296,23 @@ export const clearTradeState: TransactionState = {
   netRealizedDebtBalance: undefined,
   postTradeBalances: undefined,
 };
+
+export interface ArbPointsType {
+  token: string;
+  points: number;
+  season_one: number;
+  season_two: number;
+  season_three: number;
+}
+
+export function getTradeConfig(tradeType?: AllTradeTypes) {
+  if (!tradeType) throw Error('Trade type undefined');
+
+  const config =
+    TradeConfiguration[tradeType as TradeType] ||
+    VaultTradeConfiguration[tradeType as VaultTradeType] ||
+    NOTETradeConfiguration[tradeType as NOTETradeType];
+
+  if (!config) throw Error('Trade configuration not found');
+  return config;
+}

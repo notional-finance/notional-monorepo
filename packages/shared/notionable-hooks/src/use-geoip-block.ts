@@ -1,5 +1,4 @@
 import { useNavigate, useLocation } from 'react-router';
-import { useAppContext } from './use-notional';
 import { useEffect } from 'react';
 import { isTestHost } from '@notional-finance/util';
 import { useWalletStore } from './context/use-root-store';
@@ -27,9 +26,8 @@ const SanctionedCountries = [
 ];
 
 export function useLeverageBlock() {
-  const {
-    appState: { country },
-  } = useAppContext();
+  const walletStore = useWalletStore();
+  const country = walletStore.country;
   const isProd = env === 'production' && !isTestHost();
 
   return isProd
@@ -38,10 +36,9 @@ export function useLeverageBlock() {
 }
 
 export function useSanctionsBlock() {
-  const {
-    appState: { country },
-  } = useAppContext();
-  const { isSanctionedAddress } = useWalletStore();
+  const walletStore = useWalletStore();
+  const country = walletStore.country;
+  const isSanctionedAddress = walletStore.isSanctionedAddress;
   const navigate = useNavigate();
   const { pathname } = useLocation();
 

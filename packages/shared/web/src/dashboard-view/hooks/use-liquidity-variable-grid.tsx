@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { checkBoostEndDate } from '@notional-finance/notionable/global/account/communities';
+import { checkBoostEndDate } from '@notional-finance/notionable';
 
 export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const theme = useTheme();

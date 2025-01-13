@@ -13,8 +13,8 @@ import {
 import {
   checkNewUserAddress,
   checkSanctionedAddress,
-} from '../global/account/communities';
-import { updateWalletTracking } from '../global/account/tracking';
+} from '../account/communities';
+import { updateWalletTracking } from '../account/tracking';
 import { identify, trackEvent } from '@notional-finance/helpers';
 import {
   Provider,
@@ -69,6 +69,7 @@ const PendingPnLModel = types.model('PendingPnLModel', {
 export const WalletModel = types
   .model('WalletModel', {
     userWallet: types.maybe(UserWalletModel),
+    country: types.maybe(types.string),
     isSanctionedAddress: types.boolean,
     isStarterBoostUser: types.boolean,
     isAccountPending: types.boolean,
@@ -95,22 +96,6 @@ export const WalletModel = types
     const executeUserTracking = async (
       userWallet: Instance<typeof UserWalletModel>
     ) => {
-      // Set up account refresh on all supported networks
-      // const tokenBalances = Object.fromEntries(
-      //   await Promise.all(
-      //     SupportedNetworks.map(async (n) => {
-      //       await accounts.setAccount(n, selectedAddress);
-      //       return [
-      //         n,
-      //         accounts
-      //           .getAccount(n, selectedAddress)
-      //           ?.balances.filter((t) => t.tokenType === 'Underlying')
-      //           .map((t) => t.toDisplayStringWithSymbol(6)) || [],
-      //       ];
-      //     })
-      //   )
-      // );
-
       if (!userWallet.isReadOnlyAddress) {
         identify(
           userWallet.selectedAddress,
@@ -268,6 +253,14 @@ export const WalletModel = types
           if (provider) m.setProvider(provider);
           self.networkAccounts.set(network, m);
         });
+        const vpnCheck = yield fetch('https://detect.notional.finance/').catch(
+          () => ({ status: 403 })
+        );
+        const country = yield fetch('https://api.notional.finance/geoip').then(
+          (r) => r.json()
+        );
+        self.country = vpnCheck.status !== 200 ? 'VPN' : country['country'];
+
         self.isSanctionedAddress = yield executeUserTracking(userWallet);
         self.isStarterBoostUser = yield checkNewUserAddress(
           userWallet.selectedAddress

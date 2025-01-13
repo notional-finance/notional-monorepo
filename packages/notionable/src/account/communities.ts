@@ -5,9 +5,30 @@ import {
   getProviderURLFromNetwork,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { COMMUNITY_NAMES } from '../global-state';
 import { fetchNewcomerBoostData } from '@notional-finance/helpers';
 export const GATED_VAULTS: Record<string, COMMUNITY_NAMES[]> = {};
+
+export enum COMMUNITY_NAMES {
+  DEGEN_SCORE = 'DEGEN_SCORE',
+  V3_BETA_CONTEST = 'V3_BETA_CONTEST',
+  L2DAO = 'L2DAO',
+  CRYPTO_TESTERS = 'CRYPTO_TESTERS',
+  LLAMAS = 'LLAMAS',
+  CONTEST_PASS = 'CONTEST_PASS',
+}
+
+export enum BETA_ACCESS {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  REJECTED = 'rejected',
+}
+
+export enum PARTNERS {
+  DEGEN_SCORE = 'degen-score',
+  CRYPTO_TESTERS = 'crypto-testers',
+  L2DAO = 'l2dao',
+  LLAMAS = 'llamas',
+}
 
 export interface Community {
   name: COMMUNITY_NAMES;

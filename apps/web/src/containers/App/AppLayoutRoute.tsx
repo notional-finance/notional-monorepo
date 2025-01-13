@@ -8,12 +8,7 @@ import {
   Footer,
   CustomBanner,
 } from '@notional-finance/shared-web';
-import {
-  NotionalContext,
-  useGlobalContext,
-  useRootStore,
-  useAppStore,
-} from '@notional-finance/notionable-hooks';
+import { useRootStore, useAppStore } from '@notional-finance/notionable-hooks';
 import WalletSelector from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -38,7 +33,6 @@ const AppLayoutRoute = ({
   path,
   routeType,
 }: AppLayoutRouteProps) => {
-  const globalState = useGlobalContext();
   const { themeVariant } = useAppStore();
   const { setRoute } = useRootStore();
   const params = useParams();
@@ -58,29 +52,27 @@ const AppLayoutRoute = ({
   return (
     <ThemeProvider theme={notionalTheme}>
       <CssBaseline />
-      <NotionalContext.Provider value={globalState}>
-        <FeatureLoader>
-          <InitIntercom />
-          <InitPageTrack routeType={routeType} />
-          <InitSanctionsBlock />
-          <Box>
-            {metaTagData[slicedPath] && (
-              <MetaTagManager metaTagCategory={slicedPath} />
-            )}
-            <AppShell>
-              <CustomBanner />
-              <Header>
-                <WalletSelector />
-              </Header>
+      <FeatureLoader>
+        <InitIntercom />
+        <InitPageTrack routeType={routeType} />
+        <InitSanctionsBlock />
+        <Box>
+          {metaTagData[slicedPath] && (
+            <MetaTagManager metaTagCategory={slicedPath} />
+          )}
+          <AppShell>
+            <CustomBanner />
+            <Header>
+              <WalletSelector />
+            </Header>
 
-              <MainContent>
-                <Component {...params} />
-              </MainContent>
-              <Footer />
-            </AppShell>
-          </Box>
-        </FeatureLoader>
-      </NotionalContext.Provider>
+            <MainContent>
+              <Component {...params} />
+            </MainContent>
+            <Footer />
+          </AppShell>
+        </Box>
+      </FeatureLoader>
     </ThemeProvider>
   );
 };

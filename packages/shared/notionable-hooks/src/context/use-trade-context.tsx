@@ -1,20 +1,22 @@
-import {
-  TradeState,
-  AllTradeTypes,
-  initialBaseTradeState,
-} from '@notional-finance/notionable';
-import { createObservableContext } from './ObservableContext';
-import { useEffect } from 'react';
+import { AllTradeTypes, TradeModel } from '@notional-finance/notionable';
+import { createContext, useEffect } from 'react';
 import { useSelectedNetwork } from '../use-network';
 import { useParams } from 'react-router-dom';
 import { useObserver } from 'mobx-react-lite';
 import { useRootStore } from './use-root-store';
+import { Instance } from 'mobx-state-tree';
+export interface ObservableContext {
+  tradeModel?: Instance<typeof TradeModel>;
+}
+
+export function createObservableContext(displayName: string) {
+  const context = createContext<ObservableContext | undefined>(undefined);
+  context.displayName = displayName;
+  return context;
+}
 
 export function createTradeContext(displayName: string) {
-  return createObservableContext<TradeState>(
-    displayName,
-    initialBaseTradeState as TradeState
-  );
+  return createObservableContext(displayName);
 }
 
 const useTradeModel = (tradeType: AllTradeTypes) => {

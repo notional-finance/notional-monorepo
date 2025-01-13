@@ -17,7 +17,7 @@ import {
   fetchCurrentAccount,
 } from '@notional-finance/core-entities';
 import { RootStoreInterface } from './root-store';
-import { TradeModel } from './trades/TradeModel';
+import { TradeModel } from './TradeModel';
 
 const NX_SUBGRAPH_API_KEY = process.env['NX_SUBGRAPH_API_KEY'] as string;
 

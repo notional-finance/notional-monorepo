@@ -19,7 +19,7 @@ import {
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { Instance } from 'mobx-state-tree';
-import { HistoricalBalanceModel } from '../../stores/AccountModel';
+import { HistoricalBalanceModel } from '../stores/AccountModel';
 
 export type PortfolioHolding = ReturnType<typeof calculateHoldings>[number];
 export type GroupedHolding = ReturnType<
