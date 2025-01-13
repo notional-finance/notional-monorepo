@@ -18,6 +18,16 @@ export function useCurrentNetworkAccount() {
   return useNetworkAccounts(network);
 }
 
+export function useAccountHasPositions() {
+  const walletStore = useWalletStore();
+  return SupportedNetworks.filter((n) => {
+    const hasPosition = walletStore.networkAccounts
+      .get(n)
+      ?.balances.some((t) => !!t.underlying);
+    return hasPosition;
+  });
+}
+
 /** Total NOTE balances across all networks */
 export function useTotalNOTEBalances() {
   const walletStore = useWalletStore();
