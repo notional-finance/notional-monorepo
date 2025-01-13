@@ -19,12 +19,17 @@ export async function syncDune() {
         headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
       }
     );
-    await getS3().send(
-      new PutObjectCommand({
-        Bucket: 'view-cache-r2',
-        Key: `mainnet/note/${name}`,
-        Body: JSON.stringify(await query_result.json()),
-      })
-    );
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (query_result.status === 200) {
+      await getS3().send(
+        new PutObjectCommand({
+          Bucket: 'view-cache-r2',
+          Key: `mainnet/note/${name}`,
+          Body: JSON.stringify(await query_result.json()),
+        })
+      );
+    }
   }
 }
