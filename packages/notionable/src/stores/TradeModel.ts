@@ -20,7 +20,7 @@ import {
   isVaultTrade,
   NOTETradeType,
   TokenOption,
-  TradeState,
+  getTradeConfig,
 } from '../base-trade/base-trade-store';
 import {
   flow,
@@ -32,7 +32,6 @@ import {
   types,
 } from 'mobx-state-tree';
 import { NetworkClientModelType, RootStoreInterface } from './root-store';
-import { getTradeConfig } from '../base-trade/trade-calculation';
 import {
   formatNumberAsPercent,
   getChangeType,
@@ -317,7 +316,7 @@ export const TradeModel = types
             ? depositFilter(
                 t,
                 account,
-                self as unknown as TradeState,
+                self as unknown as BaseTradeState,
                 listedTokens
               )
             : true

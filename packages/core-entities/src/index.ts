@@ -1,11 +1,9 @@
 export * from './token-balance';
 export * from './Definitions';
 export * from './Matchers';
-export * from './Registry';
-export { AccountFetchMode } from './client/account-registry-client';
 export * from './exchanges';
 export * from './vaults';
-export { ConfigurationClient, AccountRegistryClient } from './client';
+export { AccountRegistryClient } from './client';
 export * from './config/fiat-config';
 export * from './server';
 export * from './client/accounts';

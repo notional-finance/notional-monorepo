@@ -20,7 +20,59 @@ import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { DeprecatedVaults } from './vault-overrides';
 import { ClientRegistry } from '../client/client-registry';
-import { CacheSchema, ConfigurationClient, getVaultType } from '..';
+import { CacheSchema, getVaultType } from '..';
+
+function getBaseProtocol(boosterProtocol: string) {
+  switch (boosterProtocol) {
+    case 'Curve':
+      return 'Curve';
+    case 'Convex':
+      return 'Curve';
+    case 'Aura':
+      return 'Balancer';
+    case 'Balancer':
+      return 'Balancer';
+    default:
+      return 'unknown';
+  }
+}
+
+function parseVaultName(name: string) {
+  if (name === 'Curve FRAX/USDC LP (FRAX Leverage)') {
+    name = 'SingleSidedLP:Convex:[FRAX]/USDC.e';
+  }
+
+  try {
+    if (name.startsWith('Pendle')) {
+      const [protocol, poolName, _] = name.split(':');
+      return {
+        technicalName: name,
+        boosterProtocol: protocol,
+        poolName: poolName,
+        baseProtocol: protocol,
+        name: poolName,
+      };
+    } else {
+      const [_, boosterProtocol, pool] = name.split(':');
+      const poolName = pool.replace('[', '').replace(']', '');
+      return {
+        technicalName: name,
+        boosterProtocol,
+        poolName,
+        baseProtocol: getBaseProtocol(boosterProtocol),
+        name: `${boosterProtocol}: ${poolName}`,
+      };
+    }
+  } catch {
+    return {
+      technicalName: name,
+      boosterProtocol: 'unknown',
+      poolName: 'unknown',
+      baseProtocol: 'unknown',
+      name,
+    };
+  }
+}
 
 // NOTE: this is currently hardcoded because we cannot access the worker
 // process environment directly here.
@@ -195,7 +247,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             enabled,
             vaultAddress,
             rewardState: undefined,
-            ...ConfigurationClient.parseVaultName(name),
+            ...parseVaultName(name),
           };
         },
       },
@@ -282,7 +334,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         method: 'NO_OP',
         key: vaultAddress,
         transform: () => ({
-          ...ConfigurationClient.parseVaultName(name),
+          ...parseVaultName(name),
           vaultAddress,
         }),
       },
