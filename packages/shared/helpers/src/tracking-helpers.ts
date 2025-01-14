@@ -23,7 +23,7 @@ export const analytics = AnalyticsBrowser.load(
 );
 
 export const safeDatadogRum = {
-  addAction: (eventName: string, context?: Record<string, any>) => {
+  addAction: (eventName: string, context?: Record<string, unknown>) => {
     if (
       !window.location.hostname.includes('localhost') &&
       !window.location.hostname.includes('dev')
@@ -31,12 +31,15 @@ export const safeDatadogRum = {
       datadogRum.addAction(eventName, context);
     }
   },
-  setUser: (user: Record<string, any>) => {
+  setUser: (user: Parameters<typeof datadogRum.setUser>[0]) => {
     if (
       !window.location.hostname.includes('localhost') &&
       !window.location.hostname.includes('dev')
     ) {
-      datadogRum.setUser(user);
+      analytics.user().then((u) => {
+        user['anonymousId'] = u.anonymousId();
+        datadogRum.setUser(user);
+      });
     }
   },
 };
@@ -87,6 +90,23 @@ export function trackPageView(
     }
   );
 }
+
+export const useDatadogNewUserTracking = () => {
+  useEffect(() => {
+    analytics.user().then((user) => {
+      const ddUser = datadogRum.getUser();
+      if (
+        user.anonymousId() &&
+        !user.id() &&
+        Object.keys(ddUser).length === 0
+      ) {
+        safeDatadogRum.setUser({
+          hasConnectedWallet: false,
+        });
+      }
+    });
+  }, []);
+};
 
 export const useBackStack = () => {
   const location: Route = useLocation();

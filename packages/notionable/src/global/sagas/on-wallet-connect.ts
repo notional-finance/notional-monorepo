@@ -292,6 +292,7 @@ async function updateWalletTracking(
 
   safeDatadogRum.setUser({
     id: selectedAddress,
+    hasConnectedWallet: true,
     newUser:
       userSettings.connectedWallets && userSettings.connectedWallets.length > 0
         ? false
