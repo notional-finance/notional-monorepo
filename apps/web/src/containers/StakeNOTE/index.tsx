@@ -16,7 +16,9 @@ export const StakeNOTE = observer(() => {
   const stakedNoteData = useStakedNoteData();
 
   return (
-    <FeatureLoader featureLoaded={isReady && stakedNoteData !== undefined}>
+    <FeatureLoader
+      featureLoaded={isReady === true && stakedNoteData !== undefined}
+    >
       <SideBarLayout
         showTransactionConfirmation={confirm}
         sideBar={

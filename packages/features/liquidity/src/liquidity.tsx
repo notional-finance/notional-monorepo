@@ -24,7 +24,7 @@ const LiquidityView = ({
   const confirm = context.tradeModel?.confirm;
 
   return (
-    <FeatureLoader featureLoaded={isReady}>
+    <FeatureLoader featureLoaded={isReady === true}>
       <SideBarLayout
         showTransactionConfirmation={confirm}
         sideBar={sidebar}
