@@ -1,6 +1,7 @@
 import {
   useCurrentNetworkAccount,
   useCurrentTradeContext,
+  useSubmitTxn,
   useVaultPosition,
   useWalletAddress,
   useWalletStore,
@@ -21,7 +22,6 @@ import {
 } from '@notional-finance/contracts';
 import { Contract } from 'ethers';
 import { observer } from 'mobx-react-lite';
-import { useConnectWallet } from '@web3-onboard/react';
 
 export const ClaimVaultRewards = observer(() => {
   const trade = useCurrentTradeContext();
@@ -29,7 +29,6 @@ export const ClaimVaultRewards = observer(() => {
   const selectedNetwork = trade?.selectedNetwork;
 
   const navigate = useNavigate();
-  const [{ wallet }] = useConnectWallet();
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
   const account = useWalletAddress();
   const networkAccount = useCurrentNetworkAccount();
@@ -41,17 +40,18 @@ export const ClaimVaultRewards = observer(() => {
     }
   }, [vaultAddress, networkAccount]);
 
-  const { userWallet, submitTxn } = useWalletStore();
+  const submitTxn = useSubmitTxn();
+  const { userWallet } = useWalletStore();
 
   const handleSubmit = useCallback(async () => {
-    if (!userWallet?.isReadOnlyAddress && vaultAddress && account && wallet) {
+    if (!userWallet?.isReadOnlyAddress && vaultAddress && account) {
       const contract = new Contract(
         vaultAddress,
         ISingleSidedLPStrategyVaultABI
       ) as ISingleSidedLPStrategyVault;
       const populatedTxn =
         await contract.populateTransaction.claimAccountRewards(account);
-      submitTxn('Claim Vault Rewards', populatedTxn, wallet, clearRewardClaims);
+      submitTxn('Claim Vault Rewards', populatedTxn, clearRewardClaims);
     }
   }, [
     userWallet?.isReadOnlyAddress,
@@ -59,7 +59,6 @@ export const ClaimVaultRewards = observer(() => {
     vaultAddress,
     account,
     clearRewardClaims,
-    wallet,
   ]);
 
   const tableData =

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   Allowance,
   getNetworkModel,
@@ -19,12 +19,39 @@ import {
   truncateAddress,
 } from '@notional-finance/helpers';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
-import { BigNumber } from 'ethers';
+import { BigNumber, PopulatedTransaction } from 'ethers';
 import { Community } from '@notional-finance/notionable';
 import {
   useCurrentNetworkStore,
   useWalletStore,
 } from './context/use-root-store';
+import { useSelectedNetwork } from './use-network';
+
+export function useSubmitTxn() {
+  const { submitTxn } = useWalletStore();
+  const selectedNetwork = useSelectedNetwork();
+  const [{ wallet }] = useConnectWallet();
+  return useCallback(
+    (
+      transactionLabel: string,
+      populatedTransaction: PopulatedTransaction,
+      onTxnConfirmed?: () => void,
+      expectedTokenChanges?: TokenDefinition[]
+    ) => {
+      if (!wallet) return;
+      if (!selectedNetwork) return;
+      submitTxn(
+        transactionLabel,
+        populatedTransaction,
+        selectedNetwork,
+        wallet,
+        onTxnConfirmed,
+        expectedTokenChanges
+      );
+    },
+    [submitTxn, wallet, selectedNetwork]
+  );
+}
 
 export function usePrimeCashBalance(selectedToken: string | undefined | null) {
   const model = useCurrentNetworkStore();
@@ -86,10 +113,7 @@ export function useWalletAllowances() {
   const networkAccounts = useWalletStore().networkAccounts;
 
   return SupportedNetworks.reduce((acc, n) => {
-    acc[n as Network] =
-      networkAccounts && networkAccounts[n as Network]
-        ? networkAccounts[n as Network].positiveAllowances
-        : [];
+    acc[n] = networkAccounts?.get(n)?.positiveAllowances || [];
     return acc;
   }, {} as Record<Network, Allowance[]>);
 }

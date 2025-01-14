@@ -315,7 +315,11 @@ export interface DataPoint {
 }
 export type AnalyticsData = DataPoint[];
 
-export type PriceChange = Instance<typeof PriceChangeModel>;
+export type PriceChange = Instance<typeof PriceChangeModel> & {
+  currentFiat: TokenBalance;
+  fiatChange: number;
+  underlyingChange?: number;
+};
 
 export type VaultData = {
   vaultAddress: string;

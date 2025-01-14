@@ -51,9 +51,7 @@ export const useApyChart = (token?: TokenDefinition, numDays = 60) => {
 
   return {
     barConfig,
-    barChartData: apyData?.data
-      .slice(0, numDays)
-      .sort((a, b) => a.timestamp - b.timestamp),
+    barChartData: apyData?.data.slice(-numDays),
   };
 };
 

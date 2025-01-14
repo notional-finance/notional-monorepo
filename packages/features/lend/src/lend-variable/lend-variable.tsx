@@ -10,7 +10,7 @@ export const LendVariable = observer(() => {
   const confirm = context.tradeModel?.confirm || false;
 
   return (
-    <FeatureLoader featureLoaded={isReady}>
+    <FeatureLoader featureLoaded={isReady === true}>
       <SideBarLayout
         showTransactionConfirmation={confirm}
         sideBar={<LendVariableSidebar />}

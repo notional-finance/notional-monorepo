@@ -36,15 +36,15 @@ function isHighUtilization(
 ) {
   const token = balance.token;
   if (balance.hasMatured) return undefined;
-  const priceChanges = model.getPriceChanges();
+  const priceChanges = model.getPriceChanges(token.id);
 
   if (
     token.tokenType === 'nToken' ||
     // Only show this for positive fCash
     (token.tokenType === 'fCash' && balance.isPositive())
   ) {
-    const oneDay = priceChanges?.get(token.id)?.oneDay;
-    const threeDay = priceChanges?.get(token.id)?.threeDay;
+    const oneDay = priceChanges?.oneDay;
+    const threeDay = priceChanges?.threeDay;
 
     if (
       (oneDay?.underlyingChange &&

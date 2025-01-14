@@ -6,7 +6,6 @@ import {
   metaTagData,
   FeatureLoader,
   Footer,
-  CustomBanner,
 } from '@notional-finance/shared-web';
 import { useRootStore, useAppStore } from '@notional-finance/notionable-hooks';
 import WalletSelector from '@notional-finance/wallet';
@@ -61,7 +60,6 @@ const AppLayoutRoute = ({
             <MetaTagManager metaTagCategory={slicedPath} />
           )}
           <AppShell>
-            <CustomBanner />
             <Header>
               <WalletSelector />
             </Header>

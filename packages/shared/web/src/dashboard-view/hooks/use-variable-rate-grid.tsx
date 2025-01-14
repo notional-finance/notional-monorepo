@@ -1,6 +1,6 @@
 import { formatNumberAsAbbr, getBoostedData } from '@notional-finance/helpers';
 import { PRODUCTS } from '@notional-finance/util';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import {
   useAppStore,
   useCurrentNetworkStore,
@@ -23,7 +23,6 @@ export const useVariableRateGrid = (product: PRODUCTS) => {
   }
   const validBoostDate = checkBoostEndDate();
 
-  const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
 
   const allData = yieldData
@@ -45,8 +44,7 @@ export const useVariableRateGrid = (product: PRODUCTS) => {
         hasPosition: false,
         apy: apy.totalAPY || 0,
         tvlNum: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
-        routeCallback: () =>
-          navigate(`/${product}/${network}/${underlying?.symbol}`),
+        view: `/${product}/${network}/${underlying?.symbol}`,
       };
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);

@@ -1,14 +1,15 @@
 import { SNOTEWeightedPool } from '@notional-finance/core-entities';
 import {
   useAccountDefinition,
+  useSubmitTxn,
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { useCallback } from 'react';
 
 export function useCancelCoolDown() {
-  const { submitTxn, transactionStatus, transactionHash, userWallet } =
-    useWalletStore();
+  const { transactionStatus, transactionHash, userWallet } = useWalletStore();
+  const submitTxn = useSubmitTxn();
   const account = useAccountDefinition(Network.mainnet);
 
   const cancelCoolDown = useCallback(async () => {

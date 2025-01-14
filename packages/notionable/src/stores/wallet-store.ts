@@ -127,12 +127,12 @@ export const WalletModel = types
       return isSanctionedAddress;
     };
 
-    const setCompletedTransactions = (receipt: TransactionReceipt) => {
-      if (receipt.transactionHash) {
-        self.completedTransactions.push(
-          TransactionReceiptModel.create(receipt)
-        );
-      }
+    const setCompletedTransactions = (receipt: TransactionReceipt, network: Network) => {
+      // Clear the current transaction hash
+      self.transactionHash = undefined;
+      self.transactionStatus = TransactionStatus.NONE;
+      self.completedTransactions.push(TransactionReceiptModel.create(receipt));
+      self.networkAccounts.get(network)?.refreshPortfolio();
     };
 
     const setSentTransactions = (
@@ -171,6 +171,7 @@ export const WalletModel = types
     const submitTxn = flow(function* (
       transactionLabel: string,
       populatedTransaction: PopulatedTransaction,
+      network: Network,
       wallet?: WalletState,
       onTxnConfirmed?: () => void,
       expectedTokenChanges?: TokenDefinition[]
@@ -223,7 +224,7 @@ export const WalletModel = types
             selectedNetwork: self.userWallet?.selectedChain,
           });
         }
-        setCompletedTransactions(receipt);
+        setCompletedTransactions(receipt, network);
       } catch (error) {
         trackEvent(TRACKING_EVENTS.REJECT_TXN, {
           url: window.location.pathname,

@@ -6,7 +6,6 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { Network, PRODUCTS } from '@notional-finance/util';
-import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
@@ -15,7 +14,6 @@ import { checkBoostEndDate } from '@notional-finance/notionable';
 export const useLiquidityVariableGrid = (network: Network | undefined) => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
-  const navigate = useNavigate();
   const currentNetworkStore = useCurrentNetworkStore();
   const nTokenYield = currentNetworkStore.getAllNTokenYields();
   const { isStarterBoostUser } = useWalletStore();
@@ -63,10 +61,7 @@ export const useLiquidityVariableGrid = (network: Network | undefined) => {
             ? getIncentiveSymbols(apy?.incentives)
             : undefined,
         apy: apy.totalAPY || 0,
-        routeCallback: () =>
-          navigate(
-            `/${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${underlying?.symbol}`
-          ),
+        view: `/${PRODUCTS.LIQUIDITY_VARIABLE}/${network}/${underlying?.symbol}`,
       };
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);

@@ -1,5 +1,5 @@
 import { COMMUNITY_NAMES, CommunityId } from '@notional-finance/notionable';
-import { useWalletCommunities } from './use-wallet';
+import { useSubmitTxn, useWalletCommunities } from './use-wallet';
 import { BigNumber } from 'ethers';
 import {
   NotionalContestPass,
@@ -78,8 +78,8 @@ export function useContestPass() {
 }
 
 export function useMintPass() {
-  const { submitTxn, transactionHash, transactionStatus, userWallet } =
-    useWalletStore();
+  const submitTxn = useSubmitTxn();
+  const { transactionHash, transactionStatus, userWallet } = useWalletStore();
   const [errorMessage, setErrorMessage] = useState<string>('');
   const community = undefined;
   const [mintedAddress, setMintedAddress] = useState<string | undefined>(

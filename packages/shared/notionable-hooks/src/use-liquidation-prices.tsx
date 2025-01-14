@@ -16,12 +16,18 @@ import { Network } from '@notional-finance/util';
 import { useObserver } from 'mobx-react-lite';
 import { useFetchAnalyticsData } from './use-market';
 
-function usePriceChanges(network: Network | undefined) {
-  const priceChanges = useObserver(() =>
-    network ? getNetworkModel(network).getPriceChanges() : undefined
+export function usePriceChanges(
+  network: Network | undefined,
+  assetId: string | undefined
+) {
+  const dataSet = useObserver(() =>
+    network ? getNetworkModel(network).analytics.priceChanges : undefined
   );
-  useFetchAnalyticsData('priceChanges', !!priceChanges, network);
-  return priceChanges;
+  useFetchAnalyticsData('priceChanges', !!dataSet, network);
+
+  return dataSet && network && assetId
+    ? getNetworkModel(network).getPriceChanges(assetId)
+    : undefined;
 }
 
 function parseFiatLiquidationPrice(
@@ -133,8 +139,8 @@ function parseUnderlyingLiquidationPrice(
 
 export function useCurrentETHPrice() {
   // NOTE: the hardcoded network here doesn't really matter
-  const priceChanges = usePriceChanges(Network.all);
-  const ethChange = priceChanges?.get('eth')?.oneDay;
+  const priceChanges = usePriceChanges(Network.all, 'eth');
+  const ethChange = priceChanges?.oneDay;
 
   return {
     ethPrice: ethChange?.currentFiat,
@@ -143,8 +149,8 @@ export function useCurrentETHPrice() {
 }
 
 export function useNotePrice() {
-  const priceChanges = usePriceChanges(Network.all);
-  const noteChange = priceChanges?.get('note')?.oneDay;
+  const priceChanges = usePriceChanges(Network.all, 'note');
+  const noteChange = priceChanges?.oneDay;
   const notePriceChange = noteChange?.fiatChange || undefined;
   const notePrice = noteChange?.currentFiat.toFiat('USD') || undefined;
 
@@ -157,7 +163,8 @@ export function useCurrentLiquidationPrices(
 ) {
   const portfolio = usePortfolioLiquidationPrices(network);
   const vaults = useVaultHoldings(network);
-  const priceChanges = usePriceChanges(network);
+  // Ensures price changes are fetched
+  usePriceChanges(network, undefined);
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;
 
@@ -169,7 +176,8 @@ export function useCurrentLiquidationPrices(
       }))
       .filter((p) => p.asset.tokenType === 'Underlying')
       .map(({ asset, threshold }) => {
-        const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
+        const { oneDay, sevenDay } =
+          getNetworkModel(network).getPriceChanges(asset.id) || {};
         return parseFiatLiquidationPrice(
           asset,
           baseCurrency,
@@ -188,7 +196,8 @@ export function useCurrentLiquidationPrices(
       }))
       .filter((p) => p.asset.tokenType !== 'Underlying')
       .map(({ asset, threshold }) => {
-        const { oneDay, sevenDay } = priceChanges?.get(asset.id) || {};
+        const { oneDay, sevenDay } =
+          getNetworkModel(network).getPriceChanges(asset.id) || {};
         return parseUnderlyingLiquidationPrice(
           asset as TokenDefinition,
           threshold,
@@ -204,7 +213,8 @@ export function useCurrentLiquidationPrices(
         vaultAddress,
         liquidationPrices: liquidationPrices.map(
           ({ asset, threshold, debt }) => {
-            const { oneDay, sevenDay } = priceChanges?.get(asset) || {};
+            const { oneDay, sevenDay } =
+              getNetworkModel(network).getPriceChanges(asset) || {};
             return {
               ...parseUnderlyingLiquidationPrice(
                 getNetworkModel(network).getTokenByID(asset),

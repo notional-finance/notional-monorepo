@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { LeverageSlider, TransactionSidebar } from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
@@ -9,14 +9,14 @@ export const AdjustLeverage = () => {
   const trade = useCurrentTradeContext();
   const calculateError = trade?.calculateError;
   const isDeleverage = trade?.isDeleverage;
+  const [hasTouched, setHasTouched] = useState(false);
 
-  // NOTE: when the leverage slider goes below the account's default position
-  // then we need to swap the debt and collateral tokens
   const onChange = useCallback(
     (leverageRatio: number) => {
+      if (!hasTouched) setHasTouched(true);
       trade?.setNTokenAdjustedLeverage(leverageRatio);
     },
-    [trade]
+    [trade, hasTouched]
   );
 
   return (
@@ -29,7 +29,7 @@ export const AdjustLeverage = () => {
         })}
         onChange={onChange}
       />
-      {calculateError && (
+      {calculateError && hasTouched && (
         <ErrorMessage message={calculateError} variant="error" />
       )}
     </TransactionSidebar>

@@ -18,12 +18,12 @@ import {
 } from './components';
 import {
   useCurrentTradeContext,
+  useSubmitTxn,
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { PopulatedTransaction } from 'ethers';
 import { observer } from 'mobx-react-lite';
-import { useConnectWallet } from '@web3-onboard/react';
 
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
@@ -43,12 +43,11 @@ export const TransactionConfirmation = observer(
       transactionError: undefined,
     });
     const location = useLocation();
-    const [{ wallet }] = useConnectWallet();
     const trade = useCurrentTradeContext();
+    const submitTxn = useSubmitTxn();
     const tradeType = trade?.tradeType;
     const selectedNetwork = trade?.selectedNetwork;
     const {
-      submitTxn,
       transactionStatus,
       transactionHash,
       userWallet,
@@ -179,12 +178,8 @@ export const TransactionConfirmation = observer(
               : transactionStatus
           }
           onSubmit={() =>
-            p.populatedTransaction && wallet
-              ? submitTxn(
-                  tradeType || 'unknown',
-                  p.populatedTransaction,
-                  wallet
-                )
+            p.populatedTransaction
+              ? submitTxn(tradeType || 'unknown', p.populatedTransaction)
               : null
           }
           onCancel={() => {

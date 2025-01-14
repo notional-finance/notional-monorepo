@@ -3,7 +3,6 @@ import {
   useAllVaults,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
-import { useNavigate } from 'react-router-dom';
 import { DashboardGridProps } from '@notional-finance/mui';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
@@ -16,7 +15,6 @@ export const useLeveragedVaultGrid = (
   network: Network | undefined,
   vaultProduct: PRODUCTS
 ): DashboardGridProps => {
-  const navigate = useNavigate();
   const { baseCurrency, isMobileView } = useAppStore();
   const listedVaults = useAllVaults(vaultProduct);
   const vaultHoldings = useVaultHoldings(network);
@@ -45,12 +43,9 @@ export const useLeveragedVaultGrid = (
         network: vaultConfig.primaryToken.network,
         hasPosition: holding ? true : false,
         apy: totalAPY,
-        routeCallback: () =>
-          navigate(
-            holding
-              ? `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/IncreaseVaultPosition`
-              : `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`
-          ),
+        view: holding
+          ? `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/IncreaseVaultPosition`
+          : `/${PRODUCTS.VAULTS}/${network}/${vaultConfig.vaultAddress}/CreateVaultPosition?borrowOption=${debtToken?.id}`,
         reinvestOptions:
           vaultConfig.vaultType === 'SingleSidedLP_DirectClaim'
             ? {
