@@ -1,6 +1,7 @@
 import { Contract, constants, ethers } from 'ethers';
 import {
   useAccountDefinition,
+  useSubmitTxn,
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { Network, NotionalAddress, sNOTE } from '@notional-finance/util';
@@ -15,7 +16,8 @@ export const useTokenApproval = (
   const currentTokenStatus = account?.allowances?.find(
     (t) => t.amount.symbol === symbol
   );
-  const { userWallet, transactionStatus, submitTxn } = useWalletStore();
+  const submitTxn = useSubmitTxn();
+  const { userWallet, transactionStatus } = useWalletStore();
 
   const enableToken = useCallback(
     async (approve: boolean) => {

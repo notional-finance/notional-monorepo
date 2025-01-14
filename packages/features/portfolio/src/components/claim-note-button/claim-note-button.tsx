@@ -7,6 +7,7 @@ import { FormattedMessage } from 'react-intl';
 import {
   useAccountDefinition,
   useSelectedNetwork,
+  useSubmitTxn,
   useTotalIncentives,
   useWalletConnectedNetwork,
   useWalletStore,
@@ -72,7 +73,8 @@ export const ClaimNoteButton = observer(() => {
   const [networkError, setNetworkError] = useState(false);
   const walletNetwork = useWalletConnectedNetwork();
   const account = useAccountDefinition(network);
-  const { submitTxn, userWallet } = useWalletStore();
+  const submitTxn = useSubmitTxn();
+  const { userWallet } = useWalletStore();
   const [hover, setHover] = useState(false);
   const totalIncentives = useTotalIncentives(network);
 

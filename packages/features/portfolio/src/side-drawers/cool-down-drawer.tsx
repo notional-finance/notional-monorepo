@@ -19,6 +19,7 @@ import { useCoolDownDrawer } from './hooks/use-cool-down-drawer';
 import { useCallback } from 'react';
 import {
   useAccountDefinition,
+  useSubmitTxn,
   useWalletConnectedNetwork,
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
@@ -28,8 +29,8 @@ import { observer } from 'mobx-react-lite';
 export const CoolDownDrawer = observer(() => {
   const theme = useTheme();
   const account = useAccountDefinition(Network.mainnet);
-  const { userWallet, submitTxn, transactionStatus, transactionHash } =
-    useWalletStore();
+  const { userWallet, transactionStatus, transactionHash } = useWalletStore();
+  const submitTxn = useSubmitTxn();
   const { days, coolDownEnd, coolDownBegin } = useCoolDownDrawer();
   const walletConnectedNetwork = useWalletConnectedNetwork();
   const mustSwitchNetwork = Network.mainnet !== walletConnectedNetwork;

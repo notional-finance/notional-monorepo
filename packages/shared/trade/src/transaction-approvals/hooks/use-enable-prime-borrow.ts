@@ -1,5 +1,6 @@
 import {
   useAccountDefinition,
+  useSubmitTxn,
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -13,7 +14,8 @@ export function useEnablePrimeBorrow(network: Network | undefined) {
   const account = useAccountDefinition(network);
   // Set the default to true so that this does not show up for non-connected wallets
   const isPrimeBorrowAllowed = account ? account.allowPrimeBorrow : true;
-  const { userWallet, transactionStatus, submitTxn } = useWalletStore();
+  const { userWallet, transactionStatus } = useWalletStore();
+  const submitTxn = useSubmitTxn();
 
   const enablePrimeBorrow = useCallback(async () => {
     if (network && account?.address) {
