@@ -18,7 +18,7 @@ export interface DashboardDataProps {
   apy: number;
   symbol: string;
   network: Network;
-  routeCallback: () => void;
+  view: string;
   bottomLeftValue?: string | ReactNode;
   bottomRightValue?: string | ReactNode;
   hasPosition?: boolean;

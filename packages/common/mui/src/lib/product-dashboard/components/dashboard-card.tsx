@@ -12,6 +12,7 @@ import { NotionalTheme } from '@notional-finance/styles';
 import SliderBasic from '../../slider-basic/slider-basic';
 import ReinvestPill from '../../reinvest-pill/reinvest-pill';
 import { checkMobileView, PRODUCTS } from '@notional-finance/util';
+import { Link } from 'react-router-dom';
 interface GridCardApyProps {
   hideApySubTitle: boolean;
   theme: NotionalTheme;
@@ -68,12 +69,12 @@ export const DashboardCard = ({
   vaultUtilization,
   rewardTokens,
   pointsSubTitle,
-  routeCallback,
   incentiveValue,
   incentiveSymbols,
   hasPosition,
   network,
   routeKey,
+  view,
 }: DashboardDataProps) => {
   const theme = useTheme();
   const hideFooter = !bottomLeftValue && !incentiveSymbols && !bottomRightValue;
@@ -88,201 +89,203 @@ export const DashboardCard = ({
   const lowerLeftValue = isMobileVaultCard ? subTitle : bottomLeftValue;
 
   return (
-    <GridCard onClick={() => routeCallback()}>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          padding: theme.spacing(2),
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <TokenIcon
-            symbol={symbol}
-            size="xl"
-            style={{ marginRight: theme.spacing(2) }}
-            network={network}
-          />
-          <Box component="div" sx={{ textAlign: 'left', margin: 'auto' }}>
-            <GridCardTitle>{title}</GridCardTitle>
-            <GridCardSubTitle id="grid-card-sub-title">
-              {subtitleValue}
-            </GridCardSubTitle>
-          </Box>
-        </Box>
-
-        <GridCardApy
-          hideApySubTitle={!apySubTitle ? true : false}
+    <Link to={view} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <GridCard>
+        <Box
           sx={{
-            justifyContent: !vaultType && !apySubTitle ? 'center' : '',
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: theme.spacing(2),
           }}
-          theme={theme}
         >
-          {reinvestOptions && vaultType && (
-            <ReinvestPill vaultType={vaultType} />
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <TokenIcon
+              symbol={symbol}
+              size="xl"
+              style={{ marginRight: theme.spacing(2) }}
+              network={network}
+            />
+            <Box component="div" sx={{ textAlign: 'left', margin: 'auto' }}>
+              <GridCardTitle>{title}</GridCardTitle>
+              <GridCardSubTitle id="grid-card-sub-title">
+                {subtitleValue}
+              </GridCardSubTitle>
+            </Box>
+          </Box>
+
+          <GridCardApy
+            hideApySubTitle={!apySubTitle ? true : false}
+            sx={{
+              justifyContent: !vaultType && !apySubTitle ? 'center' : '',
+            }}
+            theme={theme}
+          >
+            {reinvestOptions && vaultType && (
+              <ReinvestPill vaultType={vaultType} />
+            )}
+            {apySubTitle && (
+              <SectionTitle
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'end',
+                  color: theme.palette.typography.light,
+                  fontWeight: 600,
+                }}
+              >
+                <FormattedMessage {...apySubTitle} />
+              </SectionTitle>
+            )}
+
+            {pointsSubTitle && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  fontSize: 'inherit',
+                  alignItems: 'center',
+                }}
+              >
+                <PointsIcon
+                  sx={{ fontSize: 'inherit', marginRight: theme.spacing(0.5) }}
+                  fill={isMobile ? theme.palette.typography.main : ''}
+                />
+                {pointsSubTitle}
+              </Box>
+            )}
+            <LargeInputTextEmphasized
+              sx={{
+                textAlign: apySubTitle ? 'right' : '',
+                fontWeight: 700,
+                color:
+                  apy < 0
+                    ? theme.palette.error.main
+                    : theme.palette.typography.main,
+              }}
+            >
+              {isMobile ? (
+                formatNumberAsPercent(apy, 0) + ' APY'
+              ) : vaultUtilization !== undefined ? (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <MultiTokenIcon
+                    symbols={rewardTokens || []}
+                    size="medium"
+                    shiftSize={8}
+                  />
+                  <Box sx={{ marginLeft: theme.spacing(1) }}>
+                    {formatNumberAsPercent(apy)}
+                  </Box>
+                  <Box
+                    component="span"
+                    sx={{
+                      fontWeight: 600,
+                      textTransform: 'none',
+                      marginLeft: theme.spacing(1),
+                    }}
+                  >
+                    {hasPosition ? 'APY' : 'Max APY'}
+                  </Box>
+                </Box>
+              ) : (
+                formatNumberAsPercent(apy) + ' APY'
+              )}
+            </LargeInputTextEmphasized>
+          </GridCardApy>
+        </Box>
+        <GridCardFooter
+          id="incentive"
+          sx={{ display: hideFooter ? 'none' : 'flex' }}
+        >
+          {vaultUtilization !== undefined && (
+            <UtilizationBar vaultUtilization={vaultUtilization} />
           )}
-          {apySubTitle && (
+          {lowerLeftValue && (
             <SectionTitle
               sx={{
                 display: 'flex',
-                justifyContent: 'end',
-                color: theme.palette.typography.light,
-                fontWeight: 600,
-              }}
-            >
-              <FormattedMessage {...apySubTitle} />
-            </SectionTitle>
-          )}
-
-          {pointsSubTitle && (
-            <Box
-              sx={{
-                display: 'flex',
-                fontSize: 'inherit',
+                justifySelf: 'flex-start',
+                justifyContent: 'center',
                 alignItems: 'center',
               }}
             >
-              <PointsIcon
-                sx={{ fontSize: 'inherit', marginRight: theme.spacing(0.5) }}
-                fill={isMobile ? theme.palette.typography.main : ''}
-              />
-              {pointsSubTitle}
+              {lowerLeftValue}
+            </SectionTitle>
+          )}
+          {incentiveSymbols && incentiveSymbols.length > 0 && (
+            <SectionTitle
+              sx={{
+                display: 'flex',
+                justifySelf: 'flex-start',
+                justifyContent: 'space-between',
+                paddingLeft:
+                  incentiveSymbols.length > 1 ? theme.spacing(1) : '0px',
+              }}
+            >
+              {incentiveSymbols.map((incentiveSymbol, index) => (
+                <TokenIcon
+                  key={index}
+                  symbol={incentiveSymbol}
+                  size="small"
+                  style={{
+                    marginRight: theme.spacing(1),
+                    position:
+                      index === 1 && incentiveSymbols.length > 1
+                        ? 'absolute'
+                        : 'relative',
+                    marginLeft:
+                      index === 1 && incentiveSymbols.length > 1
+                        ? `-${theme.spacing(1)}`
+                        : '0px',
+                  }}
+                />
+              ))}
+              {incentiveValue && (
+                <>
+                  <Box
+                    sx={{
+                      color: theme.palette.typography.main,
+                      marginRight: theme.spacing(0.5),
+                    }}
+                  >
+                    {incentiveValue}
+                  </Box>
+                  <FormattedMessage defaultMessage={'Incentive APY'} />
+                </>
+              )}
+            </SectionTitle>
+          )}
+          {bottomRightValue && !isMobileVaultCard && (
+            <SectionTitle
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                justifySelf: 'flex-end',
+              }}
+            >
+              {bottomRightValue}
+            </SectionTitle>
+          )}
+          {isMobileVaultCard && vaultUtilization !== undefined && (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                justifySelf: 'flex-end',
+              }}
+            >
+              <SectionTitle sx={{ marginRight: theme.spacing(0.5) }}>
+                Utilization:{' '}
+              </SectionTitle>
+              <SectionTitle
+                sx={{ fontWeight: 700, color: theme.palette.typography.main }}
+              >
+                {formatNumberAsPercent(vaultUtilization, 1)}
+              </SectionTitle>
             </Box>
           )}
-          <LargeInputTextEmphasized
-            sx={{
-              textAlign: apySubTitle ? 'right' : '',
-              fontWeight: 700,
-              color:
-                apy < 0
-                  ? theme.palette.error.main
-                  : theme.palette.typography.main,
-            }}
-          >
-            {isMobile ? (
-              formatNumberAsPercent(apy, 0) + ' APY'
-            ) : vaultUtilization !== undefined ? (
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <MultiTokenIcon
-                  symbols={rewardTokens || []}
-                  size="medium"
-                  shiftSize={8}
-                />
-                <Box sx={{ marginLeft: theme.spacing(1) }}>
-                  {formatNumberAsPercent(apy)}
-                </Box>
-                <Box
-                  component="span"
-                  sx={{
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    marginLeft: theme.spacing(1),
-                  }}
-                >
-                  {hasPosition ? 'APY' : 'Max APY'}
-                </Box>
-              </Box>
-            ) : (
-              formatNumberAsPercent(apy) + ' APY'
-            )}
-          </LargeInputTextEmphasized>
-        </GridCardApy>
-      </Box>
-      <GridCardFooter
-        id="incentive"
-        sx={{ display: hideFooter ? 'none' : 'flex' }}
-      >
-        {vaultUtilization !== undefined && (
-          <UtilizationBar vaultUtilization={vaultUtilization} />
-        )}
-        {lowerLeftValue && (
-          <SectionTitle
-            sx={{
-              display: 'flex',
-              justifySelf: 'flex-start',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            {lowerLeftValue}
-          </SectionTitle>
-        )}
-        {incentiveSymbols && incentiveSymbols.length > 0 && (
-          <SectionTitle
-            sx={{
-              display: 'flex',
-              justifySelf: 'flex-start',
-              justifyContent: 'space-between',
-              paddingLeft:
-                incentiveSymbols.length > 1 ? theme.spacing(1) : '0px',
-            }}
-          >
-            {incentiveSymbols.map((incentiveSymbol, index) => (
-              <TokenIcon
-                key={index}
-                symbol={incentiveSymbol}
-                size="small"
-                style={{
-                  marginRight: theme.spacing(1),
-                  position:
-                    index === 1 && incentiveSymbols.length > 1
-                      ? 'absolute'
-                      : 'relative',
-                  marginLeft:
-                    index === 1 && incentiveSymbols.length > 1
-                      ? `-${theme.spacing(1)}`
-                      : '0px',
-                }}
-              />
-            ))}
-            {incentiveValue && (
-              <>
-                <Box
-                  sx={{
-                    color: theme.palette.typography.main,
-                    marginRight: theme.spacing(0.5),
-                  }}
-                >
-                  {incentiveValue}
-                </Box>
-                <FormattedMessage defaultMessage={'Incentive APY'} />
-              </>
-            )}
-          </SectionTitle>
-        )}
-        {bottomRightValue && !isMobileVaultCard && (
-          <SectionTitle
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              justifySelf: 'flex-end',
-            }}
-          >
-            {bottomRightValue}
-          </SectionTitle>
-        )}
-        {isMobileVaultCard && vaultUtilization !== undefined && (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              justifySelf: 'flex-end',
-            }}
-          >
-            <SectionTitle sx={{ marginRight: theme.spacing(0.5) }}>
-              Utilization:{' '}
-            </SectionTitle>
-            <SectionTitle
-              sx={{ fontWeight: 700, color: theme.palette.typography.main }}
-            >
-              {formatNumberAsPercent(vaultUtilization, 1)}
-            </SectionTitle>
-          </Box>
-        )}
-      </GridCardFooter>
-    </GridCard>
+        </GridCardFooter>
+      </GridCard>
+    </Link>
   );
 };
 

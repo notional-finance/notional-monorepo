@@ -1,7 +1,6 @@
 import { formatNumberAsAbbr, getBoostedData } from '@notional-finance/helpers';
 import { Network, PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
-import { useNavigate } from 'react-router-dom';
 import {
   useAppStore,
   useCurrentNetworkStore,
@@ -14,7 +13,6 @@ export const useFixedRateGrid = (
   network: Network | undefined,
   product: PRODUCTS
 ) => {
-  const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
   const tokenObj = {};
   const isBorrow = product === PRODUCTS.BORROW_FIXED;
@@ -55,8 +53,7 @@ export const useFixedRateGrid = (
       apySubTitle: apySubTitle,
       tvlNum: tvl ? tvl.toFiat(baseCurrency).toNumber() : 0,
       apy: apy.totalAPY || 0,
-      routeCallback: () =>
-        navigate(`/${product}/${network}/${underlying?.symbol}`),
+      view: `/${product}/${network}/${underlying?.symbol}`,
     };
   });
 

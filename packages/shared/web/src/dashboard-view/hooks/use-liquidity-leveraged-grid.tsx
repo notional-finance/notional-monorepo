@@ -8,7 +8,6 @@ import {
 import { formatNumberAsAbbr } from '@notional-finance/helpers';
 import { getIncentiveSymbols, sumAndFormatIncentives } from './utils';
 import { DashboardGridProps, DashboardDataProps } from '@notional-finance/mui';
-import { useNavigate } from 'react-router-dom';
 import { Box, useTheme } from '@mui/material';
 import { LeafIcon } from '@notional-finance/icons';
 import {
@@ -21,7 +20,6 @@ export const useLiquidityLeveragedGrid = (
   network: Network | undefined
 ): DashboardGridProps => {
   const theme = useTheme();
-  const navigate = useNavigate();
   const { baseCurrency } = useAppStore();
   const currentNetworkStore = useCurrentNetworkStore();
   const groupedHoldings = useGroupedHoldings(network);
@@ -90,12 +88,9 @@ export const useLiquidityLeveragedGrid = (
             ? getIncentiveSymbols(apy.incentives)
             : undefined,
         apy: totalAPY,
-        routeCallback: () =>
-          navigate(
-            currentPosition
-              ? `${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${underlying?.symbol}`
-              : `${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${underlying?.symbol}?borrowOption=${debtToken?.id}`
-          ),
+        view: currentPosition
+          ? `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/IncreaseLeveragedNToken/${underlying?.symbol}`
+          : `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${network}/CreateLeveragedNToken/${underlying?.symbol}?borrowOption=${debtToken?.id}`,
       };
     })
     .sort((a, b) => b.tvlNum - a.tvlNum);
