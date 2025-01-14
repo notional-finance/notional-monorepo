@@ -429,10 +429,8 @@ export const TimeSeriesModel = types.model('TimeSeriesModel', {
 
 export const PriceChangeModel = types.model('PriceChange', {
   pastDate: types.number,
-  currentFiat: NotionalTypes.TokenBalance,
   pastFiat: NotionalTypes.TokenBalance,
-  fiatChange: types.maybeNull(types.number),
-  underlyingChange: types.maybeNull(types.number),
+  pastUnderlying: types.maybe(types.number),
 });
 
 const DateType = types.custom<string, Date>({

@@ -2,6 +2,8 @@ import { flow, Instance } from 'mobx-state-tree';
 import { NetworkModel } from '../NetworkModel';
 import { ChartType, TimeSeriesResponse } from '../ModelTypes';
 import { Network } from '@notional-finance/util';
+import { TokenBalance } from '../../token-balance';
+import { TokenDefinition } from '../../Definitions';
 
 const REGISTRY_HOSTNAME =
   (process.env['NX_REGISTRY_URL'] as string) ||
@@ -128,5 +130,44 @@ export const AnalyticsViews = (self: Instance<typeof NetworkModel>) => ({
       : undefined,
   getVaultAccountRisk: () => self.analytics.vaultAccountRisk,
   getAccountPortfolioRisk: () => self.analytics.accountPortfolioRisk,
-  getPriceChanges: () => self.analytics.priceChanges,
+  getPriceChanges: (assetId: string) => {
+    const change = self.analytics.priceChanges?.get(assetId);
+    const token = self.tokens.get(assetId) as TokenDefinition | undefined;
+    if (token && change) {
+      const unit = TokenBalance.unit(token);
+      const currentFiat =
+        unit.symbol === 'NOTE' ? unit.toFiat('ETH') : unit.toFiat('USD');
+      const currentUnderlying =
+        unit.tokenType !== 'Underlying' && unit.tokenType !== 'Fiat'
+          ? unit.toUnderlying()
+          : undefined;
+
+      const calculateChange = (period: 'oneDay' | 'threeDay' | 'sevenDay') => {
+        const periodData = change[period];
+        if (!periodData) return undefined;
+
+        return {
+          ...periodData,
+          currentFiat,
+          fiatChange:
+            periodData.pastFiat &&
+            (100 * (currentFiat.toFloat() - periodData.pastFiat.toFloat())) /
+              periodData.pastFiat.toFloat(),
+          underlyingChange:
+            periodData.pastUnderlying &&
+            currentUnderlying &&
+            (100 * (currentUnderlying.toFloat() - periodData.pastUnderlying)) /
+              periodData.pastUnderlying,
+        };
+      };
+
+      return {
+        oneDay: calculateChange('oneDay'),
+        threeDay: calculateChange('threeDay'),
+        sevenDay: calculateChange('sevenDay'),
+      };
+    }
+
+    return undefined;
+  },
 });

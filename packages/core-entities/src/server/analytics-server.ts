@@ -107,67 +107,37 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     isFiat: boolean
   ) {
     try {
-      const currentPrice = timeSeries.data[timeSeries.data.length - 1];
       const pastPrice = timeSeries.data[timeSeries.data.length - (daysAgo + 1)];
       if (network === Network.all && asset === 'note') {
         return {
           pastDate: pastPrice.timestamp,
-          currentFiat: TokenBalance.toJSON(
-            utils.parseUnits(currentPrice.price.toString(), 18),
-            'ETH',
-            Network.all
-          ),
           pastFiat: TokenBalance.toJSON(
-            utils.parseUnits(currentPrice.price.toString(), 18),
+            utils.parseUnits(pastPrice.price.toString(), 18),
             'ETH',
             Network.all
           ),
-          fiatChange:
-            ((currentPrice.price - pastPrice.price) / pastPrice.price) * 100,
         };
       } else if (isFiat) {
         return {
           pastDate: pastPrice.timestamp,
-          currentFiat: TokenBalance.toJSON(
-            utils.parseUnits(currentPrice.price.toFixed(6), 6),
-            'USD',
-            Network.all
-          ),
           pastFiat: TokenBalance.toJSON(
             utils.parseUnits(pastPrice.price.toFixed(6), 6),
             'USD',
             Network.all
           ),
-          fiatChange:
-            ((currentPrice.price - pastPrice.price) / pastPrice.price) * 100,
         };
       } else {
         return {
           pastDate: pastPrice.timestamp,
-          currentFiat: TokenBalance.toJSON(
-            utils.parseUnits(currentPrice.priceToUSD.toFixed(6), 6),
-            'USD',
-            Network.all
-          ),
+          pastUnderlying: pastPrice.priceToUnderlying,
           pastFiat: TokenBalance.toJSON(
             utils.parseUnits(pastPrice.priceToUSD.toFixed(6), 6),
             'USD',
             Network.all
           ),
-          fiatChange:
-            ((currentPrice.priceToUSD - pastPrice.priceToUSD) /
-              pastPrice.priceToUSD) *
-            100,
-          underlyingChange:
-            ((currentPrice.priceToUnderlying - pastPrice.priceToUnderlying) /
-              pastPrice.priceToUnderlying) *
-            100,
         };
       }
     } catch (e) {
-      if (asset === '0x0f13fb925edc3e1fe947209010d9c0e072986adc') {
-        console.error(e);
-      }
       return undefined;
     }
   }
