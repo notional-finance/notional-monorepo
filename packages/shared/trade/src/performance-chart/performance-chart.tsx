@@ -37,7 +37,7 @@ export const PerformanceChart = ({
 
   const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
     usePerformanceChart(currentPositionFactors);
-  const { barConfig, barChartData } = useApyChart(collateral, 90);
+  const { barConfig, barChartData } = useApyChart(collateral);
   const priceData = useAssetPriceHistory(collateral);
 
   const chartComponents: ChartComponentsProps[] = [
