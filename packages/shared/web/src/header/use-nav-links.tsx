@@ -7,7 +7,6 @@ import {
   LightningOutlineIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS, Network } from '@notional-finance/util';
-import { useConnectWallet } from '@web3-onboard/react';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
@@ -15,10 +14,11 @@ import EarnDropdown from './earn-dropdown/earn-dropdown';
 import BorrowDropDown from './borrow-dropdown/borrow-dropdown';
 import LeverageDropdown from './leverage-dropdown/leverage-dropdown';
 import { useParams } from 'react-router';
+import { useWalletAddress } from '@notional-finance/notionable-hooks';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   const params = useParams();
-  const [{ wallet }] = useConnectWallet();
+  const selectedAddress = useWalletAddress();
   const network =
     params && 'selectedNetwork' in params
       ? params['selectedNetwork']
@@ -32,7 +32,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'portfolio',
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
-      link: wallet?.accounts[0].address
+      link: selectedAddress
         ? `/portfolio/${network}/overview`
         : `/portfolio/${network}/welcome/earn`,
       iconImg: (
@@ -92,7 +92,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'portfolio',
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
-      link: wallet?.accounts[0].address
+      link: selectedAddress
         ? `/portfolio/${network}/overview`
         : `/portfolio/${network}/welcome/earn`,
       iconImg: (

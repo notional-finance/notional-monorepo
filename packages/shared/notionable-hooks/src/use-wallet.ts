@@ -25,9 +25,11 @@ import {
   useCurrentNetworkStore,
   useWalletStore,
 } from './context/use-root-store';
+import { useSelectedNetwork } from './use-network';
 
 export function useSubmitTxn() {
   const { submitTxn } = useWalletStore();
+  const selectedNetwork = useSelectedNetwork();
   const [{ wallet }] = useConnectWallet();
   return useCallback(
     (
@@ -37,15 +39,17 @@ export function useSubmitTxn() {
       expectedTokenChanges?: TokenDefinition[]
     ) => {
       if (!wallet) return;
+      if (!selectedNetwork) return;
       submitTxn(
         transactionLabel,
         populatedTransaction,
+        selectedNetwork,
         wallet,
         onTxnConfirmed,
         expectedTokenChanges
       );
     },
-    [submitTxn, wallet]
+    [submitTxn, wallet, selectedNetwork]
   );
 }
 
