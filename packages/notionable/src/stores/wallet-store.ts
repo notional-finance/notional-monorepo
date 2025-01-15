@@ -1,4 +1,3 @@
-import spindl from '@spindl-xyz/attribution';
 import { types, Instance, flow, getRoot } from 'mobx-state-tree';
 import {
   NotionalTypes,
@@ -120,14 +119,13 @@ export const WalletModel = types
         account?.balances || []
       );
 
-      if (!isSanctionedAddress) {
-        spindl.attribute(userWallet.selectedAddress);
-      }
-
       return isSanctionedAddress;
     };
 
-    const setCompletedTransactions = (receipt: TransactionReceipt, network: Network) => {
+    const setCompletedTransactions = (
+      receipt: TransactionReceipt,
+      network: Network
+    ) => {
       // Clear the current transaction hash
       self.transactionHash = undefined;
       self.transactionStatus = TransactionStatus.NONE;
@@ -154,18 +152,16 @@ export const WalletModel = types
       self.transactionHash = hash;
     };
 
-    const refreshPortfolio = () => {
-      return new Promise<void>((resolve) => {
-        setTimeout(() => {
-          const account = self.userWallet?.selectedChain
-            ? root.getNetworkAccount(self.userWallet?.selectedChain)
-            : undefined;
-          if (account) {
-            account.refreshPortfolio();
-          }
-          resolve();
-        }, 3000);
-      });
+    const refreshPortfolio = (network?: Network) => {
+      if (network) {
+        console.log('refreshing portfolio for network', network);
+        self.networkAccounts.get(network)?.refreshPortfolio();
+      } else {
+        console.log('refreshing portfolio for all networks');
+        SupportedNetworks.forEach((network) => {
+          self.networkAccounts.get(network)?.refreshPortfolio();
+        });
+      }
     };
 
     const submitTxn = flow(function* (
@@ -215,7 +211,6 @@ export const WalletModel = types
             selectedNetwork: self.userWallet?.selectedChain,
           });
           if (onTxnConfirmed) onTxnConfirmed();
-          yield refreshPortfolio();
         } else if (receipt.status === 0) {
           setTransactionStatus(TransactionStatus.REVERT);
           trackEvent(TRACKING_EVENTS.TXN_ERROR, {

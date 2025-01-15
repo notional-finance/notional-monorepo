@@ -6,6 +6,7 @@ import {
   SECONDS_IN_YEAR,
   getNowSeconds,
   decodeERC1155Id,
+  isERC1155Id,
 } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
 // import { BigNumber } from 'ethers';
@@ -27,7 +28,7 @@ export function parseGraphBalanceToTokenBalance(
   const isDebt =
     model.getTokenByID(tokenId).tokenType === 'PrimeDebt' ||
     model.getTokenByID(tokenId).tokenType === 'VaultDebt' ||
-    decodeERC1155Id(tokenId).isfCashDebt;
+    (isERC1155Id(tokenId) && decodeERC1155Id(tokenId).isfCashDebt);
   let b = BigNumber.from(balance);
   if (isDebt && b.gt(0)) b = b.mul(-1);
 
