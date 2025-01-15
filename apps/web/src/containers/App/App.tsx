@@ -1,4 +1,3 @@
-import spindl from '@spindl-xyz/attribution';
 import { useEffect } from 'react';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { useAppStore } from '@notional-finance/notionable-hooks';
@@ -46,14 +45,18 @@ import {
 } from '../../containers/TradingContest';
 import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
-import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import {
+  getDefaultNetworkFromHostname,
+  ONE_MINUTE_MS,
+} from '@notional-finance/util';
 import { RootStoreContext } from '@notional-finance/notionable-hooks';
 import { createRootStore } from '@notional-finance/notionable';
-import { initializeTokenBalanceRegistry } from '@notional-finance/core-entities';
+import {
+  initializeTokenBalanceRegistry,
+  refreshNetworkModels,
+} from '@notional-finance/core-entities';
 import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
-
-const spindlAPI = process.env['NX_SPINDL_API_KEY'] as string | undefined;
 
 const RedirectToDefaultNetwork = () => {
   const selectedNetwork = useSelectedNetwork();
@@ -462,17 +465,19 @@ const AllRoutes = observer(() => {
 });
 
 export const App = () => {
-  useEffect(() => {
-    if (spindlAPI) {
-      spindl.configure({
-        sdkKey: spindlAPI,
-      });
-
-      spindl.enableAutoPageViews();
-    }
-  }, []);
-
   const rootStore = createRootStore();
+
+  useEffect(() => {
+    const refreshNetworks = refreshNetworkModels();
+    const refreshPortfolio = setInterval(() => {
+      rootStore.walletStore.refreshPortfolio();
+    }, ONE_MINUTE_MS);
+    return () => {
+      clearInterval(refreshNetworks);
+      clearInterval(refreshPortfolio);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <HelmetProvider>

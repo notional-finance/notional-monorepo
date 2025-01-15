@@ -14,8 +14,9 @@ import {
   useVaultPosition,
 } from '@notional-finance/notionable-hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import { observer } from 'mobx-react-lite';
 
-export const CreateVaultPosition = () => {
+export const CreateVaultPosition = observer(() => {
   const theme = useTheme();
   const { currencyInputRef } = useCurrencyInputRef();
   const { inputErrorMsg } = useVaultActionErrors();
@@ -58,4 +59,4 @@ export const CreateVaultPosition = () => {
       </VaultSideDrawer>
     </Box>
   );
-};
+});

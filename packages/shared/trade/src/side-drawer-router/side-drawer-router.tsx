@@ -47,7 +47,6 @@ export const SideDrawerRouter = ({
         ':path',
         hasPosition ? defaultHasPosition : defaultNoPosition
       );
-      console.log('triggering navigate', action, defaultPath, incorrectDefault);
       // Use replace here to avoid breaking the back button
       navigate(defaultPath, { replace: true });
     }

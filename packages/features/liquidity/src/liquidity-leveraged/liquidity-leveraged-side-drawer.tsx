@@ -13,7 +13,6 @@ import {
   Withdraw,
 } from './side-drawers';
 import { useParams } from 'react-router';
-import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { observer } from 'mobx-react-lite';
 
@@ -36,35 +35,11 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
       ? availableDebtTokens?.find((t) => t.id === queryData.get('borrowOption'))
       : undefined;
 
-  const riskFactorLimit = trade?.leverageRatio
-    ? ({
-        riskFactor: 'leverageRatio',
-        limit: trade?.leverageRatio,
-        args: [deposit?.currencyId],
-      } as RiskFactorLimit<'leverageRatio'>)
-    : undefined;
-
   const currentPositionState = {
     collateral: currentPosition?.asset.balance.token,
     debt: currentPosition?.debt.balance.token,
     leverageRatio: currentPosition?.leverageRatio,
-    riskFactorLimit: currentPosition?.leverageRatio
-      ? ({
-          riskFactor: 'leverageRatio',
-          limit: currentPosition?.leverageRatio,
-          args: [currentPosition?.asset.balance.currencyId],
-        } as RiskFactorLimit<'leverageRatio'>)
-      : undefined,
   };
-
-  const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
-    deposit && defaultLeverageRatio
-      ? {
-          riskFactor: 'leverageRatio',
-          limit: defaultLeverageRatio,
-          args: [deposit.currencyId],
-        }
-      : undefined;
 
   return (
     <SideDrawerRouter
@@ -81,7 +56,6 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
           requiredState: {
             tradeType: 'LeveragedNToken',
             debt: debt || defaultDebtToken,
-            riskFactorLimit: riskFactorLimit || defaultRiskLimit,
             leverageRatio: defaultLeverageRatio,
           },
         },
@@ -146,9 +120,7 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
             depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
             // NOTE: debt and collateral will change based on where the requested
             // leverage ratio sits in relation to the current leverage
-            riskFactorLimit: riskFactorLimit
-              ? undefined
-              : currentPositionState?.riskFactorLimit,
+            leverageRatio: currentPositionState?.leverageRatio,
           },
         },
         {
@@ -162,7 +134,7 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
                 ? currentPosition?.debt.balance.toPrimeCash().token
                 : currentPosition?.debt.balance.token,
             debt: currentPosition?.asset.balance.token,
-            riskFactorLimit: currentPositionState?.riskFactorLimit,
+            leverageRatio: currentPositionState?.leverageRatio,
             selectedDepositToken,
           },
         },

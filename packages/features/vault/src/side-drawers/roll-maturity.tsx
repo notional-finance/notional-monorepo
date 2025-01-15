@@ -2,8 +2,9 @@ import { VaultSideDrawer } from '../components';
 import { useVaultActionErrors } from '../hooks';
 import { ErrorMessage } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
+import { observer } from 'mobx-react-lite';
 
-export const RollMaturity = () => {
+export const RollMaturity = observer(() => {
   const { leverageRatioError, inputErrorMsg } = useVaultActionErrors();
 
   return (
@@ -22,4 +23,4 @@ export const RollMaturity = () => {
       )}
     </VaultSideDrawer>
   );
-};
+});

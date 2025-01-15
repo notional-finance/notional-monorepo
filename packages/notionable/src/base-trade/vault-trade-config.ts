@@ -152,7 +152,6 @@ export const VaultTradeConfiguration = {
       'balances',
       'riskFactorLimit',
       'vaultLastUpdateTime',
-      'maxCollateralSlippage',
     ],
     collateralFilter: (t, _, s) =>
       t.tokenType === 'VaultShare' &&

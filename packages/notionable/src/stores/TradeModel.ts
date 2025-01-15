@@ -733,6 +733,7 @@ export const TradeModel = types
 
       if (inputsSatisfied) {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const outputs = calculationFn(inputs as any);
           if (outputs) {
             Object.keys(outputs).forEach((key) => {
@@ -743,6 +744,7 @@ export const TradeModel = types
           self.calculationSuccess = true;
           self.calculateError = undefined;
         } catch (e) {
+          console.error('trade model calculate error', e);
           self.calculationSuccess = false;
           self.calculateError = (e as Error).toString();
           // Clear any calculated inputs that are not required for the trade type
@@ -927,6 +929,7 @@ export const TradeModel = types
         // TODO: add simulation
       } catch (e) {
         // Log these errors in full to the console
+        console.error(e);
         const _reason = (e as { reason: string | undefined })['reason'];
         const parsedReason = _reason?.replace(/execution\sreverted:?/, '');
         return {
@@ -944,6 +947,11 @@ export const TradeModel = types
       self.calculationSuccess = false;
       self.netRealizedCollateralBalance = undefined;
       self.netRealizedDebtBalance = undefined;
+      self.depositBalance = undefined;
+      self.debtBalance = undefined;
+      self.collateralBalance = undefined;
+      self.leverageRatio = undefined;
+      self.inputErrors = false;
     };
 
     const setCollateralByID = (
@@ -1013,6 +1021,9 @@ export const TradeModel = types
       )
         return;
 
+      // If resetting the state, clear the trade state first to avoid any
+      // stale state from previous calculations
+      clearTradeState();
       Object.keys(requiredState).forEach((k) => {
         if (k === 'debt' && requiredState[k]) {
           const model = root().getNetworkClient(self.selectedNetwork);
@@ -1617,6 +1628,7 @@ export const TradeModel = types
         const { vaultCapacityError } = getVaultCapacity();
 
         return (
+          self.calculationSuccess &&
           !!postAccountRisk &&
           (leverageRatio === null ||
             (!!postAccountRisk.maxLeverageRatio &&

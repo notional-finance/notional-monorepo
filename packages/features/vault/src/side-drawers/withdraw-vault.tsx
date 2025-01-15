@@ -17,8 +17,9 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useInputAmount } from '@notional-finance/trade/common';
 import { useVaultActionErrors } from '../hooks';
+import { observer } from 'mobx-react-lite';
 
-export const WithdrawVault = () => {
+export const WithdrawVault = observer(() => {
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
   const trade = useCurrentTradeContext();
   const postVaultFactors = trade?.getPostVaultFactors();
@@ -103,4 +104,4 @@ export const WithdrawVault = () => {
       </Box>
     </VaultSideDrawer>
   );
-};
+});

@@ -13,8 +13,9 @@ import { VaultDetailsTable } from '../components';
 import { useManageVault } from '../hooks/use-manage-vault';
 import { useTheme } from '@mui/material';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { observer } from 'mobx-react-lite';
 
-export const ManageVault = () => {
+export const ManageVault = observer(() => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
   const {
@@ -110,4 +111,4 @@ export const ManageVault = () => {
       optionSections={optionSections}
     />
   );
-};
+});
