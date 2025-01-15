@@ -5,6 +5,7 @@ import {
   SCALAR_PRECISION,
   SECONDS_IN_YEAR,
   getNowSeconds,
+  decodeERC1155Id,
 } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
 // import { BigNumber } from 'ethers';
@@ -15,8 +16,7 @@ import { getNetworkModel } from '../../Models';
 import { BigNumberish, BigNumber } from 'ethers';
 
 /**
- * Subgraph stores PrimeDebt balances as positive numbers so need to flip the sign here, fCash and vault debt
- * balances are handled inside the TokenBalance constructor
+ * Subgraph stores debt balances as positive numbers so need to flip the sign here
  */
 export function parseGraphBalanceToTokenBalance(
   balance: BigNumberish,
@@ -24,9 +24,12 @@ export function parseGraphBalanceToTokenBalance(
   network: Network
 ) {
   const model = getNetworkModel(network);
-  const isPrimeDebt = model.getTokenByID(tokenId).tokenType === 'PrimeDebt';
+  const isDebt =
+    model.getTokenByID(tokenId).tokenType === 'PrimeDebt' ||
+    model.getTokenByID(tokenId).tokenType === 'VaultDebt' ||
+    decodeERC1155Id(tokenId).isfCashDebt;
   let b = BigNumber.from(balance);
-  if (isPrimeDebt && b.gt(0)) b = b.mul(-1);
+  if (isDebt && b.gt(0)) b = b.mul(-1);
 
   return new TokenBalance(balance, tokenId, network);
 }

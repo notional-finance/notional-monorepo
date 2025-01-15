@@ -10,8 +10,6 @@ import {
   RATE_PRECISION,
   SCALAR_PRECISION,
   ZERO_ADDRESS,
-  decodeERC1155Id,
-  isERC1155Id,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
@@ -76,16 +74,7 @@ export class TokenBalance {
       this.n = BigNumber.from(_n);
     }
 
-    if (isERC1155Id(tokenId)) {
-      const { isfCashDebt, assetType } = decodeERC1155Id(tokenId);
-      // Ensure that fcash debts and vault debts are negative
-      if (
-        (isfCashDebt || assetType === AssetType.VAULT_DEBT_ASSET_TYPE) &&
-        this.n.gt(0)
-      )
-        this.n = this.n.mul(-1);
-      this.tokenId = convertToGenericfCashId(tokenId).toLowerCase();
-    }
+    this.tokenId = convertToGenericfCashId(tokenId).toLowerCase();
 
     // Rewrite alt eth address to zero address
     if (this.tokenId === ALT_ETH) this.tokenId = ZERO_ADDRESS;

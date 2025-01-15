@@ -70,7 +70,7 @@ export const VaultActionSideDrawer = observer(() => {
           Component: CreateVaultPosition,
           requiredState: {
             tradeType: 'CreateVaultPosition',
-            leverageRatio: defaultLeverageRatio,
+            leverageRatio: trade?.leverageRatio || defaultLeverageRatio,
             maxWithdraw: false,
             debt: defaultDebtToken,
             collateral: defaultCollateralToken,

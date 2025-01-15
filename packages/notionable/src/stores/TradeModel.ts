@@ -929,6 +929,7 @@ export const TradeModel = types
         // TODO: add simulation
       } catch (e) {
         // Log these errors in full to the console
+        console.error(e);
         const _reason = (e as { reason: string | undefined })['reason'];
         const parsedReason = _reason?.replace(/execution\sreverted:?/, '');
         return {
@@ -946,6 +947,11 @@ export const TradeModel = types
       self.calculationSuccess = false;
       self.netRealizedCollateralBalance = undefined;
       self.netRealizedDebtBalance = undefined;
+      self.depositBalance = undefined;
+      self.debtBalance = undefined;
+      self.collateralBalance = undefined;
+      self.leverageRatio = undefined;
+      self.inputErrors = false;
     };
 
     const setCollateralByID = (
@@ -1015,6 +1021,9 @@ export const TradeModel = types
       )
         return;
 
+      // If resetting the state, clear the trade state first to avoid any
+      // stale state from previous calculations
+      clearTradeState();
       Object.keys(requiredState).forEach((k) => {
         if (k === 'debt' && requiredState[k]) {
           const model = root().getNetworkClient(self.selectedNetwork);
@@ -1619,6 +1628,7 @@ export const TradeModel = types
         const { vaultCapacityError } = getVaultCapacity();
 
         return (
+          self.calculationSuccess &&
           !!postAccountRisk &&
           (leverageRatio === null ||
             (!!postAccountRisk.maxLeverageRatio &&
