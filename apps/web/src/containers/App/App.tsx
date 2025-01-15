@@ -472,7 +472,10 @@ export const App = () => {
     }
   }, []);
 
-  const rootStore = createRootStore();
+  const { rootStore, refreshInterval } = createRootStore();
+  useEffect(() => {
+    return () => clearInterval(refreshInterval);
+  }, [refreshInterval]);
 
   return (
     <HelmetProvider>

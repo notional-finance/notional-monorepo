@@ -2,6 +2,7 @@ import {
   AccountDefinition,
   getNetworkModel,
   NetworkClientModel,
+  refreshNetworkModels,
 } from '@notional-finance/core-entities';
 import { types, Instance } from 'mobx-state-tree';
 import { PortfolioStoreModel } from './portfolio-store';
@@ -71,7 +72,10 @@ const RootStore = types
     },
   }));
 
-export const createRootStore = (): RootStoreType => {
+export const createRootStore = (): {
+  rootStore: RootStoreType;
+  refreshInterval: NodeJS.Timeout;
+} => {
   const rootStore = RootStore.create({
     walletStore: {
       isSanctionedAddress: false,
@@ -116,5 +120,9 @@ export const createRootStore = (): RootStoreType => {
     },
   });
 
-  return rootStore;
+  const refreshInterval = refreshNetworkModels();
+  return {
+    rootStore,
+    refreshInterval,
+  };
 };

@@ -29,9 +29,9 @@ export function getNetworkModel(
 
 // NOTE: this has to be called outside of the model to avoid issues with scope
 export function refreshNetworkModels(refreshInterval: number = ONE_MINUTE_MS) {
-  setInterval(() => {
-    console.log('Refreshing snapshots');
+  return setInterval(() => {
     MainnetNetworkModel.triggerRefresh();
     ArbitrumNetworkModel.triggerRefresh();
+    AllNetworkModel.triggerRefresh();
   }, refreshInterval);
 }
