@@ -733,6 +733,7 @@ export const TradeModel = types
 
       if (inputsSatisfied) {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const outputs = calculationFn(inputs as any);
           if (outputs) {
             Object.keys(outputs).forEach((key) => {
@@ -743,6 +744,7 @@ export const TradeModel = types
           self.calculationSuccess = true;
           self.calculateError = undefined;
         } catch (e) {
+          console.error('trade model calculate error', e);
           self.calculationSuccess = false;
           self.calculateError = (e as Error).toString();
           // Clear any calculated inputs that are not required for the trade type

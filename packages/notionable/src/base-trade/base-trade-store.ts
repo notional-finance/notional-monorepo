@@ -3,7 +3,6 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { RiskFactorKeys, RiskFactorLimit } from '@notional-finance/risk-engine';
 import {
   CalculationFn,
   CalculationFnParams,
@@ -115,7 +114,7 @@ interface TokenInputs {
   deposit?: TokenDefinition;
 
   /** Parsed from selected risk factors */
-  riskFactorLimit?: RiskFactorLimit<RiskFactorKeys>;
+  leverageRatio?: number;
   /** Calculated deposit balance, always in underlying */
   depositBalance?: TokenBalance;
   /** A secondary deposit balance, used for NOTE balances in staking */

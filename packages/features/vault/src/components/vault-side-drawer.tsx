@@ -7,46 +7,46 @@ import {
   useVaultProperties,
 } from '@notional-finance/notionable-hooks';
 import { CreateVaultLiquidationRisk } from './create-vault-liquidation-risk';
+import { observer } from 'mobx-react-lite';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
 }
 
-export const VaultSideDrawer = ({
-  children,
-  advancedToggle,
-}: VaultSideDrawerProps) => {
-  const navigate = useNavigate();
-  const trade = useCurrentTradeContext();
-  const vaultAddress = trade?.vaultAddress;
-  const tradeType = trade?.tradeType;
-  const selectedNetwork = trade?.selectedNetwork;
-  const { minBorrowSize } = trade?.getVaultCapacity() ?? {};
-  const props = useVaultProperties(vaultAddress);
-  const { minDepositRequired } = props ?? {};
+export const VaultSideDrawer = observer(
+  ({ children, advancedToggle }: VaultSideDrawerProps) => {
+    const navigate = useNavigate();
+    const trade = useCurrentTradeContext();
+    const vaultAddress = trade?.vaultAddress;
+    const tradeType = trade?.tradeType;
+    const selectedNetwork = trade?.selectedNetwork;
+    const { minBorrowSize } = trade?.getVaultCapacity() ?? {};
+    const props = useVaultProperties(vaultAddress);
+    const { minDepositRequired } = props ?? {};
 
-  if (!tradeType) return null;
+    if (!tradeType) return null;
 
-  return (
-    <TransactionSidebar
-      showDrawer={false}
-      heading={messages[tradeType].heading}
-      advancedToggle={advancedToggle}
-      onCancelRouteCallback={() =>
-        navigate(`/vaults/${selectedNetwork}/${vaultAddress}`)
-      }
-      hideTextOnMobile={false}
-      riskComponent={<CreateVaultLiquidationRisk key={'vault-risk-table'} />}
-      helptext={{
-        ...messages[tradeType].helptext,
-        values: {
-          minDepositRequired,
-          minBorrowSize,
-        },
-      }}
-    >
-      {children}
-    </TransactionSidebar>
-  );
-};
+    return (
+      <TransactionSidebar
+        showDrawer={false}
+        heading={messages[tradeType].heading}
+        advancedToggle={advancedToggle}
+        onCancelRouteCallback={() =>
+          navigate(`/vaults/${selectedNetwork}/${vaultAddress}`)
+        }
+        hideTextOnMobile={false}
+        riskComponent={<CreateVaultLiquidationRisk key={'vault-risk-table'} />}
+        helptext={{
+          ...messages[tradeType].helptext,
+          values: {
+            minDepositRequired,
+            minBorrowSize,
+          },
+        }}
+      >
+        {children}
+      </TransactionSidebar>
+    );
+  }
+);

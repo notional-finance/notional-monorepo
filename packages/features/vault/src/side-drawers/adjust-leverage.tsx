@@ -1,7 +1,8 @@
 import { messages } from '../messages';
 import { VaultLeverageSlider, VaultSideDrawer } from '../components';
+import { observer } from 'mobx-react-lite';
 
-export const AdjustLeverage = () => {
+export const AdjustLeverage = observer(() => {
   return (
     <VaultSideDrawer>
       <VaultLeverageSlider
@@ -9,4 +10,4 @@ export const AdjustLeverage = () => {
       />
     </VaultSideDrawer>
   );
-};
+});
