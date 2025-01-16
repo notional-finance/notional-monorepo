@@ -1680,13 +1680,14 @@ export const TradeModel = types
 
       try {
         if (self.vaultAddress) {
-          const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
-          const totalAPY = postVaultRisk?.totalAPY || priorVaultRisk?.totalAPY;
-          const leverageRatio =
-            postVaultRisk?.leverageRatio() || priorVaultRisk?.leverageRatio();
-          const assetAPY =
-            postVaultRisk?.strategyAPY || priorVaultRisk?.strategyAPY;
-          const debtAPY = postVaultRisk?.borrowAPY || priorVaultRisk?.borrowAPY;
+          const { priorVaultRisk } = getPostVaultRiskProfile();
+          const leverageRatio = self.leverageRatio;
+          const assetAPY = self.collateralOptions?.find(
+            (o) => o.token.id === self.collateral?.id
+          )?.interestRate;
+          const debtAPY = self.debtOptions?.find(
+            (o) => o.token.id === self.debt?.id
+          )?.interestRate;
           const vaultShareId =
             self.collateral?.id || priorVaultRisk?.vaultShares?.tokenId;
           const apy = vaultShareId ? model.getSpotAPY(vaultShareId) : undefined;
@@ -1694,6 +1695,7 @@ export const TradeModel = types
             assetAPY !== undefined && debtAPY !== undefined
               ? assetAPY - debtAPY
               : undefined;
+          const totalAPY = leveragedYield(assetAPY, debtAPY, leverageRatio);
 
           return {
             totalAPY,
@@ -1702,11 +1704,7 @@ export const TradeModel = types
             assetAPY,
             apySpread,
             organicAPY: leveragedYield(apy?.organicAPY, debtAPY, leverageRatio),
-            incentiveAPY: leveragedYield(
-              apy?.incentiveAPY,
-              debtAPY,
-              leverageRatio
-            ),
+            incentiveAPY: leveragedYield(apy?.incentiveAPY, 0, leverageRatio),
           } as APYData;
         } else if (isLeveragedTrade(self.tradeType) || isSwapped) {
           if (self.collateral && self.debt && self.leverageRatio) {
