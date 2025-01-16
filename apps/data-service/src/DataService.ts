@@ -33,7 +33,6 @@ import {
   gql,
 } from '@apollo/client/core';
 import { graphQueries } from './graphQueries';
-import { calculatePointsAccrued } from './RiskService';
 import { Servers } from '@notional-finance/core-entities';
 
 // TODO: fetch from DB
@@ -580,16 +579,6 @@ export default class DataService {
       )
       .into(DataService.VAULT_ACCOUNTS_TABLE_NAME)
       .onConflict(['account_id', 'vault_id', 'network_id'])
-      .ignore();
-  }
-
-  public async insertPointsData(
-    points: Awaited<ReturnType<typeof calculatePointsAccrued>>
-  ) {
-    return this.db
-      .insert(points)
-      .into(DataService.POINTS_TABLE_NAME)
-      .onConflict(['account', 'date', 'token'])
       .ignore();
   }
 
