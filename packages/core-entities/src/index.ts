@@ -5,8 +5,7 @@ export * from './exchanges';
 export * from './vaults';
 export * from './config/fiat-config';
 export * from './server';
-export * from './client/accounts';
-export { ClientRegistry } from './client/client-registry';
+export * from './client';
 export type { ServerRegistry } from './server/server-registry';
 export type { GraphDocument } from './server/analytics-server';
 export {

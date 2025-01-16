@@ -21,13 +21,14 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract, ethers } from 'ethers';
-import { OracleDefinition, CacheSchema, ClientRegistry } from '..';
+import { OracleDefinition, CacheSchema } from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 import { fiatOracles } from '../config/fiat-config';
 import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllOraclesQuery } from '../.graphclient';
 import { Block } from '@ethersproject/providers';
+import { fetchFromRegistry } from '../client';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
 // process environment directly here.
@@ -149,8 +150,9 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       console.error(e);
       // If the subgraph has failed, get the previous cache schema and return it, we still
       // want to continue to update the latest rates
-      return await ClientRegistry.fetch<CacheSchema<OracleDefinition>>(
-        `${NX_REGISTRY_URL}/${network}/oracles`
+      return fetchFromRegistry<CacheSchema<OracleDefinition>>(
+        `${network}/oracles`,
+        NX_REGISTRY_URL
       );
     }
   }

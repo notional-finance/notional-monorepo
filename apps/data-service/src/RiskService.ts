@@ -1,6 +1,7 @@
 import {
   AccountDefinition,
   fetchBatchAccounts,
+  fetchFromRegistry,
   getNetworkModel,
   TokenBalance,
 } from '@notional-finance/core-entities';
@@ -26,7 +27,11 @@ import {
   SupportedNetworks,
   unique,
 } from '@notional-finance/util';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from '@aws-sdk/client-s3';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import {
   ExternalLendingHistoryQuery,
@@ -96,9 +101,16 @@ export async function calculateAccountRisks() {
 }
 
 export async function executeMonitoring() {
+  const allAccounts: Record<Network, AccountDefinition[]> = {
+    [Network.all]: [],
+    [Network.mainnet]: [],
+    [Network.arbitrum]: [],
+  };
+
   for (const network of SupportedNetworks) {
     if (network === Network.all) continue;
     const accounts = await fetchBatchAccounts(network, SUBGRAPH_API_KEY);
+    allAccounts[network] = accounts;
     await Promise.all([
       checkAccountList(network, accounts),
       checkTotalSupply(network, accounts),
@@ -108,7 +120,7 @@ export async function executeMonitoring() {
       checkVaultReinvestments(network),
     ]);
   }
-  await saveTotalsData();
+  await saveTotalsData(allAccounts);
 }
 
 function saveAccountRiskProfiles(accounts: AccountDefinition[]) {
@@ -193,10 +205,12 @@ async function checkAccountList(
   network: Network,
   accounts: AccountDefinition[]
 ) {
-  const accountList = await Registry.getAnalyticsRegistry().getView<{
-    account_id: string;
-    vault_id: string | null;
-  }>(network, 'accounts_list');
+  const accountList = await fetchFromRegistry<
+    {
+      account_id: string;
+      vault_id: string | null;
+    }[]
+  >(`${network}/views/accounts_list`);
   const accountSet = new Set(
     accountList
       .filter(({ vault_id }) => vault_id === null)
@@ -580,9 +594,8 @@ async function checkTotalSupply(
       });
     }
   }
-  const data = (await Registry.getAnalyticsRegistry().getView(
-    network,
-    'ExternalLendingHistory'
+  const data = (await fetchFromRegistry<ExternalLendingHistoryQuery>(
+    `${network}/views/ExternalLendingHistory`
   )) as unknown as ExternalLendingHistoryQuery;
 
   for (const e of data.externalLendings) {
@@ -771,9 +784,8 @@ async function monitorRelayerBalances(network: Network) {
 }
 
 async function checkSubgraphBlockNumber(network: Network) {
-  const meta = (await Registry.getAnalyticsRegistry().getView(
-    network,
-    'SubgraphMeta'
+  const meta = (await fetchFromRegistry<MetaQuery>(
+    `${network}/views/SubgraphMeta`
   )) as unknown as MetaQuery;
 
   await logger.submitMetrics({
@@ -815,11 +827,17 @@ async function checkSubgraphBlockNumber(network: Network) {
 }
 
 async function checkRiskServiceUpdates(network: Network) {
-  const vaultRisk = await this.env.VIEW_CACHE_R2.head(
-    `${network}/accounts/vaultRisk`
+  const vaultRisk = await getS3().send(
+    new GetObjectCommand({
+      Bucket: 'view-cache-r2',
+      Key: `${network}/accounts/vaultRisk`,
+    })
   );
-  const portfolioRisk = await this.env.VIEW_CACHE_R2.head(
-    `${network}/accounts/portfolioRisk`
+  const portfolioRisk = await getS3().send(
+    new GetObjectCommand({
+      Bucket: 'view-cache-r2',
+      Key: `${network}/accounts/portfolioRisk`,
+    })
   );
   if (!vaultRisk || !portfolioRisk) {
     throw new Error(
@@ -827,8 +845,8 @@ async function checkRiskServiceUpdates(network: Network) {
     );
   }
   const lastUpdated = Math.min(
-    vaultRisk.uploaded.getTime() / 1000,
-    portfolioRisk.uploaded.getTime() / 1000
+    (vaultRisk.LastModified?.getTime() || 0) / 1000,
+    (portfolioRisk.LastModified?.getTime() || 0) / 1000
   );
   await logger.submitMetrics({
     series: [
@@ -863,8 +881,82 @@ async function checkRiskServiceUpdates(network: Network) {
   }
 }
 
-async function saveTotalsData() {
-  const kpi = Registry.getAnalyticsRegistry().getKPIs();
+function getKPIs(accounts: Record<Network, AccountDefinition[]>) {
+  const totalValueLocked = SupportedNetworks.reduce((t, n) => {
+    return (
+      t +
+      getNetworkModel(n)
+        .getAllTokens()
+        .filter(
+          (t) =>
+            t.tokenType === 'PrimeDebt' ||
+            t.tokenType === 'PrimeCash' ||
+            t.tokenType === 'VaultShare'
+        )
+        .reduce(
+          (acc, token) =>
+            acc +
+            (token.tokenType === 'PrimeDebt'
+              ? token.totalSupply?.toFiat('USD').neg().toFloat() || 0
+              : token.totalSupply?.toFiat('USD').toFloat() || 0),
+          0
+        )
+    );
+  }, 0);
+
+  const totalOpenDebt = SupportedNetworks.reduce((t, n) => {
+    return (
+      t +
+      getNetworkModel(n)
+        .getAllTokens()
+        .filter(
+          (t) =>
+            t.tokenType === 'PrimeDebt' ||
+            // Non-Matured fCash
+            (t.tokenType === 'fCash' &&
+              t.isFCashDebt === false &&
+              t.maturity &&
+              getNowSeconds() < t.maturity)
+        )
+        .reduce((acc, token) => {
+          let value = token.totalSupply?.toFiat('USD').toFloat() || 0;
+          if (token.tokenType === 'fCash' && token.currencyId) {
+            const m = getNetworkModel(token.network).getfCashMarket(
+              token.currencyId
+            );
+
+            // Take the net of the total debt outstanding and the debt held by the nToken
+            value =
+              value +
+              (m.poolParams.nTokenFCash
+                .find((t) => t.tokenId === token.id)
+                ?.toFiat('USD')
+                .toFloat() || 0);
+          }
+
+          return acc + value;
+        }, 0)
+    );
+  }, 0);
+
+  const totalAccounts = SupportedNetworks.reduce(
+    (t, n) =>
+      t +
+      accounts[n].filter(
+        (a) => (a.balances?.filter((b) => !b.isZero()) || []).length > 0
+      ).length,
+    0
+  );
+
+  return {
+    totalDeposits: totalValueLocked + totalOpenDebt,
+    totalOpenDebt,
+    totalAccounts,
+  };
+}
+
+async function saveTotalsData(accounts: Record<Network, AccountDefinition[]>) {
+  const kpi = getKPIs(accounts);
   await getS3().send(
     new PutObjectCommand({
       Bucket: 'view-cache-r2',
@@ -913,12 +1005,12 @@ async function saveTotalsData() {
 }
 
 async function checkVaultReinvestments(network: Network) {
-  const reinvestments =
-    Registry.getAnalyticsRegistry().getVaultReinvestments(network);
+  await getNetworkModel(network).fetchAnalyticsData('vaultReinvestment');
+  const reinvestments = getNetworkModel(network).analytics.vaultReinvestment;
   const oneHourAgo = getNowSeconds() - SECONDS_IN_HOUR;
 
   for (const [vaultAddress, reinvestmentList] of Object.entries(
-    reinvestments
+    reinvestments?.entries() || []
   )) {
     for (const reinvestment of reinvestmentList) {
       if (reinvestment.timestamp < oneHourAgo) continue;
