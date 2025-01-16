@@ -42,6 +42,29 @@ async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
     await putStorageKey(env, `${network}/snapshot`, data);
   }, env);
   await networkModel.refresh(true);
+
+  const oracles = {
+    network,
+    values: Array.from(networkModel.oracles.entries()).map(([key, value]) => [
+      key,
+      value,
+    ]),
+    lastUpdateTimestamp: networkModel.lastUpdated,
+    lastUpdateBlock: networkModel.lastUpdatedBlock,
+  };
+
+  const vaults = {
+    network,
+    values: Array.from(networkModel.vaults.entries()).map(([key, value]) => [
+      key,
+      value,
+    ]),
+    lastUpdateTimestamp: networkModel.lastUpdated,
+    lastUpdateBlock: networkModel.lastUpdatedBlock,
+  };
+
+  await putStorageKey(env, `${network}/oracles`, JSON.stringify(oracles));
+  await putStorageKey(env, `${network}/vaults`, JSON.stringify(vaults));
 }
 
 export default {

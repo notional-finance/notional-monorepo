@@ -7,14 +7,103 @@ import {
   getNowSeconds,
   decodeERC1155Id,
   isERC1155Id,
+  SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
-// import { BigNumber } from 'ethers';
+
+import { getNetworkModel } from '../../Models';
+import { fetchGraph } from '../../server/server-registry';
+import { BigNumberish, BigNumber } from 'ethers';
+import { loadGraphClientDeferred } from '../../server/server-registry';
+import { BalanceStatement, HistoricalBalance } from '../../Definitions';
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { BalanceSnapshot, Token } from '../../.graphclient';
-import { getNetworkModel } from '../../Models';
-import { BigNumberish, BigNumber } from 'ethers';
+
+export async function fetchHistoricalBalances(
+  network: Network,
+  account: string,
+  subgraphApiKey: string,
+  minTimestamp = getNowSeconds() - 30 * SECONDS_IN_DAY
+) {
+  const { AccountHoldingsHistoricalDocument } = await loadGraphClientDeferred();
+  return await fetchGraph(
+    network,
+    AccountHoldingsHistoricalDocument,
+    (r): Record<string, HistoricalBalance[]> => {
+      // These are the balances of any tokens that do not have
+      // a snapshot in the time range (meaning their balance did)
+      // not change during the time span
+      const current =
+        r.account?.balances
+          ?.filter(({ current }) => current.timestamp < minTimestamp)
+          .map(({ current, token }) => ({
+            timestamp: current.timestamp,
+            balance: parseGraphBalanceToTokenBalance(
+              current.currentBalance,
+              token.id,
+              network
+            ),
+          })) || [];
+
+      const snapshots =
+        r.account?.balances?.flatMap(({ snapshots, token }) => {
+          return (
+            snapshots?.map(({ timestamp, currentBalance }) => ({
+              timestamp,
+              balance: parseGraphBalanceToTokenBalance(
+                currentBalance,
+                token.id,
+                network
+              ),
+            })) || []
+          );
+        }) || [];
+
+      return {
+        [account]: snapshots.concat(current),
+      };
+    },
+    subgraphApiKey,
+    {
+      accountId: account.toLowerCase(),
+      minTimestamp,
+    }
+  );
+}
+
+export async function fetchBalanceStatements(
+  network: Network,
+  account: string,
+  subgraphApiKey: string
+) {
+  const { AccountBalanceStatementDocument } = await loadGraphClientDeferred();
+  return await fetchGraph(
+    network,
+    AccountBalanceStatementDocument,
+    (r): Record<string, BalanceStatement[]> => {
+      return {
+        [account]:
+          r.account?.balances
+            ?.filter(({ token }) => !!token.underlying)
+            .map(({ current, token }) => {
+              if (!token.underlying) throw Error('Unknown underlying');
+              return {
+                ...parseCurrentBalanceStatement(
+                  current as BalanceSnapshot,
+                  token as Token,
+                  network
+                ),
+              };
+            }) || [],
+      };
+    },
+    subgraphApiKey,
+    {
+      accountId: account.toLowerCase(),
+    }
+  );
+}
 
 /**
  * Subgraph stores debt balances as positive numbers so need to flip the sign here

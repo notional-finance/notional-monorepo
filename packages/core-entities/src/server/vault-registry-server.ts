@@ -19,8 +19,7 @@ import {
 import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { DeprecatedVaults } from './vault-overrides';
-import { ClientRegistry } from '../client/client-registry';
-import { CacheSchema, getVaultType } from '..';
+import { CacheSchema, fetchFromRegistry, getVaultType } from '..';
 
 function getBaseProtocol(boosterProtocol: string) {
   switch (boosterProtocol) {
@@ -106,8 +105,9 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             );
       vaultConfigurations = data['data'].vaultConfigurations;
     } catch (e) {
-      const response = await ClientRegistry.fetch<CacheSchema<VaultMetadata>>(
-        `${NX_REGISTRY_URL}/${network}/vaults`
+      const response = await fetchFromRegistry<CacheSchema<VaultMetadata>>(
+        `${network}/vaults`,
+        NX_REGISTRY_URL
       );
       vaultConfigurations = response.values
         .filter(([_, p]) => p !== null)

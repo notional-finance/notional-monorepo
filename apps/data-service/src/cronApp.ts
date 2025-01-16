@@ -1,8 +1,8 @@
 import { Request, Response } from '@google-cloud/functions-framework';
 import DataService from './DataService';
-import { calculateAccountRisks, calculatePointsAccrued } from './RiskService';
+import { calculateAccountRisks } from './RiskService';
 import { syncDune } from './DuneService';
-import { Network, ONE_HOUR_MS } from '@notional-finance/util';
+import { ONE_HOUR_MS } from '@notional-finance/util';
 import { logToDataDog, parseQueryParams } from './util';
 
 export default async function (req: Request, res: Response) {
@@ -17,15 +17,6 @@ export default async function (req: Request, res: Response) {
     switch (req.path) {
       case '/calculateRisk':
         await calculateAccountRisks();
-        res.status(200).send('OK');
-        break;
-      case '/calculatePoints':
-        await dataService.insertPointsData(
-          await calculatePointsAccrued(
-            Network.arbitrum,
-            queryParams.blockNumber
-          )
-        );
         res.status(200).send('OK');
         break;
       case '/syncDune':

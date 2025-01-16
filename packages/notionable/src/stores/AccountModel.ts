@@ -12,9 +12,11 @@ import {
   AccountDefinition,
   CacheSchema,
   NotionalTypes,
-  AccountRegistryClient,
   TokenDefinitionModel,
+  fetchBalanceStatements,
   fetchCurrentAccount,
+  fetchHistoricalBalances,
+  fetchTransactionHistory,
 } from '@notional-finance/core-entities';
 import { RootStoreInterface } from './root-store';
 import { TradeModel } from './TradeModel';
@@ -222,9 +224,9 @@ export const AccountModel = types
         self.lastUpdateTimestamp = result.lastUpdateTimestamp;
       }
 
-      yield fetchBalanceStatements();
+      yield fetchStatements();
       yield fetchAccountHistory();
-      yield fetchHistoricalBalances();
+      yield fetchHistoryBalances();
 
       const endTime = performance.now();
       console.log(
@@ -235,13 +237,11 @@ export const AccountModel = types
     });
 
     const fetchAccountHistory = flow(function* () {
-      const history = (yield AccountRegistryClient.fetchTransactionHistory(
+      const history = (yield fetchTransactionHistory(
         self.network,
         self.address,
         NX_SUBGRAPH_API_KEY
-      )) as Awaited<
-        ReturnType<typeof AccountRegistryClient.fetchTransactionHistory>
-      >;
+      )) as Awaited<ReturnType<typeof fetchTransactionHistory>>;
 
       self.accountHistory.replace(
         history.finalResults[self.address].map((v) => ({
@@ -251,15 +251,12 @@ export const AccountModel = types
       );
     });
 
-    const fetchBalanceStatements = flow(function* () {
-      const balanceStatements =
-        (yield AccountRegistryClient.fetchBalanceStatements(
-          self.network,
-          self.address,
-          NX_SUBGRAPH_API_KEY
-        )) as Awaited<
-          ReturnType<typeof AccountRegistryClient.fetchBalanceStatements>
-        >;
+    const fetchStatements = flow(function* () {
+      const balanceStatements = (yield fetchBalanceStatements(
+        self.network,
+        self.address,
+        NX_SUBGRAPH_API_KEY
+      )) as Awaited<ReturnType<typeof fetchBalanceStatements>>;
 
       self.balanceStatement.replace(
         balanceStatements.finalResults[self.address].map((v) => ({
@@ -269,15 +266,12 @@ export const AccountModel = types
       );
     });
 
-    const fetchHistoricalBalances = flow(function* () {
-      const historicalBalances =
-        (yield AccountRegistryClient.fetchHistoricalBalances(
-          self.network,
-          self.address,
-          NX_SUBGRAPH_API_KEY
-        )) as Awaited<
-          ReturnType<typeof AccountRegistryClient.fetchHistoricalBalances>
-        >;
+    const fetchHistoryBalances = flow(function* () {
+      const historicalBalances = (yield fetchHistoricalBalances(
+        self.network,
+        self.address,
+        NX_SUBGRAPH_API_KEY
+      )) as Awaited<ReturnType<typeof fetchHistoricalBalances>>;
 
       self.historicalBalances.replace(
         historicalBalances.finalResults[self.address]
@@ -286,9 +280,6 @@ export const AccountModel = types
 
     return {
       refreshAccount,
-      fetchAccountHistory,
-      fetchBalanceStatements,
-      fetchHistoricalBalances,
       setProvider: (p: providers.Provider) => {
         provider = p;
       },

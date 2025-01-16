@@ -10,9 +10,9 @@ import { Network } from '@notional-finance/util';
 import { NetworkModel } from '../NetworkModel';
 import { ethers } from 'ethers';
 import { TokenBalance } from '../../token-balance';
-import { ClientRegistry } from '../../client/client-registry';
 import { Instance } from 'mobx-state-tree';
 import { TokenViews } from './TokenViews';
+import { reviver } from '../../client';
 
 export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
   self: Instance<typeof NetworkModel>,
@@ -28,7 +28,7 @@ export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
   const PoolClass = PoolClasses[poolDefinition.PoolClass] as PoolConstructor;
   const poolParams = JSON.parse(
     poolDefinition.latestPoolData.poolParams,
-    ClientRegistry.reviver
+    reviver
   );
 
   return new PoolClass(

@@ -3,11 +3,9 @@ export * from './Definitions';
 export * from './Matchers';
 export * from './exchanges';
 export * from './vaults';
-export { AccountRegistryClient } from './client';
 export * from './config/fiat-config';
 export * from './server';
-export * from './client/accounts';
-export { ClientRegistry } from './client/client-registry';
+export * from './client';
 export type { ServerRegistry } from './server/server-registry';
 export type { GraphDocument } from './server/analytics-server';
 export {
