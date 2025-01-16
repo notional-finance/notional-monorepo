@@ -14,6 +14,7 @@ import {
   decodeERC1155Id,
   firstValue,
   getNowSeconds,
+  getProviderFromNetwork,
   isERC1155Id,
   Logger,
   MetricType,
@@ -69,7 +70,7 @@ export async function calculateAccountRisks() {
   await Promise.all(
     SupportedNetworks.filter((n) => n !== Network.all).map(async (n) => {
       const { portfolioRiskProfiles, vaultRiskProfiles } =
-        saveAccountRiskProfiles(n);
+        saveAccountRiskProfiles(accounts);
       try {
         await getS3().send(
           new PutObjectCommand({
@@ -97,9 +98,8 @@ export async function executeMonitoring() {
     if (network === Network.all) continue;
     // TODO: fetch the account list here
     await Promise.all([
-      checkAccountList(network),
-      checkTotalSupply(network),
-      saveYieldData(network),
+      checkAccountList(network, accounts),
+      checkTotalSupply(network, accounts),
       monitorRelayerBalances(network),
       checkSubgraphBlockNumber(network),
       checkRiskServiceUpdates(network),
@@ -109,11 +109,10 @@ export async function executeMonitoring() {
   await saveTotalsData();
 }
 
-function saveAccountRiskProfiles(network: Network) {
-  // TODO: need to get all accounts from the registry
-  const accounts = Registry.getAccountRegistry()
-    .getAllSubjectKeys(network)
-    .map((a) => Registry.getAccountRegistry().getLatestFromSubject(network, a))
+function saveAccountRiskProfiles(accounts: AccountDefinition[]) {
+  const vaultRiskProfiles: ReturnType<typeof getVaultRiskFactors> = [];
+
+  const portfolioRiskProfiles = accounts
     .filter((account) => {
       // Only return accounts that have some balance
       return (
@@ -121,11 +120,7 @@ function saveAccountRiskProfiles(network: Network) {
         (account.balances.length > 0 ||
           !account.balances.every((b) => b.isZero()))
       );
-    }) as AccountDefinition[];
-
-  const vaultRiskProfiles: ReturnType<typeof getVaultRiskFactors> = [];
-
-  const portfolioRiskProfiles = accounts
+    })
     .map((account) => {
       try {
         const accountRiskProfile = new AccountRiskProfile(
@@ -192,7 +187,10 @@ function getVaultRiskFactors(account: AccountDefinition) {
   );
 }
 
-async function checkAccountList(network: Network) {
+async function checkAccountList(
+  network: Network,
+  accounts: AccountDefinition[]
+) {
   const accountList = await Registry.getAnalyticsRegistry().getView<{
     account_id: string;
     vault_id: string | null;
@@ -210,11 +208,9 @@ async function checkAccountList(network: Network) {
       )
   );
   // NOTE: this includes accounts with only NOTE tokens
-  const subgraphAccounts = Registry.getAccountRegistry()
-    .getAllSubjectKeys(network)
-    .map((a) => Registry.getAccountRegistry().getLatestFromSubject(network, a))
-    .filter((acct) => !!acct)
-    .filter((acct) => acct.systemAccountType === 'None');
+  const subgraphAccounts = accounts.filter(
+    (acct) => acct.systemAccountType === 'None'
+  );
 
   let accountsMissingInList = 0;
   let vaultAccountsMissingInList = 0;
@@ -340,9 +336,12 @@ async function checkAccountList(network: Network) {
   });
 }
 
-async function checkTotalSupply(network: Network) {
-  const tokens = Registry.getTokenRegistry()
-    .getAllTokens(network)
+async function checkTotalSupply(
+  network: Network,
+  accounts: AccountDefinition[]
+) {
+  const tokens = getNetworkModel(network)
+    .getAllTokens()
     .filter(
       (t) =>
         !!t.currencyId &&
@@ -351,12 +350,9 @@ async function checkTotalSupply(network: Network) {
         t.tokenType !== 'VaultDebt'
     );
 
-  const accounts = Registry.getAccountRegistry();
   const maturedBalances = new Map<string, TokenBalance>();
-  const totalBalances = accounts.getAllSubjectKeys(network).reduce((m, a) => {
-    (
-      accounts.getLatestFromSubject(network, a) as AccountDefinition
-    ).balances.forEach((_b) => {
+  const totalBalances = accounts.reduce((m, a) => {
+    a.balances.forEach((_b) => {
       if (_b.isZero()) return m;
 
       if (_b.tokenType === 'VaultDebt') {
@@ -399,12 +395,8 @@ async function checkTotalSupply(network: Network) {
     return m;
   }, new Map<string, TokenBalance>());
 
-  const settlementReserveBalances = (
-    accounts.getLatestFromSubject(
-      network,
-      SETTLEMENT_RESERVE
-    ) as AccountDefinition
-  ).balances;
+  const settlementReserveBalances =
+    accounts.find((a) => a.address === SETTLEMENT_RESERVE)?.balances || [];
   const pCashpDebt = tokens.filter(
     (t) => t.tokenType === 'PrimeCash' || t.tokenType === 'PrimeDebt'
   );
@@ -521,13 +513,9 @@ async function checkTotalSupply(network: Network) {
     }
   }
 
-  const config = Registry.getConfigurationRegistry();
-  const allVaults = config.getAllListedVaults(network) || [];
+  const allVaults = getNetworkModel(network).getAllListedVaults() || [];
   for (const v of allVaults) {
-    const { totalUsedPrimaryBorrowCapacity } = config.getVaultCapacity(
-      network,
-      v.vaultAddress
-    );
+    const totalUsedPrimaryBorrowCapacity = v.totalUsedPrimaryBorrowCapacity;
     const totalComputedBorrows = Array.from(totalBalances.keys())
       .filter((k) => isERC1155Id(k))
       .filter((k) => {
@@ -602,7 +590,7 @@ async function checkTotalSupply(network: Network) {
       e.underlying.id,
       network
     ).add(
-      TokenBalance.fromID(
+      new TokenBalance(
         // Takes the most recent external lending snapshot
         e.externalSnapshots?.shift()?.storedBalanceOfUnderlying || 0,
         e.underlying.id,
@@ -610,12 +598,10 @@ async function checkTotalSupply(network: Network) {
       )
     );
 
-    const pCash = Registry.getTokenRegistry().getPrimeCash(
-      network,
+    const pCash = getNetworkModel(network).getPrimeCash(
       underlyingHeld.currencyId
     );
-    const pDebt = Registry.getTokenRegistry().getPrimeDebt(
-      network,
+    const pDebt = getNetworkModel(network).getPrimeDebt(
       underlyingHeld.currencyId
     );
     if (!pCash.totalSupply || !pDebt.totalSupply)
@@ -875,29 +861,15 @@ async function checkRiskServiceUpdates(network: Network) {
   }
 }
 
-async function saveYieldData(network: Network) {
-  const allYields = Registry.getYieldRegistry().getAllYields(network);
-  await this.putStorageKey(`${network}/yields`, JSON.stringify(allYields));
-  await logger.submitMetrics({
-    series: [
-      {
-        metric: 'registry.data.yields',
-        points: [
-          {
-            value: allYields.length,
-            timestamp: getNowSeconds(),
-          },
-        ],
-        tags: [`network:${network}`],
-        type: MetricType.Gauge,
-      },
-    ],
-  });
-}
-
 async function saveTotalsData() {
   const kpi = Registry.getAnalyticsRegistry().getKPIs();
-  await this.putStorageKey(`all/kpi`, JSON.stringify(kpi));
+  await getS3().send(
+    new PutObjectCommand({
+      Bucket: 'view-cache-r2',
+      Key: `all/kpi`,
+      Body: JSON.stringify(kpi),
+    })
+  );
 
   await logger.submitMetrics({
     series: [
@@ -942,20 +914,17 @@ async function checkVaultReinvestments(network: Network) {
   const reinvestments =
     Registry.getAnalyticsRegistry().getVaultReinvestments(network);
   const oneHourAgo = getNowSeconds() - SECONDS_IN_HOUR;
-  const config = Registry.getConfigurationRegistry();
 
   for (const [vaultAddress, reinvestmentList] of Object.entries(
     reinvestments
   )) {
     for (const reinvestment of reinvestmentList) {
       if (reinvestment.timestamp < oneHourAgo) continue;
-      const vault = config.getVaultConfig(network, vaultAddress);
-      const rewardToken = Registry.getTokenRegistry().getTokenByID(
-        network,
+      const vault = getNetworkModel(network).getVaultConfig(vaultAddress);
+      const rewardToken = getNetworkModel(network).getTokenByID(
         reinvestment.rewardTokenSold.id
       );
-      const borrowCurrency = Registry.getTokenRegistry().getTokenByID(
-        network,
+      const borrowCurrency = getNetworkModel(network).getTokenByID(
         vault.primaryBorrowCurrency.id
       );
 
