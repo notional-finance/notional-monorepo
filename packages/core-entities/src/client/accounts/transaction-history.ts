@@ -7,9 +7,38 @@ import {
 import { getNetworkModel } from '../../Models';
 import { parseGraphBalanceToTokenBalance } from './balance-statement';
 import { AccountHistory, TokenDefinition } from '../../Definitions';
+import {
+  fetchGraph,
+  loadGraphClientDeferred,
+} from '../../server/server-registry';
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ProfitLossLineItem, Transaction } from '../../.graphclient';
+
+export async function fetchTransactionHistory(
+  network: Network,
+  account: string,
+  subgraphApiKey: string
+) {
+  const { AccountTransactionHistoryDocument } = await loadGraphClientDeferred();
+  return await fetchGraph(
+    network,
+    AccountTransactionHistoryDocument,
+    (r): Record<string, AccountHistory[]> => {
+      return {
+        [account]: r.transactions
+          ?.map((t) => {
+            return parseTransaction(t as Transaction, network);
+          })
+          .flatMap((_) => _),
+      };
+    },
+    subgraphApiKey,
+    {
+      accountId: account.toLowerCase(),
+    }
+  );
+}
 
 export function parseTransaction(
   t: Transaction,

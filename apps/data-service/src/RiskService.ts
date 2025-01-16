@@ -1,5 +1,6 @@
 import {
   AccountDefinition,
+  fetchBatchAccounts,
   getNetworkModel,
   TokenBalance,
 } from '@notional-finance/core-entities';
@@ -69,6 +70,7 @@ export function getS3() {
 export async function calculateAccountRisks() {
   await Promise.all(
     SupportedNetworks.filter((n) => n !== Network.all).map(async (n) => {
+      const accounts = await fetchBatchAccounts(n, SUBGRAPH_API_KEY);
       const { portfolioRiskProfiles, vaultRiskProfiles } =
         saveAccountRiskProfiles(accounts);
       try {
@@ -96,7 +98,7 @@ export async function calculateAccountRisks() {
 export async function executeMonitoring() {
   for (const network of SupportedNetworks) {
     if (network === Network.all) continue;
-    // TODO: fetch the account list here
+    const accounts = await fetchBatchAccounts(network, SUBGRAPH_API_KEY);
     await Promise.all([
       checkAccountList(network, accounts),
       checkTotalSupply(network, accounts),

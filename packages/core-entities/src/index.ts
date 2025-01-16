@@ -3,7 +3,6 @@ export * from './Definitions';
 export * from './Matchers';
 export * from './exchanges';
 export * from './vaults';
-export { AccountRegistryClient } from './client';
 export * from './config/fiat-config';
 export * from './server';
 export * from './client/accounts';
