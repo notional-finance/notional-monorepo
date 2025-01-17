@@ -1,25 +1,27 @@
 import { Caption, CountUp, H4, H5 } from '@notional-finance/mui';
-import { useBorrowTerms } from './use-borrow-terms';
+import { useLeveragedBorrowTerms } from './use-leveraged-borrow-terms';
 import { Box, Checkbox, styled, useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 
-export const BorrowTerms = observer(() => {
+export const LeveragedBorrowTerms = observer(() => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
   const { debt } = trade?.selectedTokens || {};
-  const { borrowOptions, onSelect } = useBorrowTerms();
+  const { borrowOptions, onSelect } = useLeveragedBorrowTerms();
 
   return (
-    <div>
+    <Box>
       {borrowOptions.map((option, i) => {
         const isSelected = option.token.id === debt?.id;
+
         return (
-          <Box>
+          <Box key={option.token.id}>
+            {/* TODO: this is some ugly code */}
             {i === 1 && (
               <H5 sx={{ paddingBottom: theme.spacing(1) }}>
-                {option.optionTitle}
+                {option.termLabel}
               </H5>
             )}
             <BorrowTermsButton
@@ -47,11 +49,12 @@ export const BorrowTerms = observer(() => {
                   }}
                   checked={isSelected}
                 />
+                {/* This is the total apy */}
                 <H4>
                   <CountUp
-                    value={option.largeCaption}
-                    suffix={option?.largeCaptionSuffix}
-                    decimals={option?.largeCaptionDecimals || 2}
+                    value={option.totalAPY}
+                    suffix={option.totalAPYSuffix}
+                    decimals={option.totalAPYDecimals || 2}
                   />
                 </H4>
               </Box>
@@ -66,19 +69,20 @@ export const BorrowTerms = observer(() => {
                 <Box
                   sx={{ fontWeight: 600, color: theme.palette.typography.main }}
                 >
+                  {/* This is the borrow apy */}
                   <CountUp
-                    value={option.largeFigure}
-                    suffix={option.largeFigureSuffix}
-                    decimals={option.largeFigureDecimals || 2}
+                    value={option.borrowAPY}
+                    suffix={option.borrowAPYSuffix}
+                    decimals={option.borrowAPYDecimals || 2}
                   />
                 </Box>
-                <Caption>{option.caption}</Caption>
+                <Caption>{option.termCaption}</Caption>
               </Box>
             </BorrowTermsButton>
           </Box>
         );
       })}
-    </div>
+    </Box>
   );
 });
 
@@ -106,4 +110,4 @@ const BorrowTermsButton = styled(Box, {
   `
 );
 
-export default BorrowTerms;
+export default LeveragedBorrowTerms;

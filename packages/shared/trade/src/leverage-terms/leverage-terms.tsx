@@ -8,7 +8,7 @@ import {
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import React from 'react';
 import { formatLeverageRatio } from '@notional-finance/helpers';
-import { BorrowTerms } from '../borrow-terms/borrow-terms';
+import { BorrowTerms } from '../leveraged-borrow-terms/leveraged-borrow-terms';
 import { LeverageSlider } from '../leverage-slider/leverage-slider';
 import { useNavigate } from 'react-router-dom';
 
