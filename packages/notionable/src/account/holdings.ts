@@ -144,8 +144,14 @@ export function calculateHoldings(
       new TokenBalance(0, 'USD', Network.all)
     );
 
-    const totalEarningsWithIncentives = statement?.totalProfitAndLoss
-      .toFiat('USD')
+    const earnings =
+      statement?.token.tokenType === 'PrimeDebt' ||
+      statement?.token.isFCashDebt === true
+        ? statement?.totalProfitAndLoss.neg()
+        : statement?.totalProfitAndLoss;
+
+    const totalEarningsWithIncentives = earnings
+      ?.toFiat('USD')
       .add(totalIncentiveEarnings);
 
     const positionEstablished = historicalBalances
@@ -181,7 +187,7 @@ export function calculateHoldings(
       totalAtMaturity,
       impliedFixedRate: statement?.impliedFixedRate,
       amountPaid: statement?.accumulatedCostRealized,
-      earnings: statement?.totalProfitAndLoss,
+      earnings,
       marketProfitLoss: totalEarningsWithIncentives?.sub(
         statement?.totalInterestAccrual.toFiat('USD') ||
           new TokenBalance(0, 'USD', Network.all)
