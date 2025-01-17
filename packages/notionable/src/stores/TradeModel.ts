@@ -459,13 +459,15 @@ export const TradeModel = types
         self.tradeType === 'CreateVaultPosition'
       ) {
         self.debtOptions.replace(
-          self.availableDebtTokens.map((t) => ({
-            token: t,
-            balance: TokenBalance.zero(t as TokenDefinition),
-            interestRate: model.getSpotAPY(t.id).totalAPY,
-            error: undefined,
-            utilization: undefined,
-          }))
+          self.availableDebtTokens
+            .map((t) => ({
+              token: t,
+              balance: TokenBalance.zero(t as TokenDefinition),
+              interestRate: model.getSpotAPY(t.id).totalAPY,
+              error: undefined,
+              utilization: undefined,
+            }))
+            .sort((a, b) => sortByMaturity(a.token, b.token))
         );
         self.collateralOptions.replace(
           self.availableCollateralTokens.map((t) => {
@@ -1685,6 +1687,8 @@ export const TradeModel = types
         };
 
       const leverageOptions = self.debtOptions?.map((debt) => {
+        // TODO: The collateral balance changes depending on the maturity of the debt, this
+        // causes the APY to change when the maturity changes. (only occurs for leveraged liquidity)
         const collateralBalance =
           self.collateralOptions.find((c) => c.token.id === self.collateral?.id)
             ?.balance || TokenBalance.zero(self.collateral as TokenDefinition);
@@ -1696,16 +1700,27 @@ export const TradeModel = types
         const debtBalance =
           debt.balance || TokenBalance.zero(debt.token as TokenDefinition);
 
-        return {
-          ...model.getLeveragedAPY(
+        try {
+          const leveragedAPY = model.getLeveragedAPY(
             isSwapped ? debtBalance : collateralBalance,
             isSwapped ? collateralBalance : debtBalance,
             self.leverageRatio || self.defaultLeverageRatio || 0
-          ),
-          isVariableRate,
-          debt,
-          error: debt.error,
-        };
+          );
+
+          return {
+            ...leveragedAPY,
+            isVariableRate,
+            debt,
+            error: debt.error,
+          };
+        } catch (e) {
+          console.error(e);
+          return {
+            isVariableRate,
+            debt,
+            error: (e as Error).toString(),
+          };
+        }
       });
 
       return {
@@ -1922,16 +1937,7 @@ function computeDebtOptions(
   return (
     options
       // Sorts debt options so that the variable rate option is first
-      .sort((a, b) => {
-        return (
-          (a.maturity === undefined || a.maturity === PRIME_CASH_VAULT_MATURITY
-            ? 0
-            : a.maturity) -
-          (b.maturity === undefined || b.maturity === PRIME_CASH_VAULT_MATURITY
-            ? 0
-            : b.maturity)
-        );
-      })
+      .sort(sortByMaturity)
       .map((d) => {
         const i = { ...inputs, debt: d };
         try {
@@ -2069,4 +2075,16 @@ function _getTradedInterestRate(
         : undefined,
     utilization,
   };
+}
+
+/** Sorts tokens so that variable rate (undefined/PRIME_CASH_VAULT_MATURITY) options appear first */
+function sortByMaturity<T extends { maturity?: number }>(a: T, b: T) {
+  return (
+    (a.maturity === undefined || a.maturity === PRIME_CASH_VAULT_MATURITY
+      ? 0
+      : a.maturity) -
+    (b.maturity === undefined || b.maturity === PRIME_CASH_VAULT_MATURITY
+      ? 0
+      : b.maturity)
+  );
 }

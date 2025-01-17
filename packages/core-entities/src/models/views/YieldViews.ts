@@ -398,7 +398,13 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   ): APYData => {
     const collateralAPY = collateralAmount.isZero()
       ? getSpotAPY(collateralAmount.tokenId)
-      : getSimulatedAPY(collateralAmount);
+      : getSimulatedAPY(
+          collateralAmount,
+          collateralAmount.token.tokenType === 'nToken' &&
+            debtAmount.token.tokenType === 'PrimeDebt'
+            ? debtAmount
+            : undefined
+        );
     const debtAPY = debtAmount.isZero()
       ? getSpotAPY(debtAmount.tokenId)
       : getSimulatedAPY(debtAmount);
