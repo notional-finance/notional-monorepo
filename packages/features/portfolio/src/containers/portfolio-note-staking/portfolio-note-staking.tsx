@@ -13,7 +13,6 @@ import { usePortfolioSNOTETable, usePortfolioNOTETable } from '../../hooks';
 import { Box, useTheme, styled } from '@mui/material';
 import { formatNumberAsPercent, lastValue } from '@notional-finance/util';
 import { useStakedNoteData } from '@notional-finance/notionable-hooks';
-import { useConnect } from '@notional-finance/wallet';
 import { observer } from 'mobx-react-lite';
 
 const PortfolioNoteStaking = () => {
@@ -21,7 +20,6 @@ const PortfolioNoteStaking = () => {
   const { columns, data, initialState, setExpandedRows, noStakedNoteData } =
     usePortfolioSNOTETable();
   const { noteColumns, noteData, initialNoteState } = usePortfolioNOTETable();
-  const { isReadOnlyAddress } = useConnect();
   const stakedNoteData = useStakedNoteData();
   const currentSNOTEYield = stakedNoteData
     ? lastValue(stakedNoteData)?.apy || 0
@@ -47,9 +45,7 @@ const PortfolioNoteStaking = () => {
 
   return (
     <Box>
-      {noStakedNoteData && noteData.length === 0 && !isReadOnlyAddress && (
-        <EmptyPortfolio />
-      )}
+      {noStakedNoteData && noteData.length === 0 && <EmptyPortfolio />}
       {noStakedNoteData && (
         <Box sx={{ marginBottom: theme.spacing(3) }}>
           <Banner

@@ -56,7 +56,7 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
           requiredState: {
             tradeType: 'LeveragedNToken',
             debt: debt || defaultDebtToken,
-            leverageRatio: defaultLeverageRatio,
+            leverageRatio: trade?.leverageRatio || defaultLeverageRatio,
           },
         },
         {

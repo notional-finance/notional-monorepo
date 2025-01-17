@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   Allowance,
   getNetworkModel,
@@ -28,9 +28,15 @@ import {
 import { useSelectedNetwork } from './use-network';
 
 export function useSubmitTxn() {
-  const { submitTxn } = useWalletStore();
+  const { submitTxn, clearTransaction } = useWalletStore();
   const selectedNetwork = useSelectedNetwork();
   const [{ wallet }] = useConnectWallet();
+
+  useEffect(() => {
+    // When the component unmounts, clear the transaction
+    clearTransaction();
+  }, [clearTransaction]);
+
   return useCallback(
     (
       transactionLabel: string,

@@ -1,5 +1,4 @@
 import {
-  APYData,
   fCashMarket,
   getVaultType,
   NotionalTypes,
@@ -21,6 +20,7 @@ import {
   NOTETradeType,
   TokenOption,
   getTradeConfig,
+  isDeleverageTrade,
 } from '../base-trade/base-trade-store';
 import {
   flow,
@@ -459,13 +459,15 @@ export const TradeModel = types
         self.tradeType === 'CreateVaultPosition'
       ) {
         self.debtOptions.replace(
-          self.availableDebtTokens.map((t) => ({
-            token: t,
-            balance: TokenBalance.zero(t as TokenDefinition),
-            interestRate: model.getSpotAPY(t.id).totalAPY,
-            error: undefined,
-            utilization: undefined,
-          }))
+          self.availableDebtTokens
+            .map((t) => ({
+              token: t,
+              balance: TokenBalance.zero(t as TokenDefinition),
+              interestRate: model.getSpotAPY(t.id).totalAPY,
+              error: undefined,
+              utilization: undefined,
+            }))
+            .sort((a, b) => sortByMaturity(a.token, b.token))
         );
         self.collateralOptions.replace(
           self.availableCollateralTokens.map((t) => {
@@ -1671,61 +1673,73 @@ export const TradeModel = types
       }
     };
 
-    const getAPYFactors = () => {
+    const getLeverageOptions = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
       const isSwapped = isDeleverageWithSwappedTokens({
         tradeType: self.tradeType,
         collateral: self.collateral as TokenDefinition | undefined,
       });
 
-      try {
-        if (self.vaultAddress) {
-          const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
-          const totalAPY = postVaultRisk?.totalAPY || priorVaultRisk?.totalAPY;
-          const leverageRatio =
-            postVaultRisk?.leverageRatio() || priorVaultRisk?.leverageRatio();
-          const assetAPY =
-            postVaultRisk?.strategyAPY || priorVaultRisk?.strategyAPY;
-          const debtAPY = postVaultRisk?.borrowAPY || priorVaultRisk?.borrowAPY;
-          const vaultShareId =
-            self.collateral?.id || priorVaultRisk?.vaultShares?.tokenId;
-          const apy = vaultShareId ? model.getSpotAPY(vaultShareId) : undefined;
-          const apySpread =
-            assetAPY !== undefined && debtAPY !== undefined
-              ? assetAPY - debtAPY
-              : undefined;
+      if (!self.collateralOptions && !self.collateral)
+        return {
+          leverageOptions: [],
+          selectedLeverageOption: undefined,
+        };
+
+      const leverageOptions = self.debtOptions?.map((debt) => {
+        // TODO: The collateral balance changes depending on the maturity of the debt, this
+        // causes the APY to change when the maturity changes. (only occurs for leveraged liquidity)
+        const collateralBalance =
+          self.collateralOptions.find((c) => c.token.id === self.collateral?.id)
+            ?.balance || TokenBalance.zero(self.collateral as TokenDefinition);
+
+        const isVariableRate =
+          debt.token.maturity === PRIME_CASH_VAULT_MATURITY ||
+          debt.token.maturity === undefined;
+
+        const debtBalance =
+          debt.balance || TokenBalance.zero(debt.token as TokenDefinition);
+
+        try {
+          const leveragedAPY = model.getLeveragedAPY(
+            isSwapped ? debtBalance : collateralBalance,
+            isSwapped ? collateralBalance : debtBalance,
+            self.leverageRatio || self.defaultLeverageRatio || 0
+          );
 
           return {
-            totalAPY,
-            leverageRatio,
-            debtAPY,
-            assetAPY,
-            apySpread,
-            organicAPY: leveragedYield(apy?.organicAPY, debtAPY, leverageRatio),
-            incentiveAPY: leveragedYield(
-              apy?.incentiveAPY,
-              debtAPY,
-              leverageRatio
-            ),
-          } as APYData;
-        } else if (isLeveragedTrade(self.tradeType) || isSwapped) {
-          if (self.collateral && self.debt && self.leverageRatio) {
-            // If all inputs are available then we can calculate the leveraged APY
-            const collateralBalance =
-              self.collateralBalance ||
-              TokenBalance.zero(self.collateral as TokenDefinition);
-            const debtBalance =
-              self.debtBalance ||
-              TokenBalance.zero(self.debt as TokenDefinition);
-            return model.getLeveragedAPY(
-              isSwapped ? debtBalance : collateralBalance,
-              isSwapped ? collateralBalance : debtBalance,
-              self.leverageRatio
-            );
-          } else {
-            // The collateral and debt should always be defined for leveraged trades
-            return undefined;
-          }
+            ...leveragedAPY,
+            isVariableRate,
+            debt,
+            error: debt.error,
+          };
+        } catch (e) {
+          console.error(e);
+          return {
+            isVariableRate,
+            debt,
+            error: (e as Error).toString(),
+          };
+        }
+      });
+
+      return {
+        leverageOptions,
+        selectedLeverageOption: leverageOptions.find(
+          (o) => o.debt.token.id === self.debt?.id
+        ),
+      };
+    };
+
+    const getAPYFactors = () => {
+      const model = root().getNetworkClient(self.selectedNetwork);
+
+      try {
+        if (
+          isDeleverageTrade(self.tradeType) ||
+          isLeveragedTrade(self.tradeType)
+        ) {
+          return getLeverageOptions().selectedLeverageOption;
         } else if (self.collateralBalance) {
           return model.getSimulatedAPY(self.collateralBalance);
         } else if (self.debtBalance) {
@@ -1813,6 +1827,7 @@ export const TradeModel = types
       },
       getLeveragedNTokenPositions,
       getNetBalances,
+      getLeverageOptions,
       getAPYFactors,
       getRiskSummary,
       getVaultRiskSummary,
@@ -1919,49 +1934,55 @@ function computeDebtOptions(
   tradeType: AllTradeTypes | undefined,
   model: NetworkClientModelType
 ) {
-  return options.map((d) => {
-    const i = { ...inputs, debt: d };
-    try {
-      if (isVaultTrade(tradeType)) {
-        // Switch to the matching vault share token for vault trades
-        if (!d.vaultAddress || !d.maturity) throw Error('Invalid debt token');
-        i['collateral'] = model.getVaultShare(d.vaultAddress, d.maturity);
-      }
+  return (
+    options
+      // Sorts debt options so that the variable rate option is first
+      .sort(sortByMaturity)
+      .map((d) => {
+        const i = { ...inputs, debt: d };
+        try {
+          if (isVaultTrade(tradeType)) {
+            // Switch to the matching vault share token for vault trades
+            if (!d.vaultAddress || !d.maturity)
+              throw Error('Invalid debt token');
+            i['collateral'] = model.getVaultShare(d.vaultAddress, d.maturity);
+          }
 
-      const { debtBalance, netRealizedDebtBalance } = calculationFn(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        i as any
-      ) as {
-        debtFee: TokenBalance;
-        debtBalance: TokenBalance;
-        netRealizedDebtBalance: TokenBalance;
-      };
+          const { debtBalance, netRealizedDebtBalance } = calculationFn(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            i as any
+          ) as {
+            debtFee: TokenBalance;
+            debtBalance: TokenBalance;
+            netRealizedDebtBalance: TokenBalance;
+          };
 
-      return {
-        token: d as Instance<typeof TokenDefinitionModel>,
-        balance: debtBalance,
-        error: undefined,
-        ..._getTradedInterestRate(
-          netRealizedDebtBalance,
-          debtBalance,
-          fCashMarket,
-          tradeType,
-          undefined, // Vault Adapter is not used for debt
-          model,
-          undefined // No vault trade metadata for debt
-        ),
-      };
-    } catch (e) {
-      console.error(e);
-      return {
-        token: d as Instance<typeof TokenDefinitionModel>,
-        balance: undefined,
-        interestRate: undefined,
-        utilization: undefined,
-        error: (e as Error).toString(),
-      };
-    }
-  });
+          return {
+            token: d as Instance<typeof TokenDefinitionModel>,
+            balance: debtBalance,
+            error: undefined,
+            ..._getTradedInterestRate(
+              netRealizedDebtBalance,
+              debtBalance,
+              fCashMarket,
+              tradeType,
+              undefined, // Vault Adapter is not used for debt
+              model,
+              undefined // No vault trade metadata for debt
+            ),
+          };
+        } catch (e) {
+          console.error(e);
+          return {
+            token: d as Instance<typeof TokenDefinitionModel>,
+            balance: undefined,
+            interestRate: undefined,
+            utilization: undefined,
+            error: (e as Error).toString(),
+          };
+        }
+      })
+  );
 }
 
 function _getTradedInterestRate(
@@ -2054,4 +2075,16 @@ function _getTradedInterestRate(
         : undefined,
     utilization,
   };
+}
+
+/** Sorts tokens so that variable rate (undefined/PRIME_CASH_VAULT_MATURITY) options appear first */
+function sortByMaturity<T extends { maturity?: number }>(a: T, b: T) {
+  return (
+    (a.maturity === undefined || a.maturity === PRIME_CASH_VAULT_MATURITY
+      ? 0
+      : a.maturity) -
+    (b.maturity === undefined || b.maturity === PRIME_CASH_VAULT_MATURITY
+      ? 0
+      : b.maturity)
+  );
 }

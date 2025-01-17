@@ -29,7 +29,7 @@ export const VaultActionSideDrawer = observer(() => {
     action?: string;
   }>();
   const trade = useCurrentTradeContext();
-  const { deposit } = trade?.selectedTokens ?? {};
+  const { deposit, debt, collateral } = trade?.selectedTokens ?? {};
   const defaultLeverageRatio = trade?.defaultLeverageRatio;
   const { debt: availableDebtTokens, collateral: availableCollateralTokens } =
     trade?.availableTokens ?? {};
@@ -72,8 +72,8 @@ export const VaultActionSideDrawer = observer(() => {
             tradeType: 'CreateVaultPosition',
             leverageRatio: trade?.leverageRatio || defaultLeverageRatio,
             maxWithdraw: false,
-            debt: defaultDebtToken,
-            collateral: defaultCollateralToken,
+            debt: debt || defaultDebtToken,
+            collateral: collateral || defaultCollateralToken,
           },
         },
         {

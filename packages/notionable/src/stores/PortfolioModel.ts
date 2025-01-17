@@ -262,11 +262,16 @@ const _AccountPortfolioModel = types
     };
 
     const maxVaultWithdraw = (vaultAddress: string) => {
-      return new VaultAccountRiskProfile(
-        vaultAddress,
-        self.balances,
-        self.vaultLastUpdateTime?.get(vaultAddress) || 0
-      ).maxWithdraw();
+      try {
+        return new VaultAccountRiskProfile(
+          vaultAddress,
+          self.balances,
+          self.vaultLastUpdateTime?.get(vaultAddress) || 0
+        ).maxWithdraw();
+      } catch {
+        // NOTE: this can happen after the vault is fully withdrawn
+        return undefined;
+      }
     };
 
     const getRepayAmounts = (baseCurrency: FiatKeys) => {

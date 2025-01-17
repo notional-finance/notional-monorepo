@@ -37,8 +37,7 @@ export function usePerformanceChart(currentPositionFactors?: {
     : _collateral || currentPositionFactors?.vaultShare;
   const debt = trade?.hasSwappedTokens() ? _collateral : _debt;
   const tradeType = trade?.tradeType;
-  const { collateral: collateralOptions, debt: debtOptions } =
-    trade?.computedOptions || {};
+  const { debt: debtOptions } = trade?.computedOptions || {};
 
   const spotData = useSpotMaturityData(debt ? [debt] : undefined);
   const isVault = isVaultTrade(tradeType);
@@ -48,12 +47,6 @@ export function usePerformanceChart(currentPositionFactors?: {
     // Allow the historical vault borrow rate to be applied here
     currentPositionFactors?.borrowRate ||
     spotData.find((_) => true)?.tradeRate;
-
-  const leveragedLendFixedRate =
-    tradeType === 'LeveragedLend' && collateral?.tokenType === 'fCash'
-      ? collateralOptions?.find((t) => t.token.id === collateral?.id)
-          ?.interestRate
-      : undefined;
 
   // Always use the specified leverage ratio so that this figure matches
   // the header
@@ -65,8 +58,7 @@ export function usePerformanceChart(currentPositionFactors?: {
       ? debt.tokenType === 'PrimeDebt'
       : currentPositionFactors?.isPrimeBorrow || false,
     currentBorrowRate,
-    leverageRatio,
-    leveragedLendFixedRate
+    leverageRatio
   );
   const areaChartData = calculateDepositValue(
     leverageRatio,

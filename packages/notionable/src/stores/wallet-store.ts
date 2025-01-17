@@ -122,13 +122,15 @@ export const WalletModel = types
       return isSanctionedAddress;
     };
 
+    const clearTransaction = () => {
+      self.transactionHash = undefined;
+      self.transactionStatus = TransactionStatus.NONE;
+    };
+
     const setCompletedTransactions = (
       receipt: TransactionReceipt,
       network: Network
     ) => {
-      // Clear the current transaction hash
-      self.transactionHash = undefined;
-      self.transactionStatus = TransactionStatus.NONE;
       self.completedTransactions.push(TransactionReceiptModel.create(receipt));
       self.networkAccounts.get(network)?.refreshPortfolio();
     };
@@ -269,6 +271,7 @@ export const WalletModel = types
 
     return {
       submitTxn,
+      clearTransaction,
       refreshPortfolio,
       setUserWallet,
       setSentTransactions,

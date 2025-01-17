@@ -144,8 +144,14 @@ export function calculateHoldings(
       new TokenBalance(0, 'USD', Network.all)
     );
 
-    const totalEarningsWithIncentives = statement?.totalProfitAndLoss
-      .toFiat('USD')
+    const earnings =
+      statement?.token.tokenType === 'PrimeDebt' ||
+      statement?.token.isFCashDebt === true
+        ? statement?.totalProfitAndLoss.neg()
+        : statement?.totalProfitAndLoss;
+
+    const totalEarningsWithIncentives = earnings
+      ?.toFiat('USD')
       .add(totalIncentiveEarnings);
 
     const positionEstablished = historicalBalances
@@ -181,7 +187,7 @@ export function calculateHoldings(
       totalAtMaturity,
       impliedFixedRate: statement?.impliedFixedRate,
       amountPaid: statement?.accumulatedCostRealized,
-      earnings: statement?.totalProfitAndLoss,
+      earnings,
       marketProfitLoss: totalEarningsWithIncentives?.sub(
         statement?.totalInterestAccrual.toFiat('USD') ||
           new TokenBalance(0, 'USD', Network.all)
@@ -254,20 +260,22 @@ export function calculateGroupedHoldings(
 
           const totalEarnings = (
             assetHoldings.statement?.totalProfitAndLoss || zeroUnderlying
-          ).add(debtHoldings?.statement?.totalProfitAndLoss || zeroUnderlying);
+          ).sub(debtHoldings?.statement?.totalProfitAndLoss || zeroUnderlying);
+
           const totalInterestAccrual = (
             assetHoldings.statement?.totalInterestAccrual || zeroUnderlying
-          ).add(
+          ).sub(
             debtHoldings?.statement?.totalInterestAccrual || zeroUnderlying
           );
           const totalILAndFees = (
             assetHoldings.statement?.totalILAndFees || zeroUnderlying
-          ).add(debtHoldings?.statement?.totalILAndFees || zeroUnderlying);
+          ).sub(debtHoldings?.statement?.totalILAndFees || zeroUnderlying);
+
           const marketProfitLoss = totalEarnings.sub(totalInterestAccrual);
           const amountPaid =
             assetHoldings.statement?.accumulatedCostRealized &&
             debtHoldings?.statement?.accumulatedCostRealized
-              ? assetHoldings.statement?.accumulatedCostRealized.add(
+              ? assetHoldings.statement?.accumulatedCostRealized.sub(
                   debtHoldings.statement?.accumulatedCostRealized
                 )
               : undefined;
@@ -357,7 +365,7 @@ export function calculateVaultHoldings(
     const denom = v.denom(v.defaultSymbol);
     const zeroDenom = TokenBalance.zero(denom);
     const profit = (assetPnL?.totalProfitAndLoss || zeroDenom)
-      .add(debtPnL?.totalProfitAndLoss || zeroDenom)
+      .sub(debtPnL?.totalProfitAndLoss || zeroDenom)
       .add(cashPnL?.totalProfitAndLoss || zeroDenom);
     const vaultYield = model.getSpotAPY(v.vaultShares.tokenId);
     const strategyAPY = vaultYield?.totalAPY || 0;
@@ -367,7 +375,7 @@ export function calculateVaultHoldings(
         : model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
 
     const amountPaid = (assetPnL?.accumulatedCostRealized || zeroDenom)
-      .add(debtPnL?.accumulatedCostRealized || zeroDenom)
+      .sub(debtPnL?.accumulatedCostRealized || zeroDenom)
       .add(cashPnL?.accumulatedCostRealized || zeroDenom);
 
     const leverageRatio = v.leverageRatio() || 0;

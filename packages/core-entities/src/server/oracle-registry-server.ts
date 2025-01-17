@@ -21,7 +21,7 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract, ethers } from 'ethers';
-import { OracleDefinition, CacheSchema } from '..';
+import { OracleDefinition, CacheSchema, SNOTEWeightedPool } from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 import { fiatOracles } from '../config/fiat-config';
 import { TypedDocumentNode } from '@apollo/client/core';
@@ -40,11 +40,32 @@ const VaultABI = new ethers.utils.Interface([
 
 const sNOTE_Pool = '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7';
 
-const sNOTEOracle = `${ZERO_ADDRESS}:${sNOTE_Pool}:sNOTEToETHExchangeRate`;
+export const sNOTEOracle = `${ZERO_ADDRESS}:${sNOTE_Pool}:sNOTEToETHExchangeRate`;
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   public override hasAllNetwork(): boolean {
     return true;
+  }
+
+  public static registerSNOTEOracle(
+    pool: SNOTEWeightedPool,
+    noteETHExchangeRate?: BigNumber
+  ): OracleDefinition {
+    return {
+      id: sNOTEOracle,
+      oracleAddress: sNOTE_Pool,
+      network: Network.mainnet,
+      oracleType: 'sNOTEToETHExchangeRate',
+      base: ZERO_ADDRESS,
+      quote: sNOTE,
+      decimals: 18,
+      latestRate: {
+        blockNumber: 0,
+        timestamp: getNowSeconds(),
+        // Latest rate will get updated in the call below
+        rate: pool.getCurrentSNOTEPrice(noteETHExchangeRate).n,
+      },
+    };
   }
 
   protected async _refresh(network: Network, blockNumber?: number) {

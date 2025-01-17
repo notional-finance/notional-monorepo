@@ -80,8 +80,7 @@ export function useLeveragedPerformance(
   token: TokenDefinition | undefined,
   isPrimeBorrow: boolean,
   currentBorrowRate: number | undefined,
-  leverageRatio: number | null | undefined,
-  leveragedLendFixedRate: number | undefined
+  leverageRatio: number | null | undefined
 ) {
   const currentNetworkStore = useCurrentNetworkStore();
   const primeDebt = token
@@ -93,7 +92,7 @@ export function useLeveragedPerformance(
   if (!token) return [];
   return fillChartDaily(
     tokenAPY?.data?.map((d) => {
-      const totalAPY = leveragedLendFixedRate || d['totalAPY'] || 0;
+      const totalAPY = d['totalAPY'] || 0;
       const borrowRate = isPrimeBorrow
         ? primeBorrowAPY?.data?.find(
             ({ timestamp }) => d.timestamp === timestamp
@@ -242,7 +241,6 @@ export function useAccountHistoryChart(
                   .unwrapVaultToken()
                   .toUnderlying()
                   .toFiat(baseCurrency, floorToMidnight(end))
-                  .neg()
               );
             }, new TokenBalance(0, baseCurrency, Network.all));
 

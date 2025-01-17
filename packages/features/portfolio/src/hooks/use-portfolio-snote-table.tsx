@@ -92,7 +92,7 @@ export function usePortfolioSNOTETable() {
           },
         ],
       },
-      isDebt: true, // NOTE this is just to make sure the value is note red
+      isDebt: true, // NOTE this is just to make sure the value is not red
       totalValue: snoteBalance
         .toFiat(baseCurrency)
         .toDisplayStringWithSymbol(2, true, false),

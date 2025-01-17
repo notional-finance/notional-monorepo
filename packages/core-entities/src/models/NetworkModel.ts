@@ -1,4 +1,8 @@
-import { getNowSeconds, getProviderFromNetwork } from '@notional-finance/util';
+import {
+  getNowSeconds,
+  getProviderFromNetwork,
+  Network,
+} from '@notional-finance/util';
 import { types, flow, getSnapshot, applySnapshot } from 'mobx-state-tree';
 import {
   ConfigurationModel,
@@ -16,7 +20,10 @@ import { Env } from '../server';
 import { TokenRegistryServer } from '../server/token-registry-server';
 import { ConfigurationServer } from '../server/configuration-server';
 import { ExchangeRegistryServer } from '../server/exchange-registry-server';
-import { OracleRegistryServer } from '../server/oracle-registry-server';
+import {
+  OracleRegistryServer,
+  sNOTEOracle,
+} from '../server/oracle-registry-server';
 import { VaultRegistryServer } from '../server/vault-registry-server';
 import { TokenViews } from './views/TokenViews';
 import { VaultViews } from './views/VaultViews';
@@ -163,6 +170,23 @@ export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
     whitelistedVaults(self.network).forEach((vaultAddress) => {
       self.fetchTimeSeriesData(vaultAddress, ChartType.APY);
     });
+
+    // Register the sNOTE oracle price here since it is calculated from the pool
+    if (self.network === Network.mainnet) {
+      const sNOTEPool = self.getSNOTEPool();
+      if (!sNOTEPool) return;
+
+      // The sNOTE price oracle here is the NOTE price, not the sNOTE price, it
+      // will get calculated to the sNOTE price via the method here.
+      const noteETHExchangeRate =
+        self.oracles.get(sNOTEOracle)?.latestRate.rate;
+      const o = OracleRegistryServer.registerSNOTEOracle(
+        sNOTEPool,
+        noteETHExchangeRate
+      );
+      // Register the sNOTE oracle price here
+      self.oracles.set(o.id, o);
+    }
   });
 
   return {
