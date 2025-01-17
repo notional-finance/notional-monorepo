@@ -151,11 +151,21 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
     return this.poolParams.totalSNOTESupply;
   }
 
-  getCurrentSNOTEPrice() {
+  getCurrentSNOTEPrice(noteETHExchangeRate?: BigNumber) {
     const { ethClaim, noteClaim } = this.getCurrentSNOTEClaims(
       TokenBalance.unit(this.sNOTE)
     );
-    return ethClaim.add(noteClaim.toToken(ethClaim.token));
+    if (noteETHExchangeRate) {
+      const noteInETH = TokenBalance.from(
+        noteClaim
+          .scale(noteETHExchangeRate, SCALAR_PRECISION)
+          .scaleTo(ethClaim.decimals),
+        ethClaim.token
+      );
+      return ethClaim.add(noteInETH);
+    }
+
+    return noteClaim.toToken(ethClaim.token);
   }
 
   getCurrentSNOTEClaims(snote: TokenBalance) {
