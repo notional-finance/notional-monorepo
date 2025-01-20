@@ -20,6 +20,7 @@ This is the monorepo for all the Notional finance code. It is split into two mai
 1. Install Dependencies from the root: `yarn install`
 2. Serve the development website: `yarn nx serve web`
    - You will need to create a `web/.env` file
+3. The site will be served at http://localhost:3000
 
 ```
 NX_CONTACT_EMAIL=support@notional.finance
