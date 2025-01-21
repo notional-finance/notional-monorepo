@@ -120,7 +120,8 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
             depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
             // NOTE: debt and collateral will change based on where the requested
             // leverage ratio sits in relation to the current leverage
-            leverageRatio: currentPositionState?.leverageRatio,
+            leverageRatio:
+              trade?.leverageRatio || currentPositionState?.leverageRatio,
           },
         },
         {

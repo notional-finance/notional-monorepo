@@ -19,9 +19,11 @@ export const VaultLeverageSlider = observer(
   ({
     inputLabel,
     sliderInfo,
+    onChange,
   }: {
     inputLabel: MessageDescriptor;
     sliderInfo?: MessageDescriptor;
+    onChange?: (leverageRatio: number) => void;
   }) => {
     const trade = useCurrentTradeContext();
     const netRealizedDebtBalance = trade?.netRealizedDebtBalance;
@@ -121,6 +123,7 @@ export const VaultLeverageSlider = observer(
         cashBorrowed={netRealizedDebtBalance}
         inputLabel={inputLabel}
         additionalSliderInfo={additionalSliderInfo}
+        onChange={onChange}
       />
     );
   }

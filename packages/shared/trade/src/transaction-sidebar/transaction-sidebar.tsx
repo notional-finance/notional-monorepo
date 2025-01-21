@@ -42,6 +42,7 @@ interface TransactionSidebarProps {
   helptext?:
     | MessageDescriptor
     | { defaultMessage: string; values?: Record<string, any> };
+  canSubmitOverride?: boolean;
   children?: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
   requiredApprovalAmount?: TokenBalance;
@@ -78,13 +79,14 @@ const TransactionSidebarComponent = ({
   isWithdraw = false,
   hideTextOnMobile,
   hideActionButtons,
+  canSubmitOverride = true,
 }: TransactionSidebarProps) => {
   const trade = useCurrentTradeContext();
   const setConfirm = trade?.setConfirm;
   const { pathname } = useLocation();
   const [showTxnApprovals, setShowTxnApprovals] = useState(false);
   const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
-  const canSubmit = trade?.canSubmit() ?? false;
+  const canSubmit = canSubmitOverride ? trade?.canSubmit() || false : false;
   const confirm = trade?.confirm;
   const tradeType = trade?.tradeType;
   const selectedNetwork = trade?.selectedNetwork;
