@@ -4,7 +4,7 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { Network, PRODUCTS, RATE_PRECISION } from '@notional-finance/util';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
 import {
   useCurrentNetworkStore,
@@ -115,54 +115,53 @@ export const useSpotMaturityData = (
   tokens: TokenDefinition[] | undefined
 ): MaturityData[] => {
   const currentNetworkStore = useCurrentNetworkStore();
-  const nonLeveragedYields = currentNetworkStore.getAllNonLeveragedYields();
+  return (
+    tokens?.map((t) => {
+      const _t = currentNetworkStore.unwrapVaultToken(t);
+      let spotRate = currentNetworkStore.getSpotAPY(t.id).totalAPY || 0;
+      if (
+        _t.tokenType === 'PrimeDebt' &&
+        t.tokenType === 'VaultDebt' &&
+        t.vaultAddress
+      ) {
+        // Add the vault fee to the debt rate here
+        spotRate +=
+          (currentNetworkStore.getVaultConfig(t.vaultAddress)
+            .feeRateBasisPoints *
+            100) /
+          RATE_PRECISION;
+      }
 
-  return useMemo(() => {
-    return (
-      tokens?.map((t) => {
-        const _t = currentNetworkStore.unwrapVaultToken(t);
-        let spotRate =
-          nonLeveragedYields.find((y) => y.token.id === _t.id)?.apy.totalAPY ||
-          0;
-        if (
-          _t.tokenType === 'PrimeDebt' &&
-          t.tokenType === 'VaultDebt' &&
-          t.vaultAddress
-        ) {
-          // Add the vault fee to the debt rate here
-          spotRate +=
-            (currentNetworkStore.getVaultConfig(t.vaultAddress)
-              .feeRateBasisPoints *
-              100) /
-            RATE_PRECISION;
-        }
-
-        return {
-          token: t,
-          tokenId: t.id,
-          tradeRate: spotRate,
-          maturity: t.maturity || 0,
-        };
-      }) || []
-    );
-  }, [tokens, currentNetworkStore, nonLeveragedYields]);
+      return {
+        token: t,
+        tokenId: t.id,
+        tradeRate: spotRate,
+        maturity: t.maturity || 0,
+      };
+    }) || []
+  );
 };
 
 export function useTradedValue(amount: TokenBalance | undefined) {
-  const fCashMarket = useFCashMarket(amount?.token);
-  const primeCash = usePrimeCash(amount?.currencyId);
-  try {
-    return primeCash
-      ? exchangeToLocalPrime(
-          amount,
-          fCashMarket,
-          primeCash
-        ).localPrime.toUnderlying()
-      : undefined;
-  } catch (e) {
-    console.error(e);
-    return undefined;
+  if (amount?.network) {
+    const model = getNetworkModel(amount.network);
+    const primeCash = model.getPrimeCash(amount.currencyId);
+    const fCashMarket = model.getfCashMarket(amount.currencyId);
+    try {
+      return primeCash
+        ? exchangeToLocalPrime(
+            amount,
+            fCashMarket,
+            primeCash
+          ).localPrime.toUnderlying()
+        : undefined;
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
   }
+
+  return undefined;
 }
 
 export function useFetchAnalyticsData(

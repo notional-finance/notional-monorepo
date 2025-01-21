@@ -20,7 +20,10 @@ export const AdjustLeverage = () => {
   );
 
   return (
-    <TransactionSidebar riskComponent={<LiquidityDetailsTable />}>
+    <TransactionSidebar
+      canSubmitOverride={hasTouched}
+      riskComponent={<LiquidityDetailsTable />}
+    >
       <LeverageSlider
         isDeleverage={isDeleverage}
         showMinMax

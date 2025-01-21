@@ -12,10 +12,11 @@ import { observer } from 'mobx-react-lite';
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
+  canSubmitOverride?: boolean;
 }
 
 export const VaultSideDrawer = observer(
-  ({ children, advancedToggle }: VaultSideDrawerProps) => {
+  ({ children, advancedToggle, canSubmitOverride }: VaultSideDrawerProps) => {
     const navigate = useNavigate();
     const trade = useCurrentTradeContext();
     const vaultAddress = trade?.vaultAddress;
@@ -29,6 +30,7 @@ export const VaultSideDrawer = observer(
 
     return (
       <TransactionSidebar
+        canSubmitOverride={canSubmitOverride}
         showDrawer={false}
         heading={messages[tradeType].heading}
         advancedToggle={advancedToggle}
