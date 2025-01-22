@@ -67,6 +67,7 @@ const PendlePTVaults: Record<Network, string[]> = {
     vaults.mainnet.Pendle_ezETH_25DEC2024,
     vaults.mainnet.Pendle_USDe_25DEC2024,
     vaults.mainnet.Pendle_USDe_26MAR2025,
+    vaults.mainnet.Pendle_sUSDe_28MAY2025,
   ].map(toLowercase),
   [Network.all]: [],
 };
