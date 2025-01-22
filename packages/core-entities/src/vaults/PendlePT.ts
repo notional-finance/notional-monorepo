@@ -80,9 +80,7 @@ export class PendlePT extends VaultAdapter {
   }
 
   get assetToken(): TokenDefinition {
-    return getNetworkModel(this.network).getTokenByID(
-      this.market.assetTokenId
-    );
+    return getNetworkModel(this.network).getTokenByID(this.market.assetTokenId);
   }
 
   getInitialVaultShareValuation(): ExchangeRate {
@@ -132,11 +130,11 @@ export class PendlePT extends VaultAdapter {
       };
     }
 
-    const { poolAddress } =
+    const { depositPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
-    if (poolAddress) {
+    if (depositPoolAddress) {
       const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
-        poolAddress
+        depositPoolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
         (t) =>
@@ -181,11 +179,11 @@ export class PendlePT extends VaultAdapter {
       };
     }
 
-    const { poolAddress } =
+    const { redeemPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
-    if (poolAddress) {
+    if (redeemPoolAddress) {
       const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
-        poolAddress
+        redeemPoolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
         (t) =>
