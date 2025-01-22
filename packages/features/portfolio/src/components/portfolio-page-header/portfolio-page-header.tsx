@@ -36,7 +36,6 @@ const ButtonsContainer = styled(Box)(
   ${theme.breakpoints.down('sm')} {
     justify-content: space-between;
     flex-flow: column;
-    height: ${theme.spacing(21)};
   };`
 );
 const ActionButtonRow = styled(Box)(

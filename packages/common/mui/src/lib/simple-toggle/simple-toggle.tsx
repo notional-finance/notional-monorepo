@@ -59,7 +59,7 @@ export const SimpleToggle = ({
 const Container = styled(Box)(
   ({ theme }) => `
   height: 100%;
-  background: ${theme.palette.background.paper};
+  background: ${theme.palette.background.button};
   border-radius: ${theme.shape.borderRadius()};
 `
 );
@@ -79,7 +79,7 @@ const StyledTabs = styled(Tabs)(
   
   .MuiTabs-indicator {
     z-index: 1;
-    background: ${theme.palette.info.light};
+    background: ${theme.palette.info.dark};
     border-radius: ${theme.shape.borderRadius()};
     height: 100%;
   };
@@ -93,7 +93,7 @@ const StyledTab = styled(Tab)(
   ({ theme }) => `
   height: 100%;
   font-family: ${theme.typography.fontFamily};
-  color: ${theme.palette.typography.light};
+  color: ${theme.palette.typography.contrastText};
   font-weight: 500;
   z-index: 2;
   transition-delay: 0s;
@@ -117,9 +117,9 @@ const StyledTab = styled(Tab)(
     .stroke-icon {
       stroke: ${theme.palette.typography.main};
     }
-    color: ${theme.palette.typography.main};
+    color: ${theme.palette.typography.contrastText};
     div {
-      color: ${theme.palette.typography.main};
+      color: ${theme.palette.typography.contrastText};
     }
   }
 `

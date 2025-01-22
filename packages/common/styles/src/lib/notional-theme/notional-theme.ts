@@ -118,6 +118,7 @@ declare module '@mui/material/styles' {
   interface TypeBackground {
     accentPaper: string;
     accentDefault: string;
+    button: string;
   }
 
   interface TypographyVariants {
@@ -722,13 +723,15 @@ const getThemeData = (
             ? colors.matteGreen
             : colors.lightGrey,
         contrastText:
-          themeVariant === THEME_VARIANTS.LIGHT
-            ? colors.white
-            : colors.black,
+          themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
         light:
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.iceWhite
             : colors.black,
+        button:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.lightGrey
+            : colors.matteGreen,
       },
       borders: {
         paper:
@@ -743,6 +746,7 @@ const getThemeData = (
         accentPaper: colors.secondaryGrey,
         contrastText: colors.greenGrey,
         light: colors.greenGrey,
+        button: colors.lightGrey,
       },
       charts: {
         main:

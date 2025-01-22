@@ -1,5 +1,12 @@
 import { ReactNode, useRef, useState, SetStateAction, Dispatch } from 'react';
-import { Table, TableContainer, Paper, useTheme, Box } from '@mui/material';
+import {
+  Table,
+  TableContainer,
+  Paper,
+  useTheme,
+  Box,
+  useMediaQuery,
+} from '@mui/material';
 import { SxProps } from '@mui/material/styles';
 import { ArrowIcon } from '@notional-finance/icons';
 import { DataTableFilterBar } from './data-table-filter-bar/data-table-filter-bar';
@@ -114,6 +121,7 @@ export const DataTable = ({
   sx,
 }: DataTableProps) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [viewAllRows, setViewAllRows] = useState<boolean>(!hideExcessRows);
   const table = useReactTable({
     columns,
@@ -194,7 +202,7 @@ export const DataTable = ({
         >
           <Box
             sx={{
-              display: width < 700 ? 'none' : 'block',
+              display: isMobile ? 'none' : 'block',
               color: accentCSV
                 ? colors.neonTurquoise
                 : theme.palette.typography.accent,
@@ -239,7 +247,7 @@ export const DataTable = ({
                 width: '100%',
                 boxShadow: 'none',
                 border: theme.shape.borderStandard,
-                borderRadius: theme.shape.borderRadius(),
+                borderRadius: isMobile ? '0' : theme.shape.borderRadius(),
                 overflow: !tableReady
                   ? 'hidden'
                   : filterBarData && filterBarData.length > 0

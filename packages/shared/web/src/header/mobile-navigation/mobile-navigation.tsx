@@ -1,4 +1,12 @@
-import { Tab, Tabs, Drawer, Box, useTheme, styled } from '@mui/material';
+import {
+  Tab,
+  Tabs,
+  Drawer,
+  Box,
+  useTheme,
+  styled,
+  useMediaQuery,
+} from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { SyntheticEvent } from 'react';
@@ -86,6 +94,7 @@ export const MobileNavigation = observer(() => {
   const [selectedTab, setSelectedTab] = useState<string | false>(false);
   const [mainNavOpen, setMainNavOpen] = useState<boolean>(false);
   const { currentSideDrawerKey } = useSideDrawerState();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const currentTab = mobileNavLinks.find(({ link }) => link === pathname);
 
@@ -128,7 +137,7 @@ export const MobileNavigation = observer(() => {
     setDrawerOpen(true);
   };
 
-  return window.innerWidth <= theme.breakpoints.values.sm ? (
+  return isMobile ? (
     <Box
       sx={{
         background: theme.palette.background.paper,

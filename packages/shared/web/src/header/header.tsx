@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Toolbar, Box, useTheme, ThemeProvider, styled } from '@mui/material';
+import {
+  Toolbar,
+  Box,
+  useTheme,
+  ThemeProvider,
+  styled,
+  useMediaQuery,
+} from '@mui/material';
 import { AppBar, AppBarProps, Body, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
 import {
@@ -29,22 +36,25 @@ import { update } from '@intercom/messenger-js-sdk';
 export interface HeaderProps extends AppBarProps {}
 
 export function Header({ children }: HeaderProps) {
-  const [isTop, setIsTop] = useState(true);
-  const selectedNetwork = useSelectedNetwork();
-  const [hideError, setHideError] = useState(false);
-  const { setIsMobileView, isMobileView } = useAppStore();
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const hideSubGraphError = getFromLocalStorage('hideSubGraphError');
-  const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
-  const contestTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
   const appTheme = useTheme();
   const { pathname } = useLocation();
+  const contestTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
+  const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
+  const selectedNetwork = useSelectedNetwork();
+  const hideSubGraphError = getFromLocalStorage('hideSubGraphError');
+
   const theme =
     pathname === '/' || pathname === '/note'
       ? landingTheme
       : pathname.includes('contest') || pathname.includes('points-dashboard')
       ? contestTheme
       : appTheme;
+
+  const [isTop, setIsTop] = useState(true);
+
+  const [hideError, setHideError] = useState(false);
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const { navLinks } = useNavLinks(false, theme);
   const networkAccounts = useWalletNetworkAccounts();
 
@@ -63,18 +73,10 @@ export function Header({ children }: HeaderProps) {
   };
 
   useEffect(() => {
-    if (window.innerWidth <= 768 && !isMobileView) {
-      setIsMobileView(true);
+    if (isMobile) {
       update({ hideDefaultLauncher: true });
-    } else if (window.innerWidth > 768 && isMobileView) {
-      setIsMobileView(false);
     }
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [setIsMobileView, isMobileView]);
+  }, [isMobile]);
 
   useEffect(() => {
     if (pathname === '/') {

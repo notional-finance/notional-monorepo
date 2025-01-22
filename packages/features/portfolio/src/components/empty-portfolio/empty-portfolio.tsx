@@ -28,7 +28,7 @@ export const EmptyPortfolio = () => {
   const { category } = useParams<PortfolioParams>();
   const { messages, link, callback } = useEmptyPortfolio();
   return (
-    <Box>
+    <Box marginX={2}>
       {category === PORTFOLIO_CATEGORIES.NOTE_STAKING ? (
         <Banner
           messages={noteBanner.messages}

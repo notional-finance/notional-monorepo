@@ -1,4 +1,4 @@
-import { DataTable } from '@notional-finance/mui';
+import { DataTable, SimpleToggle } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import {
   useTxnHistoryTable,
@@ -6,12 +6,15 @@ import {
   useTxnHistoryDropdowns,
   useTxnHistoryData,
 } from './hooks';
-import { Box } from '@mui/material';
+import { Box, styled, useMediaQuery, useTheme } from '@mui/material';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { PortfolioPageHeader } from '../../components';
 import { observer } from 'mobx-react-lite';
 
 export const PortfolioTransactionHistory = observer(() => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const rightToggleData = useTxnHistoryCategory();
   const txnHistoryCategory = rightToggleData?.toggleKey || 0;
 
@@ -41,6 +44,17 @@ export const PortfolioTransactionHistory = observer(() => {
 
   return (
     <Box>
+      {isMobile && (
+        <ToggleContainer>
+          {rightToggleData && (
+            <SimpleToggle
+              tabLabels={rightToggleData.toggleOptions}
+              selectedTabIndex={rightToggleData.toggleKey}
+              onChange={(_, v) => rightToggleData.setToggleKey(v as number)}
+            />
+          )}
+        </ToggleContainer>
+      )}
       <PortfolioPageHeader
         category={PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}
       />
@@ -58,5 +72,11 @@ export const PortfolioTransactionHistory = observer(() => {
     </Box>
   );
 });
+
+const ToggleContainer = styled(Box)(
+  ({ theme }) => `
+    margin: ${theme.spacing(2)} ${theme.spacing(2)} 0;
+  `
+);
 
 export default PortfolioTransactionHistory;
