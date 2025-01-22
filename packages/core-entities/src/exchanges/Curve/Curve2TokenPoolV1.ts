@@ -76,6 +76,12 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
         method: 'admin_fee',
         key: 'adminFee',
       },
+      {
+        stage: 0,
+        target: pool,
+        method: 'fee',
+        key: 'fee',
+      },
     ]);
 
     if (this.LP_TOKEN_ADDRESS) {

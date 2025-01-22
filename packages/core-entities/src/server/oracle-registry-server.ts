@@ -17,11 +17,15 @@ import {
   SCALAR_PRECISION,
   sNOTE,
   WETHAddress,
-  vaults,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract, ethers } from 'ethers';
-import { OracleDefinition, CacheSchema, SNOTEWeightedPool } from '..';
+import {
+  OracleDefinition,
+  CacheSchema,
+  SNOTEWeightedPool,
+  PendlePTVaults,
+} from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 import { fiatOracles } from '../config/fiat-config';
 import { TypedDocumentNode } from '@apollo/client/core';
@@ -143,11 +147,8 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               quote: v.quote.id,
               quoteCurrencyId: v.quote.currencyId,
               decimals:
-                // Override these two vault addresses b/c the decimals are not right in the subgraph
-                v.oracleAddress ===
-                  vaults.mainnet.Pendle_USDe_25DEC2024.toLowerCase() ||
-                v.oracleAddress ===
-                  vaults.mainnet.Pendle_USDe_26MAR2025.toLowerCase()
+                // Override PT vault addresses b/c the decimals are not right in the subgraph
+                PendlePTVaults[network].includes(v.oracleAddress)
                   ? 18
                   : v.decimals,
               latestRate: {

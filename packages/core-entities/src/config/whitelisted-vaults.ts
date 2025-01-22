@@ -58,7 +58,7 @@ export const PointsLinks: Record<Network, Record<string, string>> = {
 const toLowercase = <T extends string>(s: T): Lowercase<T> =>
   s.toLowerCase() as Lowercase<T>;
 
-const PendlePTVaults: Record<Network, string[]> = {
+export const PendlePTVaults: Record<Network, string[]> = {
   [Network.arbitrum]: [
     vaults.arbitrum.Pendle_rsETH_25SEP2024,
     vaults.arbitrum.Pendle_rsETH_26DEC2024,
