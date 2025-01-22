@@ -75,7 +75,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return (
       model
         // Include disabled vaults here in case the account still has a position
-        .getAllListedVaults(true)
+        .getAllListedVaults(true, true)
         ?.map(({ vaultAddress }) => {
           if (DeprecatedVaults.includes(vaultAddress.toLowerCase()))
             return undefined;

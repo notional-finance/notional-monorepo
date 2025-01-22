@@ -1,7 +1,7 @@
 import { Network } from '@notional-finance/util';
 import { PoolDefinition } from '..';
 
-const registerTokensMap = {
+export const registerTokensMap = {
   mainnet: {
     'sNOTE-BPT': '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7' as const,
     PayPool: '0x383E6b4437b59fff47B619CBA855CA29342A8559' as const,
@@ -577,7 +577,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: registerTokensMap[Network.mainnet]['3Pool'],
-      PoolClass: 'Curve2TokenPoolV1',
+      PoolClass: 'Curve3Pool',
       registerTokens: [
         {
           id: registerTokensMap[Network.mainnet]['3PoolLP'],

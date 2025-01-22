@@ -1,5 +1,5 @@
 import { ERC20ABI } from '@notional-finance/contracts';
-import { AggregateCall } from '@notional-finance/multicall';
+import { AggregateCall, NO_OP } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
@@ -7,36 +7,24 @@ import { TokenBalance } from '../../token-balance';
 export function getCommonCurveAggregateCall(
   network: Network,
   poolAddress: string,
-  pool: Contract
+  pool: Contract,
+  N_COINS: number
 ): AggregateCall[] {
   return [
-    {
+    ...Array.from({ length: N_COINS }, (_, i) => ({
       stage: 0,
       target: pool,
       method: 'coins',
-      key: 'coins_0',
-      args: [0],
-    },
-    {
-      stage: 0,
-      target: pool,
-      method: 'coins',
-      key: 'coins_1',
-      args: [1],
-    },
-    {
+      key: `coins_${i}`,
+      args: [i],
+    })),
+    ...Array.from({ length: N_COINS }, (_, i) => ({
       stage: 0,
       target: pool,
       method: 'balances',
-      key: 'balances_0',
-      args: [0],
-    },
-    {
-      stage: 0,
-      target: pool,
-      method: 'fee',
-      key: 'fee',
-    },
+      key: `balances_${i}`,
+      args: [i],
+    })),
     {
       stage: 1,
       target: (r) =>
@@ -51,16 +39,20 @@ export function getCommonCurveAggregateCall(
     },
     {
       stage: 1,
-      target: pool,
-      method: 'balances',
-      args: [1],
+      target: NO_OP,
+      method: NO_OP,
       key: 'balances',
-      transform: (r: BigNumber, ar) => {
-        const coins = [
-          ar[`${poolAddress}.coins_0`],
-          ar[`${poolAddress}.coins_1`],
-        ];
-        return [ar[`${poolAddress}.balances_0`] as BigNumber, r].map((b, i) => {
+      transform: (_, ar) => {
+        const coins = Array.from(
+          { length: N_COINS },
+          (_, i) => ar[`${poolAddress}.coins_${i}`]
+        );
+        const balances = Array.from(
+          { length: N_COINS },
+          (_, i) => ar[`${poolAddress}.balances_${i}`] as BigNumber
+        );
+
+        return balances.map((b, i) => {
           return TokenBalance.toJSON(b, coins[i] as string, network);
         });
       },
