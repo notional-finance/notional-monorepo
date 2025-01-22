@@ -29,7 +29,6 @@ export async function fetchBatchAccounts(
         skip: 0,
         startId: ACCOUNT_ID_RANGES[i],
         endId: ACCOUNT_ID_RANGES[i + 1],
-        blockNumber,
       }
     );
 

@@ -186,9 +186,9 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
 
     return {
       incentiveEmissionRate,
-      lastAccumulatedTime: config.incentives?.lastAccumulatedTime as
-        | number
-        | undefined,
+      lastAccumulatedTime: config.incentives
+        ? Number(config.incentives?.lastAccumulatedTime)
+        : undefined,
       accumulatedNOTEPerNToken,
     };
   };
