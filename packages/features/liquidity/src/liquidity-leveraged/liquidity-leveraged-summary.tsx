@@ -7,7 +7,7 @@ import {
 } from '@notional-finance/trade';
 import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useLeveragedLiquidityFaq, useTotalsData } from './hooks';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -22,16 +22,25 @@ export const LiquidityLeveragedSummary = observer(() => {
   const trade = useCurrentTradeContext();
   const { pathname } = useLocation();
   const selectedDepositToken = trade?.selectedTokens?.deposit.symbol || '';
-  const { currentHoldings } = trade?.getLeveragedNTokenPositions() || {};
+  const { currentHoldings, currentAPYFactors } =
+    trade?.getLeveragedNTokenPositions() || {};
   const { totalsData } = useTotalsData();
   const { faqs, faqHeaderLinks } =
     useLeveragedLiquidityFaq(selectedDepositToken);
   const currentLiquidationPrice = usePortfolioLiquidationPrices(
     trade?.selectedNetwork
   )?.find((p) => p.asset === currentHoldings?.asset.balance.token.id);
+  const { action } = useParams<{
+    action?: string;
+  }>();
 
   return (
-    <TradeActionSummary isLeveragedNToken>
+    <TradeActionSummary
+      isLeveragedNToken
+      currentPositionAPYFactors={
+        action === 'Manage' ? currentAPYFactors : undefined
+      }
+    >
       <PerformanceChart
         currentPositionFactors={{
           collateralToken: currentHoldings?.asset.balance.token,

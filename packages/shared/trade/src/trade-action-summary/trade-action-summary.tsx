@@ -29,15 +29,22 @@ import {
 } from '@notional-finance/helpers';
 import { MultiTokenIcon } from '@notional-finance/icons';
 import { observer } from 'mobx-react-lite';
+import { APYData } from '@notional-finance/core-entities';
 
 interface TradeActionSummaryProps {
   stakedNOTEApy?: number;
   isLeveragedNToken?: boolean;
+  currentPositionAPYFactors?: APYData;
   children?: ReactNode | ReactNode[];
 }
 
 export const TradeActionSummary = observer(
-  ({ stakedNOTEApy, isLeveragedNToken, children }: TradeActionSummaryProps) => {
+  ({
+    stakedNOTEApy,
+    isLeveragedNToken,
+    currentPositionAPYFactors,
+    children,
+  }: TradeActionSummaryProps) => {
     const theme = useTheme();
     const trade = useCurrentTradeContext();
     const tradeType = trade?.tradeType;
@@ -52,7 +59,6 @@ export const TradeActionSummary = observer(
     const vaultAddress = trade?.vaultAddress;
     const isVault = !!vaultAddress;
     const vaultConfig = useVaultProperties(vaultAddress);
-    const apyFactors = trade?.getAPYFactors();
 
     const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
     const headerText =
@@ -60,7 +66,9 @@ export const TradeActionSummary = observer(
       (isLeveragedNToken
         ? defineMessage({ defaultMessage: 'Manage Leveraged Liquidity' })
         : defineMessage({ defaultMessage: 'unknown' }));
-    const isLeveraged = isLeveragedTrade(tradeType) || isVault;
+    const isLeveraged =
+      isLeveragedNToken || isLeveragedTrade(tradeType) || isVault;
+    const apyFactors = currentPositionAPYFactors || trade?.getAPYFactors();
     const vaultType = isVault ? vaultConfig?.vaultType : undefined;
     const points = useVaultPoints(vaultAddress);
     const rewardTokens = useVaultRewardTokens(vaultAddress);

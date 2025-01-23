@@ -1487,6 +1487,7 @@ export const TradeModel = types
 
     const getLeveragedNTokenPositions = () => {
       const account = root().getNetworkAccount(self.selectedNetwork);
+      const model = root().getNetworkClient(self.selectedNetwork);
       const groupedHoldings = account?.groupedHoldings;
       if (!groupedHoldings) {
         return {
@@ -1514,6 +1515,13 @@ export const TradeModel = types
         ({ asset }) =>
           asset.balance.underlying.symbol === self.selectedDepositToken
       );
+      const currentAPYFactors = currentHoldings
+        ? model.getLeveragedAPY(
+            currentHoldings?.asset.balance,
+            currentHoldings?.debt.balance,
+            currentHoldings?.leverageRatio
+          )
+        : undefined;
 
       return {
         isLoading: false,
@@ -1521,6 +1529,7 @@ export const TradeModel = types
         depositTokensWithPositions,
         currentHoldings,
         nTokenPositions,
+        currentAPYFactors,
       };
     };
 
