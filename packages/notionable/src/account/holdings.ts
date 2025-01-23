@@ -16,6 +16,7 @@ import {
   NetworkClientModel,
   BalanceStatement,
   AccountHistory,
+  createLeveragedAPYData,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { Instance } from 'mobx-state-tree';
@@ -368,8 +369,7 @@ export function calculateVaultHoldings(
       .sub(debtPnL?.totalProfitAndLoss || zeroDenom)
       .add(cashPnL?.totalProfitAndLoss || zeroDenom);
     const vaultYield = model.getSpotAPY(v.vaultShares.tokenId);
-    const strategyAPY = vaultYield?.totalAPY || 0;
-    const borrowAPY =
+    const debtAPY =
       debtPnL?.impliedFixedRate !== undefined
         ? debtPnL.impliedFixedRate
         : model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
@@ -380,7 +380,6 @@ export function calculateVaultHoldings(
 
     const leverageRatio = v.leverageRatio() || 0;
     const { maxLeverageRatio } = model.getLeverageRatios(v.vaultShares.token);
-    const totalAPY = leveragedYield(strategyAPY, borrowAPY, leverageRatio);
 
     const totalInterestAccrual = (assetPnL?.totalInterestAccrual || zeroDenom)
       .add(debtPnL?.totalInterestAccrual || zeroDenom)
@@ -428,13 +427,11 @@ export function calculateVaultHoldings(
       totalAssets: v.totalAssets(),
       totalDebt: v.totalDebt(),
       maxLeverageRatio,
-      totalAPY,
-      borrowAPY,
+      apyData: createLeveragedAPYData(vaultYield, debtAPY, leverageRatio),
+      leverageRatio,
       amountPaid,
-      strategyAPY,
       profit,
       underlying: denom.symbol,
-      leverageRatio,
       vaultYield,
       marketProfitLoss,
       totalILAndFees,
@@ -460,11 +457,11 @@ export function calculateAccountCurrentFactors(
   const { weightedYield, netWorth, debts, assets } = vaults.reduce(
     (
       { weightedYield, netWorth, debts, assets },
-      { totalAPY, totalAssets: a, totalDebt: d, netWorth: _w }
+      { apyData, totalAssets: a, totalDebt: d, netWorth: _w }
     ) => {
       const w = _w.toFiat(baseCurrency).toFloat();
       return {
-        weightedYield: weightedYield + (totalAPY || 0) * w,
+        weightedYield: weightedYield + (apyData?.totalAPY || 0) * w,
         netWorth: netWorth.add(_w.toFiat(baseCurrency)),
         debts: debts.add(d.toFiat(baseCurrency)),
         assets: assets.add(a.toFiat(baseCurrency)),

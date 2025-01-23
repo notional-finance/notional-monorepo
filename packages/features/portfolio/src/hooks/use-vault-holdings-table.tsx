@@ -366,10 +366,8 @@ export const useVaultHoldingsTable = () => {
         name,
         maturity,
         underlying,
-        totalAPY,
         amountPaid,
-        strategyAPY,
-        borrowAPY,
+        apyData,
         leverageRatio,
         maxLeverageRatio,
         totalAssets,
@@ -388,11 +386,11 @@ export const useVaultHoldingsTable = () => {
       const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
         {
           label: <FormattedMessage defaultMessage={'Borrow APY'} />,
-          value: formatNumberAsPercent(borrowAPY, 2),
+          value: formatNumberAsPercent(apyData?.debtAPY || 0, 2),
         },
         {
           label: <FormattedMessage defaultMessage={'Strategy APY'} />,
-          value: formatNumberAsPercent(strategyAPY, 2),
+          value: formatNumberAsPercent(apyData?.assetAPY || 0, 2),
         },
         {
           label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
@@ -404,7 +402,7 @@ export const useVaultHoldingsTable = () => {
                 justifyContent: 'space-between',
               }}
             >
-              {formatLeverageRatio(leverageRatio || 0)}
+              {formatLeverageRatio(leverageRatio)}
               <Body sx={{ marginLeft: theme.spacing(1) }}>
                 Max {formatLeverageRatio(maxLeverageRatio, 1)}
               </Body>
@@ -431,16 +429,18 @@ export const useVaultHoldingsTable = () => {
         healthFactor: formatHealthFactorValues(healthFactor, theme),
         presentValue: formatCryptoWithFiat(baseCurrency, netWorth),
         totalEarnings,
-        marketAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,
+        marketAPY: apyData?.totalAPY
+          ? formatNumberAsPercent(apyData.totalAPY)
+          : undefined,
         amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
         strategyAPY: {
-          displayValue: formatNumberAsPercent(strategyAPY, 2),
-          isNegative: strategyAPY && strategyAPY < 0,
+          displayValue: formatNumberAsPercent(apyData?.assetAPY || 0, 2),
+          isNegative: apyData?.assetAPY && apyData.assetAPY < 0,
         },
         borrowAPY: {
-          displayValue: formatNumberAsPercent(borrowAPY, 2),
+          displayValue: formatNumberAsPercent(apyData?.debtAPY || 0, 2),
         },
-        leverageRatio: formatLeverageRatio(leverageRatio || 0),
+        leverageRatio: formatLeverageRatio(leverageRatio),
         actionRow: {
           warning,
           showRowWarning,

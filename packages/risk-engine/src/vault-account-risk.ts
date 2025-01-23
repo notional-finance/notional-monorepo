@@ -183,9 +183,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   get borrowAPY() {
     if (this.vaultDebt.isZero()) return 0;
-    const market = this.model.getNotionalMarket(this.vaultDebt.currencyId);
     return this.vaultDebt.maturity === PRIME_CASH_VAULT_MATURITY
-      ? market.getSpotInterestRate(this.vaultDebt.unwrapVaultToken().token)
+      ? // This will include the variable debt fee
+        this.model.getSpotAPY(this.vaultDebt.token.id).totalAPY || 0
       : this.lastImpliedFixedRate || 0;
   }
 

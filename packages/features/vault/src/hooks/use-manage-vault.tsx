@@ -132,9 +132,9 @@ export function useManageVault() {
       debtOptions
         ?.map((o) => {
           const totalAPY = leveragedYield(
-            vaultPosition.strategyAPY,
+            vaultPosition.apyData?.assetAPY,
             o.interestRate,
-            vaultPosition.leverageRatio || 0
+            vaultPosition.leverageRatio
           );
           const label =
             o.token.maturity &&

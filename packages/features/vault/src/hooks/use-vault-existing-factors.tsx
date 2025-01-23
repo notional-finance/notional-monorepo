@@ -20,7 +20,7 @@ export function useVaultExistingFactors() {
 
   return {
     vaultShare,
-    priorBorrowRate: vaultPosition?.borrowAPY,
+    priorBorrowRate: vaultPosition?.apyData?.debtAPY,
     debt: vaultPosition?.vaultDebt,
     leverageRatio,
   };

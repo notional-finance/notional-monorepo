@@ -1,6 +1,9 @@
 import { Box, useTheme } from '@mui/material';
 import { Faq, FaqHeader } from '@notional-finance/mui';
-import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useVaultPosition,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import {
   MobileVaultSummary,
@@ -11,6 +14,8 @@ import {
 } from '../components';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { useVaultFaq } from '../hooks';
+import { useParams } from 'react-router-dom';
+import { APYData } from '@notional-finance/core-entities';
 
 export const VaultSummary = () => {
   const theme = useTheme();
@@ -20,6 +25,10 @@ export const VaultSummary = () => {
   const selectedNetwork = trade?.selectedNetwork;
   const vaultType = trade?.vaultType;
   const hasPoints = vaultType === 'SingleSidedLP_Points';
+  const position = useVaultPosition(selectedNetwork, vaultAddress);
+  const { action } = useParams<{
+    action?: string;
+  }>();
 
   const { faqHeaderLinks, faqs } = useVaultFaq(
     selectedNetwork,
@@ -61,7 +70,11 @@ export const VaultSummary = () => {
             justifyContent: 'center',
           }}
         >
-          <TradeActionSummary>
+          <TradeActionSummary
+            currentPositionAPYFactors={
+              action === 'Manage' ? (position?.apyData as APYData) : undefined
+            }
+          >
             <VaultPerformanceChart />
             <VaultTotalRow />
             <VaultReinvestmentHistory />
