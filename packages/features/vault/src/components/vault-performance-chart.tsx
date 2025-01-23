@@ -15,7 +15,7 @@ export const VaultPerformanceChart = () => {
   ) : (
     <PerformanceChart
       currentPositionFactors={{
-        vaultShare,
+        collateralToken: vaultShare,
         borrowRate: priorBorrowRate,
         leverageRatio,
         isPrimeBorrow: vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
