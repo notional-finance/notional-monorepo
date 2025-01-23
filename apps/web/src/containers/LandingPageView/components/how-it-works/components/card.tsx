@@ -7,7 +7,7 @@ import {
   BodySecondary,
   SectionTitle,
 } from '@notional-finance/mui';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { DataSets } from '../use-how-it-works';
 
 export interface CardContainerProps {
@@ -37,75 +37,75 @@ export const Card = ({
   hoverTitle,
 }: CardProps) => {
   const theme = useTheme();
-  const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
 
   return (
-    <CardContainer
-      key={parentIndex}
-      theme={theme}
-      hovered={hovered}
-      sx={{
-        height: parentIndex === 1 ? theme.spacing(34.75) : theme.spacing(30),
-      }}
-      onClick={() => navigate(link)}
-      onMouseOver={() => setHovered(true)}
-      onMouseOut={() => setHovered(false)}
-    >
-      <Box id="content">
-        <Box>
+    <Link to={link} style={{ textDecoration: 'none' }}>
+      <CardContainer
+        key={parentIndex}
+        theme={theme}
+        hovered={hovered}
+        sx={{
+          height: parentIndex === 1 ? theme.spacing(34.75) : theme.spacing(30),
+        }}
+        onMouseOver={() => setHovered(true)}
+        onMouseOut={() => setHovered(false)}
+      >
+        <Box id="content">
+          <Box>
+            <DiagramTitle
+              sx={{
+                color: colors.black,
+                marginBottom: theme.spacing(1),
+              }}
+            >
+              {title}
+            </DiagramTitle>
+            <BodySecondary sx={{ color: colors.darkGrey, fontSize: '1rem' }}>
+              {bodyText}
+            </BodySecondary>
+          </Box>
+          <SectionTitleContainer
+            theme={theme}
+            cardSet={cardSet}
+            parentIndex={parentIndex}
+          >
+            {actionItems.map(({ itemText, icon }, index) => (
+              <CustomSectionTitle key={index} theme={theme} cardSet={cardSet}>
+                <img src={icon} alt="icon" />
+                {itemText}
+              </CustomSectionTitle>
+            ))}
+          </SectionTitleContainer>
+        </Box>
+        <Box
+          id="hover-content"
+          sx={{
+            marginTop:
+              parentIndex === 1
+                ? `-${theme.spacing(29.125)}`
+                : `-${theme.spacing(25)}`,
+          }}
+        >
           <DiagramTitle
             sx={{
-              color: colors.black,
+              color: colors.white,
               marginBottom: theme.spacing(1),
             }}
           >
-            {title}
+            {hoverTitle}
           </DiagramTitle>
-          <BodySecondary sx={{ color: colors.darkGrey, fontSize: '1rem' }}>
-            {bodyText}
-          </BodySecondary>
+          <Box>
+            <CustomLink to={link}>
+              <Body>
+                {linkText}
+                <ArrowRightIcon sx={{ height: theme.spacing(1.75) }} />
+              </Body>
+            </CustomLink>
+          </Box>
         </Box>
-        <SectionTitleContainer
-          theme={theme}
-          cardSet={cardSet}
-          parentIndex={parentIndex}
-        >
-          {actionItems.map(({ itemText, icon }, index) => (
-            <CustomSectionTitle key={index} theme={theme} cardSet={cardSet}>
-              <img src={icon} alt="icon" />
-              {itemText}
-            </CustomSectionTitle>
-          ))}
-        </SectionTitleContainer>
-      </Box>
-      <Box
-        id="hover-content"
-        sx={{
-          marginTop:
-            parentIndex === 1
-              ? `-${theme.spacing(29.125)}`
-              : `-${theme.spacing(25)}`,
-        }}
-      >
-        <DiagramTitle
-          sx={{
-            color: colors.white,
-            marginBottom: theme.spacing(1),
-          }}
-        >
-          {hoverTitle}
-        </DiagramTitle>
-        <Box>
-          <CustomLink to={link}>
-            <Body>
-              {linkText}
-              <ArrowRightIcon sx={{ height: theme.spacing(1.75) }} />
-            </Body>
-          </CustomLink>
-        </Box>
-      </Box>
-    </CardContainer>
+      </CardContainer>
+    </Link>
   );
 };
 

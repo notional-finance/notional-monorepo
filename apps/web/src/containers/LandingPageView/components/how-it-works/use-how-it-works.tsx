@@ -27,7 +27,7 @@ export const useHowItWorks = (): HowItWorks => {
   const leftDataSet = [
     {
       title: <FormattedMessage defaultMessage={'Lend'} />,
-      link: '/lend-fixed',
+      link: '/lend-fixed/mainnet',
       bodyText: (
         <FormattedMessage defaultMessage={'Deposit assets to earn interest.'} />
       ),
@@ -46,7 +46,7 @@ export const useHowItWorks = (): HowItWorks => {
     },
     {
       title: <FormattedMessage defaultMessage={'Liquidity Providers'} />,
-      link: '/liquidity-variable',
+      link: '/liquidity-variable/mainnet',
       bodyText: (
         <FormattedMessage
           defaultMessage={
@@ -77,7 +77,7 @@ export const useHowItWorks = (): HowItWorks => {
   const rightDataSet = [
     {
       title: <FormattedMessage defaultMessage={'Borrowers'} />,
-      link: '/borrow-fixed',
+      link: '/borrow-fixed/mainnet',
       bodyText: (
         <FormattedMessage
           defaultMessage={
@@ -100,7 +100,7 @@ export const useHowItWorks = (): HowItWorks => {
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vault Users'} />,
-      link: '/vaults',
+      link: '/leveraged-yield-farming/mainnet',
       bodyText: (
         <FormattedMessage
           defaultMessage={
