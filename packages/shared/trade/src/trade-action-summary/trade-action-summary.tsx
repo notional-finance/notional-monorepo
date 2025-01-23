@@ -29,11 +29,12 @@ import {
 } from '@notional-finance/helpers';
 import { MultiTokenIcon } from '@notional-finance/icons';
 import { observer } from 'mobx-react-lite';
-import { APYData } from '@notional-finance/core-entities';
+import { APYData, TokenDefinition } from '@notional-finance/core-entities';
 
 interface TradeActionSummaryProps {
   stakedNOTEApy?: number;
   isLeveragedNToken?: boolean;
+  collateralToken?: TokenDefinition;
   currentPositionAPYFactors?: APYData;
   children?: ReactNode | ReactNode[];
 }
@@ -42,6 +43,7 @@ export const TradeActionSummary = observer(
   ({
     stakedNOTEApy,
     isLeveragedNToken,
+    collateralToken,
     currentPositionAPYFactors,
     children,
   }: TradeActionSummaryProps) => {
@@ -54,7 +56,7 @@ export const TradeActionSummary = observer(
       collateral: _collateral,
     } = trade?.selectedTokens || {};
     // Collateral and debt need to be swapped for leveraged ntoken trades
-    const collateral = trade?.hasSwappedTokens() ? _debt : _collateral;
+    const collateral = collateralToken || (trade?.hasSwappedTokens() ? _debt : _collateral);
     const debt = trade?.hasSwappedTokens() ? _collateral : _debt;
     const vaultAddress = trade?.vaultAddress;
     const isVault = !!vaultAddress;

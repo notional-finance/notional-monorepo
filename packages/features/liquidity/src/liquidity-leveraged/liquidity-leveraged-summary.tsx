@@ -37,6 +37,7 @@ export const LiquidityLeveragedSummary = observer(() => {
   return (
     <TradeActionSummary
       isLeveragedNToken
+      collateralToken={currentHoldings?.asset.balance.token}
       currentPositionAPYFactors={
         action === 'Manage' ? currentAPYFactors : undefined
       }

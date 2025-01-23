@@ -1711,8 +1711,8 @@ export const TradeModel = types
 
         try {
           const leveragedAPY = model.getLeveragedAPY(
-            isSwapped ? debtBalance : collateralBalance,
-            isSwapped ? collateralBalance : debtBalance,
+            collateralBalance,
+            debtBalance,
             self.leverageRatio || self.defaultLeverageRatio || 0
           );
 
@@ -1735,7 +1735,13 @@ export const TradeModel = types
       return {
         leverageOptions,
         selectedLeverageOption: leverageOptions.find(
-          (o) => o.debt.token.id === self.debt?.id
+          (o) =>
+            o.debt.token.id ===
+            (isSwapped
+              ? self.collateral?.tokenType === 'PrimeCash'
+                ? model.getPrimeDebt(self.collateral.currencyId).id
+                : self.collateral?.id
+              : self.debt?.id)
         ),
       };
     };
