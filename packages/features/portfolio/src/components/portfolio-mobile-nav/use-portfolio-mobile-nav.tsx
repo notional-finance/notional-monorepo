@@ -37,10 +37,10 @@ export const usePortfolioMobileNav = () => {
       Icon: (
         <FourSquareIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
               category === PORTFOLIO_CATEGORIES.OVERVIEW
-                ? theme.palette.typography.main
+                ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
           }}
         />
@@ -53,10 +53,10 @@ export const usePortfolioMobileNav = () => {
       Icon: (
         <BarChartIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
               category === PORTFOLIO_CATEGORIES.HOLDINGS
-                ? theme.palette.typography.main
+                ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
           }}
         />
@@ -69,10 +69,10 @@ export const usePortfolioMobileNav = () => {
       Icon: (
         <VaultIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
               category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS
-                ? theme.palette.typography.main
+                ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
           }}
         />
@@ -86,11 +86,11 @@ export const usePortfolioMobileNav = () => {
         <StakeIcon
           fill={
             category === PORTFOLIO_CATEGORIES.NOTE_STAKING
-              ? theme.palette.typography.main
+              ? theme.palette.typography.contrastText
               : theme.palette.typography.light
           }
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
           }}
         />
       ),
@@ -102,10 +102,10 @@ export const usePortfolioMobileNav = () => {
       Icon: (
         <HistoryIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
               category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY
-                ? theme.palette.typography.main
+                ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
           }}
         />
