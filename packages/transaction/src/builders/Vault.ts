@@ -167,7 +167,7 @@ export async function ExitVault({
     const vaultDebt = new VaultAccountRiskProfile(
       vaultAddress,
       accountBalances,
-      vaultLastUpdateTime[vaultAddress] || 0
+      vaultLastUpdateTime.get(vaultAddress) || 0
     ).vaultDebt;
 
     // Clears the entire debt balance using max uint256
@@ -228,13 +228,13 @@ export async function RollVault({
     throw Error('Deposit balance, debt balance must be defined');
 
   const vaultAddress = debtBalance.vaultAddress;
-  if (vaultLastUpdateTime[vaultAddress] === undefined)
+  if (!vaultLastUpdateTime.has(vaultAddress))
     throw Error('Vault last update time not found');
 
   const profile = new VaultAccountRiskProfile(
     vaultAddress,
     accountBalances,
-    vaultLastUpdateTime[vaultAddress]
+    vaultLastUpdateTime.get(vaultAddress) || 0
   );
 
   const currentDebtBalance = profile.vaultDebt.sub(profile.accruedVaultFees);

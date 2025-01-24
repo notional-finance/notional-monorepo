@@ -16,6 +16,43 @@ import { useEffect, useMemo } from 'react';
 import { useAppStore, useCurrentNetworkStore } from './context/use-root-store';
 import { useObserver } from 'mobx-react-lite';
 
+const useFetchAPYData = (
+  id: string | undefined,
+  network: Network | undefined,
+  chartType: ChartType
+) => {
+  const d = useObserver(() => {
+    if (!id)
+      return {
+        data: undefined,
+        isLoading: true,
+        error: undefined,
+      };
+
+    const model = getNetworkModel(network);
+    return model.getTimeSeries(id, chartType);
+  });
+
+  useEffect(() => {
+    if (d.data === undefined && id && network) {
+      const asyncFetch = async () => {
+        const model = getNetworkModel(network);
+        await model.fetchTimeSeriesData(id, chartType);
+      };
+      asyncFetch();
+    }
+  }, [d.data, id, network, chartType]);
+
+  return d;
+};
+
+export const useVaultAPYData = (
+  vaultAddress: string | undefined,
+  network: Network | undefined
+) => {
+  return useFetchAPYData(vaultAddress, network, ChartType.APY);
+};
+
 export const useChartData = (
   token: TokenDefinition | undefined,
   chartType: ChartType
@@ -26,29 +63,7 @@ export const useChartData = (
       : token?.id;
   const network = token?.network;
 
-  const d = useObserver(() => {
-    if (!tokenId)
-      return {
-        data: undefined,
-        isLoading: true,
-        error: undefined,
-      };
-
-    const model = getNetworkModel(network);
-    return model.getTimeSeries(tokenId, chartType);
-  });
-
-  useEffect(() => {
-    if (d.data === undefined && tokenId && network) {
-      const asyncFetch = async () => {
-        const model = getNetworkModel(network);
-        await model.fetchTimeSeriesData(tokenId, chartType);
-      };
-      asyncFetch();
-    }
-  }, [d.data, tokenId, network, chartType]);
-
-  return d;
+  return useFetchAPYData(tokenId, network, chartType);
 };
 
 /** Ensures that chart always has default values throughout the specified range.  */

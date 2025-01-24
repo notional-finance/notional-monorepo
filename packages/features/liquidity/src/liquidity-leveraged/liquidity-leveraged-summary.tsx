@@ -7,26 +7,44 @@ import {
 } from '@notional-finance/trade';
 import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useLeveragedLiquidityFaq, useTotalsData } from './hooks';
 import { FormattedMessage } from 'react-intl';
-import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  usePortfolioLiquidationPrices,
+} from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export const LiquidityLeveragedSummary = observer(() => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
   const { pathname } = useLocation();
   const selectedDepositToken = trade?.selectedTokens?.deposit.symbol || '';
-  const { currentHoldings } = trade?.getLeveragedNTokenPositions() || {};
+  const { currentHoldings, currentAPYFactors } =
+    trade?.getLeveragedNTokenPositions() || {};
   const { totalsData } = useTotalsData();
   const { faqs, faqHeaderLinks } =
     useLeveragedLiquidityFaq(selectedDepositToken);
+  const currentLiquidationPrice = usePortfolioLiquidationPrices(
+    trade?.selectedNetwork
+  )?.find((p) => p.asset === currentHoldings?.asset.balance.token.id);
+  const { action } = useParams<{
+    action?: string;
+  }>();
 
   return (
-    <TradeActionSummary isLeveragedNToken>
+    <TradeActionSummary
+      isLeveragedNToken
+      collateralToken={currentHoldings?.asset.balance.token}
+      currentPositionAPYFactors={
+        action === 'Manage' ? currentAPYFactors : undefined
+      }
+    >
       <PerformanceChart
         currentPositionFactors={{
+          collateralToken: currentHoldings?.asset.balance.token,
           borrowRate: currentHoldings?.borrowAPY,
           isPrimeBorrow:
             currentHoldings?.debt.balance.token.maturity === undefined,
@@ -34,7 +52,12 @@ export const LiquidityLeveragedSummary = observer(() => {
         }}
       />
       <TotalRow totalsData={totalsData} />
-      <LeveragedLiquidityLiquidationChart />
+      <LeveragedLiquidityLiquidationChart
+        collateralToken={currentHoldings?.asset.balance.token}
+        currentLiquidationPrice={
+          currentLiquidationPrice?.threshold as TokenBalance | undefined
+        }
+      />
       <Box sx={{ marginTop: theme.spacing(5) }}>
         <FaqHeader
           title={

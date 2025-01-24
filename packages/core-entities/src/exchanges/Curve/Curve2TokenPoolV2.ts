@@ -30,7 +30,12 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
     poolAddress: string
   ): AggregateCall[] {
     const pool = new Contract(poolAddress, CurvePoolV2ABI);
-    const commonCalls = getCommonCurveAggregateCall(network, poolAddress, pool);
+    const commonCalls = getCommonCurveAggregateCall(
+      network,
+      poolAddress,
+      pool,
+      this.N_COINS.toNumber()
+    );
 
     return commonCalls.concat([
       {

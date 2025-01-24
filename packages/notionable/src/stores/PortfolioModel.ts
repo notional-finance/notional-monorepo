@@ -26,6 +26,10 @@ import { AccountModel } from './AccountModel';
 
 const APYDataModel = types.model('APYDataModel', {
   totalAPY: types.maybe(types.number),
+  // These next three values are used for leveraged APY
+  assetAPY: types.maybe(types.number),
+  leverageRatio: types.maybe(types.number),
+  debtAPY: types.maybe(types.number),
   organicAPY: types.maybe(types.number),
   feeAPY: types.maybe(types.number),
   incentives: types.maybe(
@@ -38,8 +42,6 @@ const APYDataModel = types.model('APYDataModel', {
   ),
   utilization: types.maybe(types.number),
   pointMultiples: types.maybe(types.map(types.number)),
-  leverageRatio: types.maybe(types.number),
-  debtAPY: types.maybe(types.number),
 });
 
 const DetailedHoldingModel = types.model('DetailedHolding', {
@@ -100,12 +102,10 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   totalDebt: NotionalTypes.TokenBalance,
   underlying: types.string,
   maxLeverageRatio: types.number,
-  totalAPY: types.maybe(types.number),
-  borrowAPY: types.number,
-  amountPaid: NotionalTypes.TokenBalance,
-  strategyAPY: types.number,
-  profit: NotionalTypes.TokenBalance,
+  apyData: types.maybe(APYDataModel),
   leverageRatio: types.number,
+  amountPaid: NotionalTypes.TokenBalance,
+  profit: NotionalTypes.TokenBalance,
   vaultYield: types.maybeNull(APYDataModel),
   marketProfitLoss: NotionalTypes.TokenBalance,
   totalILAndFees: NotionalTypes.TokenBalance,
@@ -462,7 +462,7 @@ export const AccountPortfolioActions = (
       self.balances,
       self.balanceStatement as BalanceStatement[],
       self.accountHistory as AccountHistory[],
-      Object.fromEntries(self.vaultLastUpdateTime.entries()),
+      new Map(self.vaultLastUpdateTime.entries()),
       Object.fromEntries(self.rewardClaims.entries())
     );
 
@@ -613,6 +613,7 @@ export const AccountPortfolioActions = (
           }))
         ),
         vaultYield: APYDataModel.create(h.vaultYield),
+        apyData: APYDataModel.create(h.apyData),
         vaultMetadata: {
           ...h.vaultMetadata,
           // NOTE: cast to JSON so that it can be stored properly in mobx

@@ -259,21 +259,20 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   override getRewardAPY() {
+    const last7Days = this.apyHistory?.data?.filter(
+      ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+    );
+
     const incentiveAPYs =
-      this.apyHistory?.data
-        ?.filter(
-          ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
-        )
-        .map((r) =>
-          r['returnDrivers']
-            ? Object.keys(r['returnDrivers'])
-                .filter(
-                  (r) =>
-                    r.toLowerCase().includes('incentive') ||
-                    r.toLowerCase().includes('points')
-                )
-                .reduce((t, i) => t + (r.returnDrivers[i] || 0), 0)
-            : null
+      last7Days
+        ?.map((r) =>
+          Object.keys(r)
+            .filter(
+              (r) =>
+                r.toLowerCase().includes('incentive') ||
+                r.toLowerCase().includes('points')
+            )
+            .reduce((t, key) => t + (r[key] || 0), 0)
         )
         .filter((apy) => apy !== null) || ([] as number[]);
 

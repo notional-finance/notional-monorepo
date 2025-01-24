@@ -45,7 +45,7 @@ const StakedNote = ({ stakedNoteData }: StakedNoteProps) => {
     annualizedRewardRate,
     historicalSNOTEPrice,
     walletNOTEBalances,
-  } = useStakedNote(stakedNoteData, undefined, baseCurrency);
+  } = useStakedNote(stakedNoteData, dateRange, baseCurrency);
 
   return (
     <ContentContainer id="staked-note">

@@ -9,6 +9,7 @@ import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import { getCommonCurveAggregateCall } from './common-calls';
+import { registerTokensMap } from '../default-pools';
 
 export interface Curve2TokenPoolV1Params {
   A: BigNumber;
@@ -29,6 +30,9 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
   public static readonly IS_SELF_LP_TOKEN: boolean = false;
   public static readonly INCLUDE_ADMIN_BALANCES: boolean = true;
   public static readonly HAS_ORACLE: boolean = false;
+  // This is used to specify the LP token address for the pool in the case of the 3Pool
+  protected static readonly LP_TOKEN_ADDRESS: string | undefined;
+  protected static readonly A_METHOD: string = 'A_precise';
 
   public static override getInitData(
     network: Network,
@@ -38,13 +42,18 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       poolAddress,
       this.HAS_ORACLE ? CurvePoolV1WithOracleABI : CurvePoolV1ABI
     );
-    const commonCalls = getCommonCurveAggregateCall(network, poolAddress, pool);
+    const commonCalls = getCommonCurveAggregateCall(
+      network,
+      poolAddress,
+      pool,
+      this.N_COINS.toNumber()
+    );
 
     const calls = commonCalls.concat([
       {
         stage: 0,
         target: pool,
-        method: 'A_precise',
+        method: this.A_METHOD,
         key: 'A',
       },
       {
@@ -67,9 +76,23 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
         method: 'admin_fee',
         key: 'adminFee',
       },
+      {
+        stage: 0,
+        target: pool,
+        method: 'fee',
+        key: 'fee',
+      },
     ]);
 
-    if (this.IS_SELF_LP_TOKEN) {
+    if (this.LP_TOKEN_ADDRESS) {
+      calls.push({
+        stage: 0,
+        target: NO_OP,
+        method: NO_OP,
+        key: 'lpTokenAddress',
+        transform: () => this.LP_TOKEN_ADDRESS,
+      });
+    } else if (this.IS_SELF_LP_TOKEN) {
       calls.push({
         stage: 0,
         target: NO_OP,
@@ -618,4 +641,11 @@ export class Curve2TokenPoolV1_SelfLPTokenNoAdmin extends Curve2TokenPoolV1_Self
 
 export class Curve2TokenPoolV1_HasOracle extends Curve2TokenPoolV1 {
   public static override readonly HAS_ORACLE: boolean = true;
+}
+export class Curve3Pool extends Curve2TokenPoolV1 {
+  public static override readonly N_COINS = BigNumber.from(3);
+  public static override readonly INCLUDE_ADMIN_BALANCES = false;
+  public static override readonly LP_TOKEN_ADDRESS =
+    registerTokensMap[Network.mainnet]['3PoolLP'];
+  protected static override readonly A_METHOD = 'A';
 }

@@ -25,7 +25,7 @@ export const useLeveragedVaultGrid = (
       const holding = vaultHoldings?.find(
         (p) => p.vaultAddress === vaultConfig.vaultAddress
       );
-      const totalAPY = holding?.totalAPY || apy?.totalAPY || 0;
+      const totalAPY = holding?.apyData?.totalAPY || apy?.totalAPY || 0;
       const points = apy?.pointMultiples;
 
       return {

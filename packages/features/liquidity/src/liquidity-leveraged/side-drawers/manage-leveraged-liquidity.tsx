@@ -11,23 +11,17 @@ import {
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { formatMaturity } from '@notional-finance/util';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
-import {
-  useCurrentNetworkStore,
-  useCurrentTradeContext,
-} from '@notional-finance/notionable-hooks';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
 export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();
-  const currentNetworkStore = useCurrentNetworkStore();
-  const liquidity = currentNetworkStore.getAllNTokenYields();
   const trade = useCurrentTradeContext();
   const { debt: debtOptions } = trade?.computedOptions || {};
   const selectedNetwork = trade?.selectedNetwork;
   const selectedDepositToken = trade?.selectedDepositToken;
-  const { currentPosition } = trade?.getLeveragedNTokenPositions() || {};
-  const nTokenAPY = liquidity.find(
-    (y) => y.token.id === currentPosition?.asset?.balance.tokenId
-  )?.apy.totalAPY;
+  const { currentPosition, currentAPYFactors } =
+    trade?.getLeveragedNTokenPositions() || {};
+  const nTokenAPY = currentAPYFactors?.assetAPY;
 
   const rollMaturityOptions = (debtOptions || [])
     .filter((o) => o.token.id !== currentPosition?.debt.balance.tokenId)

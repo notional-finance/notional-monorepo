@@ -215,7 +215,7 @@ export const useLeverageVaultList = (
           vaultConfig.boosterProtocol === vaultConfig.baseProtocol
             ? vaultConfig.baseProtocol
             : `${vaultConfig.boosterProtocol} / ${vaultConfig.baseProtocol}`,
-        totalApy: holding?.totalAPY || apy?.totalAPY || 0,
+        totalApy: holding?.apyData?.totalAPY || apy?.totalAPY || 0,
         incentiveApy: 0,
         tvl: tvl ? tvl.toFiat(baseCurrency).toFloat() : 0,
         view: holding

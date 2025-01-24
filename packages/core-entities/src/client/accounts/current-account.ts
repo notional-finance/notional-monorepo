@@ -83,18 +83,20 @@ export function fetchCurrentAccount(
                   ? results[k]
                   : []) as AccountIncentiveDebt[]
             ),
-            vaultLastUpdateTime: Object.keys(results).reduce(
-              (agg, k) =>
-                Object.assign(
-                  agg,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  ((results[k] as any)['vaultLastUpdateTime'] as Record<
-                    string,
-                    number
-                  >) || {}
-                ),
-              {} as Record<string, number>
-            ),
+            vaultLastUpdateTime: Object.keys(results).reduce((agg, k) => {
+              try {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const vaultLastUpdateTime = (results[k] as any)[
+                  'vaultLastUpdateTime'
+                ];
+                if (vaultLastUpdateTime) {
+                  agg.set(vaultLastUpdateTime[0], vaultLastUpdateTime[1]);
+                }
+              } catch {
+                // ignore
+              }
+              return agg;
+            }, new Map() as Map<string, number>),
             allowances: Object.keys(results)
               .filter((k) => k.includes('.allowance'))
               .map((k) => {
@@ -367,9 +369,10 @@ function getVaultCalls(
 
           return {
             balances,
-            vaultLastUpdateTime: {
-              [v.vaultAddress]: vaultAccount.lastUpdateBlockTime.toNumber(),
-            },
+            vaultLastUpdateTime: [
+              v.vaultAddress,
+              vaultAccount.lastUpdateBlockTime.toNumber(),
+            ],
           };
         },
       },

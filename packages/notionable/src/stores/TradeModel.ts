@@ -1,4 +1,5 @@
 import {
+  createLeveragedAPYData,
   fCashMarket,
   getVaultType,
   NotionalTypes,
@@ -721,7 +722,7 @@ export const TradeModel = types
 
           if (accountDefinition?.vaultLastUpdateTime) {
             acc['vaultLastUpdateTime'] =
-              accountDefinition.vaultLastUpdateTime[self.vaultAddress];
+              accountDefinition.vaultLastUpdateTime.get(self.vaultAddress);
           } else {
             acc['vaultLastUpdateTime'] = 0;
           }
@@ -916,10 +917,8 @@ export const TradeModel = types
           ...self,
           accountBalances,
           vaultLastUpdateTime: account.vaultLastUpdateTime
-            ? Object.fromEntries(
-                account.vaultLastUpdateTime as unknown as Map<string, number>
-              )
-            : {},
+            ? new Map<string, number>(account.vaultLastUpdateTime.entries())
+            : new Map<string, number>(),
           address: account.address,
           network: account.network,
         });
@@ -1273,15 +1272,24 @@ export const TradeModel = types
       ) as TokenBalance[];
 
       return self.calculationSuccess &&
-        (self.collateralBalance || self.debtBalance)
+        newBalances.length > 0 &&
+        !self.vaultAddress
         ? AccountRiskProfile.simulate(account?.balances || [], newBalances)
         : undefined;
     };
 
     const getPortfolioComparison = () => {
       const account = root().getNetworkAccount(self.selectedNetwork);
-      const postBalances = getPostTradeSummary()?.balances;
-      const priorBalances = account?.portfolioRiskProfile?.balances;
+      let postBalances: TokenBalance[] | undefined;
+      let priorBalances: TokenBalance[] | undefined;
+      if (self.vaultAddress) {
+        const { postVaultRisk, priorVaultRisk } = getPostVaultRiskProfile();
+        priorBalances = priorVaultRisk?.balances;
+        postBalances = postVaultRisk?.balances;
+      } else {
+        priorBalances = account?.portfolioRiskProfile?.balances;
+        postBalances = getPostTradeSummary()?.balances;
+      }
       return priorBalances && postBalances
         ? comparePortfolio(priorBalances, postBalances)
         : [];
@@ -1487,6 +1495,7 @@ export const TradeModel = types
 
     const getLeveragedNTokenPositions = () => {
       const account = root().getNetworkAccount(self.selectedNetwork);
+      const model = root().getNetworkClient(self.selectedNetwork);
       const groupedHoldings = account?.groupedHoldings;
       if (!groupedHoldings) {
         return {
@@ -1514,6 +1523,13 @@ export const TradeModel = types
         ({ asset }) =>
           asset.balance.underlying.symbol === self.selectedDepositToken
       );
+      const currentAPYFactors = currentHoldings
+        ? model.getLeveragedAPY(
+            currentHoldings?.asset.balance,
+            currentHoldings?.debt.balance,
+            currentHoldings?.leverageRatio
+          )
+        : undefined;
 
       return {
         isLoading: false,
@@ -1521,6 +1537,7 @@ export const TradeModel = types
         depositTokensWithPositions,
         currentHoldings,
         nTokenPositions,
+        currentAPYFactors,
       };
     };
 
@@ -1702,8 +1719,8 @@ export const TradeModel = types
 
         try {
           const leveragedAPY = model.getLeveragedAPY(
-            isSwapped ? debtBalance : collateralBalance,
-            isSwapped ? collateralBalance : debtBalance,
+            collateralBalance,
+            debtBalance,
             self.leverageRatio || self.defaultLeverageRatio || 0
           );
 
@@ -1726,7 +1743,13 @@ export const TradeModel = types
       return {
         leverageOptions,
         selectedLeverageOption: leverageOptions.find(
-          (o) => o.debt.token.id === self.debt?.id
+          (o) =>
+            o.debt.token.id ===
+            (isSwapped
+              ? self.collateral?.tokenType === 'PrimeCash'
+                ? model.getPrimeDebt(self.collateral.currencyId).id
+                : self.collateral?.id
+              : self.debt?.id)
         ),
       };
     };
@@ -1736,6 +1759,29 @@ export const TradeModel = types
 
       try {
         if (
+          self.tradeType === 'RollDebt' &&
+          self.debtBalance &&
+          self.leverageRatio !== undefined
+        ) {
+          const ntoken = model.getNToken(self.debtBalance.currencyId);
+          const debtAPY = self.debtOptions?.find(
+            (o) => o.token.id === self.debtBalance?.tokenId
+          )?.interestRate;
+          return createLeveragedAPYData(
+            model.getSpotAPY(ntoken.id),
+            debtAPY || 0,
+            self.leverageRatio || 0
+          );
+        } else if (self.tradeType === 'RollVaultPosition' && self.collateral) {
+          const debtAPY = self.debtOptions?.find(
+            (o) => o.token.id === self.debtBalance?.tokenId
+          )?.interestRate;
+          return createLeveragedAPYData(
+            model.getSpotAPY(self.collateral?.id),
+            debtAPY || 0,
+            self.leverageRatio || 0
+          );
+        } else if (
           isDeleverageTrade(self.tradeType) ||
           isLeveragedTrade(self.tradeType)
         ) {

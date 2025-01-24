@@ -107,6 +107,7 @@ export const LiquidityLeveragedSideDrawer = observer(() => {
                   collateral: currentPosition?.debt.balance.token,
                   collateralBalance: currentPosition?.debt.balance.neg(),
                 }),
+            leverageRatio: currentPosition?.leverageRatio,
             // Set this to true since the entire debt is being rolled to
             // prevent cash dust from accruing
             maxWithdraw: true,

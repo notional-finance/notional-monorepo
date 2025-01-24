@@ -105,7 +105,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
       primaryToken
     )
       .scaleFromInternal()
-      .sub(
+      .add(
         primeDebt.totalSupply?.toUnderlying() || TokenBalance.zero(primaryToken)
       );
 

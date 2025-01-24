@@ -80,9 +80,7 @@ export class PendlePT extends VaultAdapter {
   }
 
   get assetToken(): TokenDefinition {
-    return getNetworkModel(this.network).getTokenByID(
-      this.market.assetTokenId
-    );
+    return getNetworkModel(this.network).getTokenByID(this.market.assetTokenId);
   }
 
   getInitialVaultShareValuation(): ExchangeRate {
@@ -132,11 +130,11 @@ export class PendlePT extends VaultAdapter {
       };
     }
 
-    const { poolAddress } =
+    const { depositPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
-    if (poolAddress) {
+    if (depositPoolAddress) {
       const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
-        poolAddress
+        depositPoolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
         (t) =>
@@ -181,11 +179,11 @@ export class PendlePT extends VaultAdapter {
       };
     }
 
-    const { poolAddress } =
+    const { redeemPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
-    if (poolAddress) {
+    if (redeemPoolAddress) {
       const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
-        poolAddress
+        redeemPoolAddress
       );
       const tokenOutIndex = tokenSyPool.balances.findIndex(
         (t) =>
@@ -265,6 +263,26 @@ export class PendlePT extends VaultAdapter {
       // Calculate the amount received for selling the PT
       const { tokensOut: ptTokensOut, feesPaid } =
         this.market.calculateTokenTrade(tokensInSy, this.market.PT_TOKEN_INDEX);
+
+      console.log(
+        'net underlying',
+        netUnderlying.toDisplayStringWithSymbol(8, false),
+        netUnderlying.toUnderlying().toDisplayStringWithSymbol(8, false)
+      );
+      console.log(
+        'tokensInSy',
+        tokensInSy.toDisplayStringWithSymbol(8, false),
+        tokensInSy
+          .toToken(netUnderlying.token)
+          .toDisplayStringWithSymbol(8, false)
+      );
+      console.log(
+        'pt tokens out',
+        ptTokensOut.toDisplayStringWithSymbol(8, false),
+        ptTokensOut
+          .toToken(netUnderlying.token)
+          .toDisplayStringWithSymbol(8, false)
+      );
 
       const slippageForSY = tokensInSy
         .toToken(netUnderlying.token)

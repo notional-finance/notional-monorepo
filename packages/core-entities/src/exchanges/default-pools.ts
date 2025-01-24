@@ -1,7 +1,7 @@
 import { Network } from '@notional-finance/util';
 import { PoolDefinition } from '..';
 
-const registerTokensMap = {
+export const registerTokensMap = {
   mainnet: {
     'sNOTE-BPT': '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7' as const,
     PayPool: '0x383E6b4437b59fff47B619CBA855CA29342A8559' as const,
@@ -16,6 +16,8 @@ const registerTokensMap = {
     'ezETH-WETH-BPT': '0x596192bB6e41802428Ac943D2f1476C1Af25CC0E' as const,
     ezETH: '0xbf5495Efe5DB9ce00f80364C8B423567e58d2110' as const,
     USDeUSDC: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72' as const,
+    '3Pool': '0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7' as const,
+    '3PoolLP': '0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490' as const,
     USDe: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3' as const,
     GHOcrvUSD: '0x635EF0056A597D13863B73825CcA297236578595' as const,
     GHOUSDe: '0x670a72e6D22b0956C0D2573288F82DCc5d6E3a61' as const,
@@ -37,6 +39,10 @@ const registerTokensMap = {
       '0xB451A36c8B6b2EAc77AD0737BA732818143A0E25' as const,
     'PT-USDe-26MAR2025': '0x8A47b431A7D947c6a3ED6E42d501803615a97EAa' as const,
     'SY-USDe-26MAR2025': '0x4dB99b79361F98865230f5702de024C69f629fEC' as const,
+    'Pendle-Market-sUSDe-28MAY2025':
+      '0xB162B764044697cf03617C2EFbcB1f42e31E4766' as const,
+    'PT-sUSDe-28MAY2025': '0xb7de5dFCb74d25c2f21841fbd6230355C50d9308' as const,
+    'SY-sUSDe': '0xE877B2A8a53763C8B0534a15e87da28f3aC1257e' as const,
   },
   arbitrum: {
     'FRAXBP-f': '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5' as const,
@@ -563,6 +569,62 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           name: 'SY USDe 26MAR2025',
           network: Network.mainnet,
           symbol: 'SY-USDe-26MAR2025',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: registerTokensMap[Network.mainnet]['3Pool'],
+      PoolClass: 'Curve3Pool',
+      registerTokens: [
+        {
+          id: registerTokensMap[Network.mainnet]['3PoolLP'],
+          address: registerTokensMap[Network.mainnet]['3PoolLP'],
+          network: Network.mainnet,
+          symbol: '3Crv',
+          name: 'Curve.fi DAI/USDC/USDT',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address:
+        registerTokensMap[Network.mainnet]['Pendle-Market-sUSDe-28MAY2025'],
+      PoolClass: 'PendleMarket',
+      registerTokens: [
+        {
+          id: registerTokensMap[Network.mainnet][
+            'Pendle-Market-sUSDe-28MAY2025'
+          ],
+          address:
+            registerTokensMap[Network.mainnet]['Pendle-Market-sUSDe-28MAY2025'],
+          name: 'Pendle Market: sUSDe 28MAY2025',
+          network: Network.mainnet,
+          symbol: 'PENDLE-LPT sUSDe 28MAY2025',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['PT-sUSDe-28MAY2025'],
+          address: registerTokensMap[Network.mainnet]['PT-sUSDe-28MAY2025'],
+          name: 'PT: sUSDe 28MAY2025',
+          network: Network.mainnet,
+          symbol: 'PT-sUSDe-28MAY2025',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['SY-sUSDe'],
+          address: registerTokensMap[Network.mainnet]['SY-sUSDe'],
+          name: 'SY sUSDe',
+          network: Network.mainnet,
+          symbol: 'SY-sUSDe',
           decimals: 18,
           tokenInterface: 'ERC20',
           tokenType: 'Underlying',

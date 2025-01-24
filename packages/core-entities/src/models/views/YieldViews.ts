@@ -45,6 +45,46 @@ export interface ProductAPY {
   maxLeverageRatio?: number | undefined;
 }
 
+export function createLeveragedAPYData(
+  assetData: APYData,
+  debtAPY: number,
+  leverageRatio: number
+) {
+  return {
+    totalAPY: leveragedYield(assetData.totalAPY, debtAPY, leverageRatio),
+    apySpread:
+      assetData.totalAPY !== undefined && debtAPY !== undefined
+        ? assetData.totalAPY - debtAPY
+        : undefined,
+    assetAPY: assetData.totalAPY,
+    leverageRatio,
+    debtAPY,
+    organicAPY: leveragedYield(
+      (assetData?.organicAPY || 0) + (assetData?.feeAPY || 0),
+      debtAPY,
+      leverageRatio
+    ),
+    incentiveAPY: leveragedYield(assetData?.incentiveAPY, 0, leverageRatio),
+    incentives: assetData?.incentives?.map(({ symbol, incentiveAPY }) => ({
+      symbol,
+      incentiveAPY: leveragedYield(incentiveAPY, 0, leverageRatio) || 0,
+    })),
+    pointMultiples: assetData?.pointMultiples
+      ? Object.keys(assetData.pointMultiples).reduce((acc, k) => {
+          if (assetData.pointMultiples) {
+            acc[k] =
+              leveragedYield(
+                assetData.pointMultiples[k] || 0,
+                0,
+                leverageRatio
+              ) || 0;
+          }
+          return acc;
+        }, {} as Record<string, number>)
+      : undefined,
+  };
+}
+
 export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const {
     getTokenBySymbol,
@@ -408,44 +448,12 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     const debtAPY = debtAmount.isZero()
       ? getSpotAPY(debtAmount.tokenId)
       : getSimulatedAPY(debtAmount);
-    const apySpread =
-      collateralAPY.totalAPY !== undefined && debtAPY.totalAPY !== undefined
-        ? collateralAPY.totalAPY - debtAPY.totalAPY
-        : undefined;
 
-    return {
-      totalAPY: leveragedYield(
-        collateralAPY.totalAPY,
-        debtAPY.totalAPY,
-        leverageRatio
-      ),
-      assetAPY: collateralAPY.totalAPY,
-      apySpread,
-      organicAPY: leveragedYield(
-        (collateralAPY.organicAPY || 0) + (collateralAPY.feeAPY || 0),
-        debtAPY.totalAPY,
-        leverageRatio
-      ),
-      incentives: collateralAPY.incentives?.map(({ symbol, incentiveAPY }) => ({
-        symbol,
-        incentiveAPY: leveragedYield(incentiveAPY, 0, leverageRatio) || 0,
-      })),
-      leverageRatio,
-      debtAPY: debtAPY.totalAPY,
-      pointMultiples: collateralAPY.pointMultiples
-        ? Object.keys(collateralAPY.pointMultiples).reduce((acc, k) => {
-            if (collateralAPY.pointMultiples) {
-              acc[k] =
-                leveragedYield(
-                  collateralAPY.pointMultiples[k] || 0,
-                  0,
-                  leverageRatio
-                ) || 0;
-            }
-            return acc;
-          }, {} as Record<string, number>)
-        : undefined,
-    };
+    return createLeveragedAPYData(
+      collateralAPY,
+      debtAPY.totalAPY || 0,
+      leverageRatio
+    );
   };
 
   const getDefaultLeveragedNTokenAPYs = (token: TokenDefinition) => {

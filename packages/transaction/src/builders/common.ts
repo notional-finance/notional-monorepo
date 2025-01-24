@@ -46,7 +46,7 @@ export interface PopulateTransactionInputs {
   accountBalances: TokenBalance[];
   maxWithdraw: boolean;
   secondaryDepositBalance?: TokenBalance;
-  vaultLastUpdateTime?: Record<string, number>;
+  vaultLastUpdateTime?: Map<string, number>;
   tradeType?: string;
   ethRedeem?: TokenBalance;
 }

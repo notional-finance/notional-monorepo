@@ -17,7 +17,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 
 export function usePerformanceChart(currentPositionFactors?: {
-  vaultShare?: TokenDefinition;
+  collateralToken?: TokenDefinition;
   isPrimeBorrow: boolean;
   borrowRate?: number;
   leverageRatio?: number;
@@ -32,9 +32,9 @@ export function usePerformanceChart(currentPositionFactors?: {
   const selectedLeverageRatio = trade?.leverageRatio;
 
   // Allow the vault collateral to override the set collateral for the unset state
-  const collateral = trade?.hasSwappedTokens()
-    ? _debt
-    : _collateral || currentPositionFactors?.vaultShare;
+  const collateral =
+    currentPositionFactors?.collateralToken ||
+    (trade?.hasSwappedTokens() ? _debt : _collateral);
   const debt = trade?.hasSwappedTokens() ? _collateral : _debt;
   const tradeType = trade?.tradeType;
   const { debt: debtOptions } = trade?.computedOptions || {};

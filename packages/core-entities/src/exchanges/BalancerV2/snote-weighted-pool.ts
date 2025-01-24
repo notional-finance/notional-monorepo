@@ -165,7 +165,7 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
       return ethClaim.add(noteInETH);
     }
 
-    return noteClaim.toToken(ethClaim.token);
+    return noteClaim.toToken(ethClaim.token).add(ethClaim);
   }
 
   getCurrentSNOTEClaims(snote: TokenBalance) {

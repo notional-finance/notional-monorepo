@@ -35,7 +35,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     if (balances.length === 0) return undefined;
 
     const lastUpdateBlockTime = account.vaultLastUpdateTime
-      ? account.vaultLastUpdateTime[vaultAddress]
+      ? account.vaultLastUpdateTime.get(vaultAddress) || 0
       : 0;
 
     const vaultDebt = balances.find(
@@ -75,7 +75,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return (
       model
         // Include disabled vaults here in case the account still has a position
-        .getAllListedVaults(true)
+        .getAllListedVaults(true, true)
         ?.map(({ vaultAddress }) => {
           if (DeprecatedVaults.includes(vaultAddress.toLowerCase()))
             return undefined;
@@ -183,9 +183,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   get borrowAPY() {
     if (this.vaultDebt.isZero()) return 0;
-    const market = this.model.getNotionalMarket(this.vaultDebt.currencyId);
     return this.vaultDebt.maturity === PRIME_CASH_VAULT_MATURITY
-      ? market.getSpotInterestRate(this.vaultDebt.unwrapVaultToken().token)
+      ? // This will include the variable debt fee
+        this.model.getSpotAPY(this.vaultDebt.token.id).totalAPY || 0
       : this.lastImpliedFixedRate || 0;
   }
 

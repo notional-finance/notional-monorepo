@@ -29,15 +29,24 @@ import {
 } from '@notional-finance/helpers';
 import { MultiTokenIcon } from '@notional-finance/icons';
 import { observer } from 'mobx-react-lite';
+import { APYData, TokenDefinition } from '@notional-finance/core-entities';
 
 interface TradeActionSummaryProps {
   stakedNOTEApy?: number;
   isLeveragedNToken?: boolean;
+  collateralToken?: TokenDefinition;
+  currentPositionAPYFactors?: APYData;
   children?: ReactNode | ReactNode[];
 }
 
 export const TradeActionSummary = observer(
-  ({ stakedNOTEApy, isLeveragedNToken, children }: TradeActionSummaryProps) => {
+  ({
+    stakedNOTEApy,
+    isLeveragedNToken,
+    collateralToken,
+    currentPositionAPYFactors,
+    children,
+  }: TradeActionSummaryProps) => {
     const theme = useTheme();
     const trade = useCurrentTradeContext();
     const tradeType = trade?.tradeType;
@@ -47,12 +56,12 @@ export const TradeActionSummary = observer(
       collateral: _collateral,
     } = trade?.selectedTokens || {};
     // Collateral and debt need to be swapped for leveraged ntoken trades
-    const collateral = trade?.hasSwappedTokens() ? _debt : _collateral;
+    const collateral =
+      collateralToken || (trade?.hasSwappedTokens() ? _debt : _collateral);
     const debt = trade?.hasSwappedTokens() ? _collateral : _debt;
     const vaultAddress = trade?.vaultAddress;
     const isVault = !!vaultAddress;
     const vaultConfig = useVaultProperties(vaultAddress);
-    const apyFactors = trade?.getAPYFactors();
 
     const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
     const headerText =
@@ -60,7 +69,9 @@ export const TradeActionSummary = observer(
       (isLeveragedNToken
         ? defineMessage({ defaultMessage: 'Manage Leveraged Liquidity' })
         : defineMessage({ defaultMessage: 'unknown' }));
-    const isLeveraged = isLeveragedTrade(tradeType) || isVault;
+    const isLeveraged =
+      isLeveragedNToken || isLeveragedTrade(tradeType) || isVault;
+    const apyFactors = currentPositionAPYFactors || trade?.getAPYFactors();
     const vaultType = isVault ? vaultConfig?.vaultType : undefined;
     const points = useVaultPoints(vaultAddress);
     const rewardTokens = useVaultRewardTokens(vaultAddress);
@@ -181,17 +192,19 @@ export const TradeActionSummary = observer(
                       : '-'}
                   </H4>
                 </Box>
-                <InfoTooltip
-                  iconSize={theme.spacing(2)}
-                  iconColor={theme.palette.info.dark}
-                  toolTipText={defineMessage({
-                    defaultMessage:
-                      'Point values used are estimates. True values are not known. True values may be very different and will significantly impact total APY.',
-                  })}
-                  sx={{
-                    marginLeft: theme.spacing(0.5),
-                  }}
-                />
+                {vaultType === 'SingleSidedLP_Points' && (
+                  <InfoTooltip
+                    iconSize={theme.spacing(2)}
+                    iconColor={theme.palette.info.dark}
+                    toolTipText={defineMessage({
+                      defaultMessage:
+                        'Point values used are estimates. True values are not known. True values may be very different and will significantly impact total APY.',
+                    })}
+                    sx={{
+                      marginLeft: theme.spacing(0.5),
+                    }}
+                  />
+                )}
               </Box>
             )}
             {isVault &&

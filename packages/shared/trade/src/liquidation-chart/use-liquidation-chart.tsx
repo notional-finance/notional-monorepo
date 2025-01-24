@@ -16,8 +16,12 @@ import {
 import { getDateString } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { AxisDomain } from 'recharts/types/util/types';
+import { TokenDefinition } from '@notional-finance/core-entities';
 
-export function useLiquidationChart() {
+export function useLiquidationChart(
+  collateralToken?: TokenDefinition,
+  currentLiquidationPrice?: TokenBalance
+) {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
   const {
@@ -27,9 +31,11 @@ export function useLiquidationChart() {
   } = trade?.selectedTokens || {};
   const inputsSatisfied = trade?.inputsSatisfied;
   const calculationSuccess = trade?.calculationSuccess;
-  const liquidationPrice = useTradeLiquidationPrice();
+  const liquidationPrice =
+    useTradeLiquidationPrice() || currentLiquidationPrice;
   const deposit = _deposit || liquidationPrice?.underlying;
-  const collateral = trade?.hasSwappedTokens() ? _debt : _collateral;
+  const collateral =
+    collateralToken || (trade?.hasSwappedTokens() ? _debt : _collateral);
 
   const areaChartData = useAssetPriceHistory(collateral).map(
     ({ timestamp, assetPrice }) => ({

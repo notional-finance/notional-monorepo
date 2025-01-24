@@ -6,14 +6,13 @@ import {
 } from '@notional-finance/notionable-hooks';
 import {
   RATE_PRECISION,
-  SECONDS_IN_DAY,
   getMidnightUTC,
   lastValue,
 } from '@notional-finance/util';
 
 export function useStakedNote(
   stakedNoteData: StakedNoteData | undefined,
-  dateRange = 30 * SECONDS_IN_DAY,
+  dateRange: number,
   baseCurrency: FiatKeys
 ) {
   const minDate = getMidnightUTC() - dateRange;

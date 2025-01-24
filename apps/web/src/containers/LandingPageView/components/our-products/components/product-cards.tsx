@@ -19,7 +19,7 @@ export interface ProductCardsProps {
   pillOne: ReactNode;
   linkTitle: ReactNode;
   pillTwo?: ReactNode;
-  lottieFile: any;
+  lottieFile: object;
 }
 
 export const ProductCards = ({
@@ -111,9 +111,20 @@ const MainContainer = styled(Box)(
       display: flex;
       justify-content: center;
       border-radius: ${theme.shape.borderRadius()};
+
       .box, .box-two {
         position: relative;
       }
+
+      ${theme.breakpoints.up(theme.breakpoints.values.sm)} {
+        &:hover {
+          .box-two {
+            transition: all 0.3s ease;
+            transform: translateY(-120px);
+          }
+        }
+      }
+
       .box::before {
         content: "";
         position: absolute;
@@ -192,15 +203,9 @@ const CardContent = styled(Box)(
       flex-direction: column;
       background: transparent;
       cursor: pointer;
-      transition: all 0.3s ease;
       background: rgba(4, 29, 46, 0.70);
       overflow: hidden;
-      ${theme.breakpoints.up(theme.breakpoints.values.sm)} {
-        &:hover {
-          transition: all 0.3s ease;
-          transform: translateY(-120px);
-        }
-      }
+
       ${theme.breakpoints.down(theme.breakpoints.values.sm)} {
         padding: ${theme.spacing(3)};
         transform: translateY(-30px);
