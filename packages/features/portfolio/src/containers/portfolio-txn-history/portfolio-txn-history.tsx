@@ -1,4 +1,4 @@
-import { DataTable, SimpleToggle } from '@notional-finance/mui';
+import { DataTable, HeaderToggle } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import {
   useTxnHistoryTable,
@@ -47,7 +47,7 @@ export const PortfolioTransactionHistory = observer(() => {
       {isMobile && (
         <ToggleContainer>
           {rightToggleData && (
-            <SimpleToggle
+            <HeaderToggle
               tabLabels={rightToggleData.toggleOptions}
               selectedTabIndex={rightToggleData.toggleKey}
               onChange={(_, v) => rightToggleData.setToggleKey(v as number)}
