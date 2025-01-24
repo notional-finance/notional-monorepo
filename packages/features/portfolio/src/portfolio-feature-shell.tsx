@@ -230,8 +230,7 @@ const PortfolioContainer = styled(Box)(
   min-height: 100vh;
   ${theme.breakpoints.down('sm')} {
     flex-flow: column;
-    max-width: 90%;
-    margin: auto;
+    max-width: 100%;
   };`
 );
 
@@ -266,8 +265,8 @@ const PortfolioMainContent = styled(Box)(
   }
   ${theme.breakpoints.down('sm')} {
     min-width: 100%;
-    max-width: 70vw;
-    margin: ${theme.spacing(10)} auto;
+    max-width: 100vw;
+    margin: ${theme.spacing(2)} auto;
   };
 `
 );

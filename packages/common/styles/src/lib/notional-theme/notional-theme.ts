@@ -85,7 +85,7 @@ declare module '@mui/material/styles' {
 
   interface Palette {
     common: CommonColors;
-    typography: PaletteColor;
+    typography: TypographyPaletteColor;
     background: TypeBackground;
     borders: TypeBackground;
     charts: PaletteColor;
@@ -115,9 +115,14 @@ declare module '@mui/material/styles' {
     accent: string;
   }
 
+  interface TypographyPaletteColor extends PaletteColor {
+    white: string;
+  }
+
   interface TypeBackground {
     accentPaper: string;
     accentDefault: string;
+    button: string;
   }
 
   interface TypographyVariants {
@@ -705,6 +710,7 @@ const getThemeData = (
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.aqua
             : colors.neonTurquoise,
+        white: colors.white,
       },
       background: {
         paper:
@@ -722,13 +728,15 @@ const getThemeData = (
             ? colors.matteGreen
             : colors.lightGrey,
         contrastText:
-          themeVariant === THEME_VARIANTS.LIGHT
-            ? colors.white
-            : colors.black,
+          themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
         light:
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.iceWhite
             : colors.black,
+        button:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.lightGrey
+            : colors.matteGreen,
       },
       borders: {
         paper:
@@ -743,6 +751,7 @@ const getThemeData = (
         accentPaper: colors.secondaryGrey,
         contrastText: colors.greenGrey,
         light: colors.greenGrey,
+        button: colors.lightGrey,
       },
       charts: {
         main:
