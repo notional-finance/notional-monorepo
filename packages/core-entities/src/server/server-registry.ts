@@ -255,7 +255,7 @@ export abstract class ServerRegistry<T> {
 
   /** Triggers a refresh of the underlying data */
   public async refresh(network: Network) {
-    if (!this.hasAllNetwork() && network === Network.all) return;
+    if (!this.hasAllNetwork() && network === Network.all) return '{}';
     return JSON.stringify(await this._refresh(network));
   }
 

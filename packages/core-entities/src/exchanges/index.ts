@@ -5,6 +5,7 @@ import {
   Curve2TokenPoolV1_SelfLPToken,
   Curve2TokenPoolV1_HasOracle,
   Curve2TokenPoolV1_SelfLPTokenNoAdmin,
+  Curve3Pool,
 } from './Curve/Curve2TokenPoolV1';
 import Curve2TokenPoolV2 from './Curve/Curve2TokenPoolV2';
 import { ComposableStablePool } from './BalancerV2/composable-stable-pool';
@@ -37,6 +38,7 @@ const PoolClasses: Record<
   Curve2TokenPoolV1_SelfLPTokenNoAdmin: Curve2TokenPoolV1_SelfLPTokenNoAdmin,
   Curve2TokenPoolV1_HasOracle: Curve2TokenPoolV1_HasOracle,
   Curve2TokenPoolV2: Curve2TokenPoolV2,
+  Curve3Pool: Curve3Pool,
   PendleMarket: PendleMarket,
 };
 
