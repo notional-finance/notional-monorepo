@@ -91,7 +91,8 @@ export const VaultActionSideDrawer = observer(() => {
           requiredState: {
             tradeType: 'RollVaultPosition',
             depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
-            leverageRatio: undefined,
+            collateral: currentPosition.collateral,
+            leverageRatio: currentPosition.leverageRatio,
             maxWithdraw: false,
           },
         },
@@ -110,6 +111,8 @@ export const VaultActionSideDrawer = observer(() => {
           Component: RollMaturity,
           requiredState: {
             tradeType: 'RollVaultPosition',
+            collateral: currentPosition.collateral,
+            leverageRatio: currentPosition.leverageRatio,
             depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
             maxWithdraw: false,
           },

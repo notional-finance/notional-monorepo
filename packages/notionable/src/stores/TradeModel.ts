@@ -1,4 +1,5 @@
 import {
+  createLeveragedAPYData,
   fCashMarket,
   getVaultType,
   NotionalTypes,
@@ -1751,6 +1752,29 @@ export const TradeModel = types
 
       try {
         if (
+          self.tradeType === 'RollDebt' &&
+          self.debtBalance &&
+          self.leverageRatio !== undefined
+        ) {
+          const ntoken = model.getNToken(self.debtBalance.currencyId);
+          const debtAPY = self.debtOptions?.find(
+            (o) => o.token.id === self.debtBalance?.tokenId
+          )?.interestRate;
+          return createLeveragedAPYData(
+            model.getSpotAPY(ntoken.id),
+            debtAPY || 0,
+            self.leverageRatio || 0
+          );
+        } else if (self.tradeType === 'RollVaultPosition' && self.collateral) {
+          const debtAPY = self.debtOptions?.find(
+            (o) => o.token.id === self.debtBalance?.tokenId
+          )?.interestRate;
+          return createLeveragedAPYData(
+            model.getSpotAPY(self.collateral?.id),
+            debtAPY || 0,
+            self.leverageRatio || 0
+          );
+        } else if (
           isDeleverageTrade(self.tradeType) ||
           isLeveragedTrade(self.tradeType)
         ) {
