@@ -56,7 +56,8 @@ export const TradeActionSummary = observer(
       collateral: _collateral,
     } = trade?.selectedTokens || {};
     // Collateral and debt need to be swapped for leveraged ntoken trades
-    const collateral = collateralToken || (trade?.hasSwappedTokens() ? _debt : _collateral);
+    const collateral =
+      collateralToken || (trade?.hasSwappedTokens() ? _debt : _collateral);
     const debt = trade?.hasSwappedTokens() ? _collateral : _debt;
     const vaultAddress = trade?.vaultAddress;
     const isVault = !!vaultAddress;
@@ -191,17 +192,19 @@ export const TradeActionSummary = observer(
                       : '-'}
                   </H4>
                 </Box>
-                <InfoTooltip
-                  iconSize={theme.spacing(2)}
-                  iconColor={theme.palette.info.dark}
-                  toolTipText={defineMessage({
-                    defaultMessage:
-                      'Point values used are estimates. True values are not known. True values may be very different and will significantly impact total APY.',
-                  })}
-                  sx={{
-                    marginLeft: theme.spacing(0.5),
-                  }}
-                />
+                {vaultType === 'SingleSidedLP_Points' && (
+                  <InfoTooltip
+                    iconSize={theme.spacing(2)}
+                    iconColor={theme.palette.info.dark}
+                    toolTipText={defineMessage({
+                      defaultMessage:
+                        'Point values used are estimates. True values are not known. True values may be very different and will significantly impact total APY.',
+                    })}
+                    sx={{
+                      marginLeft: theme.spacing(0.5),
+                    }}
+                  />
+                )}
               </Box>
             )}
             {isVault &&
