@@ -11,6 +11,7 @@ import {
 export function useVaultActionErrors() {
   const trade = useCurrentTradeContext();
   const { debt } = trade?.selectedTokens ?? {};
+  const tradeType = trade?.tradeType;
   const depositBalance = trade?.depositBalance;
   const selectedNetwork = trade?.selectedNetwork;
   const vaultAddress = trade?.vaultAddress;
@@ -70,11 +71,18 @@ export function useVaultActionErrors() {
   }
 
   let underMinAccountBorrowError: MessageDescriptor | undefined;
-  if (underMinAccountBorrow) {
+  if (underMinAccountBorrow && netRealizedDebtBalance) {
+    const remainingBorrow =
+      tradeType === 'CreateVaultPosition'
+        ? netRealizedDebtBalance
+        : currentPosition?.vaultDebt
+            .toUnderlying()
+            .sub(netRealizedDebtBalance?.toUnderlying());
+
     const borrowAmount = (
-      <LabelValue inline error={underMinAccountBorrow}>
+      <LabelValue inline error>
         <CountUp
-          value={netRealizedDebtBalance?.abs().toFloat() || 0}
+          value={remainingBorrow?.neg().toFloat() || 0}
           suffix={` ${netRealizedDebtBalance?.symbol || ''}`}
           decimals={3}
         />
