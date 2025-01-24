@@ -189,7 +189,7 @@ export interface AccountDefinition {
   /** If prime borrows are enabled */
   allowPrimeBorrow?: boolean;
   /** Stores the last update time for vault positions, used to calculate prime debt fees */
-  vaultLastUpdateTime?: Record<string, number>;
+  vaultLastUpdateTime?: Map<string, number>;
   /** Account incentive debt for nToken incentives */
   accountIncentiveDebt?: AccountIncentiveDebt[];
   /** Account incentive debt for nToken incentives */

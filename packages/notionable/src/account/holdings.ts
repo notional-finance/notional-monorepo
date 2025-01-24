@@ -336,7 +336,7 @@ export function calculateVaultHoldings(
   balances: TokenBalance[],
   balanceStatements: BalanceStatement[],
   accountHistory: AccountHistory[],
-  vaultLastUpdateTime: Record<string, number>,
+  vaultLastUpdateTime: Map<string, number>,
   rewardClaims: Record<string, TokenBalance[]>
 ) {
   const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(model, {

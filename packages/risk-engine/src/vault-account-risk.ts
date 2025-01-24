@@ -35,7 +35,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     if (balances.length === 0) return undefined;
 
     const lastUpdateBlockTime = account.vaultLastUpdateTime
-      ? account.vaultLastUpdateTime[vaultAddress]
+      ? account.vaultLastUpdateTime.get(vaultAddress) || 0
       : 0;
 
     const vaultDebt = balances.find(

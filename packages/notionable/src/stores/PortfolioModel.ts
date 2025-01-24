@@ -462,7 +462,7 @@ export const AccountPortfolioActions = (
       self.balances,
       self.balanceStatement as BalanceStatement[],
       self.accountHistory as AccountHistory[],
-      Object.fromEntries(self.vaultLastUpdateTime.entries()),
+      new Map(self.vaultLastUpdateTime.entries()),
       Object.fromEntries(self.rewardClaims.entries())
     );
 
