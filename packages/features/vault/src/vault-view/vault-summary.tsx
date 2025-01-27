@@ -16,8 +16,9 @@ import { TradeActionSummary } from '@notional-finance/trade';
 import { useVaultFaq } from '../hooks';
 import { useParams } from 'react-router-dom';
 import { APYData } from '@notional-finance/core-entities';
+import { observer } from 'mobx-react-lite';
 
-export const VaultSummary = () => {
+export const VaultSummary = observer(() => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
   const { deposit } = trade?.selectedTokens ?? {};
@@ -109,6 +110,6 @@ export const VaultSummary = () => {
       </Box>
     </Box>
   );
-};
+});
 
 export default VaultSummary;
