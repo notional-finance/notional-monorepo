@@ -21,7 +21,6 @@ import { MobileNavigation } from './mobile-navigation/mobile-navigation';
 import { useLocation } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import {
-  useAppStore,
   useSelectedNetwork,
   useWalletNetworkAccounts,
 } from '@notional-finance/notionable-hooks';

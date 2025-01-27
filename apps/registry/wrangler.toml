@@ -14,7 +14,7 @@ r2_buckets = [
 ]
 
 [env.dev.triggers]
-crons = ["*/5 * * * *"]
+crons = ["* * * * *"]
 
 [env.dev.vars]
 NX_ENV = 'dev'

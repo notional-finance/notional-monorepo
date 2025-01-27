@@ -1704,24 +1704,26 @@ export const TradeModel = types
         };
 
       const leverageOptions = self.debtOptions?.map((debt) => {
-        // TODO: The collateral balance changes depending on the maturity of the debt, this
-        // causes the APY to change when the maturity changes. (only occurs for leveraged liquidity)
-        const collateralBalance =
-          self.collateralOptions.find((c) => c.token.id === self.collateral?.id)
-            ?.balance || TokenBalance.zero(self.collateral as TokenDefinition);
-
         const isVariableRate =
           debt.token.maturity === PRIME_CASH_VAULT_MATURITY ||
           debt.token.maturity === undefined;
 
-        const debtBalance =
-          debt.balance || TokenBalance.zero(debt.token as TokenDefinition);
-
         try {
+          // TODO: The collateral balance changes depending on the maturity of the debt, this
+          // causes the APY to change when the maturity changes. (only occurs for leveraged liquidity)
+          const collateralBalance =
+            self.collateralOptions.find(
+              (c) => c.token.id === self.collateral?.id
+            )?.balance || TokenBalance.zero(self.collateral as TokenDefinition);
+
+          const debtBalance =
+            debt.balance || TokenBalance.zero(debt.token as TokenDefinition);
+
           const leveragedAPY = model.getLeveragedAPY(
             collateralBalance,
             debtBalance,
-            self.leverageRatio || self.defaultLeverageRatio || 0
+            self.leverageRatio || self.defaultLeverageRatio || 0,
+            self.vaultTradeMetadata
           );
 
           return {

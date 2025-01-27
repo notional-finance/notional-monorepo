@@ -17,6 +17,7 @@ import { TokenDefinition } from '../Definitions';
 import { PointsMultipliers } from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
 import { getNetworkModel } from '../Models';
+import { APYData } from '../models/views/YieldViews';
 
 export interface SingleSidedLPParams extends BaseVaultParams {
   pool: string;
@@ -431,5 +432,20 @@ export class SingleSidedLP extends VaultAdapter {
     if (pointsFunc) return pointsFunc(this);
 
     return undefined;
+  }
+
+  /** No dilution is applied to SingleSidedLP vaults */
+  override getSimulatedAPY(
+    _netAmount: TokenBalance,
+    _vaultTradeMetadata?: unknown
+  ): APYData {
+    const rewardAPY = this.getRewardAPY();
+    const totalAPY = this.getVaultAPY();
+    return {
+      incentiveAPY: rewardAPY,
+      organicAPY: totalAPY - rewardAPY,
+      totalAPY,
+      pointMultiples: this.getPointMultiples(),
+    };
   }
 }

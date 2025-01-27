@@ -105,10 +105,10 @@ export default {
   },
   async scheduled(event: ScheduledController, env: BaseDOEnv): Promise<void> {
     const currentMinute = new Date(event.scheduledTime).getMinutes();
-    if (currentMinute % 10 === 0) {
+    if (currentMinute % 2 === 0) {
       await execute(env, Network.mainnet, currentMinute === 10);
       await execute(env, Network.all, currentMinute === 10);
-    } else if (currentMinute % 5 === 0) {
+    } else if (currentMinute % 2 === 1) {
       await execute(env, Network.arbitrum, currentMinute === 5);
     }
   },

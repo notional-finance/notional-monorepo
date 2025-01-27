@@ -353,7 +353,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
 
   const getSimulatedAPY = (
     netAmount: TokenBalance,
-    netPrimeDebt?: TokenBalance
+    netPrimeDebt?: TokenBalance,
+    vaultTradeMetadata?: unknown
   ) => {
     const apyData: APYData = { totalAPY: 0 };
 
@@ -423,9 +424,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         apyData.feeAPY +
         apyData.incentives.reduce((acc, curr) => acc + curr.incentiveAPY, 0);
     } else if (netAmount.tokenType === 'VaultShare' && netAmount.vaultAddress) {
-      // No dilution is applied to vault share APY at this point, we may want to add
-      // that in the future.
-      return getSpotAPY(netAmount.token.id);
+      const adapter = getVaultAdapter(netAmount.vaultAddress);
+      return adapter.getSimulatedAPY(netAmount, vaultTradeMetadata);
     }
 
     return apyData;
@@ -434,7 +434,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const getLeveragedAPY = (
     collateralAmount: TokenBalance,
     debtAmount: TokenBalance,
-    leverageRatio: number
+    leverageRatio: number,
+    vaultTradeMetadata?: unknown
   ): APYData => {
     const collateralAPY = collateralAmount.isZero()
       ? getSpotAPY(collateralAmount.tokenId)
@@ -443,7 +444,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
           collateralAmount.token.tokenType === 'nToken' &&
             debtAmount.token.tokenType === 'PrimeDebt'
             ? debtAmount
-            : undefined
+            : undefined,
+          vaultTradeMetadata
         );
     const debtAPY = debtAmount.isZero()
       ? getSpotAPY(debtAmount.tokenId)

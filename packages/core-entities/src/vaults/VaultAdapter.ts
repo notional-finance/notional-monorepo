@@ -3,6 +3,7 @@ import { TokenBalance } from '../token-balance';
 import { Network } from '@notional-finance/util';
 import { ExchangeRate, TokenDefinition } from '../Definitions';
 import { getNetworkModel } from '../Models';
+import { APYData } from '../models/views/YieldViews';
 
 export interface BaseVaultParams {
   vaultAddress: string;
@@ -95,4 +96,9 @@ export abstract class VaultAdapter {
   }
 
   abstract getLiquidationPriceTokens(): TokenDefinition[];
+
+  abstract getSimulatedAPY(
+    netAmount: TokenBalance,
+    vaultTradeMetadata?: unknown
+  ): APYData;
 }

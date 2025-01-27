@@ -155,23 +155,24 @@ export const NetworkServerModel = NetworkModelWithViews.named(
 });
 
 export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
-  const triggerRefresh = flow(function* () {
+  const triggerRefresh = flow(function* (isCreate = false) {
     const startTime = performance.now();
     const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
     const snapshot = yield response.json();
-    applySnapshot(self, snapshot);
+    applySnapshot(self, {
+      ...snapshot,
+      timeSeries: self.timeSeries,
+      timeSeriesState: self.timeSeriesState,
+      analytics: self.analytics,
+    });
     const endTime = performance.now();
     const duration = endTime - startTime;
     console.log(
       `${self.network} snapshot refreshed in ${duration.toFixed(2)}ms`
     );
 
-    // NOTE: just trigger this in the background so the APYs can load.
-    whitelistedVaults(self.network).forEach((vaultAddress) => {
-      self.fetchTimeSeriesData(vaultAddress, ChartType.APY);
-    });
-
-    // Register the sNOTE oracle price here since it is calculated from the pool
+    // Register the sNOTE oracle price here since it is calculated from the pool, note that this needs
+    // to be re-applied on every snapshot refresh since the price is not persisted.
     if (self.network === Network.mainnet) {
       const sNOTEPool = self.getSNOTEPool();
       if (!sNOTEPool) return;
@@ -187,12 +188,19 @@ export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
       // Register the sNOTE oracle price here
       self.oracles.set(o.id, o);
     }
+
+    // NOTE: just trigger this in the background so the APYs can load.
+    if (isCreate) {
+      whitelistedVaults(self.network).forEach((vaultAddress) => {
+        self.fetchTimeSeriesData(vaultAddress, ChartType.APY);
+      });
+    }
   });
 
   return {
     triggerRefresh,
     afterCreate: () => {
-      triggerRefresh();
+      triggerRefresh(true);
     },
   };
 });
