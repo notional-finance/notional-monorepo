@@ -1,7 +1,6 @@
 import {
   BASIS_POINT,
   doSecantSearch,
-  FLOATING_POINT_DUST,
   getNowSeconds,
   INTERNAL_TOKEN_DECIMALS,
   Network,
@@ -9,6 +8,7 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
+  SECONDS_IN_YEAR_ACTUAL,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
@@ -19,6 +19,8 @@ import { PendleMarket } from '../exchanges';
 import { ExchangeRate, TokenDefinition } from '../Definitions';
 import { defaultAbiCoder } from '@ethersproject/abi';
 import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
+import { APYData } from '../models/views/YieldViews';
+
 export interface PendlePTVaultParams extends BaseVaultParams {
   marketAddress: string;
   tokenInSy: string;
@@ -366,6 +368,45 @@ export class PendlePT extends VaultAdapter {
 
   override getMaxCollateralSlippage(): number | null {
     return 50 * BASIS_POINT;
+  }
+
+  override getSimulatedAPY(
+    netAmount: TokenBalance,
+    vaultTradeMetadata?: unknown
+  ): APYData {
+    if (netAmount.isNegative()) {
+      return {
+        totalAPY: this.getVaultAPY(),
+        organicAPY: this.getVaultAPY(),
+        incentiveAPY: undefined,
+        pointMultiples: undefined,
+      };
+    }
+    if (!vaultTradeMetadata) throw Error('Vault trade metadata is required');
+
+    // Use the tokens in sy to mark the realized amount so that the interest rate
+    // does not include any exchange rate deviations from the borrowed asset to
+    // the PT accounting asset.
+    const amountInSy = (vaultTradeMetadata as { tokensInSy: TokenBalance })
+      .tokensInSy;
+
+    const impliedExchangeRate = netAmount.toFloat() / amountInSy.toFloat();
+    const timeToMaturity = this.timeToExpiry;
+    const totalAPY =
+      (100 *
+        Math.trunc(
+          ((Math.log(impliedExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
+            timeToMaturity) *
+            RATE_PRECISION
+        )) /
+      RATE_PRECISION;
+
+    return {
+      totalAPY,
+      organicAPY: totalAPY,
+      incentiveAPY: undefined,
+      pointMultiples: undefined,
+    };
   }
 
   override async getDepositParameters(

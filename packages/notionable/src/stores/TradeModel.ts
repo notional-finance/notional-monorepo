@@ -1721,7 +1721,8 @@ export const TradeModel = types
           const leveragedAPY = model.getLeveragedAPY(
             collateralBalance,
             debtBalance,
-            self.leverageRatio || self.defaultLeverageRatio || 0
+            self.leverageRatio || self.defaultLeverageRatio || 0,
+            self.vaultTradeMetadata
           );
 
           return {
