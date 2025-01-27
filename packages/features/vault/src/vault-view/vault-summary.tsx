@@ -72,7 +72,9 @@ export const VaultSummary = () => {
         >
           <TradeActionSummary
             currentPositionAPYFactors={
-              action === 'Manage' ? (position?.apyData as APYData) : undefined
+              action === 'WithdrawVault' || action === 'Manage'
+                ? (position?.apyData as APYData)
+                : undefined
             }
           >
             <VaultPerformanceChart />
