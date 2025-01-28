@@ -3,6 +3,7 @@ import {
   formatNumberAsPercent,
   formatNumberAsAbbr,
   formatNumber,
+  checkMobileView,
 } from '@notional-finance/helpers';
 import {
   BarChart as RechartsBarChart,
@@ -14,11 +15,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ReactNode } from 'react';
-import {
-  checkMobileView,
-  getDateString,
-  ONE_WEEK,
-} from '@notional-finance/util';
+import { getDateString, ONE_WEEK } from '@notional-finance/util';
 import { useTheme, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 

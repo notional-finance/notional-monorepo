@@ -1,6 +1,6 @@
 import { Request, Response } from '@google-cloud/functions-framework';
 import DataService from './DataService';
-import { calculateAccountRisks } from './RiskService';
+import { calculateAccountRisks, executeMonitoring } from './RiskService';
 import { syncDune } from './DuneService';
 import { ONE_HOUR_MS } from '@notional-finance/util';
 import { logToDataDog, parseQueryParams } from './util';
@@ -15,6 +15,10 @@ export default async function (req: Request, res: Response) {
 
   try {
     switch (req.path) {
+      case '/executeMonitoring':
+        await executeMonitoring();
+        res.status(200).send('OK');
+        break;
       case '/calculateRisk':
         await calculateAccountRisks();
         res.status(200).send('OK');

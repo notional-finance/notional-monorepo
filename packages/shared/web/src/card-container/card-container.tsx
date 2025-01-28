@@ -11,7 +11,7 @@ import { useLocation } from 'react-router-dom';
 import useCardMobileNav from './mobile-card-dropdown/use-card-mobile-nav';
 import { MobileCardDropdown } from './mobile-card-dropdown/mobile-card-dropdown';
 import { useAppStore } from '@notional-finance/notionable-hooks';
-import { checkMobileView } from '@notional-finance/util';
+import { checkMobileView } from '@notional-finance/helpers';
 
 export interface CardContainerProps {
   heading: MessageDescriptor;

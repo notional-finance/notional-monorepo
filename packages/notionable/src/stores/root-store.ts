@@ -6,7 +6,6 @@ import {
 import { types, Instance } from 'mobx-state-tree';
 import { PortfolioStoreModel } from './portfolio-store';
 import {
-  checkMobileView,
   getFromLocalStorage,
   Network,
   THEME_VARIANTS,
@@ -17,6 +16,7 @@ import { WalletModel } from './wallet-store';
 import { TradeModel } from './TradeModel';
 import { AllTradeTypes } from '../base-trade/base-trade-store';
 import { AccountPortfolioModel } from './PortfolioModel';
+import { checkMobileView } from '@notional-finance/helpers';
 
 export type RootStoreType = Instance<typeof RootStore>;
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
