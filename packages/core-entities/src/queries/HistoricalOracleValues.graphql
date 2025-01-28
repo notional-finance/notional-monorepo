@@ -36,6 +36,7 @@ query HistoricalOracleValues($skip: Int, $minTimestamp: Int) {
     }
     decimals
     ratePrecision
+    oracleAddress
     oracleType
     latestRate
     historicalRates(

@@ -3,7 +3,12 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { Network, PRODUCTS, RATE_PRECISION } from '@notional-finance/util';
+import {
+  firstValue,
+  Network,
+  PRODUCTS,
+  RATE_PRECISION,
+} from '@notional-finance/util';
 import { useEffect } from 'react';
 import { exchangeToLocalPrime } from '@notional-finance/transaction';
 import {
@@ -115,6 +120,12 @@ export const useSpotMaturityData = (
   tokens: TokenDefinition[] | undefined
 ): MaturityData[] => {
   const currentNetworkStore = useCurrentNetworkStore();
+  // NOTE: This is a hack to prevent the maturity data from being fetched for tokens
+  // on a different network
+  if (currentNetworkStore.network !== firstValue(tokens || [])?.network) {
+    return [];
+  }
+
   return (
     tokens?.map((t) => {
       const _t = currentNetworkStore.unwrapVaultToken(t);

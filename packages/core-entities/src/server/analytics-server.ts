@@ -38,7 +38,10 @@ import {
   HistoricalTradingActivityQuery,
   VaultReinvestmentQuery,
 } from '../.graphclient';
-import { whitelistedVaults } from '../config/whitelisted-vaults';
+import {
+  PendlePTVaults,
+  whitelistedVaults,
+} from '../config/whitelisted-vaults';
 import { interestToExchangeRate } from '../models/views/OracleViews';
 import { TokenBalance } from '../token-balance';
 
@@ -362,7 +365,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
   protected getPriceAndTVLHistory(
     oracles: HistoricalOracleValuesQuery['oracles'],
-    chainlinkOracles: TimeSeriesResponse[]
+    chainlinkOracles: TimeSeriesResponse[],
+    network: Network
   ) {
     const priceOracle = oracles.find((o) => {
       if (o.quote.tokenType === 'fCash') {
@@ -417,9 +421,15 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
                     r.timestamp
                   )
                 : BigNumber.from(r.rate);
+            const oracleDecimals =
+              // Override PT vault addresses b/c the decimals are not right in the subgraph
+              PendlePTVaults[network].includes(priceOracle.oracleAddress)
+                ? 18
+                : priceOracle.decimals;
+
             const priceToUnderlying = this.formatToNumber(
               price,
-              priceOracle.decimals
+              oracleDecimals
             );
             const priceToETH = priceToUnderlying * ethPrice;
             const priceToUSD = priceToETH * usdPrice;
@@ -658,7 +668,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     oraclesByQuote.forEach((oracles, quote) => {
       const { priceData, priceLegend } = this.getPriceAndTVLHistory(
         oracles,
-        chainlinkOracles
+        chainlinkOracles,
+        network
       );
 
       const { apyData, apyLegend } = this.getAPYData(
