@@ -266,26 +266,6 @@ export class PendlePT extends VaultAdapter {
       const { tokensOut: ptTokensOut, feesPaid } =
         this.market.calculateTokenTrade(tokensInSy, this.market.PT_TOKEN_INDEX);
 
-      console.log(
-        'net underlying',
-        netUnderlying.toDisplayStringWithSymbol(8, false),
-        netUnderlying.toUnderlying().toDisplayStringWithSymbol(8, false)
-      );
-      console.log(
-        'tokensInSy',
-        tokensInSy.toDisplayStringWithSymbol(8, false),
-        tokensInSy
-          .toToken(netUnderlying.token)
-          .toDisplayStringWithSymbol(8, false)
-      );
-      console.log(
-        'pt tokens out',
-        ptTokensOut.toDisplayStringWithSymbol(8, false),
-        ptTokensOut
-          .toToken(netUnderlying.token)
-          .toDisplayStringWithSymbol(8, false)
-      );
-
       const slippageForSY = tokensInSy
         .toToken(netUnderlying.token)
         .sub(netUnderlying)
@@ -389,7 +369,6 @@ export class PendlePT extends VaultAdapter {
     // the PT accounting asset.
     const amountInSy = (vaultTradeMetadata as { tokensInSy: TokenBalance })
       .tokensInSy;
-
     const impliedExchangeRate = netAmount.toFloat() / amountInSy.toFloat();
     const timeToMaturity = this.timeToExpiry;
     const totalAPY =
@@ -400,6 +379,13 @@ export class PendlePT extends VaultAdapter {
             RATE_PRECISION
         )) /
       RATE_PRECISION;
+    console.log(
+      'Pendle PT apy ',
+      netAmount.toDisplayStringWithSymbol(8, false),
+      amountInSy.toDisplayStringWithSymbol(8, false),
+      impliedExchangeRate,
+      totalAPY
+    );
 
     return {
       totalAPY,
