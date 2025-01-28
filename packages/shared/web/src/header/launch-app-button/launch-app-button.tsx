@@ -17,6 +17,7 @@ export function LaunchAppButton() {
 
   return (
     <Button
+      data-dd-action-name="Launch App [Landing Page Header]"
       component={Link}
       to={
         walletActive

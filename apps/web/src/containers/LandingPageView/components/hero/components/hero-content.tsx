@@ -27,6 +27,7 @@ export const HeroContent = () => {
       </Body>
       <ButtonContainer>
         <Button
+          data-dd-action-name="Launch App [Landing Page Hero]"
           size="large"
           to={
             walletActive
@@ -40,6 +41,7 @@ export const HeroContent = () => {
           <FormattedMessage defaultMessage={'Launch App'} />
         </Button>
         <Button
+          data-dd-action-name="View Docs [Landing Page Hero]"
           size="large"
           variant="outlined"
           sx={{
