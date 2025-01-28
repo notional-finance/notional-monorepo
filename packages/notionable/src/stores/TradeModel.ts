@@ -2104,9 +2104,12 @@ function _getTradedInterestRate(
     const impliedExchangeRate = amount.toFloat() / amountInSy.toFloat();
     const timeToMaturity = (vaultAdapter as PendlePT).timeToExpiry;
     interestRate = Math.trunc(
-      ((Math.log(impliedExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
-        timeToMaturity) *
-        RATE_PRECISION
+      RATE_PRECISION *
+        (Math.pow(
+          impliedExchangeRate,
+          SECONDS_IN_YEAR_ACTUAL / timeToMaturity
+        ) -
+          1)
     );
   } else if (amount.tokenType === 'VaultShare' && vaultAdapter) {
     // In other cases, just use the spot APY

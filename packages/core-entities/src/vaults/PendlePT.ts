@@ -377,20 +377,9 @@ export class PendlePT extends VaultAdapter {
     const impliedExchangeRate = netAmount.toFloat() / amountInSy.toFloat();
     const timeToMaturity = this.timeToExpiry;
     const totalAPY =
-      (100 *
-        Math.trunc(
-          ((Math.log(impliedExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
-            timeToMaturity) *
-            RATE_PRECISION
-        )) /
-      RATE_PRECISION;
-    console.log(
-      'Pendle PT apy ',
-      netAmount.toDisplayStringWithSymbol(8, false),
-      amountInSy.toDisplayStringWithSymbol(8, false),
-      impliedExchangeRate,
-      totalAPY
-    );
+      100 *
+      (Math.pow(impliedExchangeRate, SECONDS_IN_YEAR_ACTUAL / timeToMaturity) -
+        1);
 
     return {
       totalAPY,
