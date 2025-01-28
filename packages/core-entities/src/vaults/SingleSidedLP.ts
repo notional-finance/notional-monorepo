@@ -14,7 +14,7 @@ import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { TokenDefinition } from '../Definitions';
-import { PointsMultipliers } from '../config/whitelisted-vaults';
+import { getVaultType, PointsMultipliers } from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
@@ -263,15 +263,21 @@ export class SingleSidedLP extends VaultAdapter {
     const last7Days = this.apyHistory?.data?.filter(
       ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
     );
+    const vaultType = getVaultType(this.vaultAddress, this.network);
 
     const incentiveAPYs =
       last7Days
         ?.map((r) =>
           Object.keys(r)
-            .filter(
-              (r) =>
-                r.toLowerCase().includes('incentive') ||
-                r.toLowerCase().includes('points')
+            .filter((r) =>
+              // Direct claim vaults have a reward APY based on incentives
+              vaultType === 'SingleSidedLP_DirectClaim'
+                ? r.toLowerCase().includes('incentive')
+                : // Points vaults only have rewards based on points, any other reward
+                // is compounded into the organic APY
+                vaultType === 'SingleSidedLP_Points'
+                ? r.toLowerCase().includes('points')
+                : false
             )
             .reduce((t, key) => t + (r[key] || 0), 0)
         )
