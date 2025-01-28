@@ -3,6 +3,7 @@ import {
   fetchBatchAccounts,
   fetchFromRegistry,
   getNetworkModel,
+  initializeTokenBalanceRegistry,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import {
@@ -39,7 +40,8 @@ import {
 } from 'packages/core-entities/src/.graphclient';
 import { ethers } from 'ethers';
 
-const REGISTRY_URL = process.env['REGISTRY_URL'] as string;
+initializeTokenBalanceRegistry();
+
 const SUBGRAPH_API_KEY = process.env['SUBGRAPH_API_KEY'] as string;
 const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
 const SERVICE_NAME = 'risk-service';
@@ -1009,24 +1011,18 @@ async function checkVaultReinvestments(network: Network) {
   const reinvestments = getNetworkModel(network).analytics.vaultReinvestment;
   const oneHourAgo = getNowSeconds() - SECONDS_IN_HOUR;
 
-  for (const [vaultAddress, reinvestmentList] of Object.entries(
-    reinvestments?.entries() || []
-  )) {
+  for (const [vaultAddress, reinvestmentList] of reinvestments?.entries() ||
+    []) {
     for (const reinvestment of reinvestmentList) {
       if (reinvestment.timestamp < oneHourAgo) continue;
       const vault = getNetworkModel(network).getVaultConfig(vaultAddress);
-      const rewardToken = getNetworkModel(network).getTokenByID(
-        reinvestment.rewardTokenSold.id
-      );
+      const rewardToken = reinvestment.rewardAmountSold.token;
       const borrowCurrency = getNetworkModel(network).getTokenByID(
         vault.primaryBorrowCurrency.id
       );
 
       // Calculate the price that the reward token was sold for
-      const amountSold = TokenBalance.from(
-        reinvestment.rewardAmountSold,
-        rewardToken
-      );
+      const amountSold = reinvestment.rewardAmountSold;
       const amountReceived = TokenBalance.from(
         reinvestment.underlyingAmountRealized || 0,
         borrowCurrency

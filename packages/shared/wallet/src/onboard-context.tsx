@@ -15,11 +15,11 @@ import trezorModule from '@web3-onboard/trezor';
 import WalletConnect from './images/wallet-connect.svg';
 import Trezor from './images/trezor.svg';
 import {
-  checkMobileView,
   getProviderURLFromNetwork,
   Network,
   NetworkId,
 } from '@notional-finance/util';
+import { checkMobileView } from '@notional-finance/helpers';
 
 export const chains = [
   {

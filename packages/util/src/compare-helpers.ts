@@ -40,6 +40,3 @@ export function containsNonZeroNumber(str: string) {
   return /\d*[1-9]\d*/.test(cleanedStr);
 }
 
-export function checkMobileView() {
-  return window.innerWidth < 768 ? true : false;
-}

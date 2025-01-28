@@ -111,7 +111,8 @@ export async function fetchGraphPaginate<R, V>(
   query: TypedDocumentNode<R, V>,
   rootVariable: string | undefined,
   apiKey: string,
-  variables?: V
+  variables?: V,
+  waitTimeMs?: number
 ) {
   const { execute } = await loadGraphClientDeferred();
   const executionResult = await execute(query, variables, {
@@ -130,6 +131,9 @@ export async function fetchGraphPaginate<R, V>(
     });
 
     executionResult['data'][rootVariable].push(r['data'][rootVariable]);
+    if (waitTimeMs) {
+      await new Promise((resolve) => setTimeout(resolve, waitTimeMs));
+    }
   }
 
   return executionResult;
