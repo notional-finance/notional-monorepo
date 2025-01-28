@@ -5,10 +5,11 @@ import { INavLink } from '../nav-link';
 
 /* eslint-disable-next-line */
 export interface NavigationProps extends TabsProps {
+  isLandingPage?: boolean;
   navLinks: INavLink[];
 }
 
-export function Navigation({ navLinks }: NavigationProps) {
+export function Navigation({ navLinks, isLandingPage }: NavigationProps) {
   const theme = useTheme();
   const [selectedTab, setSelectedTab] = useState<string | false>(false);
   const { pathname } = useLocation();
@@ -41,6 +42,11 @@ export function Navigation({ navLinks }: NavigationProps) {
           ) : (
             <Box key={index}>
               <Tab
+                data-dd-action-name={
+                  isLandingPage
+                    ? `Navigation [${navLink?.key}] [Landing Page Header]`
+                    : `Navigation [${navLink?.key}] [App Header]`
+                }
                 key={navLink?.key}
                 icon={navLink?.iconImg}
                 iconPosition="start"
@@ -95,6 +101,11 @@ export function Navigation({ navLinks }: NavigationProps) {
         {rightNavLinks.map((navLink: INavLink, index) => (
           <Box key={index}>
             <Tab
+              data-dd-action-name={
+                isLandingPage
+                  ? `Navigation [${navLink?.key}] [Landing Page Header]`
+                  : `Navigation [${navLink?.key}] [App Header]`
+              }
               key={navLink?.key}
               icon={navLink?.iconImg}
               iconPosition="start"
