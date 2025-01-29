@@ -26,6 +26,9 @@ export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
   if (!poolDefinition.latestPoolData)
     throw Error(`Pool data not defined for ${poolDefinition}`);
   const PoolClass = PoolClasses[poolDefinition.PoolClass] as PoolConstructor;
+  if (PoolClass === undefined) {
+    throw Error(`Pool class ${poolDefinition.PoolClass} not found`);
+  }
   const poolParams = JSON.parse(
     poolDefinition.latestPoolData.poolParams,
     reviver

@@ -63,6 +63,7 @@ const StateZeroData = observer(
                 lg: theme.spacing(3),
               },
               flexWrap: 'wrap',
+              paddingX: theme.spacing(2),
             }}
           >
             {displaySymbols.map((token, index) => (

@@ -14,12 +14,14 @@ interface MobileSideDrawer {
   dataKey: MOBILE_SUB_NAV_ACTIONS;
   drawerOpen: boolean;
   setDrawerOpen: Dispatch<SetStateAction<boolean>>;
+  closeDrawer: () => void;
 }
 
 const MobileSideDrawer = ({
   dataKey,
   drawerOpen,
   setDrawerOpen,
+  closeDrawer,
 }: MobileSideDrawer) => {
   const theme = useTheme();
   const { linkData, label } = useSideDrawerLinks(dataKey);
@@ -132,7 +134,13 @@ const MobileSideDrawer = ({
         {dataKey === MOBILE_SUB_NAV_ACTIONS.SETTINGS ? (
           <SettingsSideDrawer toggleDrawer={setDrawerOpen} />
         ) : (
-          linkData.map((data) => <MobileNavTab key={data.key} data={data} />)
+          linkData.map((data) => (
+            <MobileNavTab
+              handleCloseDrawer={closeDrawer}
+              key={data.key}
+              data={data}
+            />
+          ))
         )}
       </Tabs>
     </SwipeableDrawer>
