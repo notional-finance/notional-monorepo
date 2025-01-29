@@ -31,10 +31,10 @@ export const usePortfolioMobileNav = () => {
       Icon: (
         <FourSquareIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
               category === PORTFOLIO_CATEGORIES.OVERVIEW
-                ? theme.palette.typography.main
+                ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
           }}
         />
@@ -48,16 +48,15 @@ export const usePortfolioMobileNav = () => {
       Icon: (
         <FourSquareIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
-              category === PORTFOLIO_CATEGORIES.OVERVIEW
-                ? theme.palette.typography.main
+              category === PORTFOLIO_CATEGORIES.HOLDINGS
+                ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
           }}
         />
       ),
     },
-
     {
       title: <FormattedMessage defaultMessage={'History'} />,
       id: PORTFOLIO_CONNECTED_WALLET.HISTORY,
@@ -65,7 +64,7 @@ export const usePortfolioMobileNav = () => {
       Icon: (
         <HistoryIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
               category === PORTFOLIO_CATEGORIES.OVERVIEW
                 ? theme.palette.typography.main
