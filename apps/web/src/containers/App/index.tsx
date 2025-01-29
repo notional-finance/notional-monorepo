@@ -2,10 +2,11 @@ import { datadogRum } from '@datadog/browser-rum';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
 import { ReactRouter6Adapter } from 'use-query-params/adapters/react-router-6';
-import { getFromLocalStorage } from '@notional-finance/helpers';
+import { trackEvent, getFromLocalStorage } from '@notional-finance/helpers';
 import { useEffect } from 'react';
 import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
 import { App } from './App';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 
 const applicationId = process.env['NX_DD_APP_ID'] as string;
 const clientToken = process.env['NX_DD_CLIENT_TOKEN'] as string;
@@ -47,8 +48,7 @@ const growthbook = new GrowthBook({
   clientKey: 'sdk-I5Vp9ALYVkr78H6n',
   enableDevMode: true,
   trackingCallback: (experiment, result) => {
-    // TODO: Use your real analytics tracking system
-    console.log('Viewed Experiment', {
+    trackEvent(TRACKING_EVENTS.VIEWED_EXPERIMENT, {
       experimentId: experiment.key,
       variationId: result.key,
     });
