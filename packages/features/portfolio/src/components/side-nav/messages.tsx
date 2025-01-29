@@ -1,5 +1,8 @@
 import { defineMessages } from 'react-intl';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
+import {
+  PORTFOLIO_CATEGORIES,
+  PORTFOLIO_CONNECTED_WALLET,
+} from '@notional-finance/util';
 
 export const navLabels = defineMessages({
   [PORTFOLIO_CATEGORIES.OVERVIEW]: {
@@ -24,6 +27,22 @@ export const navLabels = defineMessages({
   },
   [PORTFOLIO_CATEGORIES.WELCOME]: {
     defaultMessage: 'Welcome',
+    description: 'navigation link',
+  },
+  [PORTFOLIO_CONNECTED_WALLET.PORTFOLIO]: {
+    defaultMessage: 'Portfolio',
+    description: 'navigation link',
+  },
+  [PORTFOLIO_CONNECTED_WALLET.RATES]: {
+    defaultMessage: 'Rates',
+    description: 'navigation link',
+  },
+  [PORTFOLIO_CONNECTED_WALLET.RISK]: {
+    defaultMessage: 'Risk',
+    description: 'navigation link',
+  },
+  [PORTFOLIO_CONNECTED_WALLET.HISTORY]: {
+    defaultMessage: 'History',
     description: 'navigation link',
   },
 });

@@ -1,13 +1,12 @@
 import {
   PORTFOLIO_CATEGORIES,
   PORTFOLIO_ACTIONS,
+  PORTFOLIO_CONNECTED_WALLET,
 } from '@notional-finance/util';
 import {
-  BarChartIcon,
   FourSquareIcon,
-  StakeIcon,
-  VaultIcon,
   HistoryIcon,
+  BarChartLateralIcon,
 } from '@notional-finance/icons';
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
@@ -19,11 +18,6 @@ export interface PortfolioParams extends Record<string, string | undefined> {
   sideDrawerKey?: PORTFOLIO_ACTIONS;
 }
 
-export enum NAV_OPTIONS {
-  SET_ONE = 'set_one',
-  SET_TWO = 'set_two',
-}
-
 export const usePortfolioMobileNav = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
@@ -31,8 +25,8 @@ export const usePortfolioMobileNav = () => {
 
   const options = [
     {
-      title: <FormattedMessage defaultMessage={'Overview'} />,
-      id: PORTFOLIO_CATEGORIES.OVERVIEW,
+      title: <FormattedMessage defaultMessage={'Portfolio'} />,
+      id: PORTFOLIO_CONNECTED_WALLET.PORTFOLIO,
       to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
       Icon: (
         <FourSquareIcon
@@ -46,65 +40,51 @@ export const usePortfolioMobileNav = () => {
         />
       ),
     },
+
     {
-      title: <FormattedMessage defaultMessage={'Holdings'} />,
-      id: PORTFOLIO_CATEGORIES.HOLDINGS,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
+      title: <FormattedMessage defaultMessage={'Risk'} />,
+      id: PORTFOLIO_CONNECTED_WALLET.RISK,
+      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
       Icon: (
-        <BarChartIcon
+        <FourSquareIcon
           sx={{
             width: theme.spacing(2),
             fill:
-              category === PORTFOLIO_CATEGORIES.HOLDINGS
+              category === PORTFOLIO_CATEGORIES.OVERVIEW
                 ? theme.palette.typography.main
                 : theme.palette.typography.light,
           }}
         />
       ),
     },
-    {
-      title: <FormattedMessage defaultMessage={'Vaults'} />,
-      id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
-      Icon: (
-        <VaultIcon
-          sx={{
-            width: theme.spacing(2),
-            fill:
-              category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS
-                ? theme.palette.typography.main
-                : theme.palette.typography.light,
-          }}
-        />
-      ),
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Stake'} />,
-      id: PORTFOLIO_CATEGORIES.NOTE_STAKING,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.NOTE_STAKING}`,
-      Icon: (
-        <StakeIcon
-          fill={
-            category === PORTFOLIO_CATEGORIES.NOTE_STAKING
-              ? theme.palette.typography.main
-              : theme.palette.typography.light
-          }
-          sx={{
-            width: theme.spacing(2),
-          }}
-        />
-      ),
-    },
+
     {
       title: <FormattedMessage defaultMessage={'History'} />,
-      id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
+      id: PORTFOLIO_CONNECTED_WALLET.HISTORY,
+      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
       Icon: (
         <HistoryIcon
           sx={{
             width: theme.spacing(2),
             fill:
-              category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY
+              category === PORTFOLIO_CATEGORIES.OVERVIEW
+                ? theme.palette.typography.main
+                : theme.palette.typography.light,
+          }}
+        />
+      ),
+    },
+
+    {
+      title: <FormattedMessage defaultMessage={'Rates'} />,
+      id: PORTFOLIO_CONNECTED_WALLET.RATES,
+      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
+      Icon: (
+        <BarChartLateralIcon
+          sx={{
+            width: theme.spacing(2),
+            fill:
+              category === PORTFOLIO_CATEGORIES.OVERVIEW
                 ? theme.palette.typography.main
                 : theme.palette.typography.light,
           }}

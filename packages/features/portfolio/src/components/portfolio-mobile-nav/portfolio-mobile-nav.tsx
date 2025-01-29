@@ -1,4 +1,7 @@
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
+import {
+  PORTFOLIO_CATEGORIES,
+  PORTFOLIO_CONNECTED_WALLET,
+} from '@notional-finance/util';
 import { Box, styled, useTheme } from '@mui/material';
 import { Caption } from '@notional-finance/mui';
 import { Link, useParams } from 'react-router-dom';
@@ -9,8 +12,8 @@ import {
 import { NotionalTheme } from '@notional-finance/styles';
 
 interface CustomLinkProps {
-  category?: PORTFOLIO_CATEGORIES | null;
-  id?: PORTFOLIO_CATEGORIES | null;
+  category?: PORTFOLIO_CATEGORIES | PORTFOLIO_CONNECTED_WALLET | null;
+  id?: PORTFOLIO_CATEGORIES | PORTFOLIO_CONNECTED_WALLET | null;
   theme: NotionalTheme;
 }
 

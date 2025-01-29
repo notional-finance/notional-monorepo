@@ -92,6 +92,13 @@ export enum PORTFOLIO_STATE_ZERO_OPTIONS {
   BORROW = 2,
 }
 
+export enum PORTFOLIO_CONNECTED_WALLET {
+  PORTFOLIO = 'portfolio',
+  RISK = 'risk',
+  HISTORY = 'history',
+  RATES = 'rates',
+}
+
 export enum PORTFOLIO_CATEGORIES {
   OVERVIEW = 'overview',
   HOLDINGS = 'holdings',

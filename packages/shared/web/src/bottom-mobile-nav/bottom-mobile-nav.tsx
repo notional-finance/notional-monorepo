@@ -1,4 +1,4 @@
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, Divider, styled, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { Caption } from '@notional-finance/mui';
 import { NotionalTheme } from '@notional-finance/styles';
@@ -18,6 +18,7 @@ interface BottomMobileNavProps {
     id: string;
     to: string;
     Icon: ReactNode;
+    divider?: boolean;
   }[];
   navKey?: string;
   showMore?: boolean;
@@ -42,15 +43,18 @@ export function BottomMobileNav({
           alignItems: 'center',
         }}
       >
-        {options.map(({ title, Icon, id, to }, i) => (
-          <NavOption key={i}>
-            <CustomLink to={to} id={id} theme={theme} navKey={navKey}>
-              <Box>{Icon}</Box>
-              <Title id={id} theme={theme} navKey={navKey}>
-                {title}
-              </Title>
-            </CustomLink>
-          </NavOption>
+        {options.map(({ title, Icon, id, to, divider }, i) => (
+          <>
+            <NavOption key={i}>
+              <CustomLink to={to} id={id} theme={theme} navKey={navKey}>
+                <Box>{Icon}</Box>
+                <Title id={id} theme={theme} navKey={navKey}>
+                  {title}
+                </Title>
+              </CustomLink>
+            </NavOption>
+            {divider && <Divider orientation="vertical" flexItem />}
+          </>
         ))}
         {showMore && (
           <NavOption
