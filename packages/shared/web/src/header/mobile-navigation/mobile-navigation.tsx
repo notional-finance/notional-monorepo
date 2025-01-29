@@ -196,11 +196,7 @@ export const MobileNavigation = observer(() => {
           </Box>
         )}
         <StyledBurger
-          open={
-            mobileNavOpen || currentSideDrawerKey === 'connect-wallet'
-              ? true
-              : false
-          }
+          open={mobileNavOpen || currentSideDrawerKey === 'connect-wallet'}
           onClick={
             mobileNavOpen || currentSideDrawerKey === 'connect-wallet'
               ? (event) => handleCloseNavMenu(event)
@@ -280,6 +276,9 @@ export const MobileNavigation = observer(() => {
               value={t.link}
               rel={t.external && t.target === '_blank' ? 'noreferrer' : ''}
               target={t.target || '_self'}
+              onClickCapture={(event) => {
+                handleCloseNavMenu(event);
+              }}
               component="a"
               disableRipple
               sx={{
@@ -310,6 +309,12 @@ export const MobileNavigation = observer(() => {
           dataKey={sideDrawerDataKey}
           setDrawerOpen={setDrawerOpen}
           drawerOpen={drawerOpen}
+          closeDrawer={() => {
+            setMainNavOpen(false);
+            clearWalletSideDrawer();
+            setDrawerOpen(false);
+            setMobileNavOpen(false);
+          }}
         />
       </Drawer>
     </Box>
