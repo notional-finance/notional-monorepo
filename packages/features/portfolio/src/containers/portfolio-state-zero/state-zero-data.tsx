@@ -97,30 +97,34 @@ const StateZeroData = observer(
             )}
           </Box>
         </TokenContainer>
-        <Box
-          sx={{
-            width: '99%',
-            margin: 'auto',
-            marginTop: theme.spacing(4),
-            gap: {
-              sm: theme.spacing(6),
-              md: theme.spacing(6, 3),
-              lg: theme.spacing(6, 3),
-            },
-            display: 'flex',
-            flexWrap: 'wrap',
-          }}
-        >
+        <StateZeroDataContainer>
           {cardData.map((card, index) => (
             <StateZeroCard index={index} card={card} key={index} />
           ))}
-        </Box>
+        </StateZeroDataContainer>
       </>
     );
   }
 );
 
 export default StateZeroData;
+
+const StateZeroDataContainer = styled(Box)(
+  ({ theme }) => `
+    width: 100%;
+    margin: auto;
+    margin-top: ${theme.spacing(4)};
+    gap: ${theme.spacing(6, 3)};
+    display: flex;
+    flexWrap: wrap;
+    flex-direction: column;
+    ${theme.breakpoints.down('sm')} {
+      margin-top: ${theme.spacing(2)};
+      gap: ${theme.spacing(2)};
+      padding: 0 ${theme.spacing(2)};
+    }
+  `
+);
 
 const TokenBox = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'active',

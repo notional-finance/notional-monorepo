@@ -174,7 +174,7 @@ const PortfolioMainContent = styled(Box)(
       min-height: 0px;
       min-width: 100%;
       max-width: 70vw;
-      margin: ${theme.spacing(4)} auto ${theme.spacing(3)};
+      margin: ${theme.spacing(3)} auto ${theme.spacing(3)};
     };
   `
 );

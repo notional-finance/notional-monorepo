@@ -82,7 +82,8 @@ const AppShell = styled(Box)`
   min-height: 100vh;
 `;
 
-const MainContent = styled('div')`
+const MainContent = styled('div')(
+  ({ theme }) => `
   padding-top: 67px;
   display: flex;
   flex-grow: 1;
@@ -90,6 +91,11 @@ const MainContent = styled('div')`
     height: 100%;
     width: 100%;
   }
-`;
+
+  ${theme.breakpoints.down('sm')} {
+    padding-top: 4.6rem;
+  }
+`
+);
 
 export default observer(AppLayoutRoute);
