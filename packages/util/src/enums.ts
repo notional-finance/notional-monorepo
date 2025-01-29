@@ -195,6 +195,7 @@ export enum TRACKING_EVENTS {
   SUCCESSFUL_TXN = 'SuccessfulTxn',
   DISCONNECT_WALLET = 'DisconnectWallet',
   WALLET_CONNECTED = 'WalletConnected',
+  VIEWED_EXPERIMENT = 'ViewedExperiment',
 }
 
 export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS;

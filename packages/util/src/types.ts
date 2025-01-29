@@ -1,10 +1,4 @@
-import { Observable } from 'rxjs';
 import { Network } from './constants';
-
-type GenericObservable<T> = Observable<T>;
-export type ExtractObservableReturn<T> = T extends GenericObservable<infer X>
-  ? X
-  : never;
 
 type DataServiceAccountContextUpdate = {
   name: 'AccountContextUpdate';
