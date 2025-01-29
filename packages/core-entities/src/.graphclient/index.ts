@@ -9209,7 +9209,7 @@ export type HistoricalOracleValuesQueryVariables = Exact<{
 
 
 export type HistoricalOracleValuesQuery = { oracles: Array<(
-    Pick<Oracle, 'id' | 'decimals' | 'ratePrecision' | 'oracleType' | 'latestRate'>
+    Pick<Oracle, 'id' | 'decimals' | 'ratePrecision' | 'oracleAddress' | 'oracleType' | 'latestRate'>
     & { base: Pick<Token, 'id' | 'tokenType'>, quote: (
       Pick<Token, 'id' | 'tokenType' | 'maturity'>
       & { underlying?: Maybe<Pick<Token, 'id'>> }
@@ -9931,6 +9931,7 @@ export const HistoricalOracleValuesDocument = gql`
     }
     decimals
     ratePrecision
+    oracleAddress
     oracleType
     latestRate
     historicalRates(

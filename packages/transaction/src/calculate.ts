@@ -760,7 +760,10 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     (debtBalance: TokenBalance) => {
       // NOTE: any borrowed cash is first net off against the prime debt fees
       // accrued before the vault collateral is purchased
-      if (debtBalance.maturity === PRIME_CASH_VAULT_MATURITY)
+      if (
+        debtBalance.maturity === PRIME_CASH_VAULT_MATURITY &&
+        !accruedVaultFees.isZero()
+      )
         debtBalance = debtBalance.add(accruedVaultFees);
 
       return calculateVaultCollateral({

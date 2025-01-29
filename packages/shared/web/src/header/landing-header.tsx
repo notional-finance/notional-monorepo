@@ -55,7 +55,7 @@ export function LandingHeader({ children }: LandingHeaderProps) {
             <NotionalLogo />
           </H4>
           <NavContainer>
-            <Navigation navLinks={navLinks} />
+            <Navigation navLinks={navLinks} isLandingPage />
           </NavContainer>
           <AnalyticsContainer>
             <AnalyticsDropdown />

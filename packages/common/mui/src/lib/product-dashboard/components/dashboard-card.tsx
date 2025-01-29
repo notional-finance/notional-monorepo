@@ -11,8 +11,9 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { NotionalTheme } from '@notional-finance/styles';
 import SliderBasic from '../../slider-basic/slider-basic';
 import ReinvestPill from '../../reinvest-pill/reinvest-pill';
-import { checkMobileView, PRODUCTS } from '@notional-finance/util';
+import { PRODUCTS } from '@notional-finance/util';
 import { Link } from 'react-router-dom';
+import { checkMobileView } from '@notional-finance/helpers';
 interface GridCardApyProps {
   hideApySubTitle: boolean;
   theme: NotionalTheme;

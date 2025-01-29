@@ -44,6 +44,8 @@ const PENDLE_ROUTER = {
 };
 
 export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
+  protected static USE_FIXED_SY_TO_ASSET_EXCHANGE_RATE = false;
+
   public static override getInitData(
     network: Network,
     marketAddress: string
@@ -54,7 +56,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       getProviderFromNetwork(network)
     ) as PendleMarketContract;
 
-    return [
+    const calls: AggregateCall[] = [
       {
         stage: 0,
         target: market,
@@ -123,7 +125,28 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
         transform: (r: Awaited<ReturnType<PendleSY['assetInfo']>>) =>
           r.assetAddress,
       },
+      // No balances to return for the PT token
       {
+        stage: 0,
+        target: 'NO_OP',
+        method: 'NO_OP',
+        key: 'balances',
+        args: [],
+        transform: () => [],
+      },
+    ];
+
+    if (this.USE_FIXED_SY_TO_ASSET_EXCHANGE_RATE) {
+      calls.push({
+        stage: 1,
+        target: 'NO_OP',
+        method: 'NO_OP',
+        key: 'syToAssetExchangeRate',
+        args: [],
+        transform: () => SCALAR_PRECISION,
+      });
+    } else {
+      calls.push({
         stage: 1,
         target: (prevResults) =>
           new Contract(
@@ -139,17 +162,10 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
         method: 'exchangeRate',
         key: 'syToAssetExchangeRate',
         args: [],
-      },
-      // No balances to return for the PT token
-      {
-        stage: 0,
-        target: 'NO_OP',
-        method: 'NO_OP',
-        key: 'balances',
-        args: [],
-        transform: () => [],
-      },
-    ];
+      });
+    }
+
+    return calls;
   }
 
   public TOKEN_IN_INDEX = 0;
@@ -179,8 +195,12 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
   get ptSpotYieldToMaturity() {
     return this.timeToExpiry === 0
       ? 0
-      : (100 * Math.log(this.ptExchangeRate) * SECONDS_IN_YEAR_ACTUAL) /
-          this.timeToExpiry;
+      : 100 *
+          (Math.pow(
+            this.ptExchangeRate,
+            SECONDS_IN_YEAR_ACTUAL / this.timeToExpiry
+          ) -
+            1);
   }
 
   public convertAssetToSy(assetAmount: TokenBalance) {
@@ -458,4 +478,8 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     const rt = (r * timeToExpiry) / SECONDS_IN_YEAR_ACTUAL;
     return Math.exp(rt);
   }
+}
+
+export class PendleMarketWithFixedSyToAssetExchangeRate extends PendleMarket {
+  protected static override USE_FIXED_SY_TO_ASSET_EXCHANGE_RATE = true;
 }

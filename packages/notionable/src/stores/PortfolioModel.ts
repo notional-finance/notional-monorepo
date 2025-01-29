@@ -31,6 +31,7 @@ const APYDataModel = types.model('APYDataModel', {
   leverageRatio: types.maybe(types.number),
   debtAPY: types.maybe(types.number),
   organicAPY: types.maybe(types.number),
+  incentiveAPY: types.maybe(types.number),
   feeAPY: types.maybe(types.number),
   incentives: types.maybe(
     types.array(
