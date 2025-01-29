@@ -3,10 +3,15 @@ import {
   Network,
   RouteType,
   getDefaultNetworkFromHostname,
+  setInLocalStorage,
+  getFromLocalStorage,
 } from '@notional-finance/util';
 import { AnalyticsBrowser } from '@segment/analytics-next';
 import { useEffect, useState } from 'react';
 import { useLocation, Location } from 'react-router';
+import { useGrowthBook } from '@growthbook/growthbook-react';
+
+const FIRST_SESSION_KEY = 'first_session';
 
 export const analytics = AnalyticsBrowser.load(
   {
@@ -91,19 +96,51 @@ export function trackPageView(
   );
 }
 
-export const useDatadogNewUserTracking = () => {
+const trackNewUser = () => {
+  const firstSessionTime = getFromLocalStorage(FIRST_SESSION_KEY);
+  const isFirstSession = !firstSessionTime;
+
+  if (isFirstSession) {
+    setInLocalStorage(FIRST_SESSION_KEY, Date.now().toString());
+  }
+
+  return {
+    firstSessionTime: getFromLocalStorage(FIRST_SESSION_KEY),
+    isFirstSession,
+  };
+};
+
+export const useNewUserTracking = () => {
+  const growthbook = useGrowthBook();
+
   useEffect(() => {
-    analytics.user().then((user) => {
-      const ddUser = datadogRum.getUser();
-      if (
-        user.anonymousId() &&
-        !user.id() &&
-        Object.keys(ddUser).length === 0
-      ) {
-        safeDatadogRum.setUser({
-          hasConnectedWallet: false,
+    analytics.ready(() => {
+      analytics.user().then((user) => {
+        const { isFirstSession } = trackNewUser();
+
+        growthbook.setAttributes({
+          ...growthbook.getAttributes(),
+          isFirstSession,
         });
-      }
+
+        const ddUser = datadogRum.getUser();
+
+        if (
+          user.anonymousId() &&
+          !user.id() &&
+          Object.keys(ddUser).length === 0
+        ) {
+          safeDatadogRum.setUser({
+            isFirstSession,
+            hasConnectedWallet: false,
+          });
+
+          growthbook.setAttributes({
+            ...growthbook.getAttributes(),
+            hasConnectedWallet: false,
+          });
+        }
+      });
     });
   }, []);
 };

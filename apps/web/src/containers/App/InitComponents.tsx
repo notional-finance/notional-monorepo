@@ -2,10 +2,7 @@ import {
   useSanctionsBlock,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import {
-  useDatadogNewUserTracking,
-  usePageTrack,
-} from '@notional-finance/helpers';
+import { useNewUserTracking, usePageTrack } from '@notional-finance/helpers';
 import { Intercom, shutdown } from '@intercom/messenger-js-sdk';
 import { RouteType } from '@notional-finance/util';
 import { useEffect } from 'react';
@@ -32,6 +29,6 @@ export const InitIntercom = () => {
 export const InitPageTrack = ({ routeType }: { routeType: RouteType }) => {
   const selectedNetwork = useWalletConnectedNetwork();
   usePageTrack(routeType, selectedNetwork);
-  useDatadogNewUserTracking();
+  useNewUserTracking();
   return <div></div>;
 };

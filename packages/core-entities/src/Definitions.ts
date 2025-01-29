@@ -1,6 +1,5 @@
 import { Network, TokenAddress, VaultAddress } from '@notional-finance/util';
 import { BigNumber, BigNumberish } from 'ethers';
-import { BehaviorSubject } from 'rxjs';
 import { PoolClasses } from './exchanges';
 import { SerializedTokenBalance, TokenBalance } from './token-balance';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
@@ -276,8 +275,6 @@ export interface CacheSchema<T> {
   lastUpdateTimestamp: number;
   lastUpdateBlock: number;
 }
-
-export type SubjectMap<T> = Map<string, BehaviorSubject<T | null>>;
 
 export type RiskAdjustment = 'None' | 'Asset' | 'Debt';
 export interface YieldData {

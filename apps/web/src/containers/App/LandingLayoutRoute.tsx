@@ -1,5 +1,5 @@
 import { Box, CssBaseline, ThemeProvider, styled } from '@mui/material';
-import { useDatadogNewUserTracking } from '@notional-finance/helpers';
+import { useNewUserTracking } from '@notional-finance/helpers';
 import { colors, useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
 
@@ -11,7 +11,7 @@ const LandingLayoutRoute = ({
   component: Component,
 }: LandingLayoutRouteProps) => {
   const notionalTheme = useNotionalTheme(THEME_VARIANTS.DARK);
-  useDatadogNewUserTracking();
+  useNewUserTracking();
 
   return (
     <ThemeProvider theme={notionalTheme}>

@@ -59,6 +59,7 @@ ddforward
 ddsource
 ddtags
 ddxbb
+debank
 defaultf
 defi
 degen
@@ -117,6 +118,7 @@ ghous
 gitbook
 givenf
 graphclient
+growthbook
 healthcheck
 healthz
 helptext
@@ -317,4 +319,3 @@ xwst
 yaxis
 yfprime
 yonath
-debank
