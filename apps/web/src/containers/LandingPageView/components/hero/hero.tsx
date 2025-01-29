@@ -9,7 +9,7 @@ import { useFeatureValue } from '@growthbook/growthbook-react';
 
 export const Hero = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const showHeroStats = useFeatureValue('show-hero-stats', true);
+  const showHeroStats = useFeatureValue('hero-stats-visible', true);
   const width = window.innerWidth;
   if (width < 1000 && !isMobile) {
     setIsMobile(true);

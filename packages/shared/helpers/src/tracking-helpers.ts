@@ -120,6 +120,7 @@ export const useNewUserTracking = () => {
 
         growthbook.setAttributes({
           ...growthbook.getAttributes(),
+          id: user.anonymousId(),
           isFirstSession,
         });
 
