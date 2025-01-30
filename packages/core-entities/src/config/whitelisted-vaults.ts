@@ -21,7 +21,7 @@ export const PointsMultipliers: Record<
       Ethena: 20,
     }),
     [vaults.mainnet.Balancer_rsETH_xWETH.toLowerCase()]: () => ({
-      Kelp: 2,
+      Kernel: 2,
     }),
   },
   [Network.all]: {},
@@ -30,7 +30,7 @@ export const PointsMultipliers: Record<
       Renzo: 6,
     }),
     [vaults.arbitrum.Aura_rsETH_xWETH.toLowerCase()]: () => ({
-      Kelp: 2,
+      Kernel: 2,
     }),
   },
 };
