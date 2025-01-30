@@ -42,7 +42,6 @@ const REGISTRY_URL =
   process.env['NX_REGISTRY_URL'] ||
   process.env['REGISTRY_URL'] ||
   'https://registry.notional.finance';
-console.log('REGISTRY_URL IN NETWORK MODEL', REGISTRY_URL);
 
 export const NetworkModel = types.model('Network', {
   network: NotionalTypes.Network,
