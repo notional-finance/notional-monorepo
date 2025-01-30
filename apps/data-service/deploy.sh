@@ -14,6 +14,24 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+# Environment Variables
+ENV_VARS="DB_USER=postgres,\
+DB_NAME=notional-v3,\
+DB_HOST=/cloudsql/monitoring-agents:us-central1:notional,\
+REGISTRY_URL=https://registry-dev.notional.finance,\
+MERGE_CONFLICTS=false,\
+NX_USE_CROSS_FETCH=true,\
+CLOUDFLARE_ACCOUNT_ID=274f86c6dcfbb77c09e49e86d101c753,\
+R2_ACCESS_KEY_ID=09f2809bc45eba2e05cf8cf7cb91a269"
+
+# Secrets configuration
+SECRETS="DB_PASS=projects/663932775145/secrets/DB_PASS/versions/latest,\
+DATA_SERVICE_AUTH_TOKEN=projects/663932775145/secrets/DATA_SERVICE_AUTH_TOKEN/versions/latest,\
+R2_SECRET_ACCESS_KEY=projects/663932775145/secrets/R2_SECRET_ACCESS_KEY/versions/latest,\
+DUNE_API_KEY=projects/663932775145/secrets/DUNE_API_KEY/versions/latest,\
+SUBGRAPH_API_KEY=projects/663932775145/secrets/SUBGRAPH_API_KEY/versions/latest,\
+DD_API_KEY=projects/663932775145/secrets/DD_API_KEY/versions/latest"
+
 # Deploy based on the first argument
 if [ "$1" = "data-service" ]; then
   gcloud --project monitoring-agents \
@@ -28,8 +46,8 @@ if [ "$1" = "data-service" ]; then
     --concurrency=1 \
     --cpu=1 \
     --memory=256 \
-    --set-env-vars=DB_USER=postgres,DB_NAME=notional-v3,DB_HOST=/cloudsql/monitoring-agents:us-central1:notional,REGISTRY_URL=https://registry.notional.finance,MERGE_CONFLICTS=false,NX_USE_CROSS_FETCH=true,CLOUDFLARE_ACCOUNT_ID=274f86c6dcfbb77c09e49e86d101c753,R2_ACCESS_KEY_ID=09f2809bc45eba2e05cf8cf7cb91a269 \
-    --set-secrets=DB_PASS=projects/663932775145/secrets/DB_PASS/versions/latest,DATA_SERVICE_AUTH_TOKEN=projects/663932775145/secrets/DATA_SERVICE_AUTH_TOKEN/versions/latest,R2_SECRET_ACCESS_KEY=projects/663932775145/secrets/R2_SECRET_ACCESS_KEY/versions/latest,DUNE_API_KEY=projects/663932775145/secrets/DUNE_API_KEY/versions/latest,SUBGRAPH_API_KEY=projects/663932775145/secrets/SUBGRAPH_API_KEY/versions/latest,DD_API_KEY=projects/663932775145/secrets/DD_API_KEY/versions/latest
+    --set-env-vars="${ENV_VARS}" \
+    --set-secrets="${SECRETS}"
 
 elif [ "$1" = "cron-service" ]; then
   gcloud --project monitoring-agents \
@@ -40,12 +58,12 @@ elif [ "$1" = "cron-service" ]; then
     --no-allow-unauthenticated \
     --entry-point=cronService \
     --gen2 \
-    --timeout=600 \
+    --timeout=1200 \
     --concurrency=1 \
     --cpu=2 \
     --memory=1024 \
-    --set-env-vars=DB_USER=postgres,DB_NAME=notional-v3,DB_HOST=/cloudsql/monitoring-agents:us-central1:notional,REGISTRY_URL=https://registry.notional.finance,MERGE_CONFLICTS=false,NX_USE_CROSS_FETCH=true,CLOUDFLARE_ACCOUNT_ID=274f86c6dcfbb77c09e49e86d101c753,R2_ACCESS_KEY_ID=09f2809bc45eba2e05cf8cf7cb91a269 \
-    --set-secrets=DB_PASS=projects/663932775145/secrets/DB_PASS/versions/latest,DATA_SERVICE_AUTH_TOKEN=projects/663932775145/secrets/DATA_SERVICE_AUTH_TOKEN/versions/latest,R2_SECRET_ACCESS_KEY=projects/663932775145/secrets/R2_SECRET_ACCESS_KEY/versions/latest,DUNE_API_KEY=projects/663932775145/secrets/DUNE_API_KEY/versions/latest,SUBGRAPH_API_KEY=projects/663932775145/secrets/SUBGRAPH_API_KEY/versions/latest,DD_API_KEY=projects/663932775145/secrets/DD_API_KEY/versions/latest
+    --set-env-vars="${ENV_VARS}" \
+    --set-secrets="${SECRETS}"
 
 else
   echo "Error: Invalid argument. Please provide 'data-service' or 'cron-service'."
