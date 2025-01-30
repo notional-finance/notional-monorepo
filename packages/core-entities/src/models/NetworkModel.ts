@@ -39,7 +39,10 @@ import { YieldViews } from './views/YieldViews';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
 
 const REGISTRY_URL =
-  process.env['NX_REGISTRY_URL'] || 'https://registry.notional.finance';
+  process.env['NX_REGISTRY_URL'] ||
+  process.env['REGISTRY_URL'] ||
+  'https://registry.notional.finance';
+console.log('REGISTRY_URL IN NETWORK MODEL', REGISTRY_URL);
 
 export const NetworkModel = types.model('Network', {
   network: NotionalTypes.Network,
@@ -157,6 +160,10 @@ export const NetworkServerModel = NetworkModelWithViews.named(
 export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
   const triggerRefresh = flow(function* (isCreate = false) {
     const startTime = performance.now();
+    console.log(
+      'Refreshing snapshot using url',
+      `${REGISTRY_URL}/${self.network}/snapshot`
+    );
     const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
     const snapshot = yield response.json();
     applySnapshot(self, {

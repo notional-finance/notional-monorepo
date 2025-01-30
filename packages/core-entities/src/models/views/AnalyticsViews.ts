@@ -7,6 +7,7 @@ import { TokenDefinition } from '../../Definitions';
 
 const REGISTRY_HOSTNAME =
   (process.env['NX_REGISTRY_URL'] as string) ||
+  (process.env['REGISTRY_URL'] as string) ||
   'https://registry.notional.finance';
 
 export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {

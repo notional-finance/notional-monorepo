@@ -10661,11 +10661,6 @@
     "@types/node" "*"
     "@types/send" "*"
 
-"@types/set-interval-async@^1.0.0":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@types/set-interval-async/-/set-interval-async-1.0.3.tgz#e1974c7c812617cd6ed37d3afde31b7e4f8047a5"
-  integrity sha512-sPwjhIU2p8JeaYJPuzfQclyPni3c4Nz7IK4KhvAkMq5O36TsQXeaZ5g3YwiOtE90ja3E4rg7Aja1DcO+eknZbw==
-
 "@types/sinonjs__fake-timers@8.1.1":
   version "8.1.1"
   resolved "https://registry.yarnpkg.com/@types/sinonjs__fake-timers/-/sinonjs__fake-timers-8.1.1.tgz#b49c2c70150141a15e0fa7e79cf1f92a72934ce3"
