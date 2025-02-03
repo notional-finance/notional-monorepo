@@ -1,6 +1,5 @@
 import { styled, Box, useTheme, Theme } from '@mui/material';
 import { Body, H1, Button } from '@notional-finance/mui';
-import { useWalletConnectedNetwork } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
 import { Network } from '@notional-finance/util';
 import { useWalletActive } from '@notional-finance/wallet';
@@ -9,7 +8,6 @@ import { useFeatureValue } from '@growthbook/growthbook-react';
 
 export const HeroContent = () => {
   const theme = useTheme();
-  const network = useWalletConnectedNetwork() || Network.mainnet;
   const walletActive = useWalletActive();
   const showHeroStats = useFeatureValue('hero-stats-visible', true);
 
@@ -52,8 +50,8 @@ export const HeroContent = () => {
           size="large"
           to={
             walletActive
-              ? `/portfolio/${network}/overview`
-              : `/portfolio/${network}/welcome/earn`
+              ? `/portfolio/${Network.mainnet}/overview`
+              : `/portfolio/${Network.mainnet}/welcome/earn`
           }
           sx={
             showHeroStats
