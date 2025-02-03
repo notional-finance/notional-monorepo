@@ -1,4 +1,10 @@
-import { DataTable, MultiDisplayChart, BarChart } from '@notional-finance/mui';
+import {
+  DataTable,
+  MultiDisplayChart,
+  BarChart,
+  Card,
+  AreaChart,
+} from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { observer } from 'mobx-react-lite';
 import {
@@ -12,8 +18,10 @@ import { ClaimNoteButton, PortfolioPageHeader } from '../../components';
 import { Box, styled, useTheme } from '@mui/material';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+import PortfolioHoldingsOverview from './containers/portfolio-holdings-overview';
+import LeverageVaultsOverview from './containers/leverage-vaults-overview';
 
-const PortfolioOverview = () => {
+const PortfolioOverviewMobile = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
   const { totalHoldingsColumns, totalHoldingsData, showTotalHoldingsTable } =
@@ -24,9 +32,11 @@ const PortfolioOverview = () => {
     useRiskOverviewTable(baseCurrency);
   const { barChartData, barConfig, totalsData } = useTotalsChart(baseCurrency);
 
+  console.log('barChartData', barChartData);
+
   return (
     <Box>
-      <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.OVERVIEW}>
+      {/* <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.OVERVIEW}>
         <ClaimNoteButton />
       </PortfolioPageHeader>
       <Container>
@@ -50,10 +60,53 @@ const PortfolioOverview = () => {
             ]}
           />
         )}
+      </Container> */}
+      <Container>
+        {barChartData && barConfig && (
+          <MultiDisplayChart
+            chartComponents={[
+              {
+                chartHeaderTotalsData: totalsData,
+                id: 'apy-area-chart',
+                title: 'APY',
+                hideTopGridLine: false,
+                Component: (
+                  <AreaChart
+                    title="APY"
+                    xAxisTickFormat="date"
+                    showCartesianGrid
+                    yAxisTickFormat="number"
+                    areaChartData={barChartData.map(
+                      ({ timestamp, totalNetWorth, totalAssets }) => ({
+                        timestamp,
+                        area: totalNetWorth,
+                      })
+                    )}
+                  />
+                ),
+              },
+            ]}
+          />
+        )}
       </Container>
 
-      <Box sx={{ '#data-table-container': { marginBottom: theme.spacing(4) } }}>
-        {riskOverviewData.length > 0 && (
+      <Box
+        sx={{
+          '#data-table-container': { marginBottom: theme.spacing(4) },
+          display: 'flex',
+          flexDirection: 'column',
+          gap: theme.spacing(2),
+        }}
+      >
+        {showTotalHoldingsTable && (
+          <PortfolioHoldingsOverview holdings={totalHoldingsData} />
+        )}
+
+        {showVaultHoldingsTable && (
+          <LeverageVaultsOverview data={vaultHoldingsData} />
+        )}
+
+        {/* {riskOverviewData.length > 0 && (
           <DataTable
             data={riskOverviewData}
             columns={riskOverviewColumns}
@@ -67,40 +120,15 @@ const PortfolioOverview = () => {
             }
           />
         )}
-        {showTotalHoldingsTable && (
-          <DataTable
-            data={totalHoldingsData}
-            columns={totalHoldingsColumns}
-            tableTitle={
-              <div>
-                <FormattedMessage
-                  defaultMessage="Portfolio Holdings"
-                  description="table title"
-                />
-              </div>
-            }
-          />
-        )}
-        {showVaultHoldingsTable && (
-          <DataTable
-            data={vaultHoldingsData}
-            columns={overviewVaultHoldingsColumns}
-            tableTitle={
-              <div>
-                <FormattedMessage
-                  defaultMessage="Leveraged Vaults"
-                  description="table title"
-                />
-              </div>
-            }
-          />
-        )}
+
+        
+        )} */}
       </Box>
     </Box>
   );
 };
 
-export const Container = styled(Box)(
+const Container = styled(Box)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(4)};
   ${theme.breakpoints.down('sm')} {
@@ -109,4 +137,4 @@ export const Container = styled(Box)(
 `
 );
 
-export default observer(PortfolioOverview);
+export default observer(PortfolioOverviewMobile);

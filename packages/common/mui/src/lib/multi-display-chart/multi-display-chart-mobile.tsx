@@ -7,10 +7,9 @@ import {
   ChartHeader,
   ChartHeaderDataProps,
 } from '../chart-header/chart-header';
-import {
-  ChartHeaderTotals,
+import ChartHeaderTotals, {
   ChartHeaderTotalsDataProps,
-} from '../chart-header-totals/chart-header-totals';
+} from '../chart-header-totals';
 import {
   ChartInfoBox,
   chartInfoBoxDataProps,
@@ -48,7 +47,7 @@ export const MultiDisplayChart = ({
   >(undefined);
 
   return (
-    <TradeSummaryBox sx={{ width: '100%', padding: theme.spacing(3) }}>
+    <TradeSummaryBox sx={{ width: '100%' }}>
       {chartComponents.length > 1 ? (
         <>
           <Box

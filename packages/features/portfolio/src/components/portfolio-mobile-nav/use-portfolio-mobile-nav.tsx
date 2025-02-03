@@ -5,8 +5,9 @@ import {
 } from '@notional-finance/util';
 import {
   FourSquareIcon,
-  HistoryIcon,
-  BarChartLateralIcon,
+  HistoryTabIcon,
+  BarChartIcon,
+  PercentIcon,
 } from '@notional-finance/icons';
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
@@ -14,7 +15,7 @@ import { FormattedMessage } from 'react-intl';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams extends Record<string, string | undefined> {
-  category?: PORTFOLIO_CATEGORIES;
+  category?: PORTFOLIO_CATEGORIES | PORTFOLIO_CONNECTED_WALLET;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
 }
 
@@ -26,7 +27,7 @@ export const usePortfolioMobileNav = () => {
   const options = [
     {
       title: <FormattedMessage defaultMessage={'Portfolio'} />,
-      id: PORTFOLIO_CONNECTED_WALLET.PORTFOLIO,
+      id: PORTFOLIO_CATEGORIES.OVERVIEW,
       to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
       Icon: (
         <FourSquareIcon
@@ -44,13 +45,13 @@ export const usePortfolioMobileNav = () => {
     {
       title: <FormattedMessage defaultMessage={'Risk'} />,
       id: PORTFOLIO_CONNECTED_WALLET.RISK,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
+      to: `/portfolio/${network}/${PORTFOLIO_CONNECTED_WALLET.RISK}`,
       Icon: (
-        <FourSquareIcon
+        <BarChartIcon
           sx={{
             width: theme.spacing(3),
             fill:
-              category === PORTFOLIO_CATEGORIES.HOLDINGS
+              category === PORTFOLIO_CONNECTED_WALLET.RISK
                 ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
           }}
@@ -60,14 +61,14 @@ export const usePortfolioMobileNav = () => {
     {
       title: <FormattedMessage defaultMessage={'History'} />,
       id: PORTFOLIO_CONNECTED_WALLET.HISTORY,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
+      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
       Icon: (
-        <HistoryIcon
+        <HistoryTabIcon
           sx={{
             width: theme.spacing(3),
             fill:
-              category === PORTFOLIO_CATEGORIES.OVERVIEW
-                ? theme.palette.typography.main
+              category === PORTFOLIO_CONNECTED_WALLET.HISTORY
+                ? theme.palette.typography.white
                 : theme.palette.typography.light,
           }}
         />
@@ -77,15 +78,19 @@ export const usePortfolioMobileNav = () => {
     {
       title: <FormattedMessage defaultMessage={'Rates'} />,
       id: PORTFOLIO_CONNECTED_WALLET.RATES,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
+      to: `/portfolio/${network}/welcome/`,
       Icon: (
-        <BarChartLateralIcon
+        <PercentIcon
           sx={{
-            width: theme.spacing(2),
-            fill:
-              category === PORTFOLIO_CATEGORIES.OVERVIEW
-                ? theme.palette.typography.main
+            width: theme.spacing(3),
+            stroke:
+              category === PORTFOLIO_CONNECTED_WALLET.RATES
+                ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
+            fill:
+              category === PORTFOLIO_CONNECTED_WALLET.RATES
+                ? theme.palette.primary.dark
+                : theme.palette.typography.white,
           }}
         />
       ),

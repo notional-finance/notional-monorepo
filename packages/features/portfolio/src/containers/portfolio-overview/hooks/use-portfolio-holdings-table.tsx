@@ -49,11 +49,40 @@ const TotalHoldingsColumns: DataTableColumn[] = [
   },
 ] as const;
 
+// Define a type for the structure of each holding
+export type HoldingData = {
+  currency: string;
+  netWorth:
+    | {
+        data: {
+          displayValue: string;
+          isNegative: boolean;
+        }[];
+      }
+    | string;
+  assets:
+    | {
+        data: {
+          displayValue: string;
+          isNegative: boolean;
+        }[];
+      }
+    | string;
+  debts:
+    | {
+        data: {
+          displayValue: string;
+          isNegative: boolean;
+        }[];
+      }
+    | string;
+};
+
 export const useTotalHoldingsTable = (baseCurrency: FiatKeys) => {
   const currentAccount = useCurrentNetworkAccount();
   const totalCurrencyHoldings = currentAccount?.totalCurrencyHoldings;
 
-  const totalHoldingsData = totalCurrencyHoldings
+  const totalHoldingsData: HoldingData[] = totalCurrencyHoldings
     ? totalCurrencyHoldings.holdings.map(
         ({ currency, netWorth, assets, debts }) => {
           return {

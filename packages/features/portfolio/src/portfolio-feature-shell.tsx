@@ -159,7 +159,7 @@ const Portfolio = observer(() => {
       <PortfolioSidebar>
         <SideNav />
       </PortfolioSidebar>
-      {params.category !== PORTFOLIO_CATEGORIES.WELCOME && (
+      {params.category !== PORTFOLIO_CATEGORIES.WELCOME ? (
         <>
           <PortfolioMainContent>
             {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
@@ -179,8 +179,7 @@ const Portfolio = observer(() => {
           </PortfolioMainContent>
           <PortfolioMobileNav />
         </>
-      )}
-      {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
+      ) : (
         <PortfolioStateZero />
       )}
       {isMobileView && <MobileFooter />}

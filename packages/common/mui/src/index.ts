@@ -11,7 +11,7 @@ export * from './lib/button-bar/button-bar';
 export * from './lib/card/card';
 export * from './lib/chart-tool-tip/chart-tool-tip';
 export * from './lib/chart-header/chart-header';
-export * from './lib/chart-header-totals/chart-header-totals';
+export * from './lib/chart-header-totals';
 export * from './lib/chart-info-box/chart-info-box';
 export * from './lib/copy-caption/copy-caption';
 export * from './lib/count-up/count-up';
@@ -42,7 +42,10 @@ export * from './lib/light-dark-switch/light-dark-switch';
 export * from './lib/hooks/use-window-dimensions/use-window-dimensions';
 export * from './lib/labeled-text/labeled-text';
 export * from './lib/mini-button/mini-button';
-export * from './lib/multi-display-chart/multi-display-chart';
+export {
+  default as MultiDisplayChart,
+  ChartComponentsProps,
+} from './lib/multi-display-chart';
 export * from './lib/multi-select-dropdown/multi-select-dropdown';
 export * from './lib/page-loading/page-loading';
 export * from './lib/progress-indicator/progress-indicator';

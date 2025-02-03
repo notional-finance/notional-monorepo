@@ -44,6 +44,7 @@ const MobileNavContainer = styled(Box)(
   ({ theme }) => `
   display: none;
   ${theme.breakpoints.down('sm')} {
+    box-shadow: 0px 10px 20px 10px rgba(20, 42, 74, 0.20);
     background: ${theme.palette.background.paper};
     height: ${theme.spacing(10)};
     display: flex;

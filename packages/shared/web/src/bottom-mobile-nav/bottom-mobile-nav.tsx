@@ -98,8 +98,7 @@ const MobileNavContainer = styled(Box)(
     ${theme.breakpoints.down('sm')} {
       box-shadow: 0px 10px 20px 10px rgba(20, 42, 74, 0.20);
       background: ${theme.palette.background.paper};
-      height: fit-content;
-      padding: ${theme.spacing(1)};
+      height: ${theme.spacing(10)};
       display: flex;
       width: 100%;    
       z-index: 2;
@@ -129,7 +128,6 @@ const CustomLink = styled(Link, {
       navKey === id ? theme.palette.background.accentDefault : 'transparent'
     };
     padding: ${theme.spacing(0.5, 1)};
-    padding-top: ${theme.spacing(1)};
     border-radius: ${theme.shape.borderRadiusLarge};
     min-width: ${theme.spacing(9)};
   `
@@ -147,7 +145,7 @@ const Title = styled(Caption, {
     color: ${
       navKey === id
         ? theme.palette.typography.contrastText
-        : theme.palette.typography.main
+        : theme.palette.typography.light
     };
   `
 );

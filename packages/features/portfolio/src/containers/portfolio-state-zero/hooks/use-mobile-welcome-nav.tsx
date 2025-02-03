@@ -39,8 +39,8 @@ export const useMobileWelcomeNav = () => {
             Icon: (
               <FourSquareIcon
                 sx={{
-                  width: theme.spacing(2),
-                  fill: theme.palette.typography.main,
+                  width: theme.spacing(3),
+                  fill: theme.palette.typography.light,
                 }}
               />
             ),
@@ -58,7 +58,7 @@ export const useMobileWelcomeNav = () => {
             fill:
               sideDrawerKey === 'earn'
                 ? theme.palette.typography.contrastText
-                : theme.palette.typography.main,
+                : theme.palette.typography.light,
           }}
         />
       ),
@@ -74,7 +74,7 @@ export const useMobileWelcomeNav = () => {
             fill:
               sideDrawerKey === 'leverage'
                 ? theme.palette.typography.contrastText
-                : theme.palette.typography.main,
+                : theme.palette.typography.light,
           }}
         />
       ),
@@ -91,7 +91,7 @@ export const useMobileWelcomeNav = () => {
             stroke:
               sideDrawerKey === 'borrow'
                 ? theme.palette.typography.contrastText
-                : theme.palette.typography.main,
+                : theme.palette.typography.light,
           }}
         />
       ),
