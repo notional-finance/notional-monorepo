@@ -30,7 +30,7 @@ export async function fetchBatchAccounts(
         startId: ACCOUNT_ID_RANGES[i],
         endId: ACCOUNT_ID_RANGES[i + 1],
       },
-      500
+      750
     );
 
     (results as ExecutionResult<AllAccountsQuery>).data?.accounts.forEach(
