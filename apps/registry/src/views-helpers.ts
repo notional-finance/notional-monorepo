@@ -45,12 +45,12 @@ async function fetchAllDBViews(env: BaseDOEnv, network: Network) {
   await Promise.all(data.map((v) => fetchDBView(env, network, v.view_name)));
 }
 
-async function fetchAllGraphViews(
-  analyticsServer: AnalyticsServer,
+export async function fetchReconciliationViews(
   env: BaseDOEnv,
   network: Network
 ) {
   if (network === Network.all) return;
+  const analyticsServer = new AnalyticsServer(env);
 
   await Promise.all([
     analyticsServer
@@ -67,7 +67,7 @@ export async function refreshViews(env: BaseDOEnv, network: Network) {
   const analyticsServer = new AnalyticsServer(env);
 
   await fetchAllDBViews(env, network);
-  await fetchAllGraphViews(analyticsServer, env, network);
+  await fetchReconciliationViews(env, network);
   // Saves time series data to R2 for the registry to serve
   const { timeSeries, priceChanges, vaultReinvestment, historicalTrading } =
     await analyticsServer.fetchTimeSeries(network);
