@@ -3,10 +3,6 @@ import { H5, LargeNumber } from '../typography/typography';
 import { Box, styled, useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 
-interface ColorBarProps {
-  barColor: string;
-  theme: NotionalTheme;
-}
 interface ContentWrapperProps {
   lastIndex: number;
   index: number;
@@ -32,7 +28,7 @@ export const ChartHeaderTotals = ({
 
   return (
     <HeadingContainer>
-      {chartHeaderTotalsData.map(({ title, value, fill }, index) => (
+      {chartHeaderTotalsData.map(({ title, value }, index) => (
         <ContentWrapper
           key={index}
           lastIndex={lastIndex}
@@ -40,10 +36,22 @@ export const ChartHeaderTotals = ({
           theme={theme}
           dataLength={chartHeaderTotalsData.length}
         >
-          <ColorBar barColor={fill} theme={theme}></ColorBar>
-          <Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: index === 0 ? 'flex-start' : 'flex-end',
+              justifyContent: 'center',
+            }}
+          >
             <Title>{title}</Title>
-            <LargeNumber sx={{ display: 'flex', alignItems: 'center' }}>
+            <LargeNumber
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                fontSize: index === 0 ? '26px' : '16px',
+              }}
+            >
               {value}
             </LargeNumber>
           </Box>
@@ -61,10 +69,6 @@ const HeadingContainer = styled(Box)(
   margin-bottom: ${theme.spacing(1)};
   margin-left: ${theme.spacing(1.25)};
   margin-right: ${theme.spacing(2.5)};
-  
-  ${theme.breakpoints.down('sm')} {
-    display: none;
-  }
 `
 );
 
@@ -98,28 +102,13 @@ const ContentWrapper = styled(Box, {
 
 const Title = styled(H5)(
   `
-  font-size: 10px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   white-space: nowrap;
-`
-);
-
-const ColorBar = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'barColor',
-})(
-  ({ barColor, theme }: ColorBarProps) => `
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  width: 6px;
-  height: ${theme.spacing(5)};
-  background: ${barColor};
-  margin-right: ${theme.spacing(1)};
 `
 );
 

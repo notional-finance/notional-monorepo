@@ -94,3 +94,4 @@ export * from './lib/network-toggle/network-toggle';
 export * from './lib/mobile-nav-with-filter/mobile-nav-with-filter';
 export * from './lib/date-range-buttons/date-range-buttons';
 export * from './lib/modal/modal';
+export * from './lib/line-chart/line-chart';

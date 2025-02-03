@@ -27,6 +27,7 @@ import { FormattedMessage } from 'react-intl';
 export const useTotalsChart = (baseCurrency: FiatKeys) => {
   const windowDimensions = useWindowDimensions();
   const network = useSelectedNetwork();
+  const { isMobileView } = useAppStore();
   const { currentAPY, netWorth, debts, assets } =
     useAccountCurrentFactors(network);
   const [secondsMultiple, setSecondsMultiple] = useState(1.5);
@@ -74,7 +75,7 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
     },
   ];
 
-  if (debts?.isNegative()) {
+  if (debts?.isNegative() && !isMobileView) {
     barConfig.push(
       {
         dataKey: 'totalAssets',
@@ -111,7 +112,7 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
     barConfig.push({
       dataKey: 'currentApy',
       title: <FormattedMessage defaultMessage="Current APY" />,
-      toolTipTitle: <FormattedMessage defaultMessage="Debts" />,
+      toolTipTitle: <FormattedMessage defaultMessage="Current APY" />,
       fill: 'transparent',
       radius: [8, 8, 0, 0],
       currencySymbol: FiatSymbols[baseCurrency]
@@ -128,6 +129,7 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
       title: data.title,
       fill: data.fill,
       value: data.value,
+      dataKey: data.dataKey,
     };
   }) as ChartHeaderTotalsDataProps[];
 

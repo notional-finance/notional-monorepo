@@ -10,6 +10,13 @@ export const TradeSummaryBox = styled(Box)(
   padding: ${theme.spacing(2)};
   padding-top: ${theme.spacing(3)};
   width: 100%;
+
+  ${theme.breakpoints.down('sm')} {
+    padding: 0;
+    border-radius: 0;
+    border: none;
+    background: transparent;
+  }
 `
 );
 

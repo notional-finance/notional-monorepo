@@ -1,4 +1,4 @@
-import { Box, styled, Typography, useTheme } from '@mui/material';
+import { Box, styled, Typography } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
 import { useVaultHoldingsTable } from '@notional-finance/portfolio-feature-shell/hooks';
@@ -8,9 +8,6 @@ interface IProps {
 }
 
 const LeverageVaultsOverview = ({ data }: IProps) => {
-  const theme = useTheme();
-
-  console.log(data);
   return (
     <Container>
       <Heading variant="h2">
