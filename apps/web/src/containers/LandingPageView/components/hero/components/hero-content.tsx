@@ -1,72 +1,104 @@
-import { styled, Box, useTheme } from '@mui/material';
+import { styled, Box, useTheme, Theme } from '@mui/material';
 import { Body, H1, Button } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { Network } from '@notional-finance/util';
 import { useWalletActive } from '@notional-finance/wallet';
 import { FormattedMessage } from 'react-intl';
-import { useParams } from 'react-router';
+import { useFeatureValue } from '@growthbook/growthbook-react';
 
 export const HeroContent = () => {
   const theme = useTheme();
-  const params = useParams<any>();
   const walletActive = useWalletActive();
-  const network = params?.selectedNetwork || Network.mainnet;
+  const showHeroStats = useFeatureValue('hero-stats-visible', true);
 
   return (
-    <ContentWrapper>
-      <H1>
+    <ContentWrapper theme={theme} showHeroStats={showHeroStats}>
+      <H1 sx={{ textAlign: showHeroStats ? 'left' : 'center' }}>
         <FormattedMessage defaultMessage={'Maximum Returns.'} />
       </H1>
-      <H1>
+      <H1 sx={{ textAlign: showHeroStats ? 'left' : 'center' }}>
         <FormattedMessage defaultMessage={'Minimum Risk.'} />
       </H1>
-      <Body sx={{ marginTop: theme.spacing(3), maxWidth: theme.spacing(68) }}>
+      <Body
+        sx={{
+          marginTop: theme.spacing(3),
+          maxWidth: theme.spacing(68),
+          textAlign: showHeroStats ? 'left' : 'center',
+        }}
+      >
         <FormattedMessage
           defaultMessage={`Lend, borrow, and earn leveraged yield with DeFi's leading fixed rate lending protocol.`}
         />
       </Body>
-      <ButtonContainer>
+      <ButtonContainer
+        sx={
+          showHeroStats
+            ? {
+                justifyContent: 'flex-start',
+              }
+            : {
+                justifyContent: 'center',
+                margin: theme.spacing(9),
+                '& > a': {
+                  width: '100%',
+                },
+              }
+        }
+      >
         <Button
           data-dd-action-name="Launch App [Landing Page Hero]"
           size="large"
           to={
             walletActive
-              ? `/portfolio/${network}/overview`
-              : `/portfolio/${network}/welcome/earn`
+              ? `/portfolio/${Network.mainnet}/overview`
+              : `/portfolio/${Network.mainnet}/welcome/earn`
           }
-          sx={{
-            marginRight: theme.spacing(6),
-          }}
+          sx={
+            showHeroStats
+              ? {
+                  marginRight: theme.spacing(6),
+                }
+              : {
+                  margin: 'auto',
+                  width: '100%',
+                  minWidth: 'unset',
+                }
+          }
         >
           <FormattedMessage defaultMessage={'Launch App'} />
         </Button>
-        <Button
-          data-dd-action-name="View Docs [Landing Page Hero]"
-          size="large"
-          variant="outlined"
-          sx={{
-            background: colors.black,
-            ':hover': {
-              background: colors.matteGreen,
-            },
-          }}
-          href="https://docs.notional.finance/notional-v3"
-        >
-          <FormattedMessage defaultMessage={'View Docs'} />
-        </Button>
+        {showHeroStats && (
+          <Button
+            data-dd-action-name="View Docs [Landing Page Hero]"
+            size="large"
+            variant="outlined"
+            sx={{
+              background: colors.black,
+              ':hover': {
+                background: colors.matteGreen,
+              },
+            }}
+            href="https://docs.notional.finance/notional-v3"
+          >
+            <FormattedMessage defaultMessage={'View Docs'} />
+          </Button>
+        )}
       </ButtonContainer>
     </ContentWrapper>
   );
 };
 
-const ContentWrapper = styled(Box)(
-  ({ theme }) => `
+const ContentWrapper = styled(
+  Box,
+  {}
+)(
+  ({ theme, showHeroStats }: { theme: Theme; showHeroStats?: boolean }) => `
     z-index: 2;
-    margin-left: 12vw;
+    margin: ${showHeroStats ? '0 0 0 12vw' : 'auto'};
     padding-top: ${theme.spacing(19.75)};
-  
+
     ${theme.breakpoints.down('lg')} {
-      margin-left: ${theme.spacing(8)};  
+      margin-left: ${showHeroStats ? theme.spacing(8) : 'auto'};  
     }
   
     ${theme.breakpoints.down('mdLanding')} {
@@ -76,7 +108,6 @@ const ContentWrapper = styled(Box)(
     @media(max-height: 800px) {
       padding-top: ${theme.spacing(5)};
     }
-  
   
     ${theme.breakpoints.down('md')} {
       width: fit-content;
@@ -98,6 +129,7 @@ const ContentWrapper = styled(Box)(
 
 const ButtonContainer = styled(Box)(
   ({ theme }) => `
+    display: flex;
     margin-top: ${theme.spacing(9)};
     margin-bottom: ${theme.spacing(9)};
     ${theme.breakpoints.down('smLanding')} {

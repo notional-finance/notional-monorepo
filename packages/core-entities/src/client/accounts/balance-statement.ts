@@ -121,7 +121,7 @@ export function parseGraphBalanceToTokenBalance(
   let b = BigNumber.from(balance);
   if (isDebt && b.gt(0)) b = b.mul(-1);
 
-  return new TokenBalance(balance, tokenId, network);
+  return new TokenBalance(b, tokenId, network);
 }
 
 export function parseCurrentBalanceStatement(

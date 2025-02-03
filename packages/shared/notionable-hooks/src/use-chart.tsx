@@ -262,8 +262,8 @@ export function useAccountHistoryChart(
           return {
             timestamp: start,
             assets,
-            debts,
-            netWorth: assets.sub(debts),
+            debts: debts.abs(),
+            netWorth: assets.add(debts),
           };
         });
     } catch (e) {
