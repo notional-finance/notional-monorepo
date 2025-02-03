@@ -2,7 +2,7 @@ import { Request } from '@cloudflare/workers-types';
 import { NetworkServerModel } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 import { putStorageKey } from './registry-helpers';
-import { refreshViews } from './views-helpers';
+import { fetchReconciliationViews, refreshViews } from './views-helpers';
 
 export interface BaseDOEnv {
   NX_COMMIT_REF: string | undefined;
@@ -37,6 +37,7 @@ async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
     return;
   }
 
+  await fetchReconciliationViews(env, network);
   const networkModel = NetworkServerModel.create({ network });
   networkModel.initialize(async (data: string) => {
     await putStorageKey(env, `${network}/snapshot`, data);
