@@ -1,6 +1,6 @@
-import { MultiDisplayChart } from '@notional-finance/mui';
+import { DisplayChartMobile } from '@notional-finance/mui';
 import { observer } from 'mobx-react-lite';
-import { useTotalsChart, useTotalHoldingsTable } from './hooks';
+import { useTotalsChart } from './hooks';
 import { usePortfolioNOTETable, useVaultHoldingsTable } from '../../hooks';
 import { Box, styled, useTheme } from '@mui/material';
 import { useAppStore } from '@notional-finance/notionable-hooks';
@@ -9,12 +9,12 @@ import LeverageVaultsOverview from './containers/leverage-vaults-overview';
 import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
 import moment from 'moment';
 import NOTEHoldingsOverview from './containers/note-holdings-overview';
+import { usePortfolioHoldings } from '../portfolio-holdings/use-portfolio-holdings';
 
 const PortfolioOverviewMobile = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
-  const { totalHoldingsData, showTotalHoldingsTable } =
-    useTotalHoldingsTable(baseCurrency);
+  const { portfolioHoldingsData } = usePortfolioHoldings(baseCurrency);
   const { vaultHoldingsData, showVaultHoldingsTable } = useVaultHoldingsTable();
   const { noteData } = usePortfolioNOTETable();
   const { barChartData, barConfig, totalsData } = useTotalsChart(baseCurrency);
@@ -23,25 +23,23 @@ const PortfolioOverviewMobile = () => {
     <Box>
       <Container>
         {barChartData && barConfig && (
-          <MultiDisplayChart
-            chartComponents={[
-              {
-                chartHeaderTotalsData: totalsData,
-                id: 'net-worth-area-chart',
-                title: 'Net Worth',
-                hideTopGridLine: false,
-                Component: (
-                  <LineChart
-                    data={barChartData.map(({ timestamp, totalNetWorth }) => ({
-                      date: moment(timestamp * 1000).format('MMM D'),
-                      totalNetWorth,
-                    }))}
-                    areaKey="totalNetWorth"
-                    XAxisKey="date"
-                  />
-                ),
-              },
-            ]}
+          <DisplayChartMobile
+            chartComponent={{
+              chartHeaderTotalsData: totalsData,
+              id: 'net-worth-area-chart',
+              title: 'Net Worth',
+              hideTopGridLine: false,
+              Component: (
+                <LineChart
+                  data={barChartData.map(({ timestamp, totalNetWorth }) => ({
+                    date: moment(timestamp * 1000).format('MMM'),
+                    totalNetWorth,
+                  }))}
+                  areaKey="totalNetWorth"
+                  XAxisKey="date"
+                />
+              ),
+            }}
           />
         )}
       </Container>
@@ -54,8 +52,8 @@ const PortfolioOverviewMobile = () => {
           gap: theme.spacing(2),
         }}
       >
-        {showTotalHoldingsTable && (
-          <PortfolioHoldingsOverview holdings={totalHoldingsData} />
+        {portfolioHoldingsData && (
+          <PortfolioHoldingsOverview holdings={portfolioHoldingsData} />
         )}
 
         {showVaultHoldingsTable && (

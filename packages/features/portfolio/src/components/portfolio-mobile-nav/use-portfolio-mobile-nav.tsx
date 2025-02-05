@@ -60,14 +60,14 @@ export const usePortfolioMobileNav = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'History'} />,
-      id: PORTFOLIO_CONNECTED_WALLET.HISTORY,
+      id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
       to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
       Icon: (
         <HistoryTabIcon
           sx={{
             width: theme.spacing(3),
             fill:
-              category === PORTFOLIO_CONNECTED_WALLET.HISTORY
+              category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY
                 ? theme.palette.typography.white
                 : theme.palette.typography.light,
           }}
@@ -78,7 +78,7 @@ export const usePortfolioMobileNav = () => {
     {
       title: <FormattedMessage defaultMessage={'Rates'} />,
       id: PORTFOLIO_CONNECTED_WALLET.RATES,
-      to: `/portfolio/${network}/welcome/`,
+      to: `/portfolio/${network}/welcome/earn`,
       Icon: (
         <PercentIcon
           sx={{
