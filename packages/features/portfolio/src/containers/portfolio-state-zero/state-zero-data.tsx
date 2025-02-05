@@ -117,8 +117,9 @@ const StateZeroDataContainer = styled(Box)(
     gap: ${theme.spacing(6, 3)};
     display: flex;
     flexWrap: wrap;
-    flex-direction: column;
+    flex-direction: row;
     ${theme.breakpoints.down('sm')} {
+      flex-direction: column;
       margin-top: ${theme.spacing(2)};
       gap: ${theme.spacing(2)};
       padding: 0 ${theme.spacing(2)};

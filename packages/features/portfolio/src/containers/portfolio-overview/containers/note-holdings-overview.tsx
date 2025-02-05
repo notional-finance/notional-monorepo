@@ -21,8 +21,9 @@ const NOTEHoldingsOverview = ({ data }: IProps) => {
       <Box>
         {data.map((item, i) => (
           <PositionCard
+            tokenId={item.asset.symbol}
             header={{
-              tokenSymbol: item.asset.label,
+              tokenSymbol: item.asset.symbol,
               tokenName: item.asset.label,
               description: item.asset.caption,
             }}
@@ -35,7 +36,6 @@ const NOTEHoldingsOverview = ({ data }: IProps) => {
               },
             }}
             key={i}
-            onViewDetails={() => {}}
           />
         ))}
       </Box>

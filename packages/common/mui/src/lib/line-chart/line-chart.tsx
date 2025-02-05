@@ -1,6 +1,11 @@
 import { Box, Divider, useTheme } from '@mui/material';
 import { Area, AreaChart, Tooltip, XAxis } from 'recharts';
 
+const convertCamelCaseToWords = (str: string) =>
+  str
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (firstChar) => firstChar.toUpperCase());
+
 const LineChart = ({
   data,
   areaKey,
@@ -11,6 +16,11 @@ const LineChart = ({
   XAxisKey: string;
 }) => {
   const theme = useTheme();
+
+  // Compute ticks from the data based on the XAxisKey and remove the last tick
+  const ticks = data.map((item) => item[XAxisKey]);
+  const filteredTicks = ticks.length > 0 ? ticks.slice(0, -1) : ticks;
+
   return (
     <Box
       sx={{
@@ -43,14 +53,24 @@ const LineChart = ({
           </linearGradient>
         </defs>
         <XAxis
+          ticks={filteredTicks}
           dataKey={XAxisKey}
           axisLine={{
             stroke: theme.palette.borders.paper,
             strokeWidth: 1,
           }}
           tickLine={false}
+          padding={{
+            left: 0,
+            right: 0,
+          }}
         />
-        <Tooltip />
+        <Tooltip
+          formatter={(value, name) => {
+            const label = convertCamelCaseToWords(name.toString());
+            return [Number(value).toFixed(2), label];
+          }}
+        />
         <Area
           type="monotone"
           dataKey={areaKey}

@@ -1,9 +1,12 @@
 import { Box, styled, Typography } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { Button } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
+import { Link } from 'react-router-dom';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { Button } from '@notional-finance/mui';
 
 interface IProps {
+  tokenId: string;
   header: {
     tokenSymbol: string;
     tokenName: string;
@@ -16,11 +19,11 @@ interface IProps {
       textColor?: string | null;
     };
   };
-  onViewDetails: () => void;
 }
 
 const PositionCard: React.FC<IProps> = (props) => {
-  const { header, data, onViewDetails } = props;
+  const { header, data, tokenId } = props;
+  const network = useSelectedNetwork();
 
   return (
     <Container>
@@ -54,7 +57,12 @@ const PositionCard: React.FC<IProps> = (props) => {
           </Row>
         ))}
       </Content>
-      <Button variant="outlined">
+      <Button
+        variant="outlined"
+        to={`/portfolio/${network}/detail/${tokenId}`}
+        LinkComponent={Link}
+        fullWidth
+      >
         <FormattedMessage
           defaultMessage="View Details"
           description="view details"

@@ -319,6 +319,7 @@ export const useVaultHoldingsTable = () => {
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
   const totalVaultHoldings = useTotalVaultHoldings(network);
+  const { isMobileView } = useAppStore();
 
   const claimableRewards = (vaults || []).reduce(
     (acc, vault) => {
@@ -480,7 +481,7 @@ export const useVaultHoldingsTable = () => {
     }
   }, [expandedRows, setExpandedRows]);
 
-  if (totalVaultHoldings) {
+  if (totalVaultHoldings && !isMobileView) {
     vaultHoldingsData.push({
       vault: {
         symbol: '',

@@ -42,10 +42,8 @@ export * from './lib/light-dark-switch/light-dark-switch';
 export * from './lib/hooks/use-window-dimensions/use-window-dimensions';
 export * from './lib/labeled-text/labeled-text';
 export * from './lib/mini-button/mini-button';
-export {
-  default as MultiDisplayChart,
-  ChartComponentsProps,
-} from './lib/multi-display-chart';
+export * from './lib/multi-display-chart/multi-display-chart';
+export * from './lib/multi-display-chart/display-chart-mobile';
 export * from './lib/multi-select-dropdown/multi-select-dropdown';
 export * from './lib/page-loading/page-loading';
 export * from './lib/progress-indicator/progress-indicator';

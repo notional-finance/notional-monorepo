@@ -1,4 +1,4 @@
-import { Box, styled, Typography } from '@mui/material';
+import { Box, styled, Typography, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
 import { useVaultHoldingsTable } from '@notional-finance/portfolio-feature-shell/hooks';
@@ -8,6 +8,8 @@ interface IProps {
 }
 
 const LeverageVaultsOverview = ({ data }: IProps) => {
+  const theme = useTheme();
+
   return (
     <Container>
       <Heading variant="h2">
@@ -20,6 +22,7 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
       <Box>
         {data.map((item, i) => (
           <PositionCard
+            tokenId={item.vault.symbol}
             header={{
               tokenSymbol: item.vault.symbol,
               tokenName: item.vault.label,
@@ -28,7 +31,7 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
             data={{
               ['Health Factor']: {
                 value: item.healthFactor.value,
-                textColor: item.healthFactor.textColor,
+                textColor: theme.palette.warning.main,
               },
               ...(item.marketAPY
                 ? {
@@ -43,11 +46,8 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
                       value: item.presentValue,
                     }
                   : {
-                      value: item.presentValue[0]?.isNegative
-                        ? `-${item.presentValue[0]?.displayValue}`
-                        : item.presentValue[0]?.displayValue,
-                      description: item.presentValue?.[1]?.displayValue,
-                      textColor: item.presentValue?.[0]?.textColor,
+                      value: item.presentValue.data[0]?.displayValue,
+                      description: item.presentValue.data[1]?.displayValue,
                     },
               ['Total Earnings']:
                 typeof item.totalEarnings === 'string'
@@ -55,15 +55,12 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
                       value: item.totalEarnings,
                     }
                   : {
-                      value: item.totalEarnings[0]?.isNegative
-                        ? `-${item.totalEarnings[0]?.displayValue}`
-                        : item.totalEarnings[0]?.displayValue,
-                      description: item.totalEarnings?.[1]?.displayValue,
-                      textColor: item.totalEarnings?.[0]?.textColor,
+                      value: item.totalEarnings.data[0]?.displayValue,
+                      description: item.totalEarnings.data[1]?.displayValue,
+                      textColor: theme.palette.primary.main,
                     },
             }}
             key={i}
-            onViewDetails={() => {}}
           />
         ))}
       </Box>

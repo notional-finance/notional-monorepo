@@ -49,7 +49,7 @@ export const ChartHeaderTotals = ({
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                fontSize: index === 0 ? '26px' : '16px',
+                fontSize: index === 0 ? '26px' : '24px',
               }}
             >
               {value}

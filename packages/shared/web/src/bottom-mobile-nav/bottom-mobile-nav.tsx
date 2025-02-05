@@ -53,7 +53,17 @@ export function BottomMobileNav({
                 </Title>
               </CustomLink>
             </NavOption>
-            {divider && <Divider orientation="vertical" flexItem />}
+            {divider && (
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{
+                  height: '49px',
+                  marginTop: '16px',
+                  borderColor: theme.palette.borders.paper,
+                }}
+              />
+            )}
           </>
         ))}
         {showMore && (
