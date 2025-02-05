@@ -2,7 +2,7 @@
 set -e
 
 # Cron jobs to deploy, format is "Description|URL|Schedule"
-cron_jobs="Risk_Service|/calculateRisk|*/10 * * * *
+cron_jobs="Risk_Service|/calculateRisk|*/35 * * * *
 Monitoring_Service|/executeMonitoring|*/10 * * * *
 Sync_Dune|/syncDune|30 1 * * *
 Sync_Generic_Data|/syncGenericData|0 * * * *

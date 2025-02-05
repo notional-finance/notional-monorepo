@@ -75,31 +75,31 @@ export function getS3() {
 }
 
 export async function calculateAccountRisks() {
-  await Promise.all(
-    SupportedNetworks.filter((n) => n !== Network.all).map(async (n) => {
-      const accounts = await fetchBatchAccounts(n, SUBGRAPH_API_KEY);
-      const { portfolioRiskProfiles, vaultRiskProfiles } =
-        saveAccountRiskProfiles(accounts);
-      try {
-        await getS3().send(
-          new PutObjectCommand({
-            Bucket: 'view-cache-r2',
-            Key: `${n}/accounts/portfolioRisk`,
-            Body: JSON.stringify(portfolioRiskProfiles),
-          })
-        );
-        await getS3().send(
-          new PutObjectCommand({
-            Bucket: 'view-cache-r2',
-            Key: `${n}/accounts/vaultRisk`,
-            Body: JSON.stringify(vaultRiskProfiles),
-          })
-        );
-      } catch (e) {
-        console.error(e);
-      }
-    })
-  );
+  for (const n of SupportedNetworks) {
+    if (n === Network.all) continue;
+
+    const accounts = await fetchBatchAccounts(n, SUBGRAPH_API_KEY);
+    const { portfolioRiskProfiles, vaultRiskProfiles } =
+      saveAccountRiskProfiles(accounts);
+    try {
+      await getS3().send(
+        new PutObjectCommand({
+          Bucket: 'view-cache-r2',
+          Key: `${n}/accounts/portfolioRisk`,
+          Body: JSON.stringify(portfolioRiskProfiles),
+        })
+      );
+      await getS3().send(
+        new PutObjectCommand({
+          Bucket: 'view-cache-r2',
+          Key: `${n}/accounts/vaultRisk`,
+          Body: JSON.stringify(vaultRiskProfiles),
+        })
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
 }
 
 export async function executeMonitoring() {
@@ -111,16 +111,21 @@ export async function executeMonitoring() {
 
   for (const network of SupportedNetworks) {
     if (network === Network.all) continue;
-    const accounts = await fetchBatchAccounts(network, SUBGRAPH_API_KEY);
-    allAccounts[network] = accounts;
-    await Promise.all([
-      checkAccountList(network, accounts),
-      checkTotalSupply(network, accounts),
-      monitorRelayerBalances(network),
-      checkSubgraphBlockNumber(network),
-      checkRiskServiceUpdates(network),
-      checkVaultReinvestments(network),
-    ]);
+    try {
+      const accounts = await fetchBatchAccounts(network, SUBGRAPH_API_KEY);
+      allAccounts[network] = accounts;
+      await Promise.all([
+        checkAccountList(network, accounts),
+        checkTotalSupply(network, accounts),
+        monitorRelayerBalances(network),
+        checkSubgraphBlockNumber(network),
+        checkRiskServiceUpdates(network),
+        checkVaultReinvestments(network),
+      ]);
+    } catch (e) {
+      console.error(e);
+      console.error((e as Error).stack);
+    }
   }
   await saveTotalsData(allAccounts);
 }

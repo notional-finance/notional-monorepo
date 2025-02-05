@@ -105,9 +105,6 @@ export const NotionalTypes = {
   TimeSeriesDataPoint: types.custom<TimeSeriesDataPoint, TimeSeriesDataPoint>({
     name: 'TimeSeriesDataPoint',
     fromSnapshot(snapshot) {
-      if (typeof snapshot.timestamp !== 'number') {
-        throw new Error('Timestamp must be a number');
-      }
       Object.entries(snapshot).forEach(([key, value]) => {
         if (value === null) {
           // This is a workaround for the fact that the server returns null for some values
@@ -132,9 +129,6 @@ export const NotionalTypes = {
     getValidationMessage(value) {
       if (typeof value !== 'object' || value === null) {
         return 'Value must be an object';
-      }
-      if (typeof value.timestamp !== 'number') {
-        return 'Timestamp must be a number';
       }
       if (
         !Object.values(value).every((v) => typeof v === 'number' || v === null)

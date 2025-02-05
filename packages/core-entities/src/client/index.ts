@@ -5,6 +5,7 @@ import crossFetch from 'cross-fetch';
 
 const REGISTRY_HOSTNAME =
   (process.env['NX_REGISTRY_URL'] as string) ||
+  (process.env['REGISTRY_URL'] as string) ||
   'https://registry.notional.finance';
 const USE_CROSS_FETCH =
   process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
