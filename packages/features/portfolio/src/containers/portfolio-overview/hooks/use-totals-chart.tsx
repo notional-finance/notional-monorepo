@@ -60,7 +60,7 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
       {
         dataKey: 'totalNetWorth',
         title: <FormattedMessage defaultMessage="Account Value" />,
-        toolTipTitle: <FormattedMessage defaultMessage="Account Value" />,
+        toolTipTitle: <FormattedMessage defaultMessage="Net Worth" />,
         fill:
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.turquoise
@@ -87,8 +87,6 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
       });
     }
 
-    const hasData = historyData?.find(({ netWorth }) => netWorth.toFloat() > 0);
-
     const totalsData = barConfig.map((data) => {
       return {
         title: data.title,
@@ -97,6 +95,41 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
         dataKey: data.dataKey,
       };
     }) as ChartHeaderTotalsDataProps[];
+
+    if (debts?.isNegative()) {
+      barConfig.push(
+        {
+          dataKey: 'totalAssets',
+          title: <FormattedMessage defaultMessage="Total Assets" />,
+          toolTipTitle: <FormattedMessage defaultMessage="Assets" />,
+          fill:
+            themeVariant === THEME_VARIANTS.LIGHT
+              ? colors.matteGreen
+              : colors.lightGrey,
+          radius: [8, 8, 0, 0],
+          currencySymbol: FiatSymbols[baseCurrency]
+            ? FiatSymbols[baseCurrency]
+            : '$',
+          value: assets?.toDisplayStringWithSymbol(2, true, false) ?? '0',
+        },
+        {
+          dataKey: 'totalDebts',
+          title: <FormattedMessage defaultMessage="Total Debts" />,
+          toolTipTitle: <FormattedMessage defaultMessage="Debts" />,
+          fill:
+            themeVariant === THEME_VARIANTS.LIGHT
+              ? colors.purple
+              : colors.blueAccent,
+          radius: [8, 8, 0, 0],
+          currencySymbol: FiatSymbols[baseCurrency]
+            ? FiatSymbols[baseCurrency]
+            : '$',
+          value: debts?.abs().toDisplayStringWithSymbol(2, true, false) ?? '0',
+        }
+      );
+    }
+
+    const hasData = historyData?.find(({ netWorth }) => netWorth.toFloat() > 0);
 
     return {
       barChartData: hasData ? barChartData : [],

@@ -1,5 +1,17 @@
+import { ReactNode } from 'react';
 import { Box, Divider, useTheme } from '@mui/material';
 import { Area, AreaChart, Tooltip, XAxis } from 'recharts';
+import { LineChartToolTip } from './line-chart-tooltip/line-chart-tooltip';
+
+export interface LineChartConfigProps {
+  dataKey: string;
+  fill: string;
+  value?: string | number;
+  radius?: number | [number, number, number, number] | undefined;
+  title?: ReactNode;
+  toolTipTitle?: ReactNode;
+  currencySymbol?: string;
+}
 
 const convertCamelCaseToWords = (str: string) =>
   str
@@ -10,10 +22,12 @@ const LineChart = ({
   data,
   areaKey,
   XAxisKey,
+  lineConfig,
 }: {
   data: any[];
   areaKey: string;
   XAxisKey: string;
+  lineConfig: LineChartConfigProps[];
 }) => {
   const theme = useTheme();
 
@@ -66,10 +80,10 @@ const LineChart = ({
           }}
         />
         <Tooltip
-          formatter={(value, name) => {
-            const label = convertCamelCaseToWords(name.toString());
-            return [Number(value).toFixed(2), label];
-          }}
+          wrapperStyle={{ outline: 'none' }}
+          content={<LineChartToolTip lineConfig={lineConfig} />}
+          cursor={{ fill: 'transparent' }}
+          position={{ y: 0 }}
         />
         <Area
           type="monotone"

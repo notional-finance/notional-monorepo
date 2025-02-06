@@ -31,10 +31,20 @@ const PortfolioOverviewMobile = () => {
               hideTopGridLine: false,
               Component: (
                 <LineChart
-                  data={barChartData.map(({ timestamp, totalNetWorth }) => ({
-                    date: moment(timestamp * 1000).format('MMM'),
-                    totalNetWorth,
-                  }))}
+                  data={barChartData.map(
+                    ({
+                      timestamp,
+                      totalNetWorth,
+                      totalAssets,
+                      totalDebts,
+                    }) => ({
+                      date: moment(timestamp * 1000).format('MMM'),
+                      totalNetWorth,
+                      totalAssets,
+                      totalDebts,
+                    })
+                  )}
+                  lineConfig={barConfig}
                   areaKey="totalNetWorth"
                   XAxisKey="date"
                 />
