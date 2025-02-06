@@ -6,16 +6,50 @@ import {
   setInLocalStorage,
   getFromLocalStorage,
 } from '@notional-finance/util';
-import { AnalyticsBrowser } from '@segment/analytics-next';
+import { AnalyticsBrowser, Plugin } from '@segment/analytics-next';
 import { useEffect, useState } from 'react';
 import { useLocation, Location } from 'react-router';
 import { useGrowthBook } from '@growthbook/growthbook-react';
 
 const FIRST_SESSION_KEY = 'first_session';
 
+const botPatterns = [
+  /bot/i,
+  /crawler/i,
+  /spider/i,
+  /googlebot/i,
+  /bingbot/i,
+  /headless/i,
+];
+
+const isBot = botPatterns.some((pattern) =>
+  pattern.test(navigator.userAgent.toLowerCase())
+);
+
+const botFilterPlugin: Plugin = {
+  name: 'Bot Filter',
+  type: 'before',
+  version: '1.0.0',
+  isLoaded: () => true,
+  load: () => Promise.resolve(),
+  track: (ctx) => {
+    if (isBot) {
+      ctx.cancel();
+    }
+    return ctx;
+  },
+  page: (ctx) => {
+    if (isBot) {
+      ctx.cancel();
+    }
+    return ctx;
+  },
+};
+
 export const analytics = AnalyticsBrowser.load(
   {
     writeKey: process.env['NX_SEGMENT_KEY'] as string,
+    plugins: [botFilterPlugin],
   },
   {
     integrations: {
