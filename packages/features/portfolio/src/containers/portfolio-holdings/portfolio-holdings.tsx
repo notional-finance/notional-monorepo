@@ -9,7 +9,6 @@ import {
 import { Box } from '@mui/material';
 import PortfolioRisk from './portfolio-risk';
 import { useState } from 'react';
-import { useEarningsBreakdown } from './use-earnings-breakdown';
 import { useLiquidationRisk } from './use-liquidation-risk';
 import {
   useAccountDefinition,
@@ -18,6 +17,7 @@ import {
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+// import { useEarningsBreakdown } from './use-earnings-breakdown';
 
 const PortfolioHoldings = () => {
   const [currentTab, setCurrentTab] = useState(0);
@@ -31,9 +31,9 @@ const PortfolioHoldings = () => {
     setExpandedRows,
     initialState,
   } = usePortfolioHoldings(baseCurrency);
-  const isGrouped = toggleBarProps.toggleOption === 0;
-  const { earningsBreakdownData, earningsBreakdownColumns } =
-    useEarningsBreakdown(isGrouped);
+  // const isGrouped = toggleBarProps.toggleOption === 0;
+  // const { earningsBreakdownData, earningsBreakdownColumns } =
+  //   useEarningsBreakdown(isGrouped);
   const account = useAccountDefinition(network);
   const {
     liquidationRiskColumns,
@@ -50,11 +50,11 @@ const PortfolioHoldings = () => {
       data: portfolioHoldingsData,
       initialState,
     },
+    // 1: {
+    //   columns: earningsBreakdownColumns,
+    //   data: earningsBreakdownData,
+    // },
     1: {
-      columns: earningsBreakdownColumns,
-      data: earningsBreakdownData,
-    },
-    2: {
       columns: liquidationRiskColumns,
       data: liquidationRiskData,
       initialState: initialLiquidationState,
@@ -65,9 +65,9 @@ const PortfolioHoldings = () => {
     {
       title: <FormattedMessage defaultMessage="Positions" />,
     },
-    {
-      title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
+    // },
   ];
 
   if (hasDebts) {

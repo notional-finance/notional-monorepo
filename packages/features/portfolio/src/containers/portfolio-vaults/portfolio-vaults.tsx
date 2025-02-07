@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { MultiTokenIcon } from '@notional-finance/icons';
 import { observer } from 'mobx-react-lite';
-import { useVaultEarnings } from './use-vault-earnings';
+// import { useVaultEarnings } from './use-vault-earnings';
 
 const ClaimableRewards = ({
   rewardTokens,
@@ -56,8 +56,8 @@ const ClaimableRewards = ({
 
 enum PortfolioVaultsTabs {
   POSITIONS = 0,
-  EARNINGS_BREAKDOWN = 1,
-  LIQUIDATION_RISK = 2,
+  // EARNINGS_BREAKDOWN = 1,
+  LIQUIDATION_RISK = 1,
 }
 
 export const PortfolioVaults = () => {
@@ -71,9 +71,9 @@ export const PortfolioVaults = () => {
     initialState,
     claimableRewards,
   } = useVaultHoldingsTable();
-  const { earningsBreakdownColumns, earningsBreakdownData } = useVaultEarnings(
-    toggleBarProps.toggleOption === 0
-  );
+  // const { earningsBreakdownColumns, earningsBreakdownData } = useVaultEarnings(
+  //   toggleBarProps.toggleOption === 0
+  // );
   const { riskTableData, riskTableColumns, initialRiskState } =
     useVaultRiskTable();
 
@@ -81,9 +81,9 @@ export const PortfolioVaults = () => {
     {
       title: <FormattedMessage defaultMessage="Positions" />,
     },
-    {
-      title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
+    // },
     {
       title: <FormattedMessage defaultMessage="Liquidation Risk" />,
     },
@@ -95,11 +95,11 @@ export const PortfolioVaults = () => {
       data: vaultHoldingsData,
       initialState,
     },
-    [PortfolioVaultsTabs.EARNINGS_BREAKDOWN]: {
-      columns: earningsBreakdownColumns,
-      data: earningsBreakdownData,
-      initialState: { clickDisabled: true },
-    },
+    // [PortfolioVaultsTabs.EARNINGS_BREAKDOWN]: {
+    //   columns: earningsBreakdownColumns,
+    //   data: earningsBreakdownData,
+    //   initialState: { clickDisabled: true },
+    // },
     [PortfolioVaultsTabs.LIQUIDATION_RISK]: {
       columns: riskTableColumns,
       data: riskTableData,
@@ -126,7 +126,8 @@ export const PortfolioVaults = () => {
             setCurrentTab,
             currentTab,
           }}
-          tabsThatIncludeToggle={[PortfolioVaultsTabs.EARNINGS_BREAKDOWN]}
+          // tabsThatIncludeToggle={[PortfolioVaultsTabs.EARNINGS_BREAKDOWN]}
+          tabsThatIncludeToggle={[]}
           data={holdingsData[currentTab].data}
           columns={holdingsData[currentTab].columns}
           CustomRowComponent={

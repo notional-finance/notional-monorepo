@@ -67,7 +67,9 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
           },
           {
             label: <FormattedMessage defaultMessage={'Entry Price'} />,
-            value: entryPrice ? entryPrice.toDisplayStringWithSymbol() : '-',
+            value: entryPrice
+              ? entryPrice.toDisplayStringWithSymbol(2, true, false)
+              : '-',
           },
           {
             label: <FormattedMessage defaultMessage={'Current Price'} />,
@@ -154,7 +156,7 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
                 displayValue: totalEarningsWithIncentives
                   ? totalEarningsWithIncentives
                       .toFiat(baseCurrency)
-                      .toDisplayStringWithSymbol(2)
+                      .toDisplayStringWithSymbol(2, true, false)
                   : '-',
                 isNegative: totalEarningsWithIncentives
                   ? totalEarningsWithIncentives
@@ -166,7 +168,9 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
                 displayValue:
                   b.token.tokenType === 'fCash'
                     ? `${totalAtMaturity?.toDisplayStringWithSymbol(
-                        2
+                        2,
+                        true,
+                        false
                       )} at Maturity`
                     : '',
                 isNegative: false,
@@ -178,16 +182,20 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
               ? {
                   perAssetEarnings: [
                     {
-                      underlying: earnings?.toDisplayStringWithSymbol(),
+                      underlying: earnings?.toDisplayStringWithSymbol(
+                        2,
+                        true,
+                        false
+                      ),
                       baseCurrency: earnings
                         ?.toFiat(baseCurrency)
-                        .toDisplayStringWithSymbol(2),
+                        .toDisplayStringWithSymbol(2, true, false),
                     },
                     ...perIncentiveEarnings.map((i) => ({
-                      underlying: i.toDisplayStringWithSymbol(),
+                      underlying: i.toDisplayStringWithSymbol(2, true, false),
                       baseCurrency: i
                         .toFiat(baseCurrency)
-                        .toDisplayStringWithSymbol(2),
+                        .toDisplayStringWithSymbol(2, true, false),
                     })),
                   ],
                 }
@@ -232,12 +240,14 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
         },
       ],
     },
-    amountPaid: totals?.amountPaid.toDisplayStringWithSymbol(2) || '-',
-    presentValue: totals?.presentValue.toDisplayStringWithSymbol(2) || '-',
+    amountPaid:
+      totals?.amountPaid.toDisplayStringWithSymbol(2, true, false) || '-',
+    presentValue:
+      totals?.presentValue.toDisplayStringWithSymbol(2, true, false) || '-',
     earnings: totals?.earnings.toDisplayStringWithSymbol(
       2,
       true,
-      true,
+      false,
       'en-US',
       true
     ),
