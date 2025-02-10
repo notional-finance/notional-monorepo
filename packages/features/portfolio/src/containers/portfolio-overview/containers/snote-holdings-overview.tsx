@@ -1,19 +1,19 @@
 import { Box, styled, Typography } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
-import { usePortfolioNOTETable } from '../../../hooks';
+import { usePortfolioSNOTETable } from '../../../hooks';
 
 interface IProps {
-  data: ReturnType<typeof usePortfolioNOTETable>['noteData'];
+  data: ReturnType<typeof usePortfolioSNOTETable>['data'];
 }
 
-const NOTEHoldingsOverview = ({ data }: IProps) => {
+const SNOTEHoldingsOverview = ({ data }: IProps) => {
   return (
     <Container>
       <Heading variant="h2">
         <FormattedMessage
-          defaultMessage="NOTE Holdings"
-          description="note holdings"
+          defaultMessage="sNOTE Holdings"
+          description="snote holdings"
         />
       </Heading>
 
@@ -27,11 +27,17 @@ const NOTEHoldingsOverview = ({ data }: IProps) => {
               description: item.asset.caption,
             }}
             data={{
-              ['NOTE Price']: {
-                value: item.notePrice,
+              ['Market APY']: {
+                value: item.marketApy,
               },
-              ['Total NOTE']: {
-                value: item.walletBalance.data[0].displayValue,
+              ['NOTE Price']: {
+                value: item.noteValue.data[0].displayValue ?? null,
+              },
+              ['ETH Value']: {
+                value: item.ethValue.data[0].displayValue ?? null,
+              },
+              ['Total Value']: {
+                value: item.totalValue,
               },
             }}
             key={i}
@@ -59,4 +65,4 @@ const Heading = styled(Typography)(({ theme }) => ({
   paddingRight: theme.spacing(2),
 }));
 
-export default NOTEHoldingsOverview;
+export default SNOTEHoldingsOverview;

@@ -1,15 +1,20 @@
 import { DisplayChartMobile } from '@notional-finance/mui';
 import { observer } from 'mobx-react-lite';
-import { useTotalsChart } from './hooks';
-import { usePortfolioNOTETable, useVaultHoldingsTable } from '../../hooks';
+import { useTotalsChartMobile } from './hooks';
+import {
+  usePortfolioNOTETable,
+  usePortfolioSNOTETable,
+  useVaultHoldingsTable,
+} from '../../hooks';
 import { Box, styled, useTheme } from '@mui/material';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import PortfolioHoldingsOverview from './containers/portfolio-holdings-overview';
 import LeverageVaultsOverview from './containers/leverage-vaults-overview';
 import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
-import moment from 'moment';
 import NOTEHoldingsOverview from './containers/note-holdings-overview';
+import SNOTEHoldingsOverview from './containers/snote-holdings-overview';
 import { usePortfolioHoldings } from '../portfolio-holdings/use-portfolio-holdings';
+import { getDateString } from '@notional-finance/util';
 
 const PortfolioOverviewMobile = () => {
   const theme = useTheme();
@@ -17,7 +22,9 @@ const PortfolioOverviewMobile = () => {
   const { portfolioHoldingsData } = usePortfolioHoldings(baseCurrency);
   const { vaultHoldingsData, showVaultHoldingsTable } = useVaultHoldingsTable();
   const { noteData } = usePortfolioNOTETable();
-  const { barChartData, barConfig, totalsData } = useTotalsChart(baseCurrency);
+  const { data: sNoteData } = usePortfolioSNOTETable();
+  const { barChartData, barConfig, totalsData } =
+    useTotalsChartMobile(baseCurrency);
 
   return (
     <Box>
@@ -38,7 +45,7 @@ const PortfolioOverviewMobile = () => {
                       totalAssets,
                       totalDebts,
                     }) => ({
-                      date: moment(timestamp * 1000).format('MMM'),
+                      date: getDateString(timestamp, { monthOnly: true }),
                       totalNetWorth,
                       totalAssets,
                       totalDebts,
@@ -71,6 +78,8 @@ const PortfolioOverviewMobile = () => {
         )}
 
         {noteData.length > 0 && <NOTEHoldingsOverview data={noteData} />}
+
+        {sNoteData.length > 0 && <SNOTEHoldingsOverview data={sNoteData} />}
       </Box>
     </Box>
   );

@@ -13,11 +13,6 @@ export interface LineChartConfigProps {
   currencySymbol?: string;
 }
 
-const convertCamelCaseToWords = (str: string) =>
-  str
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, (firstChar) => firstChar.toUpperCase());
-
 const LineChart = ({
   data,
   areaKey,

@@ -240,6 +240,7 @@ function getSpecificVaultInfo(
                     alignItems: 'center',
                     marginRight: theme.spacing(1),
                   }}
+                  key={claim.symbol}
                 >
                   <TokenIcon symbol={claim.symbol} size={'small'} />
                   <H4>{claim.toDisplayString(3, true, false)}</H4>

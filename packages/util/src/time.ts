@@ -66,6 +66,7 @@ export interface DateStringOptions {
   showTime?: boolean;
   hideYear?: boolean;
   monthYear?: boolean;
+  monthOnly?: boolean;
 }
 
 export function getDateString(
@@ -96,6 +97,8 @@ export function getDateString(
     return `${month} ${day}`;
   } else if (opts?.monthYear) {
     return `${month} ${year}`;
+  } else if (opts?.monthOnly) {
+    return `${month}`;
   }
 
   return `${month} ${day} ${year}`;

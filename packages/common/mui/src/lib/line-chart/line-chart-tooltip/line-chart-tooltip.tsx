@@ -1,6 +1,8 @@
-import { Box, styled, useTheme } from '@mui/material';
-import { H5, LineChartConfigProps } from '@notional-finance/mui';
 import { TooltipProps } from 'recharts';
+import { Box, styled, useTheme } from '@mui/material';
+import { H5 } from '../../typography/typography';
+import { formatNumberToDigits } from '@notional-finance/helpers';
+import { LineChartConfigProps } from '../line-chart';
 
 interface LineChartToolTipProps extends TooltipProps<number, string> {
   lineConfig: LineChartConfigProps[];
@@ -13,9 +15,9 @@ export const LineChartToolTip = (props: LineChartToolTipProps) => {
   return (
     <ToolTipBox>
       <Item>
-        <Box component={'span'} sx={{ fontSize: '12px', fontWeight: '600' }}>
+        <H5 sx={{ fontSize: '12px', fontWeight: '600' }}>
           {payload && payload.length > 0 ? payload[0]?.payload?.date : ''}
-        </Box>
+        </H5>
       </Item>
       {/* Reverse the payload in a stacked bar chart so the tooltips match the order of the
         bars as they show up */}
@@ -41,7 +43,11 @@ export const LineChartToolTip = (props: LineChartToolTipProps) => {
                           marginRight: theme.spacing(0.5),
                         }}
                       >
-                        {item.payload[config.dataKey].toFixed(2)}
+                        {item.payload[config.dataKey] && config.currencySymbol
+                          ? `${config.currencySymbol}${formatNumberToDigits(
+                              item.payload[config.dataKey]
+                            )}`
+                          : `${config.currencySymbol}0`}
                       </Box>
                       <H5>{config?.toolTipTitle}</H5>
                     </Item>
@@ -81,3 +87,5 @@ const ToolTipBox = styled(Box)(
     outline: none;
   `
 );
+
+export default LineChartToolTip;

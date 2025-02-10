@@ -1,9 +1,11 @@
 import { Box, styled, Typography, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
+import { H3 } from '@notional-finance/mui';
+import { usePortfolioHoldings } from '../../portfolio-holdings/use-portfolio-holdings';
 
 interface IProps {
-  holdings: any[];
+  holdings: ReturnType<typeof usePortfolioHoldings>['portfolioHoldingsData'];
 }
 
 const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
@@ -35,8 +37,7 @@ const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
                   borderBottomStyle: 'solid',
                 }}
               >
-                <Typography
-                  variant="h3"
+                <H3
                   sx={{
                     fontSize: theme.typography.pxToRem(12),
                     fontWeight: theme.typography.fontWeightMedium,
@@ -44,13 +45,14 @@ const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
                     letterSpacing: '1px',
                     color: theme.palette.typography.light,
                     margin: 0,
+                    textTransform: 'uppercase',
                   }}
                 >
                   <FormattedMessage
                     defaultMessage="Debt Positions"
                     description="debt positions"
                   />
-                </Typography>
+                </H3>
               </Box>
             );
           }

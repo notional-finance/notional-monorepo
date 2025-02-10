@@ -28,106 +28,10 @@ export function usePortfolioSNOTETable() {
   const snoteBalance = account?.balances.find((t) => t.symbol === 'sNOTE');
   const stakedNoteData = useStakedNoteData();
   const { baseCurrency } = useAppStore();
-  let result: any[] = [];
   const noStakedNoteData = snoteBalance === undefined || snoteBalance.isZero();
   const sNOTEPool = useSNOTEPool();
 
   const stakeNoteStatus = account?.stakeNOTEStatus;
-
-  if (snoteBalance && stakedNoteData) {
-    const currentSNOTEYield = formatNumberAsPercentWithUndefined(
-      lastValue(stakedNoteData)?.apy || undefined,
-      '-',
-      2
-    );
-
-    const sNOTEPoolData = sNOTEPool?.getCurrentSNOTEClaims(snoteBalance);
-
-    const currentPrice = TokenBalance.unit(snoteBalance.token)
-      .toFiat('NOTE')
-      .toDisplayStringWithSymbol();
-
-    const sNOTEData = {
-      asset: {
-        symbol: 'sNOTE',
-        symbolSize: 'large',
-        symbolBottom: '',
-        label: 'sNOTE',
-        caption: '80% NOTE, 20% ETH',
-      },
-      marketApy: currentSNOTEYield,
-      noteValue: {
-        data: [
-          {
-            displayValue: sNOTEPoolData?.noteClaim.toDisplayStringWithSymbol(
-              2,
-              true,
-              false
-            ),
-            isNegative: false,
-          },
-          {
-            displayValue: sNOTEPoolData?.noteClaim
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false),
-            isNegative: false,
-          },
-        ],
-      },
-      ethValue: {
-        data: [
-          {
-            displayValue: sNOTEPoolData?.ethClaim.toDisplayStringWithSymbol(
-              2,
-              true,
-              false
-            ),
-            isNegative: false,
-          },
-          {
-            displayValue: sNOTEPoolData?.ethClaim
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(2, true, false),
-            isNegative: false,
-          },
-        ],
-      },
-      isDebt: true, // NOTE this is just to make sure the value is not red
-      totalValue: snoteBalance
-        .toFiat(baseCurrency)
-        .toDisplayStringWithSymbol(2, true, false),
-      actionRow: {
-        stakeNoteStatus: stakeNoteStatus,
-        subRowData: [
-          {
-            label: <FormattedMessage defaultMessage={'Amount'} />,
-            value:
-              snoteBalance.toDisplayStringWithSymbol(2, true, false) || '-',
-          },
-          // {
-          //   label: <FormattedMessage defaultMessage={'Entry Price'} />,
-          //   value: '-',
-          // },
-          {
-            label: <FormattedMessage defaultMessage={'CURRENT PRICE'} />,
-            value: `${currentPrice}` || '-',
-          },
-        ],
-        buttonBarData: [
-          {
-            buttonText: <FormattedMessage defaultMessage={'Unstake'} />,
-            link: `${currentPath}/${PORTFOLIO_ACTIONS.COOL_DOWN}`,
-          },
-          {
-            buttonText: <FormattedMessage defaultMessage={'Stake More'} />,
-            link: '/stake/ETH',
-          },
-        ],
-        txnHistory: ``,
-      },
-    };
-    result = [sNOTEData];
-  }
 
   const Columns = useMemo<DataTableColumn[]>(
     () => [
@@ -177,10 +81,112 @@ export function usePortfolioSNOTETable() {
     [theme]
   );
 
+  if (!snoteBalance || !stakedNoteData) {
+    return {
+      noStakedNoteData: noStakedNoteData,
+      columns: Columns,
+      data: [],
+      expandedRows,
+      setExpandedRows,
+      initialState: { expanded: { 0: true }, clickDisabled: true },
+    };
+  }
+
+  const currentSNOTEYield = formatNumberAsPercentWithUndefined(
+    lastValue(stakedNoteData)?.apy || undefined,
+    '-',
+    2
+  );
+
+  const sNOTEPoolData = sNOTEPool?.getCurrentSNOTEClaims(snoteBalance);
+
+  const currentPrice = TokenBalance.unit(snoteBalance.token)
+    .toFiat('NOTE')
+    .toDisplayStringWithSymbol();
+
+  const sNOTEData = {
+    asset: {
+      symbol: 'sNOTE',
+      symbolSize: 'large',
+      symbolBottom: '',
+      label: 'sNOTE',
+      caption: '80% NOTE, 20% ETH',
+    },
+    marketApy: currentSNOTEYield,
+    noteValue: {
+      data: [
+        {
+          displayValue: sNOTEPoolData?.noteClaim.toDisplayStringWithSymbol(
+            2,
+            true,
+            false
+          ),
+          isNegative: false,
+        },
+        {
+          displayValue: sNOTEPoolData?.noteClaim
+            .toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false),
+          isNegative: false,
+        },
+      ],
+    },
+    ethValue: {
+      data: [
+        {
+          displayValue: sNOTEPoolData?.ethClaim.toDisplayStringWithSymbol(
+            2,
+            true,
+            false
+          ),
+          isNegative: false,
+        },
+        {
+          displayValue: sNOTEPoolData?.ethClaim
+            .toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false),
+          isNegative: false,
+        },
+      ],
+    },
+    isDebt: true, // NOTE this is just to make sure the value is not red
+    totalValue: snoteBalance
+      .toFiat(baseCurrency)
+      .toDisplayStringWithSymbol(2, true, false),
+    actionRow: {
+      stakeNoteStatus: stakeNoteStatus,
+      subRowData: [
+        {
+          label: <FormattedMessage defaultMessage={'Amount'} />,
+          value: snoteBalance.toDisplayStringWithSymbol(2, true, false) || '-',
+        },
+        // {
+        //   label: <FormattedMessage defaultMessage={'Entry Price'} />,
+        //   value: '-',
+        // },
+        {
+          label: <FormattedMessage defaultMessage={'CURRENT PRICE'} />,
+          value: `${currentPrice}` || '-',
+        },
+      ],
+      buttonBarData: [
+        {
+          buttonText: <FormattedMessage defaultMessage={'Unstake'} />,
+          link: `${currentPath}/${PORTFOLIO_ACTIONS.COOL_DOWN}`,
+        },
+        {
+          buttonText: <FormattedMessage defaultMessage={'Stake More'} />,
+          link: '/stake/ETH',
+        },
+      ],
+      txnHistory: ``,
+    },
+  };
+
   return {
     noStakedNoteData: noStakedNoteData,
     columns: Columns,
-    data: result,
+    data: [sNOTEData],
     expandedRows,
     setExpandedRows,
     initialState: { expanded: { 0: true }, clickDisabled: true },
