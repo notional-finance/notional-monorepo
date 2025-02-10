@@ -46,11 +46,13 @@ export const formatCryptoWithFiat = (
     return {
       data: [
         {
-          displayValue: tbn.toDisplayStringWithSymbol(),
+          displayValue: tbn.toDisplayStringWithSymbol(2, true, false),
           isNegative: options?.isDebt ? false : tbn.isNegative(),
         },
         {
-          displayValue: tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(2),
+          displayValue: tbn
+            .toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false),
           isNegative: options?.isDebt ? false : tbn.isNegative(),
         },
       ],

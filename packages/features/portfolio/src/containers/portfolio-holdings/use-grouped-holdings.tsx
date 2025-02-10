@@ -127,7 +127,7 @@ export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
               displayValue: totalEarnings
                 ? totalEarnings
                     .toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(2)
+                    .toDisplayStringWithSymbol(2, true, false)
                 : '-',
               isNegative: totalEarnings
                 ? totalEarnings.toFiat(baseCurrency).isNegative()
@@ -144,16 +144,20 @@ export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
             ? {
                 perAssetEarnings: [
                   {
-                    underlying: totalEarnings?.toDisplayStringWithSymbol(),
+                    underlying: totalEarnings?.toDisplayStringWithSymbol(
+                      2,
+                      true,
+                      false
+                    ),
                     baseCurrency: totalEarnings
                       ?.toFiat(baseCurrency)
-                      .toDisplayStringWithSymbol(2),
+                      .toDisplayStringWithSymbol(2, true, false),
                   },
-                  ...perIncentiveEarnings.map((i) => ({
-                    underlying: i.toDisplayStringWithSymbol(),
+                  ...perIncentiveEarnings.map((i: TokenBalance) => ({
+                    underlying: i.toDisplayStringWithSymbol(2, true, false),
                     baseCurrency: i
                       .toFiat(baseCurrency)
-                      .toDisplayStringWithSymbol(2),
+                      .toDisplayStringWithSymbol(2, true, false),
                   })),
                 ],
               }

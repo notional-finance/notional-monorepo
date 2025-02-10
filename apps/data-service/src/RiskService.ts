@@ -217,7 +217,7 @@ async function checkAccountList(
       account_id: string;
       vault_id: string | null;
     }[]
-  >(`${network}/views/accounts_list`);
+  >(`${network}/views/accounts_list`, 'https://registry.notional.finance');
   const accountSet = new Set(
     accountList
       .filter(({ vault_id }) => vault_id === null)
@@ -602,7 +602,8 @@ async function checkTotalSupply(
     }
   }
   const data = (await fetchFromRegistry<ExternalLendingHistoryQuery>(
-    `${network}/views/ExternalLendingHistory`
+    `${network}/views/ExternalLendingHistory`,
+    'https://registry.notional.finance'
   )) as unknown as ExternalLendingHistoryQuery;
 
   for (const e of data.externalLendings) {
@@ -792,7 +793,8 @@ async function monitorRelayerBalances(network: Network) {
 
 async function checkSubgraphBlockNumber(network: Network) {
   const meta = (await fetchFromRegistry<MetaQuery>(
-    `${network}/views/SubgraphMeta`
+    `${network}/views/SubgraphMeta`,
+    'https://registry.notional.finance'
   )) as unknown as MetaQuery;
 
   await logger.submitMetrics({
