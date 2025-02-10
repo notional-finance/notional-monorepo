@@ -11,6 +11,7 @@ import { TRACKING_EVENTS } from '@notional-finance/util';
 const applicationId = process.env['NX_DD_APP_ID'] as string;
 const clientToken = process.env['NX_DD_CLIENT_TOKEN'] as string;
 const DD_SITE = process.env['NX_DD_SITE'];
+const GROWTHBOOK_KEY = process.env['NX_GROWTHBOOK_KEY'];
 // COMMIT_REF environment variable is supplied by netlify on deployment
 const version = `${process.env['NX_COMMIT_REF']?.substring(0, 8) || 'local'}`;
 const service = 'web-frontend';
@@ -45,7 +46,7 @@ if (
 // eslint-disable-next-line @cspell/spellchecker
 const growthbook = new GrowthBook({
   apiHost: 'https://cdn.growthbook.io',
-  clientKey: 'sdk-I5Vp9ALYVkr78H6n',
+  clientKey: GROWTHBOOK_KEY,
   enableDevMode: true,
   trackingCallback: (experiment, result) => {
     trackEvent(TRACKING_EVENTS.VIEWED_EXPERIMENT, {
