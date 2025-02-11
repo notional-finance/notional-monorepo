@@ -7976,6 +7976,6 @@ export type nTokenFeeBuffer_orderBy =
 
   export type Context = {
       ["NotionalV3"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
-      ["network"]: Scalars['ID']
+      ["subgraphId"]: Scalars['ID']
     };
 }
