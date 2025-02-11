@@ -494,7 +494,7 @@ export const TokenImageList: TokenImageMap = {
 
 export interface TokenIconProps {
   symbol: string;
-  size: 'small' | 'medium' | 'large' | 'xl' | 'xxl' | 'xlarge';
+  size: 'small' | 'medium' | 'large' | 'xl' | 'xxl';
   style?: React.CSSProperties;
   useAccentBorderImg?: boolean;
   network?: Network;
@@ -520,7 +520,6 @@ export function TokenIcon({
     small: '16px',
     medium: '24px',
     large: '32px',
-    xlarge: '40px',
     xl: '48px',
     xxl: '72px',
   };

@@ -28,12 +28,16 @@ const SNoteHoldingsDetail: React.FC<SNoteHoldingsDetailProps> = ({ value }) => {
             }}
           />
           <BackButton variant="link">
-            <FormattedMessage id="back" defaultMessage="Back" />
+            <FormattedMessage defaultMessage="Back" />
           </BackButton>
         </BackButtonContainer>
         <HeaderContainer>
           <TokenContainer>
-            <TokenIcon symbol={value.asset.symbol} size="xlarge" />
+            <TokenIcon
+              symbol={value.asset.symbol}
+              size="xl"
+              style={{ width: 40, height: 40 }}
+            />
             <Box
               sx={{
                 display: 'flex',
@@ -64,14 +68,11 @@ const SNoteHoldingsDetail: React.FC<SNoteHoldingsDetailProps> = ({ value }) => {
 
         <ContentContainer>
           <Title variant="h3">
-            <FormattedMessage
-              id="earningsSummary"
-              defaultMessage="Earnings Summary"
-            />
+            <FormattedMessage defaultMessage="Earnings Summary" />
           </Title>
           <Row>
             <Label>
-              <FormattedMessage id="noteValue" defaultMessage="Note Value" />
+              <FormattedMessage defaultMessage="Note Value" />
             </Label>
             <Column>
               <Value>{value.noteValue.data?.[0]?.displayValue}</Value>
@@ -81,7 +82,7 @@ const SNoteHoldingsDetail: React.FC<SNoteHoldingsDetailProps> = ({ value }) => {
 
           <Row>
             <Label>
-              <FormattedMessage id="totalValue" defaultMessage="Total Value" />
+              <FormattedMessage defaultMessage="Total Value" />
             </Label>
             <Column>
               <Value>{value.totalValue}</Value>
@@ -91,7 +92,7 @@ const SNoteHoldingsDetail: React.FC<SNoteHoldingsDetailProps> = ({ value }) => {
 
         <ContentContainer>
           <Title variant="h3">
-            <FormattedMessage id="details" defaultMessage="Details" />
+            <FormattedMessage defaultMessage="Details" />
           </Title>
           {value.actionRow.subRowData.map((row, index) => (
             <Row key={index}>
@@ -207,32 +208,32 @@ const Value = styled(Typography)(({ theme }) => ({
   marginBottom: 0,
 }));
 
-const Row = styled(Box)(({ theme }) => ({
+const Row = styled(Box)(() => ({
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'space-between',
 }));
 
-const Column = styled(Box)(({ theme }) => ({
+const Column = styled(Box)(() => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-end',
 }));
 
-const ActionButtonContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  padding: theme.spacing(1, 2),
-  position: 'fixed',
-  bottom: 80,
-  left: 0,
-  right: 0,
-  background: theme.palette.background.paper,
-  gap: theme.spacing(2),
-  zIndex: 1000,
-  borderBottom: `1px solid ${theme.palette.borders.paper}`,
-  boxShadow: '0px -10px 20px -10px rgba(20, 42, 74, 0.20)',
-}));
+// const ActionButtonContainer = styled(Box)(({ theme }) => ({
+//   display: 'flex',
+//   flexDirection: 'row',
+//   justifyContent: 'space-between',
+//   padding: theme.spacing(1, 2),
+//   position: 'fixed',
+//   bottom: 80,
+//   left: 0,
+//   right: 0,
+//   background: theme.palette.background.paper,
+//   gap: theme.spacing(2),
+//   zIndex: 1000,
+//   borderBottom: `1px solid ${theme.palette.borders.paper}`,
+//   boxShadow: '0px -10px 20px -10px rgba(20, 42, 74, 0.20)',
+// }));
 
 export default observer(SNoteHoldingsDetail);

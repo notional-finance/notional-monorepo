@@ -29,12 +29,16 @@ const VaultHoldingsDetail: React.FC<VaultHoldingsDetailProps> = ({ value }) => {
             }}
           />
           <BackButton variant="link">
-            <FormattedMessage id="back" defaultMessage="Back" />
+            <FormattedMessage defaultMessage="Back" />
           </BackButton>
         </BackButtonContainer>
         <HeaderContainer>
           <TokenContainer>
-            <TokenIcon symbol={value.vault.symbol} size="xlarge" />
+            <TokenIcon
+              symbol={value.vault.symbol}
+              size="xl"
+              style={{ width: 40, height: 40 }}
+            />
             <Box
               sx={{
                 display: 'flex',
@@ -65,14 +69,11 @@ const VaultHoldingsDetail: React.FC<VaultHoldingsDetailProps> = ({ value }) => {
 
         <ContentContainer>
           <Title variant="h3">
-            <FormattedMessage
-              id="earningsSummary"
-              defaultMessage="Earnings Summary"
-            />
+            <FormattedMessage defaultMessage="Earnings Summary" />
           </Title>
           <Row>
             <Label>
-              <FormattedMessage id="amountPaid" defaultMessage="Amount Paid" />
+              <FormattedMessage defaultMessage="Amount Paid" />
             </Label>
             <Column>
               {typeof value.amountPaid === 'string' ? (
@@ -88,10 +89,7 @@ const VaultHoldingsDetail: React.FC<VaultHoldingsDetailProps> = ({ value }) => {
 
           <Row>
             <Label>
-              <FormattedMessage
-                id="presentValue"
-                defaultMessage="Present Value"
-              />
+              <FormattedMessage defaultMessage="Present Value" />
             </Label>
             <Column>
               {typeof value.presentValue === 'string' ? (
@@ -109,7 +107,7 @@ const VaultHoldingsDetail: React.FC<VaultHoldingsDetailProps> = ({ value }) => {
 
           <Row>
             <Label>
-              <FormattedMessage id="earnings" defaultMessage="Earnings" />
+              <FormattedMessage defaultMessage="Earnings" />
             </Label>
             <Column>
               {typeof value.totalEarnings === 'string' ? (
@@ -132,7 +130,7 @@ const VaultHoldingsDetail: React.FC<VaultHoldingsDetailProps> = ({ value }) => {
 
         <ContentContainer>
           <Title variant="h3">
-            <FormattedMessage id="details" defaultMessage="Details" />
+            <FormattedMessage defaultMessage="Details" />
           </Title>
           {value.actionRow.subRowData.map((row, index) => (
             <Row key={index}>
@@ -248,13 +246,13 @@ const Value = styled(Typography)(({ theme }) => ({
   marginBottom: 0,
 }));
 
-const Row = styled(Box)(({ theme }) => ({
+const Row = styled(Box)(() => ({
   display: 'flex',
   flexDirection: 'row',
   justifyContent: 'space-between',
 }));
 
-const Column = styled(Box)(({ theme }) => ({
+const Column = styled(Box)(() => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-end',
