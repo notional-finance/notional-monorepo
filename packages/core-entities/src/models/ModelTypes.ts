@@ -348,6 +348,8 @@ export const OracleDefinitionModel = types.model('OracleDefinition', {
   quote: types.reference(TokenDefinitionModel),
   decimals: types.number,
   latestRate: ExchangeRateModel,
+  quoteCurrencyId: types.maybeNull(types.number),
+  baseDecimals: types.maybeNull(types.number),
 });
 
 export const OracleGraphModel = types.model('OracleGraph', {

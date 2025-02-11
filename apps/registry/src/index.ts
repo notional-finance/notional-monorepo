@@ -55,9 +55,14 @@ async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
 export default {
   async fetch(req: Request, env: BaseDOEnv): Promise<Response> {
     const url = new URL(req.url);
-    if (url.pathname === '/execute') {
+    if (url.pathname === '/refreshViews') {
       await Promise.all(
         env.SUPPORTED_NETWORKS.map((network) => execute(env, network, true))
+      );
+      return new Response('Executed', { status: 200 });
+    } else if (url.pathname === '/refresh') {
+      await Promise.all(
+        env.SUPPORTED_NETWORKS.map((network) => execute(env, network, false))
       );
       return new Response('Executed', { status: 200 });
     }
