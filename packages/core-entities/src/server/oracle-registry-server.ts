@@ -175,7 +175,22 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       return fetchFromRegistry<CacheSchema<OracleDefinition>>(
         `${network}/oracles`,
         NX_REGISTRY_URL
-      );
+      ).then((c) => ({
+        ...c,
+        values: c.values.map(([id, oracle]) => [
+          id,
+          {
+            ...oracle,
+            latestRate: {
+              ...oracle?.latestRate,
+              blockNumber:
+                typeof oracle?.latestRate?.blockNumber === 'string'
+                  ? parseInt(oracle?.latestRate?.blockNumber)
+                  : oracle?.latestRate?.blockNumber,
+            },
+          },
+        ]),
+      })) as Promise<CacheSchema<OracleDefinition>>;
     }
   }
 
