@@ -48,4 +48,8 @@ export const messages: Record<
     defaultMessage: 'History',
     description: '',
   }),
+  [PORTFOLIO_CATEGORIES.DETAILS]: defineMessage({
+    defaultMessage: 'Details',
+    description: '',
+  }),
 };

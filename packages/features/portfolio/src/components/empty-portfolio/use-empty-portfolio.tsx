@@ -94,6 +94,15 @@ export const useEmptyPortfolio = () => {
       }),
       link: '',
     },
+    [PORTFOLIO_CATEGORIES.DETAILS]: {
+      messages: defineMessages({
+        promptText: {
+          defaultMessage: 'No details data to display',
+          description: 'empty details prompt text',
+        },
+      }),
+      link: '',
+    },
   } as Record<PORTFOLIO_CATEGORIES, EmptyPortfolioData>;
 
   return category ? emptyData[category] : {};

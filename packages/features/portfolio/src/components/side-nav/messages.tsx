@@ -45,4 +45,8 @@ export const navLabels = defineMessages({
     defaultMessage: 'History',
     description: 'navigation link',
   },
+  [PORTFOLIO_CATEGORIES.DETAILS]: {
+    defaultMessage: 'Details',
+    description: 'navigation link',
+  },
 });

@@ -59,7 +59,7 @@ const PositionCard: React.FC<IProps> = (props) => {
       </Content>
       <Button
         variant="outlined"
-        to={`/portfolio/${network}/detail/${tokenId}`}
+        to={`/portfolio/${network}/details/${tokenId}`}
         LinkComponent={Link}
         fullWidth
       >

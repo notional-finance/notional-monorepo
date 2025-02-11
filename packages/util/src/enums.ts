@@ -106,6 +106,7 @@ export enum PORTFOLIO_CATEGORIES {
   NOTE_STAKING = 'note-staking',
   TRANSACTION_HISTORY = 'transaction-history',
   WELCOME = 'welcome',
+  DETAILS = 'details',
 }
 
 export enum ROUTE_MATCH {
@@ -125,6 +126,7 @@ export enum ROUTE_MATCH {
   LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
   BORROW_FIXED = 'borrow-fixed',
   BORROW_VARIABLE = 'borrow-variable',
+  PORTFOLIO_DETAILS = 'portfolio-details',
 }
 
 export enum CONTEST_SIGN_UP_STEPS {
