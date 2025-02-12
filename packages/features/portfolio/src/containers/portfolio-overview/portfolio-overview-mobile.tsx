@@ -14,7 +14,6 @@ import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
 import NOTEHoldingsOverview from './containers/note-holdings-overview';
 import SNOTEHoldingsOverview from './containers/snote-holdings-overview';
 import { usePortfolioHoldings } from '../portfolio-holdings/use-portfolio-holdings';
-import { getDateString } from '@notional-finance/util';
 
 const PortfolioOverviewMobile = () => {
   const theme = useTheme();
@@ -45,7 +44,7 @@ const PortfolioOverviewMobile = () => {
                       totalAssets,
                       totalDebts,
                     }) => ({
-                      date: getDateString(timestamp, { monthOnly: true }),
+                      date: timestamp,
                       totalNetWorth,
                       totalAssets,
                       totalDebts,

@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Box, Divider, useTheme } from '@mui/material';
 import { Area, AreaChart, Tooltip, XAxis } from 'recharts';
 import { LineChartToolTip } from './line-chart-tooltip/line-chart-tooltip';
+import { getDateString } from '@notional-finance/util';
 
 export interface LineChartConfigProps {
   dataKey: string;
@@ -69,6 +70,9 @@ const LineChart = ({
             strokeWidth: 1,
           }}
           tickLine={false}
+          tickFormatter={(value) => {
+            return getDateString(value, { monthOnly: true });
+          }}
           padding={{
             left: 0,
             right: 0,

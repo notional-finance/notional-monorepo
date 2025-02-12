@@ -67,6 +67,7 @@ export interface DateStringOptions {
   hideYear?: boolean;
   monthYear?: boolean;
   monthOnly?: boolean;
+  monthLong?: boolean;
 }
 
 export function getDateString(
@@ -78,7 +79,9 @@ export function getDateString(
   const formattedTimeStamp = inMilliseconds ? timestamp : timestamp * 1000;
 
   const date = new Date(formattedTimeStamp);
-  const month = date.toLocaleDateString('en-US', { month: 'short' });
+  const month = date.toLocaleDateString('en-US', {
+    month: opts.monthLong ? 'long' : 'short',
+  });
   const day = date.toLocaleDateString('en-US', { day: '2-digit' });
   const year = date.toLocaleDateString('en-US', { year: 'numeric' });
 

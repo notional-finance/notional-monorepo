@@ -3,22 +3,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { H5 } from '../../typography/typography';
 import { formatNumberToDigits } from '@notional-finance/helpers';
 import { LineChartConfigProps } from '../line-chart';
-
-// Added monthMapping to convert abbreviated month values to full month names
-const monthMapping: { [key: string]: string } = {
-  Jan: 'January',
-  Feb: 'February',
-  Mar: 'March',
-  Apr: 'April',
-  May: 'May',
-  Jun: 'June',
-  Jul: 'July',
-  Aug: 'August',
-  Sep: 'September',
-  Oct: 'October',
-  Nov: 'November',
-  Dec: 'December',
-};
+import { getDateString } from '@notional-finance/util';
 
 interface LineChartToolTipProps extends TooltipProps<number, string> {
   lineConfig: LineChartConfigProps[];
@@ -31,11 +16,12 @@ export const LineChartToolTip = (props: LineChartToolTipProps) => {
   return (
     <ToolTipBox>
       <Item>
-        <H5 sx={{ fontSize: '12px', fontWeight: '600' }}>
-          {payload && payload.length > 0
-            ? monthMapping[payload[0]?.payload?.date] ||
-              payload[0]?.payload?.date
-            : ''}
+        <H5>
+          {payload?.[0]?.payload?.date &&
+            getDateString(payload?.[0]?.payload?.date, {
+              monthOnly: true,
+              monthLong: true,
+            })}
         </H5>
       </Item>
       {/* Reverse the payload in a stacked bar chart so the tooltips match the order of the
