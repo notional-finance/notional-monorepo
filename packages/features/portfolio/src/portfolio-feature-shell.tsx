@@ -109,18 +109,6 @@ const Portfolio = observer(() => {
     window.scrollTo(0, 0);
   }, [params.category]);
 
-  useEffect(() => {
-    if (params.category && params.category !== PORTFOLIO_CATEGORIES.WELCOME) {
-      clearSideDrawer(
-        `/portfolio/${network}/${
-          params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
-        }`
-      );
-    }
-    // NOTE: this must only run once on component mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleDrawer = () => {
     if (pathname.includes('convertTo')) {
       navigate(
