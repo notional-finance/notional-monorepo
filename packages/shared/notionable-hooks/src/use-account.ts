@@ -56,7 +56,7 @@ export function useAccountDefinition(network: Network | undefined) {
 }
 
 export function useTotalIncentives(network: Network | undefined) {
-  return useNetworkAccounts(network)?.totalIncentives || {};
+  return useNetworkAccounts(network)?.totalIncentives;
 }
 
 export function useAccountReady(network: Network | undefined) {

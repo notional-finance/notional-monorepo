@@ -78,9 +78,14 @@ export const ClaimNoteButton = observer(() => {
   const [hover, setHover] = useState(false);
   const totalIncentives = useTotalIncentives(network);
 
-  const noteCountUp = useIncentiveCountUp(totalIncentives['NOTE'], network);
+  const noteCountUp = useIncentiveCountUp(
+    totalIncentives?.get('NOTE'),
+    network
+  );
   const secondaryCountUp = useIncentiveCountUp(
-    network ? totalIncentives[SecondaryIncentiveToken[network]] : undefined,
+    network
+      ? totalIncentives?.get(SecondaryIncentiveToken[network])
+      : undefined,
     network
   );
 
