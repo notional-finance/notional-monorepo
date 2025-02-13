@@ -23,7 +23,7 @@ export function useAccountHasPositions() {
   return SupportedNetworks.filter((n) => {
     const hasPosition = walletStore.networkAccounts
       .get(n)
-      ?.balances.some((t) => !!t.underlying);
+      ?.balances.some((t) => !!t.token.currencyId && !t.isZero());
     return hasPosition;
   });
 }
@@ -56,7 +56,7 @@ export function useAccountDefinition(network: Network | undefined) {
 }
 
 export function useTotalIncentives(network: Network | undefined) {
-  return useNetworkAccounts(network)?.totalIncentives || {};
+  return useNetworkAccounts(network)?.totalIncentives;
 }
 
 export function useAccountReady(network: Network | undefined) {
@@ -64,13 +64,8 @@ export function useAccountReady(network: Network | undefined) {
 }
 
 export function useAccountAndBalanceReady(network: Network | undefined) {
-  const isAccountReady = useAccountReady(network);
-  const accountNetWorth = useAccountNetWorth();
-
-  const hasNotionalBalance = SupportedNetworks.find(
-    (network) => !accountNetWorth[network].isZero()
-  );
-  return isAccountReady && hasNotionalBalance;
+  const account = useAccountDefinition(network);
+  return !!account?.balances.find((b) => !!b.token.currencyId && !b.isZero());
 }
 
 export function useAccountLoading() {

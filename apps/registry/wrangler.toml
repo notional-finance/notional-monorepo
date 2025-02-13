@@ -21,7 +21,6 @@ NX_ENV = 'dev'
 SUPPORTED_NETWORKS = ['arbitrum', 'all', 'mainnet']
 DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'
 
-
 [env.prod]
 name = "registry-prod"
 r2_buckets = [
@@ -33,18 +32,5 @@ crons = ["* * * * *"]
 
 [env.prod.vars]
 NX_ENV = 'prod'
-SUPPORTED_NETWORKS = ['arbitrum', 'all', 'mainnet']
-
-[env.prod2]
-name = "registry-prod2"
-r2_buckets = [
-  { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev2" },
-]
-
-[env.prod2.triggers]
-crons = ["* * * * *"]
-
-[env.prod2.vars]
-NX_ENV = 'prod2'
 SUPPORTED_NETWORKS = ['arbitrum', 'all', 'mainnet']
 DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'

@@ -252,18 +252,22 @@ export const AccountModel = types
     });
 
     const fetchStatements = flow(function* () {
-      const balanceStatements = (yield fetchBalanceStatements(
-        self.network,
-        self.address,
-        NX_SUBGRAPH_API_KEY
-      )) as Awaited<ReturnType<typeof fetchBalanceStatements>>;
+      try {
+        const balanceStatements = (yield fetchBalanceStatements(
+          self.network,
+          self.address,
+          NX_SUBGRAPH_API_KEY
+        )) as Awaited<ReturnType<typeof fetchBalanceStatements>>;
 
-      self.balanceStatement.replace(
-        balanceStatements.finalResults[self.address].map((v) => ({
-          ...v,
-          blockNumber: Number(v.blockNumber),
-        })) as Instance<typeof BalanceStatementModel>[]
-      );
+        self.balanceStatement.replace(
+          balanceStatements.finalResults[self.address].map((v) => ({
+            ...v,
+            blockNumber: Number(v.blockNumber),
+          })) as Instance<typeof BalanceStatementModel>[]
+        );
+      } catch (e) {
+        console.error(e);
+      }
     });
 
     const fetchHistoryBalances = flow(function* () {

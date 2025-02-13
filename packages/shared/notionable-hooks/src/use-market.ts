@@ -157,7 +157,13 @@ export function useTradedValue(amount: TokenBalance | undefined) {
   if (amount?.network) {
     const model = getNetworkModel(amount.network);
     const primeCash = model.getPrimeCash(amount.currencyId);
-    const fCashMarket = model.getfCashMarket(amount.currencyId);
+    let fCashMarket: ReturnType<typeof model.getfCashMarket> | undefined;
+    try {
+      fCashMarket = model.getfCashMarket(amount.currencyId);
+    } catch (e) {
+      // NO-OP
+    }
+
     try {
       return primeCash
         ? exchangeToLocalPrime(

@@ -45,19 +45,24 @@ const PortfolioNoteStaking = () => {
 
   return (
     <Box>
-      {noStakedNoteData && noteData.length === 0 && <EmptyPortfolio />}
-      {noStakedNoteData && (
-        <Box sx={{ marginBottom: theme.spacing(3) }}>
-          <Banner
-            messages={stakedNoteBanner.messages}
-            buttonSuffix={` ${formatNumberAsPercent(currentSNOTEYield)} APY`}
-            tokenSymbol="sNOTE"
-            title={stakedNoteBanner.title}
-            link="/stake/ETH"
-          />
-        </Box>
-      )}
-      {(noteData.length > 0 || data.length > 0) && (
+      {noStakedNoteData ? (
+        noteData.length === 0 ? (
+          // If no staked note and no note holdings, show NOTE banner
+          <EmptyPortfolio />
+        ) : (
+          // If no staked note and note holdings, show sNOTE banner
+          <Box sx={{ marginBottom: theme.spacing(3) }}>
+            <Banner
+              messages={stakedNoteBanner.messages}
+              buttonSuffix={` ${formatNumberAsPercent(currentSNOTEYield)} APY`}
+              tokenSymbol="sNOTE"
+              title={stakedNoteBanner.title}
+              link="/stake/ETH"
+            />
+          </Box>
+        )
+      ) : (
+        // Else show the NOTE staking heading
         <Heading sx={{ marginBottom: theme.spacing(3) }}>
           <FormattedMessage
             defaultMessage="NOTE Staking"
