@@ -240,6 +240,7 @@ function getSpecificVaultInfo(
                     alignItems: 'center',
                     marginRight: theme.spacing(1),
                   }}
+                  key={claim.symbol}
                 >
                   <TokenIcon symbol={claim.symbol} size={'small'} />
                   <H4>{claim.toDisplayString(3, true, false)}</H4>
@@ -319,6 +320,7 @@ export const useVaultHoldingsTable = () => {
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
   const totalVaultHoldings = useTotalVaultHoldings(network);
+  const { isMobileView } = useAppStore();
 
   const claimableRewards = (vaults || []).reduce(
     (acc, vault) => {
@@ -480,7 +482,7 @@ export const useVaultHoldingsTable = () => {
     }
   }, [expandedRows, setExpandedRows]);
 
-  if (totalVaultHoldings) {
+  if (totalVaultHoldings && !isMobileView) {
     vaultHoldingsData.push({
       vault: {
         symbol: '',

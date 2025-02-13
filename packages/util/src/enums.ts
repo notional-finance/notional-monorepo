@@ -92,6 +92,13 @@ export enum PORTFOLIO_STATE_ZERO_OPTIONS {
   BORROW = 2,
 }
 
+export enum PORTFOLIO_CONNECTED_WALLET {
+  PORTFOLIO = 'portfolio',
+  RISK = 'risk',
+  HISTORY = 'history',
+  RATES = 'rates',
+}
+
 export enum PORTFOLIO_CATEGORIES {
   OVERVIEW = 'overview',
   HOLDINGS = 'holdings',
@@ -99,6 +106,7 @@ export enum PORTFOLIO_CATEGORIES {
   NOTE_STAKING = 'note-staking',
   TRANSACTION_HISTORY = 'transaction-history',
   WELCOME = 'welcome',
+  DETAILS = 'details',
 }
 
 export enum ROUTE_MATCH {
@@ -118,6 +126,7 @@ export enum ROUTE_MATCH {
   LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
   BORROW_FIXED = 'borrow-fixed',
   BORROW_VARIABLE = 'borrow-variable',
+  PORTFOLIO_DETAILS = 'portfolio-details',
 }
 
 export enum CONTEST_SIGN_UP_STEPS {

@@ -33,7 +33,7 @@ export interface ChartContainerProps {
   hideTopGridLine?: boolean;
 }
 
-interface MultiDisplayChartProps {
+export interface MultiDisplayChartProps {
   chartComponents: ChartComponentsProps[];
 }
 
@@ -134,6 +134,5 @@ export const ChartContainer = styled(Box, {
   }
 `
 );
-
 
 export default MultiDisplayChart;

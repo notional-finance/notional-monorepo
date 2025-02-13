@@ -1,4 +1,4 @@
-export { default as PortfolioOverview } from './portfolio-overview/portfolio-overview';
+export { default as PortfolioOverview } from './portfolio-overview';
 export { default as PortfolioVaults } from './portfolio-vaults/portfolio-vaults';
 export { default as PortfolioHoldings } from './portfolio-holdings/portfolio-holdings';
 export { default as PortfolioTransactionHistory } from './portfolio-txn-history/portfolio-txn-history';

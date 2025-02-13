@@ -11,6 +11,7 @@ import {
   usePendingPnLCalculation,
   useLeverageBlock,
   useSelectedNetwork,
+  useAppStore,
 } from '@notional-finance/notionable-hooks';
 import { FiatKeys } from '@notional-finance/core-entities';
 import { ExpandedState } from '@tanstack/react-table';
@@ -18,7 +19,7 @@ import { useDetailedHoldingsTable } from './use-detailed-holdings';
 import { useGroupedHoldingsTable } from './use-grouped-holdings';
 import { Box, useTheme } from '@mui/material';
 
-function insertDebtDivider(arr) {
+function insertDebtDivider(arr: any[]) {
   for (let i = 0; i < arr.length; i++) {
     if (arr[i].asset.label.includes('Borrow')) {
       arr.splice(i, 0, {
@@ -53,6 +54,7 @@ function insertDebtDivider(arr) {
 
 export function usePortfolioHoldings(baseCurrency: FiatKeys) {
   const theme = useTheme();
+  const { isMobileView } = useAppStore();
   const isBlocked = useLeverageBlock();
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const [toggleOption, setToggleOption] = useState<number>(0);
@@ -180,8 +182,8 @@ export function usePortfolioHoldings(baseCurrency: FiatKeys) {
     },
     portfolioHoldingsData: [
       ...insertDebtDivider(portfolioHoldingsData),
-      totalHoldingsRow,
-    ],
+      isMobileView ? undefined : totalHoldingsRow,
+    ].filter((item) => item !== undefined),
     pendingTokenData,
     setExpandedRows,
     initialState,

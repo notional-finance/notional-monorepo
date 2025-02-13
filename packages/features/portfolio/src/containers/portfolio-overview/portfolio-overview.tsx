@@ -100,7 +100,7 @@ const PortfolioOverview = () => {
   );
 };
 
-const Container = styled(Box)(
+export const Container = styled(Box)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(4)};
   ${theme.breakpoints.down('sm')} {

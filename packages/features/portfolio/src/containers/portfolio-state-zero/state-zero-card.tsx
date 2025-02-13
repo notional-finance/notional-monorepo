@@ -363,7 +363,7 @@ const CardBoxContainer = styled(Box)(
          }
          ${theme.breakpoints.down('sm')} {
            height: 100%;
-           margin-bottom: ${theme.spacing(5)};
+           width: 100%;
          };
       `
 );

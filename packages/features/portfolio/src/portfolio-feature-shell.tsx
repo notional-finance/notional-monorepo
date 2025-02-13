@@ -33,6 +33,7 @@ import {
 import { defineMessage } from 'react-intl';
 import { observer } from 'mobx-react-lite';
 import { MobileFooter } from '@notional-finance/shared-web';
+import PortfolioDetails from './containers/portfolio-details';
 export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
@@ -110,7 +111,11 @@ const Portfolio = observer(() => {
   }, [params.category]);
 
   useEffect(() => {
-    if (params.category && params.category !== PORTFOLIO_CATEGORIES.WELCOME) {
+    if (
+      params.category &&
+      params.category !== PORTFOLIO_CATEGORIES.WELCOME &&
+      params.category !== PORTFOLIO_CATEGORIES.DETAILS
+    ) {
       clearSideDrawer(
         `/portfolio/${network}/${
           params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
@@ -159,7 +164,15 @@ const Portfolio = observer(() => {
       <PortfolioSidebar>
         <SideNav />
       </PortfolioSidebar>
-      {params.category !== PORTFOLIO_CATEGORIES.WELCOME && (
+      {params.category === PORTFOLIO_CATEGORIES.DETAILS &&
+      params.sideDrawerKey ? (
+        <>
+          <PortfolioMainContent>
+            <PortfolioDetails selectedToken={params.sideDrawerKey} />
+          </PortfolioMainContent>
+          <PortfolioMobileNav />
+        </>
+      ) : params.category !== PORTFOLIO_CATEGORIES.WELCOME ? (
         <>
           <PortfolioMainContent>
             {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
@@ -179,8 +192,7 @@ const Portfolio = observer(() => {
           </PortfolioMainContent>
           <PortfolioMobileNav />
         </>
-      )}
-      {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
+      ) : (
         <PortfolioStateZero />
       )}
       {isMobileView && <MobileFooter />}

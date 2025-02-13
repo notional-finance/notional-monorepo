@@ -111,7 +111,7 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
     barConfig.push({
       dataKey: 'currentApy',
       title: <FormattedMessage defaultMessage="Current APY" />,
-      toolTipTitle: <FormattedMessage defaultMessage="Debts" />,
+      toolTipTitle: <FormattedMessage defaultMessage="Current APY" />,
       fill: 'transparent',
       radius: [8, 8, 0, 0],
       currencySymbol: FiatSymbols[baseCurrency]
@@ -128,6 +128,7 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
       title: data.title,
       fill: data.fill,
       value: data.value,
+      dataKey: data.dataKey,
     };
   }) as ChartHeaderTotalsDataProps[];
 
@@ -138,4 +139,116 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
   };
 };
 
-export default useTotalsChart;
+export const useTotalsChartMobile = (baseCurrency: FiatKeys) => {
+  const windowDimensions = useWindowDimensions();
+  const network = useSelectedNetwork();
+  const { currentAPY, netWorth, debts, assets } =
+    useAccountCurrentFactors(network);
+  const [secondsMultiple, setSecondsMultiple] = useState(1.5);
+
+  if (windowDimensions.width <= 1152 && secondsMultiple !== 1.2) {
+    setSecondsMultiple(1.2);
+  }
+
+  const historyData = useAccountHistoryChart(
+    network,
+    getNowSeconds() - SECONDS_IN_MONTH * 7,
+    getNowSeconds() + SECONDS_IN_MONTH * 1,
+    SECONDS_IN_MONTH * 1
+  );
+  const { themeVariant } = useAppStore();
+
+  const barChartData = historyData?.map(
+    ({ assets, debts, netWorth, timestamp }) => {
+      return {
+        totalAssets: assets.toFloat(),
+        totalDebts: debts.toFloat(),
+        totalNetWorth: netWorth.toFloat(),
+        timestamp,
+      };
+    }
+  );
+
+  const barConfig: BarConfigProps[] = [
+    {
+      dataKey: 'totalNetWorth',
+      title: <FormattedMessage defaultMessage="Account Value" />,
+      toolTipTitle: <FormattedMessage defaultMessage="Net Worth" />,
+      fill:
+        themeVariant === THEME_VARIANTS.LIGHT
+          ? colors.turquoise
+          : colors.neonTurquoise,
+      radius: [8, 8, 0, 0],
+      currencySymbol: FiatSymbols[baseCurrency]
+        ? FiatSymbols[baseCurrency]
+        : '$',
+      value: netWorth?.toDisplayStringWithSymbol(2, true, false) ?? '0',
+    },
+  ];
+
+  if (currentAPY) {
+    barConfig.push({
+      dataKey: 'currentApy',
+      title: <FormattedMessage defaultMessage="Total APY" />,
+      toolTipTitle: <FormattedMessage defaultMessage="Total APY" />,
+      fill: 'transparent',
+      radius: [8, 8, 0, 0],
+      currencySymbol: FiatSymbols[baseCurrency]
+        ? FiatSymbols[baseCurrency]
+        : '$',
+      value: formatNumberAsPercent(currentAPY),
+    });
+  }
+
+  const totalsData = barConfig.map((data) => {
+    return {
+      title: data.title,
+      fill: data.fill,
+      value: data.value,
+      dataKey: data.dataKey,
+    };
+  }) as ChartHeaderTotalsDataProps[];
+
+  if (debts?.isNegative()) {
+    barConfig.push(
+      {
+        dataKey: 'totalAssets',
+        title: <FormattedMessage defaultMessage="Total Assets" />,
+        toolTipTitle: <FormattedMessage defaultMessage="Assets" />,
+        fill:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.matteGreen
+            : colors.lightGrey,
+        radius: [8, 8, 0, 0],
+        currencySymbol: FiatSymbols[baseCurrency]
+          ? FiatSymbols[baseCurrency]
+          : '$',
+        value: assets?.toDisplayStringWithSymbol(2, true, false) ?? '0',
+      },
+      {
+        dataKey: 'totalDebts',
+        title: <FormattedMessage defaultMessage="Total Debts" />,
+        toolTipTitle: <FormattedMessage defaultMessage="Debts" />,
+        fill:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.purple
+            : colors.blueAccent,
+        radius: [8, 8, 0, 0],
+        currencySymbol: FiatSymbols[baseCurrency]
+          ? FiatSymbols[baseCurrency]
+          : '$',
+        value: debts?.abs().toDisplayStringWithSymbol(2, true, false) ?? '0',
+      }
+    );
+  }
+
+  const hasData = historyData?.find(({ netWorth }) => netWorth.toFloat() > 0);
+
+  return {
+    barChartData: hasData ? barChartData : [],
+    barConfig,
+    totalsData,
+  };
+};
+
+export default { useTotalsChart, useTotalsChartMobile };
