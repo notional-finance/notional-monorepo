@@ -254,9 +254,11 @@ export const WalletModel = types
         const vpnCheck = yield fetch('https://detect.notional.finance/').catch(
           () => ({ status: 403 })
         );
+        console.log('[DEBUG] VPN Check: ', vpnCheck);
         const country = yield fetch('https://api.notional.finance/geoip').then(
           (r) => r.json()
         );
+        console.log('[DEBUG] Geo IP Country: ', country);
         self.country = vpnCheck.status !== 200 ? 'VPN' : country['country'];
 
         self.isSanctionedAddress = yield executeUserTracking(userWallet);
