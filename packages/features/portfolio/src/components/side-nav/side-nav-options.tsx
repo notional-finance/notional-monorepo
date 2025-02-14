@@ -6,6 +6,7 @@ import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
 import { H5, Caption } from '@notional-finance/mui';
 import { navLabels } from './messages';
+import { observer } from 'mobx-react-lite';
 
 interface SideNavItemProps extends LinkProps {
   theme: NotionalTheme;
@@ -20,7 +21,7 @@ interface SideNavOptionsProps {
   open?: boolean;
 }
 
-export const SideNavOptions = ({ open }: SideNavOptionsProps) => {
+export const SideNavOptions = observer(({ open }: SideNavOptionsProps) => {
   const theme = useTheme();
   const { sideNavOptions } = useSideNav();
   const { category } = useParams<PortfolioParams>();
@@ -76,7 +77,7 @@ export const SideNavOptions = ({ open }: SideNavOptionsProps) => {
       })}
     </Box>
   );
-};
+});
 
 const NotificationNum = styled(Caption)(
   ({ theme }) => `
@@ -130,15 +131,17 @@ const SideNavItem = styled(Link, {
     align-items: center;
     justify-content: flex-start;
     cursor: pointer;
-    color: ${selected ? theme.palette.common.white : theme.palette.typography.light
+    color: ${
+      selected ? theme.palette.common.white : theme.palette.typography.light
     };
     &:hover {
-      ${!selected
-      ? `transition: .5s ease;
+      ${
+        !selected
+          ? `transition: .5s ease;
           background: ${theme.palette.borders.paper};
           `
-      : ''
-    }
+          : ''
+      }
       cursor: pointer;
     }
     `
