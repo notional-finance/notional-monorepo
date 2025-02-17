@@ -103,6 +103,15 @@ export const useEmptyPortfolio = () => {
       }),
       link: '',
     },
+    [PORTFOLIO_CATEGORIES.RISK]: {
+      messages: defineMessages({
+        promptText: {
+          defaultMessage: 'No risk data to display',
+          description: 'empty risk prompt text',
+        },
+      }),
+      link: '',
+    },
   } as Record<PORTFOLIO_CATEGORIES, EmptyPortfolioData>;
 
   return category ? emptyData[category] : {};

@@ -107,6 +107,7 @@ export enum PORTFOLIO_CATEGORIES {
   TRANSACTION_HISTORY = 'transaction-history',
   WELCOME = 'welcome',
   DETAILS = 'details',
+  RISK = 'risk',
 }
 
 export enum ROUTE_MATCH {
