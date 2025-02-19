@@ -63,11 +63,7 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({
         </BackButtonContainer>
         <HeaderContainer>
           <TokenContainer>
-            <TokenIcon
-              symbol={token.symbol}
-              size="xl"
-              style={{ width: 40, height: 40 }}
-            />
+            <TokenIcon symbol={token.symbol} size="xl" />
             <Box
               sx={{
                 display: 'flex',

@@ -19,11 +19,7 @@ const VaultTab = () => {
         {riskTableData.map((item) => (
           <Card>
             <TokenContainer>
-              <TokenIcon
-                symbol={item.vault.symbol}
-                size={'xl'}
-                style={{ width: 40, height: 40 }}
-              />
+              <TokenIcon symbol={item.vault.symbol} size={'xl'} />
               <Box>
                 <H4>{item.vault.label}</H4>
                 <Caption>{item.vault.caption}</Caption>

@@ -102,7 +102,7 @@ export const DashboardCard = ({
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <TokenIcon
               symbol={symbol}
-              size="xl"
+              size="xxl"
               style={{ marginRight: theme.spacing(2) }}
               network={network}
             />

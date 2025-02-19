@@ -96,11 +96,7 @@ const PortfolioTab = () => {
           {liquidationRiskData.map((item) => (
             <Card>
               <TokenContainer>
-                <TokenIcon
-                  symbol={item.exchangeRate.symbol}
-                  size={'xl'}
-                  style={{ width: 40, height: 40 }}
-                />
+                <TokenIcon symbol={item.exchangeRate.symbol} size={'xl'} />
                 <Box>
                   <H4>{item.exchangeRate.symbol}</H4>
                   <Caption>{item.exchangeRate.label}</Caption>
@@ -124,11 +120,7 @@ const PortfolioTab = () => {
           ))}
           <Card>
             <TokenContainer>
-              <TokenIcon
-                symbol={'ETH'}
-                size={'xl'}
-                style={{ width: 40, height: 40 }}
-              />
+              <TokenIcon symbol={'ETH'} size={'xl'} />
               <Box>
                 <H4>nUSDC/USDC</H4>
                 <Caption>
@@ -146,11 +138,7 @@ const PortfolioTab = () => {
           </Card>
           <Card>
             <TokenContainer>
-              <TokenIcon
-                symbol={'ETH'}
-                size={'xl'}
-                style={{ width: 40, height: 40 }}
-              />
+              <TokenIcon symbol={'ETH'} size={'xl'} />
               <Box>
                 <H4>nUSDC/USDC</H4>
                 <Caption>
