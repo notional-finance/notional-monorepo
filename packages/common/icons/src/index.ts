@@ -109,3 +109,4 @@ export * from './lib/twitter-plain-icon/twitter-plain-icon';
 export * from './lib/youtube-icon/youtube-icon';
 export * from './lib/three-dot-icon/three-dot-icon';
 export * from './lib/percent-icon/percent-icon';
+export * from './lib/gauge-icon/gauge-icon';

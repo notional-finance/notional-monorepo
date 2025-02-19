@@ -105,55 +105,19 @@ const PortfolioTab = () => {
 
               <Row>
                 <Body sx={{ color: theme.palette.typography.main }}>
-                  Liquidation Price
+                  <FormattedMessage defaultMessage={'Liquidation Price'} />
                 </Body>
                 <LabelValue>{item.liquidationPrice}</LabelValue>
               </Row>
 
               <Row>
                 <Body sx={{ color: theme.palette.typography.main }}>
-                  Current Price
+                  <FormattedMessage defaultMessage={'Current Price'} />
                 </Body>
                 <LabelValue>{item.currentPrice}</LabelValue>
               </Row>
             </Card>
           ))}
-          <Card>
-            <TokenContainer>
-              <TokenIcon symbol={'ETH'} size={'xl'} />
-              <Box>
-                <H4>nUSDC/USDC</H4>
-                <Caption>
-                  <FormattedMessage defaultMessage={'Chainlink Oracle'} />
-                </Caption>
-              </Box>
-            </TokenContainer>
-
-            <Row>
-              <Body sx={{ color: theme.palette.typography.main }}>
-                Liquidation Price
-              </Body>
-              <LabelValue>0.8984 USDC</LabelValue>
-            </Row>
-          </Card>
-          <Card>
-            <TokenContainer>
-              <TokenIcon symbol={'ETH'} size={'xl'} />
-              <Box>
-                <H4>nUSDC/USDC</H4>
-                <Caption>
-                  <FormattedMessage defaultMessage={'Chainlink Oracle'} />
-                </Caption>
-              </Box>
-            </TokenContainer>
-
-            <Row>
-              <Body sx={{ color: theme.palette.typography.main }}>
-                Liquidation Price
-              </Body>
-              <LabelValue>0.8984 USDC</LabelValue>
-            </Row>
-          </Card>
         </Box>
       </Container>
 

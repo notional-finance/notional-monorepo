@@ -6,8 +6,8 @@ import {
 import {
   FourSquareIcon,
   HistoryTabIcon,
-  BarChartIcon,
   PercentIcon,
+  GaugeIcon,
 } from '@notional-finance/icons';
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
@@ -47,7 +47,7 @@ export const usePortfolioMobileNav = () => {
       id: PORTFOLIO_CONNECTED_WALLET.RISK,
       to: `/portfolio/${network}/${PORTFOLIO_CONNECTED_WALLET.RISK}`,
       Icon: (
-        <BarChartIcon
+        <GaugeIcon
           sx={{
             width: theme.spacing(3),
             fill:

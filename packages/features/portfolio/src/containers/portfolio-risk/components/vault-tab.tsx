@@ -4,7 +4,10 @@ import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
 
 import { TokenIcon } from '@notional-finance/icons';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  formatHealthFactorValues,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { Body, Button, Caption, H4, LabelValue } from '@notional-finance/mui';
 import { useVaultRiskTable } from '@notional-finance/portfolio-feature-shell/hooks';
 
@@ -32,7 +35,7 @@ const VaultTab = () => {
               </Body>
               <LabelValue
                 sx={{
-                  color: theme.palette.primary.main,
+                  color: formatHealthFactorValues(item.healthFactor, theme),
                 }}
               >
                 {item.healthFactor

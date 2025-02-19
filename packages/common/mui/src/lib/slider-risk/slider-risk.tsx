@@ -3,6 +3,7 @@ import SliderBasic from '../slider-basic/slider-basic';
 import { LabelValue } from '../typography/typography';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
+import { formatHealthFactorValues } from '@notional-finance/notionable-hooks';
 
 interface SliderRiskProps {
   healthFactor: number | null;
@@ -40,11 +41,7 @@ export const SliderRisk = ({
           textWrap: 'nowrap',
           color:
             isLabelWithColor && healthFactor
-              ? healthFactor < 1.25
-                ? theme.palette.error.main
-                : healthFactor < 3.5
-                ? theme.palette.warning.main
-                : theme.palette.success.main
+              ? formatHealthFactorValues(healthFactor, theme)
               : theme.palette.typography.main,
         }}
       >
