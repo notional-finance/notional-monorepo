@@ -26,7 +26,7 @@ const SNoteHoldingsDetail: React.FC<SNoteHoldingsDetailProps> = ({ value }) => {
           title: 'Earnings Summary',
           rows: [
             {
-              label: 'Note Value',
+              label: 'NOTE Value',
               value: {
                 text: value.noteValue.data?.[0]?.displayValue,
               },

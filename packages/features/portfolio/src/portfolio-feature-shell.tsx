@@ -34,6 +34,7 @@ import { defineMessage } from 'react-intl';
 import { observer } from 'mobx-react-lite';
 import { MobileFooter } from '@notional-finance/shared-web';
 import PortfolioDetails from './containers/portfolio-details';
+import PortfolioRisk from './containers/portfolio-risk';
 export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
@@ -189,6 +190,7 @@ const Portfolio = observer(() => {
             {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
               <PortfolioTransactionHistory />
             )}
+            {params.category === PORTFOLIO_CATEGORIES.RISK && <PortfolioRisk />}
           </PortfolioMainContent>
           <PortfolioMobileNav />
         </>

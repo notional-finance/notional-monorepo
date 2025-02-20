@@ -11,6 +11,7 @@ export function PercentIcon(props: PercentIconProps) {
         <path
           d="M1.4 5.1C1.4 2.7804 3.2804 0.9 5.6 0.9H19.4C21.7196 0.9 23.6 2.7804 23.6 5.1V18.9C23.6 21.2196 21.7196 23.1 19.4 23.1H5.6C3.2804 23.1 1.4 21.2196 1.4 18.9V5.1Z"
           strokeWidth="1.8"
+          fill="transparent"
         />
         <path
           fillRule="evenodd"

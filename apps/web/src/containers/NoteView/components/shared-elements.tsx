@@ -36,8 +36,8 @@ export const NotePageSectionTitle = ({ symbol, title }: SectionTitleProps) => {
         marginBottom: theme.spacing(2),
       }}
     >
-      {symbol === 'snote' && <TokenIcon symbol={'snote'} size="xl" />}
-      {symbol === 'note' && <TokenIcon symbol={'note'} size="xl" />}
+      {symbol === 'snote' && <TokenIcon symbol={'snote'} size="xxl" />}
+      {symbol === 'note' && <TokenIcon symbol={'note'} size="xxl" />}
       <H2 sx={{ marginLeft: symbol ? theme.spacing(2) : '' }}>{title}</H2>
     </Box>
   );

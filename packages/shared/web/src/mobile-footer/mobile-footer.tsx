@@ -51,7 +51,7 @@ const MainContainer = styled(Box)(
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      margin-bottom: ${theme.spacing(13)};
+      margin-bottom: ${theme.spacing(20)};
     };
     `
 );

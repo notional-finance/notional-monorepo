@@ -8,6 +8,7 @@ import {
   StakeIcon,
   VaultIcon,
   HistoryIcon,
+  GaugeIcon,
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../portfolio-feature-shell';
 import {
@@ -39,6 +40,22 @@ export const useSideNav = () => {
         ),
         id: PORTFOLIO_CATEGORIES.OVERVIEW,
         to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
+        notifications: 0,
+      },
+      {
+        Icon: (
+          <GaugeIcon
+            sx={{
+              width: theme.spacing(3),
+              fill:
+                category === PORTFOLIO_CATEGORIES.RISK
+                  ? theme.palette.common.white
+                  : theme.palette.typography.light,
+            }}
+          />
+        ),
+        id: PORTFOLIO_CATEGORIES.RISK,
+        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.RISK}`,
         notifications: 0,
       },
       {

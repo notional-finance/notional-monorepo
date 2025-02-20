@@ -31,7 +31,7 @@ export const Banner = ({
   return (
     <BannerContainer>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {tokenSymbol && <TokenIcon symbol={tokenSymbol} size={'xl'} />}
+        {tokenSymbol && <TokenIcon symbol={tokenSymbol} size={'xxl'} />}
         {imgSrc && (
           <img
             src={imgSrc}

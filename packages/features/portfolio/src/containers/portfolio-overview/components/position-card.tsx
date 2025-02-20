@@ -28,7 +28,7 @@ const PositionCard: React.FC<IProps> = (props) => {
   return (
     <Container>
       <HeaderContainer>
-        <TokenIcon symbol={header.tokenSymbol} size="xl" />
+        <TokenIcon symbol={header.tokenSymbol} size="xxl" />
         <Box>
           <Header variant="h3" sx={{ marginBottom: 0 }}>
             {header.tokenName}
