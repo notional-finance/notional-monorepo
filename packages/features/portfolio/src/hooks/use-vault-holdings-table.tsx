@@ -322,22 +322,6 @@ export const useVaultHoldingsTable = () => {
   const totalVaultHoldings = useTotalVaultHoldings(network);
   const { isMobileView } = useAppStore();
 
-  const claimableRewards = (vaults || []).reduce(
-    (acc, vault) => {
-      if (
-        vault.vaultMetadata.rewardClaims &&
-        vault.vaultMetadata.rewardClaims.length > 0
-      ) {
-        vault.vaultMetadata.rewardClaims.forEach((claim) => {
-          acc.rewardTokens.add(claim.symbol);
-        });
-        acc.vaults.push(vault.name);
-      }
-      return acc;
-    },
-    { rewardTokens: new Set<string>(), vaults: [] as string[] }
-  );
-
   const toggleData = [
     <Box
       sx={{
@@ -530,7 +514,5 @@ export const useVaultHoldingsTable = () => {
       toggleData,
       showToggle: !isBlocked && !!vaults && vaults.length > 0,
     },
-    claimableRewards:
-      claimableRewards.rewardTokens.size > 0 ? claimableRewards : undefined,
   };
 };

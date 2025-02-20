@@ -1,15 +1,36 @@
 import { Box, useTheme } from '@mui/material';
 import { MultiTokenIcon } from '@notional-finance/icons';
 import { InfoTooltip, Body } from '@notional-finance/mui';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useVaultHoldings } from '@notional-finance/notionable-hooks';
+import { FormattedMessage } from 'react-intl';
 
-export const ClaimableRewards = ({
-  rewardTokens,
-  vaults,
-}: {
-  rewardTokens: string[];
-  vaults: string[];
-}) => {
+const useClaimableIncentives = () => {
+  const network = useSelectedNetwork();
+  const vaults = useVaultHoldings(network);
+  const { rewardTokens, vaults: vaultsList } = (vaults || []).reduce(
+    (acc, vault) => {
+      if (
+        vault.vaultMetadata.rewardClaims &&
+        vault.vaultMetadata.rewardClaims.length > 0
+      ) {
+        vault.vaultMetadata.rewardClaims.forEach((claim) => {
+          acc.rewardTokens.add(claim.symbol);
+        });
+        acc.vaults.push(vault.name);
+      }
+      return acc;
+    },
+    { rewardTokens: new Set<string>(), vaults: [] as string[] }
+  );
+  return { rewardTokens: Array.from(rewardTokens), vaults: vaultsList };
+};
+
+export const ClaimableIncentives = () => {
   const theme = useTheme();
+  const { rewardTokens, vaults } = useClaimableIncentives();
+  if (rewardTokens.length === 0) return null;
+
   return (
     <Box
       sx={{
@@ -22,7 +43,9 @@ export const ClaimableRewards = ({
       }}
     >
       <MultiTokenIcon symbols={rewardTokens} size={'medium'} shiftSize={8} />
-      <Body main>Claimable Rewards</Body>
+      <Body main>
+        <FormattedMessage defaultMessage="Claimable Rewards" />
+      </Body>
       <InfoTooltip
         iconColor={theme.palette.info.dark}
         iconSize={theme.spacing(2)}

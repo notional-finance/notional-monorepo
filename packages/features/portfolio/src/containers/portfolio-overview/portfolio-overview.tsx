@@ -1,14 +1,11 @@
-import { DataTable, MultiDisplayChart, BarChart } from '@notional-finance/mui';
-import { FormattedMessage } from 'react-intl';
+import { MultiDisplayChart, BarChart } from '@notional-finance/mui';
 import { observer } from 'mobx-react-lite';
+import { useTotalsChart } from './hooks';
 import {
-  useTotalsChart,
-  useRiskOverviewTable,
-  useTotalHoldingsTable,
-  useOverviewVaultHoldingsColumns,
-} from './hooks';
-import { useVaultHoldingsTable } from '../../hooks';
-import { ClaimNoteButton, PortfolioPageHeader } from '../../components';
+  ClaimNoteButton,
+  PortfolioPageHeader,
+  ClaimableIncentives,
+} from '../../components';
 import { Box, styled, useTheme } from '@mui/material';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { useAppStore } from '@notional-finance/notionable-hooks';
@@ -16,17 +13,12 @@ import { useAppStore } from '@notional-finance/notionable-hooks';
 const PortfolioOverview = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
-  const { totalHoldingsColumns, totalHoldingsData, showTotalHoldingsTable } =
-    useTotalHoldingsTable(baseCurrency);
-  const { vaultHoldingsData, showVaultHoldingsTable } = useVaultHoldingsTable();
-  const { overviewVaultHoldingsColumns } = useOverviewVaultHoldingsColumns();
-  const { riskOverviewData, riskOverviewColumns } =
-    useRiskOverviewTable(baseCurrency);
   const { barChartData, barConfig, totalsData } = useTotalsChart(baseCurrency);
 
   return (
     <Box>
       <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.OVERVIEW}>
+        <ClaimableIncentives />
         <ClaimNoteButton />
       </PortfolioPageHeader>
       <Container>
@@ -52,50 +44,9 @@ const PortfolioOverview = () => {
         )}
       </Container>
 
-      <Box sx={{ '#data-table-container': { marginBottom: theme.spacing(4) } }}>
-        {riskOverviewData.length > 0 && (
-          <DataTable
-            data={riskOverviewData}
-            columns={riskOverviewColumns}
-            tableTitle={
-              <div>
-                <FormattedMessage
-                  defaultMessage="Risk Overview"
-                  description="table title"
-                />
-              </div>
-            }
-          />
-        )}
-        {showTotalHoldingsTable && (
-          <DataTable
-            data={totalHoldingsData}
-            columns={totalHoldingsColumns}
-            tableTitle={
-              <div>
-                <FormattedMessage
-                  defaultMessage="Portfolio Holdings"
-                  description="table title"
-                />
-              </div>
-            }
-          />
-        )}
-        {showVaultHoldingsTable && (
-          <DataTable
-            data={vaultHoldingsData}
-            columns={overviewVaultHoldingsColumns}
-            tableTitle={
-              <div>
-                <FormattedMessage
-                  defaultMessage="Leveraged Vaults"
-                  description="table title"
-                />
-              </div>
-            }
-          />
-        )}
-      </Box>
+      <Box
+        sx={{ '#data-table-container': { marginBottom: theme.spacing(4) } }}
+      ></Box>
     </Box>
   );
 };
