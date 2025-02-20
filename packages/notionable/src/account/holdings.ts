@@ -172,7 +172,11 @@ export function calculateHoldings(
         ? TokenBalance.from(
             balance.scaleTo(balance.underlying.decimals),
             balance.underlying
-          ).sub(statement?.accumulatedCostRealized)
+          ).sub(
+            statement.token.isFCashDebt
+              ? statement?.accumulatedCostRealized.neg()
+              : statement?.accumulatedCostRealized
+          )
         : undefined;
 
     return {
@@ -367,7 +371,9 @@ export function calculateVaultHoldings(
     const zeroDenom = TokenBalance.zero(denom);
     const profit = (assetPnL?.totalProfitAndLoss || zeroDenom)
       .sub(debtPnL?.totalProfitAndLoss || zeroDenom)
-      .add(cashPnL?.totalProfitAndLoss || zeroDenom);
+      .add(cashPnL?.totalProfitAndLoss || zeroDenom)
+      // Subtract accrued vault fees
+      .sub(v.accruedVaultFees.toToken(zeroDenom.token));
     const vaultYield = model.getSpotAPY(v.vaultShares.tokenId);
     const debtAPY =
       debtPnL?.impliedFixedRate !== undefined
