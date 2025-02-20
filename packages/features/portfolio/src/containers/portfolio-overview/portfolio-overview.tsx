@@ -32,10 +32,10 @@ const PortfolioOverview = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
   const { barChartData, barConfig, totalsData } = useTotalsChart(baseCurrency);
+  const [showGrouped, setShowGrouped] = useState(true);
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
-  const { rows, hasLeverage } = usePortfolioOverviewTable(false);
-  const [showGrouped, setShowGrouped] = useState(true);
+  const { rows, hasLeverage } = usePortfolioOverviewTable(showGrouped);
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const [currentTab, setCurrentTab] = useState(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};

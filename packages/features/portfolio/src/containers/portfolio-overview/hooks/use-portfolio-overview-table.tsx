@@ -5,6 +5,7 @@ import {
 } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
+  formatLeverageRatio,
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
@@ -17,7 +18,12 @@ import {
   useSelectedNetwork,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
-import { PORTFOLIO_ACTIONS, TXN_HISTORY_TYPE } from '@notional-finance/util';
+import {
+  formatMaturity,
+  leveragedYield,
+  PORTFOLIO_ACTIONS,
+  TXN_HISTORY_TYPE,
+} from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 type MultiRowTableData =
@@ -50,10 +56,10 @@ interface OverviewTableRow {
   amountPaid: MultiRowTableData;
   presentValue: MultiRowTableData;
   totalEarnings: MultiRowTableData;
-  earningsToolTip?: {
+  toolTipData?: {
     perAssetEarnings: {
-      underlying: string;
-      baseCurrency: string;
+      underlying: string | undefined;
+      baseCurrency: string | undefined;
     }[];
   };
   actionRow: {
@@ -90,7 +96,7 @@ function formatPortfolioHoldings(
   }: NonNullable<ReturnType<typeof usePortfolioHoldings>>[number],
   pendingTokens: TokenDefinition[] | undefined,
   baseCurrency: FiatKeys
-) {
+): OverviewTableRow {
   const { icon, formattedTitle, titleWithMaturity, title } = formatTokenType(
     balance.token,
     balance.isNegative(),
@@ -255,6 +261,194 @@ function formatPortfolioHoldings(
   };
 }
 
+function formatCaption(asset: TokenBalance, debt: TokenBalance) {
+  if (asset.tokenType === 'nToken' && debt.tokenType === 'PrimeDebt') {
+    return 'Variable Borrow';
+  } else if (asset.tokenType === 'nToken' && debt.tokenType === 'fCash') {
+    return `Fixed Borrow: ${formatMaturity(debt.maturity)}`;
+  } else if (asset.tokenType === 'fCash' && debt.tokenType === 'PrimeDebt') {
+    return `Fixed Lend: ${formatMaturity(asset.maturity)}, Variable Borrow`;
+  } else if (asset.tokenType === 'PrimeCash' && debt.tokenType === 'fCash') {
+    return `Variable Lend, Fixed Borrow: ${formatMaturity(debt.maturity)}`;
+  } else if (asset.tokenType === 'fCash' && debt.tokenType === 'fCash') {
+    return `Fixed Lend: ${formatMaturity(
+      asset.maturity
+    )}, Fixed Borrow: ${formatMaturity(debt.maturity)}`;
+  } else {
+    return undefined;
+  }
+}
+
+function formatLeveragedPosition(
+  {
+    asset: {
+      balance: asset,
+      marketYield: assetYield,
+      perIncentiveEarnings,
+      isHighUtilization,
+    },
+    debt: { balance: debt },
+    hasMatured,
+    leverageRatio,
+    presentValue,
+    borrowAPY,
+    totalEarnings,
+    totalLeveragedApy,
+    amountPaid,
+  }: NonNullable<ReturnType<typeof useGroupedHoldings>>[number],
+  pendingTokens: TokenDefinition[] | undefined,
+  baseCurrency: FiatKeys
+): OverviewTableRow {
+  const { icon } = formatTokenType(asset.token);
+  const { icon: debtIcon } = formatTokenType(debt.token);
+  const network = asset.network;
+  const underlying = asset.underlying;
+  const noteAPY = assetYield?.incentives?.find(
+    (i) => i.symbol === 'NOTE'
+  )?.incentiveAPY;
+  const noteIncentives =
+    noteAPY !== undefined
+      ? leveragedYield(noteAPY, 0, leverageRatio)
+      : undefined;
+  const secondaryAPY = assetYield?.incentives?.find(
+    (i) => i.symbol !== 'NOTE'
+  )?.incentiveAPY;
+  const secondarySymbol = assetYield?.incentives?.find(
+    (i) => i.symbol !== 'NOTE'
+  )?.symbol;
+  const secondaryIncentives =
+    secondaryAPY !== undefined && secondarySymbol
+      ? leveragedYield(secondaryAPY, 0, leverageRatio)
+      : undefined;
+
+  return {
+    tokenId: asset.tokenId,
+    isPending: !!pendingTokens?.find(
+      (t) => t.id === asset.tokenId || t.id === debt.tokenId
+    ),
+    asset: {
+      symbol: icon,
+      symbolBottom: debtIcon,
+      label:
+        asset.tokenType === 'nToken'
+          ? `Leveraged ${asset.underlying.symbol} Liquidity`
+          : `Leveraged ${asset.underlying.symbol} Lend`,
+      caption: formatCaption(asset, debt) || '',
+    },
+    marketApy: {
+      data: [
+        {
+          displayValue: formatNumberAsPercentWithUndefined(
+            totalLeveragedApy,
+            '-',
+            2
+          ),
+          isNegative: false,
+        },
+        {
+          displayValue:
+            noteIncentives && secondaryIncentives
+              ? `${formatNumberAsPercent(
+                  noteIncentives
+                )} NOTE, ${formatNumberAsPercent(
+                  secondaryIncentives
+                )} ${secondarySymbol}`
+              : noteIncentives
+              ? `${formatNumberAsPercent(noteIncentives)} NOTE`
+              : '',
+          isNegative: false,
+        },
+      ],
+    },
+    amountPaid: formatCryptoWithFiat(
+      baseCurrency,
+      amountPaid
+    ) as MultiRowTableData,
+    presentValue: formatCryptoWithFiat(
+      baseCurrency,
+      presentValue
+    ) as MultiRowTableData,
+    totalEarnings: {
+      data: [
+        {
+          displayValue: totalEarnings
+            ? totalEarnings
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(2, true, false)
+            : '-',
+          isNegative: totalEarnings
+            ? totalEarnings.toFiat(baseCurrency).isNegative()
+            : false,
+        },
+        {
+          displayValue: '',
+          isNegative: false,
+        },
+      ],
+    },
+    toolTipData:
+      perIncentiveEarnings.length > 0
+        ? {
+            perAssetEarnings: [
+              {
+                underlying: totalEarnings?.toDisplayStringWithSymbol(
+                  2,
+                  true,
+                  false
+                ),
+                baseCurrency: totalEarnings
+                  ?.toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol(2, true, false),
+              },
+              ...perIncentiveEarnings.map((i: TokenBalance) => ({
+                underlying: i.toDisplayStringWithSymbol(2, true, false),
+                baseCurrency: i
+                  .toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol(2, true, false),
+              })),
+            ],
+          }
+        : undefined,
+    actionRow: {
+      warning: hasMatured ? 'fCashMatured' : isHighUtilization,
+      showRowWarning: !!isHighUtilization,
+      subRowData: [
+        {
+          label: <FormattedMessage defaultMessage={'Borrow APY'} />,
+          value: formatNumberAsPercentWithUndefined(borrowAPY, '-'),
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Strategy APY'} />,
+          value: formatNumberAsPercentWithUndefined(assetYield?.totalAPY, '-'),
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+          value: formatLeverageRatio(leverageRatio),
+        },
+      ],
+      buttonBarData: [
+        {
+          buttonText: <FormattedMessage defaultMessage={'Manage'} />,
+          link: `/liquidity-leveraged/${network}/Manage/${underlying.symbol}`,
+        },
+        {
+          buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
+          link: `/liquidity-leveraged/${network}/Withdraw/${underlying.symbol}${
+            isHighUtilization ? `?warning=${isHighUtilization}` : ''
+          }`,
+        },
+      ],
+      txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+        {
+          txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
+          assetOrVaultId: asset.token.id,
+          debtId: debt.token.id || '',
+        }
+      )}`,
+    },
+  };
+}
+
 function dividerRow(label: string) {
   return {
     asset: {
@@ -292,14 +486,14 @@ export const usePortfolioOverviewTable = (
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network) || [];
   const leveragedNTokenHoldings = useGroupedHoldings(network) || [];
-  // const vaultHoldings = useVaultHoldings(network) || [];
+  const vaultHoldings = useVaultHoldings(network) || [];
   const pendingTokens = usePendingPnLCalculation(network)?.flatMap(
     ({ tokens }) => tokens
   );
 
   let earn: OverviewTableRow[];
   let debt: OverviewTableRow[];
-  const leverage: OverviewTableRow[] = [];
+  let leverage: OverviewTableRow[] = [];
 
   if (showGrouped) {
     const groupedTokens = leveragedNTokenHoldings.flatMap(({ asset, debt }) => [
@@ -309,6 +503,11 @@ export const usePortfolioOverviewTable = (
     const filteredHoldings = holdings.filter(
       (h) => !groupedTokens.includes(h.balance.tokenId)
     );
+
+    leverage = leveragedNTokenHoldings.map((h) =>
+      formatLeveragedPosition(h, pendingTokens, baseCurrency)
+    );
+    // TODO: add vault holdings here
     earn = filteredHoldings
       .filter((h) => h.balance.isPositive())
       .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
@@ -316,6 +515,8 @@ export const usePortfolioOverviewTable = (
       .filter((h) => h.balance.isNegative())
       .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
   } else {
+    // TODO: split vault holdings here
+
     earn = holdings
       .filter((h) => h.balance.isPositive())
       .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
@@ -336,7 +537,6 @@ export const usePortfolioOverviewTable = (
         : undefined,
       ...debt,
     ].filter((r) => r !== undefined),
-
-    hasLeverage: leverage.length > 0,
+    hasLeverage: leveragedNTokenHoldings.length > 0 || vaultHoldings.length > 0,
   };
 };
