@@ -19,10 +19,8 @@ import { usePortfolioNOTETable, usePortfolioSideDrawers } from './hooks';
 import { SideNav, PortfolioMobileNav, EmptyPortfolio } from './components';
 import {
   PortfolioOverview,
-  PortfolioVaults,
   PortfolioTransactionHistory,
   PortfolioStateZero,
-  PortfolioHoldings,
   PortfolioNoteStaking,
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
@@ -178,12 +176,6 @@ const Portfolio = observer(() => {
           <PortfolioMainContent>
             {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
               params.category === undefined) && <PortfolioOverview />}
-            {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-              <PortfolioHoldings />
-            )}
-            {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-              <PortfolioVaults />
-            )}
             {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
               <PortfolioNoteStaking />
             )}

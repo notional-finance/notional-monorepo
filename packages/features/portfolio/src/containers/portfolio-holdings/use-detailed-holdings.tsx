@@ -44,9 +44,6 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
         const isDebt = b.isNegative();
         const { icon, formattedTitle, titleWithMaturity, title } =
           formatTokenType(b.token, isDebt, true);
-        // const pointsPerDay = getPointsPerDay(b);
-        // const totalPoints =
-        //   arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
         const marketApy = marketYield?.totalAPY;
         const noteIncentives = marketYield?.incentives?.incentiveAPY;
         const secondaryIncentives = marketYield?.incentives?.incentiveAPY;

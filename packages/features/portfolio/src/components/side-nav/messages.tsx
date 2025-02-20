@@ -9,16 +9,8 @@ export const navLabels = defineMessages({
     defaultMessage: 'Overview',
     description: 'navigation link',
   },
-  [PORTFOLIO_CATEGORIES.HOLDINGS]: {
-    defaultMessage: 'Holdings',
-    description: 'navigation link',
-  },
   [PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY]: {
     defaultMessage: 'Transaction History',
-    description: 'navigation link',
-  },
-  [PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS]: {
-    defaultMessage: 'Leveraged Vaults',
     description: 'navigation link',
   },
   [PORTFOLIO_CATEGORIES.NOTE_STAKING]: {
