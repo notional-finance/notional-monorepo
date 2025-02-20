@@ -5,10 +5,11 @@ import {
   DataTable,
   H4,
   H5,
+  InfoTooltip,
   SliderRisk,
   Subtitle,
 } from '@notional-finance/mui';
-import { FormattedMessage } from 'react-intl';
+import { defineMessage, FormattedMessage } from 'react-intl';
 import { useState, useMemo } from 'react';
 import {
   useAccountDefinition,
@@ -20,15 +21,17 @@ import {
   ClaimNoteButton,
   PortfolioPageHeader,
 } from '@notional-finance/portfolio-feature-shell/components';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
+import { PORTFOLIO_CATEGORIES, TRACKING_EVENTS } from '@notional-finance/util';
 import { useLiquidationRisk } from '../portfolio-holdings/use-liquidation-risk';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatNumberAsPercent, trackEvent } from '@notional-finance/helpers';
 import { ArrowIcon } from '@notional-finance/icons';
 import { useVaultRiskTable } from '@notional-finance/portfolio-feature-shell/hooks';
+import { useLocation } from 'react-router-dom';
 
 const PortfolioRiskDesktop = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const network = useSelectedNetwork();
   const { baseCurrency } = useAppStore();
   const account = useAccountDefinition(network);
@@ -56,11 +59,27 @@ const PortfolioRiskDesktop = () => {
       </PortfolioPageHeader>
       <Container>
         <Card>
-          <Box sx={{ padding: theme.spacing(2), width: '100%' }}>
+          <Box sx={{ width: '100%' }}>
             <Header>
               <FormattedMessage defaultMessage={'Portfolio Health Factor'} />
               <InfoOutlinedIcon
                 sx={{ fontSize: '16px', color: theme.palette.primary.light }}
+              />
+              <InfoTooltip
+                onMouseEnter={() =>
+                  trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+                    path: pathname,
+                    type: TRACKING_EVENTS.HOVER_TOOL_TIP,
+                    title: 'Portfolio Health Factor',
+                  })
+                }
+                iconColor={theme.palette.typography.accent}
+                iconSize={theme.spacing(2)}
+                sx={{ marginLeft: theme.spacing(1) }}
+                toolTipText={defineMessage({
+                  defaultMessage:
+                    'Your health factor measures the riskiness of your account. If your health factor drops below 1, you can be liquidated.',
+                })}
               />
             </Header>
 
@@ -70,12 +89,8 @@ const PortfolioRiskDesktop = () => {
                 style={{
                   width: '100%',
                   maxWidth: '445px',
-                  backgroundColor: theme.palette.background.paper,
-                  borderRadius: '6px',
-                  border: `1px solid ${theme.palette.borders.paper}`,
+                  height: '44px',
                   padding: theme.spacing(0, 2),
-
-                  marginBottom: theme.spacing(3),
 
                   display: 'flex',
                   alignItems: 'center',
@@ -117,48 +132,52 @@ const PortfolioRiskDesktop = () => {
                 </H4>
               </Column>
 
-              <DropdownButton
-                id="reduce-risk-dropdown"
-                aria-controls={
-                  isReduceRiskDropdownOpen ? 'reduce-risk-menu' : undefined
-                }
-                aria-haspopup="true"
-                variant="contained"
-                aria-expanded={isReduceRiskDropdownOpen ? 'true' : undefined}
-                onClick={() =>
-                  setIsReduceRiskDropdownOpen(!isReduceRiskDropdownOpen)
-                }
-                endIcon={
-                  <Box
-                    sx={{
-                      marginLeft: theme.spacing(1),
-                      height: theme.spacing(2),
-                      width: theme.spacing(2),
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '50%',
-                      background: theme.palette.info.light,
-                      boxShadow: 'none',
-                    }}
-                  >
-                    <ArrowIcon
+              {hasPortfolioRisk ? (
+                <DropdownButton
+                  id="reduce-risk-dropdown"
+                  aria-controls={
+                    isReduceRiskDropdownOpen ? 'reduce-risk-menu' : undefined
+                  }
+                  aria-haspopup="true"
+                  variant="contained"
+                  aria-expanded={isReduceRiskDropdownOpen ? 'true' : undefined}
+                  onClick={() =>
+                    setIsReduceRiskDropdownOpen(!isReduceRiskDropdownOpen)
+                  }
+                  endIcon={
+                    <Box
                       sx={{
-                        transform: isReduceRiskDropdownOpen
-                          ? 'rotate(0deg)'
-                          : 'rotate(-180deg)',
-                        transition: '.5s ease',
-                        width: theme.spacing(1.5),
-                        color: theme.palette.typography.white,
+                        marginLeft: theme.spacing(1),
+                        height: theme.spacing(2),
+                        width: theme.spacing(2),
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '50%',
+                        background: theme.palette.info.light,
+                        boxShadow: 'none',
                       }}
-                    />
-                  </Box>
-                }
-              >
-                <Subtitle sx={{ color: theme.palette.typography.white }}>
-                  Reduce Risk
-                </Subtitle>
-              </DropdownButton>
+                    >
+                      <ArrowIcon
+                        sx={{
+                          transform: isReduceRiskDropdownOpen
+                            ? 'rotate(0deg)'
+                            : 'rotate(-180deg)',
+                          transition: '.5s ease',
+                          width: theme.spacing(1.5),
+                          color: theme.palette.typography.white,
+                        }}
+                      />
+                    </Box>
+                  }
+                >
+                  <Subtitle sx={{ color: theme.palette.typography.white }}>
+                    Reduce Risk
+                  </Subtitle>
+                </DropdownButton>
+              ) : (
+                <Box sx={{ width: '100px' }} />
+              )}
             </Row>
           </Box>
           {hasPortfolioRisk && (
@@ -168,6 +187,9 @@ const PortfolioRiskDesktop = () => {
               sx={{
                 background: 'transparent',
                 border: 'none',
+                '& .MuiTableCell-root': {
+                  padding: theme.spacing(2, 3),
+                },
               }}
             />
           )}
@@ -185,10 +207,17 @@ const PortfolioRiskDesktop = () => {
                 textAlign: 'right',
               },
             ]}
+            sx={{
+              '& .MuiTableCell-root': {
+                padding: theme.spacing(2, 3),
+              },
+            }}
             tableTitle={
-              <FormattedMessage
-                defaultMessage={'Leveraged Vaults Liquidation Risk'}
-              />
+              <Box sx={{ padding: theme.spacing(0, 1) }}>
+                <FormattedMessage
+                  defaultMessage={'Leveraged Vaults Liquidation Risk'}
+                />
+              </Box>
             }
           />
         )}
