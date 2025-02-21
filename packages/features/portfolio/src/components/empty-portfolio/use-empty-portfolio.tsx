@@ -15,19 +15,6 @@ export const useEmptyPortfolio = () => {
   const selectedNetwork = useSelectedNetwork();
 
   const emptyData = {
-    [PORTFOLIO_CATEGORIES.HOLDINGS]: {
-      messages: defineMessages({
-        promptText: {
-          defaultMessage: 'No holdings data to display',
-          description: 'empty overview prompt text',
-        },
-        buttonText: {
-          defaultMessage: 'Learn about products',
-          description: 'empty overview button text',
-        },
-      }),
-      link: `/portfolio/${selectedNetwork}/welcome/earn`,
-    },
     [PORTFOLIO_CATEGORIES.OVERVIEW]: {
       messages: defineMessages({
         promptText: {
@@ -67,19 +54,6 @@ export const useEmptyPortfolio = () => {
       }),
       link: '',
       href: 'https://matcha.xyz/tokens/ethereum/0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5',
-    },
-    [PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS]: {
-      messages: defineMessages({
-        promptText: {
-          defaultMessage: 'No leveraged vault data to display',
-          description: 'empty leveraged vault overview prompt text',
-        },
-        buttonText: {
-          defaultMessage: 'Fund a Leveraged Vault',
-          description: 'empty leveraged vault overview button text',
-        },
-      }),
-      link: `/leveraged-yield-farming/${selectedNetwork}`,
     },
     [PORTFOLIO_CATEGORIES.WELCOME]: {
       messages: defineMessages({

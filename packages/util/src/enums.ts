@@ -73,7 +73,6 @@ export enum VAULT_SUB_NAV_ACTIONS {
 }
 
 export enum PORTFOLIO_ACTIONS {
-  ADD_TO_CALENDAR = 'add-to-calendar',
   DEPOSIT = 'deposit',
   REPAY_DEBT = 'repay-debt',
   ROLL_DEBT = 'roll-borrow',
@@ -101,8 +100,6 @@ export enum PORTFOLIO_CONNECTED_WALLET {
 
 export enum PORTFOLIO_CATEGORIES {
   OVERVIEW = 'overview',
-  HOLDINGS = 'holdings',
-  LEVERAGED_VAULTS = 'vaults',
   NOTE_STAKING = 'note-staking',
   TRANSACTION_HISTORY = 'transaction-history',
   WELCOME = 'welcome',

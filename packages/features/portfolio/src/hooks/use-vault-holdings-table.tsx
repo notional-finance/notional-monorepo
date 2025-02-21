@@ -1,26 +1,16 @@
-import { useEffect, useState } from 'react';
 import { Box, Theme, useTheme } from '@mui/material';
-import {
-  DataTableColumn,
-  MultiValueCell,
-  MultiValueIconCell,
-  ChevronCell,
-  LinkText,
-  Body,
-  H4,
-  DisplayCell,
-} from '@notional-finance/mui';
+import { LinkText, Body, H4 } from '@notional-finance/mui';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
   formatNumberAsPercent,
+  MultiRowTableData,
 } from '@notional-finance/helpers';
-import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
+import { FormattedMessage, defineMessage } from 'react-intl';
 import {
   formatHealthFactorValues,
-  useLeverageBlock,
+  usePendingPnLCalculation,
   useSelectedNetwork,
-  useTotalVaultHoldings,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -31,7 +21,6 @@ import {
   Network,
   getDateString,
 } from '@notional-finance/util';
-import { ExpandedState } from '@tanstack/react-table';
 import {
   FiatKeys,
   getNetworkModel,
@@ -40,108 +29,6 @@ import {
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../components';
 import { useAppStore } from '@notional-finance/notionable-hooks';
-
-const HealthFactorCell = ({ cell }) => {
-  const theme = useTheme();
-  const { column, getValue } = cell;
-  const value = getValue();
-  return (
-    <Box
-      sx={{
-        color: value.textColor,
-        display: 'flex',
-        justifyContent: column.columnDef.textAlign,
-        fontSize: '16px',
-        width: theme.spacing(10),
-      }}
-    >
-      {value.value}
-    </Box>
-  );
-};
-
-const VaultHoldingsColumns: DataTableColumn[] = [
-  {
-    header: (
-      <FormattedMessage defaultMessage="Vault" description={'vault header'} />
-    ),
-    cell: MultiValueIconCell,
-    accessorKey: 'vault',
-    textAlign: 'left',
-    expandableTable: true,
-  },
-  {
-    header: (
-      <FormattedMessage
-        defaultMessage="Health Factor"
-        description={'Health Factor header'}
-      />
-    ),
-    cell: HealthFactorCell,
-    accessorKey: 'healthFactor',
-    textAlign: 'left',
-    expandableTable: true,
-  },
-  {
-    header: (
-      <FormattedMessage
-        defaultMessage="Market APY"
-        description={'Market APY header'}
-      />
-    ),
-    cell: DisplayCell,
-    accessorKey: 'marketAPY',
-    textAlign: 'right',
-    expandableTable: true,
-  },
-  {
-    header: (
-      <FormattedMessage
-        defaultMessage="Present Value"
-        description={'Present Value header'}
-      />
-    ),
-    cell: MultiValueCell,
-    accessorKey: 'presentValue',
-    fontWeightBold: true,
-    textAlign: 'right',
-    expandableTable: true,
-  },
-  {
-    header: (
-      <FormattedMessage
-        defaultMessage="Amount Paid"
-        description={'Amount Paid header'}
-      />
-    ),
-    cell: MultiValueCell,
-    accessorKey: 'amountPaid',
-    fontWeightBold: true,
-    textAlign: 'right',
-    expandableTable: true,
-  },
-  {
-    header: (
-      <FormattedMessage
-        defaultMessage="Total Earnings"
-        description={'Total Earnings header'}
-      />
-    ),
-    cell: MultiValueCell,
-    accessorKey: 'totalEarnings',
-    fontWeightBold: true,
-    textAlign: 'right',
-    expandableTable: true,
-    showGreenText: true,
-  },
-  {
-    header: '',
-    cell: ChevronCell,
-    accessorKey: 'chevron',
-    textAlign: 'left',
-    expandableTable: true,
-  },
-] as const;
 
 function getVaultReinvestmentDate(
   network: Network,
@@ -165,16 +52,7 @@ function getSpecificVaultInfo(
   theme: Theme
 ): {
   subRowInfo: { label: React.ReactNode; value: React.ReactNode }[];
-  totalEarnings:
-    | string
-    | {
-        data: {
-          displayValue: string;
-          isNegative?: boolean;
-          textColor?: string;
-          toolTipContent?: MessageDescriptor;
-        }[];
-      };
+  totalEarnings: MultiRowTableData;
   buttonBarData: { buttonText: React.ReactNode; link: string }[];
   warning: TableActionRowWarning | undefined;
   showRowWarning?: boolean;
@@ -261,6 +139,9 @@ function getSpecificVaultInfo(
               description: 'reward token tooltip',
             }),
           },
+          {
+            displayValue: '',
+          },
         ],
       },
       buttonBarData: [
@@ -311,55 +192,13 @@ function getSpecificVaultInfo(
 }
 
 export const useVaultHoldingsTable = () => {
-  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
-  const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
-  const [toggleOption, setToggleOption] = useState<number>(0);
-  const isBlocked = useLeverageBlock();
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
-  const totalVaultHoldings = useTotalVaultHoldings(network);
-  const { isMobileView } = useAppStore();
-
-  const claimableRewards = (vaults || []).reduce(
-    (acc, vault) => {
-      if (
-        vault.vaultMetadata.rewardClaims &&
-        vault.vaultMetadata.rewardClaims.length > 0
-      ) {
-        vault.vaultMetadata.rewardClaims.forEach((claim) => {
-          acc.rewardTokens.add(claim.symbol);
-        });
-        acc.vaults.push(vault.name);
-      }
-      return acc;
-    },
-    { rewardTokens: new Set<string>(), vaults: [] as string[] }
+  const pendingTokens = usePendingPnLCalculation(network)?.flatMap(
+    ({ tokens }) => tokens
   );
-
-  const toggleData = [
-    <Box
-      sx={{
-        fontSize: '14px',
-        display: 'flex',
-        justifyContent: 'center',
-        width: theme.spacing(11),
-      }}
-    >
-      <FormattedMessage defaultMessage="Default" />
-    </Box>,
-    <Box
-      sx={{
-        fontSize: '14px',
-        display: 'flex',
-        justifyContent: 'center',
-        width: theme.spacing(11),
-      }}
-    >
-      <FormattedMessage defaultMessage="Detailed" />
-    </Box>,
-  ];
 
   const vaultHoldingsData =
     vaults?.map((vaultHolding) => {
@@ -376,6 +215,8 @@ export const useVaultHoldingsTable = () => {
         totalDebt,
         healthFactor,
         netWorth,
+        vaultShares,
+        vaultDebt,
       } = vaultHolding;
       const {
         subRowInfo,
@@ -415,14 +256,20 @@ export const useVaultHoldingsTable = () => {
       ];
 
       return {
-        vault: {
+        asset: {
           symbol: underlying,
+          symbolBottom: '',
           label: name,
           caption:
             maturity === PRIME_CASH_VAULT_MATURITY
               ? 'Open Term'
               : `Maturity: ${formatMaturity(maturity)}`,
         },
+        vaultAddress,
+        tokenId: vaultShares.tokenId,
+        isPending: !!pendingTokens?.find(
+          (t) => t.id === vaultShares.tokenId || t.id === vaultDebt.tokenId
+        ),
         // Assets and debts are shown on the overview page
         assets: formatCryptoWithFiat(baseCurrency, totalAssets),
         debts: formatCryptoWithFiat(baseCurrency, totalDebt, {
@@ -431,18 +278,10 @@ export const useVaultHoldingsTable = () => {
         healthFactor: formatHealthFactorValues(healthFactor, theme),
         presentValue: formatCryptoWithFiat(baseCurrency, netWorth),
         totalEarnings,
-        marketAPY: apyData?.totalAPY
+        marketApy: apyData?.totalAPY
           ? formatNumberAsPercent(apyData.totalAPY)
-          : undefined,
+          : '',
         amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
-        strategyAPY: {
-          displayValue: formatNumberAsPercent(apyData?.assetAPY || 0, 2),
-          isNegative: apyData?.assetAPY && apyData.assetAPY < 0,
-        },
-        borrowAPY: {
-          displayValue: formatNumberAsPercent(apyData?.debtAPY || 0, 2),
-        },
-        leverageRatio: formatLeverageRatio(leverageRatio),
         actionRow: {
           warning,
           showRowWarning,
@@ -466,71 +305,8 @@ export const useVaultHoldingsTable = () => {
       };
     }) || [];
 
-  useEffect(() => {
-    const formattedExpandedRows = VaultHoldingsColumns.reduce(
-      (accumulator, _value, index) => {
-        return { ...accumulator, [index]: index === 0 ? true : false };
-      },
-      {}
-    );
-
-    if (
-      expandedRows === null &&
-      JSON.stringify(formattedExpandedRows) !== '{}'
-    ) {
-      setExpandedRows(formattedExpandedRows);
-    }
-  }, [expandedRows, setExpandedRows]);
-
-  if (totalVaultHoldings && !isMobileView) {
-    vaultHoldingsData.push({
-      vault: {
-        symbol: '',
-        label: 'Total',
-        caption: '',
-      },
-      healthFactor: { value: '', textColor: '' },
-      marketAPY: '',
-      amountPaid: totalVaultHoldings.amountPaid.toDisplayStringWithSymbol(
-        2,
-        true,
-        false
-      ),
-      presentValue: totalVaultHoldings.presentValue.toDisplayStringWithSymbol(
-        2,
-        true,
-        false
-      ),
-      totalEarnings: totalVaultHoldings.totalEarnings.toDisplayStringWithSymbol(
-        2,
-        true,
-        false
-      ),
-      assets: totalVaultHoldings.assets.toDisplayStringWithSymbol(
-        2,
-        true,
-        false
-      ),
-      debts: totalVaultHoldings.debts.toDisplayStringWithSymbol(2, true, false),
-      toolTipData: undefined,
-      actionRow: undefined,
-      isTotalRow: true,
-    } as unknown as (typeof vaultHoldingsData)[number]);
-  }
-
   return {
-    showVaultHoldingsTable: vaultHoldingsData && vaultHoldingsData.length > 1,
-    vaultHoldingsColumns: VaultHoldingsColumns,
+    showVaultHoldingsTable: vaultHoldingsData && vaultHoldingsData.length > 0,
     vaultHoldingsData,
-    setExpandedRows,
-    initialState,
-    toggleBarProps: {
-      toggleOption,
-      setToggleOption,
-      toggleData,
-      showToggle: !isBlocked && !!vaults && vaults.length > 0,
-    },
-    claimableRewards:
-      claimableRewards.rewardTokens.size > 0 ? claimableRewards : undefined,
   };
 };

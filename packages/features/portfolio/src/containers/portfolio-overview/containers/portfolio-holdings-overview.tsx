@@ -1,7 +1,7 @@
-import { Box, styled, Typography, useTheme } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
-import { H3 } from '@notional-finance/mui';
+import { H3, H2 } from '@notional-finance/mui';
 import { usePortfolioHoldings } from '../../portfolio-holdings/use-portfolio-holdings';
 
 interface IProps {
@@ -13,12 +13,12 @@ const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
 
   return (
     <Container>
-      <Heading variant="h2">
+      <H2>
         <FormattedMessage
           defaultMessage="Portfolio Holdings"
           description="portfolio holdings"
         />
-      </Heading>
+      </H2>
 
       <Box>
         {holdings.map((holding, i) => {
@@ -102,15 +102,6 @@ const Container = styled(Box)(({ theme }) => ({
   borderTop: `1px solid ${theme.palette.borders.default}`,
   background: theme.palette.background.paper,
   paddingTop: theme.spacing(2),
-}));
-
-const Heading = styled(Typography)(({ theme }) => ({
-  fontSize: theme.typography.pxToRem(16),
-  fontWeight: theme.typography.fontWeightMedium,
-  lineHeight: 1.4,
-  color: theme.palette.typography.light,
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
 }));
 
 export default PortfolioHoldingsOverview;

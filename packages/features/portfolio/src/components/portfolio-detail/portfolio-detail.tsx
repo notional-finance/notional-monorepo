@@ -95,19 +95,17 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({
               <H5>{cs.title}</H5>
               {cs.rows.map((r) => {
                 return (
-                  <>
-                    <Row>
-                      <Body sx={{ color: theme.palette.typography.main }}>
-                        {r.label}
-                      </Body>
-                      <Column>
-                        <StackLabelValue color={r.value.color}>
-                          {r.value.text}
-                        </StackLabelValue>
-                        {r.caption && <Caption>{r.caption}</Caption>}
-                      </Column>
-                    </Row>
-                  </>
+                  <Row>
+                    <Body sx={{ color: theme.palette.typography.main }}>
+                      {r.label}
+                    </Body>
+                    <Column>
+                      <StackLabelValue color={r.value.color}>
+                        {r.value.text}
+                      </StackLabelValue>
+                      {r.caption && <Caption>{r.caption}</Caption>}
+                    </Column>
+                  </Row>
                 );
               })}
             </ContentContainer>

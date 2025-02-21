@@ -178,6 +178,9 @@ export function calculateHoldings(
               : statement?.accumulatedCostRealized
           )
         : undefined;
+    const totalInterestAccrual = balance.isNegative()
+      ? statement?.totalInterestAccrual.neg()
+      : statement?.totalInterestAccrual;
 
     return {
       balance,
@@ -191,14 +194,16 @@ export function calculateHoldings(
       entryPrice: statement?.adjustedCostBasis,
       totalAtMaturity,
       impliedFixedRate: statement?.impliedFixedRate,
-      amountPaid: statement?.accumulatedCostRealized,
+      amountPaid: balance.isNegative()
+        ? statement?.accumulatedCostRealized.neg()
+        : statement?.accumulatedCostRealized,
       earnings,
       marketProfitLoss: totalEarningsWithIncentives?.sub(
-        statement?.totalInterestAccrual.toFiat('USD') ||
+        totalInterestAccrual?.toFiat('USD') ||
           new TokenBalance(0, 'USD', Network.all)
       ),
       feesPaid: statement?.totalILAndFees,
-      totalInterestAccrual: statement?.totalInterestAccrual,
+      totalInterestAccrual,
       hasMatured: balance.hasMatured,
       isHighUtilization: isHighUtilization(balance, model, positionEstablished),
       hasNToken,
@@ -379,35 +384,39 @@ export function calculateVaultHoldings(
       debtPnL?.impliedFixedRate !== undefined
         ? debtPnL.impliedFixedRate
         : model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
-
-    const amountPaid = (assetPnL?.accumulatedCostRealized || zeroDenom)
-      .sub(debtPnL?.accumulatedCostRealized || zeroDenom)
-      .add(cashPnL?.accumulatedCostRealized || zeroDenom);
-
-    const leverageRatio = v.leverageRatio() || 0;
-    const { maxLeverageRatio } = model.getLeverageRatios(v.vaultShares.token);
-
-    const totalInterestAccrual = (assetPnL?.totalInterestAccrual || zeroDenom)
-      .add(debtPnL?.totalInterestAccrual || zeroDenom)
-      .add(cashPnL?.totalInterestAccrual || zeroDenom);
-
-    const totalILAndFees = (assetPnL?.totalILAndFees || zeroDenom)
-      .add(debtPnL?.totalILAndFees || zeroDenom)
-      .add(cashPnL?.totalILAndFees || zeroDenom);
-
-    const marketProfitLoss = profit.sub(totalInterestAccrual);
-    const vaultType = getVaultType(v.vaultAddress, v.network);
-
     const assetInterestAccrual = assetPnL?.totalInterestAccrual || zeroDenom;
-    const debtInterestAccrual = debtPnL?.totalInterestAccrual || zeroDenom;
+    const debtInterestAccrual =
+      debtPnL?.totalInterestAccrual.neg() || zeroDenom;
     const assetEarnings = assetPnL?.totalProfitAndLoss || zeroDenom;
-    const debtEarnings = debtPnL?.totalProfitAndLoss || zeroDenom;
+    const debtEarnings = debtPnL?.totalProfitAndLoss.neg() || zeroDenom;
     const assetFeesPaid = assetPnL?.totalILAndFees || zeroDenom;
     const debtFeesPaid = debtPnL?.totalILAndFees || zeroDenom;
     const assetMarketPnL = assetEarnings?.sub(
       assetInterestAccrual || zeroDenom
     );
-    const debtMarketPnL = debtEarnings?.sub(debtInterestAccrual || zeroDenom);
+    const assetAmountPaid = assetPnL?.accumulatedCostRealized || zeroDenom;
+    const assetEntryPrice = assetPnL?.adjustedCostBasis;
+    const debtAmountPaid = debtPnL?.accumulatedCostRealized.neg() || zeroDenom;
+    const debtEntryPrice = debtPnL?.adjustedCostBasis.neg();
+
+    const amountPaid = assetAmountPaid
+      .add(debtAmountPaid)
+      .add(cashPnL?.accumulatedCostRealized || zeroDenom);
+
+    const leverageRatio = v.leverageRatio() || 0;
+    const { maxLeverageRatio } = model.getLeverageRatios(v.vaultShares.token);
+
+    const totalInterestAccrual = assetInterestAccrual
+      .add(debtInterestAccrual)
+      .add(cashPnL?.totalInterestAccrual || zeroDenom);
+
+    const totalILAndFees = assetFeesPaid
+      .add(debtFeesPaid)
+      .add(cashPnL?.totalILAndFees || zeroDenom);
+    const debtMarketPnL = debtEarnings?.add(debtInterestAccrual || zeroDenom);
+
+    const marketProfitLoss = profit.sub(totalInterestAccrual);
+    const vaultType = getVaultType(v.vaultAddress, v.network);
 
     const vaultMetadata = {
       rewardClaims: rewardClaims[v.vaultAddress],
@@ -451,6 +460,10 @@ export function calculateVaultHoldings(
       debtEarnings,
       assetFeesPaid,
       debtFeesPaid,
+      assetAmountPaid,
+      debtAmountPaid,
+      assetEntryPrice,
+      debtEntryPrice,
     };
   });
 }

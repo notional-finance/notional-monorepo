@@ -1,7 +1,8 @@
-import { Box, styled, Typography } from '@mui/material';
+import { Box, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
 import { usePortfolioNOTETable } from '../../../hooks';
+import { H2 } from '@notional-finance/mui';
 
 interface IProps {
   data: ReturnType<typeof usePortfolioNOTETable>['noteData'];
@@ -10,12 +11,12 @@ interface IProps {
 const NOTEHoldingsOverview = ({ data }: IProps) => {
   return (
     <Container>
-      <Heading variant="h2">
+      <H2>
         <FormattedMessage
           defaultMessage="NOTE Holdings"
           description="note holdings"
         />
-      </Heading>
+      </H2>
 
       <Box>
         {data.map((item, i) => (
@@ -27,10 +28,10 @@ const NOTEHoldingsOverview = ({ data }: IProps) => {
               description: item.asset.caption,
             }}
             data={{
-              ['NOTE Price']: {
+              'NOTE Price': {
                 value: item.notePrice,
               },
-              ['Total NOTE']: {
+              'Total NOTE': {
                 value: item.walletBalance.data[0].displayValue,
               },
             }}
@@ -48,15 +49,6 @@ const Container = styled(Box)(({ theme }) => ({
   borderTop: `1px solid ${theme.palette.borders.default}`,
   background: theme.palette.background.paper,
   paddingTop: theme.spacing(2),
-}));
-
-const Heading = styled(Typography)(({ theme }) => ({
-  fontSize: theme.typography.pxToRem(16),
-  fontWeight: theme.typography.fontWeightMedium,
-  lineHeight: 1.4,
-  color: theme.palette.typography.light,
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
 }));
 
 export default NOTEHoldingsOverview;
