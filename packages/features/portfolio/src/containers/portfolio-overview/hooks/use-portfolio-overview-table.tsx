@@ -489,9 +489,9 @@ export const usePortfolioOverviewTable = (
     .filter((h) => h.balance.isNegative())
     .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
 
-  const leverage: OverviewTableRow[] = vaultHoldingsData || [];
+  let leverage: OverviewTableRow[] = vaultHoldingsData || [];
   if (showGrouped) {
-    leverage.concat(
+    leverage = leverage.concat(
       leveragedNTokenHoldings?.map((h) =>
         formatLeveragedPosition(h, pendingTokens, baseCurrency)
       ) || []

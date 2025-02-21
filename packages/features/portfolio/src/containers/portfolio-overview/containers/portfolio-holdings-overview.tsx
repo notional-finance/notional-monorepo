@@ -1,4 +1,4 @@
-import { Box, styled, Typography, useTheme } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
 import { H3, H2 } from '@notional-finance/mui';

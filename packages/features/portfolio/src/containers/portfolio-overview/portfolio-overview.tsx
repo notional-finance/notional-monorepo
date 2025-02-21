@@ -29,8 +29,7 @@ import { FormattedMessage } from 'react-intl';
 import { ExpandedState } from '@tanstack/react-table';
 
 const HealthFactorCell = ({ cell }) => {
-  const theme = useTheme();
-  const { column, getValue } = cell;
+  const { getValue } = cell;
   const value = getValue();
   if (!value) return null;
 
@@ -39,9 +38,8 @@ const HealthFactorCell = ({ cell }) => {
       sx={{
         color: value.textColor,
         display: 'flex',
-        justifyContent: column.columnDef.textAlign,
+        justifyContent: 'flex-end',
         fontSize: '16px',
-        width: theme.spacing(10),
       }}
     >
       {value.value}
@@ -56,7 +54,7 @@ const PortfolioOverview = () => {
   const [showGrouped, setShowGrouped] = useState(true);
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
-  const { rows, hasLeverage } = usePortfolioOverviewTable(showGrouped);
+  const { rows, hasLeverage } = usePortfolioOverviewTable(true);
   const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const [currentTab, setCurrentTab] = useState(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
@@ -85,7 +83,6 @@ const PortfolioOverview = () => {
         fontWeightBold: true,
         textAlign: 'right',
         expandableTable: true,
-        width: theme.spacing(25),
       },
       {
         header: <FormattedMessage defaultMessage="Amount Paid" />,
