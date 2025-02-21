@@ -1,7 +1,8 @@
-import { Box, styled, Typography, useTheme } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
-import { useVaultHoldingsTable } from '@notional-finance/portfolio-feature-shell/hooks';
+import { useVaultHoldingsTable } from '../../../hooks';
+import { H2 } from '@notional-finance/mui';
 
 interface IProps {
   data: ReturnType<typeof useVaultHoldingsTable>['vaultHoldingsData'];
@@ -12,35 +13,35 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
 
   return (
     <Container>
-      <Heading variant="h2">
+      <H2>
         <FormattedMessage
           defaultMessage="Leverage Vaults"
           description="leverage vaults"
         />
-      </Heading>
+      </H2>
 
       <Box>
         {data.map((item, i) => (
           <PositionCard
-            tokenId={item.vault.symbol}
+            tokenId={item.tokenId}
             header={{
-              tokenSymbol: item.vault.symbol,
-              tokenName: item.vault.label,
-              description: item.vault.caption,
+              tokenSymbol: item.asset.symbol,
+              tokenName: item.asset.label,
+              description: item.asset.caption,
             }}
             data={{
-              ['Health Factor']: {
+              'Health Factor': {
                 value: item.healthFactor.value,
                 textColor: theme.palette.warning.main,
               },
-              ...(item.marketAPY
+              ...(item.marketApy
                 ? {
-                    ['Market APY']: {
-                      value: item.marketAPY,
+                    'Market APY': {
+                      value: item.marketApy,
                     },
                   }
                 : {}),
-              ['Present Value']:
+              'Present Value':
                 typeof item.presentValue === 'string'
                   ? {
                       value: item.presentValue,
@@ -49,7 +50,7 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
                       value: item.presentValue.data[0]?.displayValue,
                       description: item.presentValue.data[1]?.displayValue,
                     },
-              ['Total Earnings']:
+              'Total Earnings':
                 typeof item.totalEarnings === 'string'
                   ? {
                       value: item.totalEarnings,
@@ -74,15 +75,6 @@ const Container = styled(Box)(({ theme }) => ({
   borderTop: `1px solid ${theme.palette.borders.default}`,
   background: theme.palette.background.paper,
   paddingTop: theme.spacing(2),
-}));
-
-const Heading = styled(Typography)(({ theme }) => ({
-  fontSize: theme.typography.pxToRem(16),
-  fontWeight: theme.typography.fontWeightMedium,
-  lineHeight: 1.4,
-  color: theme.palette.typography.light,
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
 }));
 
 export default LeverageVaultsOverview;

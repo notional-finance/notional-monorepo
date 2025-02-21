@@ -14,12 +14,12 @@ const VaultHoldingsDetail: React.FC<VaultHoldingsDetailProps> = ({ value }) => {
   return (
     <PortfolioDetail
       token={{
-        symbol: value.vault.symbol,
-        label: value.vault.label,
-        caption: value.vault.caption,
+        symbol: value.asset.symbol,
+        label: value.asset.label,
+        caption: value.asset.caption,
       }}
       header={{
-        label: value.marketAPY,
+        label: value.marketApy,
       }}
       contentSections={[
         {

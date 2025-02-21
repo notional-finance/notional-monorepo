@@ -28,6 +28,27 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { ExpandedState } from '@tanstack/react-table';
 
+const HealthFactorCell = ({ cell }) => {
+  const theme = useTheme();
+  const { column, getValue } = cell;
+  const value = getValue();
+  if (!value) return null;
+
+  return (
+    <Box
+      sx={{
+        color: value.textColor,
+        display: 'flex',
+        justifyContent: column.columnDef.textAlign,
+        fontSize: '16px',
+        width: theme.spacing(10),
+      }}
+    >
+      {value.value}
+    </Box>
+  );
+};
+
 const PortfolioOverview = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
@@ -49,6 +70,13 @@ const PortfolioOverview = () => {
         textAlign: 'left',
         expandableTable: true,
         width: theme.spacing(37.5),
+      },
+      {
+        header: <FormattedMessage defaultMessage="Health Factor" />,
+        cell: HealthFactorCell,
+        accessorKey: 'healthFactor',
+        textAlign: 'right',
+        expandableTable: true,
       },
       {
         header: <FormattedMessage defaultMessage="Market APY" />,

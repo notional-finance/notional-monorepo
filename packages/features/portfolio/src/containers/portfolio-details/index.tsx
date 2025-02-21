@@ -5,7 +5,7 @@ import {
   usePortfolioNOTETable,
   usePortfolioSNOTETable,
   useVaultHoldingsTable,
-} from '@notional-finance/portfolio-feature-shell/hooks';
+} from '../../hooks';
 import PortfolioHoldingsDetail from './portfolio-holdings-detail';
 import VaultHoldingsDetail from './vault-holdings-detail';
 import NoteHoldingsDetail from './note-holdings-detail';
@@ -26,13 +26,13 @@ const PortfolioDetails: React.FC<PortfolioDetailsProps> = ({
 
   const selectedHolding = useMemo(
     () => detailedHoldings.find((holding) => holding.tokenId === selectedToken),
-    [detailedHoldings, selectedToken, baseCurrency]
+    [detailedHoldings, selectedToken]
   );
 
   const selectedVaultHolding = useMemo(
     () =>
       vaultHoldingsData.find(
-        (holding) => holding.vault.symbol === selectedToken
+        (holding) => holding.asset.symbol === selectedToken
       ),
     [vaultHoldingsData, selectedToken]
   );

@@ -9,6 +9,7 @@ import {
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
+  MultiRowTableData,
 } from '@notional-finance/helpers';
 import {
   useAppStore,
@@ -16,8 +17,8 @@ import {
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
-  useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
+import { useVaultHoldingsTable } from '../../../hooks';
 import {
   formatMaturity,
   leveragedYield,
@@ -25,21 +26,6 @@ import {
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-
-type MultiRowTableData =
-  | {
-      data: [
-        {
-          displayValue: string;
-          isNegative: boolean;
-        },
-        {
-          displayValue: string;
-          isNegative: boolean;
-        }
-      ];
-    }
-  | string;
 
 interface OverviewTableRow {
   isTotalRow?: boolean;
@@ -178,13 +164,10 @@ function formatPortfolioHoldings(
         },
       ],
     } as MultiRowTableData,
-    amountPaid: formatCryptoWithFiat(
-      baseCurrency,
-      amountPaid
-    ) as MultiRowTableData,
+    amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
     presentValue: formatCryptoWithFiat(baseCurrency, balance.toUnderlying(), {
       isDebt: balance.isNegative(),
-    }) as MultiRowTableData,
+    }),
     totalEarnings: {
       data: [
         {
@@ -484,45 +467,38 @@ export const usePortfolioOverviewTable = (
 } => {
   const { baseCurrency } = useAppStore();
   const network = useSelectedNetwork();
-  const holdings = usePortfolioHoldings(network) || [];
-  const leveragedNTokenHoldings = useGroupedHoldings(network) || [];
-  const vaultHoldings = useVaultHoldings(network) || [];
+  const holdings = usePortfolioHoldings(network);
+  const leveragedNTokenHoldings = useGroupedHoldings(network);
+  const { vaultHoldingsData } = useVaultHoldingsTable();
   const pendingTokens = usePendingPnLCalculation(network)?.flatMap(
     ({ tokens }) => tokens
   );
 
-  let earn: OverviewTableRow[];
-  let debt: OverviewTableRow[];
-  let leverage: OverviewTableRow[] = [];
-
-  if (showGrouped) {
-    const groupedTokens = leveragedNTokenHoldings.flatMap(({ asset, debt }) => [
+  const groupedTokens =
+    leveragedNTokenHoldings?.flatMap(({ asset, debt }) => [
       asset.balance.tokenId,
       debt.balance.tokenId,
-    ]);
-    const filteredHoldings = holdings.filter(
-      (h) => !groupedTokens.includes(h.balance.tokenId)
-    );
+    ]) || [];
 
-    leverage = leveragedNTokenHoldings.map((h) =>
-      formatLeveragedPosition(h, pendingTokens, baseCurrency)
+  const filteredHoldings =
+    holdings?.filter((h) => !groupedTokens.includes(h.balance.tokenId)) || [];
+  const earn = filteredHoldings
+    .filter((h) => h.balance.isPositive())
+    .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
+  const debt = filteredHoldings
+    .filter((h) => h.balance.isNegative())
+    .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
+
+  const leverage: OverviewTableRow[] = vaultHoldingsData || [];
+  if (showGrouped) {
+    leverage.concat(
+      leveragedNTokenHoldings?.map((h) =>
+        formatLeveragedPosition(h, pendingTokens, baseCurrency)
+      ) || []
     );
-    // TODO: add vault holdings here
-    earn = filteredHoldings
-      .filter((h) => h.balance.isPositive())
-      .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
-    debt = filteredHoldings
-      .filter((h) => h.balance.isNegative())
-      .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
   } else {
     // TODO: split vault holdings here
-
-    earn = holdings
-      .filter((h) => h.balance.isPositive())
-      .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
-    debt = holdings
-      .filter((h) => h.balance.isNegative())
-      .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
+    // TODO: leveraged ntoken holdings need to be split up
   }
 
   return {
@@ -537,6 +513,8 @@ export const usePortfolioOverviewTable = (
         : undefined,
       ...debt,
     ].filter((r) => r !== undefined),
-    hasLeverage: leveragedNTokenHoldings.length > 0 || vaultHoldings.length > 0,
+    hasLeverage:
+      (leveragedNTokenHoldings || []).length > 0 ||
+      vaultHoldingsData?.length > 0,
   };
 };
