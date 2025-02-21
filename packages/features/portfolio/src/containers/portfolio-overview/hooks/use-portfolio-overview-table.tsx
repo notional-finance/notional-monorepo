@@ -17,12 +17,14 @@ import {
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
+  useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import { useVaultHoldingsTable } from '../../../hooks';
 import {
   formatMaturity,
   leveragedYield,
   PORTFOLIO_ACTIONS,
+  PRIME_CASH_VAULT_MATURITY,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -32,6 +34,7 @@ interface OverviewTableRow {
   tokenId: string;
   isPending: boolean;
   isDividerRow?: boolean;
+  vaultAddress?: string;
   asset: {
     symbol: string;
     symbolBottom: string;
@@ -47,6 +50,10 @@ interface OverviewTableRow {
       underlying: string | undefined;
       baseCurrency: string | undefined;
     }[];
+  };
+  healthFactor?: {
+    value: string;
+    textColor: string;
   };
   actionRow: {
     warning?: string;
@@ -164,7 +171,9 @@ function formatPortfolioHoldings(
         },
       ],
     } as MultiRowTableData,
-    amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
+    amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid, {
+      isDebt: balance.isNegative(),
+    }),
     presentValue: formatCryptoWithFiat(baseCurrency, balance.toUnderlying(), {
       isDebt: balance.isNegative(),
     }),
@@ -217,7 +226,7 @@ function formatPortfolioHoldings(
       showRowWarning: !!isHighUtilization,
       subRowData: [
         {
-          label: <FormattedMessage defaultMessage={'Amount'} />,
+          label: <FormattedMessage defaultMessage={'Balance'} />,
           value: `${balance.toDisplayString(4, true)} ${title}`,
         },
         {
@@ -230,7 +239,7 @@ function formatPortfolioHoldings(
           label: <FormattedMessage defaultMessage={'Current Price'} />,
           value: `${TokenBalance.unit(balance.token)
             .toUnderlying()
-            .toDisplayString(4)} ${balance.underlying.symbol}`,
+            .toDisplayStringWithSymbol(4, false, false)}`,
         },
       ],
       buttonBarData,
@@ -432,6 +441,124 @@ function formatLeveragedPosition(
   };
 }
 
+function formatDetailedVaultHoldings(
+  {
+    vaultShares,
+    name,
+    vaultDebt,
+    underlying,
+    assetEarnings,
+    debtEarnings,
+    assetAmountPaid,
+    debtAmountPaid,
+    assetEntryPrice,
+    debtEntryPrice,
+    apyData,
+  }: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
+  tableRow: OverviewTableRow,
+  pendingTokens: TokenDefinition[] | undefined,
+  baseCurrency: FiatKeys
+) {
+  const assets: OverviewTableRow = {
+    asset: {
+      symbol: underlying,
+      symbolBottom: '',
+      label: name,
+      caption:
+        vaultShares.maturity === PRIME_CASH_VAULT_MATURITY
+          ? 'Open Term'
+          : `Maturity: ${formatMaturity(vaultShares.maturity)}`,
+    },
+    healthFactor: tableRow.healthFactor,
+    tokenId: vaultShares.tokenId,
+    isPending: !!pendingTokens?.find((t) => t.id === vaultShares.tokenId),
+    marketApy: apyData?.assetAPY ? formatNumberAsPercent(apyData.assetAPY) : '',
+    amountPaid: formatCryptoWithFiat(baseCurrency, assetAmountPaid),
+    presentValue: formatCryptoWithFiat(
+      baseCurrency,
+      vaultShares.toUnderlying()
+    ),
+    totalEarnings: formatCryptoWithFiat(baseCurrency, assetEarnings),
+    actionRow: {
+      buttonBarData: tableRow.actionRow.buttonBarData,
+      txnHistory: tableRow.actionRow.txnHistory,
+      subRowData: [
+        {
+          label: <FormattedMessage defaultMessage={'Balance'} />,
+          value: `${vaultShares.toDisplayString(4, true)} Vault Shares`,
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Entry Price'} />,
+          value: assetEntryPrice
+            ? assetEntryPrice.toDisplayStringWithSymbol(2, true, false)
+            : '-',
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Current Price'} />,
+          value: `${TokenBalance.unit(vaultShares.token)
+            .toUnderlying()
+            .toDisplayStringWithSymbol(4, false, false)}`,
+        },
+      ],
+    },
+  };
+
+  const { icon, formattedTitle, titleWithMaturity, title } = formatTokenType(
+    vaultDebt.unwrapVaultToken().token,
+    vaultDebt.isNegative(),
+    true
+  );
+
+  const debts: OverviewTableRow = {
+    asset: {
+      symbol: icon,
+      symbolBottom: '',
+      label: formattedTitle,
+      caption: titleWithMaturity,
+    },
+    tokenId: vaultDebt.tokenId,
+    isPending: !!pendingTokens?.find((t) => t.id === vaultDebt.tokenId),
+    marketApy: apyData?.debtAPY ? formatNumberAsPercent(apyData.debtAPY) : '',
+    amountPaid: formatCryptoWithFiat(baseCurrency, debtAmountPaid, {
+      isDebt: true,
+    }),
+    presentValue: formatCryptoWithFiat(
+      baseCurrency,
+      vaultDebt.unwrapVaultToken().toUnderlying(),
+      {
+        isDebt: true,
+      }
+    ),
+    totalEarnings: formatCryptoWithFiat(baseCurrency, debtEarnings),
+    actionRow: {
+      ...tableRow.actionRow,
+      subRowData: [
+        {
+          label: <FormattedMessage defaultMessage={'Balance'} />,
+          value: `${vaultDebt
+            .unwrapVaultToken()
+            .toDisplayString(4, true, false)} ${title}`,
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Entry Price'} />,
+          value: debtEntryPrice
+            ? debtEntryPrice.toDisplayStringWithSymbol(2, true, false)
+            : '-',
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Current Price'} />,
+          value: `${TokenBalance.unit(vaultDebt.token)
+            .unwrapVaultToken()
+            .toUnderlying()
+            .toDisplayStringWithSymbol(4, false, false)}`,
+        },
+      ],
+    },
+  };
+
+  return [dividerRow(name), assets, debts];
+}
+
 function dividerRow(label: string) {
   return {
     asset: {
@@ -464,12 +591,17 @@ export const usePortfolioOverviewTable = (
 ): {
   rows: OverviewTableRow[];
   hasLeverage: boolean;
+  leverage: OverviewTableRow[];
+  earn: OverviewTableRow[];
+  debt: OverviewTableRow[];
 } => {
   const { baseCurrency } = useAppStore();
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const leveragedNTokenHoldings = useGroupedHoldings(network);
+  // NOTE: this returns grouped holdings for vaults
   const { vaultHoldingsData } = useVaultHoldingsTable();
+  const vaults = useVaultHoldings(network);
   const pendingTokens = usePendingPnLCalculation(network)?.flatMap(
     ({ tokens }) => tokens
   );
@@ -489,16 +621,45 @@ export const usePortfolioOverviewTable = (
     .filter((h) => h.balance.isNegative())
     .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
 
-  let leverage: OverviewTableRow[] = vaultHoldingsData || [];
+  let leverage: OverviewTableRow[];
   if (showGrouped) {
-    leverage = leverage.concat(
-      leveragedNTokenHoldings?.map((h) =>
+    leverage = [
+      ...(vaultHoldingsData || []),
+      ...(leveragedNTokenHoldings?.map((h) =>
         formatLeveragedPosition(h, pendingTokens, baseCurrency)
-      ) || []
-    );
+      ) || []),
+    ];
   } else {
-    // TODO: split vault holdings here
-    // TODO: leveraged ntoken holdings need to be split up
+    leverage = [
+      ...(vaults || []).flatMap((v) => {
+        const tableRow = vaultHoldingsData?.find(
+          (l) => l.vaultAddress === v.vaultAddress
+        );
+        if (!tableRow) return [];
+
+        return formatDetailedVaultHoldings(
+          v,
+          tableRow,
+          pendingTokens,
+          baseCurrency
+        );
+      }),
+      ...(leveragedNTokenHoldings?.flatMap((l) => {
+        const asset = holdings?.find(
+          (h) => h.balance.tokenId === l.asset.balance.tokenId
+        );
+        const debt = holdings?.find(
+          (h) => h.balance.tokenId === l.debt.balance.tokenId
+        );
+        if (!asset || !debt) return [];
+
+        return [
+          dividerRow(`LEVERAGED ${asset.balance.underlying.symbol} LIQUIDITY`),
+          formatPortfolioHoldings(asset, pendingTokens, baseCurrency),
+          formatPortfolioHoldings(debt, pendingTokens, baseCurrency),
+        ];
+      }) || []),
+    ];
   }
 
   return {
@@ -516,5 +677,8 @@ export const usePortfolioOverviewTable = (
     hasLeverage:
       (leveragedNTokenHoldings || []).length > 0 ||
       vaultHoldingsData?.length > 0,
+    leverage,
+    earn,
+    debt,
   };
 };

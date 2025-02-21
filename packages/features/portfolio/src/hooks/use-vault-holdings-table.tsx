@@ -30,7 +30,6 @@ import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../components';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 
-
 function getVaultReinvestmentDate(
   network: Network,
   vaultAddress: string,
@@ -266,6 +265,7 @@ export const useVaultHoldingsTable = () => {
               ? 'Open Term'
               : `Maturity: ${formatMaturity(maturity)}`,
         },
+        vaultAddress,
         tokenId: vaultShares.tokenId,
         isPending: !!pendingTokens?.find(
           (t) => t.id === vaultShares.tokenId || t.id === vaultDebt.tokenId
