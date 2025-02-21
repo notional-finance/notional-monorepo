@@ -29,6 +29,7 @@ export function useLeverageBlock() {
   const walletStore = useWalletStore();
   const country = walletStore.country;
   const isProd = env === 'production' && !isTestHost();
+  console.log('[DEBUG] Leverage Blocked: ', country);
 
   return isProd
     ? country === undefined || country === 'US' || country === 'VPN'

@@ -333,74 +333,79 @@ function getVaultCalls(
 ): AggregateCall[] {
   const model = getNetworkModel(network);
 
-  return (model.getAllListedVaults(true) || []).flatMap<AggregateCall>((v) => {
-    const vaultCalls: AggregateCall[] = [
-      {
-        stage: 0,
-        target: notional,
-        method: 'getVaultAccount',
-        args: [account, v.vaultAddress],
-        key: `${v.vaultAddress}.balance`,
-        transform: (
-          vaultAccount: Awaited<ReturnType<NotionalV3['getVaultAccount']>>
-        ) => {
-          const maturity = vaultAccount.maturity.toNumber();
-          if (maturity === 0) return { balances: [] };
-          const vaultShare = model.getVaultShare(v.vaultAddress, maturity);
-          const vaultDebt = model.getVaultDebt(v.vaultAddress, maturity);
-          const vaultCash = model.getVaultCash(v.vaultAddress, maturity);
-          const vaultUnderlying = model.getUnderlying(vaultShare.currencyId);
+  // NOTE: include disabled vaults as well
+  return (model.getAllListedVaults(true, true) || []).flatMap<AggregateCall>(
+    (v) => {
+      const vaultCalls: AggregateCall[] = [
+        {
+          stage: 0,
+          target: notional,
+          method: 'getVaultAccount',
+          args: [account, v.vaultAddress],
+          key: `${v.vaultAddress}.balance`,
+          transform: (
+            vaultAccount: Awaited<ReturnType<NotionalV3['getVaultAccount']>>
+          ) => {
+            const maturity = vaultAccount.maturity.toNumber();
+            if (maturity === 0) return { balances: [] };
+            const vaultShare = model.getVaultShare(v.vaultAddress, maturity);
+            const vaultDebt = model.getVaultDebt(v.vaultAddress, maturity);
+            const vaultCash = model.getVaultCash(v.vaultAddress, maturity);
+            const vaultUnderlying = model.getUnderlying(vaultShare.currencyId);
 
-          const balances = [
-            TokenBalance.from(vaultAccount.vaultShares, vaultShare),
-            parseVaultDebtBalance(
-              vaultDebt,
-              vaultUnderlying,
-              vaultAccount.accountDebtUnderlying,
-              maturity
-            ),
-          ];
+            const balances = [
+              TokenBalance.from(vaultAccount.vaultShares, vaultShare),
+              parseVaultDebtBalance(
+                vaultDebt,
+                vaultUnderlying,
+                vaultAccount.accountDebtUnderlying,
+                maturity
+              ),
+            ];
 
-          if (!vaultAccount.tempCashBalance.isZero()) {
-            balances.push(
-              TokenBalance.from(vaultAccount.tempCashBalance, vaultCash)
+            if (!vaultAccount.tempCashBalance.isZero()) {
+              balances.push(
+                TokenBalance.from(vaultAccount.tempCashBalance, vaultCash)
+              );
+            }
+
+            return {
+              balances,
+              vaultLastUpdateTime: [
+                v.vaultAddress,
+                vaultAccount.lastUpdateBlockTime.toNumber(),
+              ],
+            };
+          },
+        },
+      ];
+
+      const vaultType = getVaultType(v.vaultAddress, network);
+      if (vaultType === 'SingleSidedLP_DirectClaim') {
+        const adapter = model.getVaultAdapter(v.vaultAddress) as SingleSidedLP;
+        const rewardTokens = adapter.rewardTokens;
+
+        vaultCalls.push({
+          stage: 0,
+          target: new Contract(
+            v.vaultAddress,
+            ISingleSidedLPStrategyVaultABI,
+            notional.provider
+          ),
+          method: 'getAccountRewardClaim',
+          args: [account, getNowSeconds()],
+          key: `${v.vaultAddress}.rewardClaim`,
+          transform: (r: BigNumber[]) => {
+            return r.map(
+              (b, i) => new TokenBalance(b, rewardTokens[i], network)
             );
-          }
+          },
+        });
+      }
 
-          return {
-            balances,
-            vaultLastUpdateTime: [
-              v.vaultAddress,
-              vaultAccount.lastUpdateBlockTime.toNumber(),
-            ],
-          };
-        },
-      },
-    ];
-
-    const vaultType = getVaultType(v.vaultAddress, network);
-    if (vaultType === 'SingleSidedLP_DirectClaim') {
-      const adapter = model.getVaultAdapter(v.vaultAddress) as SingleSidedLP;
-      const rewardTokens = adapter.rewardTokens;
-
-      vaultCalls.push({
-        stage: 0,
-        target: new Contract(
-          v.vaultAddress,
-          ISingleSidedLPStrategyVaultABI,
-          notional.provider
-        ),
-        method: 'getAccountRewardClaim',
-        args: [account, getNowSeconds()],
-        key: `${v.vaultAddress}.rewardClaim`,
-        transform: (r: BigNumber[]) => {
-          return r.map((b, i) => new TokenBalance(b, rewardTokens[i], network));
-        },
-      });
+      return vaultCalls;
     }
-
-    return vaultCalls;
-  });
+  );
 }
 
 function parseVaultDebtBalance(
