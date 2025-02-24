@@ -23,207 +23,214 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
     ({ tokens }) => tokens
   );
 
-  const detailedHoldings = (holdings || [])
-    .map(
-      ({
-        balance: b,
-        marketYield,
-        maturedTokenId,
-        manageTokenId,
-        perIncentiveEarnings,
-        hasMatured,
-        isHighUtilization,
-        totalEarningsWithIncentives,
-        hasNToken,
-        amountPaid,
-        earnings,
-        entryPrice,
-        totalAtMaturity,
-        impliedFixedRate,
-      }) => {
-        const isDebt = b.isNegative();
-        const { icon, formattedTitle, titleWithMaturity, title } =
-          formatTokenType(b.token, isDebt, true);
-        // const pointsPerDay = getPointsPerDay(b);
-        // const totalPoints =
-        //   arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
-        const marketApy = marketYield?.totalAPY;
-        const noteIncentives = marketYield?.incentives?.incentiveAPY;
-        const secondaryIncentives = marketYield?.incentives?.incentiveAPY;
-        const secondarySymbol = marketYield?.incentives?.symbol;
+  const detailedHoldings =
+    holdings
+      ?.map(
+        ({
+          balance: b,
+          marketYield,
+          maturedTokenId,
+          manageTokenId,
+          perIncentiveEarnings,
+          hasMatured,
+          isHighUtilization,
+          totalEarningsWithIncentives,
+          hasNToken,
+          amountPaid,
+          earnings,
+          entryPrice,
+          totalAtMaturity,
+          impliedFixedRate,
+        }) => {
+          const isDebt = b.isNegative();
+          const { icon, formattedTitle, titleWithMaturity, title } =
+            formatTokenType(b.token, isDebt, true);
+          // const pointsPerDay = getPointsPerDay(b);
+          // const totalPoints =
+          //   arbPoints?.find(({ token }) => token === b.tokenId)?.points || 0;
+          const marketApy = marketYield?.totalAPY;
+          const noteIncentives = marketYield?.incentives?.find(
+            ({ symbol }) => symbol === 'NOTE'
+          )?.incentiveAPY;
+          const secondaryIncentives = marketYield?.incentives?.find(
+            ({ symbol }) => symbol !== 'NOTE'
+          )?.incentiveAPY;
+          const secondarySymbol = marketYield?.incentives?.find(
+            ({ symbol }) => symbol !== 'NOTE'
+          )?.symbol;
 
-        const buttonBarData: {
-          buttonText: React.ReactNode;
-          link: string;
-        }[] = [];
+          const buttonBarData: {
+            buttonText: React.ReactNode;
+            link: string;
+          }[] = [];
 
-        const subRowData: {
-          label: React.ReactNode;
-          value: React.ReactNode;
-        }[] = [
-          {
-            label: <FormattedMessage defaultMessage={'Amount'} />,
-            value: `${b.toDisplayString(4, true)} ${title}`,
-          },
-          {
-            label: <FormattedMessage defaultMessage={'Entry Price'} />,
-            value: entryPrice
-              ? entryPrice.toDisplayStringWithSymbol(2, true, false)
+          const subRowData: {
+            label: React.ReactNode;
+            value: React.ReactNode;
+          }[] = [
+            {
+              label: <FormattedMessage defaultMessage={'Amount'} />,
+              value: `${b.toDisplayString(4, true)} ${title}`,
+            },
+            {
+              label: <FormattedMessage defaultMessage={'Entry Price'} />,
+              value: entryPrice
+                ? entryPrice.toDisplayStringWithSymbol(2, true, false)
+                : '-',
+            },
+            {
+              label: <FormattedMessage defaultMessage={'Current Price'} />,
+              value: `${TokenBalance.unit(b.token)
+                .toUnderlying()
+                .toDisplayString(4)} ${b.underlying.symbol}`,
+            },
+          ];
+
+          if (hasNToken) {
+            buttonBarData.push({
+              buttonText: <FormattedMessage defaultMessage={'Manage'} />,
+              link: b.isPositive()
+                ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
+                : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`,
+            });
+          }
+
+          if (b.isPositive()) {
+            buttonBarData.push({
+              buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
+              link: `/portfolio/${network}/holdings/${
+                PORTFOLIO_ACTIONS.WITHDRAW
+              }/${maturedTokenId}${
+                isHighUtilization ? `?warning=${isHighUtilization}` : ''
+              }`,
+            });
+          } else {
+            buttonBarData.push({
+              buttonText: <FormattedMessage defaultMessage={'Repay'} />,
+              link: `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`,
+            });
+          }
+
+          return {
+            sortOrder: getHoldingsSortOrder(b.token),
+            tokenId: b.tokenId,
+            isPending: !!pendingTokens?.find((t) => t.id === b.tokenId),
+            asset: {
+              symbol: icon,
+              symbolBottom: '',
+              label: formattedTitle,
+              caption: titleWithMaturity,
+            },
+            marketApy: {
+              data: [
+                {
+                  displayValue: formatNumberAsPercentWithUndefined(
+                    marketApy,
+                    '-',
+                    2
+                  ),
+                  isNegative: false,
+                },
+                {
+                  displayValue:
+                    noteIncentives && secondaryIncentives
+                      ? `${formatNumberAsPercent(
+                          noteIncentives
+                        )} NOTE, ${formatNumberAsPercent(
+                          secondaryIncentives
+                        )} ${secondarySymbol}`
+                      : noteIncentives
+                      ? `${formatNumberAsPercent(noteIncentives)} NOTE`
+                      : b.token.tokenType === 'fCash' &&
+                        !hasMatured &&
+                        impliedFixedRate !== undefined
+                      ? `${formatNumberAsPercent(
+                          impliedFixedRate
+                        )} APY at Maturity`
+                      : '',
+                  isNegative: false,
+                },
+              ],
+            },
+            amountPaid: amountPaid
+              ? formatCryptoWithFiat(baseCurrency, amountPaid)
               : '-',
-          },
-          {
-            label: <FormattedMessage defaultMessage={'Current Price'} />,
-            value: `${TokenBalance.unit(b.token)
-              .toUnderlying()
-              .toDisplayString(4)} ${b.underlying.symbol}`,
-          },
-        ];
-
-        if (hasNToken) {
-          buttonBarData.push({
-            buttonText: <FormattedMessage defaultMessage={'Manage'} />,
-            link: b.isPositive()
-              ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
-              : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`,
-          });
-        }
-
-        if (b.isPositive()) {
-          buttonBarData.push({
-            buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
-            link: `/portfolio/${network}/holdings/${
-              PORTFOLIO_ACTIONS.WITHDRAW
-            }/${maturedTokenId}${
-              isHighUtilization ? `?warning=${isHighUtilization}` : ''
-            }`,
-          });
-        } else {
-          buttonBarData.push({
-            buttonText: <FormattedMessage defaultMessage={'Repay'} />,
-            link: `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`,
-          });
-        }
-
-        return {
-          sortOrder: getHoldingsSortOrder(b.token),
-          tokenId: b.tokenId,
-          isPending: !!pendingTokens?.find((t) => t.id === b.tokenId),
-          asset: {
-            symbol: icon,
-            symbolBottom: '',
-            label: formattedTitle,
-            caption: titleWithMaturity,
-          },
-          marketApy: {
-            data: [
-              {
-                displayValue: formatNumberAsPercentWithUndefined(
-                  marketApy,
-                  '-',
-                  2
-                ),
-                isNegative: false,
-              },
-              {
-                displayValue:
-                  noteIncentives && secondaryIncentives
-                    ? `${formatNumberAsPercent(
-                        noteIncentives
-                      )} NOTE, ${formatNumberAsPercent(
-                        secondaryIncentives
-                      )} ${secondarySymbol}`
-                    : noteIncentives
-                    ? `${formatNumberAsPercent(noteIncentives)} NOTE`
-                    : b.token.tokenType === 'fCash' &&
-                      !hasMatured &&
-                      impliedFixedRate !== undefined
-                    ? `${formatNumberAsPercent(
-                        impliedFixedRate
-                      )} APY at Maturity`
-                    : '',
-                isNegative: false,
-              },
-            ],
-          },
-          amountPaid: amountPaid
-            ? formatCryptoWithFiat(baseCurrency, amountPaid)
-            : '-',
-          presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
-          isDebt: isDebt,
-          earnings: {
-            data: [
-              {
-                displayValue: totalEarningsWithIncentives
-                  ? totalEarningsWithIncentives
-                      .toFiat(baseCurrency)
-                      .toDisplayStringWithSymbol(2, true, false)
-                  : '-',
-                isNegative: totalEarningsWithIncentives
-                  ? totalEarningsWithIncentives
-                      .toFiat(baseCurrency)
-                      .isNegative()
-                  : false,
-              },
-              {
-                displayValue:
-                  b.token.tokenType === 'fCash'
-                    ? `${totalAtMaturity?.toDisplayStringWithSymbol(
-                        2,
-                        true,
-                        false
-                      )} at Maturity`
-                    : '',
-                isNegative: false,
-              },
-            ],
-          },
-          toolTipData:
-            perIncentiveEarnings.length > 0
-              ? {
-                  perAssetEarnings: [
-                    {
-                      underlying: earnings?.toDisplayStringWithSymbol(
-                        2,
-                        true,
-                        false
-                      ),
-                      baseCurrency: earnings
-                        ?.toFiat(baseCurrency)
-                        .toDisplayStringWithSymbol(2, true, false),
-                    },
-                    ...perIncentiveEarnings.map((i) => ({
-                      underlying: i.toDisplayStringWithSymbol(2, true, false),
-                      baseCurrency: i
+            presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
+            isDebt: isDebt,
+            earnings: {
+              data: [
+                {
+                  displayValue: totalEarningsWithIncentives
+                    ? totalEarningsWithIncentives
                         .toFiat(baseCurrency)
-                        .toDisplayStringWithSymbol(2, true, false),
-                    })),
-                  ],
+                        .toDisplayStringWithSymbol(2, true, false)
+                    : '-',
+                  isNegative: totalEarningsWithIncentives
+                    ? totalEarningsWithIncentives
+                        .toFiat(baseCurrency)
+                        .isNegative()
+                    : false,
+                },
+                {
+                  displayValue:
+                    b.token.tokenType === 'fCash'
+                      ? `${totalAtMaturity?.toDisplayStringWithSymbol(
+                          2,
+                          true,
+                          false
+                        )} at Maturity`
+                      : '',
+                  isNegative: false,
+                },
+              ],
+            },
+            toolTipData:
+              perIncentiveEarnings.length > 0
+                ? {
+                    perAssetEarnings: [
+                      {
+                        underlying: earnings?.toDisplayStringWithSymbol(
+                          2,
+                          true,
+                          false
+                        ),
+                        baseCurrency: earnings
+                          ?.toFiat(baseCurrency)
+                          .toDisplayStringWithSymbol(2, true, false),
+                      },
+                      ...perIncentiveEarnings.map((i) => ({
+                        underlying: i.toDisplayStringWithSymbol(2, true, false),
+                        baseCurrency: i
+                          .toFiat(baseCurrency)
+                          .toDisplayStringWithSymbol(2, true, false),
+                      })),
+                    ],
+                  }
+                : undefined,
+            actionRow: {
+              warning: hasMatured ? 'fCashMatured' : isHighUtilization,
+              showRowWarning: !!isHighUtilization,
+              subRowData,
+              buttonBarData,
+              txnHistory: `/portfolio/${network}/transaction-navigate?${new URLSearchParams(
+                {
+                  txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
+                  assetOrVaultId: b.token.id,
                 }
-              : undefined,
-          actionRow: {
-            warning: hasMatured ? 'fCashMatured' : isHighUtilization,
-            showRowWarning: !!isHighUtilization,
-            subRowData,
-            buttonBarData,
-            txnHistory: `/portfolio/${network}/transaction-navigate?${new URLSearchParams(
-              {
-                txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
-                assetOrVaultId: b.token.id,
-              }
-            )}`,
-          },
-        };
-      }
-    )
-    .sort((a, b) => {
-      if (a.isDebt && !b.isDebt) {
-        return 1;
-      }
-      if (!a.isDebt && b.isDebt) {
-        return -1;
-      }
-      return 0;
-    });
+              )}`,
+            },
+          };
+        }
+      )
+      .sort((a, b) => {
+        if (a.isDebt && !b.isDebt) {
+          return 1;
+        }
+        if (!a.isDebt && b.isDebt) {
+          return -1;
+        }
+        return 0;
+      }) || [];
 
   const totalHoldingsRow = {
     asset: {
