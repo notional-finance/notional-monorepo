@@ -76,18 +76,14 @@ export const ClaimNoteButton = observer(() => {
   const submitTxn = useSubmitTxn();
   const { userWallet } = useWalletStore();
   const [hover, setHover] = useState(false);
-  const totalIncentives = useTotalIncentives(network);
+  const noteIncentives = useTotalIncentives(network, 'NOTE');
+  const secondaryIncentives = useTotalIncentives(
+    network,
+    SecondaryIncentiveToken[network]
+  );
 
-  const noteCountUp = useIncentiveCountUp(
-    totalIncentives?.get('NOTE'),
-    network
-  );
-  const secondaryCountUp = useIncentiveCountUp(
-    network
-      ? totalIncentives?.get(SecondaryIncentiveToken[network])
-      : undefined,
-    network
-  );
+  const noteCountUp = useIncentiveCountUp(noteIncentives, network);
+  const secondaryCountUp = useIncentiveCountUp(secondaryIncentives, network);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
