@@ -132,7 +132,7 @@ export const MobileNavigation = observer(() => {
 
   const handleSideDrawer = (event: any) => {
     event.preventDefault();
-    const dataKey = event.target.getAttribute('data-key');
+    const dataKey = event.currentTarget.getAttribute('data-key');
     setSideDrawerDataKey(dataKey);
     setDrawerOpen(true);
   };

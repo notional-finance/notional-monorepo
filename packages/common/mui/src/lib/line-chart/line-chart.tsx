@@ -68,10 +68,14 @@ const LineChart = ({
           axisLine={{
             stroke: theme.palette.borders.paper,
             strokeWidth: 1,
+            fill: theme.palette.typography.white,
           }}
           tickLine={false}
           tickFormatter={(value) => {
             return getDateString(value, { monthOnly: true });
+          }}
+          style={{
+            fill: theme.palette.typography.light,
           }}
           padding={{
             left: 0,
