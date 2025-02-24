@@ -24,6 +24,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
+import { observer } from 'mobx-react-lite';
 
 export interface NetworkButtonProps {
   active?: boolean;
@@ -106,46 +107,44 @@ export const NetworkSelectorButton = ({
   );
 };
 
-export function TransactionNetworkSelector({ product }: { product: PRODUCTS }) {
-  const trade = useCurrentTradeContext();
-  const deposit = trade?.selectedTokens?.deposit;
-  const selectedNetwork = trade?.selectedNetwork;
+export const TransactionNetworkSelector = observer(
+  ({ product }: { product: PRODUCTS }) => {
+    const trade = useCurrentTradeContext();
+    const deposit = trade?.selectedTokens?.deposit;
+    const selectedNetwork = trade?.selectedNetwork;
 
-  const availableNetworks = useProductNetwork(product, deposit?.symbol);
-  const walletBalances = useWalletBalancesOnNetworks(
-    availableNetworks,
-    deposit?.symbol
-  );
+    const availableNetworks = useProductNetwork(product, deposit?.symbol);
+    const walletBalances = useWalletBalancesOnNetworks(
+      availableNetworks,
+      deposit?.symbol
+    );
 
-  return (
-    <NetworkSelector
-      availableNetworks={availableNetworks}
-      selectedNetwork={selectedNetwork}
-      walletBalances={walletBalances}
-    />
-  );
-}
+    return (
+      <NetworkSelector
+        availableNetworks={availableNetworks}
+        selectedNetwork={selectedNetwork}
+        walletBalances={walletBalances}
+      />
+    );
+  }
+);
 
-export function PortfolioNetworkSelector({
-  sx,
-  hideNetWorth,
-}: {
-  sx?: SxProps;
-  hideNetWorth?: boolean;
-}) {
-  const selectedNetwork = useSelectedNetwork();
-  const walletBalances = useAccountNetWorth();
-  return (
-    <NetworkSelector
-      availableNetworks={SupportedNetworks}
-      selectedNetwork={selectedNetwork}
-      walletBalances={walletBalances}
-      hideNetWorth={hideNetWorth}
-      sx={sx}
-      isPortfolio
-    />
-  );
-}
+export const PortfolioNetworkSelector = observer(
+  ({ sx, hideNetWorth }: { sx?: SxProps; hideNetWorth?: boolean }) => {
+    const selectedNetwork = useSelectedNetwork();
+    const walletBalances = useAccountNetWorth();
+    return (
+      <NetworkSelector
+        availableNetworks={SupportedNetworks}
+        selectedNetwork={selectedNetwork}
+        walletBalances={walletBalances}
+        hideNetWorth={hideNetWorth}
+        sx={sx}
+        isPortfolio
+      />
+    );
+  }
+);
 
 function NetworkSelector({
   selectedNetwork,
