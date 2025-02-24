@@ -59,6 +59,7 @@ export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
         presentValue,
         borrowAPY,
         totalEarnings,
+        totalEarningsWithIncentives,
         totalLeveragedApy,
         amountPaid,
       }) => {
@@ -131,13 +132,15 @@ export function useGroupedHoldingsTable(baseCurrency: FiatKeys) {
           earnings: {
             data: [
               {
-                displayValue: totalEarnings
-                  ? totalEarnings
+                displayValue: totalEarningsWithIncentives
+                  ? totalEarningsWithIncentives
                       .toFiat(baseCurrency)
                       .toDisplayStringWithSymbol(2, true, false)
                   : '-',
-                isNegative: totalEarnings
-                  ? totalEarnings.toFiat(baseCurrency).isNegative()
+                isNegative: totalEarningsWithIncentives
+                  ? totalEarningsWithIncentives
+                      .toFiat(baseCurrency)
+                      .isNegative()
                   : false,
               },
               {
