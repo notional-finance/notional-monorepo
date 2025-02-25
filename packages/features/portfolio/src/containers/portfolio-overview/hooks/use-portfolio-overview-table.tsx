@@ -232,7 +232,7 @@ function formatPortfolioHoldings(
         {
           label: <FormattedMessage defaultMessage={'Entry Price'} />,
           value: entryPrice
-            ? entryPrice.toDisplayStringWithSymbol(2, true, false)
+            ? entryPrice.toDisplayStringWithSymbol(4, true, false)
             : '-',
         },
         {
@@ -531,7 +531,8 @@ function formatDetailedVaultHoldings(
     ),
     totalEarnings: formatCryptoWithFiat(baseCurrency, debtEarnings),
     actionRow: {
-      ...tableRow.actionRow,
+      buttonBarData: tableRow.actionRow.buttonBarData,
+      txnHistory: tableRow.actionRow.txnHistory,
       subRowData: [
         {
           label: <FormattedMessage defaultMessage={'Balance'} />,
@@ -542,7 +543,7 @@ function formatDetailedVaultHoldings(
         {
           label: <FormattedMessage defaultMessage={'Entry Price'} />,
           value: debtEntryPrice
-            ? debtEntryPrice.toDisplayStringWithSymbol(2, true, false)
+            ? debtEntryPrice.toDisplayStringWithSymbol(4, true, false)
             : '-',
         },
         {
