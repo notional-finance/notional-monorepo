@@ -483,7 +483,10 @@ export const TradeModel = types
         );
       } else if (isNOTEStake(self.tradeType)) {
         calculate();
-      } else if (self.tradeType === 'ConvertAsset') {
+      } else if (
+        self.tradeType === 'ConvertAsset' ||
+        self.tradeType === 'RollDebt'
+      ) {
         calculate();
       }
     };
@@ -564,8 +567,12 @@ export const TradeModel = types
         } else if (self.tradeType === 'RollDebt') {
           const account = root().getNetworkAccount(self.selectedNetwork);
           const priorBalances = account?.portfolioRiskProfile?.balances;
+          const primeCash = model.getPrimeCash(selected.currencyId);
+
           const collateralBalance = priorBalances?.find(
-            (t) => t.tokenId === self.selectedToken
+            (t) =>
+              t.tokenId ===
+              (selected.tokenType === 'PrimeDebt' ? primeCash.id : selected.id)
           );
           self.collateral = collateralBalance?.token as Instance<
             typeof TokenDefinitionModel
@@ -684,7 +691,7 @@ export const TradeModel = types
                 .getNetworkClient(self.selectedNetwork)
                 .getNotionalMarket(currencyId)
             : undefined;
-        } else if (arg === 'debtPool' && self.debt?.currencyId) {
+        } else if (arg === 'debtPool') {
           let currencyId: number | undefined;
           if (self.debt?.currencyId) {
             currencyId = self.debt.currencyId;

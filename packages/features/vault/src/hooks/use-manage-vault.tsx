@@ -8,6 +8,7 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   leveragedYield,
   formatMaturity,
+  vaults,
 } from '@notional-finance/util';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { InfoMessageProps } from '@notional-finance/mui';
@@ -70,13 +71,17 @@ export function useManageVault() {
     infoMessage = {
       variant: 'warning',
       title:
-        vaultType === 'PendlePT' ? (
+        vaultType === 'PendlePT' &&
+        vaultAddress !== vaults.mainnet.Pendle_USDe_26MAR2025.toLowerCase() &&
+        vaultAddress !== vaults.mainnet.Pendle_sUSDe_28MAY2025.toLowerCase() ? (
           <FormattedMessage defaultMessage={'Withdraw Now'} />
         ) : (
           <FormattedMessage defaultMessage={'Vault Disabled'} />
         ),
       message:
-        vaultType === 'PendlePT' ? (
+        vaultType === 'PendlePT' &&
+        vaultAddress !== vaults.mainnet.Pendle_USDe_26MAR2025.toLowerCase() &&
+        vaultAddress !== vaults.mainnet.Pendle_sUSDe_28MAY2025.toLowerCase() ? (
           <FormattedMessage
             defaultMessage={
               'Your PT tokens have expired. Withdraw your profits and close your vault position.'
