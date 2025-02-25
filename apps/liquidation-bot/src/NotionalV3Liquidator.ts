@@ -549,7 +549,27 @@ export default class NotionalV3Liquidator {
       .filter((l) => !l.flashLoanAmount.isZero())
       // Find the liquidation with the largest flash loan amount. This will serve as a heuristic
       // for the most profitable liquidation
-      .sort((a, b) => (a.flashLoanAmount.lt(b.flashLoanAmount) ? 1 : -1));
+      .sort((a, b) => {
+        // First prioritize collateral currency liquidations
+        if (
+          a.liquidation.getLiquidationType() ===
+            LiquidationType.COLLATERAL_CURRENCY &&
+          b.liquidation.getLiquidationType() !==
+            LiquidationType.COLLATERAL_CURRENCY
+        ) {
+          return -1;
+        }
+        if (
+          b.liquidation.getLiquidationType() ===
+            LiquidationType.COLLATERAL_CURRENCY &&
+          a.liquidation.getLiquidationType() !==
+            LiquidationType.COLLATERAL_CURRENCY
+        ) {
+          return 1;
+        }
+        // Then sort by largest flash loan amount first
+        return b.flashLoanAmount.lt(a.flashLoanAmount) ? 1 : -1;
+      });
 
     for (const a of accountLiquidations) {
       try {
