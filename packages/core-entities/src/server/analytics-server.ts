@@ -165,7 +165,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
               ? ts.id.split(':')[1]
               : ts.id.split(':')[0];
           const isFiat =
-            ts.id.split(':')[0] === FIAT_ADDRESS || network === Network.all;
+            ts.id.split(':')[0].toLowerCase() === FIAT_ADDRESS.toLowerCase() ||
+            network === Network.all;
           acc.set(quote, {
             oneDay: this._priceChange(1, ts, quote, network, isFiat),
             threeDay: this._priceChange(3, ts, quote, network, isFiat),
@@ -388,7 +389,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         o.id === `${ZERO_ADDRESS}:${priceOracle?.base.id}:${ChartType.PRICE}`
     );
     const usdETHPriceHistory = chainlinkOracles?.find(
-      (o) => o.id === `${FIAT_ADDRESS}:${ZERO_ADDRESS}:${ChartType.PRICE}`
+      (o) =>
+        o.id ===
+        `${FIAT_ADDRESS.toLowerCase()}:${ZERO_ADDRESS}:${ChartType.PRICE}`
     );
 
     const priceData = priceOracle?.historicalRates

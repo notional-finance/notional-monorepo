@@ -75,6 +75,7 @@ const GroupedHoldingModel = types.model('GroupedHoldingModel', {
   marketProfitLoss: NotionalTypes.TokenBalance,
   totalILAndFees: NotionalTypes.TokenBalance,
   totalEarnings: NotionalTypes.TokenBalance,
+  totalEarningsWithIncentives: NotionalTypes.TokenBalance,
   leverageRatio: types.number,
   hasMatured: types.boolean,
   borrowAPY: types.maybe(types.number),

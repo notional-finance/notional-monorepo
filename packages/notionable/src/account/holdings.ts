@@ -271,6 +271,15 @@ export function calculateGroupedHoldings(
           const totalEarnings = (
             assetHoldings.statement?.totalProfitAndLoss || zeroUnderlying
           ).sub(debtHoldings?.statement?.totalProfitAndLoss || zeroUnderlying);
+          const totalEarningsWithIncentives = (
+            assetHoldings.totalEarningsWithIncentives || zeroUnderlying
+          )
+            .toFiat('USD')
+            .sub(
+              (
+                debtHoldings?.statement?.totalProfitAndLoss || zeroUnderlying
+              ).toFiat('USD')
+            );
 
           const totalInterestAccrual = (
             assetHoldings.statement?.totalInterestAccrual || zeroUnderlying
@@ -302,6 +311,7 @@ export function calculateGroupedHoldings(
             totalILAndFees,
             marketProfitLoss,
             totalEarnings,
+            totalEarningsWithIncentives,
             totalLeveragedApy: leveragedYield(
               assetHoldings.marketYield?.totalAPY,
               borrowApyData,
@@ -328,6 +338,7 @@ export function calculateGroupedHoldings(
       marketProfitLoss: TokenBalance;
       totalILAndFees: TokenBalance;
       totalEarnings: TokenBalance;
+      totalEarningsWithIncentives: TokenBalance;
       leverageRatio: number;
       hasMatured: boolean;
       borrowAPY: number | undefined;

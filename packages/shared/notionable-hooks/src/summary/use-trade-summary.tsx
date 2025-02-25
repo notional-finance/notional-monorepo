@@ -1053,7 +1053,11 @@ export function useTradeSummary() {
       value: {
         data: [
           {
-            displayValue: `${prefixSymbol}${earnings.toDisplayStringWithSymbol()}`,
+            displayValue: `${prefixSymbol}${earnings.toDisplayStringWithSymbol(
+              0,
+              true,
+              false
+            )}`,
             // Show red when earnings are negative in leverage scenarios
             isNegative: earnings.isNegative(),
             showPositiveAsGreen: !isDebt,
