@@ -22,6 +22,7 @@ export function useMaxWithdraw() {
     (t) => t.tokenId === withdrawToken?.id
   );
   const maxWithdraw = usePortfolioMaxWithdraw(withdrawToken);
+  // NOTE: if this is undefined it may mean there is insufficient liquidity
   const maxWithdrawUnderlying = useTradedValue(maxWithdraw?.neg());
 
   const onMaxValue = useCallback(() => {
