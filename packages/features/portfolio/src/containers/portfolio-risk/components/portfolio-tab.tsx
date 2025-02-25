@@ -20,7 +20,7 @@ import {
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useLiquidationRisk } from '../../portfolio-holdings/use-liquidation-risk';
 
-const PortfolioTab = () => {
+const PortfolioTab = ({ noRisk }: { noRisk?: boolean }) => {
   const theme = useTheme();
   const network = useSelectedNetwork();
   const { baseCurrency } = useAppStore();
@@ -92,40 +92,44 @@ const PortfolioTab = () => {
           </Row>
         </Box>
 
-        <Box>
-          {liquidationRiskData.map((item) => (
-            <Card>
-              <TokenContainer>
-                <TokenIcon symbol={item.exchangeRate.symbol} size={'xl'} />
-                <Box>
-                  <H4>{item.exchangeRate.symbol}</H4>
-                  <Caption>{item.exchangeRate.label}</Caption>
-                </Box>
-              </TokenContainer>
+        {!noRisk && (
+          <Box>
+            {liquidationRiskData.map((item) => (
+              <Card>
+                <TokenContainer>
+                  <TokenIcon symbol={item.exchangeRate.symbol} size={'xl'} />
+                  <Box>
+                    <H4>{item.exchangeRate.symbol}</H4>
+                    <Caption>{item.exchangeRate.label}</Caption>
+                  </Box>
+                </TokenContainer>
 
-              <Row>
-                <Body sx={{ color: theme.palette.typography.main }}>
-                  <FormattedMessage defaultMessage={'Liquidation Price'} />
-                </Body>
-                <LabelValue>{item.liquidationPrice}</LabelValue>
-              </Row>
+                <Row>
+                  <Body sx={{ color: theme.palette.typography.main }}>
+                    <FormattedMessage defaultMessage={'Liquidation Price'} />
+                  </Body>
+                  <LabelValue>{item.liquidationPrice}</LabelValue>
+                </Row>
 
-              <Row>
-                <Body sx={{ color: theme.palette.typography.main }}>
-                  <FormattedMessage defaultMessage={'Current Price'} />
-                </Body>
-                <LabelValue>{item.currentPrice}</LabelValue>
-              </Row>
-            </Card>
-          ))}
-        </Box>
+                <Row>
+                  <Body sx={{ color: theme.palette.typography.main }}>
+                    <FormattedMessage defaultMessage={'Current Price'} />
+                  </Body>
+                  <LabelValue>{item.currentPrice}</LabelValue>
+                </Row>
+              </Card>
+            ))}
+          </Box>
+        )}
       </Container>
 
-      <ActionButtonContainer>
-        <Button variant="outlined" color="primary" fullWidth>
-          <FormattedMessage defaultMessage={'Reduce Risk'} />
-        </Button>
-      </ActionButtonContainer>
+      {!noRisk && (
+        <ActionButtonContainer>
+          <Button variant="outlined" color="primary" fullWidth>
+            <FormattedMessage defaultMessage={'Reduce Risk'} />
+          </Button>
+        </ActionButtonContainer>
+      )}
     </>
   );
 };

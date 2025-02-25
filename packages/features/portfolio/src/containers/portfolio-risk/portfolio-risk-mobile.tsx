@@ -31,7 +31,7 @@ const PortfolioRiskMobile = () => {
   );
   const effectiveTabIndex = useMemo(() => {
     if (showTabs) return selectedTabIndex;
-    return hasPortfolioRisk ? 0 : hasVaultRisk ? 1 : 0;
+    return hasPortfolioRisk ? 0 : hasVaultRisk ? 1 : 3;
   }, [showTabs, selectedTabIndex, hasPortfolioRisk, hasVaultRisk]);
 
   return (
@@ -66,6 +66,7 @@ const PortfolioRiskMobile = () => {
       <Box>
         {effectiveTabIndex === 0 && <PortfolioTab />}
         {effectiveTabIndex === 1 && <VaultTab />}
+        {effectiveTabIndex === 3 && <PortfolioTab noRisk />}
       </Box>
     </Box>
   );

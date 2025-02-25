@@ -35,14 +35,7 @@ export function BottomMobileNav({
 
   return (
     <MobileNavContainer>
-      <Box
-        sx={{
-          display: 'flex',
-          width: '100vw',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
+      <Box sx={{ display: 'flex', width: '100vw' }}>
         {options.map(({ title, Icon, id, to, divider }, i) => (
           <>
             <NavOption key={i}>
@@ -70,31 +63,27 @@ export function BottomMobileNav({
           <NavOption
             onClick={callback}
             sx={{
-              borderRadius: '10px',
-              background: theme.palette.info.light,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexDirection: 'column',
               height: '100%',
-              maxWidth: '64px',
-              padding: '8px',
             }}
           >
-            <ThreeDotIcon
-              sx={{
-                width: theme.spacing(2),
-                fill: theme.palette.primary.light,
-              }}
-            />
-            <Title
-              id="more"
-              theme={theme}
-              navKey={''}
-              sx={{ color: theme.palette.primary.light }}
-            >
-              <FormattedMessage defaultMessage={'More'} />
-            </Title>
+            <CustomBox theme={theme} navKey={navKey} id={'showMore'}>
+              <Box>
+                <ThreeDotIcon
+                  sx={{
+                    width: theme.spacing(3),
+                    fill: theme.palette.primary.light,
+                  }}
+                />
+              </Box>
+              <Title
+                id="more"
+                theme={theme}
+                navKey={''}
+                sx={{ color: theme.palette.primary.light }}
+              >
+                <FormattedMessage defaultMessage={'More'} />
+              </Title>
+            </CustomBox>
           </NavOption>
         )}
       </Box>
@@ -126,7 +115,6 @@ const NavOption = styled(Box)(
     text-align: center;
     display: flex;
     align-items: center;
-    max-width: 84px;
   `
 );
 
@@ -140,6 +128,31 @@ const CustomLink = styled(Link, {
     padding: ${theme.spacing(0.5, 1)};
     border-radius: ${theme.shape.borderRadiusLarge};
     min-width: ${theme.spacing(9)};
+    max-width: ${theme.spacing(9)};
+    height: ${theme.spacing(8)};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  `
+);
+
+const CustomBox = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'navKey' && prop !== 'id',
+})(
+  ({ navKey, id, theme }: CustomLinkProps) => `
+    background: ${
+      navKey === id ? theme.palette.background.accentDefault : 'transparent'
+    };
+    padding: ${theme.spacing(0.5, 1)};
+    border-radius: ${theme.shape.borderRadiusLarge};
+    min-width: ${theme.spacing(9)};
+    height: ${theme.spacing(8)};
+    background: ${theme.palette.info.light};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
   `
 );
 

@@ -34,7 +34,7 @@ export const useCardMobileNav = () => {
       Icon: (
         <BarChartLateralIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill: PRODUCTS.LEND_FIXED.includes(category)
               ? theme.palette.typography.contrastText
               : theme.palette.typography.main,
@@ -49,7 +49,7 @@ export const useCardMobileNav = () => {
       Icon: (
         <BarChartIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill: PRODUCTS.LEND_VARIABLE.includes(category)
               ? theme.palette.typography.contrastText
               : theme.palette.typography.main,
@@ -64,7 +64,7 @@ export const useCardMobileNav = () => {
       Icon: (
         <PieChartIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill: PRODUCTS.LIQUIDITY_VARIABLE.includes(category)
               ? theme.palette.typography.contrastText
               : theme.palette.typography.main,

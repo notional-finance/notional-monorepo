@@ -163,7 +163,7 @@ export const DashboardCard = ({
               }}
             >
               {isMobile ? (
-                formatNumberAsPercent(apy, 0) + ' APY'
+                formatNumberAsPercent(apy, 2) + ' APY'
               ) : vaultUtilization !== undefined ? (
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <MultiTokenIcon
