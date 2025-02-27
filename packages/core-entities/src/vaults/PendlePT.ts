@@ -20,6 +20,7 @@ import { ExchangeRate, TokenDefinition } from '../Definitions';
 import { defaultAbiCoder } from '@ethersproject/abi';
 import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
 import { APYData } from '../models/views/YieldViews';
+import { registerTokensMap } from '../exchanges/default-pools';
 
 export interface PendlePTVaultParams extends BaseVaultParams {
   marketAddress: string;
@@ -184,6 +185,24 @@ export class PendlePT extends VaultAdapter {
     const { redeemPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (redeemPoolAddress) {
+      let _tokenOutSy = tokenOutSy;
+
+      if (tokenOutSy.symbol === 'sUSDe') {
+        // For sUSDe we need to trade to sDAI and then redeem the sDAI to DAI before
+        // we execute the following trade.
+        const sDAIsUSDePool = getNetworkModel(this.network).getPoolInstance(
+          registerTokensMap[this.network]['sDAI/sUSDe']
+        );
+        const { tokensOut: sDAI } = sDAIsUSDePool.calculateTokenTrade(
+          tokenOutSy,
+          sDAIsUSDePool.balances.findIndex((t) => t.token.symbol === 'sDAI')
+        );
+
+        _tokenOutSy = sDAI.toToken(
+          getNetworkModel(this.network).getTokenBySymbol('DAI')
+        );
+      }
+
       const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
         redeemPoolAddress
       );
@@ -193,7 +212,7 @@ export class PendlePT extends VaultAdapter {
           (this.borrowedToken.symbol === 'ETH' && t.token.symbol === 'WETH')
       );
       const { tokensOut, feesPaid } = tokenSyPool.calculateTokenTrade(
-        tokenOutSy,
+        _tokenOutSy,
         tokenOutIndex
       );
 
@@ -201,7 +220,7 @@ export class PendlePT extends VaultAdapter {
         underlyingOut: tokensOut,
         tradingFeesPaid:
           feesPaid.find((t) => t.tokenId === this.borrowedToken.id) ||
-          tokenOutSy.copy(0),
+          _tokenOutSy.copy(0),
       };
     } else {
       // If we don't have the pool address, then don't do the trade and just use the oracle

@@ -45,7 +45,7 @@ if [ "$1" = "data-service" ]; then
     --timeout=3600 \
     --concurrency=1 \
     --cpu=1 \
-    --memory=256 \
+    --memory=512 \
     --set-env-vars="${ENV_VARS}" \
     --set-secrets="${SECRETS}"
 
