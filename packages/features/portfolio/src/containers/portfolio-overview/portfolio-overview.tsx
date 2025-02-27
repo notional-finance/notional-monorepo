@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
   MultiDisplayChart,
-  BarChart,
   DataTable,
   TABLE_VARIANTS,
   ChevronCell,
@@ -19,7 +18,11 @@ import {
   TotalEarningsTooltip,
 } from '../../components';
 import { Box, styled, useTheme } from '@mui/material';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
+import {
+  getDateString,
+  PORTFOLIO_CATEGORIES,
+  SECONDS_IN_DAY,
+} from '@notional-finance/util';
 import {
   useAppStore,
   useSelectedNetwork,
@@ -27,6 +30,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { ExpandedState } from '@tanstack/react-table';
+import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
 
 const HealthFactorCell = ({ cell }) => {
   const { getValue } = cell;
@@ -50,7 +54,19 @@ const HealthFactorCell = ({ cell }) => {
 const PortfolioOverview = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
-  const { barChartData, barConfig, totalsData } = useTotalsChart(baseCurrency);
+  const [slot, setSlot] = useState<'all' | '1y' | '3m' | '1m'>('all');
+
+  const { barChartData, barConfig, totalsData } = useTotalsChart(
+    baseCurrency,
+    SECONDS_IN_DAY * 2,
+    slot === '1m'
+      ? SECONDS_IN_DAY * 2 * 15
+      : slot === '3m'
+      ? SECONDS_IN_DAY * 2 * 15 * 3
+      : slot === '1y'
+      ? SECONDS_IN_DAY * 365
+      : SECONDS_IN_DAY * 2 * 365 * 2
+  );
   const [showGrouped, setShowGrouped] = useState(true);
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
@@ -153,24 +169,64 @@ const PortfolioOverview = () => {
       </PortfolioPageHeader>
       <Container>
         {barChartData && barConfig && (
-          <MultiDisplayChart
-            chartComponents={[
-              {
-                chartHeaderTotalsData: totalsData,
-                id: 'apy-area-chart',
-                title: 'APY',
-                hideTopGridLine: false,
-                Component: (
-                  <BarChart
-                    barChartData={barChartData}
-                    barConfig={barConfig}
-                    xAxisTickFormat="date"
-                    yAxisTickFormat="currency"
-                  />
-                ),
-              },
-            ]}
-          />
+          <>
+            <MultiDisplayChart
+              chartComponents={[
+                {
+                  chartHeaderTotalsData: totalsData,
+                  headerButtons: [
+                    {
+                      label: 'All',
+                      value: 'all',
+                      onClick: () => setSlot('all'),
+                    },
+                    {
+                      label: '1Y',
+                      value: '1y',
+                      onClick: () => setSlot('1y'),
+                    },
+                    {
+                      label: '3M',
+                      value: '3m',
+                      onClick: () => setSlot('3m'),
+                    },
+                    {
+                      label: '1M',
+                      value: '1m',
+                      onClick: () => setSlot('1m'),
+                    },
+                  ],
+                  id: 'apy-area-chart',
+                  title: 'APY',
+                  hideTopGridLine: false,
+                  Component: (
+                    <LineChart
+                      data={barChartData.map(
+                        ({
+                          timestamp,
+                          totalNetWorth,
+                          totalAssets,
+                          totalDebts,
+                        }) => ({
+                          date: timestamp,
+                          totalNetWorth,
+                          totalAssets,
+                          totalDebts,
+                        })
+                      )}
+                      lineConfig={barConfig}
+                      areaKey="totalNetWorth"
+                      XAxisKey="date"
+                      showYAxis={true}
+                      tickFormatter={(value) => {
+                        return getDateString(value, { hideYear: true });
+                      }}
+                    />
+                  ),
+                },
+              ]}
+            />
+          </>
         )}
       </Container>
 

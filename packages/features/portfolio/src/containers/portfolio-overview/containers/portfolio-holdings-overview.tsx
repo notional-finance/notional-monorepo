@@ -15,12 +15,12 @@ const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
 
   return (
     <Container>
-      <H2>
+      <Header>
         <FormattedMessage
           defaultMessage="Portfolio Holdings"
           description="portfolio holdings"
         />
-      </H2>
+      </Header>
 
       <Box>
         {holdings.map((holding, i) => {
@@ -97,6 +97,15 @@ const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
     </Container>
   );
 };
+
+const Header = styled(H2)(({ theme }) => ({
+  fontSize: theme.typography.pxToRem(16),
+  fontWeight: theme.typography.fontWeightMedium,
+  lineHeight: 1.4,
+  color: theme.palette.typography.light,
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+}));
 
 const Container = styled(Box)(({ theme }) => ({
   display: 'flex',

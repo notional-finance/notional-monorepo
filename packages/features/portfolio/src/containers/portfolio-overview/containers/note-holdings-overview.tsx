@@ -11,12 +11,12 @@ interface IProps {
 const NOTEHoldingsOverview = ({ data }: IProps) => {
   return (
     <Container>
-      <H2>
+      <Header>
         <FormattedMessage
           defaultMessage="NOTE Holdings"
           description="note holdings"
         />
-      </H2>
+      </Header>
 
       <Box>
         {data.map((item, i) => (
@@ -42,6 +42,15 @@ const NOTEHoldingsOverview = ({ data }: IProps) => {
     </Container>
   );
 };
+
+const Header = styled(H2)(({ theme }) => ({
+  fontSize: theme.typography.pxToRem(16),
+  fontWeight: theme.typography.fontWeightMedium,
+  lineHeight: 1.4,
+  color: theme.palette.typography.light,
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+}));
 
 const Container = styled(Box)(({ theme }) => ({
   display: 'flex',

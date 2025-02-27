@@ -1,6 +1,6 @@
 import { DisplayChartMobile } from '@notional-finance/mui';
 import { observer } from 'mobx-react-lite';
-import { usePortfolioOverviewTable, useTotalsChartMobile } from './hooks';
+import { usePortfolioOverviewTable, useTotalsChart } from './hooks';
 import { usePortfolioNOTETable, usePortfolioSNOTETable } from '../../hooks';
 import { Box, styled, useTheme } from '@mui/material';
 import { useAppStore } from '@notional-finance/notionable-hooks';
@@ -9,6 +9,7 @@ import LeverageVaultsOverview from './containers/leverage-vaults-overview';
 import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
 import NOTEHoldingsOverview from './containers/note-holdings-overview';
 import SNOTEHoldingsOverview from './containers/snote-holdings-overview';
+import { SECONDS_IN_DAY, SECONDS_IN_MONTH } from '@notional-finance/util';
 
 const PortfolioOverviewMobile = () => {
   const theme = useTheme();
@@ -17,8 +18,11 @@ const PortfolioOverviewMobile = () => {
     usePortfolioOverviewTable(false);
   const { noteData } = usePortfolioNOTETable();
   const { data: sNoteData } = usePortfolioSNOTETable();
-  const { barChartData, barConfig, totalsData } =
-    useTotalsChartMobile(baseCurrency);
+  const { barChartData, barConfig, totalsData } = useTotalsChart(
+    baseCurrency,
+    SECONDS_IN_DAY * 31,
+    SECONDS_IN_MONTH * 9
+  );
 
   return (
     <Box>
