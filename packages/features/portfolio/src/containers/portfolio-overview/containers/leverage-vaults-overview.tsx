@@ -1,11 +1,11 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
-import { useVaultHoldingsTable } from '../../../hooks';
 import { H2 } from '@notional-finance/mui';
+import { usePortfolioOverviewTable } from '../hooks';
 
 interface IProps {
-  data: ReturnType<typeof useVaultHoldingsTable>['vaultHoldingsData'];
+  data: ReturnType<typeof usePortfolioOverviewTable>['vaultHoldingsData'];
 }
 
 const LeverageVaultsOverview = ({ data }: IProps) => {

@@ -1,16 +1,12 @@
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { useDetailedHoldingsTable } from '../portfolio-holdings/use-detailed-holdings';
 import { useMemo } from 'react';
-import {
-  usePortfolioNOTETable,
-  usePortfolioSNOTETable,
-  useVaultHoldingsTable,
-} from '../../hooks';
+import { usePortfolioNOTETable, usePortfolioSNOTETable } from '../../hooks';
 import PortfolioHoldingsDetail from './portfolio-holdings-detail';
 import VaultHoldingsDetail from './vault-holdings-detail';
 import NoteHoldingsDetail from './note-holdings-detail';
 import SNoteHoldingsDetail from './snote-holdings-detail';
-
+import { usePortfolioOverviewTable } from '../portfolio-overview/hooks';
 interface PortfolioDetailsProps {
   selectedToken: string;
 }
@@ -20,7 +16,7 @@ const PortfolioDetails: React.FC<PortfolioDetailsProps> = ({
 }) => {
   const { baseCurrency } = useAppStore();
   const { detailedHoldings } = useDetailedHoldingsTable(baseCurrency);
-  const { vaultHoldingsData } = useVaultHoldingsTable();
+  const { vaultHoldingsData } = usePortfolioOverviewTable(false);
   const { noteData } = usePortfolioNOTETable();
   const { data: sNoteData } = usePortfolioSNOTETable();
 

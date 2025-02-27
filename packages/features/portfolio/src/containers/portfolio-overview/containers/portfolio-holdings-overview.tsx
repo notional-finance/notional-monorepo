@@ -2,10 +2,12 @@ import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
 import { H3, H2 } from '@notional-finance/mui';
-import { usePortfolioHoldings } from '../../portfolio-holdings/use-portfolio-holdings';
+import { usePortfolioOverviewTable } from '../hooks';
 
 interface IProps {
-  holdings: ReturnType<typeof usePortfolioHoldings>['portfolioHoldingsData'];
+  holdings: ReturnType<
+    typeof usePortfolioOverviewTable
+  >['portfolioHoldingsData'];
 }
 
 const PortfolioHoldingsOverview = ({ holdings }: IProps) => {

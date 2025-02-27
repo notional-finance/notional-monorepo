@@ -1,11 +1,7 @@
 import { DisplayChartMobile } from '@notional-finance/mui';
 import { observer } from 'mobx-react-lite';
-import { useTotalsChartMobile } from './hooks';
-import {
-  usePortfolioNOTETable,
-  usePortfolioSNOTETable,
-  useVaultHoldingsTable,
-} from '../../hooks';
+import { usePortfolioOverviewTable, useTotalsChartMobile } from './hooks';
+import { usePortfolioNOTETable, usePortfolioSNOTETable } from '../../hooks';
 import { Box, styled, useTheme } from '@mui/material';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import PortfolioHoldingsOverview from './containers/portfolio-holdings-overview';
@@ -13,13 +9,12 @@ import LeverageVaultsOverview from './containers/leverage-vaults-overview';
 import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
 import NOTEHoldingsOverview from './containers/note-holdings-overview';
 import SNOTEHoldingsOverview from './containers/snote-holdings-overview';
-import { usePortfolioHoldings } from '../portfolio-holdings/use-portfolio-holdings';
 
 const PortfolioOverviewMobile = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
-  const { portfolioHoldingsData } = usePortfolioHoldings(baseCurrency);
-  const { vaultHoldingsData, showVaultHoldingsTable } = useVaultHoldingsTable();
+  const { portfolioHoldingsData, vaultHoldingsData, showVaultHoldingsTable } =
+    usePortfolioOverviewTable(false);
   const { noteData } = usePortfolioNOTETable();
   const { data: sNoteData } = usePortfolioSNOTETable();
   const { barChartData, barConfig, totalsData } =
