@@ -539,10 +539,12 @@ export default class NotionalV3Liquidator {
             `${acct.id}:${l.getLiquidationType()}:${
               l.getLocalCurrency().id
             }:${l.getCollateralCurrencyId()}:nTokenUnderlyingReceivedAmount`
-          ] as BigNumber;
+          ] as BigNumber | undefined;
 
           collateralReceivedAmount = collateralReceivedAmount.add(
-            nTokenUnderlyingReceivedAmount.mul(950).div(1000)
+            nTokenUnderlyingReceivedAmount
+              ? nTokenUnderlyingReceivedAmount.mul(950).div(1000)
+              : BigNumber.from(0)
           );
         }
 
