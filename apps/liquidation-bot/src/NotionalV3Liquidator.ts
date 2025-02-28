@@ -408,7 +408,6 @@ export default class NotionalV3Liquidator {
         l.collateralReceivedAmount,
         excludedSources
       );
-      console.log('zeroExResp', zeroExResp);
 
       collateralTrade = {
         trade: {
