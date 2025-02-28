@@ -284,7 +284,6 @@ export default class NotionalV3Liquidator {
       taker: this.settings.flashLiquidatorAddress,
       sellAmount: amount.toString(),
       chainId: String(NetworkId[this.settings.network]),
-      sellEntireBalance: 'true',
     });
 
     // Set excluded sources in some cases to avoid reentrancy issues inside the flash loan
@@ -544,7 +543,7 @@ export default class NotionalV3Liquidator {
           ] as BigNumber;
 
           collateralReceivedAmount = collateralReceivedAmount.add(
-            nTokenUnderlyingReceivedAmount
+            nTokenUnderlyingReceivedAmount.mul(950).div(1000)
           );
         }
 

@@ -338,7 +338,7 @@ export default class Liquidation {
             args: (r) => [
               this.collateralCurrencyId,
               (
-                r[`${key}:collateralReceivedAmount`] as Awaited<
+                r[`${key}:pCashLoanAmount`] as Awaited<
                   ReturnType<
                     typeof notional.calculateCollateralCurrencyLiquidation
                   >
