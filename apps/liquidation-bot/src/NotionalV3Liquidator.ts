@@ -532,6 +532,18 @@ export default class NotionalV3Liquidator {
               l.getLocalCurrency().id
             }:${l.getCollateralCurrencyId()}:collateralReceivedAmount`
           ] as BigNumber;
+
+          // This is a bit of an over estimate but it's ok, this is used to determine the
+          // zero ex trade.
+          const nTokenUnderlyingReceivedAmount = results[
+            `${acct.id}:${l.getLiquidationType()}:${
+              l.getLocalCurrency().id
+            }:${l.getCollateralCurrencyId()}:nTokenUnderlyingReceivedAmount`
+          ] as BigNumber;
+
+          collateralReceivedAmount = collateralReceivedAmount.add(
+            nTokenUnderlyingReceivedAmount.mul(950).div(1000)
+          );
         }
 
         return {
@@ -592,6 +604,7 @@ export default class NotionalV3Liquidator {
         Flash Loan Amount: ${a.flashLoanAmount.toString()}
 
         Error: ${(e as Error).toString()}
+        ${(e as Error).stack}
         `,
         });
       }

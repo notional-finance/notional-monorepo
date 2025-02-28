@@ -250,7 +250,7 @@ export default {
     _: ExecutionContext
   ): Promise<Response> {
     const authKey = request.headers.get('x-auth-key');
-    if (authKey !== env.AUTH_KEY) {
+    if (authKey !== env.AUTH_KEY && env.ENVIRONMENT !== 'local') {
       return new Response(null, { status: 401 });
     }
     try {
