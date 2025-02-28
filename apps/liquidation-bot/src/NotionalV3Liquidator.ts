@@ -284,6 +284,7 @@ export default class NotionalV3Liquidator {
       taker: this.settings.flashLiquidatorAddress,
       sellAmount: amount.toString(),
       chainId: String(NetworkId[this.settings.network]),
+      sellEntireBalance: 'true',
     });
 
     // Set excluded sources in some cases to avoid reentrancy issues inside the flash loan
@@ -408,6 +409,7 @@ export default class NotionalV3Liquidator {
         l.collateralReceivedAmount,
         excludedSources
       );
+      console.log('zeroExResp', zeroExResp);
 
       collateralTrade = {
         trade: {
@@ -532,6 +534,18 @@ export default class NotionalV3Liquidator {
               l.getLocalCurrency().id
             }:${l.getCollateralCurrencyId()}:collateralReceivedAmount`
           ] as BigNumber;
+
+          // This is a bit of an over estimate but it's ok, this is used to determine the
+          // zero ex trade.
+          const nTokenUnderlyingReceivedAmount = results[
+            `${acct.id}:${l.getLiquidationType()}:${
+              l.getLocalCurrency().id
+            }:${l.getCollateralCurrencyId()}:nTokenUnderlyingReceivedAmount`
+          ] as BigNumber;
+
+          collateralReceivedAmount = collateralReceivedAmount.add(
+            nTokenUnderlyingReceivedAmount
+          );
         }
 
         return {
@@ -592,6 +606,7 @@ export default class NotionalV3Liquidator {
         Flash Loan Amount: ${a.flashLoanAmount.toString()}
 
         Error: ${(e as Error).toString()}
+        ${(e as Error).stack}
         `,
         });
       }
