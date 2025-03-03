@@ -454,6 +454,7 @@ function formatDetailedVaultHoldings(
     assetEntryPrice,
     debtEntryPrice,
     apyData,
+    impliedFixedRate,
   }: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
   tableRow: OverviewTableRow,
   pendingTokens: TokenDefinition[] | undefined,
@@ -518,7 +519,30 @@ function formatDetailedVaultHoldings(
     },
     tokenId: vaultDebt.tokenId,
     isPending: !!pendingTokens?.find((t) => t.id === vaultDebt.tokenId),
-    marketApy: apyData?.debtAPY ? formatNumberAsPercent(apyData.debtAPY) : '',
+    marketApy:
+      vaultDebt.unwrapVaultToken().token.tokenType === 'fCash' &&
+      impliedFixedRate
+        ? {
+            data: [
+              {
+                displayValue: formatNumberAsPercentWithUndefined(
+                  apyData?.debtAPY,
+                  '-',
+                  2
+                ),
+                isNegative: false,
+              },
+              {
+                displayValue: `${formatNumberAsPercent(
+                  impliedFixedRate
+                )} APY at Maturity`,
+                isNegative: false,
+              },
+            ],
+          }
+        : apyData?.debtAPY
+        ? formatNumberAsPercent(apyData.debtAPY)
+        : '',
     amountPaid: formatCryptoWithFiat(baseCurrency, debtAmountPaid, {
       isDebt: true,
     }),

@@ -260,12 +260,7 @@ export function calculateGroupedHoldings(
             ({ balance }) => balance.tokenId === asset.tokenId
           ) as (typeof holdings)[number];
 
-          const borrowApyData =
-            debtHoldings?.balance.token.tokenType === 'PrimeDebt' ||
-            debtHoldings?.balance.hasMatured
-              ? debtHoldings.marketYield.totalAPY
-              : // Need to check for undefined here if the debtHoldings is undefined
-                debtHoldings?.statement?.impliedFixedRate;
+          const borrowApyData = debtHoldings?.marketYield.totalAPY || 0;
           const zeroUnderlying = TokenBalance.zero(asset.underlying);
 
           const totalEarnings = (
@@ -391,10 +386,7 @@ export function calculateVaultHoldings(
       // Subtract accrued vault fees
       .sub(v.accruedVaultFees.toToken(zeroDenom.token));
     const vaultYield = model.getSpotAPY(v.vaultShares.tokenId);
-    const debtAPY =
-      debtPnL?.impliedFixedRate !== undefined
-        ? debtPnL.impliedFixedRate
-        : model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
+    const debtAPY = model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
     const assetInterestAccrual = assetPnL?.totalInterestAccrual || zeroDenom;
 
     const debtInterestAccrual = (
@@ -459,6 +451,7 @@ export function calculateVaultHoldings(
       totalDebt: v.totalDebt(),
       maxLeverageRatio,
       apyData: createLeveragedAPYData(vaultYield, debtAPY, leverageRatio),
+      impliedFixedRate: debtPnL?.impliedFixedRate,
       leverageRatio,
       amountPaid,
       profit,
