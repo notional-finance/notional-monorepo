@@ -98,6 +98,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
       isDebtThreshold: types.boolean,
     })
   ),
+  impliedFixedRate: types.maybe(types.number),
   healthFactor: types.maybeNull(types.number),
   netWorth: NotionalTypes.TokenBalance,
   totalAssets: NotionalTypes.TokenBalance,

@@ -227,7 +227,7 @@ function formatPortfolioHoldings(
       subRowData: [
         {
           label: <FormattedMessage defaultMessage={'Balance'} />,
-          value: `${balance.toDisplayString(4, true)} ${title}`,
+          value: `${balance.abs().toDisplayString(4, true)} ${title}`,
         },
         {
           label: <FormattedMessage defaultMessage={'Entry Price'} />,
@@ -454,6 +454,7 @@ function formatDetailedVaultHoldings(
     assetEntryPrice,
     debtEntryPrice,
     apyData,
+    impliedFixedRate,
   }: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
   tableRow: OverviewTableRow,
   pendingTokens: TokenDefinition[] | undefined,
@@ -490,7 +491,7 @@ function formatDetailedVaultHoldings(
         {
           label: <FormattedMessage defaultMessage={'Entry Price'} />,
           value: assetEntryPrice
-            ? assetEntryPrice.toDisplayStringWithSymbol(2, true, false)
+            ? assetEntryPrice.toDisplayStringWithSymbol(4, true, false)
             : '-',
         },
         {
@@ -518,7 +519,30 @@ function formatDetailedVaultHoldings(
     },
     tokenId: vaultDebt.tokenId,
     isPending: !!pendingTokens?.find((t) => t.id === vaultDebt.tokenId),
-    marketApy: apyData?.debtAPY ? formatNumberAsPercent(apyData.debtAPY) : '',
+    marketApy:
+      vaultDebt.unwrapVaultToken().token.tokenType === 'fCash' &&
+      impliedFixedRate
+        ? {
+            data: [
+              {
+                displayValue: formatNumberAsPercentWithUndefined(
+                  apyData?.debtAPY,
+                  '-',
+                  2
+                ),
+                isNegative: false,
+              },
+              {
+                displayValue: `${formatNumberAsPercent(
+                  impliedFixedRate
+                )} APY at Maturity`,
+                isNegative: false,
+              },
+            ],
+          }
+        : apyData?.debtAPY
+        ? formatNumberAsPercent(apyData.debtAPY)
+        : '',
     amountPaid: formatCryptoWithFiat(baseCurrency, debtAmountPaid, {
       isDebt: true,
     }),
@@ -538,12 +562,13 @@ function formatDetailedVaultHoldings(
           label: <FormattedMessage defaultMessage={'Balance'} />,
           value: `${vaultDebt
             .unwrapVaultToken()
+            .abs()
             .toDisplayString(4, true, false)} ${title}`,
         },
         {
           label: <FormattedMessage defaultMessage={'Entry Price'} />,
           value: debtEntryPrice
-            ? debtEntryPrice.toDisplayStringWithSymbol(4, true, false)
+            ? debtEntryPrice.abs().toDisplayStringWithSymbol(4, true, false)
             : '-',
         },
         {
