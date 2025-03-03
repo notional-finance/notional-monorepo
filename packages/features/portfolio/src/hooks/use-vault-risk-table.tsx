@@ -125,6 +125,7 @@ export const useVaultRiskTable = () => {
                     : `Maturity: ${formatMaturity(vaultHolding.maturity)}`,
               },
               healthFactor: vaultHolding.healthFactor,
+              manageLink: `/vaults/${network}/${l.vaultAddress}/Manage`,
               ...p,
             };
           })

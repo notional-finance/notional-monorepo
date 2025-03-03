@@ -17,16 +17,13 @@ import {
   usePortfolioRiskProfile,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import {
-  ClaimNoteButton,
-  PortfolioPageHeader,
-} from '@notional-finance/portfolio-feature-shell/components';
+import { ClaimNoteButton, PortfolioPageHeader } from '../../components';
 import { PORTFOLIO_CATEGORIES, TRACKING_EVENTS } from '@notional-finance/util';
 import { useLiquidationRisk } from '../portfolio-holdings/use-liquidation-risk';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { formatNumberAsPercent, trackEvent } from '@notional-finance/helpers';
 import { ArrowIcon } from '@notional-finance/icons';
-import { useVaultRiskTable } from '@notional-finance/portfolio-feature-shell/hooks';
+import { useVaultRiskTable } from '../../hooks';
 import { useLocation } from 'react-router-dom';
 
 const PortfolioRiskDesktop = () => {
@@ -172,7 +169,7 @@ const PortfolioRiskDesktop = () => {
                   }
                 >
                   <Subtitle sx={{ color: theme.palette.typography.white }}>
-                    Reduce Risk
+                    <FormattedMessage defaultMessage={'Reduce Risk'} />
                   </Subtitle>
                 </DropdownButton>
               ) : (
@@ -201,7 +198,9 @@ const PortfolioRiskDesktop = () => {
             columns={[
               ...riskTableColumns,
               {
-                cell: ManageButton,
+                cell: ({ row }) => (
+                  <ManageButton manageLink={row.original.manageLink} />
+                ),
                 expandableTable: true,
                 accessorKey: 'manage',
                 textAlign: 'right',
@@ -226,10 +225,10 @@ const PortfolioRiskDesktop = () => {
   );
 };
 
-const ManageButton = () => {
+const ManageButton = ({ manageLink }: { manageLink: string }) => {
   return (
-    <Button variant="contained" color="primary">
-      Manage
+    <Button variant="contained" color="primary" to={manageLink}>
+      <FormattedMessage defaultMessage={'Manage'} />
     </Button>
   );
 };
