@@ -396,8 +396,13 @@ export function calculateVaultHoldings(
         ? debtPnL.impliedFixedRate
         : model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
     const assetInterestAccrual = assetPnL?.totalInterestAccrual || zeroDenom;
-    const debtInterestAccrual =
-      debtPnL?.totalInterestAccrual.neg() || zeroDenom;
+
+    const debtInterestAccrual = (
+      debtPnL?.totalInterestAccrual.neg() || zeroDenom
+    )
+      // Subtract accrued vault fees here as well
+      .sub(v.accruedVaultFees.toToken(zeroDenom.token));
+
     const assetEarnings = assetPnL?.totalProfitAndLoss || zeroDenom;
     const debtEarnings = debtPnL?.totalProfitAndLoss.neg() || zeroDenom;
     const assetFeesPaid = assetPnL?.totalILAndFees || zeroDenom;
