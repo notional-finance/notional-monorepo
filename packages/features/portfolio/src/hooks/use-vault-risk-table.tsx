@@ -27,6 +27,18 @@ const vaultRiskTableColumns = (theme: NotionalTheme) => [
   {
     header: (
       <FormattedMessage
+        defaultMessage="Exchange Rate"
+        description={'column header'}
+      />
+    ),
+    cell: MultiValueIconCell,
+    expandableTable: true,
+    accessorKey: 'exchangeRate',
+    textAlign: 'left',
+  },
+  {
+    header: (
+      <FormattedMessage
         defaultMessage="Health Factor"
         description={'Health Factor header'}
       />
@@ -37,20 +49,8 @@ const vaultRiskTableColumns = (theme: NotionalTheme) => [
       return <span style={{ color: textColor }}>{value}</span>;
     },
     accessorKey: 'healthFactor',
-    textAlign: 'left',
+    textAlign: 'right',
     expandableTable: true,
-  },
-  {
-    header: (
-      <FormattedMessage
-        defaultMessage="Exchange Rate"
-        description={'column header'}
-      />
-    ),
-    cell: MultiValueIconCell,
-    expandableTable: true,
-    accessorKey: 'exchangeRate',
-    textAlign: 'left',
   },
   {
     header: (

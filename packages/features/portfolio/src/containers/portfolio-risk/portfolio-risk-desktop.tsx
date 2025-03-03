@@ -7,10 +7,10 @@ import {
   H5,
   InfoTooltip,
   SliderRisk,
-  Subtitle,
+  SimpleDropdown,
 } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   useAccountDefinition,
   useAppStore,
@@ -20,10 +20,8 @@ import {
 import { ClaimNoteButton, PortfolioPageHeader } from '../../components';
 import { PORTFOLIO_CATEGORIES, TRACKING_EVENTS } from '@notional-finance/util';
 import { useLiquidationRisk } from '../portfolio-holdings/use-liquidation-risk';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { formatNumberAsPercent, trackEvent } from '@notional-finance/helpers';
-import { ArrowIcon } from '@notional-finance/icons';
-import { useVaultRiskTable } from '../../hooks';
+import { useReduceRiskDropdown, useVaultRiskTable } from '../../hooks';
 import { useLocation } from 'react-router-dom';
 
 const PortfolioRiskDesktop = () => {
@@ -37,9 +35,6 @@ const PortfolioRiskDesktop = () => {
     useLiquidationRisk(baseCurrency);
   const { riskTableData, riskTableColumns } = useVaultRiskTable();
 
-  const [isReduceRiskDropdownOpen, setIsReduceRiskDropdownOpen] =
-    useState(false);
-
   const hasPortfolioRisk = useMemo(
     () => !!account?.balances.find((t) => t.isNegative() && !t.isVaultToken),
     [account?.balances]
@@ -48,6 +43,7 @@ const PortfolioRiskDesktop = () => {
     () => !!account?.balances.find((t) => t.isVaultToken),
     [account?.balances]
   );
+  const { options, title } = useReduceRiskDropdown();
 
   return (
     <Box>
@@ -56,12 +52,16 @@ const PortfolioRiskDesktop = () => {
       </PortfolioPageHeader>
       <Container>
         <Card>
-          <Box sx={{ width: '100%' }}>
+          <Box
+            sx={{
+              width: '100%',
+              marginBottom: hasPortfolioRisk
+                ? theme.spacing(4)
+                : theme.spacing(0),
+            }}
+          >
             <Header>
               <FormattedMessage defaultMessage={'Portfolio Health Factor'} />
-              <InfoOutlinedIcon
-                sx={{ fontSize: '16px', color: theme.palette.primary.light }}
-              />
               <InfoTooltip
                 onMouseEnter={() =>
                   trackEvent(TRACKING_EVENTS.TOOL_TIP, {
@@ -96,33 +96,32 @@ const PortfolioRiskDesktop = () => {
                 }}
                 isLabelWithColor
               />
-
               <Column>
                 <H5>
                   <FormattedMessage defaultMessage={'Total Collateral'} />
                 </H5>
-                <H4>
+                <H4 align="right">
                   {profile?.totalAssets
                     .toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(2, true) || '-'}
+                    .toDisplayStringWithSymbol(2, true, false) || '-'}
                 </H4>
               </Column>
               <Column>
                 <H5>
                   <FormattedMessage defaultMessage={'Total Debt'} />
                 </H5>
-                <H4>
+                <H4 align="right">
                   {profile?.totalDebt
                     .abs()
                     .toFiat(baseCurrency)
-                    .toDisplayStringWithSymbol(2, true) || '-'}
+                    .toDisplayStringWithSymbol(2, true, false) || '-'}
                 </H4>
               </Column>
               <Column>
                 <H5>
                   <FormattedMessage defaultMessage={'Loan to Value'} />
                 </H5>
-                <H4>
+                <H4 align="right">
                   {profile?.loanToValue
                     ? formatNumberAsPercent(profile.loanToValue, 2)
                     : '-'}
@@ -130,48 +129,7 @@ const PortfolioRiskDesktop = () => {
               </Column>
 
               {hasPortfolioRisk ? (
-                <DropdownButton
-                  id="reduce-risk-dropdown"
-                  aria-controls={
-                    isReduceRiskDropdownOpen ? 'reduce-risk-menu' : undefined
-                  }
-                  aria-haspopup="true"
-                  variant="contained"
-                  aria-expanded={isReduceRiskDropdownOpen ? 'true' : undefined}
-                  onClick={() =>
-                    setIsReduceRiskDropdownOpen(!isReduceRiskDropdownOpen)
-                  }
-                  endIcon={
-                    <Box
-                      sx={{
-                        marginLeft: theme.spacing(1),
-                        height: theme.spacing(2),
-                        width: theme.spacing(2),
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: '50%',
-                        background: theme.palette.info.light,
-                        boxShadow: 'none',
-                      }}
-                    >
-                      <ArrowIcon
-                        sx={{
-                          transform: isReduceRiskDropdownOpen
-                            ? 'rotate(0deg)'
-                            : 'rotate(-180deg)',
-                          transition: '.5s ease',
-                          width: theme.spacing(1.5),
-                          color: theme.palette.typography.white,
-                        }}
-                      />
-                    </Box>
-                  }
-                >
-                  <Subtitle sx={{ color: theme.palette.typography.white }}>
-                    <FormattedMessage defaultMessage={'Reduce Risk'} />
-                  </Subtitle>
-                </DropdownButton>
+                <SimpleDropdown options={options} title={title} />
               ) : (
                 <Box sx={{ width: '100px' }} />
               )}
@@ -270,17 +228,6 @@ const Card = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.borders.paper}`,
   borderRadius: '6px',
   padding: theme.spacing(3),
-}));
-
-const DropdownButton = styled(Button)(({ theme }) => ({
-  transition: 'none',
-  width: 'fit-content',
-  textTransform: 'capitalize',
-  justifyContent: 'flex-start',
-  height: '42px',
-  boxShadow: 'none',
-  borderRadius: theme.spacing(0.5),
-  minWidth: 'fit-content',
 }));
 
 export default observer(PortfolioRiskDesktop);
