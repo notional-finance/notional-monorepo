@@ -227,7 +227,7 @@ function formatPortfolioHoldings(
       subRowData: [
         {
           label: <FormattedMessage defaultMessage={'Balance'} />,
-          value: `${balance.toDisplayString(4, true)} ${title}`,
+          value: `${balance.abs().toDisplayString(4, true)} ${title}`,
         },
         {
           label: <FormattedMessage defaultMessage={'Entry Price'} />,
@@ -490,7 +490,7 @@ function formatDetailedVaultHoldings(
         {
           label: <FormattedMessage defaultMessage={'Entry Price'} />,
           value: assetEntryPrice
-            ? assetEntryPrice.toDisplayStringWithSymbol(2, true, false)
+            ? assetEntryPrice.toDisplayStringWithSymbol(4, true, false)
             : '-',
         },
         {
@@ -538,12 +538,13 @@ function formatDetailedVaultHoldings(
           label: <FormattedMessage defaultMessage={'Balance'} />,
           value: `${vaultDebt
             .unwrapVaultToken()
+            .abs()
             .toDisplayString(4, true, false)} ${title}`,
         },
         {
           label: <FormattedMessage defaultMessage={'Entry Price'} />,
           value: debtEntryPrice
-            ? debtEntryPrice.toDisplayStringWithSymbol(4, true, false)
+            ? debtEntryPrice.abs().toDisplayStringWithSymbol(4, true, false)
             : '-',
         },
         {
