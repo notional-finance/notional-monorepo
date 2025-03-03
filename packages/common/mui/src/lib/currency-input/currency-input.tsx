@@ -6,6 +6,7 @@ import CurrencySelect, { CurrencySelectProps } from './currency-select';
 import MiniButton from '../mini-button/mini-button';
 import { Paragraph, Caption } from '../typography/typography';
 import { useCallback, useRef } from 'react';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export interface CurrencyInputStyleProps {
   landingPage: boolean;
@@ -96,6 +97,7 @@ export const CurrencyInput = React.forwardRef<
     showScrollPopper,
   } = props;
   const theme = useTheme() as NotionalTheme;
+  const { isMobileView } = useAppStore();
   const [hasFocus, setHasFocus] = React.useState(false);
   const [value, setValue] = React.useState('');
 
@@ -206,7 +208,7 @@ export const CurrencyInput = React.forwardRef<
           }}
         />
         <CurrencySelect
-          minWidth={theme.spacing(55.875)}
+          minWidth={isMobileView ? '100%' : theme.spacing(55.875)}
           options={props.options}
           defaultValue={props.defaultValue}
           onSelectChange={props.onSelectChange}

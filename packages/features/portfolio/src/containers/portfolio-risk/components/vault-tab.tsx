@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { Box, styled } from '@mui/material';
+import { Box, Divider, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
 
@@ -10,6 +10,10 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { Body, Button, Caption, H4, LabelValue } from '@notional-finance/mui';
 import { useVaultRiskTable } from '@notional-finance/portfolio-feature-shell/hooks';
+import BottomDrawer, {
+  BottomDrawerRef,
+} from '@notional-finance/mui/lib/bottom-drawer/bottom-drawer';
+import { useRef } from 'react';
 
 const VaultTab = () => {
   const theme = useTheme();
@@ -74,13 +78,98 @@ const VaultTab = () => {
               <LabelValue>{item.currentPrice}</LabelValue>
             </Row>
 
-            <Button variant="outlined" color="primary" fullWidth>
-              <FormattedMessage defaultMessage={'Manage'} />
-            </Button>
+            <ActionButtonComponent />
           </Card>
         ))}
       </Box>
     </Container>
+  );
+};
+
+const ActionButtonComponent = () => {
+  const theme = useTheme();
+  const bottomDrawerRef = useRef<BottomDrawerRef>(null);
+
+  return (
+    <BottomDrawer
+      ref={bottomDrawerRef}
+      trigger={
+        <Button variant="outlined" color="primary" fullWidth>
+          <FormattedMessage defaultMessage={'Manage'} />
+        </Button>
+      }
+      title="Manage"
+    >
+      <Button
+        variant="text"
+        sx={{
+          color: theme.palette.typography.main,
+          justifyContent: 'space-between',
+        }}
+        fullWidth
+      >
+        <FormattedMessage defaultMessage={'Withdraw'} />
+      </Button>
+      <Divider sx={{ margin: theme.spacing(1, 0) }} />
+      <Button
+        variant="text"
+        sx={{
+          color: theme.palette.typography.main,
+          justifyContent: 'space-between',
+        }}
+        fullWidth
+      >
+        <FormattedMessage defaultMessage={'Adjust Leverage'} />
+      </Button>
+      <Divider sx={{ margin: theme.spacing(1, 0) }} />
+      <Button
+        variant="text"
+        sx={{
+          color: theme.palette.typography.main,
+          justifyContent: 'space-between',
+        }}
+        fullWidth
+      >
+        <FormattedMessage defaultMessage={'Deposit'} />
+        <H4>9.58% APY</H4>
+      </Button>
+      <Divider sx={{ margin: theme.spacing(1, 0) }} />
+      <Button
+        variant="text"
+        sx={{
+          color: theme.palette.typography.main,
+          justifyContent: 'space-between',
+        }}
+        fullWidth
+      >
+        <FormattedMessage defaultMessage={'Convert to Fixed (Mar 12 2025)'} />
+        <H4>9.58% APY</H4>
+      </Button>
+      <Divider sx={{ margin: theme.spacing(1, 0) }} />
+      <Button
+        variant="text"
+        sx={{
+          color: theme.palette.typography.main,
+          justifyContent: 'space-between',
+        }}
+        fullWidth
+      >
+        <FormattedMessage defaultMessage={'Convert to Fixed (Jun 10 2025)'} />
+        <H4>9.58% APY</H4>
+      </Button>
+      <Divider sx={{ margin: theme.spacing(1, 0) }} />
+      <Button
+        variant="text"
+        sx={{
+          color: theme.palette.typography.light,
+          height: theme.spacing(6),
+        }}
+        fullWidth
+        onClick={() => bottomDrawerRef.current?.close()}
+      >
+        <FormattedMessage defaultMessage={'Cancel'} />
+      </Button>
+    </BottomDrawer>
   );
 };
 

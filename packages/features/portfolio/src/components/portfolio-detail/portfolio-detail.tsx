@@ -36,6 +36,7 @@ interface PortfolioDetailProps {
   buttonData?: {
     label: string | React.ReactNode;
     onClick?: () => void;
+    link?: string;
   }[];
 }
 
@@ -115,7 +116,17 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({
       {buttonData && (
         <ActionButtonContainer>
           {buttonData.map((button, index) => (
-            <Button key={index} variant="outlined" color="primary" fullWidth>
+            <Button
+              key={index}
+              variant="outlined"
+              color="primary"
+              onClick={
+                button.onClick ?? button.link
+                  ? () => navigate(button.link!)
+                  : undefined
+              }
+              fullWidth
+            >
               {button.label}
             </Button>
           ))}

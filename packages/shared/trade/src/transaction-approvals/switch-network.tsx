@@ -78,6 +78,7 @@ export const SwitchNetwork = ({
           bottom: 0,
           position: 'fixed',
           width: '447px',
+          maxWidth: '100%',
           marginBottom: theme.spacing(4),
         }}
         onClick={onCancel}

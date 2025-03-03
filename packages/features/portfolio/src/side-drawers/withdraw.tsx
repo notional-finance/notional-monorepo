@@ -17,6 +17,7 @@ import { FormattedMessage } from 'react-intl';
 import { useEffect } from 'react';
 import { TableActionRowWarning } from '../components';
 import { observer } from 'mobx-react-lite';
+import { Box, styled } from '@mui/material';
 
 export const Withdraw = observer(() => {
   const context = useTradeContext('Withdraw');
@@ -42,31 +43,41 @@ export const Withdraw = observer(() => {
   }, [pathname]);
 
   return (
-    <PortfolioSideDrawer isWithdraw>
-      <PortfolioHoldingSelect
-        isWithdraw
-        inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabelTwo']}
-      />
-      <DepositInput
-        isWithdraw
-        ref={currencyInputRef}
-        inputRef={currencyInputRef}
-        maxWithdraw={maxWithdrawUnderlying}
-        warningMsg={belowMaxWarning}
-        onMaxValue={onMaxValue}
-        newRoute={(newToken) =>
-          `/portfolio/${selectedNetwork}/${category}/${sideDrawerKey}/${newToken}`
-        }
-        inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabel']}
-      />
-      {warning && (
-        <ErrorMessage
-          variant="warning"
-          title={<FormattedMessage {...messages[warning]['title']} />}
-          message={<FormattedMessage {...messages[warning]['message']} />}
-          maxWidth={'100%'}
+    <Container>
+      <PortfolioSideDrawer isWithdraw>
+        <PortfolioHoldingSelect
+          isWithdraw
+          inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabelTwo']}
         />
-      )}
-    </PortfolioSideDrawer>
+        <DepositInput
+          isWithdraw
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
+          maxWithdraw={maxWithdrawUnderlying}
+          warningMsg={belowMaxWarning}
+          onMaxValue={onMaxValue}
+          newRoute={(newToken) =>
+            `/portfolio/${selectedNetwork}/${category}/${sideDrawerKey}/${newToken}`
+          }
+          inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabel']}
+        />
+        {warning && (
+          <ErrorMessage
+            variant="warning"
+            title={<FormattedMessage {...messages[warning]['title']} />}
+            message={<FormattedMessage {...messages[warning]['message']} />}
+            maxWidth={'100%'}
+          />
+        )}
+      </PortfolioSideDrawer>
+    </Container>
   );
 });
+
+const Container = styled(Box)(
+  ({ theme }) => `
+      ${theme.breakpoints.down('sm')} {
+        width: 100vw;
+      }
+    `
+);

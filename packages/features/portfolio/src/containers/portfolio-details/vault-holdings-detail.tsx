@@ -87,6 +87,7 @@ const VaultHoldingsDetail: React.FC<VaultHoldingsDetailProps> = ({ value }) => {
       ]}
       buttonData={value.actionRow.buttonBarData.map((button) => ({
         label: button.buttonText,
+        link: button.link,
       }))}
     />
   );

@@ -9,6 +9,7 @@ import { Paragraph } from '../typography/typography';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
 import { InputLabel } from '../input-label/input-label';
 import React from 'react';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 interface AssetSelectDropdownProps {
   inputLabel?: MessageDescriptor;
@@ -56,6 +57,7 @@ export const AssetSelectDropdown = ({
   options,
   caption,
 }: AssetSelectDropdownProps) => {
+  const { isMobileView } = useAppStore();
   const theme = useTheme();
   const emptyOption = EmptyCurrencySelectOption(theme);
 
@@ -109,7 +111,7 @@ export const AssetSelectDropdown = ({
       <SelectDropdown
         buttonComponent={StyledButton}
         value={selectedTokenId || null}
-        popperWidth={parentWidth || '447px'}
+        popperWidth={parentWidth || (isMobileView ? '100%' : '447px')}
         onChange={onSelect}
         renderValue={(opt) => {
           const o = options?.find(({ token }) => token?.id === opt?.value);

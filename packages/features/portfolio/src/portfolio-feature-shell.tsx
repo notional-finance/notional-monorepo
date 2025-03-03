@@ -132,9 +132,7 @@ const Portfolio = observer(() => {
       );
     } else {
       clearSideDrawer(
-        `/portfolio/${network}/${
-          params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
-        }`
+        `/portfolio/${network}/${PORTFOLIO_CATEGORIES.DETAILS}/${params?.selectedToken}`
       );
     }
   };
