@@ -1,7 +1,7 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
-import { H2 } from '@notional-finance/mui';
+import { H4 } from '@notional-finance/mui';
 import { usePortfolioOverviewTable } from '../hooks';
 
 interface IProps {
@@ -13,12 +13,14 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
 
   return (
     <Container>
-      <Header>
-        <FormattedMessage
-          defaultMessage="Leverage Vaults"
-          description="leverage vaults"
-        />
-      </Header>
+      <HeadingContainer>
+        <H4 sx={{ color: theme.palette.typography.light }}>
+          <FormattedMessage
+            defaultMessage="Leverage Vaults"
+            description="leverage vaults"
+          />
+        </H4>
+      </HeadingContainer>
 
       <Box>
         {data.map((item, i) => (
@@ -69,11 +71,8 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
   );
 };
 
-const Header = styled(H2)(({ theme }) => ({
-  fontSize: theme.typography.pxToRem(16),
-  fontWeight: theme.typography.fontWeightMedium,
-  lineHeight: 1.4,
-  color: theme.palette.typography.light,
+const HeadingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
 }));

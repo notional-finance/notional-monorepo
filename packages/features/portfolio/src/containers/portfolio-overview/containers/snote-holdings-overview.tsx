@@ -1,22 +1,26 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
+import { H4 } from '@notional-finance/mui';
 import PositionCard from '../components/position-card';
 import { usePortfolioSNOTETable } from '../../../hooks';
-import { H2 } from '@notional-finance/mui';
 
 interface IProps {
   data: ReturnType<typeof usePortfolioSNOTETable>['data'];
 }
 
 const SNOTEHoldingsOverview = ({ data }: IProps) => {
+  const theme = useTheme();
+
   return (
     <Container>
-      <Header>
-        <FormattedMessage
-          defaultMessage="sNOTE Holdings"
-          description="snote holdings"
-        />
-      </Header>
+      <HeadingContainer>
+        <H4 sx={{ color: theme.palette.typography.light }}>
+          <FormattedMessage
+            defaultMessage="sNOTE Holdings"
+            description="snote holdings"
+          />
+        </H4>
+      </HeadingContainer>
 
       <Box>
         {data.map((item, i) => (
@@ -49,11 +53,8 @@ const SNOTEHoldingsOverview = ({ data }: IProps) => {
   );
 };
 
-const Header = styled(H2)(({ theme }) => ({
-  fontSize: theme.typography.pxToRem(16),
-  fontWeight: theme.typography.fontWeightMedium,
-  lineHeight: 1.4,
-  color: theme.palette.typography.light,
+const HeadingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
 }));

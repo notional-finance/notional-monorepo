@@ -1,7 +1,7 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
-import { H3, H2 } from '@notional-finance/mui';
+import { H3, H4 } from '@notional-finance/mui';
 import { usePortfolioOverviewTable } from '../hooks';
 
 interface IProps {
@@ -15,12 +15,14 @@ const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
 
   return (
     <Container>
-      <Header>
-        <FormattedMessage
-          defaultMessage="Portfolio Holdings"
-          description="portfolio holdings"
-        />
-      </Header>
+      <HeadingContainer>
+        <H4 sx={{ color: theme.palette.typography.light }}>
+          <FormattedMessage
+            defaultMessage="Portfolio Holdings"
+            description="portfolio holdings"
+          />
+        </H4>
+      </HeadingContainer>
 
       <Box>
         {holdings.map((holding, i) => {
@@ -67,21 +69,21 @@ const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
               }}
               tokenId={holding.tokenId}
               data={{
-                ['Market APY']: {
+                'Market APY': {
                   value:
                     typeof holding.marketApy === 'string'
                       ? holding.marketApy
                       : holding.marketApy?.data?.[0]?.displayValue,
                   description: holding.marketApy?.data?.[1]?.displayValue,
                 },
-                ['Present Value']: {
+                'Present Value': {
                   value:
                     typeof holding.presentValue === 'string'
                       ? holding.presentValue
                       : holding.presentValue?.data?.[0]?.displayValue,
                   description: holding.presentValue?.data?.[1]?.displayValue,
                 },
-                ['Total Earnings']: {
+                'Total Earnings': {
                   value:
                     typeof holding.earnings === 'string'
                       ? holding.earnings
@@ -98,11 +100,8 @@ const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
   );
 };
 
-const Header = styled(H2)(({ theme }) => ({
-  fontSize: theme.typography.pxToRem(16),
-  fontWeight: theme.typography.fontWeightMedium,
-  lineHeight: 1.4,
-  color: theme.palette.typography.light,
+const HeadingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
 }));

@@ -169,64 +169,62 @@ const PortfolioOverview = () => {
       </PortfolioPageHeader>
       <Container>
         {barChartData && barConfig && (
-          <>
-            <MultiDisplayChart
-              chartComponents={[
-                {
-                  chartHeaderTotalsData: totalsData,
-                  headerButtons: [
-                    {
-                      label: 'All',
-                      value: 'all',
-                      onClick: () => setSlot('all'),
-                    },
-                    {
-                      label: '1Y',
-                      value: '1y',
-                      onClick: () => setSlot('1y'),
-                    },
-                    {
-                      label: '3M',
-                      value: '3m',
-                      onClick: () => setSlot('3m'),
-                    },
-                    {
-                      label: '1M',
-                      value: '1m',
-                      onClick: () => setSlot('1m'),
-                    },
-                  ],
-                  id: 'apy-area-chart',
-                  title: 'APY',
-                  hideTopGridLine: false,
-                  Component: (
-                    <LineChart
-                      data={barChartData.map(
-                        ({
-                          timestamp,
-                          totalNetWorth,
-                          totalAssets,
-                          totalDebts,
-                        }) => ({
-                          date: timestamp,
-                          totalNetWorth,
-                          totalAssets,
-                          totalDebts,
-                        })
-                      )}
-                      lineConfig={barConfig}
-                      areaKey="totalNetWorth"
-                      XAxisKey="date"
-                      showYAxis={true}
-                      tickFormatter={(value) => {
-                        return getDateString(value, { hideYear: true });
-                      }}
-                    />
-                  ),
-                },
-              ]}
-            />
-          </>
+          <MultiDisplayChart
+            chartComponents={[
+              {
+                chartHeaderTotalsData: totalsData,
+                headerButtons: [
+                  {
+                    label: 'All',
+                    value: 'all',
+                    onClick: () => setSlot('all'),
+                  },
+                  {
+                    label: '1Y',
+                    value: '1y',
+                    onClick: () => setSlot('1y'),
+                  },
+                  {
+                    label: '3M',
+                    value: '3m',
+                    onClick: () => setSlot('3m'),
+                  },
+                  {
+                    label: '1M',
+                    value: '1m',
+                    onClick: () => setSlot('1m'),
+                  },
+                ],
+                id: 'apy-area-chart',
+                title: 'APY',
+                hideTopGridLine: false,
+                Component: (
+                  <LineChart
+                    data={barChartData.map(
+                      ({
+                        timestamp,
+                        totalNetWorth,
+                        totalAssets,
+                        totalDebts,
+                      }) => ({
+                        date: timestamp,
+                        totalNetWorth,
+                        totalAssets,
+                        totalDebts,
+                      })
+                    )}
+                    lineConfig={barConfig}
+                    areaKey="totalNetWorth"
+                    XAxisKey="date"
+                    showYAxis={true}
+                    tickFormatter={(value) => {
+                      return getDateString(value, { hideYear: true });
+                    }}
+                  />
+                ),
+              },
+            ]}
+          />
         )}
       </Container>
 
