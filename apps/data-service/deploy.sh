@@ -58,7 +58,7 @@ elif [ "$1" = "cron-service" ]; then
     --no-allow-unauthenticated \
     --entry-point=cronService \
     --gen2 \
-    --timeout=1200 \
+    --timeout=1800 \
     --concurrency=1 \
     --cpu=2 \
     --memory=1024 \
