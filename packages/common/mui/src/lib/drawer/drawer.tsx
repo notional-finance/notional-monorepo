@@ -52,7 +52,10 @@ export function Drawer({ children, size, sx }: DrawerProps) {
   return (
     <StyledDrawer
       sx={{
-        width,
+        width: {
+          sm: '100vw',
+          md: width,
+        },
         float: 'right',
         padding: {
           xs: theme.spacing(4, 2),

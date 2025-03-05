@@ -131,9 +131,16 @@ const Portfolio = observer(() => {
         `/portfolio/${network}/${params?.category}/${params?.sideDrawerKey}/${params?.selectedToken}/manage`
       );
     } else {
-      clearSideDrawer(
-        `/portfolio/${network}/${PORTFOLIO_CATEGORIES.DETAILS}/${params?.selectedToken}`
-      );
+      if (window.history.length > 1) {
+        navigate(-1);
+        setTimeout(() => {
+          clearSideDrawer();
+        }, 100);
+      } else {
+        clearSideDrawer(
+          `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${params?.selectedToken}`
+        );
+      }
     }
   };
 

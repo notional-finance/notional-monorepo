@@ -116,19 +116,17 @@ const PortfolioDetail: React.FC<PortfolioDetailProps> = ({
       {buttonData && (
         <ActionButtonContainer>
           {buttonData.map((button, index) => (
-            <Button
-              key={index}
-              variant="outlined"
-              color="primary"
-              onClick={
-                button.onClick ?? button.link
-                  ? () => navigate(button.link!)
-                  : undefined
-              }
-              fullWidth
-            >
-              {button.label}
-            </Button>
+            <Box sx={{ width: '100%' }}>
+              <Button
+                key={index}
+                variant="outlined"
+                color="primary"
+                to={button.link}
+                fullWidth
+              >
+                {button.label}
+              </Button>
+            </Box>
           ))}
         </ActionButtonContainer>
       )}
