@@ -168,6 +168,7 @@ declare module '@mui/material/styles' {
     shadowAccent: string;
     chartLineShadow?: string;
     shadowLarge: (color?: string) => string;
+    cardShadowLight: string;
   }
 
   interface ShapeOptions {
@@ -180,6 +181,7 @@ declare module '@mui/material/styles' {
     shadowAccent?: string;
     chartLineShadow?: string;
     shadowLarge?: (color?: string) => string;
+    cardShadowLight?: string;
   }
 
   interface Gradient {
@@ -799,6 +801,10 @@ const getThemeData = (
         themeVariant === THEME_VARIANTS.LIGHT
           ? '0px 4px 50px -10px #33f8ff'
           : '0px 4px 50px -10px #33F8FF',
+      cardShadowLight:
+        themeVariant === THEME_VARIANTS.LIGHT
+          ? '0px 4px 16px 0px #1D747766'
+          : '-2px 1px 24px 0px #14296633',
       chartLineShadow:
         themeVariant === THEME_VARIANTS.LIGHT
           ? '0px 3px 5px #1F9B99'

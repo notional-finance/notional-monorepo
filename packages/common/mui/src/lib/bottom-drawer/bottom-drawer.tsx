@@ -1,11 +1,16 @@
-import { alpha, Box, styled } from '@mui/material';
+import { alpha, Box, styled, SxProps, Theme } from '@mui/material';
 import { Drawer } from 'vaul';
 import { forwardRef, useImperativeHandle, useState } from 'react';
 
 interface BottomDrawerProps {
   children: React.ReactNode;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   title?: string;
+  open?: boolean;
+  noBackdrop?: boolean;
+  noClose?: boolean;
+  disablePreventScroll?: boolean;
+  contextSx?: SxProps<Theme> | undefined;
 }
 
 export type BottomDrawerRef = {
@@ -14,27 +19,45 @@ export type BottomDrawerRef = {
 };
 
 const BottomDrawer = forwardRef<BottomDrawerRef, BottomDrawerProps>(
-  ({ children, trigger, title }, ref) => {
-    const [open, setOpen] = useState(false);
+  (
+    {
+      children,
+      trigger,
+      title,
+      open = false,
+      noBackdrop = false,
+      noClose = false,
+      disablePreventScroll = false,
+    },
+    ref
+  ) => {
+    const [openState, setOpenState] = useState(open);
 
     useImperativeHandle(
       ref,
       () => ({
         open: () => {
-          setOpen(true);
+          setOpenState(true);
         },
         close: () => {
-          setOpen(false);
+          setOpenState(false);
         },
       }),
       []
     );
 
     return (
-      <Drawer.Root open={open} onOpenChange={setOpen}>
-        <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>
+      <Drawer.Root
+        dismissible={!noClose}
+        open={openState}
+        onOpenChange={setOpenState}
+        disablePreventScroll={disablePreventScroll}
+        fixed
+        modal={!noClose}
+      >
+        {trigger && <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>}
         <Drawer.Portal>
-          <Overlay />
+          {!noBackdrop && <Overlay />}
           <Drawer.Title>{title}</Drawer.Title>
           <DrawerContent>
             <Content>{children}</Content>
@@ -66,6 +89,7 @@ const DrawerContent = styled(Drawer.Content)(({ theme }) => ({
   zIndex: 10001,
   borderTopLeftRadius: theme.spacing(2),
   borderTopRightRadius: theme.spacing(2),
+  boxShadow: theme.shape.cardShadowLight,
 }));
 
 const Content = styled(Box)(({ theme }) => ({
