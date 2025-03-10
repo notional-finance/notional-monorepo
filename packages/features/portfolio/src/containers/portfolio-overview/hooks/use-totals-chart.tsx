@@ -18,7 +18,7 @@ import { FormattedMessage } from 'react-intl';
 export const useTotalsChart = (
   baseCurrency: FiatKeys,
   tickSize: number,
-  range: number
+  range: number | undefined
 ) => {
   const { themeVariant, isMobileView } = useAppStore();
   const network = useSelectedNetwork();
@@ -27,7 +27,7 @@ export const useTotalsChart = (
 
   const historyData = useAccountHistoryChart(
     network,
-    getNowSeconds() - range,
+    range ? getNowSeconds() - range : undefined,
     getNowSeconds(),
     tickSize
   );

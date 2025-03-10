@@ -687,7 +687,10 @@ const getThemeData = (
             : alpha(colors.neonTurquoise, 0.25),
       },
       pending: {
-        light: alpha(colors.blueAccent, 0.15),
+        light:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? alpha(colors.blueAccent, 0.15)
+            : alpha(colors.blueAccent, 0.25),
         main: colors.blueAccent,
         dark: colors.blueAccent,
         accent: colors.blueAccent,

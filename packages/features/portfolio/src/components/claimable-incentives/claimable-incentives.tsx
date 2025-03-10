@@ -37,9 +37,9 @@ export const ClaimableIncentives = () => {
         display: 'flex',
         alignItems: 'center',
         gap: theme.spacing(1),
-        padding: theme.spacing(1.5),
+        padding: theme.spacing(1),
         borderRadius: theme.spacing(6),
-        backgroundColor: theme.palette.info.light,
+        backgroundColor: theme.palette.pending.light,
       }}
     >
       <MultiTokenIcon symbols={rewardTokens} size={'medium'} shiftSize={8} />
@@ -47,7 +47,7 @@ export const ClaimableIncentives = () => {
         <FormattedMessage defaultMessage="Claimable Rewards" />
       </Body>
       <InfoTooltip
-        iconColor={theme.palette.info.dark}
+        iconColor={theme.palette.pending.main}
         iconSize={theme.spacing(2)}
         ToolTipComp={() => (
           <Box>

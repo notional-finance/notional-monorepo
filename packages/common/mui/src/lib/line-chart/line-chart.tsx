@@ -77,12 +77,12 @@ const LineChart = ({
           <linearGradient id={`color${areaKey}`} x1="0" y1="0" x2="0" y2="1">
             <stop
               offset="5%"
-              stopColor={theme.palette.primary.main}
+              stopColor={theme.palette.primary.light}
               stopOpacity={0.42}
             />
             <stop
               offset="95%"
-              stopColor={theme.palette.primary.main}
+              stopColor={theme.palette.primary.light}
               stopOpacity={0}
             />
           </linearGradient>
@@ -142,7 +142,7 @@ const LineChart = ({
         <Area
           type="monotone"
           dataKey={areaKey}
-          stroke={theme.palette.primary.main}
+          stroke={theme.palette.primary.light}
           fill={`url(#color${areaKey})`}
         />
       </AreaChart>
