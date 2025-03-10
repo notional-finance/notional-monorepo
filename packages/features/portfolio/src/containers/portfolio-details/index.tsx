@@ -27,9 +27,7 @@ const PortfolioDetails: React.FC<PortfolioDetailsProps> = ({
 
   const selectedVaultHolding = useMemo(
     () =>
-      vaultHoldingsData.find(
-        (holding) => holding.asset.symbol === selectedToken
-      ),
+      vaultHoldingsData.find((holding) => holding.tokenId === selectedToken),
     [vaultHoldingsData, selectedToken]
   );
 
