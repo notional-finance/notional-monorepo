@@ -89,6 +89,7 @@ const PortfolioHoldingsDetail: React.FC<PortfolioHoldingsDetailProps> = ({
       ]}
       buttonData={value.actionRow.buttonBarData.map((button) => ({
         label: button.buttonText,
+        link: button.link,
       }))}
     />
   );

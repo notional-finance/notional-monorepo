@@ -88,6 +88,7 @@
     "string-width": "^4.2.3",
     "tslib": "^2.7.0",
     "use-query-params": "^2.2.1",
+    "vaul": "^1.1.2",
     "yarn": "^1.22.19"
   },
   "devDependencies": {

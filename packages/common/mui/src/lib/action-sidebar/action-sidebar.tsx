@@ -10,6 +10,8 @@ import {
   HeadingSubtitle,
 } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
+import BottomDrawer from '../bottom-drawer/bottom-drawer';
+import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export interface ActionSidebarProps {
   heading:
@@ -58,6 +60,7 @@ const FormSection = styled(Box, {
   }
   ${theme.breakpoints.down('sm')} {
     margin-top: ${hideTextOnMobile ? theme.spacing(22) : '0px'};
+    margin-bottom: ${theme.spacing(20)};
   }
 `
 );
@@ -84,6 +87,7 @@ export const ActionSidebar = ({
   walletConnectedText,
 }: ActionSidebarProps) => {
   const theme = useTheme();
+  const { isMobileView } = useAppStore();
 
   return (
     <Container
@@ -147,22 +151,48 @@ export const ActionSidebar = ({
       </ActionSideBarContainer>
       <FormSection hideTextOnMobile={hideTextOnMobile} theme={theme}>
         {children}
-        {!hideActionButtons && !CustomActionButton && handleSubmit && (
-          <ActionSidebarButtons
-            canSubmit={canSubmit}
-            cancelRoute={cancelRoute}
-            onCancelCallback={onCancelCallback}
-            sticky
-            onSubmit={handleSubmit}
-          />
-        )}
-        {handleSubmit && CustomActionButton && (
-          <CustomActionButton
-            onSubmit={handleSubmit}
-            canSubmit={canSubmit}
-            walletConnectedText={walletConnectedText}
-            leverageDisabled={leverageDisabled}
-          />
+        {isMobileView ? (
+          <BottomDrawer open noBackdrop noClose disablePreventScroll>
+            <MobileContentBox>
+              {!hideActionButtons && !CustomActionButton && handleSubmit && (
+                <ActionSidebarButtons
+                  canSubmit={canSubmit}
+                  cancelRoute={cancelRoute}
+                  onCancelCallback={onCancelCallback}
+                  sticky
+                  onSubmit={handleSubmit}
+                />
+              )}
+              {handleSubmit && CustomActionButton && (
+                <CustomActionButton
+                  onSubmit={handleSubmit}
+                  canSubmit={canSubmit}
+                  walletConnectedText={walletConnectedText}
+                  leverageDisabled={leverageDisabled}
+                />
+              )}
+            </MobileContentBox>
+          </BottomDrawer>
+        ) : (
+          <>
+            {!hideActionButtons && !CustomActionButton && handleSubmit && (
+              <ActionSidebarButtons
+                canSubmit={canSubmit}
+                cancelRoute={cancelRoute}
+                onCancelCallback={onCancelCallback}
+                sticky
+                onSubmit={handleSubmit}
+              />
+            )}
+            {handleSubmit && CustomActionButton && (
+              <CustomActionButton
+                onSubmit={handleSubmit}
+                canSubmit={canSubmit}
+                walletConnectedText={walletConnectedText}
+                leverageDisabled={leverageDisabled}
+              />
+            )}
+          </>
         )}
       </FormSection>
     </Container>
@@ -197,5 +227,12 @@ const Container = styled(Box, {
   
   `
 );
+
+const MobileContentBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(2),
+}));
 
 export default ActionSidebar;

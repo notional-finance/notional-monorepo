@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box, Divider, styled } from '@mui/material';
 import {
   Body,
   Button,
@@ -19,13 +19,20 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useLiquidationRisk } from '../../portfolio-holdings/use-liquidation-risk';
+import BottomDrawer, {
+  BottomDrawerRef,
+} from '@notional-finance/mui/lib/bottom-drawer/bottom-drawer';
+import { useRef } from 'react';
+import { useReduceRiskDropdown } from '@notional-finance/portfolio-feature-shell/hooks';
 
 const PortfolioTab = ({ noRisk }: { noRisk?: boolean }) => {
+  const bottomDrawerRef = useRef<BottomDrawerRef>(null);
   const theme = useTheme();
   const network = useSelectedNetwork();
   const { baseCurrency } = useAppStore();
   const profile = usePortfolioRiskProfile(network);
   const { liquidationRiskData } = useLiquidationRisk(baseCurrency);
+  const { options } = useReduceRiskDropdown();
 
   return (
     <>
@@ -124,11 +131,47 @@ const PortfolioTab = ({ noRisk }: { noRisk?: boolean }) => {
       </Container>
 
       {!noRisk && (
-        <ActionButtonContainer>
-          <Button variant="outlined" color="primary" fullWidth>
-            <FormattedMessage defaultMessage={'Reduce Risk'} />
+        <BottomDrawer
+          ref={bottomDrawerRef}
+          trigger={
+            <ActionButtonContainer>
+              <Button variant="outlined" color="primary" fullWidth>
+                <FormattedMessage defaultMessage={'Reduce Risk'} />
+              </Button>
+            </ActionButtonContainer>
+          }
+          title="Reduce Risk"
+        >
+          {options.map((option) => (
+            <>
+              <Button
+                variant="text"
+                sx={{
+                  color: theme.palette.typography.main,
+                }}
+                fullWidth
+                onClick={() => {
+                  option.callback();
+                  bottomDrawerRef.current?.close();
+                }}
+              >
+                {option.label}
+              </Button>
+              <Divider sx={{ margin: theme.spacing(1, 0) }} />
+            </>
+          ))}
+          <Button
+            variant="text"
+            sx={{
+              color: theme.palette.typography.light,
+              height: theme.spacing(6),
+            }}
+            fullWidth
+            onClick={() => bottomDrawerRef.current?.close()}
+          >
+            <FormattedMessage defaultMessage={'Cancel'} />
           </Button>
-        </ActionButtonContainer>
+        </BottomDrawer>
       )}
     </>
   );

@@ -16,6 +16,7 @@ import {
   chartInfoBoxDataProps,
 } from '../chart-info-box/chart-info-box';
 import SimpleToggle from '../simple-toggle/simple-toggle';
+import { ChartHeaderToggles } from '../chart-header-toggles/chart-header-toggles';
 
 export interface ChartComponentsProps {
   id: string;
@@ -26,6 +27,11 @@ export interface ChartComponentsProps {
   chartInfoBoxData?: chartInfoBoxDataProps[];
   bottomLabel?: ReactNode;
   hideTopGridLine?: boolean;
+  headerButtons?: {
+    label: string;
+    value: string;
+    onClick: () => void;
+  }[];
 }
 
 export interface ChartContainerProps {
@@ -48,7 +54,9 @@ export const MultiDisplayChart = ({
   >(undefined);
 
   return (
-    <TradeSummaryBox sx={{ width: '100%', padding: theme.spacing(3) }}>
+    <TradeSummaryBox
+      sx={{ width: '100%', padding: theme.spacing(3), position: 'relative' }}
+    >
       {chartComponents.length > 1 ? (
         <>
           <Box
@@ -93,6 +101,9 @@ export const MultiDisplayChart = ({
               chartHeaderTotalsData={currentChart?.chartHeaderTotalsData}
             />
           )}
+          {currentChart?.headerButtons && (
+            <ChartHeaderToggles headerButtons={currentChart.headerButtons} />
+          )}
           <ChartContainer
             hideTopGridLine={currentChart?.hideTopGridLine}
             theme={theme}
@@ -132,6 +143,7 @@ export const ChartContainer = styled(Box, {
   .recharts-wrapper .recharts-cartesian-grid-horizontal line:last-child {
     stroke-opacity: ${hideTopGridLine ? '0 !important' : ''};
   }
+  margin-top: ${theme.spacing(6)};
 `
 );
 

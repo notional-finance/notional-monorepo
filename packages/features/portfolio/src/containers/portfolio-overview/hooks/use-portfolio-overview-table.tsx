@@ -1,5 +1,7 @@
 import {
   FiatKeys,
+  getNetworkModel,
+  PointsLinks,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -12,22 +14,45 @@ import {
   MultiRowTableData,
 } from '@notional-finance/helpers';
 import {
+  formatHealthFactorValues,
   useAppStore,
   useGroupedHoldings,
+  useLeverageBlock,
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
-import { useVaultHoldingsTable } from '../../../hooks';
 import {
   formatMaturity,
+  getDateString,
   leveragedYield,
+  Network,
+  pointsMultiple,
   PORTFOLIO_ACTIONS,
   PRIME_CASH_VAULT_MATURITY,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
-import { FormattedMessage } from 'react-intl';
+import { defineMessage, FormattedMessage } from 'react-intl';
+import { Box, Theme, useTheme } from '@mui/material';
+import {
+  Body,
+  ChevronCell,
+  DataTableColumn,
+  H4,
+  LinkText,
+  MultiValueCell,
+  MultiValueIconCell,
+} from '@notional-finance/mui';
+import {
+  TableActionRowWarning,
+  TotalEarningsTooltip,
+} from '@notional-finance/portfolio-feature-shell/components';
+import { TokenIcon } from '@notional-finance/icons';
+import { useDetailedHoldingsTable } from '../../portfolio-holdings/use-detailed-holdings';
+import { ExpandedState } from '@tanstack/react-table';
+import { useEffect, useMemo, useState } from 'react';
+import { useGroupedHoldingsTable } from '../../portfolio-holdings/use-grouped-holdings';
 
 interface OverviewTableRow {
   isTotalRow?: boolean;
@@ -612,40 +637,349 @@ function dividerRow(label: string) {
   };
 }
 
-export const usePortfolioOverviewTable = (
-  showGrouped: boolean
+function getVaultReinvestmentDate(
+  network: Network,
+  vaultAddress: string,
+  reinvestmentCadence: number
+) {
+  try {
+    const reinvestmentData =
+      getNetworkModel(network).getVaultReinvestment(vaultAddress);
+    return reinvestmentData
+      ? getDateString(reinvestmentData[0].timestamp + reinvestmentCadence)
+      : '';
+  } catch (e) {
+    return '';
+  }
+}
+
+function getSpecificVaultInfo(
+  v: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
+  baseCurrency: FiatKeys,
+  theme: Theme
 ): {
-  rows: OverviewTableRow[];
-  hasLeverage: boolean;
-  leverage: OverviewTableRow[];
-  earn: OverviewTableRow[];
-  debt: OverviewTableRow[];
-} => {
+  subRowInfo: { label: React.ReactNode; value: React.ReactNode }[];
+  totalEarnings: MultiRowTableData;
+  buttonBarData: { buttonText: React.ReactNode; link: string }[];
+  warning: TableActionRowWarning | undefined;
+  showRowWarning?: boolean;
+} {
+  const totalEarnings = formatCryptoWithFiat(baseCurrency, v.profit);
+
+  // Point Farming Vaults
+  if (v.vaultYield?.pointMultiples) {
+    const pointsLink = PointsLinks[v.network][v.vaultAddress];
+    const points = v.vaultYield?.pointMultiples;
+
+    if (typeof totalEarnings === 'object' && totalEarnings.data) {
+      totalEarnings.data[0]['toolTipContent'] = defineMessage({
+        defaultMessage:
+          'Most of the APY in this strategy is driven by points and point earnings are not shown here. Check the partner protocol dashboard to track accrued points.',
+        description: 'points tooltip',
+      });
+    }
+
+    return {
+      subRowInfo: [
+        {
+          label: <FormattedMessage defaultMessage={'Points Boost'} />,
+          value: (
+            <LinkText
+              // Make the lineHeight match H4 here
+              sx={{
+                lineHeight: `${16 * 1.4}px`,
+                ':hover': { cursor: 'pointer' },
+              }}
+              href={pointsLink}
+            >
+              {Array.from(points.keys())
+                .map(
+                  (k) =>
+                    `${pointsMultiple(
+                      points.get(k) || 0,
+                      v.leverageRatio || 0
+                    ).toFixed(2)}x ${k}`
+                )
+                .join(', ')}
+            </LinkText>
+          ),
+        },
+      ],
+      totalEarnings,
+      buttonBarData: [],
+      warning: 'pointsWarning',
+    };
+  } else if (v.vaultMetadata.rewardClaims.length > 0) {
+    // Reward Claiming Vaults
+    return {
+      subRowInfo: [
+        {
+          label: <FormattedMessage defaultMessage={'Claimable Rewards'} />,
+          value: (
+            <Box sx={{ display: 'flex', gap: theme.spacing(1) }}>
+              {v.vaultMetadata.rewardClaims.map((claim) => (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: theme.spacing(1),
+                    alignItems: 'center',
+                    marginRight: theme.spacing(1),
+                  }}
+                  key={claim.symbol}
+                >
+                  <TokenIcon symbol={claim.symbol} size={'small'} />
+                  <H4>{claim.toDisplayString(3, true, false)}</H4>
+                </Box>
+              ))}
+            </Box>
+          ),
+        },
+      ],
+      totalEarnings: {
+        data: [
+          {
+            displayValue: 'N/A',
+            textColor: theme.palette.typography.main,
+            toolTipContent: defineMessage({
+              defaultMessage:
+                'This vault requires claiming reward tokens directly. We are unable to calculate the dollar value at this time. Claim rewards in the drawer below.',
+              description: 'reward token tooltip',
+            }),
+          },
+          {
+            displayValue: '',
+          },
+        ],
+      },
+      buttonBarData: [
+        {
+          buttonText: <FormattedMessage defaultMessage={'Claim Rewards'} />,
+          link: `/vaults/${v.network}/${v.vaultAddress}/ClaimVaultRewards`,
+        },
+      ],
+      warning: undefined,
+    };
+  } else if (v.vaultMetadata.vaultType === 'SingleSidedLP_AutoReinvest') {
+    return {
+      subRowInfo: [
+        {
+          label: (
+            <FormattedMessage defaultMessage={'Time to Next Reinvestment'} />
+          ),
+          value: getVaultReinvestmentDate(
+            v.network,
+            v.vaultAddress,
+            v.vaultMetadata.reinvestmentCadence
+          ),
+        },
+      ],
+      totalEarnings,
+      buttonBarData: [],
+      warning: undefined,
+    };
+  } else if (
+    v.vaultMetadata.vaultType === 'PendlePT' &&
+    v.vaultMetadata.isExpired
+  ) {
+    return {
+      subRowInfo: [],
+      totalEarnings,
+      buttonBarData: [],
+      warning: 'pendleExpired',
+      showRowWarning: true,
+    };
+  }
+
+  return {
+    warning: undefined,
+    subRowInfo: [],
+    totalEarnings,
+    buttonBarData: [],
+  };
+}
+
+function insertDebtDivider(arr: any[]) {
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i].asset.label.includes('Borrow')) {
+      arr.splice(i, 0, {
+        asset: {
+          symbol: '',
+          symbolBottom: '',
+          label: 'DEBT POSITIONS',
+          caption: '',
+        },
+        marketApy: {
+          data: [
+            {
+              displayValue: '',
+              isNegative: false,
+            },
+          ],
+        },
+        amountPaid: '',
+        presentValue: '',
+        earnings: '',
+        toolTipData: undefined,
+        actionRow: undefined,
+        tokenId: ' ',
+        isTotalRow: true,
+        isDividerRow: true,
+      });
+      break;
+    }
+  }
+  return arr;
+}
+
+export const usePortfolioOverviewTable = (showGrouped: boolean) => {
+  const theme = useTheme();
   const { baseCurrency } = useAppStore();
   const network = useSelectedNetwork();
   const holdings = usePortfolioHoldings(network);
   const leveragedNTokenHoldings = useGroupedHoldings(network);
   // NOTE: this returns grouped holdings for vaults
-  const { vaultHoldingsData } = useVaultHoldingsTable();
   const vaults = useVaultHoldings(network);
   const pendingTokens = usePendingPnLCalculation(network)?.flatMap(
     ({ tokens }) => tokens
   );
-
-  const groupedTokens =
-    leveragedNTokenHoldings?.flatMap(({ asset, debt }) => [
-      asset.balance.tokenId,
-      debt.balance.tokenId,
-    ]) || [];
+  const { isMobileView } = useAppStore();
+  const isBlocked = useLeverageBlock();
+  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
+  const [toggleOption, setToggleOption] = useState<number>(0);
+  const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
+  const pendingTokenData = usePendingPnLCalculation(network);
+  const { detailedHoldings, totalHoldingsRow } =
+    useDetailedHoldingsTable(baseCurrency);
+  const { groupedRows, groupedTokens } = useGroupedHoldingsTable(baseCurrency);
 
   const filteredHoldings =
-    holdings?.filter((h) => !groupedTokens.includes(h.balance.tokenId)) || [];
+    holdings?.filter(
+      (h) =>
+        !(
+          leveragedNTokenHoldings?.flatMap(({ asset, debt }) => [
+            asset.balance.tokenId,
+            debt.balance.tokenId,
+          ]) || []
+        ).includes(h.balance.tokenId)
+    ) || [];
   const earn = filteredHoldings
     .filter((h) => h.balance.isPositive())
     .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
   const debt = filteredHoldings
     .filter((h) => h.balance.isNegative())
     .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
+
+  const groupedHoldings = [
+    ...groupedRows,
+    ...detailedHoldings.filter(
+      ({ tokenId }) => !groupedTokens.includes(tokenId)
+    ),
+  ];
+
+  const vaultHoldingsData =
+    vaults?.map((vaultHolding) => {
+      const {
+        vaultAddress,
+        name,
+        maturity,
+        underlying,
+        amountPaid,
+        apyData,
+        leverageRatio,
+        maxLeverageRatio,
+        totalAssets,
+        totalDebt,
+        healthFactor,
+        netWorth,
+        vaultShares,
+        vaultDebt,
+      } = vaultHolding;
+      const {
+        subRowInfo,
+        totalEarnings,
+        buttonBarData,
+        warning,
+        showRowWarning,
+      } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
+
+      const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
+        {
+          label: <FormattedMessage defaultMessage={'Borrow APY'} />,
+          value: formatNumberAsPercent(apyData?.debtAPY || 0, 2),
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Strategy APY'} />,
+          value: formatNumberAsPercent(apyData?.assetAPY || 0, 2),
+        },
+        {
+          label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+          value: (
+            <H4
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              {formatLeverageRatio(leverageRatio)}
+              <Body sx={{ marginLeft: theme.spacing(1) }}>
+                Max {formatLeverageRatio(maxLeverageRatio, 1)}
+              </Body>
+            </H4>
+          ),
+        },
+        ...subRowInfo,
+      ];
+
+      return {
+        asset: {
+          symbol: underlying,
+          symbolBottom: '',
+          label: name,
+          caption:
+            maturity === PRIME_CASH_VAULT_MATURITY
+              ? 'Open Term'
+              : `Maturity: ${formatMaturity(maturity)}`,
+        },
+        vaultAddress,
+        tokenId: vaultShares.tokenId,
+        isPending: !!pendingTokens?.find(
+          (t) => t.id === vaultShares.tokenId || t.id === vaultDebt.tokenId
+        ),
+        // Assets and debts are shown on the overview page
+        assets: formatCryptoWithFiat(baseCurrency, totalAssets),
+        debts: formatCryptoWithFiat(baseCurrency, totalDebt, {
+          isDebt: true,
+        }),
+        healthFactor: formatHealthFactorValues(healthFactor, theme),
+        presentValue: formatCryptoWithFiat(baseCurrency, netWorth),
+        totalEarnings,
+        marketApy: apyData?.totalAPY
+          ? formatNumberAsPercent(apyData.totalAPY)
+          : '',
+        amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
+        actionRow: {
+          warning,
+          showRowWarning,
+          subRowData,
+          buttonBarData: [
+            ...buttonBarData,
+            {
+              buttonText: (
+                <FormattedMessage defaultMessage={'Manage / Withdraw'} />
+              ),
+              link: `/vaults/${network}/${vaultAddress}/Manage`,
+            },
+          ],
+          txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+            {
+              txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
+              assetOrVaultId: vaultAddress,
+            }
+          )}`,
+        },
+      };
+    }) || [];
 
   let leverage: OverviewTableRow[];
   if (showGrouped) {
@@ -688,6 +1022,108 @@ export const usePortfolioOverviewTable = (
     ];
   }
 
+  const toggleData = [
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        justifyContent: 'center',
+        width: theme.spacing(11),
+      }}
+    >
+      <FormattedMessage defaultMessage="Default" />
+    </Box>,
+    <Box
+      sx={{
+        fontSize: '14px',
+        display: 'flex',
+        justifyContent: 'center',
+        width: theme.spacing(11),
+      }}
+    >
+      <FormattedMessage defaultMessage="Detailed" />
+    </Box>,
+  ];
+
+  const Columns = useMemo<DataTableColumn[]>(
+    () => [
+      {
+        header: <FormattedMessage defaultMessage="Asset" />,
+        cell: MultiValueIconCell,
+        accessorKey: 'asset',
+        textAlign: 'left',
+        expandableTable: true,
+        width: theme.spacing(37.5),
+      },
+      {
+        header: <FormattedMessage defaultMessage="Market APY" />,
+        cell: MultiValueCell,
+        accessorKey: 'marketApy',
+        fontWeightBold: true,
+        textAlign: 'right',
+        expandableTable: true,
+        width: theme.spacing(25),
+      },
+      {
+        header: <FormattedMessage defaultMessage="Amount Paid" />,
+        cell: MultiValueCell,
+        accessorKey: 'amountPaid',
+        fontWeightBold: true,
+        textAlign: 'right',
+        expandableTable: true,
+        showLoadingSpinner: true,
+      },
+      {
+        header: <FormattedMessage defaultMessage="Present Value" />,
+        cell: MultiValueCell,
+        accessorKey: 'presentValue',
+        fontWeightBold: true,
+        textAlign: 'right',
+        expandableTable: true,
+      },
+      {
+        header: <FormattedMessage defaultMessage="Total Earnings" />,
+        cell: MultiValueCell,
+        ToolTip: TotalEarningsTooltip,
+        accessorKey: 'earnings',
+        textAlign: 'right',
+        fontWeightBold: true,
+        expandableTable: true,
+        showLoadingSpinner: true,
+        showGreenText: true,
+      },
+      {
+        header: '',
+        cell: ChevronCell,
+        accessorKey: 'chevron',
+        textAlign: 'left',
+        expandableTable: true,
+      },
+    ],
+    [theme]
+  );
+
+  useEffect(() => {
+    const formattedExpandedRows = Columns.reduce(
+      (accumulator, _value, index) => {
+        return { ...accumulator, [index]: index === 0 ? true : false };
+      },
+      {}
+    );
+
+    if (
+      expandedRows === null &&
+      JSON.stringify(formattedExpandedRows) !== '{}'
+    ) {
+      setExpandedRows(formattedExpandedRows);
+    }
+  }, [expandedRows, setExpandedRows, Columns]);
+
+  const portfolioHoldingsData =
+    toggleOption === 0 && !isBlocked && groupedRows.length > 0
+      ? groupedHoldings
+      : detailedHoldings;
+
   return {
     rows: [
       ...leverage,
@@ -706,5 +1142,23 @@ export const usePortfolioOverviewTable = (
     leverage,
     earn,
     debt,
+
+    showVaultHoldingsTable: vaultHoldingsData && vaultHoldingsData.length > 0,
+    vaultHoldingsData,
+
+    portfolioHoldingsColumns: Columns,
+    toggleBarProps: {
+      toggleOption,
+      setToggleOption,
+      toggleData,
+      showToggle: !isBlocked && groupedRows.length > 0,
+    },
+    portfolioHoldingsData: [
+      ...insertDebtDivider(portfolioHoldingsData),
+      isMobileView ? undefined : totalHoldingsRow,
+    ].filter((item) => item !== undefined),
+    pendingTokenData,
+    setExpandedRows,
+    initialState,
   };
 };
