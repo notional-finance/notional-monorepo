@@ -346,6 +346,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     );
   }
 
+  override netWorth() {
+    return this.totalAssets()
+      .add(this.totalDebt())
+      .sub(this.accruedVaultFees.toToken(this.denom(this.defaultSymbol)));
+  }
+
   getAllRiskFactors() {
     return {
       netWorth: this.netWorth(),
