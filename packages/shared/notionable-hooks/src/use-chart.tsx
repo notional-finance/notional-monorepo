@@ -196,11 +196,13 @@ export function useAccountHistoryChart(
 ) {
   const account = useAccountDefinition(network);
   const { baseCurrency } = useAppStore();
-  // These are sorted ascending by default
-  const allHistoricalSnapshots = account?.historicalBalances || [];
-  const startTime = _startTime || firstValue(allHistoricalSnapshots)?.timestamp;
 
   return useMemo(() => {
+    // These are sorted ascending by default
+    const allHistoricalSnapshots = account?.historicalBalances || [];
+
+    const startTime =
+      _startTime || firstValue(allHistoricalSnapshots)?.timestamp;
     if (!account) return undefined;
     if (!startTime) return undefined;
     // Bucket the start and end time ranges
@@ -271,12 +273,5 @@ export function useAccountHistoryChart(
     } catch (e) {
       return undefined;
     }
-  }, [
-    account,
-    baseCurrency,
-    endTime,
-    tickSizeInSeconds,
-    startTime,
-    allHistoricalSnapshots,
-  ]);
+  }, [account, baseCurrency, endTime, tickSizeInSeconds, _startTime]);
 }
