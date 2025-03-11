@@ -226,9 +226,25 @@ export const AccountModel = types
         self.isContract = accountDefinition?.isContract || false;
       }
 
-      yield fetchStatements();
-      yield fetchAccountHistory();
-      yield fetchHistoryBalances();
+      // NOTE: don't allow any of these to fail and cause the account
+      // to not fully load
+      try {
+        yield fetchStatements();
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        yield fetchAccountHistory();
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        yield fetchHistoryBalances();
+      } catch (e) {
+        console.error(e);
+      }
 
       const endTime = performance.now();
       console.log(

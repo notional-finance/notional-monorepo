@@ -24,6 +24,8 @@ export interface Curve2TokenPoolV1Params {
 
 export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params> {
   public static readonly N_COINS = BigNumber.from(2);
+  // This is a non static property that can be overridden by subclasses
+  protected N_COINS = Curve2TokenPoolV1.N_COINS;
   public static readonly PRECISION = BigNumber.from(10).pow(18);
   public static readonly A_PRECISION = BigNumber.from(100);
   public static readonly FEE_DENOMINATOR = BigNumber.from(10).pow(10);
@@ -204,9 +206,9 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     let mint_amount = BigNumber.from(0);
     if (!this.totalSupply.isZero()) {
       const _fee = this.poolParams.fee
-        .mul(Curve2TokenPoolV1.N_COINS)
-        .div(BigNumber.from(4).mul(Curve2TokenPoolV1.N_COINS.sub(1)));
-      for (let i = 0; i < Curve2TokenPoolV1.N_COINS.toNumber(); i++) {
+        .mul(this.N_COINS)
+        .div(BigNumber.from(4).mul(this.N_COINS.sub(1)));
+      for (let i = 0; i < this.N_COINS.toNumber(); i++) {
         const ideal_balance = D1.mul(old_balances[i].n).div(D0);
         let difference = BigNumber.from(0);
         if (ideal_balance.gt(new_balances[i].n)) {
@@ -267,9 +269,9 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     if (token_supply.n.gt(0)) {
       //  # Only account for fees if we are not the first to deposit
       const fee = this.poolParams.fee
-        .mul(Curve2TokenPoolV1.N_COINS)
-        .div(BigNumber.from(4).mul(Curve2TokenPoolV1.N_COINS.sub(1)));
-      for (let i = 0; i < Curve2TokenPoolV1.N_COINS.toNumber(); i++) {
+        .mul(this.N_COINS)
+        .div(BigNumber.from(4).mul(this.N_COINS.sub(1)));
+      for (let i = 0; i < this.N_COINS.toNumber(); i++) {
         const ideal_balance = D1.mul(old_balances[i].n).div(D0);
         let difference = BigNumber.from(0);
         if (ideal_balance.gt(new_balances[i].n)) {
@@ -308,33 +310,29 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     if (S.isZero()) return BigNumber.from(0);
 
     let D = S;
-    const Ann = amp.mul(Curve2TokenPoolV1.N_COINS);
+    const Ann = amp.mul(this.N_COINS);
     for (let i = 0; i < 255; i++) {
       let D_P;
 
       if (this.poolParams.includeAdminBalances) {
-        D_P = D.mul(D)
-          .div(xp[0])
-          .mul(D)
-          .div(xp[1])
-          .div(Curve2TokenPoolV1.N_COINS.pow(2));
+        D_P = D.mul(D).div(xp[0]).mul(D).div(xp[1]).div(this.N_COINS.pow(2));
       } else {
         D_P = D;
         for (const _x of xp) {
-          D_P = D_P.mul(D).div(_x.mul(Curve2TokenPoolV1.N_COINS).add(1)); // +1 is to prevent /0
+          D_P = D_P.mul(D).div(_x.mul(this.N_COINS).add(1)); // +1 is to prevent /0
         }
       }
 
       Dprev = D;
       D = Ann.mul(S)
         .div(Curve2TokenPoolV1.A_PRECISION)
-        .add(D_P.mul(Curve2TokenPoolV1.N_COINS))
+        .add(D_P.mul(this.N_COINS))
         .mul(D)
         .div(
           Ann.sub(Curve2TokenPoolV1.A_PRECISION)
             .mul(D)
             .div(Curve2TokenPoolV1.A_PRECISION)
-            .add(Curve2TokenPoolV1.N_COINS.add(1).mul(D_P))
+            .add(this.N_COINS.add(1).mul(D_P))
         );
       // Equality with the precision of 1
       if (D.gt(Dprev)) {
@@ -354,25 +352,22 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
   }
 
   private _get_y_D(A_: BigNumber, i: number, xp: BigNumber[], D: BigNumber) {
-    const Ann = A_.mul(Curve2TokenPoolV1.N_COINS);
+    const Ann = A_.mul(this.N_COINS);
     let c = D;
     let S_ = BigNumber.from(0);
     let _x = BigNumber.from(0);
     let y_prev = BigNumber.from(0);
 
-    for (let _i = 0; _i < Curve2TokenPoolV1.N_COINS.toNumber(); _i++) {
+    for (let _i = 0; _i < this.N_COINS.toNumber(); _i++) {
       if (_i !== i) {
         _x = xp[_i];
       } else {
         continue;
       }
       S_ = S_.add(_x);
-      c = c.mul(D).div(_x.mul(Curve2TokenPoolV1.N_COINS));
+      c = c.mul(D).div(_x.mul(this.N_COINS));
     }
-    c = c
-      .mul(D)
-      .mul(Curve2TokenPoolV1.A_PRECISION)
-      .div(Ann.mul(Curve2TokenPoolV1.N_COINS));
+    c = c.mul(D).mul(Curve2TokenPoolV1.A_PRECISION).div(Ann.mul(this.N_COINS));
     const b = S_.add(D.mul(Curve2TokenPoolV1.A_PRECISION).div(Ann));
     let y = D;
 
@@ -399,13 +394,13 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
 
     const amp = this.poolParams.A;
     const D = this._get_D(xp, amp);
-    const Ann = amp.mul(Curve2TokenPoolV1.N_COINS);
+    const Ann = amp.mul(this.N_COINS);
     let c = D;
     let S_ = BigNumber.from(0);
     let _x = BigNumber.from(0);
     let y_prev = BigNumber.from(0);
 
-    for (let _i = 0; _i < Curve2TokenPoolV1.N_COINS.toNumber(); _i++) {
+    for (let _i = 0; _i < this.N_COINS.toNumber(); _i++) {
       if (_i === i) {
         _x = x;
       } else if (_i !== j) {
@@ -414,13 +409,10 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
         continue;
       }
       S_ = S_.add(_x);
-      c = c.mul(D).div(_x.mul(Curve2TokenPoolV1.N_COINS));
+      c = c.mul(D).div(_x.mul(this.N_COINS));
     }
 
-    c = c
-      .mul(D)
-      .mul(Curve2TokenPoolV1.A_PRECISION)
-      .div(Ann.mul(Curve2TokenPoolV1.N_COINS));
+    c = c.mul(D).mul(Curve2TokenPoolV1.A_PRECISION).div(Ann.mul(this.N_COINS));
     const b = S_.add(D.mul(Curve2TokenPoolV1.A_PRECISION).div(Ann)); // - D
     let y = D;
 
@@ -466,12 +458,10 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     const new_y = this._get_y_D(amp, i, xp, D1);
 
     const fee = this.poolParams.fee
-      .mul(Curve2TokenPoolV1.N_COINS)
-      .div(
-        BigNumber.from(4).mul(Curve2TokenPoolV1.N_COINS.sub(BigNumber.from(1)))
-      );
+      .mul(this.N_COINS)
+      .div(BigNumber.from(4).mul(this.N_COINS.sub(BigNumber.from(1))));
     const xp_reduced = [BigNumber.from(0), BigNumber.from(0)];
-    for (let j = 0; j < Curve2TokenPoolV1.N_COINS.toNumber(); j++) {
+    for (let j = 0; j < this.N_COINS.toNumber(); j++) {
       let dx_expected = BigNumber.from(0);
       const xp_j = xp[j];
       if (j === i) {
@@ -544,7 +534,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     } else {
       const totalSupply = this.totalSupply;
 
-      for (let i = 0; i < Curve2TokenPoolV1.N_COINS.toNumber(); i++) {
+      for (let i = 0; i < this.N_COINS.toNumber(); i++) {
         tokensOut[i] = this.balances[i].scale(lpTokens, totalSupply);
       }
     }
@@ -644,6 +634,7 @@ export class Curve2TokenPoolV1_HasOracle extends Curve2TokenPoolV1 {
 }
 export class Curve3Pool extends Curve2TokenPoolV1 {
   public static override readonly N_COINS = BigNumber.from(3);
+  protected override readonly N_COINS = BigNumber.from(3);
   public static override readonly INCLUDE_ADMIN_BALANCES = false;
   public static override readonly LP_TOKEN_ADDRESS =
     registerTokensMap[Network.mainnet]['3PoolLP'];

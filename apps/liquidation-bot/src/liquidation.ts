@@ -331,6 +331,22 @@ export default class Liquidation {
             ],
             key: `${key}:collateralReceivedAmount`,
           },
+          {
+            stage: 1,
+            target: notional,
+            method: 'convertNTokenToUnderlying',
+            args: (r) => [
+              this.collateralCurrencyId,
+              (
+                r[`${key}:pCashLoanAmount`] as Awaited<
+                  ReturnType<
+                    typeof notional.calculateCollateralCurrencyLiquidation
+                  >
+                >
+              )[2] || 0,
+            ],
+            key: `${key}:nTokenUnderlyingReceivedAmount`,
+          },
         ];
       }
       case LiquidationType.LOCAL_FCASH: {

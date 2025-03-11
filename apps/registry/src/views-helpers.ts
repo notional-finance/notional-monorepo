@@ -13,10 +13,12 @@ async function fetchDBView(env: BaseDOEnv, network: Network, name: string) {
         },
       }
     );
-    const data = await result.json();
     if (result.status !== 200)
-      throw Error(`Failed Request: ${network}/${name}`);
+      throw Error(
+        `Failed Request: ${env.DATA_SERVICE_URL}/query?network=${network}&view=${name}`
+      );
 
+    const data = await result.json();
     const key = `${network}/views/${name}`;
     return putStorageKey(env, key, JSON.stringify(data));
   } catch (e) {
