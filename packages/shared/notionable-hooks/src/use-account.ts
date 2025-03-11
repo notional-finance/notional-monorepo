@@ -67,11 +67,6 @@ export function useAccountReady(network: Network | undefined) {
   return useAccountDefinition(network) !== undefined;
 }
 
-export function useAccountAndBalanceReady(network: Network | undefined) {
-  const account = useAccountDefinition(network);
-  return !!account?.balances.find((b) => !!b.token.currencyId && !b.isZero());
-}
-
 export function useAccountLoading() {
   const walletStore = useWalletStore();
   return walletStore.isAccountPending;

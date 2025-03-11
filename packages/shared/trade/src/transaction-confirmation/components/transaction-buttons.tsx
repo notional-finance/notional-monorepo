@@ -4,8 +4,11 @@ import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { DiscordIcon } from '@notional-finance/icons';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
-import { useLocation } from 'react-router';
-import { Network, TransactionStatus } from '@notional-finance/util';
+import {
+  Network,
+  PORTFOLIO_CATEGORIES,
+  TransactionStatus,
+} from '@notional-finance/util';
 
 const ButtonContainer = styled(Box)(
   ({ theme }) => `
@@ -49,11 +52,7 @@ export const TransactionButtons = ({
 }: TransactionButtonsProps) => {
   const theme = useTheme();
   const { clearSideDrawer } = useSideDrawerManager();
-  const { pathname } = useLocation();
-  const portfolioLink =
-    pathname.includes('vaults') && network
-      ? `/portfolio/${network}/vaults`
-      : `/portfolio/${network}/holdings`;
+  const portfolioLink = `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`;
 
   switch (transactionStatus) {
     case TransactionStatus.SUBMITTED:

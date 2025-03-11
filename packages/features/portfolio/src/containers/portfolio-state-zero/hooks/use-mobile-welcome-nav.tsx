@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import {
-  useAccountAndBalanceReady,
+  useAccountReady,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 
@@ -27,10 +27,10 @@ export const useMobileWelcomeNav = () => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
   const { sideDrawerKey } = useParams<PortfolioParams>();
-  const isAcctAndBalanceReady = useAccountAndBalanceReady(selectedNetwork);
+  const isAccountReady = useAccountReady(selectedNetwork);
 
   const options = [
-    ...(isAcctAndBalanceReady
+    ...(isAccountReady
       ? [
           {
             title: <FormattedMessage defaultMessage={'Portfolio'} />,

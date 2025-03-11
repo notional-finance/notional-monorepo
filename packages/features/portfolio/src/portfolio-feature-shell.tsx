@@ -3,7 +3,6 @@ import { Box, styled, useTheme } from '@mui/material';
 import {
   useAccountLoading,
   useAccountReady,
-  useAccountAndBalanceReady,
   useSelectedNetwork,
   useAppStore,
   useWalletConnected,
@@ -76,7 +75,6 @@ const Portfolio = observer(() => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
-  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   const isWalletConnected = useWalletConnected();
@@ -155,7 +153,7 @@ const Portfolio = observer(() => {
     );
   };
 
-  return isAcctAndBalanceReady ? (
+  return isAccountReady ? (
     <PortfolioContainer>
       <SideDrawer
         callback={handleDrawer}
