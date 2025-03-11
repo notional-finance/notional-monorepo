@@ -160,7 +160,7 @@ export const TradeModel = types
     selectedToken: types.optional(types.maybe(types.string), undefined),
     /** Address of the vault, if any */
     vaultAddress: types.optional(types.maybe(types.string), undefined),
-    /** NOTE: this is currently unused throughout the site */
+    /** This is set to true if the account is a contract */
     redeemToWETH: types.optional(types.boolean, false),
     /** Signals that the input is a max withdraw or max repayment */
     maxWithdraw: types.optional(types.boolean, false),
@@ -649,6 +649,9 @@ export const TradeModel = types
       }
 
       setInitialComputedOptions();
+
+      self.redeemToWETH =
+        root().getNetworkAccount(self.selectedNetwork)?.isContract || false;
 
       console.log(
         'trade model afterAttach',

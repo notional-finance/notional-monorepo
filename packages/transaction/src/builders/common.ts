@@ -232,7 +232,7 @@ export function getBalanceAction(
   withdrawAmount: TokenBalance | undefined,
   redeemToWETH: boolean
 ): BalanceActionStruct {
-  if (redeemToWETH && amount.token.symbol !== 'ETH') {
+  if (redeemToWETH && amount.underlying.symbol !== 'ETH') {
     throw Error('Cannot redeem to WETH');
   }
 
