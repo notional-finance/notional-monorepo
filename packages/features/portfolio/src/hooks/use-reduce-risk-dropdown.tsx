@@ -1,5 +1,8 @@
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
+import {
+  PORTFOLIO_ACTIONS,
+  PORTFOLIO_CATEGORIES,
+} from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SimpleOptionProps } from '@notional-finance/mui';
@@ -30,7 +33,7 @@ export const useReduceRiskDropdown = () => {
       label: <FormattedMessage defaultMessage={'Repay Debt'} />,
       callback: () => {
         navigate(
-          `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${debtData[0].maturedTokenId}`
+          `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${debtData[0].maturedTokenId}`
         );
       },
     });

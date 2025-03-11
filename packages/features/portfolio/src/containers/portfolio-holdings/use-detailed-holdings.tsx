@@ -12,7 +12,11 @@ import {
   useSelectedNetwork,
   useTotalPortfolioHoldings,
 } from '@notional-finance/notionable-hooks';
-import { PORTFOLIO_ACTIONS, TXN_HISTORY_TYPE } from '@notional-finance/util';
+import {
+  PORTFOLIO_ACTIONS,
+  PORTFOLIO_CATEGORIES,
+  TXN_HISTORY_TYPE,
+} from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
@@ -90,15 +94,15 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
             buttonBarData.push({
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               link: b.isPositive()
-                ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
-                : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`,
+                ? `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
+                : `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`,
             });
           }
 
           if (b.isPositive()) {
             buttonBarData.push({
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
-              link: `/portfolio/${network}/holdings/${
+              link: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${
                 PORTFOLIO_ACTIONS.WITHDRAW
               }/${maturedTokenId}${
                 isHighUtilization ? `?warning=${isHighUtilization}` : ''
@@ -107,7 +111,7 @@ export function useDetailedHoldingsTable(baseCurrency: FiatKeys) {
           } else {
             buttonBarData.push({
               buttonText: <FormattedMessage defaultMessage={'Repay'} />,
-              link: `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`,
+              link: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`,
             });
           }
 

@@ -140,9 +140,7 @@ export const TransactionConfirmation = observer(
         )}
         {(transactionStatus === TransactionStatus.REVERT ||
           p.transactionError) && (
-          <Box
-            sx={{ height: theme.spacing(8), marginBottom: theme.spacing(6) }}
-          >
+          <Box sx={{ marginBottom: theme.spacing(6) }}>
             <ErrorMessage
               variant="error"
               marginBottom
@@ -170,6 +168,22 @@ export const TransactionConfirmation = observer(
           p.transactionError === undefined && (
             <PortfolioCompare populatedTransaction={p.populatedTransaction} />
           )}
+        {trade?.redeemToWETH && (
+          <Box sx={{ marginBottom: theme.spacing(6) }}>
+            <ErrorMessage
+              variant="info"
+              marginBottom
+              title={<FormattedMessage defaultMessage={'WETH Withdraw'} />}
+              message={
+                <FormattedMessage
+                  defaultMessage={
+                    'ETH will be wrapped to WETH before being sent to your wallet.'
+                  }
+                />
+              }
+            />
+          </Box>
+        )}
         <TransactionButtons
           network={selectedNetwork}
           transactionStatus={

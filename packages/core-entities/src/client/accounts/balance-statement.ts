@@ -61,7 +61,9 @@ export async function fetchHistoricalBalances(
         }) || [];
 
       return {
-        [account]: snapshots.concat(current),
+        [account]: snapshots
+          .concat(current)
+          .sort((a, b) => a.timestamp - b.timestamp),
       };
     },
     subgraphApiKey,

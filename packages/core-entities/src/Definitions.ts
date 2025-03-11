@@ -183,6 +183,8 @@ export interface AccountDefinition {
   address: string;
   /** Network this account definition is associated with */
   network: Network;
+  /** If the account is a contract */
+  isContract: boolean;
   /** Balances may include external wallet balances */
   balances: TokenBalance[];
   /** If prime borrows are enabled */

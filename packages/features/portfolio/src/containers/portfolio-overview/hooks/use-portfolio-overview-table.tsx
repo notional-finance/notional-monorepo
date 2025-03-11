@@ -30,6 +30,7 @@ import {
   Network,
   pointsMultiple,
   PORTFOLIO_ACTIONS,
+  PORTFOLIO_CATEGORIES,
   PRIME_CASH_VAULT_MATURITY,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
@@ -141,15 +142,15 @@ function formatPortfolioHoldings(
     buttonBarData.push({
       buttonText: <FormattedMessage defaultMessage={'Manage'} />,
       link: balance.isPositive()
-        ? `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
-        : `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`,
+        ? `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}/manage`
+        : `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}/manage`,
     });
   }
 
   if (balance.isPositive()) {
     buttonBarData.push({
       buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
-      link: `/portfolio/${network}/holdings/${
+      link: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${
         PORTFOLIO_ACTIONS.WITHDRAW
       }/${maturedTokenId}${
         isHighUtilization ? `?warning=${isHighUtilization}` : ''
@@ -158,7 +159,7 @@ function formatPortfolioHoldings(
   } else {
     buttonBarData.push({
       buttonText: <FormattedMessage defaultMessage={'Repay'} />,
-      link: `/portfolio/${network}/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`,
+      link: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`,
     });
   }
 
@@ -917,7 +918,7 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
             <H4
               sx={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'baseline',
                 justifyContent: 'space-between',
               }}
             >
