@@ -22,8 +22,7 @@ export const useTotalsChart = (
 ) => {
   const { themeVariant, isMobileView } = useAppStore();
   const network = useSelectedNetwork();
-  const { currentAPY, netWorth, debts, assets } =
-    useAccountCurrentFactors(network);
+  const currentFactors = useAccountCurrentFactors(network);
 
   const historyData = useAccountHistoryChart(
     network,
@@ -56,11 +55,13 @@ export const useTotalsChart = (
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: netWorth?.toDisplayStringWithSymbol(2, true, false) ?? '0',
+      value:
+        currentFactors?.netWorth?.toDisplayStringWithSymbol(2, true, false) ??
+        '0',
     },
   ];
 
-  if (debts?.isNegative() && !isMobileView) {
+  if (currentFactors?.debts?.isNegative() && !isMobileView) {
     barConfig.push(
       {
         dataKey: 'totalAssets',
@@ -74,7 +75,9 @@ export const useTotalsChart = (
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: assets?.toDisplayStringWithSymbol(2, true, false) ?? '0',
+        value:
+          currentFactors?.assets?.toDisplayStringWithSymbol(2, true, false) ??
+          '0',
       },
       {
         dataKey: 'totalDebts',
@@ -88,12 +91,15 @@ export const useTotalsChart = (
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: debts?.abs().toDisplayStringWithSymbol(2, true, false) ?? '0',
+        value:
+          currentFactors?.debts
+            ?.abs()
+            .toDisplayStringWithSymbol(2, true, false) ?? '0',
       }
     );
   }
 
-  if (currentAPY) {
+  if (currentFactors?.currentAPY) {
     barConfig.push({
       dataKey: 'currentApy',
       title: <FormattedMessage defaultMessage="Current APY" />,
@@ -103,11 +109,13 @@ export const useTotalsChart = (
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: formatNumberAsPercent(currentAPY),
+      value: formatNumberAsPercent(currentFactors?.currentAPY),
     });
   }
 
-  const hasData = historyData?.find(({ netWorth }) => netWorth.toFloat() > 0);
+  const hasData =
+    historyData?.find(({ netWorth }) => netWorth.toFloat() > 0) &&
+    currentFactors;
 
   const totalsData = barConfig.map((data) => {
     return {
@@ -119,9 +127,9 @@ export const useTotalsChart = (
   }) as ChartHeaderTotalsDataProps[];
 
   return {
-    barChartData: hasData ? barChartData : [],
-    barConfig,
-    totalsData,
+    barChartData: hasData ? barChartData : undefined,
+    barConfig: hasData ? barConfig : undefined,
+    totalsData: hasData ? totalsData : undefined,
   };
 };
 

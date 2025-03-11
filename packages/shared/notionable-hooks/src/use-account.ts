@@ -137,15 +137,7 @@ export function usePortfolioLiquidationPrices(network: Network | undefined) {
 }
 
 export function useAccountCurrentFactors(network: Network | undefined) {
-  const fiatToken = useFiatToken();
-  const emptyFactors = {
-    currentAPY: undefined,
-    netWorth: TokenBalance.zero(fiatToken),
-    debts: TokenBalance.zero(fiatToken),
-    assets: TokenBalance.zero(fiatToken),
-  };
-
-  return useNetworkAccounts(network)?.currentFactors || emptyFactors;
+  return useNetworkAccounts(network)?.currentFactors;
 }
 
 export function useAccountNetWorth() {
