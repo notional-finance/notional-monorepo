@@ -917,7 +917,7 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
             <H4
               sx={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'baseline',
                 justifyContent: 'space-between',
               }}
             >
