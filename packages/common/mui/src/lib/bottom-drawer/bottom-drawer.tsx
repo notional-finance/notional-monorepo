@@ -5,7 +5,6 @@ import { forwardRef, useImperativeHandle, useState } from 'react';
 interface BottomDrawerProps {
   children: React.ReactNode;
   trigger?: React.ReactNode;
-  title?: string;
   open?: boolean;
   noBackdrop?: boolean;
   noClose?: boolean;
@@ -23,7 +22,6 @@ const BottomDrawer = forwardRef<BottomDrawerRef, BottomDrawerProps>(
     {
       children,
       trigger,
-      title,
       open = false,
       noBackdrop = false,
       noClose = false,
@@ -58,7 +56,6 @@ const BottomDrawer = forwardRef<BottomDrawerRef, BottomDrawerProps>(
         {trigger && <Drawer.Trigger asChild>{trigger}</Drawer.Trigger>}
         <Drawer.Portal>
           {!noBackdrop && <Overlay />}
-          <Drawer.Title>{title}</Drawer.Title>
           <DrawerContent>
             <Content>{children}</Content>
           </DrawerContent>
@@ -80,8 +77,9 @@ const Overlay = styled(Drawer.Overlay)(({ theme }) => ({
 const DrawerContent = styled(Drawer.Content)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   height: 'fit-content',
-  position: 'sticky',
+  position: 'fixed',
   inset: 0,
+  top: 'auto',
   bottom: 0,
   left: 0,
   right: 0,

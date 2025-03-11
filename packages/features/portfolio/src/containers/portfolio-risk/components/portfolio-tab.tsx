@@ -140,7 +140,6 @@ const PortfolioTab = ({ noRisk }: { noRisk?: boolean }) => {
               </Button>
             </ActionButtonContainer>
           }
-          title="Reduce Risk"
         >
           {options.map((option) => (
             <>
