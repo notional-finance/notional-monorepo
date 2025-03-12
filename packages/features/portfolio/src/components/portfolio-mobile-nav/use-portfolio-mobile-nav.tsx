@@ -1,13 +1,13 @@
 import {
   PORTFOLIO_CATEGORIES,
   PORTFOLIO_ACTIONS,
+  PORTFOLIO_CONNECTED_WALLET,
 } from '@notional-finance/util';
 import {
-  BarChartIcon,
   FourSquareIcon,
-  StakeIcon,
-  VaultIcon,
-  HistoryIcon,
+  HistoryTabIcon,
+  PercentIcon,
+  GaugeIcon,
 } from '@notional-finance/icons';
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
@@ -15,13 +15,8 @@ import { FormattedMessage } from 'react-intl';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams extends Record<string, string | undefined> {
-  category?: PORTFOLIO_CATEGORIES;
+  category?: PORTFOLIO_CATEGORIES | PORTFOLIO_CONNECTED_WALLET;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
-}
-
-export enum NAV_OPTIONS {
-  SET_ONE = 'set_one',
-  SET_TWO = 'set_two',
 }
 
 export const usePortfolioMobileNav = () => {
@@ -31,66 +26,34 @@ export const usePortfolioMobileNav = () => {
 
   const options = [
     {
-      title: <FormattedMessage defaultMessage={'Overview'} />,
+      title: <FormattedMessage defaultMessage={'Portfolio'} />,
       id: PORTFOLIO_CATEGORIES.OVERVIEW,
       to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
       Icon: (
         <FourSquareIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
               category === PORTFOLIO_CATEGORIES.OVERVIEW
-                ? theme.palette.typography.main
+                ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
           }}
         />
       ),
     },
+
     {
-      title: <FormattedMessage defaultMessage={'Holdings'} />,
-      id: PORTFOLIO_CATEGORIES.HOLDINGS,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
+      title: <FormattedMessage defaultMessage={'Risk'} />,
+      id: PORTFOLIO_CONNECTED_WALLET.RISK,
+      to: `/portfolio/${network}/${PORTFOLIO_CONNECTED_WALLET.RISK}`,
       Icon: (
-        <BarChartIcon
+        <GaugeIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
-              category === PORTFOLIO_CATEGORIES.HOLDINGS
-                ? theme.palette.typography.main
+              category === PORTFOLIO_CONNECTED_WALLET.RISK
+                ? theme.palette.typography.contrastText
                 : theme.palette.typography.light,
-          }}
-        />
-      ),
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Vaults'} />,
-      id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
-      Icon: (
-        <VaultIcon
-          sx={{
-            width: theme.spacing(2),
-            fill:
-              category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS
-                ? theme.palette.typography.main
-                : theme.palette.typography.light,
-          }}
-        />
-      ),
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Stake'} />,
-      id: PORTFOLIO_CATEGORIES.NOTE_STAKING,
-      to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.NOTE_STAKING}`,
-      Icon: (
-        <StakeIcon
-          fill={
-            category === PORTFOLIO_CATEGORIES.NOTE_STAKING
-              ? theme.palette.typography.main
-              : theme.palette.typography.light
-          }
-          sx={{
-            width: theme.spacing(2),
           }}
         />
       ),
@@ -100,13 +63,34 @@ export const usePortfolioMobileNav = () => {
       id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
       to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
       Icon: (
-        <HistoryIcon
+        <HistoryTabIcon
           sx={{
-            width: theme.spacing(2),
+            width: theme.spacing(3),
             fill:
               category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY
-                ? theme.palette.typography.main
+                ? theme.palette.typography.white
                 : theme.palette.typography.light,
+          }}
+        />
+      ),
+    },
+
+    {
+      title: <FormattedMessage defaultMessage={'Rates'} />,
+      id: PORTFOLIO_CONNECTED_WALLET.RATES,
+      to: `/portfolio/${network}/welcome/earn`,
+      Icon: (
+        <PercentIcon
+          sx={{
+            width: theme.spacing(3),
+            stroke:
+              category === PORTFOLIO_CONNECTED_WALLET.RATES
+                ? theme.palette.typography.contrastText
+                : theme.palette.typography.light,
+            fill:
+              category === PORTFOLIO_CONNECTED_WALLET.RATES
+                ? theme.palette.primary.dark
+                : theme.palette.typography.white,
           }}
         />
       ),

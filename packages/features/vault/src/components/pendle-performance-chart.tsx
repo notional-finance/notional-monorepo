@@ -28,6 +28,7 @@ import {
   useAssetPriceHistory,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
+import { useParams } from 'react-router-dom';
 
 const usePendlePerformanceChart = () => {
   const trade = useCurrentTradeContext();
@@ -36,6 +37,7 @@ const usePendlePerformanceChart = () => {
     trade?.computedOptions ?? {};
   const vaultAddress = trade?.vaultAddress;
   const selectedLeverageRatio = trade?.leverageRatio;
+  const { action } = useParams<{ action: string }>();
 
   const {
     priorBorrowRate,
@@ -87,7 +89,8 @@ const usePendlePerformanceChart = () => {
 
   const currentBorrowRate =
     debtOptions?.find(
-      (t) => t.token.id === debt?.id
+      // On the manage screen use the prior borrow rate instead
+      (t) => t.token.id === debt?.id && action !== 'Manage'
       // Allow the historical vault borrow rate to be applied here
     )?.interestRate ||
     priorBorrowRate ||

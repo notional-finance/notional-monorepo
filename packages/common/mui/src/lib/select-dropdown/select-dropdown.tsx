@@ -33,12 +33,12 @@ const StyledMenu = styled(MenuList)(
 );
 
 const StyledPopper = styled(`div`)(`
-  z-index: 99;
+  z-index: 1201;
 `);
 
 const ScrollPopper = styled(`div`)(
   ({ theme }) => `
-  z-index: 99;
+  z-index: 1201;
   height: ${theme.spacing(41)};
   overflow-y: scroll;
   overflow-x: hidden;

@@ -7,13 +7,6 @@ export const messages: Record<
   PORTFOLIO_ACTIONS | 'nTokenHighUtilization' | 'fCashHighUtilization',
   PortfolioMessages
 > = {
-  [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: defineMessages({
-    heading: { defaultMessage: 'Add to Calendar', description: '' },
-    helptext: {
-      defaultMessage: 'Not applicable',
-      description: '',
-    },
-  }),
   [PORTFOLIO_ACTIONS.DEPOSIT]: defineMessages({
     heading: { defaultMessage: 'Deposit Collateral', description: '' },
     helptext: {

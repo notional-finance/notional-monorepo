@@ -132,6 +132,7 @@ export const AccountModel = types
     systemAccountType: types.optional(NotionalTypes.SystemAccount, 'None'),
     balances: types.optional(types.array(NotionalTypes.TokenBalance), []),
     allowPrimeBorrow: types.maybe(types.boolean),
+    isContract: types.maybe(types.boolean),
     vaultLastUpdateTime: types.optional(types.map(types.number), {}),
     rewardClaims: types.optional(
       types.map(types.array(NotionalTypes.TokenBalance)),
@@ -222,6 +223,7 @@ export const AccountModel = types
           self.rewardClaims.replace(accountDefinition.rewardClaims);
         }
         self.lastUpdateTimestamp = result.lastUpdateTimestamp;
+        self.isContract = accountDefinition?.isContract || false;
       }
 
       // NOTE: don't allow any of these to fail and cause the account

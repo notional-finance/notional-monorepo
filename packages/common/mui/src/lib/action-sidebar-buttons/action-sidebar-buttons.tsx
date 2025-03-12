@@ -26,6 +26,8 @@ const Container = styled(Box, {
     box-shadow: none;
     position: relative;
     background: transparent;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 `
 );
@@ -53,14 +55,8 @@ export const ActionSidebarButtons = ({
     <Container sticky={sticky} theme={theme}>
       {CustomActionButton && <CustomActionButton canSubmit={canSubmit} />}
       {!CustomActionButton && (
-        <Box
-          sx={{
-            width: '100%',
-            display: 'inline-flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Box onClick={onCancelCallback} sx={{ width: '48%' }}>
+        <ActionSidebarButtonsContainer>
+          <Box onClick={onCancelCallback} sx={{ flex: 1 }}>
             <Button
               variant="outlined"
               size="large"
@@ -73,7 +69,7 @@ export const ActionSidebarButtons = ({
               />
             </Button>
           </Box>
-          <Box sx={{ width: '48%' }}>
+          <Box sx={{ flex: 1 }}>
             <Button
               variant="contained"
               disabled={!canSubmit}
@@ -87,10 +83,23 @@ export const ActionSidebarButtons = ({
               />
             </Button>
           </Box>
-        </Box>
+        </ActionSidebarButtonsContainer>
       )}
     </Container>
   );
 };
+
+const ActionSidebarButtonsContainer = styled(Box)(
+  ({ theme }: ContainerProps) => ({
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(2),
+    justifyContent: 'space-between',
+    width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column-reverse',
+    },
+  })
+);
 
 export default ActionSidebarButtons;

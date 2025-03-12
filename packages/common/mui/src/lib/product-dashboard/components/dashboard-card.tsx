@@ -102,7 +102,7 @@ export const DashboardCard = ({
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <TokenIcon
               symbol={symbol}
-              size="xl"
+              size="xxl"
               style={{ marginRight: theme.spacing(2) }}
               network={network}
             />
@@ -163,7 +163,7 @@ export const DashboardCard = ({
               }}
             >
               {isMobile ? (
-                formatNumberAsPercent(apy, 0) + ' APY'
+                formatNumberAsPercent(apy, 2) + ' APY'
               ) : vaultUtilization !== undefined ? (
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <MultiTokenIcon

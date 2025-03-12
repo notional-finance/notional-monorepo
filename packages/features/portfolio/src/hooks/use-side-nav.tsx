@@ -3,25 +3,19 @@ import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import {
-  BarChartIcon,
   FourSquareIcon,
   StakeIcon,
-  VaultIcon,
   HistoryIcon,
+  GaugeIcon,
+  PercentIcon,
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../portfolio-feature-shell';
-import {
-  usePortfolioHoldings,
-  useSelectedNetwork,
-  useVaultHoldings,
-} from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
   const network = useSelectedNetwork();
-  const numHoldings = usePortfolioHoldings(network)?.length || 0;
-  const numVaults = useVaultHoldings(network)?.length || 0;
 
   const sideNavOptions = useMemo(() => {
     return [
@@ -42,26 +36,20 @@ export const useSideNav = () => {
         notifications: 0,
       },
       {
-        Icon: <BarChartIcon sx={{ width: theme.spacing(3) }} />,
-        id: PORTFOLIO_CATEGORIES.HOLDINGS,
-        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
-        notifications: numHoldings,
-      },
-      {
         Icon: (
-          <VaultIcon
+          <GaugeIcon
             sx={{
               width: theme.spacing(3),
               fill:
-                category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS
+                category === PORTFOLIO_CATEGORIES.RISK
                   ? theme.palette.common.white
                   : theme.palette.typography.light,
             }}
           />
         ),
-        id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
-        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
-        notifications: numVaults,
+        id: PORTFOLIO_CATEGORIES.RISK,
+        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.RISK}`,
+        notifications: 0,
       },
       {
         Icon: (
@@ -88,16 +76,21 @@ export const useSideNav = () => {
       },
       {
         Icon: (
-          <span role="img" aria-label="wave" style={{ fontSize: '24px' }}>
-            👋
-          </span>
+          <PercentIcon
+            stroke={
+              category === PORTFOLIO_CATEGORIES.WELCOME
+                ? theme.palette.common.white
+                : theme.palette.typography.light
+            }
+            sx={{ width: theme.spacing(3) }}
+          />
         ),
         id: PORTFOLIO_CATEGORIES.WELCOME,
         to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}`,
         notifications: 0,
       },
     ];
-  }, [numHoldings, numVaults, category, theme, network]);
+  }, [category, theme, network]);
 
   return { sideNavOptions };
 };

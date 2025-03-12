@@ -3,7 +3,6 @@ import { Box, styled, useTheme } from '@mui/material';
 import {
   useAccountLoading,
   useAccountReady,
-  useAccountAndBalanceReady,
   useSelectedNetwork,
   useAppStore,
   useWalletConnected,
@@ -19,10 +18,8 @@ import { usePortfolioNOTETable, usePortfolioSideDrawers } from './hooks';
 import { SideNav, PortfolioMobileNav, EmptyPortfolio } from './components';
 import {
   PortfolioOverview,
-  PortfolioVaults,
   PortfolioTransactionHistory,
   PortfolioStateZero,
-  PortfolioHoldings,
   PortfolioNoteStaking,
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
@@ -33,6 +30,8 @@ import {
 import { defineMessage } from 'react-intl';
 import { observer } from 'mobx-react-lite';
 import { MobileFooter } from '@notional-finance/shared-web';
+import PortfolioDetails from './containers/portfolio-details';
+import PortfolioRisk from './containers/portfolio-risk';
 export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
@@ -76,7 +75,6 @@ const Portfolio = observer(() => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
-  const isAcctAndBalanceReady = useAccountAndBalanceReady(network);
   const { hasNoteOrSNote } = usePortfolioNOTETable();
 
   const isWalletConnected = useWalletConnected();
@@ -109,17 +107,38 @@ const Portfolio = observer(() => {
     window.scrollTo(0, 0);
   }, [params.category]);
 
+  useEffect(() => {
+    if (
+      params.category &&
+      params.category !== PORTFOLIO_CATEGORIES.WELCOME &&
+      params.category !== PORTFOLIO_CATEGORIES.DETAILS
+    ) {
+      clearSideDrawer(
+        `/portfolio/${network}/${
+          params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
+        }`
+      );
+    }
+    // NOTE: this must only run once on component mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleDrawer = () => {
     if (pathname.includes('convertTo')) {
       navigate(
         `/portfolio/${network}/${params?.category}/${params?.sideDrawerKey}/${params?.selectedToken}/manage`
       );
     } else {
-      clearSideDrawer(
-        `/portfolio/${network}/${
-          params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
-        }`
-      );
+      if (window.history.length > 1) {
+        navigate(-1);
+        setTimeout(() => {
+          clearSideDrawer();
+        }, 100);
+      } else {
+        clearSideDrawer(
+          `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${params?.selectedToken}`
+        );
+      }
     }
   };
 
@@ -134,7 +153,7 @@ const Portfolio = observer(() => {
     );
   };
 
-  return isAcctAndBalanceReady ? (
+  return isAccountReady ? (
     <PortfolioContainer>
       <SideDrawer
         callback={handleDrawer}
@@ -147,28 +166,30 @@ const Portfolio = observer(() => {
       <PortfolioSidebar>
         <SideNav />
       </PortfolioSidebar>
-      {params.category !== PORTFOLIO_CATEGORIES.WELCOME && (
+      {params.category === PORTFOLIO_CATEGORIES.DETAILS &&
+      params.sideDrawerKey ? (
+        <>
+          <PortfolioMainContent>
+            <PortfolioDetails selectedToken={params.sideDrawerKey} />
+          </PortfolioMainContent>
+          <PortfolioMobileNav />
+        </>
+      ) : params.category !== PORTFOLIO_CATEGORIES.WELCOME ? (
         <>
           <PortfolioMainContent>
             {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
               params.category === undefined) && <PortfolioOverview />}
-            {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-              <PortfolioHoldings />
-            )}
-            {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-              <PortfolioVaults />
-            )}
             {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING && (
               <PortfolioNoteStaking />
             )}
             {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
               <PortfolioTransactionHistory />
             )}
+            {params.category === PORTFOLIO_CATEGORIES.RISK && <PortfolioRisk />}
           </PortfolioMainContent>
           <PortfolioMobileNav />
         </>
-      )}
-      {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
+      ) : (
         <PortfolioStateZero />
       )}
       {isMobileView && <MobileFooter />}

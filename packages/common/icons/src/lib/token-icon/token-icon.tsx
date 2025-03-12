@@ -520,8 +520,8 @@ export function TokenIcon({
     small: '16px',
     medium: '24px',
     large: '32px',
-    xl: '48px',
-    xxl: '72px',
+    xl: '40px',
+    xxl: '48px',
   };
 
   // Allow the image to load a custom sized PNG if it matches the width

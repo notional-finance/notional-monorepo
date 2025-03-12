@@ -389,7 +389,9 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         o.id === `${ZERO_ADDRESS}:${priceOracle?.base.id}:${ChartType.PRICE}`
     );
     const usdETHPriceHistory = chainlinkOracles?.find(
-      (o) => o.id === `${FIAT_ADDRESS}:${ZERO_ADDRESS}:${ChartType.PRICE}`
+      (o) =>
+        o.id ===
+        `${FIAT_ADDRESS.toLowerCase()}:${ZERO_ADDRESS}:${ChartType.PRICE}`
     );
 
     const priceData = priceOracle?.historicalRates

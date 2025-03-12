@@ -1,4 +1,7 @@
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
+import {
+  PORTFOLIO_CATEGORIES,
+  PORTFOLIO_CONNECTED_WALLET,
+} from '@notional-finance/util';
 import { Box, styled, useTheme } from '@mui/material';
 import { Caption } from '@notional-finance/mui';
 import { Link, useParams } from 'react-router-dom';
@@ -9,8 +12,8 @@ import {
 import { NotionalTheme } from '@notional-finance/styles';
 
 interface CustomLinkProps {
-  category?: PORTFOLIO_CATEGORIES | null;
-  id?: PORTFOLIO_CATEGORIES | null;
+  category?: PORTFOLIO_CATEGORIES | PORTFOLIO_CONNECTED_WALLET | null;
+  id?: PORTFOLIO_CATEGORIES | PORTFOLIO_CONNECTED_WALLET | null;
   theme: NotionalTheme;
 }
 
@@ -41,8 +44,9 @@ const MobileNavContainer = styled(Box)(
   ({ theme }) => `
   display: none;
   ${theme.breakpoints.down('sm')} {
-    background: ${theme.palette.background.accentDefault};
-    height: ${theme.spacing(9)};
+    box-shadow: 0px 10px 20px 10px rgba(20, 42, 74, 0.20);
+    background: ${theme.palette.background.paper};
+    height: ${theme.spacing(10)};
     display: flex;
     width: 100%;    
     z-index: 2;
@@ -67,12 +71,15 @@ const CustomLink = styled(Link, {
   shouldForwardProp: (prop: string) => prop !== 'category' && prop !== 'id',
 })(
   ({ category, id, theme }: CustomLinkProps) => `
-  background: ${
-    category === id ? theme.palette.background.paper : 'transparent'
-  };
+  background: ${category === id ? theme.palette.primary.dark : 'transparent'};
   padding: ${theme.spacing(0.5, 1)};
   border-radius: ${theme.shape.borderRadiusLarge};
   min-width: ${theme.spacing(9)};
+  height: ${theme.spacing(8)};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `
 );
 
@@ -80,6 +87,7 @@ const Title = styled(Caption, {
   shouldForwardProp: (prop: string) => prop !== 'category' && prop !== 'id',
 })(
   ({ category, id, theme }: CustomLinkProps) => `
+  font-size: 14px;
   font-weight: ${
     category === id
       ? theme.typography.fontWeightMedium
@@ -87,7 +95,7 @@ const Title = styled(Caption, {
   };
   color: ${
     category === id
-      ? theme.palette.typography.main
+      ? theme.palette.typography.contrastText
       : theme.palette.typography.light
   };
 `

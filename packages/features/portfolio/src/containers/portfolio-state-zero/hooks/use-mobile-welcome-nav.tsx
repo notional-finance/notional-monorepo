@@ -1,16 +1,17 @@
-import {
-  PORTFOLIO_CATEGORIES,
-  PORTFOLIO_ACTIONS,
-} from '@notional-finance/util';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import {
   BarChartIcon,
   CoinsIcon,
+  FourSquareIcon,
   LightningOutlineIcon,
 } from '@notional-finance/icons';
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  useAccountReady,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams extends Record<string, string | undefined> {
   category?: PORTFOLIO_CATEGORIES;
@@ -26,8 +27,27 @@ export const useMobileWelcomeNav = () => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
   const { sideDrawerKey } = useParams<PortfolioParams>();
+  const isAccountReady = useAccountReady(selectedNetwork);
 
   const options = [
+    ...(isAccountReady
+      ? [
+          {
+            title: <FormattedMessage defaultMessage={'Portfolio'} />,
+            id: 'portfolio',
+            to: `/portfolio/${selectedNetwork}/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
+            Icon: (
+              <FourSquareIcon
+                sx={{
+                  width: theme.spacing(3),
+                  fill: theme.palette.typography.light,
+                }}
+              />
+            ),
+            divider: true,
+          },
+        ]
+      : []),
     {
       id: 'earn',
       title: <FormattedMessage defaultMessage={'Earn'} />,
@@ -38,7 +58,7 @@ export const useMobileWelcomeNav = () => {
             fill:
               sideDrawerKey === 'earn'
                 ? theme.palette.typography.contrastText
-                : theme.palette.typography.main,
+                : theme.palette.typography.light,
           }}
         />
       ),
@@ -54,7 +74,7 @@ export const useMobileWelcomeNav = () => {
             fill:
               sideDrawerKey === 'leverage'
                 ? theme.palette.typography.contrastText
-                : theme.palette.typography.main,
+                : theme.palette.typography.light,
           }}
         />
       ),
@@ -71,7 +91,7 @@ export const useMobileWelcomeNav = () => {
             stroke:
               sideDrawerKey === 'borrow'
                 ? theme.palette.typography.contrastText
-                : theme.palette.typography.main,
+                : theme.palette.typography.light,
           }}
         />
       ),

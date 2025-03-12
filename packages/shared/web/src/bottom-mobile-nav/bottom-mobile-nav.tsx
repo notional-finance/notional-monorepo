@@ -1,4 +1,4 @@
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, Divider, styled, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { Caption } from '@notional-finance/mui';
 import { NotionalTheme } from '@notional-finance/styles';
@@ -18,6 +18,7 @@ interface BottomMobileNavProps {
     id: string;
     to: string;
     Icon: ReactNode;
+    divider?: boolean;
   }[];
   navKey?: string;
   showMore?: boolean;
@@ -34,53 +35,55 @@ export function BottomMobileNav({
 
   return (
     <MobileNavContainer>
-      <Box
-        sx={{
-          display: 'flex',
-          width: '100vw',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        {options.map(({ title, Icon, id, to }, i) => (
-          <NavOption key={i}>
-            <CustomLink to={to} id={id} theme={theme} navKey={navKey}>
-              <Box>{Icon}</Box>
-              <Title id={id} theme={theme} navKey={navKey}>
-                {title}
-              </Title>
-            </CustomLink>
-          </NavOption>
+      <Box sx={{ display: 'flex', width: '100vw' }}>
+        {options.map(({ title, Icon, id, to, divider }, i) => (
+          <>
+            <NavOption key={i}>
+              <CustomLink to={to} id={id} theme={theme} navKey={navKey}>
+                <Box>{Icon}</Box>
+                <Title id={id} theme={theme} navKey={navKey}>
+                  {title}
+                </Title>
+              </CustomLink>
+            </NavOption>
+            {divider && (
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{
+                  height: '49px',
+                  marginTop: '16px',
+                  borderColor: theme.palette.borders.paper,
+                }}
+              />
+            )}
+          </>
         ))}
         {showMore && (
           <NavOption
             onClick={callback}
             sx={{
-              borderRadius: '10px',
-              background: theme.palette.info.light,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexDirection: 'column',
               height: '100%',
-              maxWidth: '64px',
-              padding: '8px',
             }}
           >
-            <ThreeDotIcon
-              sx={{
-                width: theme.spacing(2),
-                fill: theme.palette.primary.light,
-              }}
-            />
-            <Title
-              id="more"
-              theme={theme}
-              navKey={''}
-              sx={{ color: theme.palette.primary.light }}
-            >
-              <FormattedMessage defaultMessage={'More'} />
-            </Title>
+            <CustomBox theme={theme} navKey={navKey} id={'showMore'}>
+              <Box>
+                <ThreeDotIcon
+                  sx={{
+                    width: theme.spacing(3),
+                    fill: theme.palette.primary.light,
+                  }}
+                />
+              </Box>
+              <Title
+                id="more"
+                theme={theme}
+                navKey={''}
+                sx={{ color: theme.palette.primary.light }}
+              >
+                <FormattedMessage defaultMessage={'More'} />
+              </Title>
+            </CustomBox>
           </NavOption>
         )}
       </Box>
@@ -94,8 +97,7 @@ const MobileNavContainer = styled(Box)(
     ${theme.breakpoints.down('sm')} {
       box-shadow: 0px 10px 20px 10px rgba(20, 42, 74, 0.20);
       background: ${theme.palette.background.paper};
-      height: fit-content;
-      padding: ${theme.spacing(1)};
+      height: ${theme.spacing(10)};
       display: flex;
       width: 100%;    
       z-index: 2;
@@ -113,7 +115,6 @@ const NavOption = styled(Box)(
     text-align: center;
     display: flex;
     align-items: center;
-    max-width: 84px;
   `
 );
 
@@ -125,9 +126,33 @@ const CustomLink = styled(Link, {
       navKey === id ? theme.palette.background.accentDefault : 'transparent'
     };
     padding: ${theme.spacing(0.5, 1)};
-    padding-top: ${theme.spacing(1)};
     border-radius: ${theme.shape.borderRadiusLarge};
     min-width: ${theme.spacing(9)};
+    max-width: ${theme.spacing(9)};
+    height: ${theme.spacing(8)};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  `
+);
+
+const CustomBox = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'navKey' && prop !== 'id',
+})(
+  ({ navKey, id, theme }: CustomLinkProps) => `
+    background: ${
+      navKey === id ? theme.palette.background.accentDefault : 'transparent'
+    };
+    padding: ${theme.spacing(0.5, 1)};
+    border-radius: ${theme.shape.borderRadiusLarge};
+    min-width: ${theme.spacing(9)};
+    height: ${theme.spacing(8)};
+    background: ${theme.palette.info.light};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
   `
 );
 
@@ -143,7 +168,7 @@ const Title = styled(Caption, {
     color: ${
       navKey === id
         ? theme.palette.typography.contrastText
-        : theme.palette.typography.main
+        : theme.palette.typography.light
     };
   `
 );

@@ -134,7 +134,7 @@ export function usePortfolioNOTETable() {
             value: '',
           },
           {
-            label: <FormattedMessage defaultMessage={'CURRENT PRICE'} />,
+            label: <FormattedMessage defaultMessage={'Current Price'} />,
             value: '',
           },
         ],

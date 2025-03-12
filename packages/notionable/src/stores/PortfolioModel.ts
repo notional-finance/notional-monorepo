@@ -98,6 +98,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
       isDebtThreshold: types.boolean,
     })
   ),
+  impliedFixedRate: types.maybe(types.number),
   healthFactor: types.maybeNull(types.number),
   netWorth: NotionalTypes.TokenBalance,
   totalAssets: NotionalTypes.TokenBalance,
@@ -120,6 +121,10 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   debtEarnings: NotionalTypes.TokenBalance,
   assetMarketPnL: NotionalTypes.TokenBalance,
   debtMarketPnL: NotionalTypes.TokenBalance,
+  assetEntryPrice: types.maybe(NotionalTypes.TokenBalance),
+  debtEntryPrice: types.maybe(NotionalTypes.TokenBalance),
+  assetAmountPaid: NotionalTypes.TokenBalance,
+  debtAmountPaid: NotionalTypes.TokenBalance,
   vaultMetadata: types.model({
     rewardClaims: types.optional(types.array(NotionalTypes.TokenBalance), []),
     vaultType: types.string,

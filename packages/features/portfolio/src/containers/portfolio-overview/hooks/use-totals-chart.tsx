@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   useAccountHistoryChart,
   useSelectedNetwork,
@@ -11,40 +10,26 @@ import {
   BarConfigProps,
   ChartHeaderTotalsDataProps,
 } from '@notional-finance/mui';
-import {
-  useWindowDimensions,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
-import {
-  THEME_VARIANTS,
-  SECONDS_IN_MONTH,
-  SECONDS_IN_DAY,
-  getNowSeconds,
-} from '@notional-finance/util';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { THEME_VARIANTS, getNowSeconds } from '@notional-finance/util';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
-export const useTotalsChart = (baseCurrency: FiatKeys) => {
-  const windowDimensions = useWindowDimensions();
+export const useTotalsChart = (
+  baseCurrency: FiatKeys,
+  tickSize: number,
+  range: number | undefined
+) => {
+  const { themeVariant, isMobileView } = useAppStore();
   const network = useSelectedNetwork();
-  const { currentAPY, netWorth, debts, assets } =
-    useAccountCurrentFactors(network);
-  const [secondsMultiple, setSecondsMultiple] = useState(1.5);
-
-  if (windowDimensions.width <= 1152 && secondsMultiple !== 1.2) {
-    setSecondsMultiple(1.2);
-  }
-  if (windowDimensions.width > 1200 && secondsMultiple !== 1.5) {
-    setSecondsMultiple(1.5);
-  }
+  const currentFactors = useAccountCurrentFactors(network);
 
   const historyData = useAccountHistoryChart(
     network,
-    getNowSeconds() - SECONDS_IN_MONTH * secondsMultiple,
+    range ? getNowSeconds() - range : undefined,
     getNowSeconds(),
-    SECONDS_IN_DAY * 3
+    tickSize
   );
-  const { themeVariant } = useAppStore();
 
   const barChartData = historyData?.map(
     ({ assets, debts, netWorth, timestamp }) => {
@@ -70,11 +55,13 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: netWorth?.toDisplayStringWithSymbol(2, true, false) ?? '0',
+      value:
+        currentFactors?.netWorth?.toDisplayStringWithSymbol(2, true, false) ??
+        '0',
     },
   ];
 
-  if (debts?.isNegative()) {
+  if (currentFactors?.debts?.isNegative() && !isMobileView) {
     barConfig.push(
       {
         dataKey: 'totalAssets',
@@ -88,7 +75,9 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: assets?.toDisplayStringWithSymbol(2, true, false) ?? '0',
+        value:
+          currentFactors?.assets?.toDisplayStringWithSymbol(2, true, false) ??
+          '0',
       },
       {
         dataKey: 'totalDebts',
@@ -102,40 +91,46 @@ export const useTotalsChart = (baseCurrency: FiatKeys) => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: debts?.abs().toDisplayStringWithSymbol(2, true, false) ?? '0',
+        value:
+          currentFactors?.debts
+            ?.abs()
+            .toDisplayStringWithSymbol(2, true, false) ?? '0',
       }
     );
   }
 
-  if (currentAPY) {
+  if (currentFactors?.currentAPY) {
     barConfig.push({
       dataKey: 'currentApy',
       title: <FormattedMessage defaultMessage="Current APY" />,
-      toolTipTitle: <FormattedMessage defaultMessage="Debts" />,
+      toolTipTitle: <FormattedMessage defaultMessage="Current APY" />,
       fill: 'transparent',
       radius: [8, 8, 0, 0],
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: formatNumberAsPercent(currentAPY),
+      value: formatNumberAsPercent(currentFactors?.currentAPY),
     });
   }
 
-  const hasData = historyData?.find(({ netWorth }) => netWorth.toFloat() > 0);
+  const hasData =
+    historyData?.find(({ netWorth }) => netWorth.toFloat() > 0) &&
+    currentFactors;
 
   const totalsData = barConfig.map((data) => {
     return {
       title: data.title,
       fill: data.fill,
       value: data.value,
+      dataKey: data.dataKey,
     };
   }) as ChartHeaderTotalsDataProps[];
 
   return {
-    barChartData: hasData ? barChartData : [],
-    barConfig,
-    totalsData,
+    barChartData: hasData ? barChartData : undefined,
+    barConfig: hasData ? barConfig : undefined,
+    totalsData: hasData ? totalsData : undefined,
   };
 };
 
-export default useTotalsChart;
+export default { useTotalsChart };

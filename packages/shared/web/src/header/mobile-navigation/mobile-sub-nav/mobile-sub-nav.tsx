@@ -19,6 +19,7 @@ const MobileSubNav = ({ handleSideDrawer }: MobileSubNavProps) => {
       {mobileSubNavLinks.map((data) => (
         <Box
           key={data.key}
+          data-key={data.key}
           sx={{
             display: 'flex',
             background: theme.palette.background.default,
@@ -37,6 +38,7 @@ const MobileSubNav = ({ handleSideDrawer }: MobileSubNavProps) => {
                 ? theme.spacing(2)
                 : '',
           }}
+          onClick={handleSideDrawer}
         >
           <MobileNavTab data={data} handleClick={handleSideDrawer} />
           <Box

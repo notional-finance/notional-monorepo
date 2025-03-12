@@ -34,7 +34,7 @@ import { getNetworkModel } from '../../Models';
 import { getVaultType } from '../../config/whitelisted-vaults';
 import { SingleSidedLP } from '../../vaults';
 
-export function fetchCurrentAccount(
+export async function fetchCurrentAccount(
   network: Network,
   account: string,
   provider: providers.Provider
@@ -44,6 +44,7 @@ export function fetchCurrentAccount(
     NotionalV3ABI,
     provider
   ) as NotionalV3;
+  const isContract = (await provider.getCode(account)) !== '0x';
 
   const allCalls = getNotionalAccount(network, account, notional)
     .concat(getSecondaryIncentiveCalls(network, account))
@@ -60,6 +61,7 @@ export function fetchCurrentAccount(
           [account]: {
             address: account,
             network,
+            isContract,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             allowPrimeBorrow: (results[`${notional.address}.account`] as any)[
               'allowPrimeBorrow'

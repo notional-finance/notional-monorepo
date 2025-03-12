@@ -2,7 +2,6 @@ import { Box, useTheme } from '@mui/material';
 import {
   TokenIcon,
   MultiTokenIcon,
-  LightningIcon,
   SentIcon,
   ReceivedIcon,
   PointsIcon,
@@ -121,9 +120,6 @@ export const MultiValueIconCell = (props): JSX.Element => {
             <H5 sx={{ color: theme.palette.common.black }}>{values?.label}</H5>
           ) : (
             <>
-              {values?.symbol && values.symbolBottom && (
-                <LightningIcon sx={{ height: '13px', marginLeft: '-6px' }} />
-              )}
               {inlineIcons && (
                 <TokenIcon
                   network={values.network || undefined}

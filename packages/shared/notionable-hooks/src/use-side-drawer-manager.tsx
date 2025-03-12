@@ -1,12 +1,7 @@
 import { types } from 'mobx-state-tree';
 import { useObserver } from 'mobx-react-lite';
 import { useCallback } from 'react';
-import {
-  useLocation,
-  useParams,
-  useNavigate,
-  NavigateFunction,
-} from 'react-router-dom';
+import { useParams, useNavigate, NavigateFunction } from 'react-router-dom';
 import {
   PORTFOLIO_ACTIONS,
   SIDE_DRAWERS,
@@ -25,29 +20,13 @@ const SideDrawerModel = types
     currentSideDrawerKey: types.maybeNull(types.string),
   })
   .actions((self) => ({
-    setWalletSideDrawer(
-      key: string,
-      overRide: boolean,
-      navigate: NavigateFunction,
-      search: string,
-      pathname: string
-    ) {
+    setWalletSideDrawer(key: string, overRide: boolean) {
       if (!self.currentSideDrawerKey || overRide) {
-        const searchParams = new URLSearchParams(search);
-        searchParams.set('sideDrawer', key);
-        navigate(`${pathname}?${searchParams.toString()}`);
         self.sideDrawerOpen = true;
         self.currentSideDrawerKey = key as SIDE_DRAWERS_TYPE;
       }
     },
-    clearWalletSideDrawer(
-      navigate: NavigateFunction,
-      search: string,
-      pathname: string
-    ) {
-      const searchParams = new URLSearchParams(search);
-      searchParams.delete('sideDrawer');
-      navigate(`${pathname}?${searchParams.toString()}`);
+    clearWalletSideDrawer() {
       self.sideDrawerOpen = false;
       self.currentSideDrawerKey = null;
     },
@@ -98,7 +77,6 @@ export const useSideDrawerState = () => {
 
 export const useSideDrawerManager = () => {
   const navigate = useNavigate();
-  const { search, pathname } = useLocation();
   const params = useParams<PortfolioParams>();
 
   const updateFromParams = useCallback(() => {
@@ -113,15 +91,8 @@ export const useSideDrawerManager = () => {
       clearSideDrawer: (key?: string) =>
         sideDrawerStore.clearSideDrawer(key, navigate),
       setWalletSideDrawer: (key: string, overRide = false) =>
-        sideDrawerStore.setWalletSideDrawer(
-          key,
-          overRide,
-          navigate,
-          search,
-          pathname
-        ),
-      clearWalletSideDrawer: () =>
-        sideDrawerStore.clearWalletSideDrawer(navigate, search, pathname),
+        sideDrawerStore.setWalletSideDrawer(key, overRide),
+      clearWalletSideDrawer: () => sideDrawerStore.clearWalletSideDrawer(),
     };
   });
 };

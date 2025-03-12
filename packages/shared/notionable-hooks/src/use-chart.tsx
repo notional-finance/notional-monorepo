@@ -10,6 +10,7 @@ import {
   getNowSeconds,
   leveragedYield,
   floorToMidnight,
+  firstValue,
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
 import { useEffect, useMemo } from 'react';
@@ -189,7 +190,7 @@ export function useAssetPriceHistory(
 
 export function useAccountHistoryChart(
   network: Network | undefined,
-  startTime: number,
+  _startTime: number | undefined,
   endTime: number,
   tickSizeInSeconds: number
 ) {
@@ -197,10 +198,13 @@ export function useAccountHistoryChart(
   const { baseCurrency } = useAppStore();
 
   return useMemo(() => {
-    if (!account) return undefined;
     // These are sorted ascending by default
     const allHistoricalSnapshots = account?.historicalBalances || [];
 
+    const startTime =
+      _startTime || firstValue(allHistoricalSnapshots)?.timestamp;
+    if (!account) return undefined;
+    if (!startTime) return undefined;
     // Bucket the start and end time ranges
     const numBuckets = Math.ceil((endTime - startTime) / tickSizeInSeconds);
     try {
@@ -269,5 +273,5 @@ export function useAccountHistoryChart(
     } catch (e) {
       return undefined;
     }
-  }, [account, baseCurrency, endTime, startTime, tickSizeInSeconds]);
+  }, [account, baseCurrency, endTime, tickSizeInSeconds, _startTime]);
 }

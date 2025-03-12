@@ -11,6 +11,25 @@ import {
   getEtherscanTransactionLink,
 } from '@notional-finance/util';
 import { formatTokenType, truncateAddress } from './text-helpers';
+import { MessageDescriptor } from 'react-intl';
+
+export type MultiRowTableData =
+  | {
+      data: [
+        {
+          displayValue: string;
+          isNegative?: boolean;
+          showPositiveAsGreen?: boolean;
+          textColor?: string;
+          toolTipContent?: MessageDescriptor;
+        },
+        {
+          displayValue: string;
+          isNegative?: boolean;
+        }
+      ];
+    }
+  | string;
 
 const tokenTypeSortOrder: TokenType[] = [
   'Underlying',
@@ -37,7 +56,7 @@ export const formatCryptoWithFiat = (
   baseCurrency: FiatKeys,
   tbn?: TokenBalance | null,
   options?: { showZero?: boolean; isDebt?: boolean }
-) => {
+): MultiRowTableData => {
   if (options?.showZero && (!tbn || tbn.isZero())) {
     return '0.00';
   } else if (!tbn || tbn.isZero()) {
@@ -64,7 +83,7 @@ export const formatValueWithFiat = (
   baseCurrency: FiatKeys,
   tbn?: TokenBalance,
   isDebt?: boolean
-) => {
+): MultiRowTableData => {
   return !tbn || tbn.isZero()
     ? '-'
     : {
@@ -88,7 +107,7 @@ export const formatTokenAmount = (
   showStyledNegativeValues?: boolean,
   showPositiveAsGreen?: boolean,
   decimalPlaces?: number
-) => {
+): MultiRowTableData => {
   return !tbn || tbn.isZero()
     ? '-'
     : {

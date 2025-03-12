@@ -69,7 +69,7 @@ export function SideDrawer({
           marginTop: isBannerActive ? theme.spacing(6) : '0px',
           overflowX: 'hidden',
           maxWidth: { xs: '100%', sm: '100%', md: '543px' },
-          width: { xs: '100%', sm: '100%', md: '100%' },
+          width: '100%',
           boxShadow: disableBackDrop ? 'none' : '',
         },
       }}
@@ -80,7 +80,7 @@ export function SideDrawer({
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          width: { xs: '100%', sm: '100%', md: '100%' },
+          width: '100%',
           height: '100%',
           position: { xs: 'absolute', sm: 'absolute', md: 'relative' },
           marginTop: {

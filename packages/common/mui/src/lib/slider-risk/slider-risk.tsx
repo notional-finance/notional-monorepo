@@ -1,22 +1,29 @@
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, styled, SxProps, Theme, useTheme } from '@mui/material';
 import SliderBasic from '../slider-basic/slider-basic';
 import { LabelValue } from '../typography/typography';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
+import { formatHealthFactorValues } from '@notional-finance/notionable-hooks';
 
 interface SliderRiskProps {
   healthFactor: number | null;
+  style?: SxProps<Theme>;
+  isLabelWithColor?: boolean;
 }
 interface SliderContainerProps {
   theme: NotionalTheme;
   healthFactor: number | null;
 }
 
-export const SliderRisk = ({ healthFactor }: SliderRiskProps) => {
+export const SliderRisk = ({
+  healthFactor,
+  style,
+  isLabelWithColor = false,
+}: SliderRiskProps) => {
   const theme = useTheme();
 
   return (
-    <SliderContainer healthFactor={healthFactor} theme={theme}>
+    <SliderContainer healthFactor={healthFactor} theme={theme} sx={style}>
       <SliderBasic
         min={1}
         // NOTE: set this a half step above the max value we actually set so that
@@ -28,7 +35,16 @@ export const SliderRisk = ({ healthFactor }: SliderRiskProps) => {
         sx={{ marginBottom: '0px' }}
         showHFColors
       />
-      <LabelValue sx={{ marginLeft: theme.spacing(3), textWrap: 'nowrap' }}>
+      <LabelValue
+        sx={{
+          marginLeft: theme.spacing(3),
+          textWrap: 'nowrap',
+          color:
+            isLabelWithColor && healthFactor
+              ? formatHealthFactorValues(healthFactor, theme)
+              : theme.palette.typography.main,
+        }}
+      >
         {healthFactor ? (
           healthFactor > 5 ? (
             '5+ / 5.0'

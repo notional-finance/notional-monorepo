@@ -346,6 +346,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     );
   }
 
+  override netWorth() {
+    return this.totalAssets()
+      .add(this.totalDebt())
+      .sub(this.accruedVaultFees.toToken(this.denom(this.defaultSymbol)));
+  }
+
   getAllRiskFactors() {
     return {
       netWorth: this.netWorth(),
@@ -385,6 +391,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       // If the trading fails or the debt is in prime debt, repay at a
       // 1-1 prime cash price
       costToRepay = this.vaultDebt
+        .sub(this.accruedVaultFees)
         .unwrapVaultToken()
         .toPrimeCash()
         .add(this.vaultCash.unwrapVaultToken())

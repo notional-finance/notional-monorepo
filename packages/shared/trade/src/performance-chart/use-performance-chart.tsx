@@ -15,6 +15,7 @@ import {
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { useParams } from 'react-router-dom';
 
 export function usePerformanceChart(currentPositionFactors?: {
   collateralToken?: TokenDefinition;
@@ -30,6 +31,7 @@ export function usePerformanceChart(currentPositionFactors?: {
     deposit,
   } = trade?.selectedTokens || {};
   const selectedLeverageRatio = trade?.leverageRatio;
+  const { action } = useParams<{ action: string }>();
 
   // Allow the vault collateral to override the set collateral for the unset state
   const collateral =
@@ -43,7 +45,8 @@ export function usePerformanceChart(currentPositionFactors?: {
   const isVault = isVaultTrade(tradeType);
 
   const currentBorrowRate =
-    debtOptions?.find((t) => t.token.id === debt?.id)?.interestRate ||
+    debtOptions?.find((t) => t.token.id === debt?.id && action !== 'Manage')
+      ?.interestRate ||
     // Allow the historical vault borrow rate to be applied here
     currentPositionFactors?.borrowRate ||
     spotData.find((_) => true)?.tradeRate;
