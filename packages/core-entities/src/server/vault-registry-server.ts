@@ -5,6 +5,7 @@ import {
 } from './server-registry';
 import {
   Network,
+  VaultAddress,
   getNowSeconds,
   getProviderFromNetwork,
 } from '@notional-finance/util';
@@ -19,7 +20,12 @@ import {
 import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { DeprecatedVaults } from './vault-overrides';
-import { CacheSchema, fetchFromRegistry, getVaultType } from '..';
+import {
+  CacheSchema,
+  fetchFromRegistry,
+  getVaultType,
+  whitelistedVaults,
+} from '..';
 
 function getBaseProtocol(boosterProtocol: string) {
   switch (boosterProtocol) {
@@ -123,7 +129,10 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     const calls = vaultConfigurations
       .filter(
         (v: { vaultAddress: string; name: string }) =>
-          !DeprecatedVaults.includes(v.vaultAddress)
+          !DeprecatedVaults.includes(v.vaultAddress) &&
+          (whitelistedVaults(network) as string[]).includes(
+            v.vaultAddress as VaultAddress
+          )
       )
       .flatMap(
         ({
