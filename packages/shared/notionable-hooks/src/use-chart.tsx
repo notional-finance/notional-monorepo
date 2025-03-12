@@ -242,7 +242,7 @@ export function useAccountHistoryChart(
 
         // Binary search to find relevant snapshots
         const relevantSnapshots = allHistoricalSnapshots.filter(
-          ({ timestamp }) => timestamp >= start && timestamp < end
+          ({ timestamp }) => timestamp < end
         );
 
         const snapshotMap: Map<
