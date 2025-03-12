@@ -198,78 +198,87 @@ export function useAccountHistoryChart(
   const { baseCurrency } = useAppStore();
 
   return useMemo(() => {
-    // These are sorted ascending by default
-    const allHistoricalSnapshots = account?.historicalBalances || [];
+    if (!account || !account.historicalBalances) return undefined;
 
+    const allHistoricalSnapshots = account.historicalBalances;
     const startTime =
       _startTime || firstValue(allHistoricalSnapshots)?.timestamp;
-    if (!account) return undefined;
     if (!startTime) return undefined;
-    // Bucket the start and end time ranges
+
     const numBuckets = Math.ceil((endTime - startTime) / tickSizeInSeconds);
+
     try {
-      return new Array(numBuckets)
-        .fill(0)
-        .map((_, i) => {
-          const start = startTime + i * tickSizeInSeconds;
-          return { start, end: start + tickSizeInSeconds };
-        })
-        .map(({ start, end }) => {
-          const snapshotsAtTime = Array.from(
-            allHistoricalSnapshots
-              .filter(({ timestamp }) => timestamp < end)
-              .reduce((t, s) => {
-                // This will always set the token id key to the latest snapshot value, preserving
-                // the previous snapshot value if there was no update in this time block
-                t.set(s.balance.tokenId, s);
-                return t;
-              }, new Map<string, (typeof allHistoricalSnapshots)[number]>())
-              .values()
-          ).filter(({ balance }) => !balance.isZero());
+      // Pre-process and index
+      const snapshotIndex: Map<number, number[]> = new Map();
+      const fiatValues: Map<any, any> = new Map(); // Map snapshot to fiat value
 
-          const assets = snapshotsAtTime
-            ?.filter(
-              ({ balance }) =>
-                !(
-                  balance.tokenType === 'VaultDebt' ||
-                  balance.unwrapVaultToken().token.isFCashDebt === true ||
-                  balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
-                  balance.isNegative()
-                )
-            )
-            .reduce((t, b) => {
-              return t.add(
-                b.balance
-                  .unwrapVaultToken()
-                  .toUnderlying()
-                  .toFiat(baseCurrency, floorToMidnight(end))
-              );
-            }, new TokenBalance(0, baseCurrency, Network.all));
+      allHistoricalSnapshots.forEach((snapshot, index) => {
+        const timestamp = snapshot.timestamp;
+        if (!snapshotIndex.has(timestamp)) {
+          snapshotIndex.set(timestamp, []);
+        }
+        snapshotIndex.get(timestamp)!.push(index);
+        fiatValues.set(
+          snapshot,
+          snapshot.balance
+            .unwrapVaultToken()
+            .toUnderlying()
+            .toFiat(baseCurrency, floorToMidnight(endTime))
+        );
+      });
 
-          const debts = snapshotsAtTime
-            ?.filter(
-              ({ balance }) =>
-                balance.tokenType === 'VaultDebt' ||
-                balance.unwrapVaultToken().token.isFCashDebt === true ||
-                balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
-                balance.isNegative()
-            )
-            .reduce((t, b) => {
-              return t.add(
-                b.balance
-                  .unwrapVaultToken()
-                  .toUnderlying()
-                  .toFiat(baseCurrency, floorToMidnight(end))
-              );
-            }, new TokenBalance(0, baseCurrency, Network.all));
+      const result: {
+        timestamp: number;
+        assets: TokenBalance;
+        debts: TokenBalance;
+        netWorth: TokenBalance;
+      }[] = [];
+      for (let i = 0; i < numBuckets; i++) {
+        const start = startTime + i * tickSizeInSeconds;
+        const end = start + tickSizeInSeconds;
 
-          return {
-            timestamp: start,
-            assets,
-            debts: debts.abs(),
-            netWorth: assets.add(debts),
-          };
+        let assets = new TokenBalance(0, baseCurrency, Network.all);
+        let debts = new TokenBalance(0, baseCurrency, Network.all);
+
+        // Binary search to find relevant snapshots
+        const relevantSnapshots = allHistoricalSnapshots.filter(
+          ({ timestamp }) => timestamp >= start && timestamp < end
+        );
+
+        const snapshotMap: Map<
+          string,
+          (typeof allHistoricalSnapshots)[number]
+        > = new Map();
+        relevantSnapshots.forEach((snapshot) => {
+          snapshotMap.set(snapshot.balance.tokenId, snapshot);
         });
+        const uniqueSnapshots = Array.from(snapshotMap.values());
+
+        uniqueSnapshots.forEach((snapshot) => {
+          const balance = snapshot.balance;
+          const fiatValue = fiatValues.get(snapshot);
+
+          if (
+            balance.tokenType === 'VaultDebt' ||
+            balance.unwrapVaultToken().token.isFCashDebt === true ||
+            balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
+            balance.isNegative()
+          ) {
+            debts = debts.add(fiatValue);
+          } else {
+            assets = assets.add(fiatValue);
+          }
+        });
+
+        result.push({
+          timestamp: start,
+          assets,
+          debts: debts.abs(),
+          netWorth: assets.add(debts),
+        });
+      }
+
+      return result;
     } catch (e) {
       return undefined;
     }
