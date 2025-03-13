@@ -5,10 +5,12 @@ export const ERC20Interface = new ethers.utils.Interface([
   'function name() external view returns (string)',
   'function symbol() external view returns (string)',
   'function balanceOf(address) view external returns (uint256)',
+  'function approve(address, uint256) external',
 ]);
 
 export const CurveGaugeInterface = new ethers.utils.Interface([
   'function claim_rewards() external',
+  'function withdraw(uint256) external',
   'function balanceOf(address) view external returns (uint256)',
 ]);
 
@@ -17,6 +19,9 @@ export const CurvePoolInterface = new ethers.utils.Interface([
   'function totalSupply() view external returns (uint256)',
   'function decimals() view external returns (uint8)',
   'function coins(uint256) view external returns (address)',
+  'function remove_liquidity(uint256, uint256[]) external',
+  'function N_COINS() view external returns (uint256)',
+  'function balanceOf(address) view external returns (uint256)',
 ]);
 
 export const CurvePoolAltInterface = new ethers.utils.Interface([
@@ -30,6 +35,8 @@ export const ConvexGaugeArbitrumInterface = new ethers.utils.Interface([
   'function getReward(address) external',
   'function balanceOf(address) view external returns (uint256)',
   'function stakingToken() view external returns (address)',
+  'function withdraw(uint256, bool) external',
+  'function withdrawAll(bool) external',
 ]);
 
 export const ConvexGaugeMainnetInterface = new ethers.utils.Interface([
@@ -38,10 +45,12 @@ export const ConvexGaugeMainnetInterface = new ethers.utils.Interface([
   'function getReward() external',
   'function balanceOf(address) view external returns (uint256)',
   'function stakingToken() view external returns (address)',
+  'function withdrawAndUnwrap(uint256, bool) external',
 ]);
 
 export const BalancerVaultInterface = new ethers.utils.Interface([
   'function getPoolTokens(bytes32 poolId) external view  returns (address[] tokens,uint256[] balances,uint256 lastChangeBlock)',
+  'function exitPool(bytes32 poolId, address sender, address recipient, (address[] assets, uint256[] minAmountsOut, bytes userData, bool toInternalBalance)) external payable',
 ]);
 
 export const BalancerPoolInterface = new ethers.utils.Interface([
@@ -49,12 +58,17 @@ export const BalancerPoolInterface = new ethers.utils.Interface([
   'function getActualSupply() view external returns (uint256)',
   'function getBptIndex() view external returns (uint256)',
   'function getPoolId() view external returns (bytes32)',
+  'function getVault() view external returns (address)',
+  'function approve(address spender, uint256 amount) external',
+  'function balanceOf(address account) view external returns (uint256)',
+  'function decimals() view external returns (uint8)',
 ]);
 
 export const AuraGaugeInterface = new ethers.utils.Interface([
   'function getReward() external',
   'function balanceOf(address) view external returns (uint256)',
   'function convertToAssets(uint256 shares) view external returns (uint256)',
+  'function withdrawAllAndUnwrap(bool) external',
 ]);
 
 export const SingleSidedLPVault = new ethers.utils.Interface([
