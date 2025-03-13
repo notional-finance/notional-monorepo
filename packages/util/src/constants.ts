@@ -239,6 +239,10 @@ export const vaults = {
       '0xc87a900078F04c45B7f14e46C520D4A6f37296b0' as const,
     Pendle_sUSDe_28MAY2025:
       '0xBeee4C0993B1336b2Cf971F48960D8DE92dEe4A4' as const,
+    Pendle_USDe_30JUL2025:
+      '0xeF1D74AdF1b8a32b3f5a6Afc420F1ABD4A47cad0' as const,
+    Pendle_USDe_28MAY2025:
+      '0x62a244caEf7567bE7dF8c3743060D84Dd9447Ab3' as const,
   },
   arbitrum: {
     Curve_xFRAX_USDC: '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf' as const,
