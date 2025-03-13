@@ -47,7 +47,9 @@ export abstract class BaseNotionalMarket<
   }
 
   protected getInterestRate(marketIndex: number, utilization: number) {
-    if (utilization < 0 || RATE_PRECISION < utilization)
+    // Allow for a 5 basis point buffer to account for times when the utilization is
+    // slightly above 100% due to rounding errors
+    if (utilization < 0 || RATE_PRECISION + 5 * BASIS_POINT < utilization)
       throw Error('Insufficient Liquidity');
     const irParams = this.getIRParams(marketIndex);
     if (utilization <= irParams.kinkUtilization1) {
