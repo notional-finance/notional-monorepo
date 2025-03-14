@@ -301,7 +301,6 @@ export default class APYSimulator {
       provider,
       account
     );
-    console.log(RedeemDataVaultShare);
 
     const primaryBorrowDecimals = await getTokenDecimals(
       vaultData.primaryBorrowCurrency,
@@ -364,7 +363,6 @@ export default class APYSimulator {
       lpTokenPerVaultShare: RedeemDataVaultShare.lpTokenPerVaultShare,
       lpTokenDecimals: RedeemDataVaultShare.lpTokenDecimals,
     };
-    console.log(RedeemDataVaultShare);
     const allResults: DataServiceVaultAPY[] = [];
     for (const [token, tokensClaimed] of rewardTokens) {
       const { decimals: tokenDecimals, symbol } = await getTokenDetails(
@@ -810,16 +808,31 @@ export default class APYSimulator {
     provider: JsonRpcProvider,
     account: string
   ) {
+    // Create a checkpoint to revert to after simulation
+    const checkpoint = await provider.send('evm_snapshot', []);
     try {
       let redeemData: RedeemData;
 
       // Get the redemption logic based on rewardPoolType
       if (vaultData.rewardPoolType === RewardPoolType.Aura) {
-        redeemData = await this.#simulateRedeemAuraLpTokens(
-          vaultData,
-          provider,
-          account
-        );
+        try {
+          redeemData = await this.#simulateRedeemAuraLpTokens(
+            vaultData,
+            provider,
+            account
+          );
+        } catch (error) {
+          // sometimes the simulation fails because of the oracle issues(OraclePriceExpired error)
+          // so we fallback to the calculation method
+
+          await provider.send('evm_revert', [checkpoint]);
+
+          redeemData = await this.#calculateRedeemAuraLpTokens(
+            vaultData,
+            provider,
+            account
+          );
+        }
       } else if (
         vaultData.rewardPoolType === RewardPoolType.ConvexMainnet ||
         vaultData.rewardPoolType === RewardPoolType.ConvexArbitrum
@@ -829,7 +842,6 @@ export default class APYSimulator {
           provider,
           account
         );
-        log(`Redeemed ${redeemData.redemptionTokens.length} tokens`);
       } else if (vaultData.rewardPoolType === RewardPoolType.Curve) {
         redeemData = await this.#simulateRedeemCurveLpTokens(
           vaultData,
@@ -864,6 +876,8 @@ export default class APYSimulator {
       };
     } catch (error) {
       throw new Error(`Error simulating LP token redemption: ${error}`);
+    } finally {
+      await provider.send('evm_revert', [checkpoint]);
     }
   }
 
@@ -891,9 +905,6 @@ export default class APYSimulator {
         BalancerVaultInterface,
         provider
       );
-
-      // Create a checkpoint to revert to after simulation
-      const checkpoint = await provider.send('evm_snapshot', []);
 
       await provider.send('anvil_impersonateAccount', [account]);
       const signer = provider.getSigner(account);
@@ -955,7 +966,89 @@ export default class APYSimulator {
         }
       }
 
-      await provider.send('evm_revert', [checkpoint]);
+      return {
+        lpBalance,
+        lpTokenDecimals,
+        redemptionTokens,
+      };
+    } catch (error) {
+      throw new Error(`Error simulating Aura LP token redemption: ${error}`);
+    }
+  }
+  async #calculateRedeemAuraLpTokens(
+    vaultData: VaultData,
+    provider: JsonRpcProvider,
+    account: string
+  ) {
+    try {
+      const auraGauge = new Contract(
+        vaultData.gauge,
+        AuraGaugeInterface,
+        provider
+      );
+
+      const balancerPool = new Contract(
+        vaultData.pool,
+        BalancerPoolInterface,
+        provider
+      );
+
+      await provider.send('anvil_impersonateAccount', [account]);
+      const signer = provider.getSigner(account);
+
+      // First, withdraw LP tokens from the Aura gauge
+      await auraGauge.connect(signer).withdrawAllAndUnwrap(false);
+      const lpBalance = await balancerPool.balanceOf(account);
+
+      // Get token information directly from the pool
+      const poolId = await balancerPool.getPoolId();
+      const balancerVaultAddress = await balancerPool.getVault();
+      const balancerVault = new Contract(
+        balancerVaultAddress,
+        BalancerVaultInterface,
+        provider
+      );
+
+      const poolTokens = await balancerVault.getPoolTokens(poolId);
+      const tokens = poolTokens.tokens;
+      const balances = poolTokens.balances;
+
+      // Calculate proportional amounts based on current pool balances
+      const lpTokenDecimals = await balancerPool.decimals();
+      const totalSupply = await balancerPool.getActualSupply();
+
+      // Instead of using exitPool which might have oracle issues,
+      // calculate redemption values proportionally
+      const redemptionTokens: RedemptionToken[] = [];
+
+      for (let i = 0; i < tokens.length; i++) {
+        // Skip if token is the LP token itself
+        if (tokens[i].toLowerCase() === vaultData.pool.toLowerCase()) continue;
+
+        log('lpBalance', lpBalance);
+        // Calculate proportional amount
+        const tokenAmount = lpBalance.mul(balances[i]).div(totalSupply);
+
+        log('tokenAmount');
+        log(tokenAmount);
+        if (tokenAmount.gt(0)) {
+          const { decimals, symbol } = await getTokenDetails(
+            tokens[i],
+            provider
+          );
+
+          redemptionTokens.push({
+            symbol,
+            address: tokens[i],
+            amountPerLpToken: tokenAmount
+              .mul(BigNumber.from(10).pow(lpTokenDecimals))
+              .div(lpBalance)
+              .toString(),
+            decimals,
+          });
+        }
+      }
+
       return {
         lpBalance,
         lpTokenDecimals,
@@ -983,9 +1076,6 @@ export default class APYSimulator {
         CurveGaugeInterface,
         provider
       );
-
-      // Create a checkpoint to revert to after simulation
-      const checkpoint = await provider.send('evm_snapshot', []);
 
       await provider.send('anvil_impersonateAccount', [account]);
       const signer = provider.getSigner(account);
@@ -1031,8 +1121,6 @@ export default class APYSimulator {
         }
       }
 
-      // Revert to the checkpoint to undo the redemption and withdrawal
-      await provider.send('evm_revert', [checkpoint]);
       return {
         lpBalance,
         lpTokenDecimals,
@@ -1121,9 +1209,6 @@ export default class APYSimulator {
         provider
       );
 
-      // Create a checkpoint to revert to after simulation
-      const checkpoint = await provider.send('evm_snapshot', []);
-
       // Impersonate the account
       await provider.send('anvil_impersonateAccount', [account]);
       const signer = provider.getSigner(account);
@@ -1176,8 +1261,6 @@ export default class APYSimulator {
         }
       }
 
-      // Revert to the checkpoint to undo the redemption and withdrawal
-      await provider.send('evm_revert', [checkpoint]);
       return {
         lpBalance,
         lpTokenDecimals,
