@@ -1,7 +1,7 @@
 import debug from 'debug';
 import { exec } from 'child_process';
 import assert from 'node:assert/strict';
-import { ethers, BigNumber, Contract } from 'ethers';
+import { ethers, BigNumber, Contract, ContractTransaction } from 'ethers';
 import {
   TradingModuleInterface,
   SingleSidedLPVault,
@@ -16,6 +16,7 @@ import {
   CurvePoolInterface,
   BalancerVaultInterface,
   BalancerPoolInterface,
+  CurvePoolAltInterface,
 } from './interfaces';
 import {
   Network,
@@ -992,15 +993,14 @@ export default class APYSimulator {
       const gaugeBalance = await curveGauge.balanceOf(account);
       await curveGauge.connect(signer).withdraw(gaugeBalance);
 
-      // Get number of coins in the pool
-      const numCoins = await this.#getCurvePoolNumCoins(curvePool);
-
       const lpBalance = await curvePool.balanceOf(account);
-      // Simulate the redemption by calling remove_liquidity
-      const minAmounts = Array(numCoins).fill(0);
-      const tx = await curvePool
-        .connect(signer)
-        .remove_liquidity(lpBalance, minAmounts);
+
+      const tx = await this.#curveRemoveLiquidity(
+        vaultData.pool,
+        account,
+        lpBalance,
+        provider
+      );
 
       // Process the transfer logs to see what tokens were received
       const receipt = await tx.wait();
@@ -1061,6 +1061,41 @@ export default class APYSimulator {
     }
   }
 
+  async #curveRemoveLiquidity(
+    curvePoolAddress: string,
+    account: string,
+    lpBalance: BigNumber,
+    provider: JsonRpcProvider
+  ) {
+    const curvePool = new Contract(
+      curvePoolAddress,
+      CurvePoolInterface,
+      provider
+    );
+
+    const numCoins = await this.#getCurvePoolNumCoins(curvePool);
+    const minAmounts = Array(numCoins).fill(0);
+    const signer = provider.getSigner(account);
+
+    let tx: ContractTransaction;
+    try {
+      tx = await curvePool
+        .connect(signer)
+        .remove_liquidity(lpBalance, minAmounts);
+    } catch {
+      const curvePoolAlt = new Contract(
+        curvePoolAddress,
+        CurvePoolAltInterface,
+        provider
+      );
+
+      tx = await curvePoolAlt
+        .connect(signer)
+        .remove_liquidity(lpBalance, minAmounts);
+    }
+    return tx;
+  }
+
   async #simulateRedeemConvexLpTokens(
     vaultData: VaultData,
     provider: JsonRpcProvider,
@@ -1103,14 +1138,14 @@ export default class APYSimulator {
       }
 
       const lpBalance = await curvePool.balanceOf(account);
-      // Get number of coins in the pool
-      const numCoins = await this.#getCurvePoolNumCoins(curvePool);
 
       // Simulate the redemption
-      const minAmounts = Array(numCoins).fill(0);
-      const tx = await curvePool
-        .connect(signer)
-        .remove_liquidity(lpBalance, minAmounts);
+      const tx = await this.#curveRemoveLiquidity(
+        vaultData.pool,
+        account,
+        lpBalance,
+        provider
+      );
 
       // Process the transfer logs to see what tokens were received
       const receipt = await tx.wait();

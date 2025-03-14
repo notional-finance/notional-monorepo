@@ -26,6 +26,7 @@ export const CurvePoolInterface = new ethers.utils.Interface([
 
 export const CurvePoolAltInterface = new ethers.utils.Interface([
   'function get_balances() view external returns (uint256[2])',
+  'function remove_liquidity(uint256, uint256[2]) external',
   'function totalSupply() view external returns (uint256)',
   'function decimals() view external returns (uint8)',
   'function coins(uint256) view external returns (address)',
