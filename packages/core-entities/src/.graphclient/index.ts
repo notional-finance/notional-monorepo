@@ -9140,7 +9140,9 @@ export type AllOraclesByBlockQuery = { oracles: Array<(
     & { base: Pick<Token, 'id' | 'decimals'>, quote: Pick<Token, 'id' | 'currencyId'> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
-export type AllTokensQueryVariables = Exact<{ [key: string]: never; }>;
+export type AllTokensQueryVariables = Exact<{
+  skip?: InputMaybe<Scalars['Int']>;
+}>;
 
 
 export type AllTokensQuery = { tokens: Array<(
@@ -9758,8 +9760,8 @@ export const AllOraclesByBlockDocument = gql`
 }
     ` as unknown as DocumentNode<AllOraclesByBlockQuery, AllOraclesByBlockQueryVariables>;
 export const AllTokensDocument = gql`
-    query AllTokens {
-  tokens(first: 1000) {
+    query AllTokens($skip: Int) {
+  tokens(first: 1000, skip: $skip) {
     id
     tokenType
     tokenInterface

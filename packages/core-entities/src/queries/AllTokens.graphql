@@ -1,25 +1,27 @@
-query AllTokens {
-    tokens (first: 1000) {
-        id
-        tokenType
-        tokenInterface
-        underlying { id }
-        currencyId
-        name
-        symbol
-        decimals
-        totalSupply
-        hasTransferFee
-        isfCashDebt
-        maturity
-        vaultAddress
-        tokenAddress
-        totalSupply
+query AllTokens($skip: Int) {
+  tokens(first: 1000, skip: $skip) {
+    id
+    tokenType
+    tokenInterface
+    underlying {
+      id
     }
+    currencyId
+    name
+    symbol
+    decimals
+    totalSupply
+    hasTransferFee
+    isfCashDebt
+    maturity
+    vaultAddress
+    tokenAddress
+    totalSupply
+  }
 
-    _meta {
-        block {
-            number
-        }
+  _meta {
+    block {
+      number
     }
+  }
 }

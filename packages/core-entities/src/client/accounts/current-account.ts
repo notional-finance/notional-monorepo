@@ -352,7 +352,6 @@ function getVaultCalls(
             if (maturity === 0) return { balances: [] };
             const vaultShare = model.getVaultShare(v.vaultAddress, maturity);
             const vaultDebt = model.getVaultDebt(v.vaultAddress, maturity);
-            const vaultCash = model.getVaultCash(v.vaultAddress, maturity);
             const vaultUnderlying = model.getUnderlying(vaultShare.currencyId);
 
             const balances = [
@@ -366,6 +365,7 @@ function getVaultCalls(
             ];
 
             if (!vaultAccount.tempCashBalance.isZero()) {
+              const vaultCash = model.getVaultCash(v.vaultAddress, maturity);
               balances.push(
                 TokenBalance.from(vaultAccount.tempCashBalance, vaultCash)
               );
