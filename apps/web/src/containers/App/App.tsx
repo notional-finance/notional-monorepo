@@ -57,6 +57,7 @@ import {
 } from '@notional-finance/core-entities';
 import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
+import TransactionScreen from '../TransactionScreen';
 
 const RedirectToDefaultNetwork = () => {
   const selectedNetwork = useSelectedNetwork();
@@ -429,6 +430,16 @@ const AllRoutes = observer(() => {
               path="/contest-sign-up/:selectedNetwork"
               component={ContestSignUp}
               routeType="Contest"
+            />
+          }
+        />
+        <Route
+          path="/new-transaction/:selectedNetwork"
+          element={
+            <AppLayoutRoute
+              path="/new-transaction/:selectedNetwork"
+              component={TransactionScreen}
+              routeType="Transaction"
             />
           }
         />
