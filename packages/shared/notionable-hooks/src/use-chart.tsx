@@ -227,41 +227,38 @@ export function useAccountHistoryChart(
               .values()
           ).filter(({ balance }) => !balance.isZero());
 
-          const assets = snapshotsAtTime
-            ?.filter(
-              ({ balance }) =>
-                !(
-                  balance.tokenType === 'VaultDebt' ||
-                  balance.unwrapVaultToken().token.isFCashDebt === true ||
-                  balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
-                  balance.isNegative()
-                )
-            )
-            .reduce((t, b) => {
-              return t.add(
-                b.balance
-                  .unwrapVaultToken()
-                  .toUnderlying()
-                  .toFiat(baseCurrency, floorToMidnight(end))
-              );
-            }, new TokenBalance(0, baseCurrency, Network.all));
-
-          const debts = snapshotsAtTime
-            ?.filter(
-              ({ balance }) =>
+          const { assets, debts } = snapshotsAtTime.reduce(
+            ({ assets, debts }, { balance }) => {
+              const isDebt =
                 balance.tokenType === 'VaultDebt' ||
                 balance.unwrapVaultToken().token.isFCashDebt === true ||
                 balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
-                balance.isNegative()
-            )
-            .reduce((t, b) => {
-              return t.add(
-                b.balance
-                  .unwrapVaultToken()
-                  .toUnderlying()
-                  .toFiat(baseCurrency, floorToMidnight(end))
-              );
-            }, new TokenBalance(0, baseCurrency, Network.all));
+                balance.isNegative();
+
+              if (isDebt) {
+                debts = debts.add(
+                  balance
+                    .toUnderlying()
+                    .toFiat(baseCurrency, floorToMidnight(end))
+                );
+              } else {
+                assets = assets.add(
+                  balance
+                    .toUnderlying()
+                    .toFiat(baseCurrency, floorToMidnight(end))
+                );
+              }
+
+              return {
+                assets,
+                debts,
+              };
+            },
+            {
+              assets: new TokenBalance(0, baseCurrency, Network.all),
+              debts: new TokenBalance(0, baseCurrency, Network.all),
+            }
+          );
 
           return {
             timestamp: start,
