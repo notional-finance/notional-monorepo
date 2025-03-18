@@ -6,13 +6,18 @@ import {
   TABLE_VARIANTS,
   ToolTipCell,
 } from '@notional-finance/mui';
-import { useVaultLiquidationRisk } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useVaultLiquidationRisk,
+} from '@notional-finance/notionable-hooks';
 import { tradeErrors } from '@notional-finance/trade';
 import { FormattedMessage } from 'react-intl';
 
 export const CreateVaultLiquidationRisk = () => {
   const theme = useTheme();
   const { tableData, tooRisky, postAccountNoRisk } = useVaultLiquidationRisk();
+  const maxWithdraw = useCurrentTradeContext()?.maxWithdraw;
+
   const columns: any[] = [
     {
       header: <FormattedMessage defaultMessage={'Detail'} />,
@@ -28,7 +33,10 @@ export const CreateVaultLiquidationRisk = () => {
     },
   ];
 
-  if (postAccountNoRisk) {
+  if (maxWithdraw) {
+    // Don't show liquidation risk on max withdraw, there is no risk
+    return null;
+  } else if (postAccountNoRisk) {
     // Show state zero
     return (
       <DataTable

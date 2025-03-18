@@ -1645,7 +1645,7 @@ export const TradeModel = types
         vaultTVL: vaultAdapter?.getVaultTVL(),
         vaultCapacityError:
           self.tradeType === 'WithdrawVault'
-            ? false
+            ? underMinAccountBorrow
             : overCapacityError || underMinAccountBorrow,
       };
     };
