@@ -88,3 +88,19 @@ export type DataServiceVaultAPY = {
   rewardTokenValuePrimaryBorrow: string;
   rewardTokenSymbol: string;
 };
+
+export type RedemptionToken = {
+  symbol: string;
+  address: string;
+  amountPerLpToken: string;
+  decimals: number;
+};
+
+export type DataServiceVaultApyRedemptionData = {
+  vaultAddress: string;
+  priceOfVaultShare: string;
+  timestamp: number;
+  redemptionTokens: RedemptionToken[];
+  lpTokenPerVaultShare: string;
+  lpTokenDecimals: number;
+};

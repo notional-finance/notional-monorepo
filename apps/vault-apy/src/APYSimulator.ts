@@ -36,15 +36,11 @@ import {
   wait,
   floorToMidnight,
 } from './util';
-import { DataServiceVaultAPY } from '@notional-finance/util/src/types';
-
-// Define a type for redemption tokens
-type RedemptionToken = {
-  symbol: string;
-  address: string;
-  amountPerLpToken: string;
-  decimals: number;
-};
+import {
+  DataServiceVaultAPY,
+  DataServiceVaultApyRedemptionData,
+  RedemptionToken,
+} from '@notional-finance/util/src/types';
 
 type RedeemData = {
   lpBalance: BigNumber;
@@ -277,6 +273,11 @@ export default class APYSimulator {
     ]);
     const tx = await this.#claimRewardFromGauge(account, vaultData, provider);
 
+    const vault = new Contract(vaultData.address, SingleSidedLPVault, provider);
+    const priceOfVaultShare = await vault.getExchangeRate(0).catch(() => {
+      return BigNumber.from(0);
+    });
+
     const block = await provider.getBlock('latest');
     // used to query defiLlama api
     let priceAtTimestamp = block.timestamp;
@@ -301,6 +302,16 @@ export default class APYSimulator {
       provider,
       account
     );
+
+    const redemptionData: DataServiceVaultApyRedemptionData = {
+      vaultAddress: vaultData.address,
+      priceOfVaultShare: priceOfVaultShare.toString(),
+      timestamp: floorToMidnight(originalTimestamp),
+      redemptionTokens: RedeemDataVaultShare.redemptionTokens, // Add the redemption tokens data
+      lpTokenPerVaultShare: RedeemDataVaultShare.lpTokenPerVaultShare,
+      lpTokenDecimals: RedeemDataVaultShare.lpTokenDecimals,
+    };
+    log(redemptionData);
 
     const primaryBorrowDecimals = await getTokenDecimals(
       vaultData.primaryBorrowCurrency,
@@ -359,9 +370,6 @@ export default class APYSimulator {
         ? lpTokenValuePrimaryBorrowAlt.toString()
         : null,
       noVaultShares: !isAccountVault,
-      redemptionTokens: RedeemDataVaultShare.redemptionTokens, // Add the redemption tokens data
-      lpTokenPerVaultShare: RedeemDataVaultShare.lpTokenPerVaultShare,
-      lpTokenDecimals: RedeemDataVaultShare.lpTokenDecimals,
     };
     const allResults: DataServiceVaultAPY[] = [];
     for (const [token, tokensClaimed] of rewardTokens) {
@@ -413,7 +421,10 @@ export default class APYSimulator {
       log(feeResult);
     }
 
-    return allResults;
+    return {
+      vaultAPY: allResults,
+      vaultAPYRedemption: redemptionData,
+    };
   }
 
   async #spawnAnvil(forkBlock: number) {
@@ -634,26 +645,30 @@ export default class APYSimulator {
       .then((r) => r.height);
   }
 
-  async #saveToDb(reports: DataServiceVaultAPY[]) {
-    if (!reports.length) {
+  async #saveToDb(reports: {
+    vaultAPY: DataServiceVaultAPY[];
+    vaultAPYRedemption: DataServiceVaultApyRedemptionData;
+  }) {
+    if (!reports.vaultAPY.length) {
       log('nothing to save');
       return;
     }
-    // const response = await fetch(this.#config.dataServiceUrl, {
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'x-auth-token': process.env.DATA_SERVICE_AUTH_TOKEN as string,
-    //   },
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     network: this.#network,
-    //     vaultAPYs: reports,
-    //   }),
-    // });
-    // if (!response.ok) {
-    //   console.error(response.status, response.statusText);
-    //   throw new Error('Save to db failed');
-    // }
+    const response = await fetch(this.#config.dataServiceUrl, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-auth-token': process.env.DATA_SERVICE_AUTH_TOKEN as string,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        network: this.#network,
+        vaultAPYs: reports.vaultAPY,
+        vaultAPYRedemptionData: reports.vaultAPYRedemption,
+      }),
+    });
+    if (!response.ok) {
+      console.error(response.status, response.statusText);
+      throw new Error('Save to db failed');
+    }
   }
 
   async getPeriodFinishForVault(
