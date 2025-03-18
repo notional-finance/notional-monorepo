@@ -7,7 +7,6 @@ import {
   ACCOUNT_ID_RANGES,
   DataServiceReinvestmentTrade,
   DataServiceVaultAPY,
-  DataServiceVaultApyRedemptionData,
 } from '@notional-finance/util';
 import {
   buildOperations,
@@ -585,19 +584,14 @@ export default class DataService {
       .ignore();
   }
 
-  public async insertVaultAPYData(
-    network: Network,
-    data: {
-      vaultAPY: DataServiceVaultAPY[];
-      vaultAPYRedemptionData: DataServiceVaultApyRedemptionData[];
-    }
-  ) {
+  public async insertVaultAPYData(network: Network, data: DataServiceVaultAPY) {
     return this.db.transaction(async (trx) => {
+      const { vaultAPY, redemptionData } = data;
       // Insert vault APY data
-      if (data.vaultAPY.length > 0) {
+      if (vaultAPY.length > 0) {
         await trx
           .insert(
-            data.vaultAPY.map((v) => ({
+            vaultAPY.map((v) => ({
               network_id: this.networkToId(network),
               block_number: v.blockNumber,
               timestamp: v.timestamp,
@@ -624,19 +618,17 @@ export default class DataService {
       }
 
       // Insert vault APY redemption data
-      if (data.vaultAPYRedemptionData.length > 0) {
+      if (redemptionData) {
         await trx
-          .insert(
-            data.vaultAPYRedemptionData.map((v) => ({
-              network_id: this.networkToId(network),
-              price_of_vault_share: v.priceOfVaultShare,
-              timestamp: v.timestamp,
-              vault_address: v.vaultAddress,
-              redemption_tokens: v.redemptionTokens,
-              lp_token_per_vault_share: v.lpTokenPerVaultShare,
-              lp_token_decimals: v.lpTokenDecimals,
-            }))
-          )
+          .insert({
+            network_id: this.networkToId(network),
+            price_of_vault_share: redemptionData.priceOfVaultShare,
+            timestamp: redemptionData.timestamp,
+            vault_address: redemptionData.vaultAddress,
+            redemption_tokens: redemptionData.redemptionTokens,
+            lp_token_per_vault_share: redemptionData.lpTokenPerVaultShare,
+            lp_token_decimals: redemptionData.lpTokenDecimals,
+          })
           .into(DataService.VAULT_APY_REDEMPTION_TABLE_NAME)
           .onConflict(['network_id', 'vault_address', 'timestamp'])
           .merge();

@@ -38,8 +38,9 @@ import {
 } from './util';
 import {
   DataServiceVaultAPY,
-  DataServiceVaultApyRedemptionData,
+  RedemptionData,
   RedemptionToken,
+  VaultAPY,
 } from '@notional-finance/util/src/types';
 
 type RedeemData = {
@@ -303,7 +304,7 @@ export default class APYSimulator {
       account
     );
 
-    const redemptionData: DataServiceVaultApyRedemptionData = {
+    const redemptionData: RedemptionData = {
       vaultAddress: vaultData.address,
       priceOfVaultShare: priceOfVaultShare.toString(),
       timestamp: floorToMidnight(originalTimestamp),
@@ -371,7 +372,7 @@ export default class APYSimulator {
         : null,
       noVaultShares: !isAccountVault,
     };
-    const allResults: DataServiceVaultAPY[] = [];
+    const allResults: VaultAPY[] = [];
     for (const [token, tokensClaimed] of rewardTokens) {
       const { decimals: tokenDecimals, symbol } = await getTokenDetails(
         token,
@@ -387,7 +388,7 @@ export default class APYSimulator {
           )
         );
 
-      const result: DataServiceVaultAPY = {
+      const result: VaultAPY = {
         /////////////////local log, not saved to db/////////////////////////
         apy: `${
           Number(
@@ -411,7 +412,7 @@ export default class APYSimulator {
     }
 
     if (poolFeesInPrimary) {
-      const feeResult: DataServiceVaultAPY = {
+      const feeResult: VaultAPY = {
         ...sharedData,
         rewardToken: 'Swap Fees',
         rewardTokenSymbol: 'Swap Fees',
@@ -423,7 +424,7 @@ export default class APYSimulator {
 
     return {
       vaultAPY: allResults,
-      vaultAPYRedemption: redemptionData,
+      redemptionData,
     };
   }
 
@@ -645,10 +646,7 @@ export default class APYSimulator {
       .then((r) => r.height);
   }
 
-  async #saveToDb(reports: {
-    vaultAPY: DataServiceVaultAPY[];
-    vaultAPYRedemption: DataServiceVaultApyRedemptionData;
-  }) {
+  async #saveToDb(reports: DataServiceVaultAPY) {
     if (!reports.vaultAPY.length) {
       log('nothing to save');
       return;
@@ -662,7 +660,7 @@ export default class APYSimulator {
       body: JSON.stringify({
         network: this.#network,
         vaultAPYs: reports.vaultAPY,
-        vaultAPYRedemptionData: reports.vaultAPYRedemption,
+        redemptionData: reports.redemptionData,
       }),
     });
     if (!response.ok) {
