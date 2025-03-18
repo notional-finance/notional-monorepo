@@ -625,7 +625,7 @@ export default class DataService {
             price_of_vault_share: redemptionData.priceOfVaultShare,
             timestamp: redemptionData.timestamp,
             vault_address: redemptionData.vaultAddress,
-            redemption_tokens: redemptionData.redemptionTokens,
+            redemption_tokens: JSON.stringify(redemptionData.redemptionTokens),
             lp_token_per_vault_share: redemptionData.lpTokenPerVaultShare,
             lp_token_decimals: redemptionData.lpTokenDecimals,
           })

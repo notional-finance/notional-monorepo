@@ -646,8 +646,14 @@ export default class APYSimulator {
       .then((r) => r.height);
   }
 
-  async #saveToDb(reports: DataServiceVaultAPY) {
-    if (!reports.vaultAPY.length) {
+  async #saveToDb({
+    vaultAPY,
+    redemptionData,
+  }: {
+    vaultAPY: VaultAPY[];
+    redemptionData: RedemptionData;
+  }) {
+    if (!vaultAPY.length && !redemptionData) {
       log('nothing to save');
       return;
     }
@@ -659,9 +665,9 @@ export default class APYSimulator {
       method: 'POST',
       body: JSON.stringify({
         network: this.#network,
-        vaultAPYs: reports.vaultAPY,
-        redemptionData: reports.redemptionData,
-      }),
+        vaultAPY: vaultAPY,
+        redemptionData: redemptionData,
+      } as DataServiceVaultAPY),
     });
     if (!response.ok) {
       console.error(response.status, response.statusText);
