@@ -589,7 +589,7 @@ export default class DataService {
     network: Network,
     data: {
       vaultAPY: DataServiceVaultAPY[];
-      vaultAPYRedemption: DataServiceVaultApyRedemptionData[];
+      vaultAPYRedemptionData: DataServiceVaultApyRedemptionData[];
     }
   ) {
     return this.db.transaction(async (trx) => {
@@ -624,10 +624,10 @@ export default class DataService {
       }
 
       // Insert vault APY redemption data
-      if (data.vaultAPYRedemption.length > 0) {
+      if (data.vaultAPYRedemptionData.length > 0) {
         await trx
           .insert(
-            data.vaultAPYRedemption.map((v) => ({
+            data.vaultAPYRedemptionData.map((v) => ({
               network_id: this.networkToId(network),
               price_of_vault_share: v.priceOfVaultShare,
               timestamp: v.timestamp,
