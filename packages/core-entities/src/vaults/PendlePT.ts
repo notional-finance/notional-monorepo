@@ -499,7 +499,13 @@ export class PendlePT extends VaultAdapter {
       const { dexId, redeemExchangeData: exchangeData } =
         VaultDefaultDexParameters[this.network][this.vaultAddress];
 
-      const minPurchaseAmount = vaultSharesToRedeem
+      const minTradedPurchaseAmount = this.getNetVaultSharesCost(
+        vaultSharesToRedeem.neg()
+      ).netUnderlyingForVaultShares.mulInRatePrecision(
+        RATE_PRECISION - slippageFactor
+      );
+
+      const minOraclePurchaseAmount = vaultSharesToRedeem
         .toUnderlying()
         .mulInRatePrecision(RATE_PRECISION - slippageFactor);
 
@@ -508,7 +514,12 @@ export class PendlePT extends VaultAdapter {
         [
           {
             dexId,
-            minPurchaseAmount: minPurchaseAmount.n,
+            // Choose the minimum of the two amounts to ensure that the trade is successful
+            minPurchaseAmount: minTradedPurchaseAmount.lt(
+              minOraclePurchaseAmount
+            )
+              ? minTradedPurchaseAmount.n
+              : minOraclePurchaseAmount.n,
             exchangeData,
           },
         ]
