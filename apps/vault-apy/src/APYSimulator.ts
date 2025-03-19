@@ -929,7 +929,9 @@ export default class APYSimulator {
       const signer = provider.getSigner(account);
 
       // First, withdraw LP tokens from the Aura gauge
-      await auraGauge.connect(signer).withdrawAllAndUnwrap(false);
+      await auraGauge
+        .connect(signer)
+        .withdrawAllAndUnwrap(false, { gasLimit: 1000000 });
       const lpBalance = await balancerPool.balanceOf(account);
 
       const poolId = await balancerPool.getPoolId();
@@ -1016,10 +1018,13 @@ export default class APYSimulator {
       const signer = provider.getSigner(account);
 
       // First, withdraw LP tokens from the Aura gauge
-      await auraGauge.connect(signer).withdrawAllAndUnwrap(false);
+      const tx = await auraGauge
+        .connect(signer)
+        .withdrawAllAndUnwrap(false, { gasLimit: 1000000 });
+      await tx.wait();
       const lpBalance = await balancerPool.balanceOf(account);
+      assert(lpBalance.gt(0), 'LP balance is 0');
 
-      // Get token information directly from the pool
       const poolId = await balancerPool.getPoolId();
       const balancerVaultAddress = await balancerPool.getVault();
       const balancerVault = new Contract(
@@ -1044,12 +1049,9 @@ export default class APYSimulator {
         // Skip if token is the LP token itself
         if (tokens[i].toLowerCase() === vaultData.pool.toLowerCase()) continue;
 
-        log('lpBalance', lpBalance);
         // Calculate proportional amount
         const tokenAmount = lpBalance.mul(balances[i]).div(totalSupply);
 
-        log('tokenAmount');
-        log(tokenAmount);
         if (tokenAmount.gt(0)) {
           const { decimals, symbol } = await getTokenDetails(
             tokens[i],
