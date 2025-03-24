@@ -53,7 +53,8 @@ type DDEventKey =
   | 'PrimeCashInvariant'
   | 'MonitoringCheckFailed'
   | 'MonitoringCheckLagging'
-  | 'RegistryTimeout';
+  | 'RegistryTimeout'
+  | 'ReinvestmentFailed';
 
 type DDEventAlertType = 'error' | 'warning' | 'info';
 

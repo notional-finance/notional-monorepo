@@ -45,6 +45,8 @@ function getBaseProtocol(boosterProtocol: string) {
 function parseVaultName(name: string) {
   if (name === 'Curve FRAX/USDC LP (FRAX Leverage)') {
     name = 'SingleSidedLP:Convex:[FRAX]/USDC.e';
+  } else if (name === 'Pendle:PT USDe 28MAY2025:[USDC]') {
+    name = 'Pendle:PT eUSDe 28MAY2025:[USDC]';
   }
 
   try {

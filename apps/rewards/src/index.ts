@@ -404,10 +404,26 @@ const claimAndReinvestVault = async (
 const claimAndReinvestRewards = async (env: Env, provider: Provider) => {
   const errors: Error[] = [];
   const vaults = getVaultsForReinvestment(env.NETWORK);
+  const logger = new Logger({
+    service: 'rewards',
+    version: 'v1',
+    env: env.NETWORK,
+    apiKey: env.NX_DD_API_KEY,
+  });
+
   for (const vault of vaults) {
     try {
       await claimAndReinvestVault(env, provider, vault);
     } catch (err) {
+      logger.submitEvent({
+        aggregation_key: 'ReinvestmentFailed',
+        alert_type: 'error',
+        host: 'rewards',
+        network: env.NETWORK,
+        title: `Reinvestment for vault: ${vault.address} failed`,
+        text: (err as Error).message,
+        tags: [`vault:${vault.address}`, `network:${env.NETWORK}`],
+      });
       console.error(`Reinvestment for vault: ${vault.address} failed`);
       console.error(err);
       errors.push(err as Error);
@@ -494,6 +510,7 @@ export default {
     // if any of the claims/reinvestment failed, throw error here so worker execution can be properly
     // marked as failed and alarms can be triggered
     if (allErrors.length) {
+      // Log this to datadog....
       throw allErrors[0];
     }
   },
