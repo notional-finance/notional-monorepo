@@ -5,11 +5,9 @@ import HeroStats from './components/hero-stats';
 import MobileLottie from './images/mobile-lottie.json';
 import DesktopLottie from './images/desktop-lottie.json';
 import { useState } from 'react';
-import { useFeatureValue } from '@growthbook/growthbook-react';
 
 export const Hero = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const showHeroStats = useFeatureValue('hero-stats-visible', true);
   const width = window.innerWidth;
   if (width < 1000 && !isMobile) {
     setIsMobile(true);
@@ -39,7 +37,7 @@ export const Hero = () => {
       />
       <Container>
         <HeroContent />
-        {showHeroStats && <HeroStats />}
+        <HeroStats />
       </Container>
     </HeroContainer>
   );

@@ -9,6 +9,7 @@ import { FormattedMessage } from 'react-intl';
 import { formatNumber } from '@notional-finance/helpers';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
+import { useFeatureValue } from '@growthbook/growthbook-react';
 
 const oneMillion = 1_000_000;
 
@@ -17,37 +18,59 @@ const HeroStats = () => {
   const {
     heroStats: { totalAccounts, totalDeposits, totalOpenDebt },
   } = useAppStore();
+  const showAPYStats = useFeatureValue('show-apy-stats', null);
   const showHeroStats = totalAccounts && totalDeposits && totalOpenDebt;
+
+  let statsContainer: React.ReactNode = <ProgressIndicator type="notional" />;
+  if (showAPYStats === null) {
+    // Wait for the feature flag to be evaluated
+    statsContainer = <ProgressIndicator type="notional" />;
+  } else if (showAPYStats) {
+    statsContainer = (
+      <Box sx={{ paddingTop: theme.spacing(24) }}>
+        <LargeInputText>
+          {`40.0%+`}
+          <BodySecondary>
+            <FormattedMessage defaultMessage={'Average Leveraged Pendle APY'} />
+          </BodySecondary>
+        </LargeInputText>
+        <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
+          {`8.3%+`}
+          <BodySecondary>
+            <FormattedMessage defaultMessage={'Average USDC Lend APY'} />
+          </BodySecondary>
+        </LargeInputText>
+      </Box>
+    );
+  } else if (showHeroStats) {
+    statsContainer = (
+      <Box sx={{ paddingTop: theme.spacing(19.75) }}>
+        <LargeInputText>
+          {`$${formatNumber(totalDeposits / oneMillion, 2)}M`}
+          <BodySecondary>
+            <FormattedMessage defaultMessage={'Total Deposits'} />
+          </BodySecondary>
+        </LargeInputText>
+        <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
+          {`$${formatNumber(totalOpenDebt / oneMillion, 1)}M`}
+          <BodySecondary>
+            <FormattedMessage defaultMessage={'Total Open Debt'} />
+          </BodySecondary>
+        </LargeInputText>
+        <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
+          {totalAccounts}
+          <BodySecondary>
+            <FormattedMessage defaultMessage={'Active Accounts'} />
+          </BodySecondary>
+        </LargeInputText>
+      </Box>
+    );
+  }
 
   return (
     <StatsContainer>
       <ImgContainer>
-        <StatsContent>
-          {showHeroStats ? (
-            <div>
-              <LargeInputText>
-                {`$${formatNumber(totalDeposits / oneMillion, 2)}M`}
-                <BodySecondary>
-                  <FormattedMessage defaultMessage={'Total Deposits'} />
-                </BodySecondary>
-              </LargeInputText>
-              <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
-                {`$${formatNumber(totalOpenDebt / oneMillion, 1)}M`}
-                <BodySecondary>
-                  <FormattedMessage defaultMessage={'Total Open Debt'} />
-                </BodySecondary>
-              </LargeInputText>
-              <LargeInputText sx={{ marginTop: theme.spacing(6) }}>
-                {totalAccounts}
-                <BodySecondary>
-                  <FormattedMessage defaultMessage={'Active Accounts'} />
-                </BodySecondary>
-              </LargeInputText>
-            </div>
-          ) : (
-            <ProgressIndicator type="notional" />
-          )}
-        </StatsContent>
+        <StatsContent>{statsContainer}</StatsContent>
       </ImgContainer>
     </StatsContainer>
   );
@@ -109,7 +132,7 @@ const StatsContent = styled(Box)(
   ({ theme }) => `
       display: flex;
       flex-direction: column;
-      padding-top: ${theme.spacing(19.75)};
+      
       ${theme.breakpoints.down('mdLanding')} {
         padding-top: ${theme.spacing(5)};
       }
