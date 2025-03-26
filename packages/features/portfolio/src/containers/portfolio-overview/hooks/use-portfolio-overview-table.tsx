@@ -36,24 +36,12 @@ import {
 } from '@notional-finance/util';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
-import {
-  Body,
-  ChevronCell,
-  DataTableColumn,
-  H4,
-  LinkText,
-  MultiValueCell,
-  MultiValueIconCell,
-} from '@notional-finance/mui';
-import {
-  TableActionRowWarning,
-  TotalEarningsTooltip,
-} from '@notional-finance/portfolio-feature-shell/components';
+import { Body, H4, LinkText } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
 import { useDetailedHoldingsTable } from '../../portfolio-holdings/use-detailed-holdings';
-import { ExpandedState } from '@tanstack/react-table';
-import { useEffect, useMemo, useState } from 'react';
 import { useGroupedHoldingsTable } from '../../portfolio-holdings/use-grouped-holdings';
+import { TableActionRowWarning } from '../../../components/table-action-row/table-action-row';
+import { useState } from 'react';
 
 interface OverviewTableRow {
   isTotalRow?: boolean;
@@ -845,9 +833,7 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
   );
   const { isMobileView } = useAppStore();
   const isBlocked = useLeverageBlock();
-  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const [toggleOption, setToggleOption] = useState<number>(0);
-  const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const pendingTokenData = usePendingPnLCalculation(network);
   const { detailedHoldings, totalHoldingsRow } =
     useDetailedHoldingsTable(baseCurrency);
@@ -1046,80 +1032,6 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
     </Box>,
   ];
 
-  const Columns = useMemo<DataTableColumn[]>(
-    () => [
-      {
-        header: <FormattedMessage defaultMessage="Asset" />,
-        cell: MultiValueIconCell,
-        accessorKey: 'asset',
-        textAlign: 'left',
-        expandableTable: true,
-        width: theme.spacing(37.5),
-      },
-      {
-        header: <FormattedMessage defaultMessage="Market APY" />,
-        cell: MultiValueCell,
-        accessorKey: 'marketApy',
-        fontWeightBold: true,
-        textAlign: 'right',
-        expandableTable: true,
-        width: theme.spacing(25),
-      },
-      {
-        header: <FormattedMessage defaultMessage="Amount Paid" />,
-        cell: MultiValueCell,
-        accessorKey: 'amountPaid',
-        fontWeightBold: true,
-        textAlign: 'right',
-        expandableTable: true,
-        showLoadingSpinner: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Present Value" />,
-        cell: MultiValueCell,
-        accessorKey: 'presentValue',
-        fontWeightBold: true,
-        textAlign: 'right',
-        expandableTable: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Total Earnings" />,
-        cell: MultiValueCell,
-        ToolTip: TotalEarningsTooltip,
-        accessorKey: 'earnings',
-        textAlign: 'right',
-        fontWeightBold: true,
-        expandableTable: true,
-        showLoadingSpinner: true,
-        showGreenText: true,
-      },
-      {
-        header: '',
-        cell: ChevronCell,
-        accessorKey: 'chevron',
-        textAlign: 'left',
-        expandableTable: true,
-      },
-    ],
-    [theme]
-  );
-
-  useEffect(() => {
-    const formattedExpandedRows = Columns.reduce(
-      (accumulator, _value, index) => {
-        return { ...accumulator, [index]: index === 0 ? true : false };
-      },
-      {}
-    );
-
-    if (
-      expandedRows === null &&
-      JSON.stringify(formattedExpandedRows) !== '{}'
-    ) {
-      setExpandedRows(formattedExpandedRows);
-    }
-  }, [expandedRows, setExpandedRows, Columns]);
-
   const portfolioHoldingsData =
     toggleOption === 0 && !isBlocked && groupedRows.length > 0
       ? groupedHoldings
@@ -1143,11 +1055,8 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
     leverage,
     earn,
     debt,
-
     showVaultHoldingsTable: vaultHoldingsData && vaultHoldingsData.length > 0,
     vaultHoldingsData,
-
-    portfolioHoldingsColumns: Columns,
     toggleBarProps: {
       toggleOption,
       setToggleOption,
@@ -1159,7 +1068,5 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
       isMobileView ? undefined : totalHoldingsRow,
     ].filter((item) => item !== undefined),
     pendingTokenData,
-    setExpandedRows,
-    initialState,
   };
 };

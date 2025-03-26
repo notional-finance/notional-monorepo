@@ -1,12 +1,3 @@
-import { useState, useEffect, useMemo } from 'react';
-import { FormattedMessage } from 'react-intl';
-import {
-  MultiValueIconCell,
-  DataTableColumn,
-  MultiValueCell,
-} from '@notional-finance/mui';
-import { ExpandedState } from '@tanstack/react-table';
-import { useTheme } from '@mui/material';
 import {
   useSelectedNetwork,
   usePortfolioHoldings,
@@ -56,76 +47,11 @@ function insertDebtDivider(arr) {
 }
 
 export function useEarningsBreakdown(isGrouped: boolean) {
-  const theme = useTheme();
-  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
   const network = useSelectedNetwork();
   const { baseCurrency } = useAppStore();
   const holdings = usePortfolioHoldings(network);
   const groupedHoldings = useGroupedHoldings(network) || [];
   const detailedTotals = useTotalPortfolioHoldings(network);
-
-  const Columns = useMemo<DataTableColumn[]>(
-    () => [
-      {
-        header: <FormattedMessage defaultMessage="Asset" />,
-        cell: MultiValueIconCell,
-        accessorKey: 'asset',
-        textAlign: 'left',
-        expandableTable: true,
-        width: theme.spacing(37.5),
-      },
-      {
-        header: <FormattedMessage defaultMessage="Incentives Earnings" />,
-        cell: MultiValueCell,
-        // ToolTip: TotalEarningsTooltip,
-        accessorKey: 'incentivesEarnings',
-        fontWeightBold: true,
-        textAlign: 'right',
-        expandableTable: true,
-        showLoadingSpinner: true,
-        showGreenText: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Accrued Interest" />,
-        cell: MultiValueCell,
-        // ToolTip: TotalEarningsTooltip,
-        fontWeightBold: true,
-        accessorKey: 'accruedInterest',
-        textAlign: 'right',
-        expandableTable: true,
-        showLoadingSpinner: true,
-        showGreenText: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Market PNL" />,
-        cell: MultiValueCell,
-        accessorKey: 'marketPNL',
-        textAlign: 'right',
-        fontWeightBold: true,
-        expandableTable: true,
-        showGreenText: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Fees Paid" />,
-        cell: MultiValueCell,
-        accessorKey: 'feesPaid',
-        textAlign: 'right',
-        expandableTable: true,
-        fontWeightBold: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Total Earnings" />,
-        cell: MultiValueCell,
-        accessorKey: 'totalEarnings',
-        textAlign: 'right',
-        fontWeightBold: true,
-        expandableTable: true,
-        showLoadingSpinner: true,
-        showGreenText: true,
-      },
-    ],
-    [theme]
-  );
 
   const groupedEarnings = groupedHoldings.map(
     ({
@@ -341,22 +267,6 @@ export function useEarningsBreakdown(isGrouped: boolean) {
     isTotalRow: true,
   } as unknown as (typeof detailedEarnings)[number]);
 
-  useEffect(() => {
-    const formattedExpandedRows = Columns.reduce(
-      (accumulator, _value, index) => {
-        return { ...accumulator, [index]: index === 0 ? true : false };
-      },
-      {}
-    );
-
-    if (
-      expandedRows === null &&
-      JSON.stringify(formattedExpandedRows) !== '{}'
-    ) {
-      setExpandedRows(formattedExpandedRows);
-    }
-  }, [expandedRows, setExpandedRows, Columns]);
-
   const groupedTokens = groupedHoldings.flatMap(({ asset, debt }) => [
     asset.balance.tokenId,
     debt.balance.tokenId,
@@ -372,9 +282,6 @@ export function useEarningsBreakdown(isGrouped: boolean) {
     : detailedEarnings;
 
   return {
-    earningsBreakdownColumns: Columns,
     earningsBreakdownData: insertDebtDivider(earningsBreakdownData),
-    setExpandedRows,
-    initialState: { clickDisabled: true },
   };
 }

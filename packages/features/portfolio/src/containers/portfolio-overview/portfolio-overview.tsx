@@ -1,10 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   MultiDisplayChart,
   DataTable,
   TABLE_VARIANTS,
   ChevronCell,
-  DataTableColumn,
   MultiValueCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
@@ -51,6 +50,168 @@ const HealthFactorCell = ({ cell }) => {
   );
 };
 
+enum TableTab {
+  OVERVIEW = 0,
+  EARNINGS_BREAKDOWN = 1,
+}
+
+const useTableTabState = () => {
+  const theme = useTheme();
+  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
+  const [currentTab, setCurrentTab] = useState<TableTab>(TableTab.OVERVIEW);
+
+  const overviewColumns = [
+    {
+      header: <FormattedMessage defaultMessage="Asset" />,
+      cell: MultiValueIconCell,
+      accessorKey: 'asset',
+      textAlign: 'left',
+      expandableTable: true,
+      width: theme.spacing(37.5),
+    },
+    {
+      header: <FormattedMessage defaultMessage="Health Factor" />,
+      cell: HealthFactorCell,
+      accessorKey: 'healthFactor',
+      textAlign: 'right',
+      expandableTable: true,
+    },
+    {
+      header: <FormattedMessage defaultMessage="Market APY" />,
+      cell: MultiValueCell,
+      accessorKey: 'marketApy',
+      fontWeightBold: true,
+      textAlign: 'right',
+      expandableTable: true,
+    },
+    {
+      header: <FormattedMessage defaultMessage="Amount Paid" />,
+      cell: MultiValueCell,
+      accessorKey: 'amountPaid',
+      fontWeightBold: true,
+      textAlign: 'right',
+      expandableTable: true,
+      showLoadingSpinner: true,
+    },
+    {
+      header: <FormattedMessage defaultMessage="Present Value" />,
+      cell: MultiValueCell,
+      accessorKey: 'presentValue',
+      fontWeightBold: true,
+      textAlign: 'right',
+      expandableTable: true,
+    },
+    {
+      header: <FormattedMessage defaultMessage="Total Earnings" />,
+      cell: MultiValueCell,
+      ToolTip: TotalEarningsTooltip,
+      accessorKey: 'totalEarnings',
+      textAlign: 'right',
+      fontWeightBold: true,
+      expandableTable: true,
+      showLoadingSpinner: true,
+      showGreenText: true,
+    },
+    {
+      header: '',
+      cell: ChevronCell,
+      accessorKey: 'chevron',
+      textAlign: 'left',
+      expandableTable: true,
+    },
+  ];
+
+  const earningsBreakdownColumns = [
+    {
+      header: <FormattedMessage defaultMessage="Asset" />,
+      cell: MultiValueIconCell,
+      accessorKey: 'asset',
+      textAlign: 'left',
+      expandableTable: true,
+      width: theme.spacing(37.5),
+    },
+    {
+      header: <FormattedMessage defaultMessage="Incentives Earnings" />,
+      cell: MultiValueCell,
+      // ToolTip: TotalEarningsTooltip,
+      accessorKey: 'incentivesEarnings',
+      fontWeightBold: true,
+      textAlign: 'right',
+      expandableTable: true,
+      showLoadingSpinner: true,
+      showGreenText: true,
+    },
+    {
+      header: <FormattedMessage defaultMessage="Accrued Interest" />,
+      cell: MultiValueCell,
+      // ToolTip: TotalEarningsTooltip,
+      fontWeightBold: true,
+      accessorKey: 'accruedInterest',
+      textAlign: 'right',
+      expandableTable: true,
+      showLoadingSpinner: true,
+      showGreenText: true,
+    },
+    {
+      header: <FormattedMessage defaultMessage="Market PNL" />,
+      cell: MultiValueCell,
+      accessorKey: 'marketPNL',
+      textAlign: 'right',
+      fontWeightBold: true,
+      expandableTable: true,
+      showGreenText: true,
+    },
+    {
+      header: <FormattedMessage defaultMessage="Fees Paid" />,
+      cell: MultiValueCell,
+      accessorKey: 'feesPaid',
+      textAlign: 'right',
+      expandableTable: true,
+      fontWeightBold: true,
+    },
+    {
+      header: <FormattedMessage defaultMessage="Total Earnings" />,
+      cell: MultiValueCell,
+      accessorKey: 'totalEarnings',
+      textAlign: 'right',
+      fontWeightBold: true,
+      expandableTable: true,
+      showLoadingSpinner: true,
+      showGreenText: true,
+    },
+  ];
+
+  const Columns =
+    currentTab === TableTab.OVERVIEW
+      ? overviewColumns
+      : earningsBreakdownColumns;
+
+  useEffect(() => {
+    const formattedExpandedRows = Columns.reduce(
+      (accumulator, _value, index) => {
+        return { ...accumulator, [index]: index === 0 ? true : false };
+      },
+      {}
+    );
+
+    if (
+      expandedRows === null &&
+      JSON.stringify(formattedExpandedRows) !== '{}'
+    ) {
+      setExpandedRows(formattedExpandedRows);
+    }
+  }, [expandedRows, setExpandedRows, Columns]);
+
+  const initialState =
+    currentTab === TableTab.OVERVIEW
+      ? { clickDisabled: true }
+      : expandedRows !== null
+      ? { expanded: expandedRows }
+      : {};
+
+  return { Columns, initialState, setCurrentTab, currentTab, setExpandedRows };
+};
+
 const PortfolioOverview = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
@@ -71,95 +232,17 @@ const PortfolioOverview = () => {
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
   const { rows, hasLeverage } = usePortfolioOverviewTable(showGrouped);
-  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
-  const [currentTab, setCurrentTab] = useState(0);
-  const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
-
-  const Columns = useMemo<DataTableColumn[]>(
-    () => [
-      {
-        header: <FormattedMessage defaultMessage="Asset" />,
-        cell: MultiValueIconCell,
-        accessorKey: 'asset',
-        textAlign: 'left',
-        expandableTable: true,
-        width: theme.spacing(37.5),
-      },
-      {
-        header: <FormattedMessage defaultMessage="Health Factor" />,
-        cell: HealthFactorCell,
-        accessorKey: 'healthFactor',
-        textAlign: 'right',
-        expandableTable: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Market APY" />,
-        cell: MultiValueCell,
-        accessorKey: 'marketApy',
-        fontWeightBold: true,
-        textAlign: 'right',
-        expandableTable: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Amount Paid" />,
-        cell: MultiValueCell,
-        accessorKey: 'amountPaid',
-        fontWeightBold: true,
-        textAlign: 'right',
-        expandableTable: true,
-        showLoadingSpinner: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Present Value" />,
-        cell: MultiValueCell,
-        accessorKey: 'presentValue',
-        fontWeightBold: true,
-        textAlign: 'right',
-        expandableTable: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Total Earnings" />,
-        cell: MultiValueCell,
-        ToolTip: TotalEarningsTooltip,
-        accessorKey: 'totalEarnings',
-        textAlign: 'right',
-        fontWeightBold: true,
-        expandableTable: true,
-        showLoadingSpinner: true,
-        showGreenText: true,
-      },
-      {
-        header: '',
-        cell: ChevronCell,
-        accessorKey: 'chevron',
-        textAlign: 'left',
-        expandableTable: true,
-      },
-    ],
-    [theme]
-  );
+  const { Columns, initialState, setCurrentTab, currentTab, setExpandedRows } =
+    useTableTabState();
 
   const tableTabs = [
     {
       title: <FormattedMessage defaultMessage="Positions" />,
     },
+    {
+      title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
+    },
   ];
-
-  useEffect(() => {
-    const formattedExpandedRows = Columns.reduce(
-      (accumulator, _value, index) => {
-        return { ...accumulator, [index]: index === 0 ? true : false };
-      },
-      {}
-    );
-
-    if (
-      expandedRows === null &&
-      JSON.stringify(formattedExpandedRows) !== '{}'
-    ) {
-      setExpandedRows(formattedExpandedRows);
-    }
-  }, [expandedRows, setExpandedRows, Columns]);
 
   return (
     <Box>
@@ -227,7 +310,6 @@ const PortfolioOverview = () => {
           />
         )}
       </Container>
-
       <Box sx={{ '#data-table-container': { marginBottom: theme.spacing(4) } }}>
         <DataTable
           tabBarProps={{
@@ -235,7 +317,10 @@ const PortfolioOverview = () => {
             setCurrentTab,
             currentTab,
           }}
-          tabsThatIncludeToggle={[0]}
+          tabsThatIncludeToggle={[
+            TableTab.OVERVIEW,
+            TableTab.EARNINGS_BREAKDOWN,
+          ]}
           toggleBarProps={{
             toggleOption: showGrouped ? 0 : 1,
             setToggleOption: (option) => setShowGrouped(option === 0),
