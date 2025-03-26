@@ -1,11 +1,9 @@
 import { observer } from 'mobx-react-lite';
 import PortfolioDetail from '../../components/portfolio-detail/portfolio-detail';
-import { usePortfolioOverviewTable } from '../portfolio-overview/hooks';
+import { OverviewTableRow } from '../portfolio-overview/hooks';
 
 interface VaultHoldingsDetailProps {
-  value?: ReturnType<
-    typeof usePortfolioOverviewTable
-  >['vaultHoldingsData'][number];
+  value?: OverviewTableRow;
 }
 
 const VaultHoldingsDetail: React.FC<VaultHoldingsDetailProps> = ({ value }) => {
@@ -21,7 +19,10 @@ const VaultHoldingsDetail: React.FC<VaultHoldingsDetailProps> = ({ value }) => {
         caption: value.asset.caption,
       }}
       header={{
-        label: value.marketApy,
+        label:
+          typeof value.marketApy === 'string'
+            ? value.marketApy
+            : value.marketApy?.data?.[0]?.displayValue,
       }}
       contentSections={[
         {

@@ -2,13 +2,9 @@ import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
 import { H4 } from '@notional-finance/mui';
-import { usePortfolioOverviewTable } from '../hooks';
+import { OverviewTableRow } from '../hooks';
 
-interface IProps {
-  data: ReturnType<typeof usePortfolioOverviewTable>['vaultHoldingsData'];
-}
-
-const LeverageVaultsOverview = ({ data }: IProps) => {
+const LeverageVaultsOverview = ({ data }: { data: OverviewTableRow[] }) => {
   const theme = useTheme();
 
   return (
@@ -33,14 +29,21 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
             }}
             data={{
               'Health Factor': {
-                value: item.healthFactor.value,
+                value: item.healthFactor?.value ?? 'N/A',
                 textColor: theme.palette.warning.main,
               },
               ...(item.marketApy
                 ? {
-                    'Market APY': {
-                      value: item.marketApy,
-                    },
+                    'Market APY':
+                      typeof item.marketApy === 'string'
+                        ? {
+                            value: item.marketApy,
+                          }
+                        : {
+                            value: item.marketApy?.data?.[0]?.displayValue,
+                            description:
+                              item.marketApy?.data?.[1]?.displayValue,
+                          },
                   }
                 : {}),
               'Present Value':
@@ -58,8 +61,8 @@ const LeverageVaultsOverview = ({ data }: IProps) => {
                       value: item.totalEarnings,
                     }
                   : {
-                      value: item.totalEarnings.data[0]?.displayValue,
-                      description: item.totalEarnings.data[1]?.displayValue,
+                      value: item.totalEarnings?.data?.[0]?.displayValue,
+                      description: item.totalEarnings?.data?.[1]?.displayValue,
                       textColor: theme.palette.primary.main,
                     },
             }}
