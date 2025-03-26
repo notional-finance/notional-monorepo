@@ -9,7 +9,8 @@ import { useCallback, useRef } from 'react';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export interface CurrencyInputStyleProps {
-  landingPage: boolean;
+  landingPage?: boolean;
+  transactionPage?: boolean;
 }
 
 export interface CurrencyInputProps extends CurrencySelectProps {
@@ -149,6 +150,13 @@ export const CurrencyInput = React.forwardRef<
           borderRightWidth: style?.landingPage ? '0px' : '1px',
           borderBottomWidth: style?.landingPage ? '2px' : '1px',
           borderRadius: style?.landingPage ? '0px' : theme.shape.borderRadius(),
+          ...(style?.transactionPage
+            ? {
+                border: 'none',
+                background: theme.palette.background.default,
+                padding: theme.spacing(1.5, 2),
+              }
+            : {}),
         }}
       >
         <Input
@@ -179,6 +187,11 @@ export const CurrencyInput = React.forwardRef<
             color: style?.landingPage
               ? theme.palette.common.white
               : theme.palette.common.black,
+            ...(style?.transactionPage
+              ? {
+                  flex: 1,
+                }
+              : {}),
           }}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           inputComponent={NumberFormatter as any}
@@ -196,24 +209,33 @@ export const CurrencyInput = React.forwardRef<
             }
           }}
         />
-        <Divider
-          orientation="vertical"
-          flexItem
-          sx={{
-            marginTop: '-0.5rem',
-            marginBottom: '-0.5rem',
-            marginLeft: '0.5rem',
-            borderRightWidth: style?.landingPage ? '0px' : '1px',
-            borderColor: borderColor,
-          }}
-        />
+        {!style?.transactionPage && (
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{
+              marginTop: '-0.5rem',
+              marginBottom: '-0.5rem',
+              marginLeft: '0.5rem',
+              borderRightWidth: style?.landingPage ? '0px' : '1px',
+              borderColor: borderColor,
+            }}
+          />
+        )}
         <CurrencySelect
-          minWidth={isMobileView ? '100%' : theme.spacing(55.875)}
+          minWidth={
+            style?.transactionPage
+              ? 'min-content'
+              : isMobileView
+              ? '100%'
+              : theme.spacing(55.875)
+          }
           options={props.options}
           defaultValue={props.defaultValue}
           onSelectChange={props.onSelectChange}
           popperRef={inputContainerRef}
           showScrollPopper={showScrollPopper}
+          style={style}
         />
       </InputContainer>
 

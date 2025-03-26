@@ -230,7 +230,7 @@ const PortfolioOverview = () => {
       ? SECONDS_IN_DAY * 2 * 15 * 3
       : slot === '1y'
       ? SECONDS_IN_DAY * 365
-      : SECONDS_IN_DAY * 2 * 365
+      : undefined
   );
   const [showGrouped, setShowGrouped] = useState(true);
   const network = useSelectedNetwork();

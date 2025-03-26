@@ -1,7 +1,6 @@
-import { alpha, Box, styled, useTheme } from '@mui/material';
+import { alpha, Box, BoxProps, styled, useTheme } from '@mui/material';
 import { Button, H2, LargeInputTextEmphasized } from '@notional-finance/mui';
 import { ExternalLinkIcon } from '@notional-finance/icons';
-import { TotalBox } from './total-box';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 interface DataSectionProps {
   title: string;
@@ -11,28 +10,15 @@ interface DataSectionProps {
     onClick?: () => void;
     externalLink?: string;
   };
-  totalBoxes: {
-    title: string;
-    value: number;
-    decimals?: number;
-    suffix?: string;
-    prefix?: string;
-    trend?: {
-      value: number;
-      direction: 'up' | 'down';
-      duration: string;
-    };
+  contents: {
+    label: string;
+    containerProps?: BoxProps;
+    content: React.ReactNode;
   }[];
-  children?: React.ReactNode;
 }
 
 // Data Section Component
-const DataSection = ({
-  title,
-  button,
-  totalBoxes,
-  children,
-}: DataSectionProps) => {
+const DataSection = ({ title, button, contents }: DataSectionProps) => {
   const { isMobileView } = useAppStore();
   const theme = useTheme();
   return (
@@ -62,12 +48,11 @@ const DataSection = ({
         )}
       </HeaderContainer>
       <ContentContainer>
-        <TotalBoxContainer>
-          {totalBoxes.map((totalBox) => (
-            <TotalBox key={totalBox.title} {...totalBox} />
-          ))}
-        </TotalBoxContainer>
-        <Box>{children}</Box>
+        {contents.map((content) => (
+          <Box key={content.label} {...content.containerProps}>
+            {content.content}
+          </Box>
+        ))}
       </ContentContainer>
     </DataSectionContainer>
   );
@@ -111,18 +96,4 @@ const ContentContainer = styled(Box)(
 `
 );
 
-const TotalBoxContainer = styled(Box)(
-  ({ theme }) => `
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  gap: ${theme.spacing(3)};
-
-  ${theme.breakpoints.down('sm')} {
-    width: 100%;
-    gap: ${theme.spacing(2)};
-  }
-`
-);
 export default DataSection;
