@@ -20,6 +20,8 @@ import { useNetworkTokenData } from './hooks/use-network-token-data';
 import StateZeroData from './state-zero-data';
 import { useMobileWelcomeNav } from './hooks';
 import { BottomMobileNav } from '@notional-finance/shared-web';
+import { useFeatureValue } from '@growthbook/growthbook-react';
+import { startTour } from '@intercom/messenger-js-sdk';
 
 const stateZeroBanner = {
   title: defineMessage({
@@ -50,6 +52,13 @@ const PortfolioStateZero = observer(() => {
   const options = useMobileWelcomeNav();
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(0);
   const { tokenList, defaultSymbol } = useNetworkTokenData(selectedTabIndex);
+  const showProductTour = useFeatureValue('show-product-tour', false);
+
+  useEffect(() => {
+    if (showProductTour) {
+      startTour('product-tour');
+    }
+  }, [showProductTour]);
 
   useEffect(() => {
     if (
