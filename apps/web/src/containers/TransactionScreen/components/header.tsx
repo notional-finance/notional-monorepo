@@ -7,7 +7,7 @@ import { useAppStore } from '@notional-finance/notionable-hooks';
 
 interface HeaderProps {
   title: string;
-  tokenSymbol: string;
+  tokenSymbol?: string;
   caption?: string;
   middleComponent?: ReactNode;
   rightComponent?: ReactNode;
@@ -25,7 +25,12 @@ const Header = ({
   return (
     <HeaderContainer>
       <Row>
-        <TokenIcon symbol={tokenSymbol} size={isMobileView ? 'large' : 'xl'} />
+        {tokenSymbol && (
+          <TokenIcon
+            symbol={tokenSymbol}
+            size={isMobileView ? 'large' : 'xl'}
+          />
+        )}
         <Column>
           {isMobileView ? (
             <LargeInputTextEmphasized>{title}</LargeInputTextEmphasized>

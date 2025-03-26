@@ -1,18 +1,26 @@
-import { Box, styled, Typography, Tabs, Tab } from '@mui/material';
+import { Box, styled, Tabs, Tab, Divider, useTheme } from '@mui/material';
+import { Caption, H5 } from '@notional-finance/mui';
 import { useState, ReactNode } from 'react';
 
 // Types for the component props
 export interface TabItem {
   label: string;
-  content: ReactNode;
+  content: ReactNode | string;
 }
 
 interface InfoBoxProps {
-  tabs: TabItem[];
+  tabs: {
+    tabTitle: string;
+    contents: {
+      sectionTitle: string;
+      items: TabItem[];
+    }[];
+  }[];
 }
 
 // Info Box Component
 const InfoBox = ({ tabs }: InfoBoxProps) => {
+  const theme = useTheme();
   const [selectedTab, setSelectedTab] = useState(0);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -28,12 +36,53 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
           variant="fullWidth"
         >
           {tabs.map((tab, index) => (
-            <CustomTab key={index} label={tab.label} />
+            <CustomTab key={index} label={tab.tabTitle} />
           ))}
         </CustomTabs>
       </TabsContainer>
 
-      <ContentContainer>{tabs[selectedTab]?.content}</ContentContainer>
+      <ContentContainer>
+        {tabs[selectedTab]?.contents.map((content, index, array) => (
+          <>
+            <H5
+              marginBottom={1.5}
+              sx={{
+                color: theme.palette.typography.main,
+              }}
+            >
+              {content.sectionTitle}
+            </H5>
+            <Box gap={1.5} display="flex" flexDirection="column">
+              {content.items.map((item) => (
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  flexDirection="row"
+                >
+                  <Caption color="typography.light">{item.label}</Caption>
+                  <Box>
+                    {typeof item.content === 'string' ? (
+                      <Caption
+                        color="typography.main"
+                        sx={{
+                          color: theme.palette.typography.main,
+                        }}
+                      >
+                        {item.content}
+                      </Caption>
+                    ) : (
+                      item.content
+                    )}
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+            {index !== array.length - 1 && (
+              <Divider sx={{ margin: '12px 0' }} />
+            )}
+          </>
+        ))}
+      </ContentContainer>
     </InfoBoxContainer>
   );
 };
@@ -82,30 +131,6 @@ const ContentContainer = styled(Box)`
   flex: 1;
   overflow-y: auto;
   min-height: 0; /* Ensures scrolling works with flex parent */
-`;
-
-// Reusable components for content
-export const InfoBoxContent = styled(Box)`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  padding-right: 8px;
-`;
-
-export const InfoItem = styled(Box)`
-  display: flex;
-  flex-direction: column;
-`;
-
-export const InfoLabel = styled(Typography)`
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 5px;
-`;
-
-export const InfoValue = styled(Typography)`
-  font-size: 20px;
-  font-weight: 600;
 `;
 
 export default InfoBox;

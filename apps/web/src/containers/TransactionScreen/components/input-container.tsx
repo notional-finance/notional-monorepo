@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { Button } from '@notional-finance/mui';
 
 interface InputContainerProps {
@@ -9,6 +9,19 @@ interface InputContainerProps {
     text: string;
     onClick: () => void;
   };
+  balance?: string;
+  tokenSymbol?: string;
+  tokenLogo?: string;
+  onMaxClick?: () => void;
+  onTokenSelect?: () => void;
+  amount?: string;
+  onAmountChange?: (value: string) => void;
+  lendingOptions?: Array<{
+    title: string;
+    value: string;
+    date?: string;
+    onClick?: () => void;
+  }>;
 }
 
 // Input Container Component
@@ -17,15 +30,20 @@ const InputContainer = ({
   button,
   infoTextRow,
 }: InputContainerProps) => {
+  const theme = useTheme();
   return (
     <InputContainerWrapper>
       <Box>{infoTextRow}</Box>
-      {children}
+      <Box sx={{ width: '100%', marginBottom: theme.spacing(10) }}>
+        {children}
+      </Box>
+
       <Button
         variant="contained"
         disabled={!button.enabled}
         onClick={button.onClick}
         fullWidth
+        size="large"
       >
         {button.text}
       </Button>

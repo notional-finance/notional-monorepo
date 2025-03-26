@@ -39,6 +39,9 @@ export interface CurrencySelectProps {
   popperRef?: React.ForwardedRef<unknown>;
   showScrollPopper?: boolean;
   minWidth?: string;
+  style?: {
+    transactionPage?: boolean;
+  };
 }
 
 export function CurrencySelect({
@@ -48,6 +51,7 @@ export function CurrencySelect({
   popperRef,
   showScrollPopper,
   minWidth = '200px',
+  style,
 }: CurrencySelectProps) {
   const [value, setValue] = useState<string | null>(defaultValue);
   const theme = useTheme();
@@ -79,6 +83,7 @@ export function CurrencySelect({
         setValue(value);
         if (onSelectChange) onSelectChange(value);
       }}
+      style={style}
     >
       {options.map((o) => formatOption(o, theme))}
     </SelectDropdown>
@@ -270,7 +275,6 @@ const StyledItem = styled(Option)(
       cursor: pointer;
     } 
   }
-  
   `
 );
 

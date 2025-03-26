@@ -12,6 +12,7 @@ import { LineChartToolTip } from './line-chart-tooltip/line-chart-tooltip';
 import { getDateString } from '@notional-finance/util';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { formatNumber } from '@notional-finance/helpers';
+import { Margin } from 'recharts/types/util/types';
 
 export interface LineChartConfigProps {
   dataKey: string;
@@ -30,6 +31,7 @@ const LineChart = ({
   showYAxis,
   lineConfig,
   tickFormatter,
+  areaChartProps,
 }: {
   data: any[];
   areaKey: string;
@@ -37,10 +39,15 @@ const LineChart = ({
   showYAxis?: boolean;
   lineConfig: LineChartConfigProps[];
   tickFormatter?: (value: number) => string;
+  areaChartProps?: {
+    width?: number | undefined;
+    height?: number | undefined;
+    margin?: Margin;
+  };
 }) => {
   const theme = useTheme();
   const { isMobileView } = useAppStore();
-  const [width, setWidth] = useState(window.innerWidth);
+  const [width, setWidth] = useState(0);
   const chartRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,6 +66,7 @@ const LineChart = ({
     <Box
       sx={{
         position: 'relative',
+        maxWidth: '100%',
       }}
       ref={chartRef}
     >
@@ -72,6 +80,7 @@ const LineChart = ({
           left: 0,
           bottom: 0,
         }}
+        {...areaChartProps}
       >
         <defs>
           <linearGradient id={`color${areaKey}`} x1="0" y1="0" x2="0" y2="1">

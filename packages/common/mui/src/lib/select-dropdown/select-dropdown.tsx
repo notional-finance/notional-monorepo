@@ -18,6 +18,9 @@ interface SelectDropdownProps {
   ) => React.ReactNode | undefined;
   sx?: SxProps;
   showScrollPopper?: boolean;
+  style?: {
+    transactionPage?: boolean;
+  };
 }
 
 const StyledMenu = styled(MenuList)(
@@ -55,6 +58,7 @@ export const SelectDropdown = ({
   renderValue,
   value,
   showScrollPopper = false,
+  style,
 }: SelectDropdownProps) => {
   const theme = useTheme();
   const [isListboxOpen, setListboxOpen] = useState(false);
@@ -83,8 +87,12 @@ export const SelectDropdown = ({
             borderRadius: '50%',
             width: '0.75rem',
             padding: '4px',
-            backgroundColor: theme.palette.primary.light,
-            color: theme.palette.common.white,
+            backgroundColor: style?.transactionPage
+              ? 'transparent'
+              : theme.palette.primary.light,
+            color: style?.transactionPage
+              ? theme.palette.typography.light
+              : theme.palette.common.white,
             visibility: onlyOneInput ? 'hidden' : 'visible',
             boxSizing: 'unset',
           }}
@@ -92,7 +100,10 @@ export const SelectDropdown = ({
       ),
       theme,
       sx: {
-        backgroundColor: landingPage ? 'unset' : theme.palette.common.white,
+        backgroundColor:
+          landingPage || style?.transactionPage
+            ? 'unset'
+            : theme.palette.common.white,
         borderRadius: theme.shape.borderRadius(),
         h4: {
           color: landingPage
@@ -108,6 +119,13 @@ export const SelectDropdown = ({
             ? 'rgba(248, 250, 250, 0.05)'
             : theme.palette.info.light,
         },
+
+        ...(style?.transactionPage
+          ? {
+              backgroundColor: theme.palette.background.default,
+              flexGrow: 0,
+            }
+          : {}),
       },
     },
     listbox: {
