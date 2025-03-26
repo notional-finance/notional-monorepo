@@ -14,7 +14,7 @@ import { SECONDS_IN_DAY, SECONDS_IN_MONTH } from '@notional-finance/util';
 const PortfolioOverviewMobile = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
-  const { portfolioHoldingsData, vaultHoldingsData, showVaultHoldingsTable } =
+  const { mobilePortfolioHoldings, vaultHoldingsData, showVaultHoldingsTable } =
     usePortfolioOverviewTable(false);
   const { noteData } = usePortfolioNOTETable();
   const { data: sNoteData } = usePortfolioSNOTETable();
@@ -67,8 +67,8 @@ const PortfolioOverviewMobile = () => {
           gap: theme.spacing(2),
         }}
       >
-        {portfolioHoldingsData && (
-          <PortfolioHoldingsOverview holdings={portfolioHoldingsData} />
+        {mobilePortfolioHoldings && (
+          <PortfolioHoldingsOverview holdings={mobilePortfolioHoldings} />
         )}
 
         {showVaultHoldingsTable && (

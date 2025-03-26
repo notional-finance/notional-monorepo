@@ -17,7 +17,6 @@ import {
   formatHealthFactorValues,
   useAppStore,
   useGroupedHoldings,
-  useLeverageBlock,
   usePendingPnLCalculation,
   usePortfolioHoldings,
   useSelectedNetwork,
@@ -38,12 +37,10 @@ import { defineMessage, FormattedMessage } from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
 import { Body, H4, LinkText } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
-import { useDetailedHoldingsTable } from '../../portfolio-holdings/use-detailed-holdings';
-import { useGroupedHoldingsTable } from '../../portfolio-holdings/use-grouped-holdings';
 import { TableActionRowWarning } from '../../../components/table-action-row/table-action-row';
 import { useState } from 'react';
 
-interface OverviewTableRow {
+export interface OverviewTableRow {
   isTotalRow?: boolean;
   tokenId: string;
   isPending: boolean;
@@ -267,7 +264,7 @@ function formatPortfolioHoldings(
   };
 }
 
-function formatCaption(asset: TokenBalance, debt: TokenBalance) {
+export function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   if (asset.tokenType === 'nToken' && debt.tokenType === 'PrimeDebt') {
     return 'Variable Borrow';
   } else if (asset.tokenType === 'nToken' && debt.tokenType === 'fCash') {
@@ -787,37 +784,105 @@ function getSpecificVaultInfo(
   };
 }
 
-function insertDebtDivider(arr: any[]) {
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].asset.label.includes('Borrow')) {
-      arr.splice(i, 0, {
-        asset: {
-          symbol: '',
-          symbolBottom: '',
-          label: 'DEBT POSITIONS',
-          caption: '',
+function formatVaultHoldings(
+  vaultHolding: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
+  pendingTokens: TokenDefinition[] | undefined,
+  baseCurrency: FiatKeys,
+  theme: Theme
+) {
+  const {
+    vaultAddress,
+    name,
+    maturity,
+    underlying,
+    amountPaid,
+    apyData,
+    leverageRatio,
+    maxLeverageRatio,
+    totalAssets,
+    totalDebt,
+    healthFactor,
+    netWorth,
+    vaultShares,
+    vaultDebt,
+    network,
+  } = vaultHolding;
+  const { subRowInfo, totalEarnings, buttonBarData, warning, showRowWarning } =
+    getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
+
+  const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
+    {
+      label: <FormattedMessage defaultMessage={'Borrow APY'} />,
+      value: formatNumberAsPercent(apyData?.debtAPY || 0, 2),
+    },
+    {
+      label: <FormattedMessage defaultMessage={'Strategy APY'} />,
+      value: formatNumberAsPercent(apyData?.assetAPY || 0, 2),
+    },
+    {
+      label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+      value: (
+        <H4
+          sx={{
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+          }}
+        >
+          {formatLeverageRatio(leverageRatio)}
+          <Body sx={{ marginLeft: theme.spacing(1) }}>
+            Max {formatLeverageRatio(maxLeverageRatio, 1)}
+          </Body>
+        </H4>
+      ),
+    },
+    ...subRowInfo,
+  ];
+
+  return {
+    asset: {
+      symbol: underlying,
+      symbolBottom: '',
+      label: name,
+      caption:
+        maturity === PRIME_CASH_VAULT_MATURITY
+          ? 'Open Term'
+          : `Maturity: ${formatMaturity(maturity)}`,
+    },
+    vaultAddress,
+    tokenId: vaultShares.tokenId,
+    isPending: !!pendingTokens?.find(
+      (t) => t.id === vaultShares.tokenId || t.id === vaultDebt.tokenId
+    ),
+    // Assets and debts are shown on the overview page
+    assets: formatCryptoWithFiat(baseCurrency, totalAssets),
+    debts: formatCryptoWithFiat(baseCurrency, totalDebt, {
+      isDebt: true,
+    }),
+    healthFactor: formatHealthFactorValues(healthFactor, theme),
+    presentValue: formatCryptoWithFiat(baseCurrency, netWorth),
+    totalEarnings,
+    marketApy: apyData?.totalAPY ? formatNumberAsPercent(apyData.totalAPY) : '',
+    amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
+    actionRow: {
+      warning,
+      showRowWarning,
+      subRowData,
+      buttonBarData: [
+        ...buttonBarData,
+        {
+          buttonText: <FormattedMessage defaultMessage={'Manage / Withdraw'} />,
+          link: `/vaults/${network}/${vaultAddress}/Manage`,
         },
-        marketApy: {
-          data: [
-            {
-              displayValue: '',
-              isNegative: false,
-            },
-          ],
-        },
-        amountPaid: '',
-        presentValue: '',
-        earnings: '',
-        toolTipData: undefined,
-        actionRow: undefined,
-        tokenId: ' ',
-        isTotalRow: true,
-        isDividerRow: true,
-      });
-      break;
-    }
-  }
-  return arr;
+      ],
+      txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
+        {
+          txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
+          assetOrVaultId: vaultAddress,
+        }
+      )}`,
+    },
+  };
 }
 
 export const usePortfolioOverviewTable = (showGrouped: boolean) => {
@@ -831,13 +896,8 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
   const pendingTokens = usePendingPnLCalculation(network)?.flatMap(
     ({ tokens }) => tokens
   );
-  const { isMobileView } = useAppStore();
-  const isBlocked = useLeverageBlock();
   const [toggleOption, setToggleOption] = useState<number>(0);
   const pendingTokenData = usePendingPnLCalculation(network);
-  const { detailedHoldings, totalHoldingsRow } =
-    useDetailedHoldingsTable(baseCurrency);
-  const { groupedRows, groupedTokens } = useGroupedHoldingsTable(baseCurrency);
 
   const filteredHoldings =
     holdings?.filter(
@@ -856,117 +916,10 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
     .filter((h) => h.balance.isNegative())
     .map((h) => formatPortfolioHoldings(h, pendingTokens, baseCurrency));
 
-  const groupedHoldings = [
-    ...groupedRows,
-    ...detailedHoldings.filter(
-      ({ tokenId }) => !groupedTokens.includes(tokenId)
-    ),
-  ];
-
   const vaultHoldingsData =
-    vaults?.map((vaultHolding) => {
-      const {
-        vaultAddress,
-        name,
-        maturity,
-        underlying,
-        amountPaid,
-        apyData,
-        leverageRatio,
-        maxLeverageRatio,
-        totalAssets,
-        totalDebt,
-        healthFactor,
-        netWorth,
-        vaultShares,
-        vaultDebt,
-      } = vaultHolding;
-      const {
-        subRowInfo,
-        totalEarnings,
-        buttonBarData,
-        warning,
-        showRowWarning,
-      } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
-
-      const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
-        {
-          label: <FormattedMessage defaultMessage={'Borrow APY'} />,
-          value: formatNumberAsPercent(apyData?.debtAPY || 0, 2),
-        },
-        {
-          label: <FormattedMessage defaultMessage={'Strategy APY'} />,
-          value: formatNumberAsPercent(apyData?.assetAPY || 0, 2),
-        },
-        {
-          label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
-          value: (
-            <H4
-              sx={{
-                display: 'flex',
-                alignItems: 'baseline',
-                justifyContent: 'space-between',
-              }}
-            >
-              {formatLeverageRatio(leverageRatio)}
-              <Body sx={{ marginLeft: theme.spacing(1) }}>
-                Max {formatLeverageRatio(maxLeverageRatio, 1)}
-              </Body>
-            </H4>
-          ),
-        },
-        ...subRowInfo,
-      ];
-
-      return {
-        asset: {
-          symbol: underlying,
-          symbolBottom: '',
-          label: name,
-          caption:
-            maturity === PRIME_CASH_VAULT_MATURITY
-              ? 'Open Term'
-              : `Maturity: ${formatMaturity(maturity)}`,
-        },
-        vaultAddress,
-        tokenId: vaultShares.tokenId,
-        isPending: !!pendingTokens?.find(
-          (t) => t.id === vaultShares.tokenId || t.id === vaultDebt.tokenId
-        ),
-        // Assets and debts are shown on the overview page
-        assets: formatCryptoWithFiat(baseCurrency, totalAssets),
-        debts: formatCryptoWithFiat(baseCurrency, totalDebt, {
-          isDebt: true,
-        }),
-        healthFactor: formatHealthFactorValues(healthFactor, theme),
-        presentValue: formatCryptoWithFiat(baseCurrency, netWorth),
-        totalEarnings,
-        marketApy: apyData?.totalAPY
-          ? formatNumberAsPercent(apyData.totalAPY)
-          : '',
-        amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
-        actionRow: {
-          warning,
-          showRowWarning,
-          subRowData,
-          buttonBarData: [
-            ...buttonBarData,
-            {
-              buttonText: (
-                <FormattedMessage defaultMessage={'Manage / Withdraw'} />
-              ),
-              link: `/vaults/${network}/${vaultAddress}/Manage`,
-            },
-          ],
-          txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
-            {
-              txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
-              assetOrVaultId: vaultAddress,
-            }
-          )}`,
-        },
-      };
-    }) || [];
+    vaults?.map((vaultHolding) =>
+      formatVaultHoldings(vaultHolding, pendingTokens, baseCurrency, theme)
+    ) || [];
 
   let leverage: OverviewTableRow[];
   if (showGrouped) {
@@ -1032,11 +985,6 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
     </Box>,
   ];
 
-  const portfolioHoldingsData =
-    toggleOption === 0 && !isBlocked && groupedRows.length > 0
-      ? groupedHoldings
-      : detailedHoldings;
-
   return {
     rows: [
       ...leverage,
@@ -1061,12 +1009,13 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
       toggleOption,
       setToggleOption,
       toggleData,
-      showToggle: !isBlocked && groupedRows.length > 0,
+      showToggle: leverage.length > 0,
     },
-    portfolioHoldingsData: [
-      ...insertDebtDivider(portfolioHoldingsData),
-      isMobileView ? undefined : totalHoldingsRow,
-    ].filter((item) => item !== undefined),
+    mobilePortfolioHoldings: [
+      ...earn,
+      debt.length > 0 ? dividerRow('DEBT POSITIONS') : undefined,
+      ...debt,
+    ].filter((r) => r !== undefined) as OverviewTableRow[],
     pendingTokenData,
   };
 };

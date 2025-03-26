@@ -30,7 +30,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { ExpandedState } from '@tanstack/react-table';
 import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
-import { useEarningsBreakdown } from '../portfolio-holdings/use-earnings-breakdown';
+import { useEarningsBreakdown } from './hooks/use-earnings-breakdown';
 
 const HealthFactorCell = ({ cell }) => {
   const { getValue } = cell;

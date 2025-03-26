@@ -2,15 +2,13 @@ import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import PositionCard from '../components/position-card';
 import { H3, H4 } from '@notional-finance/mui';
-import { usePortfolioOverviewTable } from '../hooks';
+import { OverviewTableRow } from '../hooks/use-portfolio-overview-table';
 
-interface IProps {
-  holdings: ReturnType<
-    typeof usePortfolioOverviewTable
-  >['portfolioHoldingsData'];
-}
-
-const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
+const PortfolioHoldingsOverview = ({
+  holdings,
+}: {
+  holdings: OverviewTableRow[];
+}) => {
   const theme = useTheme();
 
   return (
@@ -74,21 +72,30 @@ const PortfolioHoldingsOverview = ({ holdings }: IProps) => {
                     typeof holding.marketApy === 'string'
                       ? holding.marketApy
                       : holding.marketApy?.data?.[0]?.displayValue,
-                  description: holding.marketApy?.data?.[1]?.displayValue,
+                  description:
+                    typeof holding.marketApy === 'string'
+                      ? holding.marketApy
+                      : holding.marketApy?.data?.[1]?.displayValue,
                 },
                 'Present Value': {
                   value:
                     typeof holding.presentValue === 'string'
                       ? holding.presentValue
                       : holding.presentValue?.data?.[0]?.displayValue,
-                  description: holding.presentValue?.data?.[1]?.displayValue,
+                  description:
+                    typeof holding.presentValue === 'string'
+                      ? holding.presentValue
+                      : holding.presentValue?.data?.[1]?.displayValue,
                 },
                 'Total Earnings': {
                   value:
-                    typeof holding.earnings === 'string'
-                      ? holding.earnings
-                      : holding.earnings?.data?.[0]?.displayValue,
-                  description: holding.earnings?.data?.[1]?.displayValue,
+                    typeof holding.totalEarnings === 'string'
+                      ? holding.totalEarnings
+                      : holding.totalEarnings?.data?.[0]?.displayValue,
+                  description:
+                    typeof holding.totalEarnings === 'string'
+                      ? holding.totalEarnings
+                      : holding.totalEarnings?.data?.[1]?.displayValue,
                 },
               }}
               key={i}
