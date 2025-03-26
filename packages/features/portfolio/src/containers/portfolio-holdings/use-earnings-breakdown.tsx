@@ -281,7 +281,5 @@ export function useEarningsBreakdown(isGrouped: boolean) {
       ]
     : detailedEarnings;
 
-  return {
-    earningsBreakdownData: insertDebtDivider(earningsBreakdownData),
-  };
+  return insertDebtDivider(earningsBreakdownData);
 }

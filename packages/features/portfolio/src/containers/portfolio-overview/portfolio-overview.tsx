@@ -30,6 +30,7 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { ExpandedState } from '@tanstack/react-table';
 import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
+import { useEarningsBreakdown } from '../portfolio-holdings/use-earnings-breakdown';
 
 const HealthFactorCell = ({ cell }) => {
   const { getValue } = cell;
@@ -232,6 +233,7 @@ const PortfolioOverview = () => {
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
   const { rows, hasLeverage } = usePortfolioOverviewTable(showGrouped);
+  const earningsBreakdownData = useEarningsBreakdown(showGrouped);
   const { Columns, initialState, setCurrentTab, currentTab, setExpandedRows } =
     useTableTabState();
 
@@ -348,7 +350,7 @@ const PortfolioOverview = () => {
             ],
             showToggle: hasLeverage,
           }}
-          data={rows}
+          data={currentTab === TableTab.OVERVIEW ? rows : earningsBreakdownData}
           columns={Columns}
           pendingTokenData={pendingTokenData}
           pendingMessage={
@@ -358,7 +360,9 @@ const PortfolioOverview = () => {
               }
             />
           }
-          CustomRowComponent={TableActionRow}
+          CustomRowComponent={
+            currentTab === TableTab.OVERVIEW ? TableActionRow : undefined
+          }
           expandableTable={true}
           setExpandedRows={setExpandedRows}
           tableVariant={TABLE_VARIANTS.TOTAL_ROW}
