@@ -87,9 +87,9 @@ export const StyledButton = styled(Button, {
 
     &:hover {
       transition: all .3s ease;
-        background: ${active ? colors.neonTurquoise : theme.palette.info.light};
-        color: ${active ? colors.black : colors.white};
-        border: 1px solid ${colors.neonTurquoise};
+      background: ${active ? colors.neonTurquoise : theme.palette.info.light};
+      color: ${active ? colors.black : colors.white};
+      border: 1px solid ${colors.neonTurquoise};
     }
 `
 );

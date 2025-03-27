@@ -1,13 +1,12 @@
+import { useState } from 'react';
 import { Box, styled } from '@mui/material';
 import {
   Caption,
   LabelValue,
   useCurrencyInputRef,
 } from '@notional-finance/mui';
-import { useWalletBalanceInputCheck } from '@notional-finance/notionable-hooks';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { DepositInputTransaction } from '../components/DepositInputTransaction';
-import { PRODUCTS } from '@notional-finance/util';
-import { useState } from 'react';
 import { defineMessage } from 'react-intl';
 
 const lendingOptions = [
@@ -27,13 +26,14 @@ const lendingOptions = [
 
 export const useInputContainer = () => {
   const { currencyInputRef } = useCurrencyInputRef();
+  const tradeContext = useCurrentTradeContext();
+  const selectedNetwork = tradeContext?.selectedNetwork;
 
   const [selectedToken] = useState<string | undefined | null>(undefined);
   const [amount, setAmount] = useState<number>(0);
   const [selectedLendingOption, setSelectedLendingOption] = useState(
     lendingOptions[0]
   );
-  const { maxBalanceString } = useWalletBalanceInputCheck(undefined, undefined);
 
   const content = (
     <Container>
@@ -42,8 +42,9 @@ export const useInputContainer = () => {
         inputRef={currencyInputRef}
         miniButtonLabel={'MAX'}
         onUpdate={(v) => setAmount(Number(v))}
-        onMaxValue={() => setAmount(Number(maxBalanceString))}
-        newRoute={(newToken) => `/${PRODUCTS.LEND_FIXED}/${newToken}`}
+        newRoute={(newToken) =>
+          `/new-transaction/${selectedNetwork}/${newToken}`
+        }
         inputLabel={defineMessage({
           defaultMessage: 'Lend',
         })}

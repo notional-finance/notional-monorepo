@@ -2,17 +2,10 @@ import { Box, styled, useTheme, Collapse } from '@mui/material';
 import { useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { Body, H4 } from '@notional-finance/mui';
-
-// Define interface for FAQ item
-interface FAQItem {
-  question: string;
-  answer: string;
-  caption?: string;
-}
+import { Body, FaqProps, H4 } from '@notional-finance/mui';
 
 interface FAQSectionProps {
-  items: FAQItem[];
+  items: FaqProps[];
 }
 
 // FAQ Section Component
@@ -29,12 +22,12 @@ const FAQSection = ({ items }: FAQSectionProps) => {
   };
 
   // Create two separate arrays for the two columns (except for items with captions)
-  type FAQItemWithIndex = { item: FAQItem; index: number };
+  type FAQItemWithIndex = { item: FaqProps; index: number };
   const leftColumnItems: FAQItemWithIndex[] = [];
   const rightColumnItems: FAQItemWithIndex[] = [];
 
   items.forEach((item, index) => {
-    if (item.caption) {
+    if (item.questionDescription) {
       // Items with captions go in a separate array to be handled specially
       leftColumnItems.push({ item, index });
     } else if (index % 2 === 0) {
@@ -48,11 +41,16 @@ const FAQSection = ({ items }: FAQSectionProps) => {
     const { item, index } = itemWithIndex;
     const isExpanded = expandedItems.includes(index);
     return (
-      <FAQItemBox key={index} sx={item.caption ? { gridColumn: 'span 2' } : {}}>
+      <FAQItemBox
+        key={index}
+        sx={item.questionDescription ? { gridColumn: 'span 2' } : {}}
+      >
         <FAQQuestionRow onClick={() => toggleItem(index)}>
           <Box>
             <H4>{item.question}</H4>
-            {item.caption && <Body>{item.caption}</Body>}
+            {item.questionDescription && (
+              <Body>{item.questionDescription}</Body>
+            )}
           </Box>
           {isExpanded ? (
             <RemoveIcon sx={{ color: theme.palette.primary.main }} />
@@ -71,14 +69,14 @@ const FAQSection = ({ items }: FAQSectionProps) => {
     <FAQSectionWrapper>
       {/* Special items with caption that span full width */}
       {leftColumnItems
-        .filter(({ item }) => item.caption)
+        .filter(({ item }) => item.questionDescription)
         .map((itemWithIndex) => renderFAQItem(itemWithIndex))}
 
       <FAQColumnsContainer>
         {/* Left column items */}
         <FAQColumn>
           {leftColumnItems
-            .filter(({ item }) => !item.caption)
+            .filter(({ item }) => !item.questionDescription)
             .map((itemWithIndex) => renderFAQItem(itemWithIndex))}
         </FAQColumn>
 

@@ -208,6 +208,10 @@ export const CurrencyInput = React.forwardRef<
               onMaxValue();
             }
           }}
+          style={{
+            backgroundColor: theme.palette.info.light,
+            color: theme.palette.primary.main,
+          }}
         />
         {!style?.transactionPage && (
           <Divider

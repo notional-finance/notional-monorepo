@@ -1,7 +1,7 @@
-import { alpha, Box, BoxProps, styled, useTheme } from '@mui/material';
+import { Box, BoxProps, styled } from '@mui/material';
 import { Button, H2, LargeInputTextEmphasized } from '@notional-finance/mui';
-import { ExternalLinkIcon } from '@notional-finance/icons';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+
 interface DataSectionProps {
   title: string;
   button?: {
@@ -11,16 +11,13 @@ interface DataSectionProps {
     externalLink?: string;
   };
   contents: {
-    label: string;
     containerProps?: BoxProps;
     content: React.ReactNode;
   }[];
 }
 
-// Data Section Component
 const DataSection = ({ title, button, contents }: DataSectionProps) => {
   const { isMobileView } = useAppStore();
-  const theme = useTheme();
   return (
     <DataSectionContainer>
       <HeaderContainer>
@@ -30,28 +27,19 @@ const DataSection = ({ title, button, contents }: DataSectionProps) => {
           <H2>{title}</H2>
         )}
         {button && !isMobileView && (
-          <Button
+          <CustomButton
             variant="contained"
-            sx={{
-              backgroundColor: alpha(theme.palette.primary.main, 0.1),
-              color: theme.palette.primary.main,
-            }}
             startIcon={button.icon}
-            endIcon={
-              button.externalLink && <ExternalLinkIcon sx={{ fontSize: 16 }} />
-            }
             onClick={button.onClick}
             href={button.externalLink}
           >
             {button?.label}
-          </Button>
+          </CustomButton>
         )}
       </HeaderContainer>
       <ContentContainer>
         {contents.map((content) => (
-          <Box key={content.label} {...content.containerProps}>
-            {content.content}
-          </Box>
+          <Box {...content.containerProps}>{content.content}</Box>
         ))}
       </ContentContainer>
     </DataSectionContainer>
@@ -84,7 +72,7 @@ const ContentContainer = styled(Box)(
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   gap: ${theme.spacing(3)};
 
@@ -93,6 +81,15 @@ const ContentContainer = styled(Box)(
     align-items: flex-start;
     gap: ${theme.spacing(2)};
   }
+`
+);
+
+const CustomButton = styled(Button)(
+  ({ theme }) => `
+  background-color: ${theme.palette.background.paper};
+  color: ${theme.palette.typography.accent};
+  font-weight: 600;
+  font-size: '14px';
 `
 );
 

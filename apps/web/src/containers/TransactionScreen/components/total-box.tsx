@@ -1,13 +1,14 @@
 import { Box, styled, useTheme } from '@mui/material';
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { Body, Caption, H4, H5 } from '@notional-finance/mui';
 import CountUp from '@notional-finance/mui/lib/count-up/count-up';
 import { UpwardIcon } from '@notional-finance/icons';
+import { EmotionJSX } from '@emotion/react/types/jsx-namespace';
 
 /* eslint-disable-next-line */
 export interface TotalBoxProps {
-  title: ReactNode;
-  value?: number | React.ReactNode;
+  title: EmotionJSX.Element;
+  value?: string | number | React.ReactNode;
   prefix?: string;
   suffix?: string;
   Icon?: React.ElementType;
@@ -45,6 +46,7 @@ export function TotalBox({
           marginBottom: theme.spacing(0.5),
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
         <H5>{title}</H5>
@@ -69,33 +71,37 @@ export function TotalBox({
             value
           )}
         </H4>
-        <TrendContainer>
-          {trend?.direction === 'up' ? (
-            <UpwardIcon sx={{ color: theme.palette.primary.main, width: 9 }} />
-          ) : (
-            <UpwardIcon
-              sx={{
-                color: theme.palette.error.main,
-                width: 9,
-                transform: 'rotate(180deg)',
-              }}
-            />
-          )}
-          <Caption>
-            <span
-              style={{
-                color:
-                  trend?.direction === 'up'
-                    ? theme.palette.primary.main
-                    : theme.palette.error.main,
-              }}
-            >
-              {trend?.direction === 'up' ? '+' : '-'}
-              {trend?.value}%
-            </span>{' '}
-            ({trend?.duration})
-          </Caption>
-        </TrendContainer>
+        {trend && (
+          <TrendContainer>
+            {trend?.direction === 'up' ? (
+              <UpwardIcon
+                sx={{ color: theme.palette.primary.main, width: 9 }}
+              />
+            ) : (
+              <UpwardIcon
+                sx={{
+                  color: theme.palette.error.main,
+                  width: 9,
+                  transform: 'rotate(180deg)',
+                }}
+              />
+            )}
+            <Caption>
+              <span
+                style={{
+                  color:
+                    trend?.direction === 'up'
+                      ? theme.palette.primary.main
+                      : theme.palette.error.main,
+                }}
+              >
+                {trend?.direction === 'up' ? '+' : '-'}
+                {trend?.value}%
+              </span>{' '}
+              ({trend?.duration})
+            </Caption>
+          </TrendContainer>
+        )}
       </ContentContainer>
     </Box>
   );
