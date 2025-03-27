@@ -11,6 +11,7 @@ import {
 import { ChartIcon } from '@notional-finance/icons';
 import { useTotalsData } from '@notional-finance/lend-feature-shell/lend-fixed/hooks';
 import { ChartType } from '@notional-finance/core-entities';
+import { FormattedMessage } from 'react-intl';
 
 export const useDataSection = () => {
   const theme = useTheme();
@@ -48,6 +49,39 @@ export const useDataSection = () => {
               <MultiDisplayChart
                 chartComponents={[
                   {
+                    headerButtons: {
+                      buttons: [
+                        {
+                          label: 'APY',
+                          onClick: () => {
+                            console.log('APY');
+                          },
+                          value: 'APY',
+                        },
+                        {
+                          label: 'Total Lent',
+                          onClick: () => {
+                            console.log('Total Lent');
+                          },
+                          value: 'Total Lent',
+                        },
+                      ],
+                      containerProps: {
+                        sx: {
+                          position: 'unset',
+                          border: `1px solid ${theme.palette.borders.default}`,
+                          padding: theme.spacing(0.25),
+                          width: 'fit-content',
+                          borderRadius: theme.shape.borderRadius(),
+                          '& .MuiToggleButtonGroup-root': {
+                            marginRight: '0',
+                          },
+                          '& .MuiButtonBase-root': {
+                            backgroundColor: 'transparent',
+                          },
+                        },
+                      },
+                    },
                     id: 'apy-area-chart',
                     title: 'APY',
                     hideTopGridLine: false,
@@ -60,7 +94,16 @@ export const useDataSection = () => {
                           })) || []
                         }
                         areaChartProps={{}}
-                        lineConfig={[]}
+                        lineConfig={[
+                          {
+                            dataKey: 'totalAPY',
+                            title: (
+                              <FormattedMessage defaultMessage="Current APY" />
+                            ),
+                            fill: 'black',
+                            value: '--',
+                          },
+                        ]}
                         areaKey="totalAPY"
                         XAxisKey="date"
                         showYAxis={true}

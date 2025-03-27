@@ -1,5 +1,5 @@
 import { useState, ReactNode } from 'react';
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, BoxProps, styled, useTheme } from '@mui/material';
 import { TradeSummaryBox } from '../trade-summary-box/trade-summary-box';
 import { Body } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
@@ -28,10 +28,13 @@ export interface ChartComponentsProps {
   bottomLabel?: ReactNode;
   hideTopGridLine?: boolean;
   headerButtons?: {
-    label: string;
-    value: string;
-    onClick: () => void;
-  }[];
+    buttons: {
+      label: string;
+      value: string;
+      onClick: () => void;
+    }[];
+    containerProps?: BoxProps;
+  };
 }
 
 export interface ChartContainerProps {
@@ -102,7 +105,10 @@ export const MultiDisplayChart = ({
             />
           )}
           {currentChart?.headerButtons && (
-            <ChartHeaderToggles headerButtons={currentChart.headerButtons} />
+            <ChartHeaderToggles
+              headerButtons={currentChart.headerButtons.buttons}
+              containerProps={currentChart.headerButtons.containerProps}
+            />
           )}
           <ChartContainer
             hideTopGridLine={currentChart?.hideTopGridLine}

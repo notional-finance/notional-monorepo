@@ -1,6 +1,7 @@
 import {
   alpha,
   Box,
+  BoxProps,
   styled,
   ToggleButton,
   ToggleButtonGroup,
@@ -13,10 +14,12 @@ interface ChartHeaderTogglesProps {
     value: string;
     onClick: () => void;
   }[];
+  containerProps?: BoxProps;
 }
 
 export const ChartHeaderToggles = ({
   headerButtons,
+  containerProps,
 }: ChartHeaderTogglesProps) => {
   const [selectedButton, setSelectedButton] = useState(headerButtons[0].value);
 
@@ -29,7 +32,7 @@ export const ChartHeaderToggles = ({
   };
 
   return (
-    <Container>
+    <Container {...containerProps}>
       <CustomToggleButtonGroup
         exclusive
         size="small"
