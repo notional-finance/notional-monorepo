@@ -15,29 +15,25 @@ import InputContainer from './components/input-container';
 import { useInputContainer } from './hooks/use-input-container';
 import { useDataSection } from './hooks/use-data-section';
 import { useInfoBox } from './hooks/use-info-box';
-import { useFAQs } from './hooks/use-faqs';
 import { observer } from 'mobx-react-lite';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { useLendFixedFaq } from '@notional-finance/lend-feature-shell/lend-fixed/hooks';
 
 const TransactionScreen = () => {
   const context = useTradeContext('LendFixed');
   const isReady = context.tradeModel?.isReady;
   const network = context.tradeModel?.selectedNetwork;
+
   const isAccountReady = useAccountReady(network);
   const { isMobileView } = useAppStore();
   const { content, inputTextRow, button } = useInputContainer();
   const tabs = useInfoBox();
-  const faqs = useFAQs();
+  const { faqs } = useLendFixedFaq(network);
   const { title, button: dataButton, contents } = useDataSection();
 
   if (!isAccountReady) {
     return null;
   }
-
-  console.log(
-    'context.tradeModel',
-    JSON.parse(JSON.stringify(context.tradeModel))
-  );
 
   return (
     <FeatureLoader featureLoaded={isReady === true}>

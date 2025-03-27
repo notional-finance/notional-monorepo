@@ -1,31 +1,34 @@
 import { useTheme } from '@mui/material';
-import { BarChartIcon } from '@notional-finance/icons';
 import TotalBox from '../components/total-box';
 import { MultiDisplayChart } from '@notional-finance/mui';
 import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
-import { getDateString, SECONDS_IN_DAY } from '@notional-finance/util';
-import { useTotalsChart } from '@notional-finance/portfolio-feature-shell/containers/portfolio-overview/hooks';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import { getDateString } from '@notional-finance/util';
+import {
+  useAppStore,
+  useChartData,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
+import { ChartIcon } from '@notional-finance/icons';
+import { useTotalsData } from '@notional-finance/lend-feature-shell/lend-fixed/hooks';
+import { ChartType } from '@notional-finance/core-entities';
 
 export const useDataSection = () => {
   const theme = useTheme();
+  const tradeContext = useCurrentTradeContext();
+  const { collateral, deposit } = tradeContext?.selectedTokens ?? {};
   const { baseCurrency } = useAppStore();
+  const totalsData = useTotalsData(deposit, collateral, baseCurrency);
 
-  const { barChartData, barConfig, totalsData } = useTotalsChart(
-    baseCurrency,
-    SECONDS_IN_DAY * 2,
-    SECONDS_IN_DAY * 2 * 30
-  );
+  const { data: apyData } = useChartData(collateral, ChartType.APY);
 
   const contents = [
     {
-      label: 'Current Utilization',
       containerProps: {
         sx: {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           gap: theme.spacing(3),
 
           [theme.breakpoints.down('sm')]: {
@@ -34,80 +37,31 @@ export const useDataSection = () => {
           },
         },
       },
-      content: (
-        <>
-          {[
-            {
-              title: 'Current Utilization',
-              value: 1000,
-              decimals: 2,
-              suffix: '%',
-              trend: {
-                value: 5,
-                direction: 'up' as const,
-                duration: '30d',
-              },
-            },
-            {
-              title: 'Total Supplied',
-              value: 1000,
-              decimals: 2,
-              suffix: ' ETH',
-              trend: {
-                value: 5,
-                direction: 'up' as const,
-                duration: '30d',
-              },
-            },
-            {
-              title: 'Total Borrowed',
-              value: 1000,
-              decimals: 2,
-              suffix: ' ETH',
-              trend: {
-                value: 5,
-                direction: 'down' as const,
-                duration: '30d',
-              },
-            },
-          ].map((totalBox) => (
-            <TotalBox key={totalBox.title} {...totalBox} />
-          ))}
-        </>
-      ),
+      content: totalsData.map((total, index) => (
+        <TotalBox key={index} {...total} />
+      )),
     },
-    ...(barChartData && barConfig && totalsData
+    ...(apyData
       ? [
           {
-            label: 'Lending Info',
             content: (
               <MultiDisplayChart
                 chartComponents={[
                   {
-                    chartHeaderTotalsData: totalsData,
                     id: 'apy-area-chart',
                     title: 'APY',
                     hideTopGridLine: false,
                     Component: (
                       <LineChart
                         data={
-                          barChartData?.map(
-                            ({
-                              timestamp,
-                              totalNetWorth,
-                              totalAssets,
-                              totalDebts,
-                            }) => ({
-                              date: timestamp,
-                              totalNetWorth,
-                              totalAssets,
-                              totalDebts,
-                            })
-                          ) || []
+                          apyData.data?.map(({ timestamp, totalAPY }) => ({
+                            date: timestamp,
+                            totalAPY,
+                          })) || []
                         }
                         areaChartProps={{}}
-                        lineConfig={barConfig || []}
-                        areaKey="totalNetWorth"
+                        lineConfig={[]}
+                        areaKey="totalAPY"
                         XAxisKey="date"
                         showYAxis={true}
                         tickFormatter={(value) => {
@@ -136,7 +90,7 @@ export const useDataSection = () => {
     title: 'Lending Info',
     button: {
       label: 'View Analytics',
-      icon: <BarChartIcon sx={{ fontSize: 16 }} />,
+      icon: <ChartIcon sx={{ fontSize: '16px !important' }} />,
       externalLink: 'https://notional.finance',
     },
 

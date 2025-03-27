@@ -111,3 +111,4 @@ export * from './lib/three-dot-icon/three-dot-icon';
 export * from './lib/percent-icon/percent-icon';
 export * from './lib/gauge-icon/gauge-icon';
 export * from './lib/upward-icon/upward-icon';
+export * from './lib/chart-icon/chart-icon';
