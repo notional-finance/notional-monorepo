@@ -38,7 +38,7 @@ interface PendleMarketParams {
 }
 
 const PENDLE_ROUTER = {
-  [Network.mainnet]: '0x888888888889758F76e7103c6CbF23ABbF58F946',
+  [Network.mainnet]: '0x62a244caef7567be7df8c3743060d84dd9447ab3',
   [Network.arbitrum]: '0x888888888889758F76e7103c6CbF23ABbF58F946',
   [Network.all]: '0x0000000000000000000000000000000000000000',
 };
@@ -325,7 +325,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
             },
           };
         },
-        50 * BASIS_POINT
+        5 * BASIS_POINT
       );
 
       return {
