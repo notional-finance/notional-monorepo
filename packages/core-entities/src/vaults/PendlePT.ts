@@ -412,7 +412,7 @@ export class PendlePT extends VaultAdapter {
     _account: string,
     _maturity: number,
     totalDeposit: TokenBalance,
-    slippageFactor = 5 * BASIS_POINT
+    slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
     const { dexId, depositExchangeData: exchangeData } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
@@ -490,7 +490,7 @@ export class PendlePT extends VaultAdapter {
     _maturity: number,
     vaultSharesToRedeem: TokenBalance,
     _underlyingToRepayDebt: TokenBalance,
-    slippageFactor = 5 * BASIS_POINT
+    slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
     if (this.tokenOutSy === this.borrowedToken.id) {
       return '0x';
