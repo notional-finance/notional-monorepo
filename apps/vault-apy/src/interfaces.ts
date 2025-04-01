@@ -83,6 +83,7 @@ export const SingleSidedLPVault = new ethers.utils.Interface([
 export const TradingModuleInterface = new ethers.utils.Interface([
   'function setMaxOracleFreshness(uint32) external',
   'function NOTIONAL() external view returns (address)',
+  'function getOraclePrice(address baseToken, address quoteToken) external view returns (int256 answer, int256 decimals)',
 ]);
 
 export const NotionalInterface = new ethers.utils.Interface([
