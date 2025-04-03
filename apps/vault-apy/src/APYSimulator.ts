@@ -304,6 +304,21 @@ export default class APYSimulator {
       account
     );
 
+    const tradingModule = new Contract(
+      this.#config.addresses.tradingModule,
+      TradingModuleInterface,
+      provider
+    );
+
+    for (const redemptionToken of RedeemDataVaultShare.redemptionTokens) {
+      const price = await tradingModule.getOraclePrice(
+        redemptionToken.address,
+        vaultData.primaryBorrowCurrency
+      );
+      redemptionToken.priceInPrimary = price.answer.toString();
+      redemptionToken.priceDecimals = price.decimals.toString();
+    }
+
     const redemptionData: RedemptionData = {
       vaultAddress: vaultData.address,
       priceOfVaultShare: priceOfVaultShare.toString(),
@@ -372,6 +387,19 @@ export default class APYSimulator {
         : null,
       noVaultShares: !isAccountVault,
     };
+
+    const signer = provider.getSigner(account);
+    const vaultRewardStates = await vault
+      .connect(signer)
+      .claimRewardTokens({ gasLimit: 1000000 })
+      .then((tx) => tx.wait())
+      .then(() => vault.getRewardSettings())
+      .then((rewardSettings) => rewardSettings[0])
+      .catch(() => {
+        log('No vault reward lib deployed');
+        return [];
+      });
+
     const allResults: VaultAPY[] = [];
     for (const [token, tokensClaimed] of rewardTokens) {
       const { decimals: tokenDecimals, symbol } = await getTokenDetails(
@@ -387,6 +415,11 @@ export default class APYSimulator {
             priceDecimals + tokenDecimals - primaryBorrowDecimals
           )
         );
+
+      const accumulatedRewardPerVaultShare =
+        (vaultRewardStates || []).find(
+          (r) => r.rewardToken.toLowerCase() === token.toLowerCase()
+        )?.accumulatedRewardPerVaultShare || BigNumber.from(0);
 
       const result: VaultAPY = {
         /////////////////local log, not saved to db/////////////////////////
@@ -406,6 +439,10 @@ export default class APYSimulator {
         rewardTokensClaimed: tokensClaimed.toString(),
         rewardTokenValuePrimaryBorrow: rewardTokenValuePrimaryBorrow.toString(),
         rewardTokenSymbol: symbol,
+        rewardTokenPriceInPrimary: priceInPrimary.toString(),
+        rewardTokenPriceDecimals: priceDecimals.toString(),
+        accumulatedRewardPerVaultShare:
+          accumulatedRewardPerVaultShare.toString(),
       };
       log(result);
       allResults.push(result);
