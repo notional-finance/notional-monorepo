@@ -78,8 +78,10 @@ export const SingleSidedLPVault = new ethers.utils.Interface([
   'function name() view external returns (string)',
   'function getStrategyVaultInfo() view external returns ((address,uint8,uint256,uint256 totalVaultShares,uint256,uint256))',
   'function getExchangeRate(uint256 maturity) view external returns (int256)',
+  // VaultRewardLib
+  'function claimRewardTokens() external',
+  'function getRewardSettings() external view returns ((address rewardToken, uint32, uint32, uint128, uint128 accumulatedRewardPerVaultShare)[])',
 ]);
-
 export const TradingModuleInterface = new ethers.utils.Interface([
   'function setMaxOracleFreshness(uint32) external',
   'function NOTIONAL() external view returns (address)',

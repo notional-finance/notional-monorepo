@@ -321,7 +321,7 @@ export default class APYSimulator {
         redemptionToken.address,
         vaultData.primaryBorrowCurrency
       );
-      redemptionToken.price = price.answer.toString();
+      redemptionToken.priceInPrimary = price.answer.toString();
       redemptionToken.priceDecimals = price.decimals.toString();
     }
 
@@ -393,6 +393,19 @@ export default class APYSimulator {
         : null,
       noVaultShares: !isAccountVault,
     };
+
+    const signer = provider.getSigner(account);
+    const vaultRewardStates = await vault
+      .connect(signer)
+      .claimRewardTokens({ gasLimit: 1000000 })
+      .then((tx) => tx.wait())
+      .then(() => vault.getRewardSettings())
+      .then((rewardSettings) => rewardSettings[0])
+      .catch(() => {
+        log('No vault reward lib deployed');
+        return [];
+      });
+
     const allResults: VaultAPY[] = [];
     for (const [token, tokensClaimed] of rewardTokens) {
       const { decimals: tokenDecimals, symbol } = await getTokenDetails(
@@ -408,6 +421,11 @@ export default class APYSimulator {
             priceDecimals + tokenDecimals - primaryBorrowDecimals
           )
         );
+
+      const accumulatedRewardPerVaultShare =
+        vaultRewardStates.find(
+          (r) => r.rewardToken.toLowerCase() === token.toLowerCase()
+        )?.accumulatedRewardPerVaultShare || BigNumber.from(0);
 
       const result: VaultAPY = {
         /////////////////local log, not saved to db/////////////////////////
@@ -431,6 +449,10 @@ export default class APYSimulator {
             : '0',
         rewardTokenValuePrimaryBorrow: rewardTokenValuePrimaryBorrow.toString(),
         rewardTokenSymbol: symbol,
+        rewardTokenPriceInPrimary: priceInPrimary.toString(),
+        rewardTokenPriceDecimals: priceDecimals.toString(),
+        accumulatedRewardPerVaultShare:
+          accumulatedRewardPerVaultShare.toString(),
       };
       log(result);
       allResults.push(result);
