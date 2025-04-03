@@ -417,7 +417,7 @@ export default class APYSimulator {
         );
 
       const accumulatedRewardPerVaultShare =
-        vaultRewardStates.find(
+        (vaultRewardStates || []).find(
           (r) => r.rewardToken.toLowerCase() === token.toLowerCase()
         )?.accumulatedRewardPerVaultShare || BigNumber.from(0);
 

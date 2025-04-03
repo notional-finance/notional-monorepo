@@ -605,6 +605,10 @@ export default class DataService {
               no_vault_shares: v.noVaultShares,
               swap_fees: v.swapFees,
               symbol: v.rewardTokenSymbol,
+              accumulated_reward_per_vault_share:
+                v.accumulatedRewardPerVaultShare,
+              reward_token_price_in_primary: v.rewardTokenPriceInPrimary,
+              reward_token_price_decimals: v.rewardTokenPriceDecimals,
             }))
           )
           .into(DataService.VAULT_APY_NAME)
