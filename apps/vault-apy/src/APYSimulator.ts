@@ -278,12 +278,6 @@ export default class APYSimulator {
     const priceOfVaultShare = await vault.getExchangeRate(0).catch(() => {
       return BigNumber.from(0);
     });
-    const totalVaultShares = await vault.callStatic
-      .getStrategyVaultInfo()
-      .then((r) => r.totalVaultShares)
-      .catch(() => {
-        return BigNumber.from(0);
-      });
 
     const block = await provider.getBlock('latest');
     // used to query defiLlama api
@@ -443,10 +437,6 @@ export default class APYSimulator {
         ...sharedData,
         rewardToken: token.toLowerCase(),
         rewardTokensClaimed: tokensClaimed.toString(),
-        rewardTokenClaimedPerVaultShare:
-          account === vaultData.address
-            ? tokensClaimed.mul(1e8).div(totalVaultShares).toString()
-            : '0',
         rewardTokenValuePrimaryBorrow: rewardTokenValuePrimaryBorrow.toString(),
         rewardTokenSymbol: symbol,
         rewardTokenPriceInPrimary: priceInPrimary.toString(),

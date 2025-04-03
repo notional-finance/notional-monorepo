@@ -94,6 +94,9 @@ export type VaultAPY = {
   rewardTokenClaimedPerVaultShare?: string;
   rewardTokenValuePrimaryBorrow: string;
   rewardTokenSymbol: string;
+  rewardTokenPriceInPrimary?: string;
+  rewardTokenPriceDecimals?: string;
+  accumulatedRewardPerVaultShare?: string;
 };
 
 export type RedemptionToken = {
@@ -101,7 +104,7 @@ export type RedemptionToken = {
   address: string;
   amountPerLpToken: string;
   decimals: number;
-  price?: string;
+  priceInPrimary?: string;
   priceDecimals?: string;
 };
 
