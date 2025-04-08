@@ -540,13 +540,6 @@ export const AnalyticsModel = types.model('Analytics', {
           assets: NotionalTypes.TokenBalance,
           collateralRatio: types.union(types.number, types.null),
           healthFactor: types.union(types.number, types.null),
-          liquidationPrice: types.array(
-            types.model({
-              asset: TokenDefinitionModel,
-              threshold: types.union(NotionalTypes.TokenBalance, types.null),
-              isDebtThreshold: types.boolean,
-            })
-          ),
           aboveMaxLeverageRatio: types.boolean,
           leverageRatio: types.union(types.number, types.null),
         }),
@@ -562,16 +555,7 @@ export const AnalyticsModel = types.model('Analytics', {
           netWorth: NotionalTypes.TokenBalance,
           freeCollateral: NotionalTypes.TokenBalance,
           loanToValue: types.number,
-          collateralRatio: types.union(types.number, types.null),
-          leverageRatio: types.union(types.number, types.null),
           healthFactor: types.union(types.number, types.null),
-          liquidationPrice: types.array(
-            types.model({
-              asset: TokenDefinitionModel,
-              threshold: types.union(NotionalTypes.TokenBalance, types.null),
-              isDebtThreshold: types.boolean,
-            })
-          ),
         }),
       })
     )
