@@ -1,5 +1,4 @@
 import debug from 'debug';
-import { exec } from 'child_process';
 import assert from 'node:assert/strict';
 import { ethers, BigNumber, Contract, ContractTransaction } from 'ethers';
 import {
@@ -29,19 +28,15 @@ import {
 import { Oracle } from './oracles';
 import { getPoolFees } from './fees';
 import configPerNetwork, { Config, POOL_DECIMALS } from './config';
-import {
-  getTokenDecimals,
-  e,
-  execPromise,
-  wait,
-  floorToMidnight,
-} from './util';
+import { getTokenDecimals, e, execPromise, floorToMidnight } from './util';
 import {
   DataServiceVaultAPY,
   RedemptionData,
   RedemptionToken,
   VaultAPY,
 } from '@notional-finance/util/src/types';
+import { spawn } from 'child_process';
+import { ChildProcess } from 'child_process';
 
 type RedeemData = {
   lpBalance: BigNumber;
@@ -82,6 +77,7 @@ export default class APYSimulator {
   #network: Network;
   #config: Config;
   #alchemyProvider: JsonRpcProvider;
+  #anvilProcess: ChildProcess | null = null;
 
   constructor(network: Network) {
     this.#network = network;
@@ -465,19 +461,51 @@ export default class APYSimulator {
   }
 
   async #spawnAnvil(forkBlock: number) {
-    await execPromise('pkill anvil').catch(() =>
-      log('No running anvil instances')
+    // Kill any existing anvil processes first
+    await execPromise('pkill anvil').catch(() => null);
+
+    // Use spawn instead of exec to properly manage the process
+    const anvil = spawn('anvil', [
+      '--rpc-url',
+      this.#config.alchemyUrl,
+      '--fork-block-number',
+      forkBlock.toString(),
+    ]);
+
+    // Create a promise that resolves when Anvil is ready
+    const ready: Promise<{ rpcUrl: string }> = new Promise(
+      (resolve, reject) => {
+        let rpcUrl: string | undefined;
+
+        anvil.stdout.on('data', (data) => {
+          const output = data.toString();
+          // Look for the line that shows the RPC endpoint
+          if (output.includes('Listening on')) {
+            rpcUrl = 'http://localhost:8545'; // Default Anvil endpoint
+            resolve({ rpcUrl });
+          }
+        });
+
+        anvil.stderr.on('data', (data) => {
+          log(`Anvil error: ${data}`);
+        });
+
+        anvil.on('error', (error) => {
+          reject(new Error(`Failed to start Anvil: ${error.message}`));
+        });
+
+        // Set a timeout in case Anvil doesn't start properly
+        setTimeout(() => {
+          reject(new Error('Anvil failed to start within timeout period'));
+        }, 5000); // 5 second timeout
+      }
     );
 
-    log(`spawning network on block ${forkBlock}`);
-    exec(
-      `anvil --rpc-url ${
-        this.#config.alchemyUrl
-      } --fork-block-number ${forkBlock}`
-    );
-    await wait(5000);
+    // Store the process reference for cleanup
+    this.#anvilProcess = anvil;
 
-    return { rpcUrl: 'http://127.0.0.1:8545' };
+    // Wait for Anvil to be ready
+    return await ready;
   }
 
   async #extendMaxOracleFreshness(provider: JsonRpcProvider) {
@@ -785,6 +813,7 @@ export default class APYSimulator {
     ).timestamp;
     log(`Processing all vaults at block ${initialForkBlock}`);
 
+    const errors: Error[] = [];
     for (const vault of this.#config.vaults) {
       log(`Processing vault: ${vault.address}`);
       try {
@@ -796,7 +825,16 @@ export default class APYSimulator {
         await this.run(adjustedForkBlock, vault.address, originalTimestamp);
       } catch (error) {
         log(`Error processing vault ${vault.address}: ${error}`);
+        errors.push(error as Error);
       }
+    }
+
+    if (errors.length > 0) {
+      throw new Error(
+        `Errors occurred while processing vaults: ${errors
+          .map((e) => e.message)
+          .join(', ')}`
+      );
     }
   }
 
@@ -1329,6 +1367,13 @@ export default class APYSimulator {
       };
     } catch (error) {
       throw new Error(`Error simulating Convex LP token redemption: ${error}`);
+    }
+  }
+
+  async cleanup() {
+    if (this.#anvilProcess) {
+      this.#anvilProcess.kill();
+      this.#anvilProcess = null;
     }
   }
 }

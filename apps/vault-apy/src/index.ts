@@ -24,11 +24,12 @@ process.on('exit', async function () {
   const startOfToday = new Date();
   startOfToday.setUTCHours(0, 0, 0, 0);
 
+  let apySimulator: APYSimulator | null = null;
   if (process.argv.length == 2) {
     for (const network of networks) {
       log(`processing daily network ${network}`);
 
-      const apySimulator = new APYSimulator(network);
+      apySimulator = new APYSimulator(network);
       await apySimulator.runAll();
 
       log('processing completed');
@@ -38,7 +39,7 @@ process.on('exit', async function () {
     process.argv.length == 3
   ) {
     for (const network of networks) {
-      const apySimulator = new APYSimulator(network);
+      apySimulator = new APYSimulator(network);
       log(
         `processing historical apy network ${network} on date ${startOfToday.toISOString()}`
       );
@@ -52,7 +53,7 @@ process.on('exit', async function () {
     process.argv.length == 4
   ) {
     const [, , , network] = process.argv;
-    const apySimulator = new APYSimulator(network as Network);
+    apySimulator = new APYSimulator(network as Network);
     log(
       `processing historical apy network ${network} on date ${startOfToday.toISOString()}`
     );
@@ -82,7 +83,7 @@ process.on('exit', async function () {
       `processing historical apy for vault: ${vaultAddress} on network ${network}`
     );
 
-    const apySimulator = new APYSimulator(network as Network);
+    apySimulator = new APYSimulator(network as Network);
     await apySimulator.runHistoricalForVault(vaultAddress, 2, startOfToday);
 
     log('processing completed');
@@ -113,12 +114,16 @@ process.on('exit', async function () {
       `processing historical apy for vault: ${vaultAddress} on network ${network} for specific blocks`
     );
 
-    const apySimulator = new APYSimulator(network as Network);
+    apySimulator = new APYSimulator(network as Network);
     await apySimulator.runHistoricalForVaultWithBlocks(vaultAddress, blocks);
 
     log('processing completed');
   } else {
     console.log('Invalid arguments');
     console.log(info);
+  }
+
+  if (apySimulator) {
+    await apySimulator.cleanup();
   }
 })().then(() => process.exit());
