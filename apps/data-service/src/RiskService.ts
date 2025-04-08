@@ -86,6 +86,7 @@ export async function calculateAccountRisks() {
         new PutObjectCommand({
           Bucket: 'view-cache-r2',
           Key: `${n}/accounts/portfolioRisk`,
+          ContentType: 'application/json',
           Body: JSON.stringify(portfolioRiskProfiles),
         })
       );
@@ -93,6 +94,7 @@ export async function calculateAccountRisks() {
         new PutObjectCommand({
           Bucket: 'view-cache-r2',
           Key: `${n}/accounts/vaultRisk`,
+          ContentType: 'application/json',
           Body: JSON.stringify(vaultRiskProfiles),
         })
       );
@@ -970,6 +972,7 @@ async function saveTotalsData(accounts: Record<Network, AccountDefinition[]>) {
     new PutObjectCommand({
       Bucket: 'view-cache-r2',
       Key: `all/kpi`,
+      ContentType: 'application/json',
       Body: JSON.stringify(kpi),
     })
   );

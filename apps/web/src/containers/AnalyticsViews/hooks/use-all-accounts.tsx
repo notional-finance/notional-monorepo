@@ -63,7 +63,7 @@ export const useAllAccounts = (
   }, []);
 
   const addressClick = useCallback(
-    (address: string, network) => {
+    (address: string, network: Network) => {
       walletStore?.setUserWallet({
         selectedChain: selectedNetwork || Network.mainnet,
         selectedAddress: address,
