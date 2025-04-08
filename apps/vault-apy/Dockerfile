@@ -4,7 +4,7 @@ RUN curl -L https://foundry.paradigm.xyz | bash
 
 ENV PATH="${PATH}:/root/.foundry/bin"
 
-RUN foundryup
+RUN foundryup -v stable
 
 WORKDIR /usr/src/app
 

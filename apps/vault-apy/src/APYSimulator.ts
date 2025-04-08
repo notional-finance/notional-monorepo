@@ -392,7 +392,6 @@ export default class APYSimulator {
     const vaultRewardStates = await vault
       .connect(signer)
       .claimRewardTokens({ gasLimit: 1000000 })
-      .then((tx) => tx.wait())
       .then(() => vault.getRewardSettings())
       .then((rewardSettings) => rewardSettings[0])
       .catch(() => {
@@ -572,7 +571,12 @@ export default class APYSimulator {
     if (claimData) {
       await provider.send('anvil_impersonateAccount', [account]);
       return provider.send('eth_sendTransaction', [
-        { from: account, to: vaultData.gauge, data: claimData },
+        {
+          from: account,
+          to: vaultData.gauge,
+          data: claimData,
+          gasLimit: 1000000,
+        },
       ]);
     }
   }
@@ -1055,10 +1059,9 @@ export default class APYSimulator {
       const signer = provider.getSigner(account);
 
       // First, withdraw LP tokens from the Aura gauge
-      const tx = await auraGauge
+      await auraGauge
         .connect(signer)
         .withdrawAllAndUnwrap(false, { gasLimit: 1000000 });
-      await tx.wait();
       const lpBalance = await balancerPool.balanceOf(account);
       assert(lpBalance.gt(0), 'LP balance is 0');
 
