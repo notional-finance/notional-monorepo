@@ -204,6 +204,7 @@ nwst
 nwsteth
 ocrv
 Offchain
+offpeg
 ohmv
 oracledb
 overscan
