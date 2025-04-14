@@ -189,6 +189,7 @@ export class TokenBalance {
 
   get underlying(): TokenDefinition {
     if (this.tokenType == 'Underlying') return this.token;
+    if (this.tokenType == 'NOTE') return this.token;
     if (!this.token.underlying)
       throw Error(`No underlying defined for ${this.token.symbol}`);
     return NetworkModelRegistry.getModel(this.network).getTokenByID(
