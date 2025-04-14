@@ -1296,6 +1296,8 @@ export const TradeModel = types
         const { postVaultRisk, priorVaultRisk } = getPostVaultRiskProfile();
         priorBalances = priorVaultRisk?.balances;
         postBalances = postVaultRisk?.balances;
+      } else if (isNOTEStake(self.tradeType)) {
+        return [];
       } else {
         priorBalances = account?.portfolioRiskProfile?.balances;
         postBalances = getPostTradeSummary()?.balances;
