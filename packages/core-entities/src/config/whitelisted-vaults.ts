@@ -17,16 +17,9 @@ export const PointsMultipliers: Record<
     [vaults.mainnet.Convex_xGHO_USDe.toLowerCase()]: (_v) => ({
       Ethena: 20,
     }),
-    [vaults.mainnet.Balancer_rsETH_xWETH.toLowerCase()]: () => ({
-      Kernel: 2,
-    }),
   },
   [Network.all]: {},
-  [Network.arbitrum]: {
-    [vaults.arbitrum.Aura_rsETH_xWETH.toLowerCase()]: () => ({
-      Kernel: 2,
-    }),
-  },
+  [Network.arbitrum]: {},
 };
 
 export const PointsLinks: Record<Network, Record<string, string>> = {
