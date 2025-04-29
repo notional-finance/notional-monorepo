@@ -111,9 +111,9 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
       });
     }
     const rates = this.poolParams.stored_rates;
-    const xp = this._xp_mem(rates, old_balances)
+    const xp = this._xp_mem(rates, old_balances);
 
-    const dx = tokensIn.n
+    const dx = tokensIn.n;
 
     // Calculate output
     const x = xp[tokenIndexIn]
