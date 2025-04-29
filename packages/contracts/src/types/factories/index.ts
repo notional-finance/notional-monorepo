@@ -14,6 +14,7 @@ export { BalancerVault__factory } from "./BalancerVault__factory";
 export { Curve2TokenConvexVault__factory } from "./Curve2TokenConvexVault__factory";
 export { CurveGauge__factory } from "./CurveGauge__factory";
 export { CurveGaugeController__factory } from "./CurveGaugeController__factory";
+export { CurvePoolNG__factory } from "./CurvePoolNG__factory";
 export { CurvePoolToken__factory } from "./CurvePoolToken__factory";
 export { CurvePoolV1__factory } from "./CurvePoolV1__factory";
 export { CurvePoolV1WithOracle__factory } from "./CurvePoolV1WithOracle__factory";
