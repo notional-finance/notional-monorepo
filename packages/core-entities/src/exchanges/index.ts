@@ -19,6 +19,7 @@ import {
   PendleMarket,
   PendleMarketWithFixedSyToAssetExchangeRate,
 } from './Pendle/PendleMarket';
+import { Curve2TokenPoolNG } from './Curve/Curve2TokenPoolNG';
 
 type PoolConstructor = new (
   network: Network,
@@ -45,6 +46,7 @@ const PoolClasses: Record<
   PendleMarket: PendleMarket,
   PendleMarketWithFixedSyToAssetExchangeRate:
     PendleMarketWithFixedSyToAssetExchangeRate,
+  Curve2TokenPoolNG: Curve2TokenPoolNG,
 };
 
 export {
@@ -62,4 +64,5 @@ export {
   pCashMarket,
   SNOTEWeightedPool,
   PendleMarket,
+  Curve2TokenPoolNG,
 };
