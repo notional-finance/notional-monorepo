@@ -139,9 +139,7 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
     dy = dy.sub(dy_fee);
 
     // Convert back to token precision
-    dy = dy
-      .mul(this.poolParams.PRECISION)
-      .div(rates[tokenIndexOut])
+    dy = dy.mul(this.poolParams.PRECISION).div(rates[tokenIndexOut]);
 
     // Calculate admin fee
     const feesPaid = this.zeroTokenArray();
@@ -154,7 +152,8 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         .div(rates[tokenIndexOut]);
 
       if (!dy_admin_fee.isZero()) {
-        feesPaid[tokenIndexOut] = old_balances[tokenIndexOut].copy(dy_admin_fee);
+        feesPaid[tokenIndexOut] =
+          old_balances[tokenIndexOut].copy(dy_admin_fee);
       }
     }
 
@@ -271,14 +270,16 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
   private _xp_mem(rates: BigNumber[], balances: TokenBalance[]): BigNumber[] {
     const result: BigNumber[] = [];
     for (let i = 0; i < this.poolParams.N_COINS.toNumber(); i++) {
-      result.push(
-        rates[i].mul(balances[i].n).div(this.poolParams.PRECISION)
-      );
+      result.push(rates[i].mul(balances[i].n).div(this.poolParams.PRECISION));
     }
     return result;
   }
 
-  private get_D_mem(rates: BigNumber[], balances: TokenBalance[], amp: BigNumber): BigNumber {
+  private get_D_mem(
+    rates: BigNumber[],
+    balances: TokenBalance[],
+    amp: BigNumber
+  ): BigNumber {
     const xp = this._xp_mem(rates, balances);
     return this.get_D(xp, amp);
   }
@@ -428,7 +429,8 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
       dy = dy.sub(1);
 
       // Calculate fee amount
-      const dy_0 = xp[singleSidedExitTokenIndex].sub(new_y)
+      const dy_0 = xp[singleSidedExitTokenIndex]
+        .sub(new_y)
         .mul(this.poolParams.PRECISION)
         .div(this.poolParams.stored_rates[singleSidedExitTokenIndex]);
       const dy_fee = dy_0.sub(dy);
@@ -442,7 +444,7 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
       if (!this.poolParams.admin_fee.isZero()) {
         const admin_fee = dy_fee
           .mul(this.poolParams.admin_fee)
-          .div(this.poolParams.FEE_DENOMINATOR)
+          .div(this.poolParams.FEE_DENOMINATOR);
 
         feesPaid[singleSidedExitTokenIndex] =
           this.balances[singleSidedExitTokenIndex].copy(admin_fee);
