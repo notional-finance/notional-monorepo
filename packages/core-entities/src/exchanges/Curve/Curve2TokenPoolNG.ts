@@ -158,9 +158,6 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
     tokensOut: TokenBalance;
     feesPaid: TokenBalance[];
   } {
-    console.log('token in amount', tokensIn.n.toString());
-    console.log('token in address', tokensIn.tokenId);
-    console.log('token in index', this.getTokenIndex(tokensIn.token));
     const tokenIndexIn = this.getTokenIndex(tokensIn.token);
     let old_balances: TokenBalance[];
     if (balanceOverrides) {
@@ -171,20 +168,8 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         return balance.copy(this.poolParams.pool_balances[i]);
       });
     }
-    console.log(
-      'old balances:',
-      old_balances.map((b) => b.n.toString())
-    );
     const rates = this.poolParams.stored_rates;
-    console.log(
-      'rates:',
-      rates.map((r) => r.toString())
-    );
     const xp = this._xp_mem(rates, old_balances);
-    console.log(
-      'xp:',
-      xp.map((x) => x.toString())
-    );
 
     const dx = tokensIn.n;
 
@@ -192,16 +177,12 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
     const x = xp[tokenIndexIn].add(
       dx.mul(rates[tokenIndexIn]).div(this.poolParams.PRECISION)
     );
-    console.log('x:', x.toString());
     const amp = this.poolParams.A;
     const D = this.get_D(xp, amp);
-    console.log('D:', D.toString());
     const y = this.get_y(tokenIndexIn, tokenIndexOut, x, xp, amp, D);
-    console.log('y:', y.toString());
 
     // dy = xp[j] - y - 1 (subtract 1 to handle rounding errors)
     let dy = xp[tokenIndexOut].sub(y).sub(1);
-    console.log('dy before fees:', dy.toString());
 
     // Calculate dynamic fee
     const dynamic_fee = this.dynamic_fee(
@@ -209,16 +190,13 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
       xp[tokenIndexOut].add(y).div(2), // average of output amounts
       this.poolParams.fee
     );
-    console.log('dynamic fee:', dynamic_fee.toString());
 
     // Apply fees
     const dy_fee = dy.mul(dynamic_fee).div(this.poolParams.FEE_DENOMINATOR);
     dy = dy.sub(dy_fee);
-    console.log('dy after fees:', dy.toString());
 
     // Convert back to token precision
     dy = dy.mul(this.poolParams.PRECISION).div(rates[tokenIndexOut]);
-    console.log('dy after precision conversion:', dy.toString());
 
     // Calculate admin fee
     const feesPaid = this.zeroTokenArray();
@@ -235,12 +213,6 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
           old_balances[tokenIndexOut].copy(dy_admin_fee);
       }
     }
-    console.log('token out amount', dy.toString());
-    console.log('token out address', old_balances[tokenIndexOut].tokenId);
-    console.log(
-      'fees paid',
-      feesPaid.map((fee) => (fee ? fee.n.toString() : '0'))
-    );
     return {
       tokensOut: old_balances[tokenIndexOut].copy(dy),
       feesPaid,
