@@ -29,7 +29,14 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
   ): AggregateCall[] {
     const pool = new Contract(poolAddress, CurvePoolNGABI);
 
-    return [
+    const commonCalls = Curve2TokenPoolNG.getCurveAggregateCall(
+      network,
+      poolAddress,
+      pool,
+      2
+    );
+
+    const calls = commonCalls.concat([
       {
         target: pool,
         method: 'A_precise',
@@ -39,6 +46,11 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         target: pool,
         method: 'fee',
         key: 'fee',
+      },
+      {
+        target: pool,
+        method: 'admin_fee',
+        key: 'admin_fee',
       },
       {
         target: pool,
@@ -53,15 +65,6 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
       },
       {
         target: pool,
-        method: 'totalSupply',
-        key: 'totalSupply',
-        args: [],
-        transform: (r: BigNumber) => {
-          return TokenBalance.toJSON(r, poolAddress, network);
-        },
-      },
-      {
-        target: pool,
         method: 'stored_rates',
         key: 'stored_rates',
       },
@@ -70,6 +73,15 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         method: NO_OP,
         key: 'A_PRECISION',
         transform: () => BigNumber.from(100),
+      },
+      {
+        target: pool,
+        method: 'totalSupply',
+        key: 'totalSupply',
+        args: [],
+        transform: (r: BigNumber) => {
+          return TokenBalance.toJSON(r, poolAddress, network);
+        },
       },
       {
         target: NO_OP,
@@ -88,6 +100,52 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         method: NO_OP,
         key: 'N_COINS',
         transform: () => BigNumber.from(2),
+      },
+    ]);
+
+    return calls;
+  }
+
+  public static getCurveAggregateCall(
+    network: Network,
+    poolAddress: string,
+    pool: Contract,
+    N_COINS: number
+  ): AggregateCall[] {
+    return [
+      ...Array.from({ length: N_COINS }, (_, i) => ({
+        stage: 0,
+        target: pool,
+        method: 'coins',
+        key: `coins_${i}`,
+        args: [i],
+      })),
+      ...Array.from({ length: N_COINS }, (_, i) => ({
+        stage: 0,
+        target: pool,
+        method: 'balances',
+        key: `balances_${i}`,
+        args: [i],
+      })),
+      {
+        stage: 1,
+        target: NO_OP,
+        method: NO_OP,
+        key: 'balances',
+        transform: (_, ar) => {
+          const coins = Array.from(
+            { length: N_COINS },
+            (_, i) => ar[`${poolAddress}.coins_${i}`]
+          );
+          const balances = Array.from(
+            { length: N_COINS },
+            (_, i) => ar[`${poolAddress}.balances_${i}`] as BigNumber
+          );
+
+          return balances.map((b, i) => {
+            return TokenBalance.toJSON(b, coins[i] as string, network);
+          });
+        },
       },
     ];
   }
@@ -116,10 +174,9 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
     const dx = tokensIn.n;
 
     // Calculate output
-    const x = xp[tokenIndexIn]
-      .add(dx)
-      .mul(rates[tokenIndexIn])
-      .div(this.poolParams.PRECISION);
+    const x = xp[tokenIndexIn].add(
+      dx.mul(rates[tokenIndexIn]).div(this.poolParams.PRECISION)
+    );
     const amp = this.poolParams.A;
     const D = this.get_D(xp, amp);
     const y = this.get_y(tokenIndexIn, tokenIndexOut, x, xp, amp, D);
@@ -156,7 +213,6 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
           old_balances[tokenIndexOut].copy(dy_admin_fee);
       }
     }
-
     return {
       tokensOut: old_balances[tokenIndexOut].copy(dy),
       feesPaid,
@@ -425,20 +481,19 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         this.get_y_D(amp, singleSidedExitTokenIndex, xp_reduced, D1)
       );
 
-      // Subtract 1 to account for rounding errors
-      dy = dy.sub(1);
-
       // Calculate fee amount
       const dy_0 = xp[singleSidedExitTokenIndex]
         .sub(new_y)
         .mul(this.poolParams.PRECISION)
         .div(this.poolParams.stored_rates[singleSidedExitTokenIndex]);
-      const dy_fee = dy_0.sub(dy);
 
       // Convert to token precision
       dy = dy
+        .sub(1)
         .mul(this.poolParams.PRECISION)
         .div(this.poolParams.stored_rates[singleSidedExitTokenIndex]);
+
+      const dy_fee = dy_0.sub(dy);
 
       // Calculate admin fee
       if (!this.poolParams.admin_fee.isZero()) {
