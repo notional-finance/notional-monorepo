@@ -29,7 +29,14 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
   ): AggregateCall[] {
     const pool = new Contract(poolAddress, CurvePoolNGABI);
 
-    return [
+    const commonCalls = Curve2TokenPoolNG.getCurveAggregateCall(
+      network,
+      poolAddress,
+      pool,
+      2
+    );
+
+    const calls = commonCalls.concat([
       {
         target: pool,
         method: 'A_precise',
@@ -39,6 +46,11 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         target: pool,
         method: 'fee',
         key: 'fee',
+      },
+      {
+        target: pool,
+        method: 'admin_fee',
+        key: 'admin_fee',
       },
       {
         target: pool,
@@ -89,6 +101,52 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         key: 'N_COINS',
         transform: () => BigNumber.from(2),
       },
+    ]);
+
+    return calls;
+  }
+
+  public static getCurveAggregateCall(
+    network: Network,
+    poolAddress: string,
+    pool: Contract,
+    N_COINS: number
+  ): AggregateCall[] {
+    return [
+      ...Array.from({ length: N_COINS }, (_, i) => ({
+        stage: 0,
+        target: pool,
+        method: 'coins',
+        key: `coins_${i}`,
+        args: [i],
+      })),
+      ...Array.from({ length: N_COINS }, (_, i) => ({
+        stage: 0,
+        target: pool,
+        method: 'balances',
+        key: `balances_${i}`,
+        args: [i],
+      })),
+      {
+        stage: 1,
+        target: NO_OP,
+        method: NO_OP,
+        key: 'balances',
+        transform: (_, ar) => {
+          const coins = Array.from(
+            { length: N_COINS },
+            (_, i) => ar[`${poolAddress}.coins_${i}`]
+          );
+          const balances = Array.from(
+            { length: N_COINS },
+            (_, i) => ar[`${poolAddress}.balances_${i}`] as BigNumber
+          );
+
+          return balances.map((b, i) => {
+            return TokenBalance.toJSON(b, coins[i] as string, network);
+          });
+        },
+      },
     ];
   }
 
@@ -116,10 +174,9 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
     const dx = tokensIn.n;
 
     // Calculate output
-    const x = xp[tokenIndexIn]
-      .add(dx)
-      .mul(rates[tokenIndexIn])
-      .div(this.poolParams.PRECISION);
+    const x = xp[tokenIndexIn].add(
+      dx.mul(rates[tokenIndexIn]).div(this.poolParams.PRECISION)
+    );
     const amp = this.poolParams.A;
     const D = this.get_D(xp, amp);
     const y = this.get_y(tokenIndexIn, tokenIndexOut, x, xp, amp, D);
@@ -139,9 +196,7 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
     dy = dy.sub(dy_fee);
 
     // Convert back to token precision
-    dy = dy
-      .mul(this.poolParams.PRECISION)
-      .div(rates[tokenIndexOut])
+    dy = dy.mul(this.poolParams.PRECISION).div(rates[tokenIndexOut]);
 
     // Calculate admin fee
     const feesPaid = this.zeroTokenArray();
@@ -154,7 +209,8 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         .div(rates[tokenIndexOut]);
 
       if (!dy_admin_fee.isZero()) {
-        feesPaid[tokenIndexOut] = old_balances[tokenIndexOut].copy(dy_admin_fee);
+        feesPaid[tokenIndexOut] =
+          old_balances[tokenIndexOut].copy(dy_admin_fee);
       }
     }
 
@@ -271,14 +327,16 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
   private _xp_mem(rates: BigNumber[], balances: TokenBalance[]): BigNumber[] {
     const result: BigNumber[] = [];
     for (let i = 0; i < this.poolParams.N_COINS.toNumber(); i++) {
-      result.push(
-        rates[i].mul(balances[i].n).div(this.poolParams.PRECISION)
-      );
+      result.push(rates[i].mul(balances[i].n).div(this.poolParams.PRECISION));
     }
     return result;
   }
 
-  private get_D_mem(rates: BigNumber[], balances: TokenBalance[], amp: BigNumber): BigNumber {
+  private get_D_mem(
+    rates: BigNumber[],
+    balances: TokenBalance[],
+    amp: BigNumber
+  ): BigNumber {
     const xp = this._xp_mem(rates, balances);
     return this.get_D(xp, amp);
   }
@@ -424,25 +482,25 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         this.get_y_D(amp, singleSidedExitTokenIndex, xp_reduced, D1)
       );
 
-      // Subtract 1 to account for rounding errors
-      dy = dy.sub(1);
-
       // Calculate fee amount
-      const dy_0 = xp[singleSidedExitTokenIndex].sub(new_y)
+      const dy_0 = xp[singleSidedExitTokenIndex]
+        .sub(new_y)
         .mul(this.poolParams.PRECISION)
         .div(this.poolParams.stored_rates[singleSidedExitTokenIndex]);
-      const dy_fee = dy_0.sub(dy);
 
       // Convert to token precision
       dy = dy
+        .sub(1)
         .mul(this.poolParams.PRECISION)
         .div(this.poolParams.stored_rates[singleSidedExitTokenIndex]);
+
+      const dy_fee = dy_0.sub(dy);
 
       // Calculate admin fee
       if (!this.poolParams.admin_fee.isZero()) {
         const admin_fee = dy_fee
           .mul(this.poolParams.admin_fee)
-          .div(this.poolParams.FEE_DENOMINATOR)
+          .div(this.poolParams.FEE_DENOMINATOR);
 
         feesPaid[singleSidedExitTokenIndex] =
           this.balances[singleSidedExitTokenIndex].copy(admin_fee);
