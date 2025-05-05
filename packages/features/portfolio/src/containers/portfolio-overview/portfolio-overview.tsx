@@ -204,11 +204,14 @@ const useTableTabState = () => {
   }, [expandedRows, setExpandedRows, Columns]);
 
   const initialState =
-    currentTab === TableTab.OVERVIEW
-      ? { clickDisabled: true }
-      : expandedRows !== null
-      ? { expanded: expandedRows }
-      : {};
+    expandedRows !== null
+      ? {
+          expanded: expandedRows,
+          clickDisabled: currentTab === TableTab.EARNINGS_BREAKDOWN,
+        }
+      : {
+          clickDisabled: currentTab === TableTab.EARNINGS_BREAKDOWN,
+        };
 
   return { Columns, initialState, setCurrentTab, currentTab, setExpandedRows };
 };
