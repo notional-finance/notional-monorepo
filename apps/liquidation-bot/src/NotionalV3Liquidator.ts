@@ -582,7 +582,7 @@ export default class NotionalV3Liquidator {
           return 1;
         }
         // Then sort by largest flash loan amount first
-        return b.flashLoanAmount.lt(a.flashLoanAmount) ? 1 : -1;
+        return b.flashLoanAmount.lt(a.flashLoanAmount) ? -1 : 1;
       });
 
     for (const a of accountLiquidations) {

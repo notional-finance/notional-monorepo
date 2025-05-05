@@ -60,6 +60,8 @@ export default class DataService {
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
   public static readonly POINTS_TABLE_NAME = 'arb_points';
   public static readonly REINVESTMENT_TRADES_TABLE_NAME = 'reinvestment_trades';
+  public static readonly VAULT_APY_REDEMPTION_TABLE_NAME =
+    'vault_apy_redemption_data';
   public db: Knex;
   public settings: DataServiceSettings;
 
@@ -582,30 +584,60 @@ export default class DataService {
       .ignore();
   }
 
-  public async insertVaultAPY(
-    network: Network,
-    vaultAPY: DataServiceVaultAPY[]
-  ) {
-    return this.db
-      .insert(
-        vaultAPY.map((v) => ({
-          network_id: this.networkToId(network),
-          block_number: v.blockNumber,
-          timestamp: v.timestamp,
-          vault_address: v.vaultAddress,
-          total_lp_tokens: v.totalLpTokens,
-          lp_token_value_primary_borrow: v.lpTokenValuePrimaryBorrow,
-          reward_token: v.rewardToken,
-          reward_tokens_claimed: v.rewardTokensClaimed,
-          reward_token_value_primary_borrow: v.rewardTokenValuePrimaryBorrow,
-          no_vault_shares: v.noVaultShares,
-          swap_fees: v.swapFees,
-          symbol: v.rewardTokenSymbol,
-        }))
-      )
-      .into(DataService.VAULT_APY_NAME)
-      .onConflict(['network_id', 'timestamp', 'vault_address', 'reward_token'])
-      .merge();
+  public async insertVaultAPYData(network: Network, data: DataServiceVaultAPY) {
+    return this.db.transaction(async (trx) => {
+      const { vaultAPY, redemptionData } = data;
+      // Insert vault APY data
+      if (vaultAPY.length > 0) {
+        await trx
+          .insert(
+            vaultAPY.map((v) => ({
+              network_id: this.networkToId(network),
+              block_number: v.blockNumber,
+              timestamp: v.timestamp,
+              vault_address: v.vaultAddress,
+              total_lp_tokens: v.totalLpTokens,
+              lp_token_value_primary_borrow: v.lpTokenValuePrimaryBorrow,
+              reward_token: v.rewardToken,
+              reward_tokens_claimed: v.rewardTokensClaimed,
+              reward_token_value_primary_borrow:
+                v.rewardTokenValuePrimaryBorrow,
+              no_vault_shares: v.noVaultShares,
+              swap_fees: v.swapFees,
+              symbol: v.rewardTokenSymbol,
+              accumulated_reward_per_vault_share:
+                v.accumulatedRewardPerVaultShare,
+              reward_token_price_in_primary: v.rewardTokenPriceInPrimary,
+              reward_token_price_decimals: v.rewardTokenPriceDecimals,
+            }))
+          )
+          .into(DataService.VAULT_APY_NAME)
+          .onConflict([
+            'network_id',
+            'timestamp',
+            'vault_address',
+            'reward_token',
+          ])
+          .merge();
+      }
+
+      // Insert vault APY redemption data
+      if (redemptionData) {
+        await trx
+          .insert({
+            network_id: this.networkToId(network),
+            price_of_vault_share: redemptionData.priceOfVaultShare,
+            timestamp: redemptionData.timestamp,
+            vault_address: redemptionData.vaultAddress,
+            redemption_tokens: JSON.stringify(redemptionData.redemptionTokens),
+            lp_token_per_vault_share: redemptionData.lpTokenPerVaultShare,
+            lp_token_decimals: redemptionData.lpTokenDecimals,
+          })
+          .into(DataService.VAULT_APY_REDEMPTION_TABLE_NAME)
+          .onConflict(['network_id', 'vault_address', 'timestamp'])
+          .merge();
+      }
+    });
   }
 
   public async insertReinvestmentTrades(

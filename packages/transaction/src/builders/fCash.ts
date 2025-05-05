@@ -129,7 +129,7 @@ export function BorrowVariable({
   return populateNotionalTxnAndGas(network, address, 'withdraw', [
     debtBalance.currencyId,
     debtBalance?.toPrimeCash().abs().n,
-    redeemToWETH ? false : true,
+    redeemToWETH && debtBalance.currencyId === 1 ? false : true,
   ]);
 }
 
@@ -309,7 +309,7 @@ export function WithdrawLend({
     : populateNotionalTxnAndGas(network, address, 'withdraw', [
         debtBalance.currencyId,
         maxWithdraw ? MAX_UINT88 : debtBalance.toPrimeCash().neg().n,
-        !redeemToWETH,
+        redeemToWETH && debtBalance.currencyId === 1 ? false : true,
       ]);
 }
 

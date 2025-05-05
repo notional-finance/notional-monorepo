@@ -78,7 +78,7 @@ export abstract class VaultAdapter {
 
   getVaultTVL(): TokenBalance {
     const vaultShares = getNetworkModel(this.network)
-      .getTokensByType('VaultShare')
+      .getTokensByType('VaultShare', false)
       .filter((t) => t.vaultAddress === this.vaultAddress);
 
     return vaultShares.reduce(

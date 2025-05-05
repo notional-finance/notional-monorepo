@@ -11,28 +11,15 @@ export const PointsMultipliers: Record<
     [vaults.mainnet.Aura_xrETH_weETH.toLowerCase()]: () => ({
       EtherFi: 2,
     }),
-    [vaults.mainnet.Aura_ezETH_xWETH.toLowerCase()]: () => ({
-      Renzo: 6,
-    }),
     [vaults.mainnet.Curve_USDe_xUSDC.toLowerCase()]: (_v) => ({
       Ethena: 20,
     }),
     [vaults.mainnet.Convex_xGHO_USDe.toLowerCase()]: (_v) => ({
       Ethena: 20,
     }),
-    [vaults.mainnet.Balancer_rsETH_xWETH.toLowerCase()]: () => ({
-      Kernel: 2,
-    }),
   },
   [Network.all]: {},
-  [Network.arbitrum]: {
-    [vaults.arbitrum.Aura_ezETH_xwstETH.toLowerCase()]: () => ({
-      Renzo: 6,
-    }),
-    [vaults.arbitrum.Aura_rsETH_xWETH.toLowerCase()]: () => ({
-      Kernel: 2,
-    }),
-  },
+  [Network.arbitrum]: {},
 };
 
 export const PointsLinks: Record<Network, Record<string, string>> = {

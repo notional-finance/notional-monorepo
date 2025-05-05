@@ -103,7 +103,7 @@ app.post(
   `/${DataServiceEndpoints.VAULT_APY}`,
   catchAsync(async (req, res) => {
     const network: Network = req.body.network;
-    await dataService.insertVaultAPY(network, req.body.vaultAPYs);
+    await dataService.insertVaultAPYData(network, req.body);
     res.status(200).send('OK');
   })
 );

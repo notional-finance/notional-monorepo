@@ -1,7 +1,6 @@
 import debug from 'debug';
-import { exec } from 'child_process';
 import assert from 'node:assert/strict';
-import { ethers, BigNumber, Contract } from 'ethers';
+import { ethers, BigNumber, Contract, ContractTransaction } from 'ethers';
 import {
   TradingModuleInterface,
   SingleSidedLPVault,
@@ -13,6 +12,10 @@ import {
   CurveGaugeInterface,
   NotionalInterface,
   GaugeInterface,
+  CurvePoolInterface,
+  BalancerVaultInterface,
+  BalancerPoolInterface,
+  CurvePoolAltInterface,
 } from './interfaces';
 import {
   Network,
@@ -25,14 +28,21 @@ import {
 import { Oracle } from './oracles';
 import { getPoolFees } from './fees';
 import configPerNetwork, { Config, POOL_DECIMALS } from './config';
+import { getTokenDecimals, e, execPromise, floorToMidnight } from './util';
 import {
-  getTokenDecimals,
-  e,
-  execPromise,
-  wait,
-  floorToMidnight,
-} from './util';
-import { DataServiceVaultAPY } from '@notional-finance/util/src/types';
+  DataServiceVaultAPY,
+  RedemptionData,
+  RedemptionToken,
+  VaultAPY,
+} from '@notional-finance/util/src/types';
+import { spawn } from 'child_process';
+import { ChildProcess } from 'child_process';
+
+type RedeemData = {
+  lpBalance: BigNumber;
+  lpTokenDecimals: number;
+  redemptionTokens: RedemptionToken[];
+};
 
 const log = debug('vault-apy');
 
@@ -67,6 +77,7 @@ export default class APYSimulator {
   #network: Network;
   #config: Config;
   #alchemyProvider: JsonRpcProvider;
+  #anvilProcess: ChildProcess | null = null;
 
   constructor(network: Network) {
     this.#network = network;
@@ -259,6 +270,11 @@ export default class APYSimulator {
     ]);
     const tx = await this.#claimRewardFromGauge(account, vaultData, provider);
 
+    const vault = new Contract(vaultData.address, SingleSidedLPVault, provider);
+    const priceOfVaultShare = await vault.getExchangeRate(0).catch(() => {
+      return BigNumber.from(0);
+    });
+
     const block = await provider.getBlock('latest');
     // used to query defiLlama api
     let priceAtTimestamp = block.timestamp;
@@ -276,6 +292,38 @@ export default class APYSimulator {
       blockNumber,
       provider
     );
+
+    // Simulate LP token redemption
+    const RedeemDataVaultShare = await this.#simulateRedeemLpTokens(
+      vaultData,
+      provider,
+      account
+    );
+
+    const tradingModule = new Contract(
+      this.#config.addresses.tradingModule,
+      TradingModuleInterface,
+      provider
+    );
+
+    for (const redemptionToken of RedeemDataVaultShare.redemptionTokens) {
+      const price = await tradingModule.getOraclePrice(
+        redemptionToken.address,
+        vaultData.primaryBorrowCurrency
+      );
+      redemptionToken.priceInPrimary = price.answer.toString();
+      redemptionToken.priceDecimals = price.decimals.toString();
+    }
+
+    const redemptionData: RedemptionData = {
+      vaultAddress: vaultData.address,
+      priceOfVaultShare: priceOfVaultShare.toString(),
+      timestamp: floorToMidnight(originalTimestamp),
+      redemptionTokens: RedeemDataVaultShare.redemptionTokens, // Add the redemption tokens data
+      lpTokenPerVaultShare: RedeemDataVaultShare.lpTokenPerVaultShare,
+      lpTokenDecimals: RedeemDataVaultShare.lpTokenDecimals,
+    };
+    log(redemptionData);
 
     const primaryBorrowDecimals = await getTokenDecimals(
       vaultData.primaryBorrowCurrency,
@@ -336,7 +384,18 @@ export default class APYSimulator {
       noVaultShares: !isAccountVault,
     };
 
-    const allResults: DataServiceVaultAPY[] = [];
+    const signer = provider.getSigner(account);
+    const vaultRewardStates = await vault
+      .connect(signer)
+      .claimRewardTokens({ gasLimit: 1000000 })
+      .then(() => vault.getRewardSettings())
+      .then((rewardSettings) => rewardSettings[0])
+      .catch(() => {
+        log('No vault reward lib deployed');
+        return [];
+      });
+
+    const allResults: VaultAPY[] = [];
     for (const [token, tokensClaimed] of rewardTokens) {
       const { decimals: tokenDecimals, symbol } = await getTokenDetails(
         token,
@@ -352,7 +411,12 @@ export default class APYSimulator {
           )
         );
 
-      const result: DataServiceVaultAPY = {
+      const accumulatedRewardPerVaultShare =
+        (vaultRewardStates || []).find(
+          (r) => r.rewardToken.toLowerCase() === token.toLowerCase()
+        )?.accumulatedRewardPerVaultShare || BigNumber.from(0);
+
+      const result: VaultAPY = {
         /////////////////local log, not saved to db/////////////////////////
         apy: `${
           Number(
@@ -370,13 +434,17 @@ export default class APYSimulator {
         rewardTokensClaimed: tokensClaimed.toString(),
         rewardTokenValuePrimaryBorrow: rewardTokenValuePrimaryBorrow.toString(),
         rewardTokenSymbol: symbol,
+        rewardTokenPriceInPrimary: priceInPrimary.toString(),
+        rewardTokenPriceDecimals: priceDecimals.toString(),
+        accumulatedRewardPerVaultShare:
+          accumulatedRewardPerVaultShare.toString(),
       };
       log(result);
       allResults.push(result);
     }
 
     if (poolFeesInPrimary) {
-      const feeResult: DataServiceVaultAPY = {
+      const feeResult: VaultAPY = {
         ...sharedData,
         rewardToken: 'Swap Fees',
         rewardTokenSymbol: 'Swap Fees',
@@ -386,23 +454,58 @@ export default class APYSimulator {
       log(feeResult);
     }
 
-    return allResults;
+    return {
+      vaultAPY: allResults,
+      redemptionData,
+    };
   }
 
   async #spawnAnvil(forkBlock: number) {
-    await execPromise('pkill anvil').catch(() =>
-      log('No running anvil instances')
+    // Kill any existing anvil processes first
+    await execPromise('pkill anvil').catch(() => null);
+
+    // Use spawn instead of exec to properly manage the process
+    const anvil = spawn('anvil', [
+      '--rpc-url',
+      this.#config.alchemyUrl,
+      '--fork-block-number',
+      forkBlock.toString(),
+    ]);
+
+    // Create a promise that resolves when Anvil is ready
+    const ready: Promise<{ rpcUrl: string }> = new Promise(
+      (resolve, reject) => {
+        let rpcUrl: string | undefined;
+
+        anvil.stdout.on('data', (data) => {
+          const output = data.toString();
+          // Look for the line that shows the RPC endpoint
+          if (output.includes('Listening on')) {
+            rpcUrl = 'http://localhost:8545'; // Default Anvil endpoint
+            resolve({ rpcUrl });
+          }
+        });
+
+        anvil.stderr.on('data', (data) => {
+          log(`Anvil error: ${data}`);
+        });
+
+        anvil.on('error', (error) => {
+          reject(new Error(`Failed to start Anvil: ${error.message}`));
+        });
+
+        // Set a timeout in case Anvil doesn't start properly
+        setTimeout(() => {
+          reject(new Error('Anvil failed to start within timeout period'));
+        }, 5000); // 5 second timeout
+      }
     );
 
-    log(`spawning network on block ${forkBlock}`);
-    exec(
-      `anvil --rpc-url ${
-        this.#config.alchemyUrl
-      } --fork-block-number ${forkBlock}`
-    );
-    await wait(5000);
+    // Store the process reference for cleanup
+    this.#anvilProcess = anvil;
 
-    return { rpcUrl: 'http://127.0.0.1:8545' };
+    // Wait for Anvil to be ready
+    return await ready;
   }
 
   async #extendMaxOracleFreshness(provider: JsonRpcProvider) {
@@ -496,7 +599,12 @@ export default class APYSimulator {
     if (claimData) {
       await provider.send('anvil_impersonateAccount', [account]);
       return provider.send('eth_sendTransaction', [
-        { from: account, to: vaultData.gauge, data: claimData },
+        {
+          from: account,
+          to: vaultData.gauge,
+          data: claimData,
+          gasLimit: 1000000,
+        },
       ]);
     }
   }
@@ -607,8 +715,14 @@ export default class APYSimulator {
       .then((r) => r.height);
   }
 
-  async #saveToDb(reports: DataServiceVaultAPY[]) {
-    if (!reports.length) {
+  async #saveToDb({
+    vaultAPY,
+    redemptionData,
+  }: {
+    vaultAPY: VaultAPY[];
+    redemptionData: RedemptionData;
+  }) {
+    if (!vaultAPY.length && !redemptionData) {
       log('nothing to save');
       return;
     }
@@ -620,8 +734,9 @@ export default class APYSimulator {
       method: 'POST',
       body: JSON.stringify({
         network: this.#network,
-        vaultAPYs: reports,
-      }),
+        vaultAPY: vaultAPY,
+        redemptionData: redemptionData,
+      } as DataServiceVaultAPY),
     });
     if (!response.ok) {
       console.error(response.status, response.statusText);
@@ -698,6 +813,7 @@ export default class APYSimulator {
     ).timestamp;
     log(`Processing all vaults at block ${initialForkBlock}`);
 
+    const errors: Error[] = [];
     for (const vault of this.#config.vaults) {
       log(`Processing vault: ${vault.address}`);
       try {
@@ -709,7 +825,16 @@ export default class APYSimulator {
         await this.run(adjustedForkBlock, vault.address, originalTimestamp);
       } catch (error) {
         log(`Error processing vault ${vault.address}: ${error}`);
+        errors.push(error as Error);
       }
+    }
+
+    if (errors.length > 0) {
+      throw new Error(
+        `Errors occurred while processing vaults: ${errors
+          .map((e) => e.message)
+          .join(', ')}`
+      );
     }
   }
 
@@ -775,5 +900,480 @@ export default class APYSimulator {
 
     return forkBlock;
   }
-}
 
+  async #simulateRedeemLpTokens(
+    vaultData: VaultData,
+    provider: JsonRpcProvider,
+    account: string
+  ) {
+    // Create a checkpoint to revert to after simulation
+    const checkpoint = await provider.send('evm_snapshot', []);
+    try {
+      let redeemData: RedeemData;
+
+      // Get the redemption logic based on rewardPoolType
+      if (vaultData.rewardPoolType === RewardPoolType.Aura) {
+        try {
+          redeemData = await this.#simulateRedeemAuraLpTokens(
+            vaultData,
+            provider,
+            account
+          );
+        } catch (error) {
+          // sometimes the simulation fails because of the oracle issues(OraclePriceExpired error)
+          // so we fallback to the calculation method
+
+          await provider.send('evm_revert', [checkpoint]);
+
+          redeemData = await this.#calculateRedeemAuraLpTokens(
+            vaultData,
+            provider,
+            account
+          );
+        }
+      } else if (
+        vaultData.rewardPoolType === RewardPoolType.ConvexMainnet ||
+        vaultData.rewardPoolType === RewardPoolType.ConvexArbitrum
+      ) {
+        redeemData = await this.#simulateRedeemConvexLpTokens(
+          vaultData,
+          provider,
+          account
+        );
+      } else if (vaultData.rewardPoolType === RewardPoolType.Curve) {
+        redeemData = await this.#simulateRedeemCurveLpTokens(
+          vaultData,
+          provider,
+          account
+        );
+      } else {
+        throw new Error('Unsupported vault type');
+      }
+
+      let lpTokenPerVaultShare = '0';
+      if (vaultData.address.toLowerCase() === account.toLowerCase()) {
+        const vault = new Contract(
+          vaultData.address,
+          SingleSidedLPVault,
+          provider
+        );
+        const totalVaultShares = await vault.callStatic
+          .getStrategyVaultInfo()
+          .then((r) => r.totalVaultShares);
+
+        lpTokenPerVaultShare = redeemData.lpBalance
+          .mul(1e8)
+          .div(totalVaultShares)
+          .toString();
+      }
+
+      return {
+        lpTokenPerVaultShare,
+        lpTokenDecimals: redeemData.lpTokenDecimals,
+        redemptionTokens: redeemData.redemptionTokens,
+      };
+    } catch (error) {
+      throw new Error(`Error simulating LP token redemption: ${error}`);
+    } finally {
+      await provider.send('evm_revert', [checkpoint]);
+    }
+  }
+
+  async #simulateRedeemAuraLpTokens(
+    vaultData: VaultData,
+    provider: JsonRpcProvider,
+    account: string
+  ) {
+    try {
+      const auraGauge = new Contract(
+        vaultData.gauge,
+        AuraGaugeInterface,
+        provider
+      );
+
+      const balancerPool = new Contract(
+        vaultData.pool,
+        BalancerPoolInterface,
+        provider
+      );
+
+      const balancerVaultAddress = await balancerPool.getVault();
+      const balancerVault = new Contract(
+        balancerVaultAddress,
+        BalancerVaultInterface,
+        provider
+      );
+
+      await provider.send('anvil_impersonateAccount', [account]);
+      const signer = provider.getSigner(account);
+
+      // First, withdraw LP tokens from the Aura gauge
+      await auraGauge
+        .connect(signer)
+        .withdrawAllAndUnwrap(false, { gasLimit: 1000000 });
+      const lpBalance = await balancerPool.balanceOf(account);
+
+      const poolId = await balancerPool.getPoolId();
+
+      await balancerPool
+        .connect(signer)
+        .approve(balancerVaultAddress, lpBalance);
+
+      const poolTokens = await balancerVault.getPoolTokens(poolId);
+      const tokens = poolTokens.tokens;
+
+      // Prepare exit request
+      const exitRequest = {
+        assets: tokens,
+        minAmountsOut: Array(tokens.length).fill(0),
+        userData: ethers.utils.defaultAbiCoder.encode(
+          ['uint8', 'uint256'],
+          [2, lpBalance] // 1 = EXACT_BPT_IN_FOR_TOKENS_OUT
+        ),
+        toInternalBalance: false,
+      };
+
+      const tx = await balancerVault
+        .connect(signer)
+        .exitPool(poolId, account, account, exitRequest);
+
+      // Process the transfer logs to see what tokens were received
+      const receipt = await tx.wait();
+      const transferLogs = await getTransferLogs(receipt.logs);
+      const transfersToAccount = transferLogs.filter(
+        (l) => l.to.toLowerCase() === account.toLowerCase()
+      );
+
+      const lpTokenDecimals = await balancerPool.decimals();
+
+      const redemptionTokens: RedemptionToken[] = [];
+      // Add each received token to the redemption tokens array
+      for (const transfer of transfersToAccount) {
+        if (transfer.token.toLowerCase() !== vaultData.pool.toLowerCase()) {
+          const { decimals, symbol } = await getTokenDetails(
+            transfer.token,
+            provider
+          );
+          redemptionTokens.push({
+            symbol,
+            address: transfer.token,
+            amountPerLpToken: BigNumber.from(transfer.amount)
+              .mul(BigNumber.from(10).pow(lpTokenDecimals))
+              .div(lpBalance)
+              .toString(),
+            decimals,
+          });
+        }
+      }
+
+      return {
+        lpBalance,
+        lpTokenDecimals,
+        redemptionTokens,
+      };
+    } catch (error) {
+      throw new Error(`Error simulating Aura LP token redemption: ${error}`);
+    }
+  }
+  async #calculateRedeemAuraLpTokens(
+    vaultData: VaultData,
+    provider: JsonRpcProvider,
+    account: string
+  ) {
+    try {
+      const auraGauge = new Contract(
+        vaultData.gauge,
+        AuraGaugeInterface,
+        provider
+      );
+
+      const balancerPool = new Contract(
+        vaultData.pool,
+        BalancerPoolInterface,
+        provider
+      );
+
+      await provider.send('anvil_impersonateAccount', [account]);
+      const signer = provider.getSigner(account);
+
+      // First, withdraw LP tokens from the Aura gauge
+      await auraGauge
+        .connect(signer)
+        .withdrawAllAndUnwrap(false, { gasLimit: 1000000 });
+      const lpBalance = await balancerPool.balanceOf(account);
+      assert(lpBalance.gt(0), 'LP balance is 0');
+
+      const poolId = await balancerPool.getPoolId();
+      const balancerVaultAddress = await balancerPool.getVault();
+      const balancerVault = new Contract(
+        balancerVaultAddress,
+        BalancerVaultInterface,
+        provider
+      );
+
+      const poolTokens = await balancerVault.getPoolTokens(poolId);
+      const tokens = poolTokens.tokens;
+      const balances = poolTokens.balances;
+
+      // Calculate proportional amounts based on current pool balances
+      const lpTokenDecimals = await balancerPool.decimals();
+      const totalSupply = await balancerPool.getActualSupply();
+
+      // Instead of using exitPool which might have oracle issues,
+      // calculate redemption values proportionally
+      const redemptionTokens: RedemptionToken[] = [];
+
+      for (let i = 0; i < tokens.length; i++) {
+        // Skip if token is the LP token itself
+        if (tokens[i].toLowerCase() === vaultData.pool.toLowerCase()) continue;
+
+        // Calculate proportional amount
+        const tokenAmount = lpBalance.mul(balances[i]).div(totalSupply);
+
+        if (tokenAmount.gt(0)) {
+          const { decimals, symbol } = await getTokenDetails(
+            tokens[i],
+            provider
+          );
+
+          redemptionTokens.push({
+            symbol,
+            address: tokens[i],
+            amountPerLpToken: tokenAmount
+              .mul(BigNumber.from(10).pow(lpTokenDecimals))
+              .div(lpBalance)
+              .toString(),
+            decimals,
+          });
+        }
+      }
+
+      return {
+        lpBalance,
+        lpTokenDecimals,
+        redemptionTokens,
+      };
+    } catch (error) {
+      throw new Error(`Error simulating Aura LP token redemption: ${error}`);
+    }
+  }
+
+  async #simulateRedeemCurveLpTokens(
+    vaultData: VaultData,
+    provider: JsonRpcProvider,
+    account: string
+  ) {
+    try {
+      const curvePool = new Contract(
+        vaultData.pool,
+        CurvePoolInterface,
+        provider
+      );
+
+      const curveGauge = new Contract(
+        vaultData.gauge,
+        CurveGaugeInterface,
+        provider
+      );
+
+      await provider.send('anvil_impersonateAccount', [account]);
+      const signer = provider.getSigner(account);
+
+      const gaugeBalance = await curveGauge.balanceOf(account);
+      await curveGauge.connect(signer).withdraw(gaugeBalance);
+
+      const lpBalance = await curvePool.balanceOf(account);
+
+      const tx = await this.#curveRemoveLiquidity(
+        vaultData.pool,
+        account,
+        lpBalance,
+        provider
+      );
+
+      // Process the transfer logs to see what tokens were received
+      const receipt = await tx.wait();
+      const transferLogs = await getTransferLogs(receipt.logs);
+      const transfersToAccount = transferLogs.filter(
+        (l) => l.to.toLowerCase() === account.toLowerCase()
+      );
+
+      const lpTokenDecimals = await curvePool.decimals();
+
+      const redemptionTokens: RedemptionToken[] = [];
+      // Add each received token to the redemption tokens array
+      for (const transfer of transfersToAccount) {
+        if (transfer.token.toLowerCase() !== vaultData.pool.toLowerCase()) {
+          const { decimals, symbol } = await getTokenDetails(
+            transfer.token,
+            provider
+          );
+          redemptionTokens.push({
+            symbol,
+            address: transfer.token,
+            amountPerLpToken: BigNumber.from(transfer.amount)
+              .mul(BigNumber.from(10).pow(lpTokenDecimals))
+              .div(lpBalance)
+              .toString(),
+            decimals,
+          });
+        }
+      }
+
+      return {
+        lpBalance,
+        lpTokenDecimals,
+        redemptionTokens,
+      };
+    } catch (error) {
+      throw new Error(`Error simulating Curve LP token redemption: ${error}`);
+    }
+  }
+
+  async #getCurvePoolNumCoins(curvePool: Contract): Promise<number> {
+    try {
+      // First try the n_coins view function (most common in Curve pools)
+      return (await curvePool.N_COINS()).toNumber();
+    } catch (error) {
+      try {
+        // Some pools use coin_count instead
+        return (await curvePool.coin_count()).toNumber();
+      } catch (error) {
+        // If both fail, default to 2 coins which is common for many Curve pools
+        log(
+          'Could not determine number of coins in Curve pool, defaulting to 2'
+        );
+        return 2;
+      }
+    }
+  }
+
+  async #curveRemoveLiquidity(
+    curvePoolAddress: string,
+    account: string,
+    lpBalance: BigNumber,
+    provider: JsonRpcProvider
+  ) {
+    const curvePool = new Contract(
+      curvePoolAddress,
+      CurvePoolInterface,
+      provider
+    );
+
+    const numCoins = await this.#getCurvePoolNumCoins(curvePool);
+    const minAmounts = Array(numCoins).fill(0);
+    const signer = provider.getSigner(account);
+
+    let tx: ContractTransaction;
+    try {
+      tx = await curvePool
+        .connect(signer)
+        .remove_liquidity(lpBalance, minAmounts);
+    } catch {
+      const curvePoolAlt = new Contract(
+        curvePoolAddress,
+        CurvePoolAltInterface,
+        provider
+      );
+
+      tx = await curvePoolAlt
+        .connect(signer)
+        .remove_liquidity(lpBalance, minAmounts);
+    }
+    return tx;
+  }
+
+  async #simulateRedeemConvexLpTokens(
+    vaultData: VaultData,
+    provider: JsonRpcProvider,
+    account: string
+  ) {
+    try {
+      const ConvexGaugeInterface =
+        vaultData.rewardPoolType === RewardPoolType.ConvexMainnet
+          ? ConvexGaugeMainnetInterface
+          : ConvexGaugeArbitrumInterface;
+
+      // Get the Convex gauge contract
+      const convexGauge = new Contract(
+        vaultData.gauge,
+        ConvexGaugeInterface,
+        provider
+      );
+
+      // Get the Curve pool contract
+      const curvePool = new Contract(
+        vaultData.pool,
+        CurvePoolInterface,
+        provider
+      );
+
+      // Impersonate the account
+      await provider.send('anvil_impersonateAccount', [account]);
+      const signer = provider.getSigner(account);
+
+      const convexGaugeBalance = await convexGauge.balanceOf(account);
+      if (vaultData.rewardPoolType === RewardPoolType.ConvexMainnet) {
+        await convexGauge
+          .connect(signer)
+          .withdrawAndUnwrap(convexGaugeBalance.toString(), true);
+      } else {
+        await convexGauge.connect(signer).withdrawAll(false);
+      }
+
+      const lpBalance = await curvePool.balanceOf(account);
+
+      // Simulate the redemption
+      const tx = await this.#curveRemoveLiquidity(
+        vaultData.pool,
+        account,
+        lpBalance,
+        provider
+      );
+
+      // Process the transfer logs to see what tokens were received
+      const receipt = await tx.wait();
+      const transferLogs = await getTransferLogs(receipt.logs);
+      const transfersToAccount = transferLogs.filter(
+        (l) => l.to.toLowerCase() === account.toLowerCase()
+      );
+
+      const lpTokenDecimals = await curvePool.decimals();
+
+      const redemptionTokens: RedemptionToken[] = [];
+      // Add each received token to the redemption tokens array
+      for (const transfer of transfersToAccount) {
+        if (transfer.token.toLowerCase() !== vaultData.pool.toLowerCase()) {
+          const { decimals, symbol } = await getTokenDetails(
+            transfer.token,
+            provider
+          );
+          redemptionTokens.push({
+            symbol,
+            address: transfer.token,
+            amountPerLpToken: BigNumber.from(transfer.amount)
+              .mul(BigNumber.from(10).pow(lpTokenDecimals))
+              .div(lpBalance)
+              .toString(),
+            decimals,
+          });
+        }
+      }
+
+      return {
+        lpBalance,
+        lpTokenDecimals,
+        redemptionTokens,
+      };
+    } catch (error) {
+      throw new Error(`Error simulating Convex LP token redemption: ${error}`);
+    }
+  }
+
+  async cleanup() {
+    if (this.#anvilProcess) {
+      this.#anvilProcess.kill();
+      this.#anvilProcess = null;
+    }
+  }
+}

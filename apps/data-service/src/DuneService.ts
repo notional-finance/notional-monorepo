@@ -27,6 +27,7 @@ export async function syncDune() {
         new PutObjectCommand({
           Bucket: 'view-cache-r2',
           Key: `mainnet/note/${name}`,
+          ContentType: 'application/json',
           Body: JSON.stringify(await query_result.json()),
         })
       );

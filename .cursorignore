@@ -1,0 +1,3 @@
+# Ignore all .env files in the monorepo
+**/.env
+**/.env.*

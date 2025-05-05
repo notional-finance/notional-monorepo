@@ -412,7 +412,7 @@ export class PendlePT extends VaultAdapter {
     _account: string,
     _maturity: number,
     totalDeposit: TokenBalance,
-    slippageFactor = 50 * BASIS_POINT
+    slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
     const { dexId, depositExchangeData: exchangeData } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
@@ -490,7 +490,7 @@ export class PendlePT extends VaultAdapter {
     _maturity: number,
     vaultSharesToRedeem: TokenBalance,
     _underlyingToRepayDebt: TokenBalance,
-    slippageFactor = 50 * BASIS_POINT
+    slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
     if (this.tokenOutSy === this.borrowedToken.id) {
       return '0x';
@@ -508,6 +508,15 @@ export class PendlePT extends VaultAdapter {
       const minOraclePurchaseAmount = vaultSharesToRedeem
         .toUnderlying()
         .mulInRatePrecision(RATE_PRECISION - slippageFactor);
+
+      console.log(
+        'minTradedPurchaseAmount',
+        minTradedPurchaseAmount.toExactString()
+      );
+      console.log(
+        'minOraclePurchaseAmount',
+        minOraclePurchaseAmount.toExactString()
+      );
 
       return defaultAbiCoder.encode(
         ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData) r'],

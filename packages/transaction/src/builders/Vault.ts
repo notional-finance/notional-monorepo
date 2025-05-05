@@ -176,9 +176,18 @@ export async function ExitVault({
     else
       debtBalanceNum = debtBalance
         .toUnderlying()
+        // Reduce the debt repaid slightly to account for slippage on vault shares.
+        .mulInRatePrecision(RATE_PRECISION - 25 * BASIS_POINT)
         .scaleTo(INTERNAL_TOKEN_DECIMALS);
   } else {
-    debtBalanceNum = debtBalance.n;
+    if (maxWithdraw) {
+      debtBalanceNum = debtBalance.n;
+    } else {
+      // Reduce the debt repaid slightly to account for slippage on vault shares.
+      debtBalanceNum = debtBalance.mulInRatePrecision(
+        RATE_PRECISION - 25 * BASIS_POINT
+      ).n;
+    }
   }
 
   let minLendRate: number;

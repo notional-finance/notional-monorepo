@@ -233,7 +233,8 @@ export function getBalanceAction(
   redeemToWETH: boolean
 ): BalanceActionStruct {
   if (redeemToWETH && amount.underlying.symbol !== 'ETH') {
-    throw Error('Cannot redeem to WETH');
+    // Set this back to false if we are not redeeming to WETH
+    redeemToWETH = false;
   }
 
   if (

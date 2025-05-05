@@ -72,7 +72,8 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
       this.env.NX_SUBGRAPH_API_KEY,
       {
         blockNumber,
-      }
+      },
+      'tokens'
     );
 
     if (network === Network.mainnet) {

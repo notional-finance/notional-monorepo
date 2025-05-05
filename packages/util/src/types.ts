@@ -66,6 +66,12 @@ export enum DataServiceEndpoints {
 }
 
 export type DataServiceVaultAPY = {
+  network?: Network;
+  vaultAPY: VaultAPY[];
+  redemptionData: RedemptionData;
+};
+
+export type VaultAPY = {
   // Shared data
   feeApy: string;
   vaultName?: string;
@@ -85,6 +91,28 @@ export type DataServiceVaultAPY = {
   apy?: string;
   rewardToken: string;
   rewardTokensClaimed?: string;
+  rewardTokenClaimedPerVaultShare?: string;
   rewardTokenValuePrimaryBorrow: string;
   rewardTokenSymbol: string;
+  rewardTokenPriceInPrimary?: string;
+  rewardTokenPriceDecimals?: string;
+  accumulatedRewardPerVaultShare?: string;
+};
+
+export type RedemptionToken = {
+  symbol: string;
+  address: string;
+  amountPerLpToken: string;
+  decimals: number;
+  priceInPrimary?: string;
+  priceDecimals?: string;
+};
+
+export type RedemptionData = {
+  vaultAddress: string;
+  priceOfVaultShare: string;
+  timestamp: number;
+  redemptionTokens: RedemptionToken[];
+  lpTokenPerVaultShare: string;
+  lpTokenDecimals: number;
 };

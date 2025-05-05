@@ -1,10 +1,10 @@
-FROM node:20
+FROM node:22
 
 RUN curl -L https://foundry.paradigm.xyz | bash
 
 ENV PATH="${PATH}:/root/.foundry/bin"
 
-RUN foundryup
+RUN foundryup -i stable
 
 WORKDIR /usr/src/app
 
