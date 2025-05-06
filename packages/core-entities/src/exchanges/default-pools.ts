@@ -316,7 +316,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: registerTokensMap[Network.mainnet].USDeUSDC,
-      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
+      PoolClass: 'Curve2TokenPoolNG',
       registerTokens: [
         {
           id: registerTokensMap[Network.mainnet].USDeUSDC,
