@@ -244,9 +244,9 @@ const PortfolioOverview = () => {
     {
       title: <FormattedMessage defaultMessage="Positions" />,
     },
-    {
-      title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage="Earnings Breakdown" />,
+    // },
   ];
 
   return (
