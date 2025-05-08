@@ -398,7 +398,7 @@ export class SingleSidedLP extends VaultAdapter {
     _maturity: number,
     vaultSharesToRedeem: TokenBalance,
     _underlyingToRepayDebt: TokenBalance,
-    slippageFactor = 5 * BASIS_POINT
+    slippageFactor = 10 * BASIS_POINT
   ) {
     // Since this is single sided then everything is back to one side.
     const { tokensOut } = this.pool.getTokensOutGivenLPTokens(
