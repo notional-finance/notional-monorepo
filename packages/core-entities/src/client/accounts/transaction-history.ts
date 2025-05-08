@@ -165,10 +165,15 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
   const token = model.getTokenByID(tokenId);
   const underlying = model.getTokenByID(underlyingId);
 
-  const vaultName =
-    !!token.vaultAddress && token.vaultAddress !== ZERO_ADDRESS
-      ? model.getVaultName(token.vaultAddress)
-      : undefined;
+  let vaultName: string | undefined;
+  try {
+    vaultName =
+      !!token.vaultAddress && token.vaultAddress !== ZERO_ADDRESS
+        ? model.getVaultName(token.vaultAddress)
+        : undefined;
+  } catch (e) {
+    console.error(e);
+  }
 
   let tokenAmount = parseGraphBalanceToTokenBalance(
     p.tokenAmount,
