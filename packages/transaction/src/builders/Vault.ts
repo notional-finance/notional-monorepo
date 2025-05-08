@@ -1,4 +1,4 @@
-import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
+import { BigNumber, Overrides, PopulatedTransaction, ethers } from 'ethers';
 import {
   PopulateTransactionInputs,
   getETHValue,
@@ -7,6 +7,7 @@ import {
 import {
   BASIS_POINT,
   INTERNAL_TOKEN_DECIMALS,
+  Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
 } from '@notional-finance/util';
@@ -16,6 +17,7 @@ import {
   getNetworkModel,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
+import { NotionalV3 } from '@notional-finance/contracts';
 
 function getVaultSlippageRate(
   debtBalance: TokenBalance,
@@ -149,6 +151,7 @@ export async function ExitVault({
   accountBalances,
   maxWithdraw,
   vaultLastUpdateTime,
+  redeemToWETH,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
     collateralBalance?.tokenType !== 'VaultShare' ||
@@ -208,7 +211,7 @@ export async function ExitVault({
     underlyingOut
   );
 
-  return populateNotionalTxnAndGas(network, address, 'exitVault', [
+  const args: Parameters<NotionalV3['functions']['exitVault']> = [
     address,
     vaultAddress,
     address, // Receiver
@@ -216,7 +219,39 @@ export async function ExitVault({
     debtBalanceNum,
     minLendRate,
     vaultData,
-  ]);
+  ];
+
+  if (redeemToWETH) {
+    args.push({
+      type: 1,
+      accessList: [
+        {
+          address,
+          storageKeys: [
+            '0x0000000000000000000000000000000000000000000000000000000000000000',
+          ],
+        },
+        network === Network.arbitrum
+          ? {
+              // Safe L2 Singleton
+              address: '0x29fcb43b46531bca003ddc8fcb67ffe91900c762',
+              // Fallback Handler Storage Key
+              storageKeys: [
+                '0x6c9a6c4a39284e37ed1cf53d337577d14212a4870fb976a4366c693b939918d5',
+              ],
+            }
+          : {
+              // Mainnet Singleton (is this correct?)
+              address: '0x6851d6fdfafd08c0295c392436245e5bc78b0185',
+              storageKeys: [
+                '0x6c9a6c4a39284e37ed1cf53d337577d14212a4870fb976a4366c693b939918d5',
+              ],
+            },
+      ],
+    } as Overrides);
+  }
+
+  return populateNotionalTxnAndGas(network, address, 'exitVault', args);
 }
 
 export async function RollVault({
