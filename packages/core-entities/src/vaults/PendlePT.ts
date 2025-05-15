@@ -412,7 +412,7 @@ export class PendlePT extends VaultAdapter {
     _account: string,
     _maturity: number,
     totalDeposit: TokenBalance,
-    slippageFactor = 10 * BASIS_POINT
+    slippageFactor = 15 * BASIS_POINT
   ): Promise<BytesLike> {
     const { dexId, depositExchangeData: exchangeData } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
