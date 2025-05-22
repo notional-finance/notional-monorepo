@@ -53,6 +53,10 @@ export const registerTokensMap = {
       '0x9df192d13d61609d1852461c4850595e1f56e714' as const,
     'SY-USDe-30JUL2025': '0xb47cbf6697a6518222c7af4098a43aefe2739c8c' as const,
     'PT-USDe-30JUL2025': '0x917459337caac939d41d7493b3999f571d20d667' as const,
+    'Pendle-Market-sUSDe-30JUL2025':
+      '0x4339Ffe2B7592Dc783ed13cCE310531aB366dEac' as const,
+    'PT-sUSDe-30JUL2025': '0x3b3fB9C57858EF816833dC91565EFcd85D96f634' as const,
+    'SY-sUSDe-30JUL2025': '0xF541AA4d6f29ec2423A0D306dBc677021A02DBC0' as const,
   },
   arbitrum: {
     'FRAXBP-f': '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5' as const,
@@ -635,6 +639,46 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           name: 'SY sUSDe',
           network: Network.mainnet,
           symbol: 'SY-sUSDe',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address:
+        registerTokensMap[Network.mainnet]['Pendle-Market-sUSDe-30JUL2025'],
+      PoolClass: 'PendleMarketWithFixedSyToAssetExchangeRate',
+      registerTokens: [
+        {
+          id: registerTokensMap[Network.mainnet][
+            'Pendle-Market-sUSDe-30JUL2025'
+          ],
+          address:
+            registerTokensMap[Network.mainnet]['Pendle-Market-sUSDe-30JUL2025'],
+          name: 'Pendle Market: sUSDe 30JUL2025',
+          network: Network.mainnet,
+          symbol: 'PENDLE-LPT sUSDe 30JUL2025',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['PT-sUSDe-30JUL2025'],
+          address: registerTokensMap[Network.mainnet]['PT-sUSDe-30JUL2025'],
+          name: 'PT: sUSDe 30JUL2025',
+          network: Network.mainnet,
+          symbol: 'PT-sUSDe-30JUL2025',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        {
+          id: registerTokensMap[Network.mainnet]['SY-sUSDe-30JUL2025'],
+          address: registerTokensMap[Network.mainnet]['SY-sUSDe-30JUL2025'],
+          name: 'SY sUSDe 30JUL2025',
+          network: Network.mainnet,
+          symbol: 'SY-sUSDe-30JUL2025',
           decimals: 18,
           tokenInterface: 'ERC20',
           tokenType: 'Underlying',

@@ -56,6 +56,7 @@ export const PendlePTVaults: Record<Network, string[]> = {
     vaults.mainnet.Pendle_USDe_26MAR2025,
     vaults.mainnet.Pendle_sUSDe_28MAY2025,
     vaults.mainnet.Pendle_USDe_30JUL2025,
+    vaults.mainnet.Pendle_sUSDe_30JUL2025,
     vaults.mainnet.Pendle_USDe_28MAY2025,
   ].map(toLowercase),
   [Network.all]: [],
@@ -82,6 +83,7 @@ export const whitelistedVaults = (
         vaults.mainnet.Pendle_USDe_25DEC2024,
         vaults.mainnet.Pendle_USDe_26MAR2025,
         vaults.mainnet.Pendle_sUSDe_28MAY2025,
+        vaults.mainnet.Pendle_sUSDe_30JUL2025,
         vaults.mainnet.Pendle_USDe_30JUL2025,
         vaults.mainnet.Pendle_USDe_28MAY2025,
       ].map(toLowercase);
@@ -187,6 +189,21 @@ export const VaultDefaultDexParameters: Record<
       redeemPoolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
     },
     [vaults.mainnet.Pendle_sUSDe_28MAY2025.toLowerCase()]: {
+      dexId: DexIds.CURVE_V2,
+      // On entry, the trade is from USDC to USDe
+      depositExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 1, 0]
+      ),
+      depositPoolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
+      // On exit, the trade is from DAI to USDC
+      redeemExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7', 0, 1]
+      ),
+      redeemPoolAddress: '0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7',
+    },
+    [vaults.mainnet.Pendle_sUSDe_30JUL2025.toLowerCase()]: {
       dexId: DexIds.CURVE_V2,
       // On entry, the trade is from USDC to USDe
       depositExchangeData: defaultAbiCoder.encode(
