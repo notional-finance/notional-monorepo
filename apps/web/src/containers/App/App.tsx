@@ -43,6 +43,7 @@ import {
   InitPointsDashboard,
   ContestLeaderBoard,
 } from '../../containers/TradingContest';
+import WebflowEmbed from '../../containers/Webflow/WebflowEmbed';
 import { AnalyticsViews } from '../AnalyticsViews';
 import { NoteView } from '../NoteView';
 import {
@@ -92,6 +93,16 @@ const AllRoutes = observer(() => {
   return (
     <RouteContainer>
       <Routes>
+        <Route
+          path="/webflow/:path"
+          element={
+            <AppLayoutRoute
+              path="/webflow/:path"
+              component={WebflowEmbed}
+              routeType="Landing"
+            />
+          }
+        />
         <Route
           path="/borrow-fixed/:selectedNetwork/:selectedDepositToken"
           element={
