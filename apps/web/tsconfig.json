@@ -15,7 +15,6 @@
   },
   "files": [],
   "include": [],
-  "exclude": ["functions/**/*"],
   "references": [
     {
       "path": "./tsconfig.app.json"
