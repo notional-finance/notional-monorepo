@@ -32,6 +32,11 @@
             "glob": "**/*",
             "input": "packages/shared/assets/src/assets",
             "output": "assets"
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/web/functions",
+            "output": "functions"
           }
         ],
         "styles": [],

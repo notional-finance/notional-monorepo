@@ -55,12 +55,11 @@ jobs:
           NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Web
         if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
-        uses: cloudflare/pages-action@1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: notional-web-v4-${{ github.ref == 'refs/heads/v4/prod' && 'prod' || 'dev' }}
-          directory: dist/apps/web
+          command: pages deploy dist/apps/web --project-name=notional-web-v4-${{ github.ref == 'refs/heads/v4/prod' && 'prod' || 'dev' }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
         if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
