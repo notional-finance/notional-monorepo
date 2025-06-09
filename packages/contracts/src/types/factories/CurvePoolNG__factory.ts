@@ -11,18 +11,18 @@ const _abi = [
     name: "Transfer",
     inputs: [
       {
+        type: "address",
         name: "sender",
-        type: "address",
         indexed: true,
       },
       {
+        type: "address",
         name: "receiver",
-        type: "address",
         indexed: true,
       },
       {
-        name: "value",
         type: "uint256",
+        name: "value",
         indexed: false,
       },
     ],
@@ -33,18 +33,18 @@ const _abi = [
     name: "Approval",
     inputs: [
       {
+        type: "address",
         name: "owner",
-        type: "address",
         indexed: true,
       },
       {
+        type: "address",
         name: "spender",
-        type: "address",
         indexed: true,
       },
       {
-        name: "value",
         type: "uint256",
+        name: "value",
         indexed: false,
       },
     ],
@@ -55,28 +55,60 @@ const _abi = [
     name: "TokenExchange",
     inputs: [
       {
-        name: "buyer",
         type: "address",
+        name: "buyer",
         indexed: true,
       },
       {
+        type: "int128",
         name: "sold_id",
-        type: "int128",
         indexed: false,
       },
       {
+        type: "uint256",
         name: "tokens_sold",
-        type: "uint256",
         indexed: false,
       },
       {
-        name: "bought_id",
         type: "int128",
+        name: "bought_id",
         indexed: false,
       },
       {
-        name: "tokens_bought",
         type: "uint256",
+        name: "tokens_bought",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+    type: "event",
+  },
+  {
+    name: "TokenExchangeUnderlying",
+    inputs: [
+      {
+        type: "address",
+        name: "buyer",
+        indexed: true,
+      },
+      {
+        type: "int128",
+        name: "sold_id",
+        indexed: false,
+      },
+      {
+        type: "uint256",
+        name: "tokens_sold",
+        indexed: false,
+      },
+      {
+        type: "int128",
+        name: "bought_id",
+        indexed: false,
+      },
+      {
+        type: "uint256",
+        name: "tokens_bought",
         indexed: false,
       },
     ],
@@ -87,28 +119,28 @@ const _abi = [
     name: "AddLiquidity",
     inputs: [
       {
-        name: "provider",
         type: "address",
+        name: "provider",
         indexed: true,
       },
       {
+        type: "uint256[]",
         name: "token_amounts",
-        type: "uint256[]",
         indexed: false,
       },
       {
+        type: "uint256[]",
         name: "fees",
-        type: "uint256[]",
         indexed: false,
       },
       {
+        type: "uint256",
         name: "invariant",
-        type: "uint256",
         indexed: false,
       },
       {
-        name: "token_supply",
         type: "uint256",
+        name: "token_supply",
         indexed: false,
       },
     ],
@@ -119,23 +151,23 @@ const _abi = [
     name: "RemoveLiquidity",
     inputs: [
       {
-        name: "provider",
         type: "address",
+        name: "provider",
         indexed: true,
       },
       {
+        type: "uint256[]",
         name: "token_amounts",
-        type: "uint256[]",
         indexed: false,
       },
       {
+        type: "uint256[]",
         name: "fees",
-        type: "uint256[]",
         indexed: false,
       },
       {
-        name: "token_supply",
         type: "uint256",
+        name: "token_supply",
         indexed: false,
       },
     ],
@@ -146,28 +178,28 @@ const _abi = [
     name: "RemoveLiquidityOne",
     inputs: [
       {
-        name: "provider",
         type: "address",
+        name: "provider",
         indexed: true,
       },
       {
-        name: "token_id",
         type: "int128",
+        name: "token_id",
         indexed: false,
       },
       {
+        type: "uint256",
         name: "token_amount",
-        type: "uint256",
         indexed: false,
       },
       {
+        type: "uint256",
         name: "coin_amount",
-        type: "uint256",
         indexed: false,
       },
       {
-        name: "token_supply",
         type: "uint256",
+        name: "token_supply",
         indexed: false,
       },
     ],
@@ -175,164 +207,1238 @@ const _abi = [
     type: "event",
   },
   {
-    stateMutability: "view",
-    type: "function",
-    name: "A",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-      },
-    ],
-  },
-  {
-    stateMutability: "view",
-    type: "function",
-    name: "A_precise",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-      },
-    ],
-  },
-  {
-    stateMutability: "view",
-    type: "function",
-    name: "balances",
+    name: "RemoveLiquidityImbalance",
     inputs: [
       {
+        type: "address",
+        name: "provider",
+        indexed: true,
+      },
+      {
+        type: "uint256[]",
+        name: "token_amounts",
+        indexed: false,
+      },
+      {
+        type: "uint256[]",
+        name: "fees",
+        indexed: false,
+      },
+      {
+        type: "uint256",
+        name: "invariant",
+        indexed: false,
+      },
+      {
+        type: "uint256",
+        name: "token_supply",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+    type: "event",
+  },
+  {
+    name: "RampA",
+    inputs: [
+      {
+        type: "uint256",
+        name: "old_A",
+        indexed: false,
+      },
+      {
+        type: "uint256",
+        name: "new_A",
+        indexed: false,
+      },
+      {
+        type: "uint256",
+        name: "initial_time",
+        indexed: false,
+      },
+      {
+        type: "uint256",
+        name: "future_time",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+    type: "event",
+  },
+  {
+    name: "StopRampA",
+    inputs: [
+      {
+        type: "uint256",
+        name: "A",
+        indexed: false,
+      },
+      {
+        type: "uint256",
+        name: "t",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+    type: "event",
+  },
+  {
+    name: "ApplyNewFee",
+    inputs: [
+      {
+        type: "uint256",
+        name: "fee",
+        indexed: false,
+      },
+      {
+        type: "uint256",
+        name: "offpeg_fee_multiplier",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+    type: "event",
+  },
+  {
+    outputs: [],
+    inputs: [
+      {
+        type: "string",
+        name: "_name",
+      },
+      {
+        type: "string",
+        name: "_symbol",
+      },
+      {
+        type: "uint256",
+        name: "_A",
+      },
+      {
+        type: "uint256",
+        name: "_fee",
+      },
+      {
+        type: "uint256",
+        name: "_offpeg_fee_multiplier",
+      },
+      {
+        type: "uint256",
+        name: "_ma_exp_time",
+      },
+      {
+        type: "address[]",
+        name: "_coins",
+      },
+      {
+        type: "uint256[]",
+        name: "_rate_multipliers",
+      },
+      {
+        type: "uint8[]",
+        name: "_asset_types",
+      },
+      {
+        type: "bytes4[]",
+        name: "_method_ids",
+      },
+      {
+        type: "address[]",
+        name: "_oracles",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    name: "exchange",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "int128",
         name: "i",
-        type: "uint256",
       },
-    ],
-    outputs: [
       {
-        name: "",
-        type: "uint256",
+        type: "int128",
+        name: "j",
       },
-    ],
-  },
-  {
-    stateMutability: "view",
-    type: "function",
-    name: "get_balances",
-    inputs: [],
-    outputs: [
       {
-        name: "",
-        type: "uint256[]",
-      },
-    ],
-  },
-  {
-    stateMutability: "view",
-    type: "function",
-    name: "fee",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
         type: "uint256",
+        name: "_dx",
       },
-    ],
-  },
-  {
-    stateMutability: "view",
-    type: "function",
-    name: "offpeg_fee_multiplier",
-    inputs: [],
-    outputs: [
       {
-        name: "",
         type: "uint256",
+        name: "_min_dy",
       },
     ],
-  },
-  {
-    stateMutability: "view",
-    type: "function",
-    name: "admin_fee",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-      },
-    ],
-  },
-  {
-    stateMutability: "view",
-    type: "function",
-    name: "admin_balances",
-    inputs: [
-      {
-        name: "arg0",
-        type: "uint256",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-      },
-    ],
-  },
-  {
     stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    name: "exchange",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "int128",
+        name: "i",
+      },
+      {
+        type: "int128",
+        name: "j",
+      },
+      {
+        type: "uint256",
+        name: "_dx",
+      },
+      {
+        type: "uint256",
+        name: "_min_dy",
+      },
+      {
+        type: "address",
+        name: "_receiver",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "exchange_received",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "int128",
+        name: "i",
+      },
+      {
+        type: "int128",
+        name: "j",
+      },
+      {
+        type: "uint256",
+        name: "_dx",
+      },
+      {
+        type: "uint256",
+        name: "_min_dy",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "exchange_received",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "int128",
+        name: "i",
+      },
+      {
+        type: "int128",
+        name: "j",
+      },
+      {
+        type: "uint256",
+        name: "_dx",
+      },
+      {
+        type: "uint256",
+        name: "_min_dy",
+      },
+      {
+        type: "address",
+        name: "_receiver",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     name: "add_liquidity",
-    inputs: [
-      {
-        name: "_amounts",
-        type: "uint256[]",
-      },
-      {
-        name: "_min_mint_amount",
-        type: "uint256",
-      },
-    ],
     outputs: [
       {
-        name: "",
         type: "uint256",
+        name: "",
       },
     ],
-  },
-  {
+    inputs: [
+      {
+        type: "uint256[]",
+        name: "_amounts",
+      },
+      {
+        type: "uint256",
+        name: "_min_mint_amount",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
-    name: "remove_liquidity",
-    inputs: [
-      {
-        name: "_burn_amount",
-        type: "uint256",
-      },
-      {
-        name: "_min_amounts",
-        type: "uint256[]",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256[]",
-      },
-    ],
   },
   {
-    stateMutability: "view",
-    type: "function",
-    name: "totalSupply",
-    inputs: [],
+    name: "add_liquidity",
     outputs: [
       {
-        name: "",
         type: "uint256",
+        name: "",
       },
     ],
+    inputs: [
+      {
+        type: "uint256[]",
+        name: "_amounts",
+      },
+      {
+        type: "uint256",
+        name: "_min_mint_amount",
+      },
+      {
+        type: "address",
+        name: "_receiver",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "remove_liquidity_one_coin",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "_burn_amount",
+      },
+      {
+        type: "int128",
+        name: "i",
+      },
+      {
+        type: "uint256",
+        name: "_min_received",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "remove_liquidity_one_coin",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "_burn_amount",
+      },
+      {
+        type: "int128",
+        name: "i",
+      },
+      {
+        type: "uint256",
+        name: "_min_received",
+      },
+      {
+        type: "address",
+        name: "_receiver",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "remove_liquidity_imbalance",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256[]",
+        name: "_amounts",
+      },
+      {
+        type: "uint256",
+        name: "_max_burn_amount",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "remove_liquidity_imbalance",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256[]",
+        name: "_amounts",
+      },
+      {
+        type: "uint256",
+        name: "_max_burn_amount",
+      },
+      {
+        type: "address",
+        name: "_receiver",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "remove_liquidity",
+    outputs: [
+      {
+        type: "uint256[]",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "_burn_amount",
+      },
+      {
+        type: "uint256[]",
+        name: "_min_amounts",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "remove_liquidity",
+    outputs: [
+      {
+        type: "uint256[]",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "_burn_amount",
+      },
+      {
+        type: "uint256[]",
+        name: "_min_amounts",
+      },
+      {
+        type: "address",
+        name: "_receiver",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "remove_liquidity",
+    outputs: [
+      {
+        type: "uint256[]",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "_burn_amount",
+      },
+      {
+        type: "uint256[]",
+        name: "_min_amounts",
+      },
+      {
+        type: "address",
+        name: "_receiver",
+      },
+      {
+        type: "bool",
+        name: "_claim_admin_fees",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "withdraw_admin_fees",
+    outputs: [],
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "last_price",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "i",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "ema_price",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "i",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "get_p",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "i",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "price_oracle",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "i",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "D_oracle",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "transfer",
+    outputs: [
+      {
+        type: "bool",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "address",
+        name: "_to",
+      },
+      {
+        type: "uint256",
+        name: "_value",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "transferFrom",
+    outputs: [
+      {
+        type: "bool",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "address",
+        name: "_from",
+      },
+      {
+        type: "address",
+        name: "_to",
+      },
+      {
+        type: "uint256",
+        name: "_value",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "approve",
+    outputs: [
+      {
+        type: "bool",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "address",
+        name: "_spender",
+      },
+      {
+        type: "uint256",
+        name: "_value",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "permit",
+    outputs: [
+      {
+        type: "bool",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "address",
+        name: "_owner",
+      },
+      {
+        type: "address",
+        name: "_spender",
+      },
+      {
+        type: "uint256",
+        name: "_value",
+      },
+      {
+        type: "uint256",
+        name: "_deadline",
+      },
+      {
+        type: "uint8",
+        name: "_v",
+      },
+      {
+        type: "bytes32",
+        name: "_r",
+      },
+      {
+        type: "bytes32",
+        name: "_s",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "DOMAIN_SEPARATOR",
+    outputs: [
+      {
+        type: "bytes32",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "get_dx",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "int128",
+        name: "i",
+      },
+      {
+        type: "int128",
+        name: "j",
+      },
+      {
+        type: "uint256",
+        name: "dy",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "get_dy",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "int128",
+        name: "i",
+      },
+      {
+        type: "int128",
+        name: "j",
+      },
+      {
+        type: "uint256",
+        name: "dx",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "calc_withdraw_one_coin",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "_burn_amount",
+      },
+      {
+        type: "int128",
+        name: "i",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "totalSupply",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "get_virtual_price",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "calc_token_amount",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256[]",
+        name: "_amounts",
+      },
+      {
+        type: "bool",
+        name: "_is_deposit",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "A",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "A_precise",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "balances",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "i",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "get_balances",
+    outputs: [
+      {
+        type: "uint256[]",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "stored_rates",
+    outputs: [
+      {
+        type: "uint256[]",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "dynamic_fee",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "int128",
+        name: "i",
+      },
+      {
+        type: "int128",
+        name: "j",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "ramp_A",
+    outputs: [],
+    inputs: [
+      {
+        type: "uint256",
+        name: "_future_A",
+      },
+      {
+        type: "uint256",
+        name: "_future_time",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "stop_ramp_A",
+    outputs: [],
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "set_new_fee",
+    outputs: [],
+    inputs: [
+      {
+        type: "uint256",
+        name: "_new_fee",
+      },
+      {
+        type: "uint256",
+        name: "_new_offpeg_fee_multiplier",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "set_ma_exp_time",
+    outputs: [],
+    inputs: [
+      {
+        type: "uint256",
+        name: "_ma_exp_time",
+      },
+      {
+        type: "uint256",
+        name: "_D_ma_time",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    name: "N_COINS",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "coins",
+    outputs: [
+      {
+        type: "address",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "arg0",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "fee",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "offpeg_fee_multiplier",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "admin_fee",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "initial_A",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "future_A",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "initial_A_time",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "future_A_time",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "admin_balances",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "uint256",
+        name: "arg0",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "ma_exp_time",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "D_ma_time",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "ma_last_time",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "name",
+    outputs: [
+      {
+        type: "string",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "symbol",
+    outputs: [
+      {
+        type: "string",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "decimals",
+    outputs: [
+      {
+        type: "uint8",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "version",
+    outputs: [
+      {
+        type: "string",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "balanceOf",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "address",
+        name: "arg0",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "allowance",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "address",
+        name: "arg0",
+      },
+      {
+        type: "address",
+        name: "arg1",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "nonces",
+    outputs: [
+      {
+        type: "uint256",
+        name: "",
+      },
+    ],
+    inputs: [
+      {
+        type: "address",
+        name: "arg0",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    name: "salt",
+    outputs: [
+      {
+        type: "bytes32",
+        name: "",
+      },
+    ],
+    inputs: [],
+    stateMutability: "view",
+    type: "function",
   },
 ] as const;
 

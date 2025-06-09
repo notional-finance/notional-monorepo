@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Deploy V3 Website
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose an environment to deploy to: <dev|prod>'
+        required: true
+        default: 'dev'
+  push:
+    branches:
+      - v4/dev
+      - v4/prod
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/v3/prod' && 'prod' || 'dev' }}
+    permissions:
+      contents: read
+      deployments: write
+    name: Deploy to Cloudflare Pages
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      - name: Yarn Install
+        run: |
+          yarn install --frozen-lockfile
+      - name: Check if web project is affected
+        id: check-affected
+        run: |
+          echo "is_affected=$(yarn --silent nx print-affected --base=HEAD~1 --head=HEAD | jq '.projects | contains(["web"])')" >> $GITHUB_OUTPUT
+      - name: Build Web
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
+        run: yarn nx build web --parallel
+        env:
+          NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
+          NX_DD_APP_ID: ${{ secrets.NX_DD_APP_ID }}
+          NX_DD_CLIENT_TOKEN: ${{ secrets.NX_DD_CLIENT_TOKEN }}
+          NX_DD_BASE_URL: ${{ secrets.NX_DD_BASE_URL }}
+          NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
+          NX_APP_URL: ${{ secrets.NX_APP_URL }}
+          NX_REGISTRY_URL: ${{ github.ref == 'refs/heads/v3/prod' && 'https://registry.notional.finance' || 'https://registry-dev.notional.finance' }}
+          NX_INTERCOM_APP_ID: ${{ secrets.NX_INTERCOM_APP_ID }}
+          NX_SEGMENT_KEY: ${{ secrets.NX_SEGMENT_KEY }}
+          NX_SUBGRAPH_API_KEY: ${{ secrets.NX_SUBGRAPH_UI_KEY }}
+          NX_DEBANK_API_KEY: ${{ secrets.NX_DEBANK_API_KEY }}
+          NX_GROWTHBOOK_KEY: ${{ secrets.NX_GROWTHBOOK_KEY }}
+          NX_ENV: ${{ github.ref == 'refs/heads/v4/prod' && 'prod' || 'dev' }}
+          NX_COMMIT_REF: ${{ github.sha }}
+      - name: Publish Web
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: notional-web-v4-${{ github.ref == 'refs/heads/v4/prod' && 'prod' || 'dev' }}
+          directory: dist/apps/web
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Slack Notification
+        if: ${{ steps.check-affected.outputs.is_affected == 'true' }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
