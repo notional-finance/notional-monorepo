@@ -1,3 +1,8 @@
 name = "notional-web-v4"
-pages_build_output_dir = "../dist"
 compatibility_date = "2025-06-09"
+main = "./worker/index.ts"
+workers_dev = true
+
+[assets]
+directory = "../../dist/apps/web"
+not_found_handling = "single-page-application"
