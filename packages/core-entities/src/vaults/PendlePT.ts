@@ -490,7 +490,7 @@ export class PendlePT extends VaultAdapter {
     _maturity: number,
     vaultSharesToRedeem: TokenBalance,
     _underlyingToRepayDebt: TokenBalance,
-    slippageFactor = 10 * BASIS_POINT
+    slippageFactor = 15 * BASIS_POINT
   ): Promise<BytesLike> {
     if (this.tokenOutSy === this.borrowedToken.id) {
       return '0x';
