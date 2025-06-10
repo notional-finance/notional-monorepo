@@ -94,10 +94,10 @@ const AllRoutes = observer(() => {
     <RouteContainer>
       <Routes>
         <Route
-          path="/webflow/:path"
+          path="/webflow"
           element={
             <AppLayoutRoute
-              path="/webflow/:path"
+              path="/webflow"
               component={WebflowEmbed}
               routeType="Landing"
             />
