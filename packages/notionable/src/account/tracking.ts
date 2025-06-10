@@ -46,12 +46,13 @@ export async function fetchDeBankData(walletAddress: string) {
     ]);
 
     const isBorrower =
-      protocolsData?.find((data) => data.debt_usd_value > 0) ?? false;
+      (protocolsData as any[])?.find((data) => data.debt_usd_value > 0) ??
+      false;
 
-    const lendingProtocols = protocolsData.map((data) => data.id);
+    const lendingProtocols = (protocolsData as any[]).map((data) => data.id);
 
     return {
-      netWorth: balanceData.total_usd_value,
+      netWorth: (balanceData as any).total_usd_value,
       isLender: !isBorrower,
       lendingProtocols:
         lendingProtocols && lendingProtocols.length > 0 ? lendingProtocols : [],
@@ -83,7 +84,7 @@ async function getDebBankData(selectedAddress, isReadOnlyAddress) {
   let isFetching = false;
   let currentNetWorth = 0;
   let currentIsLender;
-  let currentLendingProtocols = [];
+  let currentLendingProtocols: any[] = [];
 
   async function updateDeBankNetWorth(address: string) {
     if (isFetching) return;
@@ -96,7 +97,7 @@ async function getDebBankData(selectedAddress, isReadOnlyAddress) {
       const currentTimestamp = getNowSeconds();
       currentNetWorth = Math.trunc(netWorth);
       currentIsLender = isLender;
-      currentLendingProtocols = lendingProtocols;
+      currentLendingProtocols = lendingProtocols || [];
 
       const userSettings = getFromLocalStorage('userSettings');
       setInLocalStorage('userSettings', {

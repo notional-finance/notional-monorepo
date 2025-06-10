@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 
-const WebflowEmbed = () => {
+const WebflowEmbed = ({ path }: { path: string }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const target = `/embed/`; // The proxied route via Cloudflare Worker
+    const target = `/embed/${path}`; // The proxied route via Cloudflare Worker
 
     fetch(target)
       .then((res) => {
@@ -28,7 +28,7 @@ const WebflowEmbed = () => {
         }
       })
       .catch((err) => setError(err.message));
-  }, []);
+  }, [path]);
 
   return (
     <div>
@@ -43,4 +43,6 @@ const WebflowEmbed = () => {
   );
 };
 
-export default WebflowEmbed;
+export const LandingPageView = () => {
+  return <WebflowEmbed path="" />;
+};

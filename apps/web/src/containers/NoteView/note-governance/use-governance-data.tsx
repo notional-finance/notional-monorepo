@@ -40,7 +40,7 @@ export const useGovernanceData = () => {
           },
           body: JSON.stringify({ query }),
         });
-        const response = await data.json();
+        const response = await data.json<any>();
         setGovData(response.data.proposals);
       } catch (error) {
         console.error('Error:', error);

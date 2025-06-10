@@ -124,7 +124,7 @@ export async function checkNewUserAddress(account: string) {
   const eligibleAddresses = await fetchNewcomerBoostData();
 
   return eligibleAddresses
-    ?.map((addr) => addr.toLowerCase())
+    ?.map((addr: string) => addr.toLowerCase())
     .includes(account.toLowerCase());
 }
 

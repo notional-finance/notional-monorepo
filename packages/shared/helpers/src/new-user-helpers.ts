@@ -27,7 +27,7 @@ export const fetchNewcomerBoostData = async () => {
     if (!response.ok) {
       throw new Error('Failed to fetch newcomer boost data');
     }
-    return response.json();
+    return response.json() as Promise<string[]>;
   } catch (error) {
     console.error('Error fetching newcomer boost data:', error);
     return null;
