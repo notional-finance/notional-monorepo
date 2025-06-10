@@ -1,6 +1,7 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
 
-const WEBFLOW_ROOT = 'https://notionals-ultra-awesome-site.webflow.io';
+const WEBFLOW_ROOT = 'https://webflow.notional.finance';
+const SITE_ID = '6807f00bedf01dce8388f0e2';
 
 export default class extends WorkerEntrypoint {
   override async fetch(request: Request) {
@@ -12,10 +13,10 @@ export default class extends WorkerEntrypoint {
     if (!res.ok)
       return new Response('Failed to load Webflow page', { status: 502 });
 
-    let html = await res.text();
+    const html = await res.text();
 
-    // Inject base tag for relative paths
-    html = html.replace(/<head>/i, `<head><base href="${WEBFLOW_ROOT}">`);
+    // // Inject base tag for relative paths
+    // html = html.replace(/<head>/i, `<head><base href="${WEBFLOW_ROOT}">`);
 
     return new Response(html, {
       headers: {
