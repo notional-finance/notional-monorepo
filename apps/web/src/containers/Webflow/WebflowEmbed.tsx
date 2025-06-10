@@ -46,17 +46,19 @@ const WebflowEmbed = ({ path }: { path: string }) => {
 
           containerRef.current.innerHTML = bodyClone.innerHTML;
 
-          // Execute body scripts
-          doc.body.querySelectorAll('script').forEach((oldScript) => {
-            const newScript = document.createElement('script');
-            if (oldScript.src) {
-              newScript.src = oldScript.src;
-            } else {
-              newScript.textContent = oldScript.textContent;
-            }
-            newScript.async = false;
-            document.body.appendChild(newScript);
-          });
+          // Execute body scripts, defer execution until after the DOM is updated
+          setTimeout(() => {
+            doc.body.querySelectorAll('script').forEach((oldScript) => {
+              const newScript = document.createElement('script');
+              if (oldScript.src) {
+                newScript.src = oldScript.src;
+              } else {
+                newScript.textContent = oldScript.textContent;
+              }
+              newScript.async = false;
+              document.body.appendChild(newScript);
+            });
+          }, 0);
         }
       })
       .catch((err) => setError(err.message));
