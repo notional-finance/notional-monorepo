@@ -15,50 +15,15 @@ const WebflowEmbed = ({ path }: { path: string }) => {
       .then((html) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
+        // Remove all the scripts from inside the body
 
-        // // --- Inject HEAD scripts and links ---
-        // const headScripts = doc.head.querySelectorAll('script');
-        // const headLinks = doc.head.querySelectorAll('link, style');
+        const scripts = doc.body.querySelectorAll('script');
+        scripts.forEach((script) => {
+          script.remove();
+        });
 
-        // headLinks.forEach((tag) => {
-        //   if (!document.head.querySelector(`[href="${tag['href']}"]`)) {
-        //     document.head.appendChild(tag.cloneNode(true));
-        //   }
-        // });
-
-        // headScripts.forEach((oldScript) => {
-        //   const newScript = document.createElement('script');
-        //   if (oldScript.src) {
-        //     newScript.src = oldScript.src;
-        //   } else {
-        //     newScript.textContent = oldScript.textContent;
-        //   }
-        //   newScript.async = false;
-        //   document.head.appendChild(newScript);
-        // });
-
-        // --- Inject BODY content ---
         if (containerRef.current) {
-          // Remove body scripts before setting innerHTML
-          const bodyClone = doc.body.cloneNode(true) as HTMLElement;
-          const bodyScripts = bodyClone.querySelectorAll('script');
-          bodyScripts.forEach((s) => s.remove());
-
-          containerRef.current.innerHTML = bodyClone.innerHTML;
-
-          // Execute body scripts, defer execution until after the DOM is updated
-          setTimeout(() => {
-            doc.body.querySelectorAll('script').forEach((oldScript) => {
-              const newScript = document.createElement('script');
-              if (oldScript.src) {
-                newScript.src = oldScript.src;
-              } else {
-                newScript.textContent = oldScript.textContent;
-              }
-              newScript.async = false;
-              document.body.appendChild(newScript);
-            });
-          }, 0);
+          containerRef.current.innerHTML = doc.body.innerHTML;
         }
       })
       .catch((err) => setError(err.message));
@@ -78,21 +43,5 @@ const WebflowEmbed = ({ path }: { path: string }) => {
 };
 
 export const LandingPageView = () => {
-  // return (
-  //   <iframe
-  //     src={'https://webflow.notional.finance'}
-  //     style={{
-  //       width: '100%',
-  //       height: '100%',
-  //       border: 'none',
-  //       position: 'absolute',
-  //       top: 0,
-  //       left: 0,
-  //     }}
-  //     title={'Notional Finance'}
-  //     sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-  //     allow="autoplay; fullscreen"
-  //   />
-  // );
   return <WebflowEmbed path="" />;
 };
