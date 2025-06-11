@@ -80,6 +80,13 @@
         }
       }
     },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/web",
+        "command": "./start-dev.sh"
+      }
+    },
     "publish": {
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
