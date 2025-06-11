@@ -5,7 +5,7 @@ import {
   CoinsIcon,
   GearIcon,
   LightningOutlineIcon,
-  PointsIcon,
+  PointsOutlineIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS, Network } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
@@ -53,8 +53,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
           className="color-stroke"
           sx={{
             height: theme.spacing(2.25),
-            stroke: 'transparent',
-            fill: textColor,
+            fill: 'transparent',
           }}
         />
       ),
@@ -64,7 +63,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       label: <FormattedMessage defaultMessage={'Points'} />,
       link: '/points',
       iconImg: (
-        <PointsIcon
+        <PointsOutlineIcon
           className="color-stroke"
           sx={{
             height: theme.spacing(2.25),
