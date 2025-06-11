@@ -37,6 +37,8 @@ class ScriptCollector {
       const href = element.getAttribute('href');
       const rel = element.getAttribute('rel');
       if (href) {
+        // Skip the favicon link
+        if (href.endsWith('.ico')) return;
         this.headLinks.push({ href, rel });
       }
     } else if (this.inBody) {

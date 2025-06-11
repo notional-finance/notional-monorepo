@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface WebflowEmbedProps {
   path: string;
@@ -84,7 +84,8 @@ const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
 };
 
 export const LandingPageView = () => {
-  const onContentLoaded = (container: HTMLDivElement) => {
+  // This needs to be a callback to avoid re-rendering the component
+  const onContentLoaded = useCallback((container: HTMLDivElement) => {
     // TODO: get this data from MobX
     const tvlElement = container.querySelector('#tvl');
     const maxUsdcApyElement = container.querySelector('#max-usdc-apy');
@@ -95,23 +96,23 @@ export const LandingPageView = () => {
     if (maxEthApyElement) maxEthApyElement.textContent = '14.0%';
 
     // TODO: update blog cards
-  };
+  }, []);
 
   return <WebflowEmbed path="" onContentLoaded={onContentLoaded} />;
 };
 
 export const VaultPageView = () => {
-  const onContentLoaded = () => {
+  const onContentLoaded = useCallback(() => {
     console.log('content loaded');
-  };
+  }, []);
 
   return <WebflowEmbed path="/vaults" onContentLoaded={onContentLoaded} />;
 };
 
 export const PointsPageView = () => {
-  const onContentLoaded = () => {
+  const onContentLoaded = useCallback(() => {
     console.log('content loaded');
-  };
+  }, []);
 
   return <WebflowEmbed path="/vaults" onContentLoaded={onContentLoaded} />;
 };
