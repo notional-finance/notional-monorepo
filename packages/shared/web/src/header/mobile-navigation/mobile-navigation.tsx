@@ -104,7 +104,7 @@ export const MobileNavigation = observer(() => {
   }, [currentTab?.link]);
 
   const [sideDrawerDataKey, setSideDrawerDataKey] =
-    useState<MOBILE_SUB_NAV_ACTIONS>(MOBILE_SUB_NAV_ACTIONS.EARN_YIELD);
+    useState<MOBILE_SUB_NAV_ACTIONS>(MOBILE_SUB_NAV_ACTIONS.VAULTS);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {

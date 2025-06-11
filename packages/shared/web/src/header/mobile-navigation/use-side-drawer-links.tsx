@@ -1,8 +1,4 @@
 import {
-  PieChartIcon,
-  VaultIcon,
-  BarChartIcon,
-  // StakeIcon,
   DocsIcon,
   InsuranceIcon,
   NotionalPlainIcon,
@@ -14,11 +10,8 @@ import {
   ForumIcon,
   DiscordPlainIcon,
   ResourcesIcon,
-  BarChartLateralIcon,
-  CoinsCircleIcon,
-  CoinsIcon,
   PointsIcon,
-  PendleIcon,
+  LightningOutlineIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import {
@@ -30,7 +23,6 @@ import {
 import TuneIcon from '@mui/icons-material/Tune';
 import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const useResourceLinks = () => {
   const theme = useTheme();
@@ -170,160 +162,43 @@ export const useResourceLinks = () => {
 
 export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
   const theme = useTheme();
-  const network = useSelectedNetwork();
 
   const mobileSubNavLabels = {
-    [MOBILE_SUB_NAV_ACTIONS.EARN_YIELD]: (
-      <FormattedMessage defaultMessage={'Earn Products'} />
+    [MOBILE_SUB_NAV_ACTIONS.VAULTS]: (
+      <FormattedMessage defaultMessage={'Vaults'} />
     ),
-    [MOBILE_SUB_NAV_ACTIONS.LEVERAGE]: (
-      <FormattedMessage defaultMessage={'Leverage Products'} />
-    ),
-    [MOBILE_SUB_NAV_ACTIONS.BORROW]: (
-      <FormattedMessage defaultMessage={'Borrow Products'} />
+    [MOBILE_SUB_NAV_ACTIONS.POINTS]: (
+      <FormattedMessage defaultMessage={'Points'} />
     ),
   };
 
   const mobileSubNavData = {
-    [MOBILE_SUB_NAV_ACTIONS.EARN_YIELD]: [
+    [MOBILE_SUB_NAV_ACTIONS.POINTS]: [
       {
-        key: 'lend-fixed',
-        label: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
-        link: `/lend-fixed/${network}`,
+        key: 'points',
+        label: <FormattedMessage defaultMessage={'Points'} />,
+        link: `/points`,
         iconImg: (
-          <BarChartLateralIcon
+          <PointsIcon
             className="color-stroke"
             sx={{ fontSize: '1.125rem', fill: theme.palette.common.black }}
           />
         ),
       },
-      {
-        key: 'lend-variable',
-        label: <FormattedMessage defaultMessage={'Lending'} />,
-        link: `/lend-variable/${network}`,
-        iconImg: (
-          <BarChartIcon
-            sx={{
-              fontSize: '1.125rem',
-              fill: theme.palette.common.black,
-            }}
-          />
-        ),
-      },
-      {
-        key: 'liquidity-variable',
-        label: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-        link: `/liquidity-variable/${network}`,
-        iconImg: (
-          <PieChartIcon
-            className="color-stroke"
-            sx={{
-              fontSize: '1.125rem',
-              stroke: 'transparent',
-              fill: theme.palette.common.black,
-            }}
-          />
-        ),
-      },
-      // {
-      //   key: 'stake',
-      //   label: <FormattedMessage defaultMessage={'Stake Note'} />,
-      //   link: '/stake/ETH',
-      //   iconImg: (
-      //     <StakeIcon
-      //       className="color-stroke"
-      //       sx={{
-      //         fontSize: '1.125rem',
-      //         stroke: theme.palette.common.black,
-      //         fill: 'transparent',
-      //       }}
-      //     />
-      //   ),
-      // },
     ],
-    [MOBILE_SUB_NAV_ACTIONS.LEVERAGE]: [
+    [MOBILE_SUB_NAV_ACTIONS.VAULTS]: [
       {
-        key: 'liquidity-leveraged',
-        label: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
-        link: `/liquidity-leveraged/${network}`,
+        key: 'vaults',
+        label: <FormattedMessage defaultMessage={'Vaults'} />,
+        link: `/vaults`,
         iconImg: (
-          <PieChartIcon
+          <LightningOutlineIcon
             className="color-stroke"
             sx={{
               fontSize: '1.125rem',
               stroke: 'transparent',
               fill: theme.palette.common.black,
             }}
-          />
-        ),
-      },
-      {
-        key: 'leveraged-yield-farming',
-        label: <FormattedMessage defaultMessage={'Leveraged Yield Farming'} />,
-        link: `/leveraged-yield-farming/${network}`,
-        iconImg: (
-          <VaultIcon
-            className="color-stroke"
-            sx={{
-              fontSize: '1.125rem',
-              stroke: 'transparent',
-              fill: theme.palette.common.black,
-            }}
-          />
-        ),
-      },
-      {
-        key: 'leveraged-point-farming',
-        label: <FormattedMessage defaultMessage={'Leveraged Point Farming'} />,
-        link: `/leveraged-point-farming/${network}`,
-        iconImg: (
-          <PointsIcon
-            className="color-stroke"
-            fill={theme.palette.typography.main}
-            sx={{
-              fontSize: '1.125rem',
-            }}
-          />
-        ),
-      },
-      {
-        key: 'leveraged-pendle',
-        label: <FormattedMessage defaultMessage={'Leveraged Pendle'} />,
-        link: `/leveraged-pendle/${network}`,
-        iconImg: (
-          <PendleIcon
-            className="color-stroke"
-            stroke={theme.palette.typography.main}
-            sx={{
-              fontSize: '1.125rem',
-              fill: 'transparent',
-            }}
-          />
-        ),
-      },
-    ],
-    [MOBILE_SUB_NAV_ACTIONS.BORROW]: [
-      {
-        key: 'borrow-fixed',
-        label: <FormattedMessage defaultMessage={'Borrow Fixed'} />,
-        link: `/borrow-fixed/${network}`,
-        iconImg: (
-          <CoinsIcon
-            sx={{
-              fontSize: '1.125rem',
-              fill: 'transparent',
-              stroke: theme.palette.common.black,
-            }}
-          />
-        ),
-      },
-      {
-        key: 'borrow-variable',
-        label: <FormattedMessage defaultMessage={'Borrow Variable'} />,
-        link: `/borrow-variable/${network}`,
-        iconImg: (
-          <CoinsCircleIcon
-            sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
           />
         ),
       },

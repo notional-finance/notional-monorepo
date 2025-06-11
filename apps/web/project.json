@@ -32,11 +32,6 @@
             "glob": "**/*",
             "input": "packages/shared/assets/src/assets",
             "output": "assets"
-          },
-          {
-            "glob": "**/*",
-            "input": "apps/web/functions",
-            "output": "functions"
           }
         ],
         "styles": [],
@@ -85,14 +80,19 @@
         }
       }
     },
-    "publish": {
+    "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          {
-            "command": "yarn wrangler pages publish ./dist/apps/web/"
-          }
-        ]
+        "cwd": "apps/web",
+        "command": "./start-dev.sh"
+      }
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "apps/web",
+        "command": "yarn wrangler deploy --config ./apps/web/wrangler.toml"
       }
     },
     "lint": {

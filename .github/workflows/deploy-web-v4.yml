@@ -59,7 +59,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist/apps/web --project-name=notional-web-v4-${{ github.ref == 'refs/heads/v4/prod' && 'prod' || 'dev' }}
+          command: deploy --config ./apps/web/wrangler.toml
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
         if: ${{ steps.check-affected.outputs.is_affected == 'true' }}

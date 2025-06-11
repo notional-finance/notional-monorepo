@@ -57,6 +57,14 @@ function getWebpackConfig(config: webpack.Configuration) {
     })
   );
 
+  // This changes the name of the chunk to 'nf' and the global variable to 'nfg' so that
+  // it doesn't conflict with the Webflow chunk namespace
+  config.output = {
+    ...config.output,
+    uniqueName: 'nf',
+    chunkLoadingGlobal: 'nfg',
+  };
+
   return config;
 }
 
