@@ -5,14 +5,12 @@ import {
   CoinsIcon,
   GearIcon,
   LightningOutlineIcon,
+  PointsIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS, Network } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
-import EarnDropdown from './earn-dropdown/earn-dropdown';
-import BorrowDropDown from './borrow-dropdown/borrow-dropdown';
-import LeverageDropdown from './leverage-dropdown/leverage-dropdown';
 import { useParams } from 'react-router';
 import { useWalletAddress } from '@notional-finance/notionable-hooks';
 
@@ -47,32 +45,35 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       ),
     },
     {
-      key: 'earn',
-      CustomComponent: EarnDropdown,
+      key: 'vaults',
+      label: <FormattedMessage defaultMessage={'Vaults'} />,
+      link: '/vaults',
+      iconImg: (
+        <LightningOutlineIcon
+          className="color-stroke"
+          sx={{
+            height: theme.spacing(2.25),
+            stroke: 'transparent',
+            fill: textColor,
+          }}
+        />
+      ),
     },
     {
-      key: 'leverage',
-      CustomComponent: LeverageDropdown,
+      key: 'points',
+      label: <FormattedMessage defaultMessage={'Points'} />,
+      link: '/points',
+      iconImg: (
+        <PointsIcon
+          className="color-stroke"
+          sx={{
+            height: theme.spacing(2.25),
+            stroke: 'transparent',
+            fill: textColor,
+          }}
+        />
+      ),
     },
-    {
-      key: 'borrow',
-      CustomComponent: BorrowDropDown,
-    },
-    // {
-    //   key: 'markets',
-    //   label: <FormattedMessage defaultMessage={'Markets'} />,
-    //   link: '/markets',
-    //   iconImg: (
-    //     <StackIcon
-    //       className="color-fill"
-    //       sx={{
-    //         height: theme.spacing(2.25),
-    //         fill: textColor,
-    //         stroke: 'transparent',
-    //       }}
-    //     />
-    //   ),
-    // },
     {
       key: 'note',
       label: <FormattedMessage defaultMessage={'NOTE'} />,
@@ -110,8 +111,8 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
 
   const mobileSubNavLinks: INavLink[] = [
     {
-      key: MOBILE_SUB_NAV_ACTIONS.EARN_YIELD,
-      label: <FormattedMessage defaultMessage={'Earn'} />,
+      key: MOBILE_SUB_NAV_ACTIONS.VAULTS,
+      label: <FormattedMessage defaultMessage={'Vaults'} />,
       link: '',
       iconImg: (
         <BarChartIcon
@@ -121,24 +122,13 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       ),
     },
     {
-      key: MOBILE_SUB_NAV_ACTIONS.BORROW,
-      label: <FormattedMessage defaultMessage={'Borrow'} />,
+      key: MOBILE_SUB_NAV_ACTIONS.POINTS,
+      label: <FormattedMessage defaultMessage={'Points'} />,
       link: '',
       iconImg: (
         <CoinsIcon
           className="color-stroke"
           sx={{ fontSize: '1.125rem', fill: 'transparent', stroke: textColor }}
-        />
-      ),
-    },
-    {
-      key: MOBILE_SUB_NAV_ACTIONS.LEVERAGE,
-      label: <FormattedMessage defaultMessage={'Leverage'} />,
-      link: '',
-      iconImg: (
-        <LightningOutlineIcon
-          className="color-stroke"
-          sx={{ fontSize: '1.125rem' }}
         />
       ),
     },

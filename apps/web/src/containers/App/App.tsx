@@ -18,6 +18,7 @@ import { StakeNOTE } from '../../containers/StakeNOTE';
 import {
   LandingPageView,
   VaultPageView,
+  PointsPageView,
 } from '../../containers/Webflow/WebflowEmbed';
 import { NoteView } from '../NoteView';
 import {
@@ -143,6 +144,16 @@ const AllRoutes = observer(() => {
             <AppLayoutRoute
               path="/vaults"
               component={VaultPageView}
+              routeType="Card"
+            />
+          }
+        />
+        <Route
+          path="/points"
+          element={
+            <AppLayoutRoute
+              path="/points"
+              component={PointsPageView}
               routeType="Card"
             />
           }

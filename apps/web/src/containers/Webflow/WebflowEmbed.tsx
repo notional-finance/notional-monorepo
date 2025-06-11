@@ -107,3 +107,11 @@ export const VaultPageView = () => {
 
   return <WebflowEmbed path="/vaults" onContentLoaded={onContentLoaded} />;
 };
+
+export const PointsPageView = () => {
+  const onContentLoaded = () => {
+    console.log('content loaded');
+  };
+
+  return <WebflowEmbed path="/vaults" onContentLoaded={onContentLoaded} />;
+};

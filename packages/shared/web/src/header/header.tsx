@@ -24,7 +24,6 @@ import {
   useSelectedNetwork,
   useWalletNetworkAccounts,
 } from '@notional-finance/notionable-hooks';
-import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
@@ -117,16 +116,23 @@ export function Header({ children }: HeaderProps) {
           }}
         >
           {!isMobile && (
-            <H4 to="/">
-              <NotionalLogo />
-            </H4>
+            // Do a full page reload when the logo is clicked to ensure that webflow
+            // animations are initialized properly.
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = '/';
+              }}
+            >
+              <H4>
+                <NotionalLogo />
+              </H4>
+            </a>
           )}
           <NavContainer>
             <Navigation navLinks={navLinks} />
           </NavContainer>
-          <AnalyticsContainer>
-            {pathname === '/' && <AnalyticsDropdown />}
-          </AnalyticsContainer>
           <Box
             sx={{
               flexGrow: 1,
@@ -217,19 +223,6 @@ const ErrorContainer = styled(Box)(
       justify-content: center;
       flex-direction: column;
       text-align: center;
-    }
-      `
-);
-
-const AnalyticsContainer = styled(Box)(
-  ({ theme }) => `
-    flex-grow: 0;
-    height: ${theme.spacing(9)};
-    display: flex;
-    align-Items: center;
-    margin-right: ${theme.spacing(3)};
-    ${theme.breakpoints.down('sm')} {
-      display: none;
     }
       `
 );
