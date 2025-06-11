@@ -15,7 +15,10 @@ import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { StakeNOTE } from '../../containers/StakeNOTE';
-import { LandingPageView } from '../../containers/Webflow/WebflowEmbed';
+import {
+  LandingPageView,
+  VaultPageView,
+} from '../../containers/Webflow/WebflowEmbed';
 import { NoteView } from '../NoteView';
 import {
   getDefaultNetworkFromHostname,
@@ -64,16 +67,6 @@ const AllRoutes = observer(() => {
   return (
     <RouteContainer>
       <Routes>
-        {/* <Route
-          path="/webflow"
-          element={
-            <AppLayoutRoute
-              path="/webflow"
-              component={WebflowEmbed}
-              routeType="Landing"
-            />
-          }
-        /> */}
         <Route
           path={`/portfolio/:selectedNetwork/:category/:sideDrawerKey/:selectedToken`}
           element={
@@ -141,6 +134,16 @@ const AllRoutes = observer(() => {
               path="/stake/:selectedDepositToken"
               component={StakeNOTE}
               routeType="Note"
+            />
+          }
+        />
+        <Route
+          path="/vaults"
+          element={
+            <AppLayoutRoute
+              path="/vaults"
+              component={VaultPageView}
+              routeType="Card"
             />
           }
         />

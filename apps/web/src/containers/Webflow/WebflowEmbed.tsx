@@ -99,3 +99,11 @@ export const LandingPageView = () => {
 
   return <WebflowEmbed path="" onContentLoaded={onContentLoaded} />;
 };
+
+export const VaultPageView = () => {
+  const onContentLoaded = () => {
+    console.log('content loaded');
+  };
+
+  return <WebflowEmbed path="/vaults" onContentLoaded={onContentLoaded} />;
+};

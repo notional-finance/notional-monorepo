@@ -114,28 +114,41 @@ async function injectWebflowHtml(
   return await rewriter.transform(new Response(indexHtml)).text();
 }
 
+async function fetchWebflowPage(pathname: string) {
+  // If pathname starts with /embed, we need to remove the /embed prefix otherwise just default to the
+  // root path
+  const isEmbed = pathname.startsWith('/embed');
+  const targetPath = isEmbed ? pathname.replace(/^\/embed/, '') : '/';
+  const url = `${WEBFLOW_ROOT}${targetPath}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to load Webflow page: ${url}`);
+  return { webflowHtml: await res.text(), isEmbed };
+}
+
 export default class extends WorkerEntrypoint<{
   ASSETS: Fetcher;
 }> {
   override async fetch(request: Request) {
-    const url = new URL(request.url);
-    if (!url.pathname.startsWith('/embed') && url.pathname !== '/') {
+    // Check if the pathname ends with a file extension (e.g. .js, .css, .png, etc)
+    if (/\.[a-zA-Z0-9]+$/.test(request.url)) {
       return this.env.ASSETS.fetch(request);
     }
 
-    const targetPath = url.pathname.replace(/^\/embed/, '') || '/';
-    const webflowURL = `${WEBFLOW_ROOT}${targetPath}`;
+    // Otherwise we're dealing with an html request and we have to inject the webflow scripts
+    const url = new URL(request.url);
+    const { webflowHtml, isEmbed } = await fetchWebflowPage(url.pathname);
 
-    const res = await fetch(webflowURL);
-    if (!res.ok)
-      return new Response('Failed to load Webflow page', { status: 502 });
-
-    const webflowHtml = await res.text();
-    const { headScripts, headLinks, bodyScripts } = await extractWebflowHtml(
-      webflowHtml
-    );
-
-    if (url.pathname === '/') {
+    if (isEmbed) {
+      return new Response(webflowHtml, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'public, max-age=300',
+        },
+      });
+    } else {
+      const { headScripts, headLinks, bodyScripts } = await extractWebflowHtml(
+        webflowHtml
+      );
       const indexHtml = await this.env.ASSETS.fetch(request);
       const modifiedHtml = await injectWebflowHtml(
         await indexHtml.text(),
@@ -144,13 +157,6 @@ export default class extends WorkerEntrypoint<{
         bodyScripts
       );
       return new Response(modifiedHtml, {
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, max-age=300',
-        },
-      });
-    } else {
-      return new Response(webflowHtml, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=300',
