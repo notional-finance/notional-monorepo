@@ -1,49 +1,96 @@
 import { ReactNode } from 'react';
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
-import { Caption, H2, LargeInputTextEmphasized } from '@notional-finance/mui';
-import { PortfolioNetworkSelector } from '@notional-finance/wallet';
+import {
+  CountUp,
+  H2,
+  H3,
+  LargeInputTextEmphasized,
+  Body,
+  InfoTooltip,
+} from '@notional-finance/mui';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+import { APYData } from '@notional-finance/core-entities';
+import { defineMessage } from 'react-intl';
 
 interface HeaderProps {
   title: string;
   tokenSymbol?: string;
-  caption?: string;
-  middleComponent?: ReactNode;
-  rightComponent?: ReactNode;
+  secondaryTitle?: ReactNode;
+  apyInfo?: APYData;
 }
 
 // Header Component
 const Header = ({
   title,
-  caption,
-  middleComponent,
-  rightComponent = <PortfolioNetworkSelector />,
+  secondaryTitle,
+  apyInfo,
   tokenSymbol,
 }: HeaderProps) => {
   const { isMobileView } = useAppStore();
+  const theme = useTheme();
+
   return (
     <HeaderContainer>
-      <Row>
+      <LeftSection>
         {tokenSymbol && (
           <TokenIcon
             symbol={tokenSymbol}
             size={isMobileView ? 'large' : 'xl'}
           />
         )}
-        <Column>
+        <Column sx={{ alignItems: 'flex-start' }}>
           {isMobileView ? (
             <LargeInputTextEmphasized>{title}</LargeInputTextEmphasized>
           ) : (
             <H2>{title}</H2>
           )}
-          {caption && <Caption>{caption}</Caption>}
+          {secondaryTitle}
         </Column>
-      </Row>
-
-      {middleComponent && <>{middleComponent}</>}
-
-      {rightComponent && !isMobileView && <>{rightComponent}</>}
+      </LeftSection>
+      <RightSection>
+        {apyInfo && (
+          <Column sx={{ alignItems: 'flex-end' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: theme.spacing(1),
+              }}
+            >
+              <H3>
+                <CountUp
+                  value={apyInfo.totalAPY}
+                  decimals={2}
+                  duration={1}
+                  suffix="% Total APY"
+                />{' '}
+              </H3>
+              <InfoTooltip
+                toolTipText={defineMessage({
+                  defaultMessage:
+                    'Total APY = Vault APY + (Vault APY - Borrow APY) x Leverage',
+                })}
+                iconColor={theme.palette.info.dark}
+                iconSize={theme.spacing(2)}
+              />
+            </Box>
+            <Body>
+              {apyInfo.assetAPY ? (
+                <CountUp
+                  value={apyInfo.assetAPY}
+                  decimals={2}
+                  duration={1}
+                  suffix="% Vault APY"
+                />
+              ) : (
+                ''
+              )}
+            </Body>
+          </Column>
+        )}
+      </RightSection>
     </HeaderContainer>
   );
 };
@@ -63,11 +110,10 @@ const Column = styled(Box)(
   () => `
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
   `
 );
 
-const Row = styled(Box)(
+const LeftSection = styled(Box)(
   ({ theme }) => `
     display: flex;
     flex-direction: row;
@@ -76,4 +122,12 @@ const Row = styled(Box)(
   `
 );
 
+const RightSection = styled(Box)(
+  ({ theme }) => `
+    display: flex;
+    flex-direction: row;
+    align-self: flex-end;
+    gap: ${theme.spacing(1)};
+  `
+);
 export default Header;

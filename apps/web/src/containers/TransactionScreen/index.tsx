@@ -1,12 +1,7 @@
-import { Box, styled } from '@mui/material';
-import { PortfolioNetworkSelector } from '@notional-finance/wallet';
-import { CountUp, H3, H5 } from '@notional-finance/mui';
-import {
-  useAccountReady,
-  useAppStore,
-  useTradeContext,
-} from '@notional-finance/notionable-hooks';
+import { Box, styled, useTheme } from '@mui/material';
+import { Network } from '@notional-finance/util';
 
+import Chip from '@mui/material/Chip';
 import Header from './components/header';
 import InfoBox from './components/info-box';
 import DataSection from './components/data-section';
@@ -20,45 +15,40 @@ import { FeatureLoader } from '@notional-finance/shared-web';
 import { useLendFixedFaq } from '@notional-finance/lend-feature-shell/lend-fixed/hooks';
 
 const TransactionScreen = () => {
-  const context = useTradeContext('LendFixed');
-  const isReady = context.tradeModel?.isReady;
-  const network = context.tradeModel?.selectedNetwork;
+  const theme = useTheme();
+  const isReady = true;
+  const network = Network.mainnet;
 
-  const isAccountReady = useAccountReady(network);
-  const { isMobileView } = useAppStore();
   const { content, inputTextRow, button } = useInputContainer();
   const tabs = useInfoBox();
   const { faqs } = useLendFixedFaq(network);
   const { title, button: dataButton, contents } = useDataSection();
 
-  if (!isAccountReady) {
-    return null;
-  }
-
   return (
     <FeatureLoader featureLoaded={isReady === true}>
       <ScreenContainer>
         <Header
-          title={
-            (context.tradeModel?.tradeType.includes('Lend')
-              ? 'Lend '
-              : 'Borrow ') + context.tradeModel?.selectedDepositToken
+          title={'Convex: crvUSD/USDC'}
+          tokenSymbol={'USDC'}
+          secondaryTitle={
+            // TODO: list features here...
+            <Chip
+              label="Smart Redemption"
+              color="info"
+              size="small"
+              sx={{
+                backgroundColor: theme.palette.info.light,
+                color: theme.palette.info.dark,
+              }}
+            />
           }
-          tokenSymbol={context.tradeModel?.selectedDepositToken || ''}
-          rightComponent={<PortfolioNetworkSelector />}
-          middleComponent={
-            <MiddleSection>
-              <H3>
-                <CountUp
-                  value={context.tradeModel?.getAPYFactors()?.totalAPY}
-                  decimals={2}
-                  duration={1}
-                  suffix="%"
-                />{' '}
-              </H3>
-              {isMobileView ? <H5>APY</H5> : <H3>APY</H3>}
-            </MiddleSection>
-          }
+          apyInfo={{
+            totalAPY: 25.4,
+            organicAPY: 10,
+            assetAPY: 10,
+            feeAPY: 10,
+            apySpread: 10,
+          }}
         />
         <ContentContainer>
           <TopSection>
@@ -80,8 +70,8 @@ const ScreenContainer = styled(Box)(
   ({ theme }) => `
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
-  padding: ${theme.spacing(2)};
+  margin: ${theme.spacing(7)} auto;
+  padding: 0 ${theme.spacing(2)};
 `
 );
 
@@ -98,26 +88,10 @@ const TopSection = styled(Box)(
   display: flex;
   gap: ${theme.spacing(3)};
   max-height: 50vh;
+  padding-bottom: ${theme.spacing(4)};
 
   @media (max-width: 768px) {
     flex-direction: column;
-  }
-`
-);
-
-const MiddleSection = styled(Box)(
-  ({ theme }) => `
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: ${theme.spacing(1)};
-  color: ${theme.palette.typography.main};
-
-  ${theme.breakpoints.down('sm')} {
-    flex-direction: column-reverse;
-    align-items: flex-end;
-    gap: 0;
   }
 `
 );

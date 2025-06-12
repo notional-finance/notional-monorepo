@@ -20,7 +20,7 @@ export interface InfoTooltipProps {
   iconColor?: string;
   iconSize?: string;
   onMouseEnter?: () => void;
-  InfoComponent?: any;
+  InfoComponent?: React.ElementType;
 }
 
 export function InfoTooltip({
