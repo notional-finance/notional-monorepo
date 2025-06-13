@@ -1,25 +1,31 @@
 import { useState } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { SimpleToggle, TradeSummaryBox, Body } from '@notional-finance/mui';
+import {
+  SimpleToggle,
+  TradeSummaryBox,
+  Body,
+  useCurrencyInputRef,
+} from '@notional-finance/mui';
+import { observer } from 'mobx-react-lite';
+import { FeatureLoader } from '@notional-finance/shared-web';
+import { defineMessage, FormattedMessage } from 'react-intl';
 
 import Chip from '@mui/material/Chip';
 import Header from './components/header';
 import InfoBox from './components/info-box';
 import DataSection from './components/data-section';
 import InputContainer from './components/input-container';
-import { useInputContainer } from './hooks/use-input-container';
 import { useInfoBox } from './hooks/use-info-box';
-import { observer } from 'mobx-react-lite';
-import { FeatureLoader } from '@notional-finance/shared-web';
-import { FormattedMessage } from 'react-intl';
+import { DepositInput, LeverageSlider } from '@notional-finance/trade';
 
 const TransactionScreen = () => {
   const theme = useTheme();
   const isReady = true;
   const [infoTab, setInfoTab] = useState(0);
+  const { currencyInputRef } = useCurrencyInputRef();
 
-  // TODO: remove this hook
-  const { content, inputTextRow, button } = useInputContainer();
+  // TODO: remove this hook and design three components
+  // 3. borrow terms
   const tabs = useInfoBox();
 
   return (
@@ -50,8 +56,13 @@ const TransactionScreen = () => {
         />
         <ContentContainer>
           <TopSection>
-            <InputContainer infoTextRow={inputTextRow} button={button}>
-              {content}
+            <InputContainer infoTextRow={undefined}>
+              <DepositInput inputRef={currencyInputRef} />
+              <LeverageSlider
+                inputLabel={defineMessage({
+                  defaultMessage: 'Specify Leverage',
+                })}
+              />
             </InputContainer>
             <InfoBox tabs={tabs} />
           </TopSection>

@@ -53,7 +53,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
           className="color-stroke"
           sx={{
             height: theme.spacing(2.25),
-            fill: 'transparent',
           }}
         />
       ),
@@ -64,11 +63,9 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       link: '/points',
       iconImg: (
         <PointsOutlineIcon
-          className="color-stroke"
+          className="color-fill"
           sx={{
             height: theme.spacing(2.25),
-            stroke: 'transparent',
-            fill: textColor,
           }}
         />
       ),

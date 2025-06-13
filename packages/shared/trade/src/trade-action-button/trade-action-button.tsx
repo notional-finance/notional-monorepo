@@ -14,8 +14,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export interface TradeActionButtonProps {
   canSubmit: boolean;
   onSubmit?: () => void;
-  walletConnectedText?: MessageDescriptor;
-  walletNotConnectedText?: MessageDescriptor;
+  walletConnectedText?: MessageDescriptor; // This is used once for the cancel stake button
+  errorText?: MessageDescriptor;
   buttonVariant?: 'text' | 'outlined' | 'contained' | undefined;
   width?: string;
   leverageDisabled?: boolean;
@@ -48,7 +48,7 @@ export function TradeActionButton({
   canSubmit,
   onSubmit,
   walletConnectedText,
-  walletNotConnectedText,
+  errorText,
   buttonVariant = 'contained',
   width,
   margin,
@@ -78,12 +78,10 @@ export function TradeActionButton({
       description: 'call to action button',
     });
 
-  const buttonTextWalletNotConnected =
-    walletNotConnectedText ||
-    defineMessage({
-      defaultMessage: 'Connect Wallet to Trade',
-      description: 'call to action button',
-    });
+  const buttonTextWalletNotConnected = defineMessage({
+    defaultMessage: 'Connect Wallet to Trade',
+    description: 'call to action button',
+  });
 
   return (
     <StyledTradeActionButton
@@ -100,6 +98,8 @@ export function TradeActionButton({
         <FormattedMessage
           defaultMessage={'Not Available for US Persons or VPN Users'}
         />
+      ) : errorText ? (
+        <FormattedMessage {...errorText} />
       ) : (
         <FormattedMessage
           {...(isWalletConnected
