@@ -1,46 +1,57 @@
-import { Box, BoxProps, styled } from '@mui/material';
+import { Box, styled } from '@mui/material';
+import { ChartIcon } from '@notional-finance/icons';
 import { Button, H2, LargeInputTextEmphasized } from '@notional-finance/mui';
+import { TotalBox } from './total-box';
 import { useAppStore } from '@notional-finance/notionable-hooks';
+import { FormattedMessage } from 'react-intl';
 
-interface DataSectionProps {
-  title: string;
-  button?: {
-    label: string;
-    icon?: React.ReactNode;
-    onClick?: () => void;
-    externalLink?: string;
-  };
-  contents: {
-    containerProps?: BoxProps;
-    content: React.ReactNode;
-  }[];
-}
-
-const DataSection = ({ title, button, contents }: DataSectionProps) => {
+const DataSection = () => {
   const { isMobileView } = useAppStore();
   return (
     <DataSectionContainer>
       <HeaderContainer>
         {isMobileView ? (
-          <LargeInputTextEmphasized>{title}</LargeInputTextEmphasized>
+          <LargeInputTextEmphasized>
+            <FormattedMessage defaultMessage={'Vault Details'} />
+          </LargeInputTextEmphasized>
         ) : (
-          <H2>{title}</H2>
+          <H2>
+            <FormattedMessage defaultMessage={'Vault Details'} />
+          </H2>
         )}
-        {button && !isMobileView && (
-          <CustomButton
+        {!isMobileView && (
+          <Button
             variant="contained"
-            startIcon={button.icon}
-            onClick={button.onClick}
-            href={button.externalLink}
+            startIcon={<ChartIcon sx={{ fontSize: '16px' }} />}
+            href={'/'}
           >
-            {button?.label}
-          </CustomButton>
+            <FormattedMessage defaultMessage={'View Analytics'} />
+          </Button>
         )}
       </HeaderContainer>
       <ContentContainer>
-        {contents.map((content) => (
-          <Box {...content.containerProps}>{content.content}</Box>
-        ))}
+        <TotalBoxesContainer>
+          <TotalBox
+            key={'vault-tvl'}
+            title={'Vault TVL'}
+            value={10_000_000}
+            decimals={0}
+            prefix="$"
+          />
+          <TotalBox
+            key={'borrow-liquidity'}
+            title={'Borrow Liquidity'}
+            value={8_000_000}
+            decimals={0}
+            prefix="$"
+          />
+          <TotalBox
+            key={'fee-rate'}
+            title={'Fee Rate'}
+            value={0.05}
+            suffix="%"
+          />
+        </TotalBoxesContainer>
       </ContentContainer>
     </DataSectionContainer>
   );
@@ -84,13 +95,18 @@ const ContentContainer = styled(Box)(
 `
 );
 
-const CustomButton = styled(Button)(
+const TotalBoxesContainer = styled(Box)(
   ({ theme }) => `
-  background-color: ${theme.palette.background.paper};
-  color: ${theme.palette.typography.accent};
-  font-weight: 600;
-  font-size: '14px';
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: ${theme.spacing(3)};
+
+  ${theme.breakpoints.down('sm')} {
+    width: 100%;
+    gap: ${theme.spacing(2)};
+  }
 `
 );
-
 export default DataSection;

@@ -23,6 +23,8 @@ export function Button(props: ButtonProps) {
   const { size, variant = 'contained', color, href, to, sx, ...rest } = props;
 
   const newProps = {
+    disableRipple: true,
+    disableElevation: true,
     ...rest,
     sx: {
       background: variant === 'contained' ? theme.palette.primary.light : '',

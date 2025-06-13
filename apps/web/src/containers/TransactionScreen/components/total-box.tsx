@@ -1,17 +1,14 @@
 import { Box, styled, useTheme } from '@mui/material';
 import React from 'react';
-import { Body, Caption, H4, H5 } from '@notional-finance/mui';
+import { Caption, LargeNumber, LargeNumberLabel } from '@notional-finance/mui';
 import CountUp from '@notional-finance/mui/lib/count-up/count-up';
 import { UpwardIcon } from '@notional-finance/icons';
-import { EmotionJSX } from '@emotion/react/types/jsx-namespace';
 
-/* eslint-disable-next-line */
 export interface TotalBoxProps {
-  title: EmotionJSX.Element;
+  title: string;
   value?: string | number | React.ReactNode;
   prefix?: string;
   suffix?: string;
-  Icon?: React.ElementType;
   decimals?: number;
   trend?: {
     value: number;
@@ -23,7 +20,6 @@ export interface TotalBoxProps {
 export function TotalBox({
   title,
   value,
-  Icon,
   suffix,
   prefix,
   decimals,
@@ -36,29 +32,14 @@ export function TotalBox({
         background: theme.palette.background.paper,
         width: '100%',
         borderRadius: theme.shape.borderRadius(),
-        padding: theme.spacing(2, 3),
+        padding: theme.spacing(3, 4),
         border: theme.shape.borderStandard,
         whiteSpace: 'nowrap',
       }}
     >
-      <Body
-        sx={{
-          marginBottom: theme.spacing(0.5),
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <H5>{title}</H5>
-        {Icon && (
-          <Icon
-            title={title}
-            sx={{ marginLeft: theme.spacing(0.5), height: theme.spacing(2) }}
-          />
-        )}
-      </Body>
+      <LargeNumberLabel gutter="default">{title}</LargeNumberLabel>
       <ContentContainer>
-        <H4>
+        <LargeNumber>
           {value !== undefined && typeof value === 'number' ? (
             <CountUp
               value={value}
@@ -70,7 +51,7 @@ export function TotalBox({
           ) : (
             value
           )}
-        </H4>
+        </LargeNumber>
         {trend && (
           <TrendContainer>
             {trend?.direction === 'up' ? (
@@ -118,13 +99,10 @@ const TrendContainer = styled(Box)(({ theme }) => ({
 const ContentContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'space-between',
-  alignItems: 'center',
 
   [theme.breakpoints.down('sm')]: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center',
     gap: theme.spacing(2),
   },
 }));

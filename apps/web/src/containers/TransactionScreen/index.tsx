@@ -1,28 +1,26 @@
+import { useState } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { Network } from '@notional-finance/util';
+import { SimpleToggle, TradeSummaryBox, Body } from '@notional-finance/mui';
 
 import Chip from '@mui/material/Chip';
 import Header from './components/header';
 import InfoBox from './components/info-box';
 import DataSection from './components/data-section';
-import FAQSection from './components/faq-section';
 import InputContainer from './components/input-container';
 import { useInputContainer } from './hooks/use-input-container';
-import { useDataSection } from './hooks/use-data-section';
 import { useInfoBox } from './hooks/use-info-box';
 import { observer } from 'mobx-react-lite';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { useLendFixedFaq } from '@notional-finance/lend-feature-shell/lend-fixed/hooks';
+import { FormattedMessage } from 'react-intl';
 
 const TransactionScreen = () => {
   const theme = useTheme();
   const isReady = true;
-  const network = Network.mainnet;
+  const [infoTab, setInfoTab] = useState(0);
 
+  // TODO: remove this hook
   const { content, inputTextRow, button } = useInputContainer();
   const tabs = useInfoBox();
-  const { faqs } = useLendFixedFaq(network);
-  const { title, button: dataButton, contents } = useDataSection();
 
   return (
     <FeatureLoader featureLoaded={isReady === true}>
@@ -57,8 +55,30 @@ const TransactionScreen = () => {
             </InputContainer>
             <InfoBox tabs={tabs} />
           </TopSection>
-          <DataSection title={title} button={dataButton} contents={contents} />
-          <FAQSection items={faqs} />
+          <DataSection />
+          <TradeSummaryBox>
+            <SimpleToggle
+              selectedTabIndex={infoTab}
+              tabVariant="standard"
+              tabLabels={[
+                <Box sx={{ padding: theme.spacing(0, 2) }} key="strategy-info">
+                  <FormattedMessage defaultMessage="Strategy Info" />
+                </Box>,
+                <Box sx={{ padding: theme.spacing(0, 2) }} key="asset-info">
+                  <FormattedMessage defaultMessage="Asset Info" />
+                </Box>,
+                <Box sx={{ padding: theme.spacing(0, 2) }} key="project-info">
+                  <FormattedMessage defaultMessage="Project Info" />
+                </Box>,
+              ]}
+              onChange={(_, value) => {
+                setInfoTab(value as number);
+              }}
+            />
+            {infoTab === 0 && <Body>"Strategy Info"</Body>}
+            {infoTab === 1 && <Body>"Asset Info"</Body>}
+            {infoTab === 2 && <Body>"Project Info"</Body>}
+          </TradeSummaryBox>
         </ContentContainer>
       </ScreenContainer>
     </FeatureLoader>
