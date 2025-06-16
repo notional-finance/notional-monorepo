@@ -65,8 +65,46 @@ export const useInfoBox = () => {
       tabTitle: 'Order Details',
       contents: [
         {
-          sectionTitle: 'Portfolio Impact',
-          items: [],
+          sectionTitle: '',
+          items: [
+            {
+              label: 'Amount Deposited',
+              content: '-',
+            },
+            {
+              label: 'Amount Borrowed',
+              content: '-',
+            },
+            {
+              label: 'Vault Shares Minted',
+              content: '-',
+            },
+            {
+              label: 'Vault Share Price',
+              content: '-',
+            },
+          ],
+        },
+        {
+          sectionTitle: 'Trade: USDC → USDT',
+          items: [
+            {
+              label: 'Amount Sold',
+              content: '-',
+            },
+            {
+              label: 'Amount Bought',
+              content: '-',
+            },
+            {
+              label: 'Exchange Rate',
+              content: '-',
+            },
+            {
+              label: 'Fees',
+              content: '-',
+            },
+          ],
         },
       ],
     },

@@ -29,7 +29,7 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
   const checkIfScrollable = () => {
     if (contentRef.current) {
       const { scrollHeight, clientHeight } = contentRef.current;
-      const isScrollableContent = scrollHeight > clientHeight;
+      const isScrollableContent = scrollHeight - 10 > clientHeight;
       setIsScrollable(isScrollableContent);
     }
   };
@@ -45,6 +45,7 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
 
   useEffect(() => {
     checkIfScrollable();
+    setIsAtBottomOfScroll(false);
     const contentElement = contentRef.current;
 
     if (contentElement) {
@@ -80,7 +81,9 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
       <ContentContainer ref={contentRef}>
         {tabs[selectedTab]?.contents.map((content, index, array) => (
           <Box key={index}>
-            <H5 marginBottom={theme.spacing(1.5)}>{content.sectionTitle}</H5>
+            <H5 main marginBottom={theme.spacing(1.5)}>
+              {content.sectionTitle}
+            </H5>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {content.items.map((item) => (
                 <Box
