@@ -62,7 +62,9 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'points',
       label: <FormattedMessage defaultMessage={'Points'} />,
-      link: '/points',
+      // link: '/points',
+      // TODO: remove this once we have a points page
+      link: '/vault/mainnet/0x1d1b767da61e56b36b7f1be4c64ef52e5695f665',
       iconImg: (
         <PointsOutlineIcon
           className="color-fill"
@@ -111,7 +113,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: MOBILE_SUB_NAV_ACTIONS.VAULTS,
       label: <FormattedMessage defaultMessage={'Vaults'} />,
-      link: '',
+      link: '/vaults',
       iconImg: (
         <BarChartIcon
           className="color-stroke"
@@ -122,7 +124,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: MOBILE_SUB_NAV_ACTIONS.POINTS,
       label: <FormattedMessage defaultMessage={'Points'} />,
-      link: '',
+      link: '/points',
       iconImg: (
         <CoinsIcon
           className="color-stroke"

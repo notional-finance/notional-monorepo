@@ -140,10 +140,10 @@ const AllRoutes = observer(() => {
           }
         />
         <Route
-          path="/new-transaction/:selectedNetwork/:selectedDepositToken"
+          path="/vault/:selectedNetwork/:vaultAddress"
           element={
             <AppLayoutRoute
-              path="/new-transaction/:selectedNetwork/:selectedDepositToken"
+              path="/vault/:selectedNetwork/:vaultAddress"
               component={TransactionScreen}
               routeType="Transaction"
             />

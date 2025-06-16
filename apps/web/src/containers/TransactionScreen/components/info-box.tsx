@@ -43,11 +43,12 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
 
       <ContentContainer>
         {tabs[selectedTab]?.contents.map((content, index, array) => (
-          <>
+          <Box key={index}>
             <H5 gutter="default">{content.sectionTitle}</H5>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {content.items.map((item) => (
                 <Box
+                  key={item.label}
                   display="flex"
                   justifyContent="space-between"
                   flexDirection="row"
@@ -70,7 +71,7 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
                 }}
               />
             )}
-          </>
+          </Box>
         ))}
       </ContentContainer>
     </InfoBoxContainer>
