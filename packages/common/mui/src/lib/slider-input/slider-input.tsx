@@ -128,7 +128,7 @@ export const SliderInput = React.forwardRef<
   ) => {
     const theme = useTheme();
     const [value, setValue] = useState(min);
-    const [hasFocus, setHasFocus] = useState(false);
+    const [hasFocusOnValueInput, setHasFocusOnValueInput] = useState(false);
     const captionMsg = errorMsg || infoMsg;
     const isError = !!errorMsg;
 
@@ -169,31 +169,30 @@ export const SliderInput = React.forwardRef<
         </Box>
 
         <Container
-        // sx={{
-        //   border: `1px solid ${
-        //     hasFocus ? theme.palette.info.main : theme.palette.borders.paper
-        //   }`,
-        //   borderBottomLeftRadius: sliderLeverageInfo
-        //     ? 'unset'
-        //     : theme.shape.borderRadius(),
-        //   borderBottomRightRadius: sliderLeverageInfo
-        //     ? 'unset'
-        //     : theme.shape.borderRadius(),
-        // }}
+          sx={{
+            border: `1px solid ${
+              hasFocusOnValueInput
+                ? theme.palette.info.main
+                : theme.palette.borders.paper
+            }`,
+            borderBottomLeftRadius: sliderLeverageInfo
+              ? 'unset'
+              : theme.shape.borderRadius(),
+            borderBottomRightRadius: sliderLeverageInfo
+              ? 'unset'
+              : theme.shape.borderRadius(),
+          }}
         >
           <ValueContainer
             sx={{
               display: 'flex',
-              // borderRight: `1px solid ${
-              //   hasFocus ? theme.palette.info.main : theme.palette.borders.paper
-              // }`,
             }}
           >
             <Input
               value={value.toFixed(2)}
               disableUnderline
               endAdornment={'x'}
-              onFocus={() => setHasFocus(true)}
+              onFocus={() => setHasFocusOnValueInput(true)}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               inputComponent={NumberFormatter as any}
               onBlur={(event) => {
@@ -204,7 +203,7 @@ export const SliderInput = React.forwardRef<
                 } catch {
                   // On parsing error nothing changes
                 }
-                setHasFocus(false);
+                setHasFocusOnValueInput(false);
               }}
               sx={{
                 input: {
@@ -244,11 +243,9 @@ export const SliderInput = React.forwardRef<
               disabled={false}
               onChange={(v) => {
                 setValue(v);
-                if (!hasFocus) setHasFocus(true);
               }}
               onChangeCommitted={(v) => {
                 setValue(v);
-                setHasFocus(false);
                 // Use a setTimeout here before triggering onChangeCommit to ensure
                 // that the slider animation completes before we trigger otherwise
                 // it will look "jumpy" to the user

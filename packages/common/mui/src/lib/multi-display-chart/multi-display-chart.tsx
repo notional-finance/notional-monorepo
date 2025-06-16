@@ -149,7 +149,6 @@ export const ChartContainer = styled(Box, {
   .recharts-wrapper .recharts-cartesian-grid-horizontal line:last-child {
     stroke-opacity: ${hideTopGridLine ? '0 !important' : ''};
   }
-  margin-top: ${theme.spacing(6)};
 `
 );
 

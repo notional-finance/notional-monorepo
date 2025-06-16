@@ -117,10 +117,7 @@ export const AreaChart = ({
     <Box
       sx={{
         width: '100%',
-        padding: isMultiChart ? '0px' : '',
-        paddingBottom: theme.spacing(3),
-        paddingTop: theme.spacing(4),
-        marginTop: theme.spacing(2),
+        padding: isMultiChart ? 'unset' : theme.spacing(3, 0),
         border: isMultiChart ? 'none' : '',
       }}
     >

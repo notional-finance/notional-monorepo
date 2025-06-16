@@ -4,35 +4,48 @@ export const useInfoBox = () => {
       tabTitle: 'Summary',
       contents: [
         {
-          sectionTitle: 'Account Summary',
+          sectionTitle: 'Summary',
           items: [
             {
-              label: 'Collateral',
-              content: '-',
-            },
-            {
-              label: 'Debt',
-              content: '-',
-            },
-            {
               label: 'Net Worth',
+              content: '-',
+            },
+            {
+              label: 'Health Factor',
+              content: '-',
+            },
+            {
+              label: 'Leverage Ratio',
+              content: '-',
+            },
+            {
+              label: 'Liquidation Price',
               content: '-',
             },
           ],
         },
         {
-          sectionTitle: 'Order Details',
+          sectionTitle: 'Estimated Earnings (30d)',
           items: [
             {
-              label: 'Collateral',
+              label: 'Assets',
               content: '-',
             },
             {
-              label: 'Debt',
+              label: 'Borrow Interest',
               content: '-',
             },
             {
-              label: 'Net Worth',
+              label: 'Net Earnings',
+              content: '-',
+            },
+          ],
+        },
+        {
+          sectionTitle: 'Fees',
+          items: [
+            {
+              label: 'Trading Costs',
               content: '-',
             },
           ],
@@ -40,7 +53,7 @@ export const useInfoBox = () => {
       ],
     },
     {
-      tabTitle: 'Portfolio Impact',
+      tabTitle: 'APY Breakdown',
       contents: [
         {
           sectionTitle: 'Portfolio Impact',
@@ -49,7 +62,7 @@ export const useInfoBox = () => {
       ],
     },
     {
-      tabTitle: 'Portfolio Impact',
+      tabTitle: 'Order Details',
       contents: [
         {
           sectionTitle: 'Portfolio Impact',

@@ -1,6 +1,7 @@
-import { Box, styled, Tabs, Tab, Divider, useTheme } from '@mui/material';
+import { Box, styled, Tabs, Tab, Divider, useTheme, Fade } from '@mui/material';
+import { ScrollableIcon } from '@notional-finance/icons';
 import { H5, Label, LabelValue } from '@notional-finance/mui';
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useRef, useEffect } from 'react';
 
 // Types for the component props
 export interface TabItem {
@@ -18,10 +19,45 @@ interface InfoBoxProps {
   }[];
 }
 
-// Info Box Component
 const InfoBox = ({ tabs }: InfoBoxProps) => {
   const theme = useTheme();
   const [selectedTab, setSelectedTab] = useState(0);
+  const [isScrollable, setIsScrollable] = useState(false);
+  const [isAtBottomOfScroll, setIsAtBottomOfScroll] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const checkIfScrollable = () => {
+    if (contentRef.current) {
+      const { scrollHeight, clientHeight } = contentRef.current;
+      const isScrollableContent = scrollHeight > clientHeight;
+      setIsScrollable(isScrollableContent);
+    }
+  };
+
+  const handleScroll = () => {
+    if (contentRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+      // Show indicator if not at bottom (with a small threshold)
+      const isAtBottom = scrollHeight - scrollTop - clientHeight < 10;
+      setIsAtBottomOfScroll(isAtBottom);
+    }
+  };
+
+  useEffect(() => {
+    checkIfScrollable();
+    const contentElement = contentRef.current;
+
+    if (contentElement) {
+      contentElement.addEventListener('scroll', handleScroll);
+      const resizeObserver = new ResizeObserver(checkIfScrollable);
+      resizeObserver.observe(contentElement);
+
+      return () => {
+        contentElement.removeEventListener('scroll', handleScroll);
+        resizeObserver.disconnect();
+      };
+    }
+  }, [selectedTab]); // Re-check when tab changes
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
@@ -41,10 +77,10 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
         </CustomTabs>
       </TabsContainer>
 
-      <ContentContainer>
+      <ContentContainer ref={contentRef}>
         {tabs[selectedTab]?.contents.map((content, index, array) => (
           <Box key={index}>
-            <H5 gutter="default">{content.sectionTitle}</H5>
+            <H5 marginBottom={theme.spacing(1.5)}>{content.sectionTitle}</H5>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {content.items.map((item) => (
                 <Box
@@ -74,6 +110,17 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
           </Box>
         ))}
       </ContentContainer>
+      <Fade in={isScrollable && !isAtBottomOfScroll} timeout={200}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <ScrollableIcon />
+        </Box>
+      </Fade>
     </InfoBoxContainer>
   );
 };
@@ -135,7 +182,8 @@ const CustomTab = styled(Tab)(
 const ContentContainer = styled(Box)`
   flex: 1;
   overflow-y: auto;
-  min-height: 0; /* Ensures scrolling works with flex parent */
+  min-height: 0;
+  padding-bottom: ${({ theme }) => theme.spacing(2)};
 `;
 
 export default InfoBox;

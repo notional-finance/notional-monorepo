@@ -123,7 +123,7 @@ const TopSection = styled(Box)(
   ({ theme }) => `
   display: flex;
   gap: ${theme.spacing(3)};
-  max-height: 50vh;
+  height: ${theme.spacing(60)};
   padding-bottom: ${theme.spacing(4)};
 
   @media (max-width: 768px) {

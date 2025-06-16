@@ -1,4 +1,4 @@
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { TradeActionButton } from '@notional-finance/trade';
 
 interface InputContainerProps {
@@ -6,15 +6,28 @@ interface InputContainerProps {
 }
 
 const InputContainer = ({ children }: InputContainerProps) => {
+  const theme = useTheme();
   return (
     <InputContainerWrapper>
-      {children}
-      <TradeActionButton
-        canSubmit={true}
-        onSubmit={() => {
-          console.log('submit');
+      <Box
+        sx={{
+          width: '100%',
+          gap: theme.spacing(5),
+          justifyContent: 'space-between',
+          display: 'flex',
+          flexDirection: 'column',
         }}
-      />
+      >
+        {children}
+      </Box>
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+        <TradeActionButton
+          canSubmit={true}
+          onSubmit={() => {
+            console.log('submit');
+          }}
+        />
+      </Box>
     </InputContainerWrapper>
   );
 };
@@ -24,14 +37,14 @@ const InputContainerWrapper = styled(Box)(
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: space-between;
   flex: 2;
   width: 100%;
+  min-height: 100%;
   background-color: ${theme.palette.background.paper};
   padding: ${theme.spacing(3)};
   border: 1px solid ${theme.palette.borders.paper};
   border-radius: ${theme.shape.borderRadius()};
-  gap: ${theme.spacing(5)};
   `
 );
 

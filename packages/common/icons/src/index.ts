@@ -113,3 +113,4 @@ export * from './lib/gauge-icon/gauge-icon';
 export * from './lib/points-icon/points-outline-icon';
 export * from './lib/upward-icon/upward-icon';
 export * from './lib/chart-icon/chart-icon';
+export * from './lib/scrollable-icon/scrollable-icon';
