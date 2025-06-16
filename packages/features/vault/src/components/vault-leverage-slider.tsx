@@ -51,6 +51,7 @@ export const VaultLeverageSlider = observer(
         : undefined;
     const pointPrices = usePointPrices();
 
+    // TODO: this is no longer used
     let additionalSliderInfo: {
       caption: ReactNode;
       value: number;
@@ -122,7 +123,6 @@ export const VaultLeverageSlider = observer(
         isDeleverage={isDeleverage}
         cashBorrowed={netRealizedDebtBalance}
         inputLabel={inputLabel}
-        additionalSliderInfo={additionalSliderInfo}
         onChange={onChange}
       />
     );

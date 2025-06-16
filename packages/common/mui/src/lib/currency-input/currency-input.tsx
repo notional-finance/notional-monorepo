@@ -8,11 +8,6 @@ import { Paragraph, Caption } from '../typography/typography';
 import { useCallback, useRef } from 'react';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 
-export interface CurrencyInputStyleProps {
-  landingPage?: boolean;
-  transactionPage?: boolean;
-}
-
 export interface CurrencyInputProps extends CurrencySelectProps {
   placeholder: string;
   decimals: number;
@@ -21,7 +16,6 @@ export interface CurrencyInputProps extends CurrencySelectProps {
   captionMsg?: React.ReactNode;
   warningMsg?: React.ReactNode;
   maxValue?: string;
-  style?: CurrencyInputStyleProps;
   onMaxValue?: () => void;
   miniButtonLabel?: string;
   ref: React.RefObject<HTMLDivElement>;
@@ -94,7 +88,6 @@ export const CurrencyInput = React.forwardRef<
     onInputChange,
     onMaxValue,
     miniButtonLabel,
-    style,
     showScrollPopper,
   } = props;
   const theme = useTheme() as NotionalTheme;
@@ -145,18 +138,11 @@ export const CurrencyInput = React.forwardRef<
           background: theme.palette.common.white,
           width: '100%',
           borderColor: borderColor,
-          borderTopWidth: style?.landingPage ? '0px' : '1px',
-          borderLeftWidth: style?.landingPage ? '0px' : '1px',
-          borderRightWidth: style?.landingPage ? '0px' : '1px',
-          borderBottomWidth: style?.landingPage ? '2px' : '1px',
-          borderRadius: style?.landingPage ? '0px' : theme.shape.borderRadius(),
-          ...(style?.transactionPage
-            ? {
-                border: 'none',
-                background: theme.palette.background.default,
-                padding: theme.spacing(1.5, 2),
-              }
-            : {}),
+          borderTopWidth: '1px',
+          borderLeftWidth: '1px',
+          borderRightWidth: '1px',
+          borderBottomWidth: '1px',
+          borderRadius: theme.shape.borderRadius(),
         }}
       >
         <Input
@@ -178,20 +164,13 @@ export const CurrencyInput = React.forwardRef<
             width: {
               xs: '100%',
               sm: '100%',
-              md: '265px',
-              lg: '265px',
-              xl: '265px',
+              md: theme.spacing(56),
+              lg: theme.spacing(56),
+              xl: theme.spacing(56),
             },
             marginBottom: theme.spacing(0),
             fontSize: theme.typography.h4.fontSize,
-            color: style?.landingPage
-              ? theme.palette.common.white
-              : theme.palette.common.black,
-            ...(style?.transactionPage
-              ? {
-                  flex: 1,
-                }
-              : {}),
+            color: theme.palette.common.black,
           }}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           inputComponent={NumberFormatter as any}
@@ -213,33 +192,26 @@ export const CurrencyInput = React.forwardRef<
             color: theme.palette.primary.main,
           }}
         />
-        {!style?.transactionPage && (
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{
-              marginTop: '-0.5rem',
-              marginBottom: '-0.5rem',
-              marginLeft: '0.5rem',
-              borderRightWidth: style?.landingPage ? '0px' : '1px',
-              borderColor: borderColor,
-            }}
-          />
-        )}
+        <Divider
+          orientation="vertical"
+          flexItem
+          sx={{
+            marginTop: theme.spacing(-0.5),
+            marginBottom: theme.spacing(-0.5),
+            marginLeft: theme.spacing(0.5),
+            borderRightWidth: '1px',
+            borderColor: borderColor,
+          }}
+        />
         <CurrencySelect
           minWidth={
-            style?.transactionPage
-              ? 'min-content'
-              : isMobileView
-              ? '100%'
-              : theme.spacing(55.875)
+            isMobileView ? '100%' : 'min-content' // theme.spacing(55.875)
           }
           options={props.options}
           defaultValue={props.defaultValue}
           onSelectChange={props.onSelectChange}
           popperRef={inputContainerRef}
           showScrollPopper={showScrollPopper}
-          style={style}
         />
       </InputContainer>
 

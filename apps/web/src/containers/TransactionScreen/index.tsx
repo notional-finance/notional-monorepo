@@ -65,7 +65,7 @@ const TransactionScreen = () => {
               />
               <LeverageSlider
                 inputLabel={defineMessage({
-                  defaultMessage: 'Specify Leverage',
+                  defaultMessage: 'Leverage',
                 })}
               />
             </InputContainer>

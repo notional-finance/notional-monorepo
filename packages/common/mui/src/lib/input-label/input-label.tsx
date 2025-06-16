@@ -1,6 +1,6 @@
 import { SxProps } from '@mui/material';
 import { MessageDescriptor } from 'react-intl';
-import { HeadingSubtitle } from '../typography/typography';
+import { H5 } from '../typography/typography';
 
 interface InputLabelProps {
   inputLabel?: MessageDescriptor;
@@ -9,6 +9,6 @@ interface InputLabelProps {
 
 export const InputLabel = ({ inputLabel, sx }: InputLabelProps) => {
   return inputLabel ? (
-    <HeadingSubtitle gutter="default" msg={inputLabel} sx={{ ...sx }} />
+    <H5 gutter="default" msg={inputLabel} sx={{ ...sx }} />
   ) : null;
 };
