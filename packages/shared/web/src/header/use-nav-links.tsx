@@ -53,6 +53,8 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
           className="color-stroke"
           sx={{
             height: theme.spacing(2.25),
+            fill: textColor,
+            stroke: 'transparent',
           }}
         />
       ),

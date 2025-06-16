@@ -4,6 +4,7 @@ import { Button, H2, LargeInputTextEmphasized } from '@notional-finance/mui';
 import { TotalBox } from './total-box';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { VaultPerformanceChart } from '@notional-finance/vault-feature-shell';
 
 const DataSection = () => {
   const { isMobileView } = useAppStore();
@@ -52,6 +53,9 @@ const DataSection = () => {
             suffix="%"
           />
         </TotalBoxesContainer>
+        <Box sx={{ width: '100%' }}>
+          <VaultPerformanceChart />
+        </Box>
       </ContentContainer>
     </DataSectionContainer>
   );
@@ -59,7 +63,7 @@ const DataSection = () => {
 
 const DataSectionContainer = styled(Box)(
   ({ theme }) => `
-  gap: ${theme.spacing(2.25)};
+  margin-bottom: ${theme.spacing(3)};
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -69,12 +73,13 @@ const DataSectionContainer = styled(Box)(
 );
 
 const HeaderContainer = styled(Box)(
-  () => `
+  ({ theme }) => `
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  margin-bottom: ${theme.spacing(3)};
 `
 );
 

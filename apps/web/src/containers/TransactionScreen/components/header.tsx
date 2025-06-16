@@ -59,6 +59,15 @@ const Header = ({
                 gap: theme.spacing(1),
               }}
             >
+              <InfoTooltip
+                toolTipText={defineMessage({
+                  defaultMessage:
+                    'Total APY = Vault APY + (Vault APY - Borrow APY) x Leverage',
+                })}
+                iconColor={theme.palette.info.dark}
+                iconSize={theme.spacing(2)}
+                disableMaxWidth
+              />
               <H3>
                 <CountUp
                   value={apyInfo.totalAPY}
@@ -67,14 +76,6 @@ const Header = ({
                   suffix="% Total APY"
                 />{' '}
               </H3>
-              <InfoTooltip
-                toolTipText={defineMessage({
-                  defaultMessage:
-                    'Total APY = Vault APY + (Vault APY - Borrow APY) x Leverage',
-                })}
-                iconColor={theme.palette.info.dark}
-                iconSize={theme.spacing(2)}
-              />
             </Box>
             <Body>
               {apyInfo.assetAPY ? (

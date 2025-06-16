@@ -21,6 +21,11 @@ export interface InfoTooltipProps {
   iconSize?: string;
   onMouseEnter?: () => void;
   InfoComponent?: React.ElementType;
+  disableMaxWidth?: boolean;
+}
+
+interface StyledTooltipProps extends TooltipProps {
+  disableMaxWidth?: boolean;
 }
 
 export function InfoTooltip({
@@ -31,6 +36,7 @@ export function InfoTooltip({
   iconSize,
   onMouseEnter,
   InfoComponent,
+  disableMaxWidth,
 }: InfoTooltipProps) {
   const theme = useTheme();
   const iconSizes = iconSize ? iconSize : theme.typography.caption.fontSize;
@@ -38,6 +44,7 @@ export function InfoTooltip({
     <StyledToolTip
       onMouseEnter={onMouseEnter}
       arrow
+      disableMaxWidth={disableMaxWidth}
       title={ToolTipComp ? <ToolTipComp /> : <Caption msg={toolTipText} />}
     >
       {InfoComponent ? (
@@ -59,14 +66,15 @@ export function InfoTooltip({
   );
 }
 
-const StyledToolTip = styled(({ className, ...props }: TooltipProps) => (
+const StyledToolTip = styled(({ className, ...props }: StyledTooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
+))(({ theme, disableMaxWidth }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
     padding: theme.spacing(2),
     backgroundColor: theme.palette.common.white,
     boxShadow: '-2px 0px 24px 0px #1429661A, 0px 3px 11px 0px #1D74771F',
     borderRadius: theme.shape.borderRadius(),
+    maxWidth: disableMaxWidth ? 'none' : theme.spacing(37),
   },
   [`& .${tooltipClasses.arrow}`]: {
     color: theme.palette.common.white,
