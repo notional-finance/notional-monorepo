@@ -17,15 +17,15 @@ import DataSection from './components/data-section';
 import InputContainer from './components/input-container';
 import { useInfoBox } from './hooks/use-info-box';
 import { DepositInput, LeverageSlider } from '@notional-finance/trade';
+import { useTradeContext } from '@notional-finance/notionable-hooks';
 
 const TransactionScreen = () => {
   const theme = useTheme();
   const isReady = true;
   const [infoTab, setInfoTab] = useState(0);
   const { currencyInputRef } = useCurrencyInputRef();
+  useTradeContext('CreateVaultPosition');
 
-  // TODO: remove this hook and design three components
-  // 3. borrow terms
   const tabs = useInfoBox();
 
   return (
@@ -57,7 +57,12 @@ const TransactionScreen = () => {
         <ContentContainer>
           <TopSection>
             <InputContainer infoTextRow={undefined}>
-              <DepositInput inputRef={currencyInputRef} />
+              <DepositInput
+                inputLabel={defineMessage({
+                  defaultMessage: 'Deposit',
+                })}
+                inputRef={currencyInputRef}
+              />
               <LeverageSlider
                 inputLabel={defineMessage({
                   defaultMessage: 'Specify Leverage',
