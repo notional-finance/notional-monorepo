@@ -261,28 +261,30 @@ const PortfolioOverview = () => {
             chartComponents={[
               {
                 chartHeaderTotalsData: totalsData,
-                headerButtons: [
-                  {
-                    label: 'All',
-                    value: 'all',
-                    onClick: () => setSlot('all'),
-                  },
-                  {
-                    label: '1Y',
-                    value: '1y',
-                    onClick: () => setSlot('1y'),
-                  },
-                  {
-                    label: '3M',
-                    value: '3m',
-                    onClick: () => setSlot('3m'),
-                  },
-                  {
-                    label: '1M',
-                    value: '1m',
-                    onClick: () => setSlot('1m'),
-                  },
-                ],
+                headerButtons: {
+                  buttons: [
+                    {
+                      label: 'All',
+                      value: 'all',
+                      onClick: () => setSlot('all'),
+                    },
+                    {
+                      label: '1Y',
+                      value: '1y',
+                      onClick: () => setSlot('1y'),
+                    },
+                    {
+                      label: '3M',
+                      value: '3m',
+                      onClick: () => setSlot('3m'),
+                    },
+                    {
+                      label: '1M',
+                      value: '1m',
+                      onClick: () => setSlot('1m'),
+                    },
+                  ],
+                },
                 id: 'apy-area-chart',
                 title: 'APY',
                 hideTopGridLine: false,

@@ -5,7 +5,6 @@ import {
   BarChart,
 } from '@notional-finance/mui';
 import { usePerformanceChart } from './use-performance-chart';
-import { Box, useTheme } from '@mui/material';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import useApyChart from './use-apy-chart';
@@ -26,7 +25,6 @@ export const PerformanceChart = observer(
       leverageRatio?: number;
     };
   }) => {
-    const theme = useTheme();
     const trade = useCurrentTradeContext();
     const {
       collateral: _collateral,
@@ -122,10 +120,6 @@ export const PerformanceChart = observer(
       });
     }
 
-    return (
-      <Box marginBottom={theme.spacing(5)}>
-        <MultiDisplayChart chartComponents={chartComponents} />
-      </Box>
-    );
+    return <MultiDisplayChart chartComponents={chartComponents} />;
   }
 );

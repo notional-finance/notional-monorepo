@@ -92,7 +92,7 @@ export const SelectDropdown = ({
       ),
       theme,
       sx: {
-        backgroundColor: landingPage ? 'unset' : theme.palette.common.white,
+        backgroundColor: theme.palette.common.white,
         borderRadius: theme.shape.borderRadius(),
         h4: {
           color: landingPage

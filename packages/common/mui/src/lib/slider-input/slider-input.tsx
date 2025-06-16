@@ -1,5 +1,5 @@
 import NumberFormat from 'react-number-format';
-import { Box, Input, styled, useTheme } from '@mui/material';
+import { Box, Divider, Input, styled, useTheme } from '@mui/material';
 import { InputLabel } from '../input-label/input-label';
 import { useCallback, useRef, useState } from 'react';
 import SliderBasic from '../slider-basic/slider-basic';
@@ -41,6 +41,7 @@ const Container = styled(Box)(
   border-radius: ${theme.shape.borderRadius()};
   display: flex;
   height: ${theme.spacing(8)};
+  background-color: ${theme.palette.background.default};
 `
 );
 
@@ -56,7 +57,7 @@ const ValueContainer = styled(Box)(
   ({ theme }) => `
   padding-left: ${theme.spacing(2)};
   padding-right: ${theme.spacing(2)};
-  max-width: 25%;
+  max-width: ${theme.spacing(16)};
 `
 );
 
@@ -127,7 +128,7 @@ export const SliderInput = React.forwardRef<
   ) => {
     const theme = useTheme();
     const [value, setValue] = useState(min);
-    const [hasFocus, setHasFocus] = useState(false);
+    const [hasFocusOnValueInput, setHasFocusOnValueInput] = useState(false);
     const captionMsg = errorMsg || infoMsg;
     const isError = !!errorMsg;
 
@@ -145,8 +146,17 @@ export const SliderInput = React.forwardRef<
       },
     }));
 
+    const marks = Array.from({ length: 10 }, (_, i) => ({
+      value: ((max - min) * i) / 9 + min,
+      label: '',
+      color:
+        ((max - min) * i) / 9 + min <= value
+          ? theme.palette.primary.main
+          : theme.palette.borders.paper,
+    }));
+
     return (
-      <Box>
+      <Box sx={{ width: '100%' }}>
         <Box
           sx={{
             display: 'flex',
@@ -161,7 +171,9 @@ export const SliderInput = React.forwardRef<
         <Container
           sx={{
             border: `1px solid ${
-              hasFocus ? theme.palette.info.main : theme.palette.borders.paper
+              hasFocusOnValueInput
+                ? theme.palette.info.main
+                : theme.palette.borders.paper
             }`,
             borderBottomLeftRadius: sliderLeverageInfo
               ? 'unset'
@@ -174,16 +186,13 @@ export const SliderInput = React.forwardRef<
           <ValueContainer
             sx={{
               display: 'flex',
-              borderRight: `1px solid ${
-                hasFocus ? theme.palette.info.main : theme.palette.borders.paper
-              }`,
             }}
           >
             <Input
               value={value.toFixed(2)}
               disableUnderline
               endAdornment={'x'}
-              onFocus={() => setHasFocus(true)}
+              onFocus={() => setHasFocusOnValueInput(true)}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               inputComponent={NumberFormatter as any}
               onBlur={(event) => {
@@ -194,7 +203,7 @@ export const SliderInput = React.forwardRef<
                 } catch {
                   // On parsing error nothing changes
                 }
-                setHasFocus(false);
+                setHasFocusOnValueInput(false);
               }}
               sx={{
                 input: {
@@ -211,6 +220,17 @@ export const SliderInput = React.forwardRef<
               }}
             />
           </ValueContainer>
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{
+              marginTop: theme.spacing(1),
+              marginBottom: theme.spacing(1),
+              marginLeft: theme.spacing(-0.5),
+              borderRightWidth: '1px',
+              borderColor: theme.palette.borders.paper,
+            }}
+          />
           <SliderContainer>
             <SliderBasic
               min={min}
@@ -219,14 +239,13 @@ export const SliderInput = React.forwardRef<
               value={value}
               showMinMax={showMinMax}
               showThumb
+              marks={marks}
               disabled={false}
               onChange={(v) => {
                 setValue(v);
-                if (!hasFocus) setHasFocus(true);
               }}
               onChangeCommitted={(v) => {
                 setValue(v);
-                setHasFocus(false);
                 // Use a setTimeout here before triggering onChangeCommit to ensure
                 // that the slider animation completes before we trigger otherwise
                 // it will look "jumpy" to the user

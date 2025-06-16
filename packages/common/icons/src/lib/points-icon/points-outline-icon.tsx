@@ -3,6 +3,7 @@ import { SvgIcon, SvgIconProps } from '@mui/material';
 /* eslint-disable-next-line */
 export interface PointsOutlineIconProps extends SvgIconProps {
   fill?: string;
+  stroke?: string;
 }
 
 export function PointsOutlineIcon(props: PointsOutlineIconProps) {

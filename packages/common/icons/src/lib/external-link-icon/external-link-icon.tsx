@@ -5,7 +5,7 @@ export interface ExternalLinkIconProps extends SvgIconProps {}
 
 export function ExternalLinkIcon(props: ExternalLinkIconProps) {
   return (
-    <SvgIcon viewBox="0 0 13.3 13.3" {...props}>
+    <SvgIcon viewBox="0 0 14 14" {...props}>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

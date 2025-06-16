@@ -14,7 +14,7 @@ export function PercentIcon(props: PercentIconProps) {
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clip-path="url(#clip0_15213_102026)">
+        <g clipPath="url(#clip0_15213_102026)">
           <path
             d="M5.1 0.9H18.9C21.2196 0.9 23.1 2.7804 23.1 5.1V18.9C23.1 21.2196 21.2196 23.1 18.9 23.1H5.1C2.7804 23.1 0.9 21.2196 0.9 18.9V5.1C0.9 2.7804 2.7804 0.9 5.1 0.9Z"
             strokeWidth="1.8"

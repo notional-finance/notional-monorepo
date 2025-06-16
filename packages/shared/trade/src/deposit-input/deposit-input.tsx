@@ -130,7 +130,7 @@ export const DepositInput = React.forwardRef<
     if (!availableDepositTokens || !deposit) return <PageLoading />;
 
     return (
-      <Box sx={{ marginBottom: `${theme.spacing(4)} !important` }}>
+      <Box>
         <Box
           sx={{
             display: 'flex',
@@ -192,9 +192,6 @@ export const DepositInput = React.forwardRef<
             ) {
               navigate(newRoute(newTokenSymbol));
             }
-          }}
-          style={{
-            landingPage: false,
           }}
         />
       </Box>

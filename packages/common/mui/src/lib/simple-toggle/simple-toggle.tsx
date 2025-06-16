@@ -58,6 +58,7 @@ export const SimpleToggle = ({
 
 const Container = styled(Box)(
   ({ theme }) => `
+  display: flex;
   height: 100%;
   background: ${theme.palette.background.paper};
   border-radius: ${theme.shape.borderRadius()};

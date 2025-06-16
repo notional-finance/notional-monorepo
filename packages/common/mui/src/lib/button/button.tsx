@@ -23,6 +23,8 @@ export function Button(props: ButtonProps) {
   const { size, variant = 'contained', color, href, to, sx, ...rest } = props;
 
   const newProps = {
+    disableRipple: true,
+    disableElevation: true,
     ...rest,
     sx: {
       background: variant === 'contained' ? theme.palette.primary.light : '',
@@ -87,9 +89,9 @@ export const StyledButton = styled(Button, {
 
     &:hover {
       transition: all .3s ease;
-        background: ${active ? colors.neonTurquoise : theme.palette.info.light};
-        color: ${active ? colors.black : colors.white};
-        border: 1px solid ${colors.neonTurquoise};
+      background: ${active ? colors.neonTurquoise : theme.palette.info.light};
+      color: ${active ? colors.black : colors.white};
+      border: 1px solid ${colors.neonTurquoise};
     }
 `
 );

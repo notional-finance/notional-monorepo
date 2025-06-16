@@ -33,6 +33,7 @@ import {
 } from '@notional-finance/core-entities';
 import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
+import TransactionScreen from '../TransactionScreen';
 
 const RedirectToDefaultNetwork = () => {
   const selectedNetwork = useSelectedNetwork();
@@ -135,6 +136,16 @@ const AllRoutes = observer(() => {
               path="/stake/:selectedDepositToken"
               component={StakeNOTE}
               routeType="Note"
+            />
+          }
+        />
+        <Route
+          path="/vault/:selectedNetwork/:vaultAddress"
+          element={
+            <AppLayoutRoute
+              path="/vault/:selectedNetwork/:vaultAddress"
+              component={TransactionScreen}
+              routeType="Transaction"
             />
           }
         />

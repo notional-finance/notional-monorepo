@@ -270,7 +270,6 @@ const StyledItem = styled(Option)(
       cursor: pointer;
     } 
   }
-  
   `
 );
 

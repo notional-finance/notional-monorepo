@@ -150,9 +150,6 @@ export const AssetInput = React.forwardRef<
 
             if (afterTokenChange) afterTokenChange(newToken);
           }}
-          style={{
-            landingPage: false,
-          }}
         />
       </Box>
     );
