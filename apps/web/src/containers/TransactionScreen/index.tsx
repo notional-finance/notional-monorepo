@@ -56,7 +56,7 @@ const TransactionScreen = () => {
         />
         <ContentContainer>
           <TopSection>
-            <InputContainer infoTextRow={undefined}>
+            <InputContainer>
               <DepositInput
                 inputLabel={defineMessage({
                   defaultMessage: 'Deposit',

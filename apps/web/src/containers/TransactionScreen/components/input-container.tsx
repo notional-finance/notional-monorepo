@@ -3,16 +3,12 @@ import { TradeActionButton } from '@notional-finance/trade';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
-  infoTextRow?: React.ReactNode;
 }
 
-// Input Container Component
-const InputContainer = ({ children, infoTextRow }: InputContainerProps) => {
+const InputContainer = ({ children }: InputContainerProps) => {
   return (
     <InputContainerWrapper>
-      <Box>{infoTextRow}</Box>
       {children}
-
       <TradeActionButton
         canSubmit={true}
         onSubmit={() => {
@@ -27,14 +23,15 @@ const InputContainerWrapper = styled(Box)(
   ({ theme }) => `
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  justify-content: flex-start;
   flex: 2;
   width: 100%;
   background-color: ${theme.palette.background.paper};
   padding: ${theme.spacing(3)};
   border: 1px solid ${theme.palette.borders.paper};
   border-radius: ${theme.shape.borderRadius()};
+  gap: ${theme.spacing(5)};
   `
 );
 

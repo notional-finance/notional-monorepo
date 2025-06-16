@@ -256,10 +256,6 @@ const StyledSlider = styled(Slider)(
     margin-top: -36px;
   }
 
-  .mark[data-index='1'] {
-    color: ${theme.palette.typography.light};
-  }
-
   .markActive {
     opacity: 1;
     background-color: currentColor;

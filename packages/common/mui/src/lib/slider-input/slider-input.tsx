@@ -1,5 +1,5 @@
 import NumberFormat from 'react-number-format';
-import { Box, Input, styled, useTheme } from '@mui/material';
+import { Box, Divider, Input, styled, useTheme } from '@mui/material';
 import { InputLabel } from '../input-label/input-label';
 import { useCallback, useRef, useState } from 'react';
 import SliderBasic from '../slider-basic/slider-basic';
@@ -41,6 +41,7 @@ const Container = styled(Box)(
   border-radius: ${theme.shape.borderRadius()};
   display: flex;
   height: ${theme.spacing(8)};
+  background-color: ${theme.palette.background.default};
 `
 );
 
@@ -56,7 +57,7 @@ const ValueContainer = styled(Box)(
   ({ theme }) => `
   padding-left: ${theme.spacing(2)};
   padding-right: ${theme.spacing(2)};
-  max-width: 25%;
+  max-width: ${theme.spacing(16)};
 `
 );
 
@@ -145,8 +146,17 @@ export const SliderInput = React.forwardRef<
       },
     }));
 
+    const marks = Array.from({ length: 10 }, (_, i) => ({
+      value: ((max - min) * i) / 9 + min,
+      label: '',
+      color:
+        ((max - min) * i) / 9 + min <= value
+          ? theme.palette.primary.main
+          : theme.palette.borders.paper,
+    }));
+
     return (
-      <Box>
+      <Box sx={{ width: '100%' }}>
         <Box
           sx={{
             display: 'flex',
@@ -159,24 +169,24 @@ export const SliderInput = React.forwardRef<
         </Box>
 
         <Container
-          sx={{
-            border: `1px solid ${
-              hasFocus ? theme.palette.info.main : theme.palette.borders.paper
-            }`,
-            borderBottomLeftRadius: sliderLeverageInfo
-              ? 'unset'
-              : theme.shape.borderRadius(),
-            borderBottomRightRadius: sliderLeverageInfo
-              ? 'unset'
-              : theme.shape.borderRadius(),
-          }}
+        // sx={{
+        //   border: `1px solid ${
+        //     hasFocus ? theme.palette.info.main : theme.palette.borders.paper
+        //   }`,
+        //   borderBottomLeftRadius: sliderLeverageInfo
+        //     ? 'unset'
+        //     : theme.shape.borderRadius(),
+        //   borderBottomRightRadius: sliderLeverageInfo
+        //     ? 'unset'
+        //     : theme.shape.borderRadius(),
+        // }}
         >
           <ValueContainer
             sx={{
               display: 'flex',
-              borderRight: `1px solid ${
-                hasFocus ? theme.palette.info.main : theme.palette.borders.paper
-              }`,
+              // borderRight: `1px solid ${
+              //   hasFocus ? theme.palette.info.main : theme.palette.borders.paper
+              // }`,
             }}
           >
             <Input
@@ -211,6 +221,17 @@ export const SliderInput = React.forwardRef<
               }}
             />
           </ValueContainer>
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{
+              marginTop: theme.spacing(1),
+              marginBottom: theme.spacing(1),
+              marginLeft: theme.spacing(-0.5),
+              borderRightWidth: '1px',
+              borderColor: theme.palette.borders.paper,
+            }}
+          />
           <SliderContainer>
             <SliderBasic
               min={min}
@@ -219,6 +240,7 @@ export const SliderInput = React.forwardRef<
               value={value}
               showMinMax={showMinMax}
               showThumb
+              marks={marks}
               disabled={false}
               onChange={(v) => {
                 setValue(v);
