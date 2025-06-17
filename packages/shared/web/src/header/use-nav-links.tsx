@@ -64,7 +64,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       label: <FormattedMessage defaultMessage={'Points'} />,
       // link: '/points',
       // TODO: remove this once we have a points page
-      link: '/vault/mainnet/0x1d1b767da61e56b36b7f1be4c64ef52e5695f665',
+      link: '/vault/mainnet/0x1d1b767da61e56b36b7f1be4c64ef52e5695f665/deposit',
       iconImg: (
         <PointsOutlineIcon
           className="color-fill"
