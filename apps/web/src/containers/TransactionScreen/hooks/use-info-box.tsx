@@ -92,78 +92,79 @@ const APYBreakdownTab = ({
   const theme = useTheme();
 
   return (
-    <Box>
-      <TableContainer
-        component={Paper}
-        sx={{
-          boxShadow: 'none',
-          background: 'transparent',
-          overflow: 'visible',
-        }}
-      >
-        <Table size="small" padding="none">
-          <TableHead>
-            <TableRow>
+    <TableContainer
+      component={Paper}
+      sx={{
+        boxShadow: 'none',
+        background: 'transparent',
+        overflowX: 'visible',
+      }}
+    >
+      <Table size="small" padding="none">
+        <TableHead>
+          <TableRow>
+            <DenseTableCell align="left">
+              <TableColumnHeading
+                msg={defineMessage({ defaultMessage: 'Source' })}
+              />
+            </DenseTableCell>
+            <DenseTableCell align="right">
+              <TableColumnHeading
+                msg={defineMessage({ defaultMessage: 'APY' })}
+              />
+            </DenseTableCell>
+            <DenseTableCell align="right">
+              <TableColumnHeading
+                msg={defineMessage({ defaultMessage: 'Earnings (1yr)' })}
+              />
+            </DenseTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {contents.map((content, index, array) => (
+            <TableRow
+              key={content.source}
+              sx={{
+                ...(index === array.length - 1 && {
+                  position: 'relative',
+                  zIndex: 1,
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: theme.spacing(-3),
+                    right: theme.spacing(-3),
+                    bottom: 0,
+                    backgroundColor: theme.palette.background.default,
+                    zIndex: -1,
+                  },
+                  '& td:first-of-type': {
+                    position: 'absolute',
+                  },
+                }),
+              }}
+            >
               <DenseTableCell align="left">
-                <TableColumnHeading
-                  msg={defineMessage({ defaultMessage: 'Source' })}
-                />
+                <SmallTableCell>{content.source}</SmallTableCell>
               </DenseTableCell>
               <DenseTableCell align="right">
-                <TableColumnHeading
-                  msg={defineMessage({ defaultMessage: 'APY' })}
-                />
+                <SmallTableCell main>
+                  {formatNumberAsPercent(content.apy)}
+                </SmallTableCell>
               </DenseTableCell>
               <DenseTableCell align="right">
-                <TableColumnHeading
-                  msg={defineMessage({ defaultMessage: 'Earnings (1yr)' })}
-                />
+                <SmallTableCell
+                  primary={content.earnings > 0}
+                  main={content.earnings <= 0}
+                >
+                  {formatNumber(content.earnings, 0)} {earningsSymbol}
+                </SmallTableCell>
               </DenseTableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {contents.map((content, index, array) => (
-              <TableRow
-                key={content.source}
-                sx={{
-                  ...(index === array.length - 1 && {
-                    position: 'relative',
-                    zIndex: 1,
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: theme.spacing(-2),
-                      right: theme.spacing(-2),
-                      bottom: 0,
-                      backgroundColor: theme.palette.background.default,
-                      zIndex: -1,
-                    },
-                  }),
-                }}
-              >
-                <DenseTableCell align="left">
-                  <SmallTableCell>{content.source}</SmallTableCell>
-                </DenseTableCell>
-                <DenseTableCell align="right">
-                  <SmallTableCell main>
-                    {formatNumberAsPercent(content.apy)}
-                  </SmallTableCell>
-                </DenseTableCell>
-                <DenseTableCell align="right">
-                  <SmallTableCell
-                    primary={content.earnings > 0}
-                    main={content.earnings <= 0}
-                  >
-                    {formatNumber(content.earnings, 0)} {earningsSymbol}
-                  </SmallTableCell>
-                </DenseTableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 

@@ -85,10 +85,12 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
   );
 };
 
+// Left and right padding is handled in child containers to allow
+// for overflow-x to work properly
 const InfoBoxContainer = styled(Box)(
   ({ theme }) => `
   background-color: ${theme.palette.common.white};
-  padding: ${theme.spacing(3)};
+  padding: ${theme.spacing(3, 0)};
   border-radius: ${theme.shape.borderRadius()};
   border: 1px solid ${theme.palette.borders.paper};
   display: flex;
@@ -102,6 +104,8 @@ const TabsContainer = styled(Box)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2)};
   border-bottom: 1px solid ${theme.palette.borders.paper};
+  margin-left: ${theme.spacing(3)};
+  margin-right: ${theme.spacing(3)};
 `
 );
 
@@ -139,11 +143,19 @@ const CustomTab = styled(Tab)(
 `
 );
 
-const ContentContainer = styled(Box)`
+// Overflow-x is used to allow for the background on the table cells
+// to flow into the margins
+const ContentContainer = styled(Box)(
+  ({ theme }) => `
   flex: 1;
-  overflow-y: auto;
   min-height: 0;
-  padding-bottom: ${({ theme }) => theme.spacing(2)};
-`;
+  min-width: 0;
+  padding-bottom: ${theme.spacing(2)};
+  overflow-y: auto;
+  overflow-x: visible;
+  padding-left: ${theme.spacing(3)};
+  padding-right: ${theme.spacing(3)};
+`
+);
 
 export default InfoBox;
