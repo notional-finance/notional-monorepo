@@ -1,26 +1,15 @@
-import { Box, styled, Tabs, Tab, Divider, useTheme, Fade } from '@mui/material';
+import { Box, styled, Tabs, Tab, Fade } from '@mui/material';
 import { ScrollableIcon } from '@notional-finance/icons';
-import { H5, Label, LabelValue } from '@notional-finance/mui';
 import { useState, ReactNode, useRef, useEffect } from 'react';
-
-// Types for the component props
-export interface TabItem {
-  label: string;
-  content: ReactNode | string;
-}
 
 interface InfoBoxProps {
   tabs: {
     tabTitle: string;
-    contents: {
-      sectionTitle: string;
-      items: TabItem[];
-    }[];
+    tabContent: ReactNode;
   }[];
 }
 
 const InfoBox = ({ tabs }: InfoBoxProps) => {
-  const theme = useTheme();
   const [selectedTab, setSelectedTab] = useState(0);
   const [isScrollable, setIsScrollable] = useState(false);
   const [isAtBottomOfScroll, setIsAtBottomOfScroll] = useState(false);
@@ -79,39 +68,7 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
       </TabsContainer>
 
       <ContentContainer ref={contentRef}>
-        {tabs[selectedTab]?.contents.map((content, index, array) => (
-          <Box key={index}>
-            <H5 main marginBottom={theme.spacing(1.5)}>
-              {content.sectionTitle}
-            </H5>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              {content.items.map((item) => (
-                <Box
-                  key={item.label}
-                  display="flex"
-                  justifyContent="space-between"
-                  flexDirection="row"
-                >
-                  <Label light>{item.label}</Label>
-                  <Box>
-                    {typeof item.content === 'string' ? (
-                      <LabelValue>{item.content}</LabelValue>
-                    ) : (
-                      item.content
-                    )}
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-            {index !== array.length - 1 && (
-              <Divider
-                sx={{
-                  margin: theme.spacing(3, 0),
-                }}
-              />
-            )}
-          </Box>
-        ))}
+        {tabs[selectedTab]?.tabContent}
       </ContentContainer>
       <Fade in={isScrollable && !isAtBottomOfScroll} timeout={200}>
         <Box
