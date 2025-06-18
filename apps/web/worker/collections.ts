@@ -9,7 +9,13 @@ interface CollectionDefinition {
     id: string;
     isEditable: boolean;
     isRequired: boolean;
-    type: 'PlainText' | 'DateTime' | 'Reference' | 'MultiReference' | 'Option';
+    type:
+      | 'PlainText'
+      | 'DateTime'
+      | 'Reference'
+      | 'MultiReference'
+      | 'Option'
+      | 'RichText';
     slug: string;
     displayName: string;
     helptext: string | null;
