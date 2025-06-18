@@ -165,6 +165,7 @@ function dereferenceField(
   return ref.find((item) => item.id === value)?.fieldData;
 }
 
+// TODO: need to cache this somehow in the worker
 export async function getAllVaults(apiToken: string) {
   const definition = await getCollectionDefinition(
     VAULT_COLLECTION_ID,

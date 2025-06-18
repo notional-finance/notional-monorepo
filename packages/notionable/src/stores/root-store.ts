@@ -17,6 +17,7 @@ import { TradeModel } from './TradeModel';
 import { AllTradeTypes } from '../base-trade/base-trade-store';
 import { AccountPortfolioModel } from './PortfolioModel';
 import { checkMobileView } from '@notional-finance/helpers';
+import { VaultStoreModel } from './VaultModel';
 
 export type RootStoreType = Instance<typeof RootStore>;
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
@@ -39,6 +40,7 @@ const RootStore = types
     portfolioStore: PortfolioStoreModel,
     appStore: AppStoreModel,
     walletStore: WalletModel,
+    vaultStore: types.maybe(VaultStoreModel),
     route: types.string,
     tradeModel: types.maybe(TradeModel),
   })
@@ -57,6 +59,12 @@ const RootStore = types
     },
     setRoute(route: string) {
       self.route = route;
+    },
+    afterCreate() {
+      console.log('inside after create root store');
+      self.vaultStore = VaultStoreModel.create({
+        vaults: [],
+      });
     },
   }))
   .views((self) => ({
@@ -88,6 +96,7 @@ export const createRootStore = (): RootStoreType => {
         label: '',
       },
     },
+    vaultStore: {},
     portfolioStore: {
       network: userSettings?.network ? userSettings?.network : Network.mainnet,
       pointsStore: {
