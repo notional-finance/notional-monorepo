@@ -5,6 +5,7 @@ import { getAllVaults } from './collections';
 export default class extends WorkerEntrypoint<{
   ASSETS: Fetcher;
   WEBFLOW_API_TOKEN: string;
+  VIEW_CACHE_R2: R2Bucket;
 }> {
   override async fetch(request: Request) {
     // Check if the pathname ends with a file extension (e.g. .js, .css, .png, etc)
@@ -16,7 +17,20 @@ export default class extends WorkerEntrypoint<{
     const url = new URL(request.url);
 
     if (url.pathname.startsWith('/collections/vaults')) {
+      const cachedVaults = await this.env.VIEW_CACHE_R2.get(
+        '/collections/vaults'
+      );
+      if (cachedVaults) {
+        return new Response(cachedVaults.body, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
       const vaults = await getAllVaults(this.env.WEBFLOW_API_TOKEN);
+      await this.env.VIEW_CACHE_R2.put(
+        '/collections/vaults',
+        JSON.stringify(vaults)
+      );
       return new Response(JSON.stringify(vaults), {
         headers: { 'Content-Type': 'application/json' },
       });
