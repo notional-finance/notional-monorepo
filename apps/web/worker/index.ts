@@ -21,6 +21,7 @@ export default class extends WorkerEntrypoint<{
         '/collections/vaults'
       );
       if (cachedVaults) {
+        console.log('serving cached vaults');
         return new Response(cachedVaults.body, {
           headers: { 'Content-Type': 'application/json' },
         });

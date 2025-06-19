@@ -61,7 +61,6 @@ const RootStore = types
       self.route = route;
     },
     afterCreate() {
-      console.log('inside after create root store');
       self.vaultStore = VaultStoreModel.create({
         vaults: [],
       });

@@ -5,15 +5,12 @@ import { DepositInput, LeverageSlider } from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
 import { Box, styled, useTheme } from '@mui/material';
 
-const title = 'Convex: crvUSD/USDC';
-
 export const VaultDepositScreen = () => {
   const { currencyInputRef } = useCurrencyInputRef();
   useTradeContext('CreateVaultPosition');
 
   return (
     <TransactionScreen
-      title={title}
       inputs={[
         <DepositInput
           inputLabel={defineMessage({
@@ -34,7 +31,7 @@ export const VaultDepositScreen = () => {
 export const VaultWithdrawScreen = () => {
   useTradeContext('WithdrawVault');
   // TODO: add withdraw input
-  return <TransactionScreen title={`Withdraw: ${title}`} inputs={[]} />;
+  return <TransactionScreen actionPrefix="Withdraw" inputs={[]} />;
 };
 
 export const VaultAdjustLeverageScreen = () => {
@@ -42,7 +39,7 @@ export const VaultAdjustLeverageScreen = () => {
   // TODO: add adjust leverage input
   return (
     <TransactionScreen
-      title={`Adjust Leverage: ${title}`}
+      actionPrefix="Adjust Leverage"
       inputs={[
         <LeverageSlider
           inputLabel={defineMessage({ defaultMessage: 'Leverage' })}
@@ -59,7 +56,7 @@ export const VaultManageScreen = () => {
   useTradeContext('CreateVaultPosition');
   return (
     <TransactionScreen
-      title={`Manage: ${title}`}
+      actionPrefix="Manage"
       inputs={[
         <Box>
           <H5>Manage Actions</H5>

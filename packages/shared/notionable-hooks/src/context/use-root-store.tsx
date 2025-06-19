@@ -7,6 +7,7 @@ import {
   WalletStoreType,
 } from '@notional-finance/notionable';
 import { useSelectedNetwork } from '../use-network';
+import { VaultStoreType } from '@notional-finance/notionable/stores/VaultModel';
 
 export const RootStoreContext = createContext<RootStoreType | null>(null);
 
@@ -55,4 +56,13 @@ export const usePortfolioStore = (): PortfolioStoreType => {
   }
 
   return rootContext.portfolioStore;
+};
+
+export const useVaultStore = (): VaultStoreType | undefined => {
+  const rootContext = useContext(RootStoreContext);
+  if (!rootContext || !rootContext.portfolioStore) {
+    throw new Error('vaultStore must be used within a RootStoreContext');
+  }
+
+  return rootContext.vaultStore;
 };

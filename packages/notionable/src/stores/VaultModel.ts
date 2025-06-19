@@ -61,8 +61,9 @@ const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
     let selectedNetwork: Network | undefined;
 
     switch (parentName) {
-      case 'TradeModel':
-        selectedNetwork = parent?.selectedNetwork;
+      case 'VaultModel':
+        // TODO: get this from the parent some how
+        selectedNetwork = Network.mainnet;
         break;
       default:
         selectedNetwork =
@@ -272,6 +273,12 @@ const VaultActions = (self: Instance<typeof VaultStore>) => {
   };
 };
 
-export const VaultStoreModel = VaultStore.actions(VaultActions);
+export const VaultStoreModel = VaultStore.actions(VaultActions).views(
+  (self) => ({
+    getVaultByAddress: (vaultAddress: string) => {
+      return self.vaults.find((vault) => vault.vaultAddress === vaultAddress);
+    },
+  })
+);
 
 export type VaultStoreType = Instance<typeof VaultStoreModel>;

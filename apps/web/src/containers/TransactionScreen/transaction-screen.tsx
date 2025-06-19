@@ -11,12 +11,24 @@ import InfoBox from './components/info-box';
 import DataSection from './components/data-section';
 import InputContainer from './components/input-container';
 import { useInfoBox } from './hooks/use-info-box';
+import {
+  useCurrentTradeContext,
+  useVaultMetadata,
+} from '@notional-finance/notionable-hooks';
 
 export const TransactionScreen = observer(
-  ({ title, inputs }: { title: string; inputs: ReactNode[] }) => {
+  ({
+    actionPrefix = '',
+    inputs,
+  }: {
+    actionPrefix?: string;
+    inputs: ReactNode[];
+  }) => {
     const theme = useTheme();
     const isReady = true;
     const [infoTab, setInfoTab] = useState(0);
+    const trade = useCurrentTradeContext();
+    const vaultMetadata = useVaultMetadata(trade?.vaultAddress);
 
     const tabs = useInfoBox();
 
@@ -24,12 +36,11 @@ export const TransactionScreen = observer(
       <FeatureLoader featureLoaded={isReady === true}>
         <ScreenContainer>
           <Header
-            title={title}
-            tokenSymbol={'USDC'}
-            secondaryTitle={
-              // TODO: list features here...
+            title={`${actionPrefix}: ${vaultMetadata?.name || ''}`}
+            tokenSymbol={vaultMetadata?.depositToken.symbol || ''}
+            secondaryTitle={vaultMetadata?.vaultFeatures.map((feature) => (
               <Chip
-                label="Smart Redemption"
+                label={feature}
                 color="info"
                 size="small"
                 sx={{
@@ -37,7 +48,7 @@ export const TransactionScreen = observer(
                   color: theme.palette.info.dark,
                 }}
               />
-            }
+            ))}
             apyInfo={{
               totalAPY: 25.4,
               organicAPY: 10,
@@ -74,7 +85,7 @@ export const TransactionScreen = observer(
                   setInfoTab(value as number);
                 }}
               />
-              {infoTab === 0 && <Body>"Strategy Info"</Body>}
+              {infoTab === 0 && <Body>{vaultMetadata?.vaultDescription}</Body>}
               {infoTab === 1 && <Body>"Asset Info"</Body>}
               {infoTab === 2 && <Body>"Project Info"</Body>}
             </TradeSummaryBox>
