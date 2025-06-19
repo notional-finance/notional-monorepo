@@ -15,20 +15,21 @@ import {
   useCurrentTradeContext,
   useVaultMetadata,
 } from '@notional-finance/notionable-hooks';
+import RichText from './components/rich-text';
 
 export const TransactionScreen = observer(
   ({
-    actionPrefix = '',
+    actionPrefix,
     inputs,
   }: {
     actionPrefix?: string;
     inputs: ReactNode[];
   }) => {
     const theme = useTheme();
-    const isReady = true;
     const [infoTab, setInfoTab] = useState(0);
     const trade = useCurrentTradeContext();
     const vaultMetadata = useVaultMetadata(trade?.vaultAddress);
+    const isReady = vaultMetadata !== undefined;
 
     const tabs = useInfoBox();
 
@@ -36,7 +37,11 @@ export const TransactionScreen = observer(
       <FeatureLoader featureLoaded={isReady === true}>
         <ScreenContainer>
           <Header
-            title={`${actionPrefix}: ${vaultMetadata?.name || ''}`}
+            title={
+              actionPrefix
+                ? `${actionPrefix}: ${vaultMetadata?.name || ''}`
+                : vaultMetadata?.name || ''
+            }
             tokenSymbol={vaultMetadata?.depositToken.symbol || ''}
             secondaryTitle={vaultMetadata?.vaultFeatures.map((feature) => (
               <Chip
@@ -85,7 +90,9 @@ export const TransactionScreen = observer(
                   setInfoTab(value as number);
                 }}
               />
-              {infoTab === 0 && <Body>{vaultMetadata?.vaultDescription}</Body>}
+              {infoTab === 0 && (
+                <RichText htmlInput={vaultMetadata?.vaultDescription || ''} />
+              )}
               {infoTab === 1 && <Body>"Asset Info"</Body>}
               {infoTab === 2 && <Body>"Project Info"</Body>}
             </TradeSummaryBox>
