@@ -1,26 +1,15 @@
-import { Box, styled, Tabs, Tab, Divider, useTheme, Fade } from '@mui/material';
+import { Box, styled, Tabs, Tab, Fade } from '@mui/material';
 import { ScrollableIcon } from '@notional-finance/icons';
-import { H5, Label, LabelValue } from '@notional-finance/mui';
 import { useState, ReactNode, useRef, useEffect } from 'react';
-
-// Types for the component props
-export interface TabItem {
-  label: string;
-  content: ReactNode | string;
-}
 
 interface InfoBoxProps {
   tabs: {
     tabTitle: string;
-    contents: {
-      sectionTitle: string;
-      items: TabItem[];
-    }[];
+    tabContent: ReactNode;
   }[];
 }
 
 const InfoBox = ({ tabs }: InfoBoxProps) => {
-  const theme = useTheme();
   const [selectedTab, setSelectedTab] = useState(0);
   const [isScrollable, setIsScrollable] = useState(false);
   const [isAtBottomOfScroll, setIsAtBottomOfScroll] = useState(false);
@@ -79,39 +68,7 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
       </TabsContainer>
 
       <ContentContainer ref={contentRef}>
-        {tabs[selectedTab]?.contents.map((content, index, array) => (
-          <Box key={index}>
-            <H5 main marginBottom={theme.spacing(1.5)}>
-              {content.sectionTitle}
-            </H5>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              {content.items.map((item) => (
-                <Box
-                  key={item.label}
-                  display="flex"
-                  justifyContent="space-between"
-                  flexDirection="row"
-                >
-                  <Label light>{item.label}</Label>
-                  <Box>
-                    {typeof item.content === 'string' ? (
-                      <LabelValue>{item.content}</LabelValue>
-                    ) : (
-                      item.content
-                    )}
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-            {index !== array.length - 1 && (
-              <Divider
-                sx={{
-                  margin: theme.spacing(3, 0),
-                }}
-              />
-            )}
-          </Box>
-        ))}
+        {tabs[selectedTab]?.tabContent}
       </ContentContainer>
       <Fade in={isScrollable && !isAtBottomOfScroll} timeout={200}>
         <Box
@@ -128,10 +85,12 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
   );
 };
 
+// Left and right padding is handled in child containers to allow
+// for overflow-x to work properly
 const InfoBoxContainer = styled(Box)(
   ({ theme }) => `
   background-color: ${theme.palette.common.white};
-  padding: ${theme.spacing(3)};
+  padding: ${theme.spacing(3, 0)};
   border-radius: ${theme.shape.borderRadius()};
   border: 1px solid ${theme.palette.borders.paper};
   display: flex;
@@ -145,6 +104,8 @@ const TabsContainer = styled(Box)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2)};
   border-bottom: 1px solid ${theme.palette.borders.paper};
+  margin-left: ${theme.spacing(3)};
+  margin-right: ${theme.spacing(3)};
 `
 );
 
@@ -182,11 +143,19 @@ const CustomTab = styled(Tab)(
 `
 );
 
-const ContentContainer = styled(Box)`
+// Overflow-x is used to allow for the background on the table cells
+// to flow into the margins
+const ContentContainer = styled(Box)(
+  ({ theme }) => `
   flex: 1;
-  overflow-y: auto;
   min-height: 0;
-  padding-bottom: ${({ theme }) => theme.spacing(2)};
-`;
+  min-width: 0;
+  padding-bottom: ${theme.spacing(2)};
+  overflow-y: auto;
+  overflow-x: visible;
+  padding-left: ${theme.spacing(3)};
+  padding-right: ${theme.spacing(3)};
+`
+);
 
 export default InfoBox;

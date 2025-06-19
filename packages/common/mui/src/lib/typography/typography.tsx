@@ -9,6 +9,7 @@ export interface CustomTypographyProps extends StylesProps {
   accent?: boolean;
   contrast?: boolean;
   error?: boolean;
+  primary?: boolean;
   main?: boolean;
   light?: boolean;
   href?: string;
@@ -32,6 +33,7 @@ const makeVariant = (
     accent,
     contrast,
     error,
+    primary,
     href,
     main,
     light,
@@ -50,6 +52,7 @@ const makeVariant = (
     if (error) color = theme.palette.error.main;
     if (main) color = theme.palette.typography.main;
     if (light) color = theme.palette.typography.light;
+    if (primary) color = theme.palette.primary.main;
     let marginBottom;
     if (gutter === 'none') marginBottom = theme.spacing(0);
     if (gutter === 'tight') marginBottom = theme.spacing(0.5);

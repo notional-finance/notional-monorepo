@@ -4,7 +4,10 @@ import { GATED_VAULTS } from '@notional-finance/notionable';
 import { PRODUCTS } from '@notional-finance/util';
 import { useWalletCommunities } from './use-wallet';
 import { getVaultType, SingleSidedLP } from '@notional-finance/core-entities';
-import { useCurrentNetworkStore } from './context/use-root-store';
+import {
+  useCurrentNetworkStore,
+  useVaultStore,
+} from './context/use-root-store';
 
 export function useVaultNftCheck() {
   const navigate = useNavigate();
@@ -50,6 +53,13 @@ export function useVaultProperties(vaultAddress?: string) {
   const currentNetworkStore = useCurrentNetworkStore();
   return vaultAddress
     ? currentNetworkStore.getVaultConfig(vaultAddress)
+    : undefined;
+}
+
+export function useVaultMetadata(vaultAddress?: string) {
+  const vaultStore = useVaultStore();
+  return vaultAddress && vaultStore
+    ? vaultStore.getVaultByAddress(vaultAddress)
     : undefined;
 }
 
