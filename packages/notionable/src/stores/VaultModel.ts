@@ -38,57 +38,57 @@
  */
 
 import {
-  // getRoot,
+  getRoot,
   Instance,
   types,
   flow,
-  // getType,
-  // getParent,
+  getType,
+  getParent,
 } from 'mobx-state-tree';
 import {
   NotionalTypes,
-  // TokenDefinitionModel,
+  TokenDefinitionModel,
 } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
-// import { RootStoreInterface } from './root-store';
-// import { TradeModel } from './TradeModel';
+import { RootStoreInterface } from './root-store';
+import { TradeModel } from './TradeModel';
 
-// const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
-//   get(identifier, parent) {
-//     const root = () => getRoot<RootStoreInterface>(parent);
-//     const parentName = getType(parent).name;
+const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
+  get(identifier, parent) {
+    const root = () => getRoot<RootStoreInterface>(parent);
+    const parentName = getType(parent).name;
 
-//     let selectedNetwork: Network | undefined;
+    let selectedNetwork: Network | undefined;
 
-//     switch (parentName) {
-//       case 'TradeModel':
-//         selectedNetwork = parent?.selectedNetwork;
-//         break;
-//       default:
-//         selectedNetwork =
-//           getParent<Instance<typeof TradeModel>>(parent)?.selectedNetwork;
-//     }
+    switch (parentName) {
+      case 'TradeModel':
+        selectedNetwork = parent?.selectedNetwork;
+        break;
+      default:
+        selectedNetwork =
+          getParent<Instance<typeof TradeModel>>(parent)?.selectedNetwork;
+    }
 
-//     if (!selectedNetwork) {
-//       console.error('Parent reference lookup failed for:', {
-//         parentName,
-//         identifier,
-//         parent,
-//       });
-//       throw Error(
-//         `Token Definition parent reference not found for ${parentName}`
-//       );
-//     }
+    if (!selectedNetwork) {
+      console.error('Parent reference lookup failed for:', {
+        parentName,
+        identifier,
+        parent,
+      });
+      throw Error(
+        `Token Definition parent reference not found for ${parentName}`
+      );
+    }
 
-//     const model = root().getNetworkClient(selectedNetwork);
-//     return model.getTokenByID(identifier.toString()) as Instance<
-//       typeof TokenDefinitionModel
-//     >;
-//   },
-//   set(value) {
-//     return value.id;
-//   },
-// });
+    const model = root().getNetworkClient(selectedNetwork);
+    return model.getTokenByID(identifier.toString()) as Instance<
+      typeof TokenDefinitionModel
+    >;
+  },
+  set(value) {
+    return value.id;
+  },
+});
 
 const ProjectModel = types.model('ProjectModel', {
   id: types.identifier,
@@ -100,24 +100,30 @@ const ProjectModel = types.model('ProjectModel', {
 const RewardModel = types.model('RewardModel', {
   id: types.identifier,
   name: types.string,
-  // token: TokenDefinitionReference,
+  token: TokenDefinitionReference,
   isPoints: types.boolean,
   pointMultiplier: types.number,
   issuingProject: types.string, // Changed from reference to simple string
 });
 
-const VaultModel = types.model('VaultModel', {
-  name: types.string,
-  network: NotionalTypes.Network,
-  vaultAddress: types.string,
-  // depositToken: TokenDefinitionReference,
-  vaultFeatures: types.array(types.string),
-  launchedOn: types.Date,
-  strategyType: types.string,
-  vaultDescription: types.string,
-  rewards: types.array(RewardModel),
-  projects: types.array(ProjectModel),
-});
+const VaultModel = types
+  .model('VaultModel', {
+    name: types.string,
+    network: NotionalTypes.Network,
+    vaultAddress: types.string,
+    depositToken: TokenDefinitionReference,
+    vaultFeatures: types.array(types.string),
+    launchedOn: types.Date,
+    strategyType: types.string,
+    vaultDescription: types.string,
+    rewards: types.optional(types.array(RewardModel), []),
+    projects: types.optional(types.array(ProjectModel), []),
+  })
+  .actions((self) => ({
+    setRewards(rewards: Instance<typeof RewardModel>[]) {
+      self.rewards.replace(rewards);
+    },
+  }));
 
 const VaultStore = types.model('VaultStore', {
   vaults: types.optional(types.array(VaultModel), []),
@@ -191,11 +197,12 @@ interface ApiVaultData {
 }
 
 const VaultActions = (self: Instance<typeof VaultStore>) => {
+  // const root = () => getRoot<RootStoreInterface>(self);
+
   const refreshVaultData = flow(function* () {
     try {
       const result = yield fetch('/collections/vaults');
       const apiVaults: ApiVaultData[] = yield result.json();
-      console.log(apiVaults);
 
       // Clear existing vaults
       self.vaults.clear();
@@ -215,18 +222,19 @@ const VaultActions = (self: Instance<typeof VaultStore>) => {
         );
 
         // Create rewards
-        const rewards = fieldData.rewards.map((reward) =>
-          RewardModel.create({
+        const rewards = fieldData.rewards.map((reward) => {
+          return RewardModel.create({
             id: reward.slug,
             name: reward.name,
             isPoints: reward['is-points'],
             pointMultiplier: 1, // Default value since API doesn't provide this
             issuingProject: reward['issuing-project'].slug, // Reference by ID
-            // token: reward['token-address-2'][
-            //   'contract-address'
-            // ] as TokenDefinitionModel,
-          })
-        );
+            token: reward['token-address-2']['contract-address'].toLowerCase(),
+            // token: model.getTokenByID(
+            //   reward['token-address-2']['contract-address'].toLowerCase()
+            // ).id as Instance<typeof TokenDefinitionModel>,
+          });
+        });
 
         // Create the vault
         const vault = VaultModel.create({
@@ -234,6 +242,8 @@ const VaultActions = (self: Instance<typeof VaultStore>) => {
           network: fieldData[
             'vault-address-2'
           ].network.name.toLowerCase() as Network,
+          depositToken:
+            fieldData['deposit-token-2']['contract-address'].toLowerCase(),
           vaultAddress: fieldData['vault-address-2']['contract-address'],
           vaultFeatures: fieldData['vault-features'].map(
             (feature) => feature.name
@@ -241,32 +251,24 @@ const VaultActions = (self: Instance<typeof VaultStore>) => {
           launchedOn: new Date(fieldData['launched-on']),
           strategyType: fieldData['strategy-type-2'].name,
           vaultDescription: fieldData['vault-description'] || '',
-          rewards,
           projects,
         });
 
+        vault.setRewards(rewards);
         self.vaults.push(vault);
       });
-
-      console.log('Vaults created:', self.vaults.length);
     } catch (error) {
       console.error('Error fetching vault data:', error);
     }
   });
 
   const afterAttach = flow(function* () {
-    console.log('inside after attach refresh vault data');
     yield refreshVaultData();
   });
-
-  const afterCreate = () => {
-    console.log('inside after create refresh vault data');
-  };
 
   return {
     refreshVaultData,
     afterAttach,
-    afterCreate,
   };
 };
 
