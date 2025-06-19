@@ -1,6 +1,7 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { fetchWebflowPage, extractWebflowHtml } from './embed';
 import { getAllVaults } from './collections';
+import { ONE_MINUTE_MS } from '@notional-finance/util';
 
 export default class extends WorkerEntrypoint<{
   ASSETS: Fetcher;
@@ -20,8 +21,12 @@ export default class extends WorkerEntrypoint<{
       const cachedVaults = await this.env.VIEW_CACHE_R2.get(
         '/collections/vaults'
       );
-      if (cachedVaults) {
-        console.log('serving cached vaults');
+      const cacheExpiration = Date.now() - 5 * ONE_MINUTE_MS;
+      if (
+        cachedVaults &&
+        // Redo the cache every 5 minutes
+        cachedVaults.uploaded.getTime() > cacheExpiration
+      ) {
         return new Response(cachedVaults.body, {
           headers: { 'Content-Type': 'application/json' },
         });
