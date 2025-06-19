@@ -648,7 +648,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     {
       address:
         registerTokensMap[Network.mainnet]['Pendle-Market-sUSDe-30JUL2025'],
-      PoolClass: 'PendleMarket',
+      PoolClass: 'PendleMarketWithFixedSyToAssetExchangeRate',
       registerTokens: [
         {
           id: registerTokensMap[Network.mainnet][
