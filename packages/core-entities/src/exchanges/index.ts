@@ -20,6 +20,7 @@ import {
   PendleMarketWithFixedSyToAssetExchangeRate,
 } from './Pendle/PendleMarket';
 import { Curve2TokenPoolNG } from './Curve/Curve2TokenPoolNG';
+import { MorphoAdaptiveIRM } from './Morpho/MorphoVariableMarket';
 
 type PoolConstructor = new (
   network: Network,
@@ -47,6 +48,7 @@ const PoolClasses: Record<
   PendleMarketWithFixedSyToAssetExchangeRate:
     PendleMarketWithFixedSyToAssetExchangeRate,
   Curve2TokenPoolNG: Curve2TokenPoolNG,
+  MorphoAdaptiveIRM: MorphoAdaptiveIRM,
 };
 
 export {

@@ -29,6 +29,8 @@ export type { ISingleSidedLPStrategyVault } from "./ISingleSidedLPStrategyVault"
 export type { IStrategyVault } from "./IStrategyVault";
 export type { LeveragedNTokenAdapter } from "./LeveragedNTokenAdapter";
 export type { MetaStable2TokenAuraVault } from "./MetaStable2TokenAuraVault";
+export type { Morpho } from "./Morpho";
+export type { MorphoAdaptiveIRM } from "./MorphoAdaptiveIRM";
 export type { Multicall2 } from "./Multicall2";
 export type { Multicall3 } from "./Multicall3";
 export type { NftContract } from "./NftContract";
@@ -76,6 +78,8 @@ export { ISingleSidedLPStrategyVault__factory } from "./factories/ISingleSidedLP
 export { IStrategyVault__factory } from "./factories/IStrategyVault__factory";
 export { LeveragedNTokenAdapter__factory } from "./factories/LeveragedNTokenAdapter__factory";
 export { MetaStable2TokenAuraVault__factory } from "./factories/MetaStable2TokenAuraVault__factory";
+export { Morpho__factory } from "./factories/Morpho__factory";
+export { MorphoAdaptiveIRM__factory } from "./factories/MorphoAdaptiveIRM__factory";
 export { Multicall2__factory } from "./factories/Multicall2__factory";
 export { Multicall3__factory } from "./factories/Multicall3__factory";
 export { NftContract__factory } from "./factories/NftContract__factory";

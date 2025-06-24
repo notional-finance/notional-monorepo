@@ -42,3 +42,5 @@ export { default as SecondaryRewarderABI } from './SecondaryRewarder.json';
 export { default as NotionalContestPassABI } from './NotionalContestPass.json';
 export { default as PendleMarketABI } from './PendleMarket.json';
 export { default as PendleSYABI } from './PendleSY.json';
+export { default as MorphoAdaptiveIRMABI } from './MorphoAdaptiveIRM.json';
+export { default as MorphoABI } from './Morpho.json';

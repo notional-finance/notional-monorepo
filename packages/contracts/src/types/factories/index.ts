@@ -29,6 +29,8 @@ export { ISingleSidedLPStrategyVault__factory } from "./ISingleSidedLPStrategyVa
 export { IStrategyVault__factory } from "./IStrategyVault__factory";
 export { LeveragedNTokenAdapter__factory } from "./LeveragedNTokenAdapter__factory";
 export { MetaStable2TokenAuraVault__factory } from "./MetaStable2TokenAuraVault__factory";
+export { Morpho__factory } from "./Morpho__factory";
+export { MorphoAdaptiveIRM__factory } from "./MorphoAdaptiveIRM__factory";
 export { Multicall2__factory } from "./Multicall2__factory";
 export { Multicall3__factory } from "./Multicall3__factory";
 export { NftContract__factory } from "./NftContract__factory";
