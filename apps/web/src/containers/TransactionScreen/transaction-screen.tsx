@@ -30,6 +30,7 @@ export const TransactionScreen = observer(
     const trade = useCurrentTradeContext();
     const vaultMetadata = useVaultMetadata(trade?.vaultAddress);
     const isReady = vaultMetadata !== undefined;
+    const apyInfo = trade?.getAPYFactors();
 
     const tabs = useInfoBox();
 
@@ -54,19 +55,7 @@ export const TransactionScreen = observer(
                 }}
               />
             ))}
-            isPointsOnly
-            apyInfo={{
-              totalAPY: 25.4,
-              organicAPY: 10,
-              assetAPY: 10,
-              feeAPY: 10,
-              apySpread: 10,
-              debtAPY: 5.25,
-              pointMultiples: {
-                USDC: 40,
-                ETH: 25,
-              },
-            }}
+            apyInfo={apyInfo}
           />
           <ContentContainer>
             <TopSection>
