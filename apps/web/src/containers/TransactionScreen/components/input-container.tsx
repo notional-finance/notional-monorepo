@@ -51,7 +51,7 @@ const InputContainerWrapper = styled(Box)(
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
-  flex: 2;
+  flex: 1;
   width: 100%;
   min-height: 100%;
   background-color: ${theme.palette.background.paper};

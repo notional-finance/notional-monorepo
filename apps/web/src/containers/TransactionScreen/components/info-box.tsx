@@ -97,6 +97,7 @@ const InfoBoxContainer = styled(Box)(
   flex-direction: column;
   width: 100%;
   flex: 1;
+  overflow: hidden;
 `
 );
 

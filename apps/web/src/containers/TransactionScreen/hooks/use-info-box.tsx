@@ -19,64 +19,79 @@ import {
   SmallTableCell,
   TableColumnHeading,
 } from '@notional-finance/mui';
-import { defineMessage } from 'react-intl';
-import { formatNumber, formatNumberAsPercent } from '@notional-finance/util';
+import { defineMessage, MessageDescriptor } from 'react-intl';
 
-interface LabelValueTabProps {
-  contents: {
-    sectionTitle: string;
-    items: { label: string; content: ReactNode | string }[];
-  }[];
+interface LabelValueSectionProps {
+  sectionTitle?: string;
+  items: { label: string; content: ReactNode | string }[];
 }
 
-const LabelValueTab = ({ contents }: LabelValueTabProps) => {
+const LabelValueSection = ({
+  sectionTitle = '',
+  items,
+}: LabelValueSectionProps) => {
   const theme = useTheme();
 
   return (
     <Box>
-      {contents.map((content, index, array) => (
-        <Box key={content.sectionTitle}>
-          <H5 main marginBottom={theme.spacing(1.5)}>
-            {content.sectionTitle}
-          </H5>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            {content.items.map((item) => (
-              <Box
-                key={item.label}
-                display="flex"
-                justifyContent="space-between"
-                flexDirection="row"
-              >
-                <Label light>{item.label}</Label>
-                <Box>
-                  {typeof item.content === 'string' ? (
-                    <LabelValue>{item.content}</LabelValue>
-                  ) : (
-                    item.content
-                  )}
-                </Box>
-              </Box>
-            ))}
+      <H5 main marginBottom={theme.spacing(1.5)}>
+        {sectionTitle}
+      </H5>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {items.map((item) => (
+          <Box
+            key={item.label}
+            display="flex"
+            justifyContent="space-between"
+            flexDirection="row"
+          >
+            <Label light>{item.label}</Label>
+            <Box>
+              {typeof item.content === 'string' ? (
+                <LabelValue>{item.content}</LabelValue>
+              ) : (
+                item.content
+              )}
+            </Box>
           </Box>
-          {index !== array.length - 1 && (
-            <Divider
-              sx={{
-                margin: theme.spacing(3, 0),
-              }}
-            />
-          )}
-        </Box>
-      ))}
+        ))}
+      </Box>
     </Box>
   );
 };
 
-interface APYBreakdownTabProps {
-  earningsSymbol: string;
+const DividedSections = ({
+  children,
+}: {
+  children: ReactNode | ReactNode[];
+}) => {
+  const theme = useTheme();
+
+  return (
+    <Box>
+      {Array.isArray(children)
+        ? children.map((child, index) => (
+            <Box key={index}>
+              {child}
+              {index !== children.length - 1 && (
+                <Divider sx={{ margin: theme.spacing(3, 0) }} />
+              )}
+            </Box>
+          ))
+        : children}
+    </Box>
+  );
+};
+
+interface TableSectionProps {
+  headings: MessageDescriptor[];
+  highlightLastRow?: boolean;
   contents: {
-    source: string;
-    apy: number;
-    earnings: number;
+    label: string;
+    values: {
+      value: ReactNode;
+      primary?: boolean;
+    }[];
   }[];
 }
 
@@ -85,10 +100,11 @@ const DenseTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: 'none',
 }));
 
-const APYBreakdownTab = ({
-  earningsSymbol,
+const TableSection = ({
+  headings,
+  highlightLastRow,
   contents,
-}: APYBreakdownTabProps) => {
+}: TableSectionProps) => {
   const theme = useTheme();
 
   return (
@@ -103,63 +119,55 @@ const APYBreakdownTab = ({
       <Table size="small" padding="none">
         <TableHead>
           <TableRow>
-            <DenseTableCell align="left">
-              <TableColumnHeading
-                msg={defineMessage({ defaultMessage: 'Source' })}
-              />
-            </DenseTableCell>
-            <DenseTableCell align="right">
-              <TableColumnHeading
-                msg={defineMessage({ defaultMessage: 'APY' })}
-              />
-            </DenseTableCell>
-            <DenseTableCell align="right">
-              <TableColumnHeading
-                msg={defineMessage({ defaultMessage: 'Earnings (1yr)' })}
-              />
-            </DenseTableCell>
+            {headings.map((heading, index) => {
+              return (
+                <DenseTableCell
+                  key={index}
+                  align={index === 0 ? 'left' : 'right'}
+                >
+                  <TableColumnHeading msg={heading} />
+                </DenseTableCell>
+              );
+            })}
           </TableRow>
         </TableHead>
         <TableBody>
           {contents.map((content, index, array) => (
             <TableRow
-              key={content.source}
+              key={content.label}
               sx={{
-                ...(index === array.length - 1 && {
-                  position: 'relative',
-                  zIndex: 1,
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: theme.spacing(-3),
-                    right: theme.spacing(-3),
-                    bottom: 0,
-                    backgroundColor: theme.palette.background.default,
-                    zIndex: -1,
-                  },
-                  '& td:first-of-type': {
-                    position: 'absolute',
-                  },
-                }),
+                ...(highlightLastRow &&
+                  index === array.length - 1 && {
+                    position: 'relative',
+                    zIndex: 1,
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: theme.spacing(-3),
+                      right: theme.spacing(-3),
+                      bottom: 0,
+                      backgroundColor: theme.palette.background.default,
+                      zIndex: -1,
+                    },
+                    '& td:first-of-type': {
+                      position: 'absolute',
+                    },
+                  }),
               }}
             >
               <DenseTableCell align="left">
-                <SmallTableCell>{content.source}</SmallTableCell>
+                <SmallTableCell>{content.label}</SmallTableCell>
               </DenseTableCell>
-              <DenseTableCell align="right">
-                <SmallTableCell main>
-                  {formatNumberAsPercent(content.apy)}
-                </SmallTableCell>
-              </DenseTableCell>
-              <DenseTableCell align="right">
-                <SmallTableCell
-                  primary={content.earnings > 0}
-                  main={content.earnings <= 0}
-                >
-                  {formatNumber(content.earnings, 0)} {earningsSymbol}
-                </SmallTableCell>
-              </DenseTableCell>
+              {content.values.map(({ value, primary }, index) => {
+                return (
+                  <DenseTableCell key={index} align="right">
+                    <SmallTableCell main={!primary || true} primary={primary}>
+                      {value}
+                    </SmallTableCell>
+                  </DenseTableCell>
+                );
+              })}
             </TableRow>
           ))}
         </TableBody>
@@ -173,121 +181,122 @@ export const useInfoBox = () => {
     {
       tabTitle: 'Summary',
       tabContent: (
-        <LabelValueTab
-          contents={[
-            {
-              sectionTitle: 'Summary',
-              items: [
-                {
-                  label: 'Net Worth',
-                  content: '-',
-                },
-                {
-                  label: 'Health Factor',
-                  content: '-',
-                },
-                {
-                  label: 'Leverage Ratio',
-                  content: '-',
-                },
-                {
-                  label: 'Liquidation Price',
-                  content: '-',
-                },
-              ],
-            },
-            {
-              sectionTitle: 'Estimated Earnings (30d)',
-              items: [
-                {
-                  label: 'Assets',
-                  content: '-',
-                },
-                {
-                  label: 'Borrow Interest',
-                  content: '-',
-                },
-                {
-                  label: 'Net Earnings',
-                  content: '-',
-                },
-              ],
-            },
-            {
-              sectionTitle: 'Fees',
-              items: [
-                {
-                  label: 'Trading Costs',
-                  content: '-',
-                },
-              ],
-            },
-          ]}
-        />
+        <DividedSections>
+          <LabelValueSection
+            items={[
+              { label: 'Net Worth', content: '-' },
+              { label: 'Health Factor', content: '-' },
+              {
+                label: 'Leverage Ratio',
+                content: '-',
+              },
+              {
+                label: 'Liquidation Price',
+                content: '-',
+              },
+              {
+                label: 'Fees and Slippage',
+                content: '-',
+              },
+            ]}
+          />
+        </DividedSections>
       ),
     },
     {
       tabTitle: 'APY Breakdown',
       tabContent: (
-        <APYBreakdownTab
-          earningsSymbol="USDC"
-          contents={[
-            { source: 'Vault Shares', apy: 7.25, earnings: 35000 },
-            { source: 'Borrow Interest', apy: -1.25, earnings: -1000 },
-            { source: 'Net Earnings', apy: 6.0, earnings: 34000 },
-          ]}
-        />
+        <DividedSections>
+          <TableSection
+            headings={[
+              defineMessage({ defaultMessage: 'Points' }),
+              defineMessage({ defaultMessage: 'Multiplier' }),
+              defineMessage({ defaultMessage: 'Points/Day' }),
+            ]}
+            contents={[
+              {
+                label: 'EigenLayer',
+                values: [{ value: '40x' }, { value: '100.00' }],
+              },
+              {
+                label: 'ezPoints',
+                values: [{ value: '20x' }, { value: '250.22' }],
+              },
+            ]}
+          />
+          <TableSection
+            highlightLastRow
+            headings={[
+              defineMessage({ defaultMessage: 'Source' }),
+              defineMessage({ defaultMessage: 'APY' }),
+              defineMessage({ defaultMessage: 'Earnings (1yr)' }),
+            ]}
+            contents={[
+              {
+                label: 'Vault Shares',
+                values: [
+                  { value: '7.25%' },
+                  { value: '35,000 USDC', primary: true },
+                ],
+              },
+              {
+                label: 'Borrow Interest',
+                values: [
+                  { value: '-1.25%' },
+                  { value: '-1,000 USDC', primary: false },
+                ],
+              },
+              {
+                label: 'Total APY',
+                values: [
+                  { value: '6.0%' },
+                  { value: '34,000 USDC', primary: true },
+                ],
+              },
+            ]}
+          />
+          <LabelValueSection
+            items={[
+              { label: 'Asset Amount', content: '-' },
+              { label: 'Debt Amount', content: '-' },
+            ]}
+          />
+        </DividedSections>
       ),
     },
     {
       tabTitle: 'Order Details',
       tabContent: (
-        <LabelValueTab
-          contents={[
-            {
-              sectionTitle: '',
-              items: [
-                {
-                  label: 'Amount Deposited',
-                  content: '-',
-                },
-                {
-                  label: 'Amount Borrowed',
-                  content: '-',
-                },
-                {
-                  label: 'Vault Shares Minted',
-                  content: '-',
-                },
-                {
-                  label: 'Vault Share Price',
-                  content: '-',
-                },
-              ],
-            },
-            {
-              sectionTitle: 'Trade: USDC → USDT',
-              items: [
-                {
-                  label: 'Amount Sold',
-                  content: '-',
-                },
-                {
-                  label: 'Amount Bought',
-                  content: '-',
-                },
-                {
-                  label: 'Exchange Rate',
-                  content: '-',
-                },
-                {
-                  label: 'Fees',
-                  content: '-',
-                },
-              ],
-            },
-          ]}
-        />
+        <DividedSections>
+          <LabelValueSection
+            items={[
+              {
+                label: 'Amount Deposited',
+                content: '-',
+              },
+              {
+                label: 'Amount Borrowed',
+                content: '-',
+              },
+              {
+                label: 'Vault Shares Minted',
+                content: '-',
+              },
+              {
+                label: 'Vault Share Price',
+                content: '-',
+              },
+            ]}
+          />
+          <LabelValueSection
+            sectionTitle="Trade: USDC → USDT"
+            items={[
+              { label: 'Amount Sold', content: '-' },
+              { label: 'Amount Bought', content: '-' },
+              { label: 'Exchange Rate', content: '-' },
+            ]}
+          />
+        </DividedSections>
       ),
     },
   ];
