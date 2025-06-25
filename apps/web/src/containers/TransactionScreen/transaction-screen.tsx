@@ -54,6 +54,7 @@ export const TransactionScreen = observer(
                 }}
               />
             ))}
+            isPointsOnly
             apyInfo={{
               totalAPY: 25.4,
               organicAPY: 10,
