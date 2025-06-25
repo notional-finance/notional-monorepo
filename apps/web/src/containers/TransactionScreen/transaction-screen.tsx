@@ -60,6 +60,11 @@ export const TransactionScreen = observer(
               assetAPY: 10,
               feeAPY: 10,
               apySpread: 10,
+              debtAPY: 5.25,
+              pointMultiples: {
+                USDC: 40,
+                ETH: 25,
+              },
             }}
           />
           <ContentContainer>

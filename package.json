@@ -5,6 +5,9 @@
   "scripts": {
     "prepare": "husky install"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.8.4",
