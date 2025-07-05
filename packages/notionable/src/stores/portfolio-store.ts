@@ -1,5 +1,4 @@
 import { getRoot, Instance, types } from 'mobx-state-tree';
-import { PointsStoreModel } from './points-store';
 import { RootStoreInterface } from './root-store';
 import { PRODUCTS, SupportedNetworks } from '@notional-finance/util';
 import { NotionalTypes } from '@notional-finance/core-entities';
@@ -7,7 +6,6 @@ import { NotionalTypes } from '@notional-finance/core-entities';
 export const PortfolioStoreModel = types
   .model('PortfolioStoreModel', {
     network: NotionalTypes.Network,
-    pointsStore: PointsStoreModel,
   })
   .views((self) => {
     const getNetworksForProduct = (

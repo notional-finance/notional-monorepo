@@ -98,10 +98,6 @@ export const createRootStore = (): RootStoreType => {
     vaultStore: {},
     portfolioStore: {
       network: userSettings?.network ? userSettings?.network : Network.mainnet,
-      pointsStore: {
-        arbPoints: [],
-        totalPoints: 0,
-      },
     },
     route: '',
     appStore: {
