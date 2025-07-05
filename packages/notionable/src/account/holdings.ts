@@ -127,7 +127,7 @@ export function calculateHoldings(
         : [];
 
     // Reduces the array above to one entry per incentive token
-    const perIncentiveEarnings = Array.from(
+    const perIncentiveEarnings: TokenBalance[] = Array.from(
       _incentiveEarnings
         .reduce((m, b) => {
           const match = m.get(b.tokenId);

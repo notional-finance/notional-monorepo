@@ -14,14 +14,11 @@ import {
 import {
   AllTradeTypes,
   BaseTradeState,
-  isDeleverageWithSwappedTokens,
-  isLeveragedTrade,
   isNOTEStake,
   isVaultTrade,
   NOTETradeType,
   TokenOption,
   getTradeConfig,
-  isDeleverageTrade,
 } from '../base-trade/base-trade-store';
 import {
   flow,
@@ -102,21 +99,6 @@ export const TradeModel = types
   .model('TradeModel', {
     /** A key into the trade configuration object */
     tradeType: types.enumeration<AllTradeTypes>('TradeType', [
-      'LendVariable',
-      'LendFixed',
-      'MintNToken',
-      'BorrowVariable',
-      'BorrowFixed',
-      'Deposit',
-      'Withdraw',
-      'ConvertAsset',
-      'RepayDebt',
-      'RollDebt',
-      'LeveragedNToken',
-      'LeveragedNTokenAdjustLeverage',
-      'IncreaseLeveragedNToken',
-      'Deleverage',
-      'DeleverageWithdraw',
       'StakeNOTECoolDown',
       'StakeNOTERedeem',
       'StakeNOTE',
@@ -261,16 +243,9 @@ export const TradeModel = types
 
     const getDefaultTokens = (
       availableTokens: TokenDefinition[],
-      category: Category,
       tradeType?: AllTradeTypes
     ) => {
-      if (tradeType === 'LendFixed' && category === 'Collateral') {
-        return availableTokens[0];
-      } else if (tradeType === 'BorrowFixed' && category === 'Debt') {
-        return availableTokens[0];
-      } else if (tradeType === 'LeveragedNToken' && category === 'Debt') {
-        return availableTokens.find((t) => t.tokenType === 'PrimeDebt');
-      } else if (tradeType === 'CreateVaultPosition') {
+      if (tradeType === 'CreateVaultPosition') {
         return availableTokens.find(
           (t) => t.maturity === PRIME_CASH_VAULT_MATURITY
         );
@@ -293,12 +268,13 @@ export const TradeModel = types
       if (availableTokens.length === 1) {
         return availableTokens[0];
       } else if (selectedToken === undefined) {
-        return getDefaultTokens(availableTokens, category, tradeType);
+        return getDefaultTokens(availableTokens, tradeType);
       } else {
         return availableTokens.find((t) => t.id === selectedToken);
       }
     };
 
+    // TODO: this comes directly from the vault config
     const setAvailableDepositTokens = () => {
       // Skip this for NOTE staking
       if (isNOTEStake(self.tradeType)) return;
@@ -334,6 +310,7 @@ export const TradeModel = types
       ) as Instance<typeof TokenDefinitionModel> | undefined;
     };
 
+    // TODO: this should just be 1-1 for each vault
     const setAvailableCollateralTokens = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
       const account = root().getAccountDefinition(self.selectedNetwork);
@@ -382,6 +359,8 @@ export const TradeModel = types
       ) as Instance<typeof TokenDefinitionModel> | undefined;
     };
 
+    // TODO: this needs to include all potential lending markets that the vault
+    // is available on
     const setAvailableDebtTokens = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
       const account = root().getAccountDefinition(self.selectedNetwork);
@@ -433,32 +412,7 @@ export const TradeModel = types
     const setInitialComputedOptions = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
 
-      if (self.tradeType === 'LendFixed') {
-        self.collateralOptions.replace(
-          self.availableCollateralTokens.map((t) => {
-            return {
-              token: t,
-              balance: TokenBalance.zero(t as TokenDefinition),
-              interestRate: model.getSpotAPY(t.id).totalAPY,
-              error: undefined,
-              utilization: undefined,
-            };
-          })
-        );
-      } else if (self.tradeType === 'BorrowFixed') {
-        self.debtOptions.replace(
-          self.availableDebtTokens.map((t) => ({
-            token: t,
-            balance: TokenBalance.zero(t as TokenDefinition),
-            interestRate: model.getSpotAPY(t.id).totalAPY,
-            error: undefined,
-            utilization: undefined,
-          }))
-        );
-      } else if (
-        self.tradeType === 'LeveragedNToken' ||
-        self.tradeType === 'CreateVaultPosition'
-      ) {
+      if (self.tradeType === 'CreateVaultPosition') {
         self.debtOptions.replace(
           self.availableDebtTokens
             .map((t) => ({
@@ -482,11 +436,6 @@ export const TradeModel = types
           })
         );
       } else if (isNOTEStake(self.tradeType)) {
-        calculate();
-      } else if (
-        self.tradeType === 'ConvertAsset' ||
-        self.tradeType === 'RollDebt'
-      ) {
         calculate();
       }
     };
@@ -514,71 +463,6 @@ export const TradeModel = types
           RATE_PRECISION / config.maxDeleverageCollateralRatioBasisPoints;
         self.maxLeverageRatio =
           RATE_PRECISION / config.minCollateralRatioBasisPoints;
-      }
-
-      // Set selected portfolio token
-      if (self.selectedToken) {
-        let selected: Instance<typeof TokenDefinitionModel>;
-        try {
-          selected = model.getTokenByID(self.selectedToken) as Instance<
-            typeof TokenDefinitionModel
-          >;
-        } catch (e) {
-          selected = model.getTokenBySymbol(self.selectedToken) as Instance<
-            typeof TokenDefinitionModel
-          >;
-        }
-        if (self.tradeType === 'Deposit') {
-          self.deposit = model.getTokenBySymbol(self.selectedToken) as Instance<
-            typeof TokenDefinitionModel
-          >;
-          self.collateral = model.getPrimeCash(selected.currencyId) as Instance<
-            typeof TokenDefinitionModel
-          >;
-        } else if (self.tradeType === 'RepayDebt') {
-          self.collateral =
-            selected.tokenType === 'PrimeDebt'
-              ? (model.getPrimeCash(selected.currencyId) as Instance<
-                  typeof TokenDefinitionModel
-                >)
-              : selected;
-        } else if (self.tradeType === 'Withdraw') {
-          self.debt =
-            selected.tokenType === 'PrimeCash'
-              ? (model.getPrimeDebt(selected.currencyId) as Instance<
-                  typeof TokenDefinitionModel
-                >)
-              : selected;
-        } else if (self.tradeType === 'RollVaultPosition') {
-          self.debt = selected;
-        } else if (self.tradeType === 'ConvertAsset') {
-          const account = root().getNetworkAccount(self.selectedNetwork);
-          const priorBalances = account?.portfolioRiskProfile?.balances;
-          const debtBalance = priorBalances?.find(
-            (t) => t.tokenId === self.selectedToken
-          );
-          self.debt =
-            selected.tokenType === 'PrimeCash'
-              ? (model.getPrimeDebt(selected.currencyId) as Instance<
-                  typeof TokenDefinitionModel
-                >)
-              : selected;
-          self.debtBalance = debtBalance?.toPrimeDebt().neg();
-        } else if (self.tradeType === 'RollDebt') {
-          const account = root().getNetworkAccount(self.selectedNetwork);
-          const priorBalances = account?.portfolioRiskProfile?.balances;
-          const primeCash = model.getPrimeCash(selected.currencyId);
-
-          const collateralBalance = priorBalances?.find(
-            (t) =>
-              t.tokenId ===
-              (selected.tokenType === 'PrimeDebt' ? primeCash.id : selected.id)
-          );
-          self.collateral = collateralBalance?.token as Instance<
-            typeof TokenDefinitionModel
-          >;
-          self.collateralBalance = collateralBalance;
-        }
       }
 
       if (isNOTEStake(self.tradeType)) {
@@ -616,38 +500,9 @@ export const TradeModel = types
       setAvailableCollateralTokens();
       setAvailableDebtTokens();
 
-      if (
-        isDeleverageWithSwappedTokens({
-          tradeType: self.tradeType,
-          collateral: self.collateral as TokenDefinition | undefined,
-        })
-      ) {
-        const l = root()
-          .getNetworkClient(self.selectedNetwork)
-          .getLeverageRatios(
-            // Swap the collateral and debt in this case
-            self.debt as TokenDefinition,
-            self.collateral as TokenDefinition
-          );
-        self.defaultLeverageRatio = l.defaultLeverageRatio;
-        self.minLeverageRatio = l.minLeverageRatio;
-        self.maxLeverageRatio = l.maxLeverageRatio;
-      } else if (
-        // In vault situations, the leverage ratios are set above
-        self.collateral?.tokenType === 'nToken' &&
-        isLeveragedTrade(self.tradeType)
-      ) {
-        const l = root()
-          .getNetworkClient(self.selectedNetwork)
-          .getLeverageRatios(
-            self.collateral as TokenDefinition,
-            self.debt as TokenDefinition
-          );
-        self.defaultLeverageRatio = l.defaultLeverageRatio;
-        self.minLeverageRatio = l.minLeverageRatio;
-        self.maxLeverageRatio = l.maxLeverageRatio;
-      }
-
+      // NOTE: everything above here is just setting the initial state including leverage
+      // ratios and the available tokens
+      // This sets the initial borrow apy for the debt options
       setInitialComputedOptions();
 
       self.redeemToWETH =
@@ -679,6 +534,7 @@ export const TradeModel = types
             .getNetworkClient(self.selectedNetwork)
             .getSNOTEPool();
         } else if (arg === 'collateralPool') {
+          // TODO: can remove this branch
           let currencyId: number | undefined;
           if (self.collateral?.currencyId) {
             currencyId = self.collateral.currencyId;
@@ -707,6 +563,7 @@ export const TradeModel = types
           acc['debtPool'] = currencyId
             ? root()
                 .getNetworkClient(self.selectedNetwork)
+                // TODO: this needs to be updated to use a more generic debt market
                 .getNotionalMarket(currencyId)
             : undefined;
         } else if (arg === 'vaultAdapter' && self.vaultAddress) {
@@ -762,11 +619,7 @@ export const TradeModel = types
           self.calculateError = (e as Error).toString();
           // Clear any calculated inputs that are not required for the trade type
           requiredArgs.forEach((arg) => {
-            if (arg === 'collateral' && self.tradeType !== 'RollDebt') {
-              self.collateralBalance = undefined;
-            } else if (arg === 'debt' && self.tradeType !== 'ConvertAsset') {
-              self.debtBalance = undefined;
-            } else if (arg === 'deposit') {
+            if (arg === 'deposit') {
               self.depositBalance = undefined;
             }
           });
@@ -916,7 +769,8 @@ export const TradeModel = types
 
       const config = getTradeConfig(self.tradeType);
       const accountBalances = self.vaultAddress
-        ? account.balances.filter(
+        ? // TODO: debt tokens need to be linked to the vault address here
+          account.balances.filter(
             (b) => b.token.vaultAddress === self.vaultAddress
           )
         : // Using the risk profile here ensures that we use settled balances
@@ -1053,49 +907,6 @@ export const TradeModel = types
       calculate();
     };
 
-    const setNTokenAdjustedLeverage = (leverageRatio: number) => {
-      if (!isAlive(self)) return;
-      if (!isFinite(leverageRatio)) return;
-      const account = root().getNetworkAccount(self.selectedNetwork);
-      const groupedHoldings = account?.groupedHoldings;
-      const nTokenPositions = groupedHoldings?.filter(
-        ({ asset }) => asset.balance.tokenType === 'nToken'
-      );
-      const currentPosition = nTokenPositions?.find(
-        ({ asset }) =>
-          asset.balance.underlying.symbol === self.selectedDepositToken
-      );
-      if (!currentPosition) return;
-
-      if (leverageRatio >= currentPosition.leverageRatio) {
-        self.isDeleverage = false;
-        self.collateral = currentPosition.asset.balance.token as Instance<
-          typeof TokenDefinitionModel
-        >;
-        self.debt = currentPosition.debt.balance.token as Instance<
-          typeof TokenDefinitionModel
-        >;
-      } else if (leverageRatio < currentPosition.leverageRatio) {
-        self.isDeleverage = true;
-        self.collateral = (
-          currentPosition.debt.balance.tokenType === 'PrimeDebt'
-            ? root()
-                .getNetworkClient(self.selectedNetwork)
-                .getPrimeCash(currentPosition.debt.balance.currencyId)
-            : currentPosition.debt.balance.token
-        ) as Instance<typeof TokenDefinitionModel>;
-        self.debt = currentPosition.asset.balance.token as Instance<
-          typeof TokenDefinitionModel
-        >;
-      }
-
-      self.collateralBalance = undefined;
-      self.debtBalance = undefined;
-      self.leverageRatio = leverageRatio;
-
-      calculate();
-    };
-
     const setMaxWithdraw = (
       depositBalance: TokenBalance,
       collateralBalance: TokenBalance | undefined,
@@ -1140,22 +951,6 @@ export const TradeModel = types
       calculate();
     };
 
-    const setInitialConvertAsset = (initialBalance: TokenBalance) => {
-      if (!isAlive(self)) return;
-      if (self.tradeType === 'ConvertAsset') {
-        self.debt = initialBalance.token as Instance<
-          typeof TokenDefinitionModel
-        >;
-        self.debtBalance = initialBalance;
-      } else {
-        self.collateral = initialBalance.token as Instance<
-          typeof TokenDefinitionModel
-        >;
-        self.collateralBalance = initialBalance;
-      }
-      calculate();
-    };
-
     const setCollateralBalance = (
       balance: TokenBalance | undefined,
       maxWithdraw: boolean
@@ -1190,8 +985,6 @@ export const TradeModel = types
       setCollateralBalance,
       setDebtBalance,
       setDebtAndCollateralBalance,
-      setInitialConvertAsset,
-      setNTokenAdjustedLeverage,
       setMaxWithdraw,
       setLeverageRatio,
       setRequiredSideDrawerState,
@@ -1315,13 +1108,6 @@ export const TradeModel = types
         postTrade,
         preTrade,
       };
-    };
-
-    const hasSwappedTokens = () => {
-      return isDeleverageWithSwappedTokens({
-        tradeType: self.tradeType,
-        collateral: self.collateral as TokenDefinition | undefined,
-      });
     };
 
     const getPostTradeIncentives = () => {
@@ -1704,10 +1490,6 @@ export const TradeModel = types
 
     const getLeverageOptions = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
-      const isSwapped = isDeleverageWithSwappedTokens({
-        tradeType: self.tradeType,
-        collateral: self.collateral as TokenDefinition | undefined,
-      });
 
       if (!self.collateralOptions && !self.collateral)
         return {
@@ -1757,13 +1539,7 @@ export const TradeModel = types
       return {
         leverageOptions,
         selectedLeverageOption: leverageOptions.find(
-          (o) =>
-            o.debt.token.id ===
-            (isSwapped
-              ? self.collateral?.tokenType === 'PrimeCash'
-                ? model.getPrimeDebt(self.collateral.currencyId).id
-                : self.collateral?.id
-              : self.debt?.id)
+          (o) => o.debt.token.id === self.debt?.id
         ),
       };
     };
@@ -1772,21 +1548,7 @@ export const TradeModel = types
       const model = root().getNetworkClient(self.selectedNetwork);
 
       try {
-        if (
-          self.tradeType === 'RollDebt' &&
-          self.debtBalance &&
-          self.leverageRatio !== undefined
-        ) {
-          const ntoken = model.getNToken(self.debtBalance.currencyId);
-          const debtAPY = self.debtOptions?.find(
-            (o) => o.token.id === self.debtBalance?.tokenId
-          )?.interestRate;
-          return createLeveragedAPYData(
-            model.getSpotAPY(ntoken.id),
-            debtAPY || 0,
-            self.leverageRatio || 0
-          );
-        } else if (self.tradeType === 'RollVaultPosition' && self.collateral) {
+        if (self.tradeType === 'RollVaultPosition' && self.collateral) {
           const debtAPY = self.debtOptions?.find(
             (o) => o.token.id === self.debtBalance?.tokenId
           )?.interestRate;
@@ -1795,11 +1557,6 @@ export const TradeModel = types
             debtAPY || 0,
             self.leverageRatio || 0
           );
-        } else if (
-          isDeleverageTrade(self.tradeType) ||
-          isLeveragedTrade(self.tradeType)
-        ) {
-          return getLeverageOptions().selectedLeverageOption;
         } else if (self.collateralBalance) {
           return model.getSimulatedAPY(self.collateralBalance);
         } else if (self.debtBalance) {
@@ -1820,12 +1577,7 @@ export const TradeModel = types
     const getNetBalances = () => {
       const account = root().getNetworkAccount(self.selectedNetwork);
       const accountBalances = account?.portfolioRiskProfile?.balances || [];
-      const netChange =
-        self.tradeType === 'RollDebt'
-          ? self.debtBalance
-          : self.tradeType === 'ConvertAsset'
-          ? self.collateralBalance
-          : self.collateralBalance || self.debtBalance;
+      const netChange = self.collateralBalance || self.debtBalance;
       if (!netChange) return undefined;
 
       const zero = netChange.copy(0);
@@ -1898,7 +1650,6 @@ export const TradeModel = types
       getVaultCapacity,
       getPostTradeIncentives,
       canSubmit,
-      hasSwappedTokens,
     };
   });
 
@@ -2060,27 +1811,7 @@ function _getTradedInterestRate(
   let interestRate: number | undefined;
   let utilization: number | undefined;
   const amount = _amount.unwrapVaultToken();
-  if (amount.tokenType === 'fCash' && fCashMarket) {
-    // We net off the fee for fcash so that we show it as an up-front
-    // trading fee rather than part of the implied yield
-    interestRate = fCashMarket.getImpliedInterestRate(realized, amount);
-  } else if (
-    (amount.tokenType === 'PrimeDebt' || amount.tokenType === 'PrimeCash') &&
-    (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken') &&
-    fCashMarket
-  ) {
-    // If borrowing for leverage it is prime supply + prime debt and the interest rate
-    // is always the prime debt rate
-    utilization = fCashMarket.getPrimeCashUtilization(
-      amount.toPrimeCash().neg(),
-      amount.neg()
-    );
-    interestRate = fCashMarket.getPrimeDebtRate(utilization);
-  } else if (amount.tokenType === 'PrimeCash' && fCashMarket) {
-    // Increases or decreases the prime supply accordingly
-    utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
-    interestRate = fCashMarket.getPrimeSupplyRate(utilization);
-  } else if (amount.tokenType === 'PrimeDebt' && fCashMarket) {
+  if (amount.tokenType === 'PrimeDebt' && fCashMarket) {
     // If borrowing and withdrawing then it is just prime debt increase. This
     // includes vault debt
     utilization = fCashMarket.getPrimeCashUtilization(undefined, amount.neg());
@@ -2092,11 +1823,6 @@ function _getTradedInterestRate(
       ).feeRateBasisPoints;
       interestRate += annualizedFeeRate;
     }
-  } else if (amount.tokenType === 'nToken') {
-    return {
-      interestRate: model.getSimulatedAPY(amount)?.totalAPY,
-      utilization: undefined,
-    };
   } else if (
     amount.tokenType === 'VaultShare' &&
     vaultAdapter &&
