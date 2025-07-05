@@ -10,7 +10,6 @@ import {
   calculateDepositCollateralGivenDebtRiskLimit,
   calculateDepositDebtGivenCollateralRiskLimit,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
-  calculateVaultDeposit,
   calculateVaultRoll,
   calculateStake,
   calculateUnstake,
@@ -24,8 +23,6 @@ export {
   simulateRewardClaims,
 } from './simulate';
 export type { SimulationCallTrace } from './simulate';
-export { parseTransactionLogs, parseTransactionType } from './parser';
-export type { Transaction, Bundle, Transfer, ParsedLogs } from './parser';
 export type { PopulateTransactionInputs } from './builders/common';
 
 export type CalculationFn =
@@ -38,7 +35,6 @@ export type CalculationFn =
   | typeof calculateDepositCollateralGivenDebtRiskLimit
   | typeof calculateDepositDebtGivenCollateralRiskLimit
   | typeof calculateVaultDebtCollateralGivenDepositRiskLimit
-  | typeof calculateVaultDeposit
   | typeof calculateVaultRoll
   | typeof calculateStake
   | typeof calculateUnstake
@@ -58,7 +54,6 @@ export type CalculationFnParams =
   | ParamKeys<typeof calculateDepositCollateralGivenDebtRiskLimit>
   | ParamKeys<typeof calculateDepositDebtGivenCollateralRiskLimit>
   | ParamKeys<typeof calculateVaultDebtCollateralGivenDepositRiskLimit>
-  | ParamKeys<typeof calculateVaultDeposit>
   | ParamKeys<typeof calculateVaultRoll>
   | ParamKeys<typeof calculateStake>
   | ParamKeys<typeof calculateUnstake>;

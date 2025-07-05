@@ -680,6 +680,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
 /**
  * Calculates vault debt and collateral given a risk limit
  */
+// TODO: this is used for everything else
 export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   collateral,
   debt,
@@ -801,6 +802,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   };
 }
 
+// TODO: this is used for migration
 export function calculateVaultRoll({
   debt,
   debtPool,
@@ -829,6 +831,7 @@ export function calculateVaultRoll({
   if (!currentDebt) throw Error('Vault Debt not defined');
   const model = getNetworkModel(debt.network);
 
+  // TODO: this needs to be updated to use a more generic debt market
   // eslint-disable-next-line prefer-const
   let { localPrime: costToRepay, fees: currentDebtFee } = exchangeToLocalPrime(
     currentDebt.unwrapVaultToken().neg(),
@@ -902,28 +905,7 @@ export function calculateVaultRoll({
   throw Error('Unknown debt token');
 }
 
-export function calculateVaultDeposit({
-  collateral,
-  vaultAdapter,
-  depositBalance,
-}: {
-  collateral: TokenDefinition;
-  vaultAdapter: VaultAdapter;
-  depositBalance: TokenBalance;
-}): ReturnType<typeof calculateCollateral> {
-  const { netVaultSharesForUnderlying, feesPaid } =
-    vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral);
-
-  return {
-    collateralBalance: netVaultSharesForUnderlying,
-    debtFee: depositBalance.toPrimeCash().copy(0),
-    collateralFee: feesPaid,
-    netRealizedCollateralBalance: depositBalance,
-    netRealizedDebtBalance: depositBalance.copy(0),
-  };
-}
-
-export function calculateVaultCollateral({
+function calculateVaultCollateral({
   collateral,
   vaultAdapter,
   debtPool,
@@ -938,6 +920,7 @@ export function calculateVaultCollateral({
 }): ReturnType<typeof calculateCollateral> & { vaultTradeMetadata?: unknown } {
   if (debtBalance.tokenType !== 'VaultDebt') throw Error('Invalid inputs');
 
+  // TODO: this needs to be updated to use a more generic debt market
   const { localPrime: localDebtPrime, fees: debtFee } = exchangeToLocalPrime(
     debtBalance.unwrapVaultToken(),
     debtPool,
