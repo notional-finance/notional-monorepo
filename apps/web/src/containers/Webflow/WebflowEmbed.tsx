@@ -77,7 +77,7 @@ const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
       {error ? (
         <div style={{ color: 'red' }}>Error loading content: {error}</div>
       ) : (
-        <div ref={containerRef} id="webflow-embed" className="body" />
+        <div ref={containerRef} id="webflow-embed" />
       )}
     </div>
   );
