@@ -1,14 +1,6 @@
 import { PopulatedTransaction } from 'ethers';
 import { PopulateTransactionInputs } from './builders/common';
 import {
-  calculateCollateral,
-  calculateDebt,
-  calculateDebtCollateralGivenDepositRiskLimit,
-  calculateDeleverage,
-  calculateDeleverageWithdraw,
-  calculateDeposit,
-  calculateDepositCollateralGivenDebtRiskLimit,
-  calculateDepositDebtGivenCollateralRiskLimit,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
   calculateVaultRoll,
   calculateStake,
@@ -26,14 +18,6 @@ export type { SimulationCallTrace } from './simulate';
 export type { PopulateTransactionInputs } from './builders/common';
 
 export type CalculationFn =
-  | typeof calculateCollateral
-  | typeof calculateDebt
-  | typeof calculateDeposit
-  | typeof calculateDeleverage
-  | typeof calculateDeleverageWithdraw
-  | typeof calculateDebtCollateralGivenDepositRiskLimit
-  | typeof calculateDepositCollateralGivenDebtRiskLimit
-  | typeof calculateDepositDebtGivenCollateralRiskLimit
   | typeof calculateVaultDebtCollateralGivenDepositRiskLimit
   | typeof calculateVaultRoll
   | typeof calculateStake
@@ -45,14 +29,6 @@ type ParamKeys<F extends CalculationFn> = Parameters<F> extends (infer U)[]
   : null;
 
 export type CalculationFnParams =
-  | ParamKeys<typeof calculateCollateral>
-  | ParamKeys<typeof calculateDebt>
-  | ParamKeys<typeof calculateDeposit>
-  | ParamKeys<typeof calculateDeleverage>
-  | ParamKeys<typeof calculateDeleverageWithdraw>
-  | ParamKeys<typeof calculateDebtCollateralGivenDepositRiskLimit>
-  | ParamKeys<typeof calculateDepositCollateralGivenDebtRiskLimit>
-  | ParamKeys<typeof calculateDepositDebtGivenCollateralRiskLimit>
   | ParamKeys<typeof calculateVaultDebtCollateralGivenDepositRiskLimit>
   | ParamKeys<typeof calculateVaultRoll>
   | ParamKeys<typeof calculateStake>
