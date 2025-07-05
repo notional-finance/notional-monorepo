@@ -10,7 +10,6 @@ import {
 import { observer } from 'mobx-react-lite';
 import { usePortfolioOverviewTable, useTotalsChart } from './hooks';
 import {
-  ClaimNoteButton,
   PortfolioPageHeader,
   ClaimableIncentives,
   TableActionRow,
@@ -253,7 +252,6 @@ const PortfolioOverview = () => {
     <Box>
       <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.OVERVIEW}>
         <ClaimableIncentives />
-        <ClaimNoteButton />
       </PortfolioPageHeader>
       <Container>
         {barChartData && barConfig && (

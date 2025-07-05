@@ -17,7 +17,7 @@ import {
   usePortfolioRiskProfile,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { ClaimNoteButton, PortfolioPageHeader } from '../../components';
+import { PortfolioPageHeader } from '../../components';
 import { PORTFOLIO_CATEGORIES, TRACKING_EVENTS } from '@notional-finance/util';
 import { useLiquidationRisk } from '../portfolio-holdings/use-liquidation-risk';
 import { formatNumberAsPercent, trackEvent } from '@notional-finance/helpers';
@@ -47,9 +47,7 @@ const PortfolioRiskDesktop = () => {
 
   return (
     <Box>
-      <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.RISK}>
-        <ClaimNoteButton />
-      </PortfolioPageHeader>
+      <PortfolioPageHeader category={PORTFOLIO_CATEGORIES.RISK} />
       <Container>
         <Card>
           <Box
