@@ -34,8 +34,7 @@ export function useLiquidationChart(
   const liquidationPrice =
     useTradeLiquidationPrice() || currentLiquidationPrice;
   const deposit = _deposit || liquidationPrice?.underlying;
-  const collateral =
-    collateralToken || (trade?.hasSwappedTokens() ? _debt : _collateral);
+  const collateral = collateralToken || _collateral;
 
   const areaChartData = useAssetPriceHistory(collateral).map(
     ({ timestamp, assetPrice }) => ({

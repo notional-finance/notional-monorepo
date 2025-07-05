@@ -1,11 +1,9 @@
 import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { useTokenApproval } from './use-token-approval';
-import { useEnablePrimeBorrow } from './use-enable-prime-borrow';
 import { TokenBalance } from '@notional-finance/core-entities';
 
 export const useTransactionApprovals = (
-  requiredApprovalAmount?: TokenBalance,
-  variableBorrowRequired?: boolean
+  requiredApprovalAmount?: TokenBalance
 ) => {
   const trade = useCurrentTradeContext();
   const deposit = trade?.selectedTokens?.deposit;
@@ -25,12 +23,6 @@ export const useTransactionApprovals = (
     enableToken: secondaryEnableToken,
     tokenApprovalTxnStatus: secondaryTokenApprovalTxnStatus,
   } = useTokenApproval(secondaryDepositBalance?.symbol || '', selectedNetwork);
-
-  const { isPrimeBorrowAllowed, enablePrimeBorrow, variableBorrowTxnStatus } =
-    useEnablePrimeBorrow(selectedNetwork);
-
-  const variableBorrowApprovalRequired =
-    !isPrimeBorrowAllowed && variableBorrowRequired;
 
   const approvalRequired =
     requiredApprovalAmount ||
@@ -67,18 +59,14 @@ export const useTransactionApprovals = (
 
   return {
     enableToken,
-    enablePrimeBorrow,
     secondaryEnableToken,
     tokenApprovalTxnStatus,
     secondaryTokenApprovalTxnStatus,
-    variableBorrowTxnStatus,
     tokenApprovalRequired,
     secondaryTokenApprovalRequired,
-    variableBorrowApprovalRequired,
     allowanceIncreaseRequired,
     showApprovals:
       tokenApprovalRequired ||
-      variableBorrowApprovalRequired ||
       allowanceIncreaseRequired ||
       secondaryTokenApprovalRequired,
   };

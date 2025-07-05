@@ -12,27 +12,21 @@ export interface TransactionApprovalsProps {
   onCancel?: () => void;
   allowanceIncreaseRequired?: boolean;
   secondaryTokenApprovalRequired?: boolean;
-  variableBorrowApprovalRequired?: boolean;
   tokenApprovalRequired?: boolean;
   tokenApprovalTxnStatus?: TransactionStatus;
   secondaryTokenApprovalTxnStatus?: TransactionStatus;
-  variableBorrowTxnStatus?: TransactionStatus;
   enableToken: (approve: boolean) => Promise<void>;
   secondaryEnableToken: (approve: boolean) => Promise<void>;
-  enablePrimeBorrow: () => void;
 }
 
 export const TransactionApprovals = ({
   onCancel,
   allowanceIncreaseRequired,
   secondaryTokenApprovalRequired,
-  variableBorrowApprovalRequired,
   tokenApprovalRequired,
   tokenApprovalTxnStatus,
   secondaryTokenApprovalTxnStatus,
-  variableBorrowTxnStatus,
   enableToken,
-  enablePrimeBorrow,
   secondaryEnableToken,
 }: TransactionApprovalsProps) => {
   const theme = useTheme();
@@ -100,20 +94,6 @@ export const TransactionApprovals = ({
           descriptionValues={{
             depositAmount: depositBalance?.toDisplayStringWithSymbol(),
           }}
-        />
-      )}
-      {variableBorrowApprovalRequired && (
-        <ApprovalButton
-          showSymbol={false}
-          pending={
-            variableBorrowTxnStatus !== TransactionStatus.NONE &&
-            variableBorrowTxnStatus !== TransactionStatus.REVERT
-          }
-          symbol={''}
-          callback={enablePrimeBorrow}
-          title={messages.variableBorrow.title}
-          description={messages.variableBorrow.description}
-          buttonText={messages.variableBorrow.buttonText}
         />
       )}
       <Button

@@ -31,7 +31,7 @@ export const useVariableTotals = () => {
   const { baseCurrency } = useAppStore();
   const tradeContext = useCurrentTradeContext();
   const { deposit, debt } = tradeContext?.selectedTokens ?? {};
-  const isBorrow = tradeContext?.tradeType === 'BorrowVariable';
+  const isBorrow = false;
 
   const { data: apyData } = useChartData(debt, ChartType.APY);
   const currentNetworkStore = useCurrentNetworkStore();
