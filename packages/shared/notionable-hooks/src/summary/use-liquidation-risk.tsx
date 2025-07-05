@@ -132,7 +132,7 @@ export function useTradeLiquidationPrice() {
   const trade = useCurrentTradeContext();
   const l = trade?.getTradeLiquidationPrices();
   const collateral = trade?.selectedTokens?.collateral;
-  const priceId = trade?.hasSwappedTokens() ? trade?.debt?.id : collateral?.id;
+  const priceId = collateral?.id;
 
   return priceId
     ? (

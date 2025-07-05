@@ -146,7 +146,6 @@ export function useOrderDetails(): OrderDetails {
   const netRealizedDebtBalance = trade?.netRealizedDebtBalance;
   const netRealizedCollateralBalance = trade?.netRealizedCollateralBalance;
   const depositBalance = trade?.depositBalance;
-  const tradeType = trade?.tradeType;
   const secondaryDepositBalance = trade?.secondaryDepositBalance;
 
   const intl = useIntl();
@@ -192,16 +191,9 @@ export function useOrderDetails(): OrderDetails {
 
   // NOTE: if sign changes occur, they don't get marked here
   if (debtBalance?.isZero() === false && netRealizedDebtBalance) {
-    // Undo withdraw and convert token type here
-    const balance =
-      debtBalance.tokenType === 'PrimeDebt' &&
-      (tradeType === 'ConvertAsset' || tradeType === 'Withdraw')
-        ? debtBalance.toPrimeCash()
-        : debtBalance;
-
     orderDetails.push(
       ...getOrderDetails(
-        balance.unwrapVaultToken(),
+        debtBalance.unwrapVaultToken(),
         netRealizedDebtBalance,
         debtFee?.toUnderlying() || netRealizedDebtBalance.copy(0),
         intl,
