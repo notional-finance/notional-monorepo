@@ -1,12 +1,17 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { TradeActionButton } from '@notional-finance/trade';
+import { ApprovalModal } from './approval-modal';
+import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
 }
 
-const InputContainer = ({ children }: InputContainerProps) => {
+const InputContainer = observer(({ children }: InputContainerProps) => {
   const theme = useTheme();
+  const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
+
   return (
     <InputContainerWrapper>
       <Box
@@ -24,13 +29,17 @@ const InputContainer = ({ children }: InputContainerProps) => {
         <TradeActionButton
           canSubmit={true}
           onSubmit={() => {
-            console.log('submit');
+            setIsApprovalModalOpen(true);
           }}
         />
       </Box>
+      <ApprovalModal
+        isOpen={isApprovalModalOpen}
+        onDismiss={() => setIsApprovalModalOpen(false)}
+      />
     </InputContainerWrapper>
   );
-};
+});
 
 const InputContainerWrapper = styled(Box)(
   ({ theme }) => `

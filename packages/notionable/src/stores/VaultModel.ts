@@ -101,7 +101,7 @@ const ProjectModel = types.model('ProjectModel', {
 const RewardModel = types.model('RewardModel', {
   id: types.identifier,
   name: types.string,
-  token: TokenDefinitionReference,
+  token: types.maybe(TokenDefinitionReference),
   isPoints: types.boolean,
   pointMultiplier: types.number,
   issuingProject: types.string, // Changed from reference to simple string
@@ -224,13 +224,15 @@ const VaultActions = (self: Instance<typeof VaultStore>) => {
 
         // Create rewards
         const rewards = fieldData.rewards.map((reward) => {
+          console.log(reward);
           return RewardModel.create({
             id: reward.slug,
             name: reward.name,
             isPoints: reward['is-points'],
             pointMultiplier: 1, // Default value since API doesn't provide this
-            issuingProject: reward['issuing-project'].slug, // Reference by ID
-            token: reward['token-address-2']['contract-address'].toLowerCase(),
+            issuingProject: reward['issuing-project']?.slug || '', // Reference by ID
+            token:
+              reward['token-address-2']?.['contract-address']?.toLowerCase(),
             // token: model.getTokenByID(
             //   reward['token-address-2']['contract-address'].toLowerCase()
             // ).id as Instance<typeof TokenDefinitionModel>,
