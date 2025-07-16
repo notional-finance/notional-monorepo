@@ -4,13 +4,6 @@ import { Body, Button, LabelValue } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TransactionModal } from './transaction-modal';
 
-// Need the following versions:
-// Pending Approval
-// All Approvals Successful
-// Transaction Pending
-// Transaction Failed
-// Transaction Success
-
 export const MultiApprovalModal = ({
   isOpen = false,
   onDismiss,

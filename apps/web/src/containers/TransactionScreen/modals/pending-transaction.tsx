@@ -19,7 +19,7 @@ export const PendingTransactionModal = observer(
     isOpen: boolean;
     errorMsg?: React.ReactNode;
     onDismiss: () => void;
-    hash: string;
+    hash?: string;
     transactionStatus: TransactionStatus;
     selectedNetwork: Network;
   }) => {
@@ -34,9 +34,14 @@ export const PendingTransactionModal = observer(
         fill={theme.palette.error.main}
       />
     ) : isPending ? (
-      <ProgressIndicator type="notional" width="75" />
+      <Box>
+        <ProgressIndicator type="notional" width="75" />
+      </Box>
     ) : (
-      <CheckmarkIcon sx={{ fontSize: theme.spacing(5) }} />
+      <CheckmarkIcon
+        sx={{ fontSize: theme.spacing(5) }}
+        fill={theme.palette.success.main}
+      />
     );
     return (
       <TransactionModal
@@ -49,7 +54,19 @@ export const PendingTransactionModal = observer(
           ) : isPending ? (
             <FormattedMessage defaultMessage="Transaction Pending" />
           ) : (
-            <FormattedMessage defaultMessage="Transaction Successful" />
+            <FormattedMessage
+              defaultMessage="<a1>Success!</a1> Transaction is confirmed."
+              values={{
+                a1: (msg: React.ReactNode) => (
+                  <Box
+                    component="span"
+                    sx={{ color: theme.palette.success.main }}
+                  >
+                    {msg}
+                  </Box>
+                ),
+              }}
+            />
           )
         }
         description={
@@ -62,11 +79,13 @@ export const PendingTransactionModal = observer(
           )
         }
       >
-        <PendingTransaction
-          hash={hash}
-          transactionStatus={transactionStatus}
-          selectedNetwork={selectedNetwork}
-        />
+        {hash && (
+          <PendingTransaction
+            hash={hash}
+            transactionStatus={transactionStatus}
+            selectedNetwork={selectedNetwork}
+          />
+        )}
       </TransactionModal>
     );
   }

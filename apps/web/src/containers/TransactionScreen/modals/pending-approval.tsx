@@ -1,7 +1,7 @@
 import { CheckmarkIcon } from '@notional-finance/icons';
 import { Button, ProgressIndicator } from '@notional-finance/mui';
 import { TransactionModal } from './transaction-modal';
-import { useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { observer } from 'mobx-react-lite';
 
@@ -18,9 +18,14 @@ export const PendingApprovalModal = observer(
     const theme = useTheme();
 
     const topIcon = isPending ? (
-      <ProgressIndicator type="notional" width="75" />
+      <Box>
+        <ProgressIndicator type="notional" width="75" />
+      </Box>
     ) : (
-      <CheckmarkIcon sx={{ fontSize: theme.spacing(5) }} />
+      <CheckmarkIcon
+        sx={{ fontSize: theme.spacing(5) }}
+        fill={theme.palette.success.main}
+      />
     );
     return (
       <TransactionModal
@@ -42,7 +47,7 @@ export const PendingApprovalModal = observer(
           )
         }
       >
-        <Button disabled={!isPending} sx={{ width: '100%' }} size="large">
+        <Button disabled={isPending} sx={{ width: '100%' }} size="large">
           Submit Transaction
         </Button>
       </TransactionModal>

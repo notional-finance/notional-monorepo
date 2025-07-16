@@ -2,7 +2,8 @@ import { Box, styled, useTheme } from '@mui/material';
 import { TradeActionButton } from '@notional-finance/trade';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { SingleApprovalModal } from '../modals/single-approval';
+import { PendingTransactionModal } from '../modals/pending-transaction';
+import { Network, TransactionStatus } from '@notional-finance/util';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
@@ -33,9 +34,12 @@ const InputContainer = observer(({ children }: InputContainerProps) => {
           }}
         />
       </Box>
-      <SingleApprovalModal
+      <PendingTransactionModal
         isOpen={isApprovalModalOpen}
         onDismiss={() => setIsApprovalModalOpen(false)}
+        hash="0x1234567890"
+        transactionStatus={TransactionStatus.CONFIRMED}
+        selectedNetwork={Network.mainnet}
       />
     </InputContainerWrapper>
   );
