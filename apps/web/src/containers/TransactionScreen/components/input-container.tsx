@@ -1,8 +1,8 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { TradeActionButton } from '@notional-finance/trade';
-import { ApprovalModal } from './approval-modal';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
+import { SingleApprovalModal } from '../modals/single-approval';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
@@ -33,7 +33,7 @@ const InputContainer = observer(({ children }: InputContainerProps) => {
           }}
         />
       </Box>
-      <ApprovalModal
+      <SingleApprovalModal
         isOpen={isApprovalModalOpen}
         onDismiss={() => setIsApprovalModalOpen(false)}
       />
