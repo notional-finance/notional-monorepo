@@ -234,7 +234,8 @@ export async function ExitVault({
         network === Network.arbitrum
           ? {
               // Safe L2 Singleton
-              address: '0x29fcb43b46531bca003ddc8fcb67ffe91900c762',
+              // address: '0x29fcb43b46531bca003ddc8fcb67ffe91900c762',
+              address: '0x3e5c63644e683549055b9be8653de26e0b4cd36e',
               // Fallback Handler Storage Key
               storageKeys: [
                 '0x6c9a6c4a39284e37ed1cf53d337577d14212a4870fb976a4366c693b939918d5',
