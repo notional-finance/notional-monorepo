@@ -457,8 +457,7 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
       numerator /
       (this.poolParams.marketState.totalPt.toFloat() + totalAsset.toFloat());
 
-    if (numerator <= 0 || proportion > 0.96)
-      throw Error('Insufficient liquidity');
+    if (numerator <= 0 || proportion > 1) throw Error('Insufficient liquidity');
 
     const lnProportion = Math.log(proportion / (1 - proportion));
 
