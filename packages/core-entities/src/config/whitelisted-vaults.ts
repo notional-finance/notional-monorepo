@@ -58,6 +58,7 @@ export const PendlePTVaults: Record<Network, string[]> = {
     vaults.mainnet.Pendle_USDe_30JUL2025,
     vaults.mainnet.Pendle_sUSDe_30JUL2025,
     vaults.mainnet.Pendle_USDe_28MAY2025,
+    vaults.mainnet.Pendle_sUSDe_24SEP2025,
   ].map(toLowercase),
   [Network.all]: [],
 };
@@ -86,6 +87,7 @@ export const whitelistedVaults = (
         vaults.mainnet.Pendle_sUSDe_30JUL2025,
         vaults.mainnet.Pendle_USDe_30JUL2025,
         vaults.mainnet.Pendle_USDe_28MAY2025,
+        vaults.mainnet.Pendle_sUSDe_24SEP2025,
       ].map(toLowercase);
     case Network.arbitrum:
       return [
@@ -232,6 +234,19 @@ export const VaultDefaultDexParameters: Record<
       redeemPoolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
     },
     [vaults.mainnet.Pendle_USDe_30JUL2025.toLowerCase()]: {
+      dexId: DexIds.CURVE_V2,
+      depositExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 1, 0]
+      ),
+      depositPoolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
+      redeemExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 0, 1]
+      ),
+      redeemPoolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
+    },
+    [vaults.mainnet.Pendle_sUSDe_24SEP2025.toLowerCase()]: {
       dexId: DexIds.CURVE_V2,
       depositExchangeData: defaultAbiCoder.encode(
         ['address', 'int128', 'int128'],
