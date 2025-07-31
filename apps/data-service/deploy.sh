@@ -18,7 +18,7 @@ fi
 ENV_VARS="DB_USER=postgres,\
 DB_NAME=notional-v3,\
 DB_HOST=/cloudsql/monitoring-agents:us-central1:notional,\
-REGISTRY_URL=https://registry-dev.notional.finance,\
+REGISTRY_URL=https://registry.notional.finance,\
 MERGE_CONFLICTS=false,\
 NX_USE_CROSS_FETCH=true,\
 CLOUDFLARE_ACCOUNT_ID=274f86c6dcfbb77c09e49e86d101c753,\
