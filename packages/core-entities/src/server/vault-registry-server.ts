@@ -19,7 +19,6 @@ import {
 } from '@notional-finance/contracts';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
-import { DeprecatedVaults } from './vault-overrides';
 import {
   CacheSchema,
   fetchFromRegistry,
@@ -87,8 +86,7 @@ const NX_REGISTRY_URL = 'https://registry.notional.finance';
 
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   protected async _refresh(network: Network, blockNumber?: number) {
-    const { AllVaultsDocument, AllVaultsByBlockDocument } =
-      await loadGraphClientDeferred();
+    const { AllVaultsDocument } = await loadGraphClientDeferred();
 
     let vaultConfigurations: {
       vaultAddress: string;
@@ -96,21 +94,12 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
       name: string;
     }[];
     try {
-      const data =
-        blockNumber === undefined
-          ? await fetchGraphPaginate(
-              network,
-              AllVaultsDocument,
-              'vaultConfigurations',
-              this.env.NX_SUBGRAPH_API_KEY
-            )
-          : await fetchGraphPaginate(
-              network,
-              AllVaultsByBlockDocument,
-              'vaultConfigurations',
-              this.env.NX_SUBGRAPH_API_KEY,
-              { blockNumber }
-            );
+      const data = await fetchGraphPaginate(
+        network,
+        AllVaultsDocument,
+        'vaultConfigurations',
+        this.env.NX_SUBGRAPH_API_KEY
+      );
       vaultConfigurations = data['data'].vaultConfigurations;
     } catch (e) {
       const response = await fetchFromRegistry<CacheSchema<VaultMetadata>>(
@@ -129,12 +118,10 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     }
 
     const calls = vaultConfigurations
-      .filter(
-        (v: { vaultAddress: string; name: string }) =>
-          !DeprecatedVaults.includes(v.vaultAddress) &&
-          (whitelistedVaults(network) as string[]).includes(
-            v.vaultAddress as VaultAddress
-          )
+      .filter((v: { vaultAddress: string; name: string }) =>
+        (whitelistedVaults(network) as string[]).includes(
+          v.vaultAddress as VaultAddress
+        )
       )
       .flatMap(
         ({

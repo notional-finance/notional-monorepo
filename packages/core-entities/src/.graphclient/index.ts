@@ -4118,6 +4118,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AllOraclesDocument.graphql'
       },{
+        document: AllOraclesByBlockNumberDocument,
+        get rawSDL() {
+          return printWithCache(AllOraclesByBlockNumberDocument);
+        },
+        location: 'AllOraclesByBlockNumberDocument.graphql'
+      },{
         document: AllTokensDocument,
         get rawSDL() {
           return printWithCache(AllTokensDocument);
@@ -4268,6 +4274,17 @@ export type AllOraclesQueryVariables = Exact<{
 
 
 export type AllOraclesQuery = { oracles: Array<(
+    Pick<Oracle, 'id' | 'lastUpdateBlockNumber' | 'lastUpdateTimestamp' | 'decimals' | 'oracleAddress' | 'oracleType' | 'mustInvert' | 'latestRate'>
+    & { base: Pick<Token, 'id' | 'decimals'>, quote: Pick<Token, 'id' | 'decimals'> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type AllOraclesByBlockNumberQueryVariables = Exact<{
+  skip: Scalars['Int'];
+  blockNumber: Scalars['Int'];
+}>;
+
+
+export type AllOraclesByBlockNumberQuery = { oracles: Array<(
     Pick<Oracle, 'id' | 'lastUpdateBlockNumber' | 'lastUpdateTimestamp' | 'decimals' | 'oracleAddress' | 'oracleType' | 'mustInvert' | 'latestRate'>
     & { base: Pick<Token, 'id' | 'decimals'>, quote: Pick<Token, 'id' | 'decimals'> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
@@ -4513,6 +4530,38 @@ export const AllOraclesDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllOraclesQuery, AllOraclesQueryVariables>;
+export const AllOraclesByBlockNumberDocument = gql`
+    query AllOraclesByBlockNumber($skip: Int!, $blockNumber: Int!) {
+  oracles(
+    where: {matured: false}
+    first: 1000
+    skip: $skip
+    block: {number: $blockNumber}
+  ) {
+    id
+    lastUpdateBlockNumber
+    lastUpdateTimestamp
+    base {
+      id
+      decimals
+    }
+    quote {
+      id
+      decimals
+    }
+    decimals
+    oracleAddress
+    oracleType
+    mustInvert
+    latestRate
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllOraclesByBlockNumberQuery, AllOraclesByBlockNumberQueryVariables>;
 export const AllTokensDocument = gql`
     query AllTokens($skip: Int) {
   tokens(first: 1000, skip: $skip) {
@@ -4713,6 +4762,7 @@ export const NetworkTransactionHistoryDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
@@ -4733,6 +4783,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllOracles(variables: AllOraclesQueryVariables, options?: C): Promise<AllOraclesQuery> {
       return requester<AllOraclesQuery, AllOraclesQueryVariables>(AllOraclesDocument, variables, options) as Promise<AllOraclesQuery>;
+    },
+    AllOraclesByBlockNumber(variables: AllOraclesByBlockNumberQueryVariables, options?: C): Promise<AllOraclesByBlockNumberQuery> {
+      return requester<AllOraclesByBlockNumberQuery, AllOraclesByBlockNumberQueryVariables>(AllOraclesByBlockNumberDocument, variables, options) as Promise<AllOraclesByBlockNumberQuery>;
     },
     AllTokens(variables?: AllTokensQueryVariables, options?: C): Promise<AllTokensQuery> {
       return requester<AllTokensQuery, AllTokensQueryVariables>(AllTokensDocument, variables, options) as Promise<AllTokensQuery>;

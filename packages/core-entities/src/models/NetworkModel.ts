@@ -5,7 +5,6 @@ import {
 } from '@notional-finance/util';
 import { types, flow, getSnapshot, applySnapshot } from 'mobx-state-tree';
 import {
-  ConfigurationModel,
   ExchangeModel,
   NotionalTypes,
   OracleDefinitionModel,
@@ -15,6 +14,7 @@ import {
   TimeSeriesModel,
   ChartType,
   AnalyticsModel,
+  ConfigurationModel,
 } from './ModelTypes';
 import { Env } from '../server';
 import { TokenRegistryServer } from '../server/token-registry-server';

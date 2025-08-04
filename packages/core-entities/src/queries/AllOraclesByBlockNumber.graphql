@@ -1,0 +1,31 @@
+query AllOraclesByBlockNumber($skip: Int!, $blockNumber: Int!) {
+  oracles(
+    where: { matured: false }
+    first: 1000
+    skip: $skip
+    block: { number: $blockNumber }
+  ) {
+    id
+    lastUpdateBlockNumber
+    lastUpdateTimestamp
+    base {
+      id
+      decimals
+    }
+    quote {
+      id
+      decimals
+    }
+    decimals
+    oracleAddress
+    oracleType
+    mustInvert
+    latestRate
+  }
+
+  _meta {
+    block {
+      number
+    }
+  }
+}

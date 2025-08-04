@@ -8,7 +8,6 @@ import {
   SystemAccount,
   TokenInterface,
   TokenType,
-  TransferType,
 } from './.graphclient';
 import { RegisterToken } from './exchanges/default-pools';
 import { PriceChangeModel } from './models/ModelTypes';
@@ -19,10 +18,9 @@ export type {
   SystemAccount,
   TokenInterface,
   TokenType,
-  TransferType,
 } from './.graphclient';
 
-interface TokenDefinitionBase {
+export interface TokenDefinition {
   /** Defines the ERC1155 or ERC721 id of the token, if it exists */
   id: string;
   /** Address of the token */
@@ -46,24 +44,8 @@ interface TokenDefinitionBase {
   /** Defines the maturity of the token, if it exists */
   maturity?: number;
   /** Vault Address */
-  vaultAddress?: string;
-  /** Only true for fCash assets */
-  isFCashDebt?: boolean;
-  /** Currency ID for notional listed tokens */
-  currencyId?: number;
+  vaultAddress?: Lowercase<VaultAddress> | string;
 }
-
-type VaultTokenTypes = 'VaultShare' | 'VaultDebt' | 'VaultCash';
-
-interface TokenDefinitionOthers extends TokenDefinitionBase {
-  tokenType: Exclude<TokenType, VaultTokenTypes>;
-}
-interface TokenDefinitionVault extends TokenDefinitionBase {
-  tokenType: VaultTokenTypes;
-  vaultAddress: Lowercase<VaultAddress>;
-}
-
-export type TokenDefinition = TokenDefinitionOthers | TokenDefinitionVault;
 
 export interface OracleDefinition {
   /** Base Token ID:Quote Token ID:OracleType */
@@ -77,7 +59,6 @@ export interface OracleDefinition {
     | OracleType
     | 'sNOTE'
     | 'VaultShareAPY'
-    | 'nTokenTotalAPY'
     | 'sNOTEToETHExchangeRate'
     | 'sNOTEReinvestmentAPY';
   /** Base ID for the oracle, rate is quoted as 1 unit of this token.  */
@@ -247,28 +228,6 @@ export interface SerializedAccountDefinition {
 export interface Allowance {
   spender: string;
   amount: TokenBalance;
-}
-
-/** A logical grouping of transfers */
-export interface TransferBundle {
-  id: string;
-  startLogIndex: number;
-  endLogIndex: number;
-  transfers: Transfer[];
-}
-
-/** Transfer of a single asset */
-export interface Transfer {
-  id: string;
-  logIndex: number;
-  token: TokenDefinition;
-  transferType: TransferType;
-  from: string;
-  fromSystemAccount: SystemAccount;
-  to: string;
-  toSystemAccount: SystemAccount;
-  value: TokenBalance;
-  valueInUnderlying: TokenBalance;
 }
 
 export interface CacheSchema<T> {
