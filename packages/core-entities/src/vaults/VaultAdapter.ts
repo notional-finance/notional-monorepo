@@ -27,8 +27,6 @@ export abstract class VaultAdapter {
 
   abstract getInitialVaultShareValuation(maturity: number): ExchangeRate;
 
-  abstract convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance;
-
   /**
    * Returns the underlying received when redeeming a negative amount of vault shares
    * @returns netUnderlyingForVaultShares and feesPaid

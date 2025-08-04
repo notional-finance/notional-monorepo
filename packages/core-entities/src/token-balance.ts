@@ -1,8 +1,6 @@
 import {
   ALT_ETH,
-  AssetType,
   convertToGenericfCashId,
-  encodeERC1155Id,
   getNowSeconds,
   containsNonZeroNumber,
   INTERNAL_TOKEN_PRECISION,
@@ -128,12 +126,6 @@ export class TokenBalance {
     );
   }
 
-  get currencyId() {
-    const id = this.token.currencyId;
-    if (!id) throw Error('Currency ID undefined');
-    return id;
-  }
-
   get vaultAddress() {
     const v = this.token.vaultAddress;
     if (!v || v === ZERO_ADDRESS) throw Error('Invalid vault address');
@@ -189,7 +181,7 @@ export class TokenBalance {
 
   get underlying(): TokenDefinition {
     if (this.tokenType == 'Underlying') return this.token;
-    if (this.tokenType == 'NOTE') return this.token;
+    if (this.symbol == 'NOTE') return this.token;
     if (!this.token.underlying)
       throw Error(`No underlying defined for ${this.token.symbol}`);
     return NetworkModelRegistry.getModel(this.network).getTokenByID(
@@ -505,7 +497,7 @@ export class TokenBalance {
   ): TokenBalance {
     const model = NetworkModelRegistry.getModel(this.network);
 
-    if (this.tokenType === 'NOTE' && this.network !== Network.all) {
+    if (this.symbol === 'NOTE' && this.network !== Network.all) {
       // If converting NOTE to any token denomination, first convert to ETH via
       // the all network
       const noteInETH = this.toFiat('ETH');
@@ -524,23 +516,11 @@ export class TokenBalance {
 
     // Fetch the latest exchange rate
     const unwrapped = this.unwrapVaultToken();
-    const id =
-      unwrapped.tokenType === 'fCash' &&
-      unwrapped.hasMatured &&
-      this.isNegative()
-        ? // Rewrite the fCash to a negative fCash id for settlement so that we convert to PrimeDebt
-          encodeERC1155Id(
-            this.currencyId,
-            this.maturity,
-            AssetType.FCASH_ASSET_TYPE,
-            true
-          )
-        : unwrapped.tokenId;
+    const id = unwrapped.tokenId;
 
     const exchangeRate: BigNumber | null = model.getExchangeRateBetweenTokens(
       id,
       token.id,
-      riskAdjustment,
       timestamp
     );
 
@@ -555,44 +535,16 @@ export class TokenBalance {
 
   toUnderlying(atTimestamp?: number) {
     if (this.tokenType === 'Underlying') return this;
-    if (this.tokenType === 'NOTE') return this;
+    if (this.symbol === 'NOTE') return this;
     // Does the exchange rate conversion and decimal scaling
     return this.toToken(this.underlying, undefined, atTimestamp);
-  }
-
-  toPrimeDebt() {
-    if (this.tokenType === 'PrimeDebt') return this;
-    const primeDebt = NetworkModelRegistry.getModel(this.network).getPrimeDebt(
-      this.currencyId
-    );
-
-    // Does the exchange rate conversion and decimal scaling
-    return this.toToken(primeDebt);
-  }
-
-  toPrimeCash() {
-    if (this.tokenType === 'PrimeCash') return this;
-    const primeCash = NetworkModelRegistry.getModel(this.network).getPrimeCash(
-      this.currencyId
-    );
-
-    // Does the exchange rate conversion and decimal scaling
-    return this.toToken(primeCash);
-  }
-
-  /** Applies local currency risk adjustments only */
-  toRiskAdjustedUnderlying() {
-    return this.toToken(
-      this.underlying,
-      this.n.isNegative() ? 'Debt' : 'Asset'
-    );
   }
 
   toFiat(symbol: FiatKeys, atTimestamp?: number) {
     const allNetwork = NetworkModelRegistry.getModel(Network.all);
     const fiatToken = allNetwork.getTokenBySymbol(symbol);
 
-    if (this.tokenType === 'NOTE') {
+    if (this.symbol === 'NOTE') {
       // The NOTE token is a special case which converts directly in the
       // "All" network since the only price oracle that exists is on mainnet
       const note = allNetwork.getTokenBySymbol('NOTE');

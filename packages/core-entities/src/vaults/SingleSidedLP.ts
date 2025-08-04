@@ -3,9 +3,6 @@ import {
   RATE_PRECISION,
   Network,
   getNowSeconds,
-  PRIME_CASH_VAULT_MATURITY,
-  encodeERC1155Id,
-  AssetType,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
@@ -93,16 +90,6 @@ export class SingleSidedLP extends VaultAdapter {
     return this.rewardState?.map((r) => r.rewardToken) || [];
   }
 
-  protected get primeVaultShareId() {
-    return encodeERC1155Id(
-      this.borrowedToken.currencyId as number,
-      PRIME_CASH_VAULT_MATURITY,
-      AssetType.VAULT_SHARE_ASSET_TYPE,
-      false,
-      this.vaultAddress
-    );
-  }
-
   getLiquidationPriceTokens() {
     return this.pool.balances
       .filter(
@@ -157,7 +144,7 @@ export class SingleSidedLP extends VaultAdapter {
   public getRemainingPoolCapacity() {
     if (this.totalPoolSupply) {
       const vaultShare = getNetworkModel(this.network).getTokenByID(
-        this.primeVaultShareId
+        this.vaultAddress
       );
       const maxLPTokens = this.totalPoolSupply.scale(
         this.maxPoolShares,
@@ -228,19 +215,10 @@ export class SingleSidedLP extends VaultAdapter {
     );
   }
 
-  convertToPrimeVaultShares(vaultShares: TokenBalance) {
-    // Prime vault shares convert 1-1
-    return new TokenBalance(
-      vaultShares.n,
-      this.primeVaultShareId,
-      this.network
-    );
-  }
-
   override getVaultTVL() {
     return new TokenBalance(
       this.totalVaultShares,
-      this.primeVaultShareId,
+      this.vaultAddress,
       this.network
     ).toUnderlying();
   }

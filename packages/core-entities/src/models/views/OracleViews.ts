@@ -1,27 +1,17 @@
 import {
-  decodeERC1155Id,
   getNowSeconds,
   Network,
-  PERCENTAGE_BASIS,
   RATE_PRECISION,
   SCALAR_PRECISION,
   SECONDS_IN_YEAR,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
-import { fCashMarket } from '../../exchanges/index';
 import { PRICE_ORACLES } from '../../Definitions';
 import { Instance } from 'mobx-state-tree';
 import { OracleDefinitionModel } from '../ModelTypes';
-import {
-  ExchangeRate,
-  RiskAdjustment,
-  TokenDefinition,
-} from '../../Definitions';
+import { ExchangeRate, TokenDefinition } from '../../Definitions';
 import { BigNumber } from 'ethers';
-import { assertDefined, ConfigurationViews } from './ConfigurationViews';
-import { getPoolInstance_ } from './ExchangeViews';
 import { NetworkModel } from '../NetworkModel';
-import { TokenViews } from './TokenViews';
 
 interface Node {
   oracle: string;
@@ -96,138 +86,6 @@ export function interestToExchangeRate(
 }
 
 export const OracleViews = (self: Instance<typeof NetworkModel>) => {
-  const { getConfig } = ConfigurationViews(self);
-  const { getNToken, getUnderlying } = TokenViews(self);
-
-  const getInterestRiskAdjustment = (
-    oracle: Instance<typeof OracleDefinitionModel>,
-    inverted: boolean,
-    riskAdjusted: RiskAdjustment
-  ) => {
-    if (
-      (oracle.oracleType !== 'fCashOracleRate' &&
-        oracle.oracleType !== 'fCashSpotRate') ||
-      riskAdjusted === 'None'
-    ) {
-      return {
-        interestAdjustment: 0,
-        maxDiscountFactor: SCALAR_PRECISION,
-        oracleRateLimit: undefined,
-      };
-    }
-
-    const token = inverted ? oracle.base : oracle.quote;
-    if (!token.currencyId) throw Error('Invalid quote currency');
-    const config = getConfig(token.currencyId);
-
-    if (riskAdjusted === 'Asset') {
-      return {
-        interestAdjustment: assertDefined(config.fCashHaircutBasisPoints),
-        maxDiscountFactor: BigNumber.from(
-          assertDefined(config.fCashMaxDiscountFactor)
-        ).mul(RATE_PRECISION),
-        oracleRateLimit: BigNumber.from(
-          assertDefined(config.fCashMaxOracleRate)
-        ),
-      };
-    } else {
-      return {
-        interestAdjustment: assertDefined(config.fCashDebtBufferBasisPoints),
-        maxDiscountFactor: SCALAR_PRECISION,
-        oracleRateLimit: BigNumber.from(
-          assertDefined(config.fCashMinOracleRate)
-        ),
-      };
-    }
-  };
-
-  const getExchangeRiskAdjustment = (
-    oracle: Instance<typeof OracleDefinitionModel>,
-    inverted: boolean,
-    riskAdjusted: RiskAdjustment
-  ) => {
-    if (riskAdjusted === 'None') return PERCENTAGE_BASIS;
-    if (oracle.id === 'UNIT_RATE') return PERCENTAGE_BASIS;
-
-    const token = inverted ? oracle.base : oracle.quote;
-    if (!token.currencyId) throw Error('Invalid quote currency');
-    const config = getConfig(token.currencyId);
-
-    if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Debt') {
-      return assertDefined(config.debtBuffer);
-    } else if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Asset') {
-      return assertDefined(config.collateralHaircut);
-    } else if (oracle.oracleType === 'nTokenToUnderlyingExchangeRate') {
-      return assertDefined(config.pvHaircutPercentage);
-    } else {
-      return PERCENTAGE_BASIS;
-    }
-  };
-
-  const convertFCashRateToExchangeRate = (
-    oracle: Instance<typeof OracleDefinitionModel>,
-    inverted: boolean,
-    riskAdjusted: RiskAdjustment,
-    timestamp: number
-  ): ExchangeRate => {
-    // Adjustment is set to identity values if riskAdjusted is set to None.
-    const { interestAdjustment, maxDiscountFactor, oracleRateLimit } =
-      getInterestRiskAdjustment(oracle, inverted, riskAdjusted);
-
-    // The fcash asset is always the quote asset in the oracle
-    const maturity = oracle.quote.maturity;
-    let rate: BigNumber | undefined = oracle.latestRate.rate;
-    if (!rate) throw Error('Rate is not found');
-    if (!maturity) throw Error('Maturity is not found');
-
-    // Apply oracle min or max limits after adjustments
-    if (rate.lt(0)) {
-      // Always floor rates at zero
-      rate = BigNumber.from(0);
-    } else if (oracleRateLimit && riskAdjusted === 'Asset') {
-      const adjustedRate = rate.add(interestAdjustment);
-      rate = adjustedRate.lt(oracleRateLimit) ? oracleRateLimit : adjustedRate;
-    } else if (oracleRateLimit && riskAdjusted === 'Debt') {
-      const adjustedRate = rate.lt(interestAdjustment)
-        ? BigNumber.from(0)
-        : rate.sub(interestAdjustment);
-
-      rate = adjustedRate.gt(oracleRateLimit) ? oracleRateLimit : adjustedRate;
-    }
-
-    const exchangeRate = interestToExchangeRate(
-      inverted ? rate : rate.mul(-1),
-      maturity,
-      timestamp
-    );
-
-    if (exchangeRate.gt(maxDiscountFactor) && riskAdjusted === 'Asset') {
-      return {
-        ...oracle.latestRate,
-        // Scale the discount factor up to 18 decimals
-        rate: maxDiscountFactor,
-      };
-    } else {
-      return { ...oracle.latestRate, rate: exchangeRate };
-    }
-  };
-
-  function getNTokenSpotRate(
-    self: Instance<typeof NetworkModel>,
-    oracle: Instance<typeof OracleDefinitionModel>
-  ) {
-    if (!oracle.base.currencyId) throw Error('currency id not found');
-    const nToken = getNToken(oracle.base.currencyId);
-
-    const fCashMarket = getPoolInstance_<fCashMarket>(self, nToken.address);
-    const totalSupply = fCashMarket.totalSupply;
-    return fCashMarket
-      .getNTokenSpotValue()
-      .toUnderlying()
-      .scale(totalSupply.precision, totalSupply)
-      .scaleTo(oracle.decimals);
-  }
-
   const findPath = (base: string, quote: string) => {
     const adjList = self.oracleGraph.adjList;
     // Will return a unit oracle rate so that risk adjustments still work
@@ -263,7 +121,6 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
 
   const getRatesFromPath = (
     path: string[],
-    riskAdjusted: RiskAdjustment,
     timestamp = getNowSeconds(),
     useHistorical = false
   ): ExchangeRate[] => {
@@ -287,27 +144,6 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
           inverted = n.inverted;
           oracle = n.oracle;
         } else {
-          // When doing historical pricing, if the settlement rate is not found then switch it to
-          // use the fCash oracle rate prior to maturity. The settlement rate will be in the path
-          // post maturity.
-          if (oracleId.endsWith('fCashSettlementRate')) {
-            const [base] = oracleId.split(':');
-            const { maturity, currencyId } = decodeERC1155Id(base);
-            if (timestamp && timestamp < maturity) {
-              const underlying = getUnderlying(currencyId);
-              // FCASH_RATE_SOURCE is from underlying => fCash id, settlement rates are from
-              // fCash id => prime cash
-              oracle = self.oracles.get(
-                `${underlying.id}:${base}:${
-                  // Uses oracle rates historically
-                  useHistorical ? 'fCashOracleRate' : FCASH_RATE_SOURCE
-                }`
-              );
-            }
-
-            // TODO: Inverted is implicitly false here...
-          }
-
           if (!oracle)
             throw Error(
               `Update Subject for ${oracleId} not found at ${timestamp}`
@@ -315,59 +151,29 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
         }
       }
 
-      // fCash rates are interest rates so convert them to exchange rates in SCALAR_PRECISION here
-      if (oracle.id !== 'UNIT_RATE' && oracle.quote.tokenType === 'fCash') {
-        return convertFCashRateToExchangeRate(
-          oracle,
-          inverted,
-          riskAdjusted,
-          timestamp
-        );
-      } else {
-        let rate = BigNumber.from(oracle.latestRate.rate);
+      const rate = BigNumber.from(oracle.latestRate.rate);
 
-        if (
-          oracle.oracleType === 'nTokenToUnderlyingExchangeRate' &&
-          FCASH_RATE_SOURCE === 'fCashSpotRate' &&
-          // Only do this for current interest rates
-          !useHistorical
-        ) {
-          // Replaces the nToken oracle valuation with a spot rate valuation
-          rate = getNTokenSpotRate(self, oracle);
-        }
+      const scaledRate = inverted
+        ? invertRate(scaleTo(rate, oracle.decimals))
+        : scaleTo(rate, oracle.decimals);
 
-        const haircutOrBuffer = getExchangeRiskAdjustment(
-          oracle,
-          inverted,
-          riskAdjusted
-        );
+      const adjusted = {
+        ...oracle.latestRate,
+        rate: scaledRate,
+      };
 
-        const scaledRate = inverted
-          ? invertRate(scaleTo(rate, oracle.decimals))
-          : scaleTo(rate, oracle.decimals);
-
-        const adjusted = {
-          ...oracle.latestRate,
-          rate: inverted
-            ? scaledRate.mul(PERCENTAGE_BASIS).div(haircutOrBuffer)
-            : scaledRate.mul(haircutOrBuffer).div(PERCENTAGE_BASIS),
-        };
-
-        return adjusted;
-      }
+      return adjusted;
     });
   };
 
   const getExchangeRateBetweenTokens = (
     base: string,
     quote: string,
-    riskAdjustment: RiskAdjustment,
     timestamp?: number
   ) => {
     const path = findPath(base, quote);
     const rates = getRatesFromPath(
       path,
-      riskAdjustment,
       timestamp,
       timestamp !== undefined // useHistorical
     );
@@ -378,15 +184,6 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
       (p, er) => (er && p ? p.mul(er.rate).div(SCALAR_PRECISION) : null),
       BigNumber.from(SCALAR_PRECISION) as BigNumber | null
     );
-  };
-
-  const getNTokenOracleRate = (nToken: TokenDefinition) => {
-    const oracle = self.oracles.get(
-      `${nToken.underlying}:${nToken.id}:nTokenToUnderlyingExchangeRate`
-    );
-    if (!oracle || !oracle.latestRate.rate)
-      throw Error('NToken Oracle Rate not found');
-    return oracle.latestRate.rate;
   };
 
   const getInterestAccrualRate = (token: TokenDefinition) => {
@@ -404,7 +201,6 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
 
   return {
     getExchangeRateBetweenTokens,
-    getNTokenOracleRate,
     getInterestAccrualRate,
   };
 };
@@ -415,15 +211,6 @@ export const buildOracleGraph = (
   return Array.from(oracles.values())
     .filter((oracle) => PRICE_ORACLES.includes(oracle.oracleType))
     .reduce((adjList, oracle) => {
-      if (
-        oracle.oracleType === 'fCashOracleRate' ||
-        oracle.oracleType === 'fCashSpotRate'
-      ) {
-        // Suppress historical fcash rates
-        const { maturity } = decodeERC1155Id(oracle.quote.id);
-        if (maturity < getNowSeconds()) return adjList;
-      }
-
       const quoteToBase = adjList[oracle.quote.id] || {};
       quoteToBase[oracle.base.id] = {
         oracle: oracle.id,
