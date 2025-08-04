@@ -1,24 +1,5 @@
 query AllOracles($skip: Int!) {
-  oracles(
-    where: {
-      oracleType_in: [
-        Chainlink
-        fCashOracleRate
-        fCashSettlementRate
-        PrimeCashToUnderlyingExchangeRate
-        PrimeDebtToUnderlyingExchangeRate
-        VaultShareOracleRate
-        nTokenToUnderlyingExchangeRate
-        fCashSpotRate
-        nTokenFeeRate
-        VaultShareInterestAccrued
-        nTokenInterestAccrued
-      ]
-      matured: false
-    }
-    first: 1000
-    skip: $skip
-  ) {
+  oracles(where: { matured: false }, first: 1000, skip: $skip) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp
@@ -28,7 +9,7 @@ query AllOracles($skip: Int!) {
     }
     quote {
       id
-      currencyId
+      decimals
     }
     decimals
     oracleAddress

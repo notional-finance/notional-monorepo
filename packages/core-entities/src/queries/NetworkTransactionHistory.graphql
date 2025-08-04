@@ -1,28 +1,25 @@
 query NetworkTransactionHistory($skip: Int!) {
-  transactions(
-    orderBy: timestamp,
-    orderDirection: desc,
-    skip: $skip,
-    first: 100
+  profitLossLineItems(
+    orderBy: timestamp
+    orderDirection: desc
+    skip: $skip
+    first: 1000
   ) {
     timestamp
     blockNumber
-    transactionHash 
-    profitLossLineItems(where: { isTransientLineItem: false }) {
-      account { id }
-      timestamp
-      blockNumber
-      transactionHash { id }
-      token { id tokenType }
-      underlyingToken { id }
-      tokenAmount
-      bundle { bundleName }
-      underlyingAmountRealized
-      underlyingAmountSpot
-      realizedPrice
-      spotPrice
-      impliedFixedRate
-      isTransientLineItem
+    transactionHash
+    lineItemType
+    token {
+      id
     }
+    underlyingToken {
+      id
+    }
+    tokenAmount
+    underlyingAmountRealized
+    underlyingAmountSpot
+    realizedPrice
+    spotPrice
+    impliedFixedRate
   }
 }

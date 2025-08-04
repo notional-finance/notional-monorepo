@@ -1,0 +1,12 @@
+query AllLendingRouters($skip: Int) {
+  lendingRouters(first: 1000, skip: $skip) {
+    id
+    name
+  }
+
+  _meta {
+    block {
+      number
+    }
+  }
+}

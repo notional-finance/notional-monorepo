@@ -6,13 +6,10 @@ query AllTokens($skip: Int) {
     underlying {
       id
     }
-    currencyId
     name
     symbol
     decimals
     totalSupply
-    hasTransferFee
-    isfCashDebt
     maturity
     vaultAddress
     tokenAddress

@@ -1,0 +1,20 @@
+query AllWithdrawRequestManagers($skip: Int) {
+  withdrawRequestManagers(first: 1000, skip: $skip) {
+    id
+    yieldToken {
+      id
+    }
+    withdrawToken {
+      id
+    }
+    stakingToken {
+      id
+    }
+  }
+
+  _meta {
+    block {
+      number
+    }
+  }
+}
