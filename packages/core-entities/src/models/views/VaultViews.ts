@@ -1,28 +1,20 @@
-import {
-  getNowSeconds,
-  PRIME_CASH_VAULT_MATURITY,
-  RATE_PRECISION,
-  SECONDS_IN_YEAR,
-  VaultAddress,
-} from '@notional-finance/util';
+import { VaultAddress } from '@notional-finance/util';
 import { PendlePT, SingleSidedLP } from '../../vaults';
-import { TokenBalance } from '../../token-balance';
 import {
   getVaultType,
   whitelistedVaults,
 } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
 import { ChartType } from '../ModelTypes';
-import { getSnapshot, Instance } from 'mobx-state-tree';
+import { Instance } from 'mobx-state-tree';
 import { NetworkModel } from '../NetworkModel';
 import { TokenViews } from './TokenViews';
 import { AnalyticsViews } from './AnalyticsViews';
-import { TokenDefinition } from '../../Definitions';
 import { PendlePTVaultParams } from '../../vaults/PendlePT';
 import { SingleSidedLPParams } from '../../vaults/SingleSidedLP';
 
 export const VaultViews = (self: Instance<typeof NetworkModel>) => {
-  const { getTokenByID, getVaultDebt } = TokenViews(self);
+  const { getTokenByID } = TokenViews(self);
   const { getTimeSeries } = AnalyticsViews(self);
 
   const isVaultEnabled = (vaultAddress: string) => {

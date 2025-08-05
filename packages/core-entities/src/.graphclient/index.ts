@@ -4094,6 +4094,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AccountHoldingsHistoricalDocument.graphql'
       },{
+        document: AccountPositionsDocument,
+        get rawSDL() {
+          return printWithCache(AccountPositionsDocument);
+        },
+        location: 'AccountPositionsDocument.graphql'
+      },{
         document: AccountTransactionHistoryDocument,
         get rawSDL() {
           return printWithCache(AccountTransactionHistoryDocument);
@@ -4239,6 +4245,17 @@ export type AccountHoldingsHistoricalQueryVariables = Exact<{
 
 export type AccountHoldingsHistoricalQuery = { account?: Maybe<{ balances?: Maybe<Array<{ token: Pick<Token, 'id'>, current: Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'currentBalance'>>> }>> }> };
 
+export type AccountPositionsQueryVariables = Exact<{
+  account: Scalars['String'];
+  skip?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type AccountPositionsQuery = { balances: Array<(
+    Pick<Balance, 'id'>
+    & { token: Pick<Token, 'id'>, current: Pick<BalanceSnapshot, 'currentBalance'> }
+  )> };
+
 export type AccountTransactionHistoryQueryVariables = Exact<{
   accountId: Scalars['String'];
   skip: Scalars['Int'];
@@ -4251,14 +4268,15 @@ export type AccountTransactionHistoryQuery = { profitLossLineItems: Array<(
   )> };
 
 export type AllAccountsQueryVariables = Exact<{
-  blockNumber: Scalars['Int'];
   skip?: InputMaybe<Scalars['Int']>;
+  startId: Scalars['ID'];
+  endId: Scalars['ID'];
 }>;
 
 
-export type AllAccountsQuery = { balances: Array<(
-    Pick<Balance, 'id'>
-    & { account: Pick<Account, 'id'>, current: Pick<BalanceSnapshot, 'currentBalance'> }
+export type AllAccountsQuery = { accounts: Array<(
+    Pick<Account, 'id'>
+    & { balances?: Maybe<Array<{ token: Pick<Token, 'id'>, current: Pick<BalanceSnapshot, 'currentBalance'> }>> }
   )> };
 
 export type AllLendingRoutersQueryVariables = Exact<{
@@ -4444,6 +4462,23 @@ export const AccountHoldingsHistoricalDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AccountHoldingsHistoricalQuery, AccountHoldingsHistoricalQueryVariables>;
+export const AccountPositionsDocument = gql`
+    query AccountPositions($account: String!, $skip: Int) {
+  balances(
+    where: {account: $account, current_: {currentBalance_not: 0}}
+    first: 1000
+    skip: $skip
+  ) {
+    id
+    token {
+      id
+    }
+    current {
+      currentBalance
+    }
+  }
+}
+    ` as unknown as DocumentNode<AccountPositionsQuery, AccountPositionsQueryVariables>;
 export const AccountTransactionHistoryDocument = gql`
     query AccountTransactionHistory($accountId: String!, $skip: Int!) {
   profitLossLineItems(
@@ -4473,19 +4508,20 @@ export const AccountTransactionHistoryDocument = gql`
 }
     ` as unknown as DocumentNode<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>;
 export const AllAccountsDocument = gql`
-    query AllAccounts($blockNumber: Int!, $skip: Int) {
-  balances(
-    where: {current_: {currentBalance_not: 0}}
-    block: {number: $blockNumber}
+    query AllAccounts($skip: Int, $startId: ID!, $endId: ID!) {
+  accounts(
+    where: {id_gt: $startId, id_lt: $endId, systemAccountType_in: [None]}
     first: 1000
     skip: $skip
   ) {
     id
-    account {
-      id
-    }
-    current {
-      currentBalance
+    balances(where: {current_: {currentBalance_not: 0}}) {
+      token {
+        id
+      }
+      current {
+        currentBalance
+      }
     }
   }
 }
@@ -4763,6 +4799,7 @@ export const NetworkTransactionHistoryDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
@@ -4771,6 +4808,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AccountHoldingsHistorical(variables: AccountHoldingsHistoricalQueryVariables, options?: C): Promise<AccountHoldingsHistoricalQuery> {
       return requester<AccountHoldingsHistoricalQuery, AccountHoldingsHistoricalQueryVariables>(AccountHoldingsHistoricalDocument, variables, options) as Promise<AccountHoldingsHistoricalQuery>;
+    },
+    AccountPositions(variables: AccountPositionsQueryVariables, options?: C): Promise<AccountPositionsQuery> {
+      return requester<AccountPositionsQuery, AccountPositionsQueryVariables>(AccountPositionsDocument, variables, options) as Promise<AccountPositionsQuery>;
     },
     AccountTransactionHistory(variables: AccountTransactionHistoryQueryVariables, options?: C): Promise<AccountTransactionHistoryQuery> {
       return requester<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>(AccountTransactionHistoryDocument, variables, options) as Promise<AccountTransactionHistoryQuery>;

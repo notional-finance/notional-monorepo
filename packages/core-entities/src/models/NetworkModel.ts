@@ -29,10 +29,7 @@ import { TokenViews } from './views/TokenViews';
 import { VaultViews } from './views/VaultViews';
 import { ExchangeViews } from './views/ExchangeViews';
 import { AnalyticsActions, AnalyticsViews } from './views/AnalyticsViews';
-import {
-  ConfigurationViews,
-  registerVaultData,
-} from './views/ConfigurationViews';
+import { ConfigurationViews } from './views/ConfigurationViews';
 import defaultPools from '../exchanges/default-pools';
 import { buildOracleGraph, OracleViews } from './views/OracleViews';
 import { YieldViews } from './views/YieldViews';
@@ -118,8 +115,6 @@ export const NetworkServerModel = NetworkModelWithViews.named(
     self.oracles.replace(oracles);
     self.vaults.replace(vaults);
 
-    // Registers vault tokens and vault oracles
-    registerVaultData(self);
     // Registers default pool tokens for exchanges
     defaultPools[self.network].forEach((pool) =>
       pool.registerTokens.forEach((t) => {

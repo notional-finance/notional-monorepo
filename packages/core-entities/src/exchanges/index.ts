@@ -11,9 +11,6 @@ import Curve2TokenPoolV2 from './Curve/Curve2TokenPoolV2';
 import { ComposableStablePool } from './BalancerV2/composable-stable-pool';
 import { TokenBalance } from '../token-balance';
 import { Network } from '@notional-finance/util';
-import { fCashMarket } from './NotionalV3/fCash-market';
-import { BaseNotionalMarket } from './NotionalV3/BaseNotionalMarket';
-import { pCashMarket } from './NotionalV3/pCash-market';
 import SNOTEWeightedPool from './BalancerV2/snote-weighted-pool';
 import {
   PendleMarket,
@@ -36,7 +33,6 @@ const PoolClasses: Record<
 > = {
   WeightedPool: WeightedPool,
   SNOTEWeightedPool: SNOTEWeightedPool,
-  fCashMarket: fCashMarket,
   ComposableStablePool: ComposableStablePool,
   Curve2TokenPoolV1: Curve2TokenPoolV1,
   Curve2TokenPoolV1_SelfLPToken: Curve2TokenPoolV1_SelfLPToken,
@@ -55,15 +51,12 @@ export {
   WeightedPool,
   BaseLiquidityPool,
   ComposableStablePool,
-  fCashMarket,
   PoolClasses,
   PoolConstructor,
   Curve2TokenPoolV1,
   Curve2TokenPoolV2,
   Curve2TokenPoolV1_SelfLPTokenNoAdmin,
   Curve2TokenPoolV1_SelfLPToken,
-  BaseNotionalMarket,
-  pCashMarket,
   SNOTEWeightedPool,
   PendleMarket,
   Curve2TokenPoolNG,

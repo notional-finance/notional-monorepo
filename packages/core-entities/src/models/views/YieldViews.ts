@@ -81,8 +81,7 @@ export function createLeveragedAPYData(
 export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const { getTokenByID, getDebtTokens, getVaultShares, getVaultDebt } =
     TokenViews(self);
-  const { getVaultAdapter, getVaultConfig, getAllListedVaults } =
-    VaultViews(self);
+  const { getVaultAdapter, getAllListedVaults } = VaultViews(self);
 
   const getTVL = (token: TokenDefinition) => {
     if (token.tokenType === 'VaultShare' && token.vaultAddress) {

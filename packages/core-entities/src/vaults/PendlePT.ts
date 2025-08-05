@@ -100,15 +100,6 @@ export class PendlePT extends VaultAdapter {
     };
   }
 
-  convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance {
-    // Prime vault shares convert 1-1
-    const token = getNetworkModel(vaultShares.network).getVaultShare(
-      vaultShares.vaultAddress,
-      PRIME_CASH_VAULT_MATURITY
-    );
-    return TokenBalance.from(vaultShares.n, token);
-  }
-
   unwrapToSyOutToken(token: TokenBalance) {
     if (token.tokenId === this.tokenInSy) {
       return token;

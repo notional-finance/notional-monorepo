@@ -1,16 +1,17 @@
-query AllAccounts($blockNumber: Int!, $skip: Int) {
-  balances(
-    where: { current_: { currentBalance_not: 0 } }
-    block: { number: $blockNumber }
+query AllAccounts($skip: Int, $startId: ID!, $endId: ID!) {
+  accounts(
+    where: { id_gt: $startId, id_lt: $endId, systemAccountType_in: [None] }
     first: 1000
     skip: $skip
   ) {
     id
-    account {
-      id
-    }
-    current {
-      currentBalance
+    balances(where: { current_: { currentBalance_not: 0 } }) {
+      token {
+        id
+      }
+      current {
+        currentBalance
+      }
     }
   }
 }

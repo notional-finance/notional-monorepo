@@ -111,7 +111,6 @@ export interface BalanceStatement {
   underlying: TokenDefinition;
   currentBalance: TokenBalance;
   adjustedCostBasis: TokenBalance;
-  totalILAndFees: TokenBalance;
   totalProfitAndLoss: TokenBalance;
   totalInterestAccrual: TokenBalance;
   accumulatedCostRealized: TokenBalance;
@@ -123,22 +122,18 @@ export interface BalanceStatement {
 }
 
 export interface AccountHistory {
-  label: string;
-  txnLabel?: string;
+  lineItemType: string;
   timestamp: number;
   blockNumber: number;
   token: TokenDefinition;
   underlying: TokenDefinition;
   tokenAmount: TokenBalance;
-  bundleName: string;
   transactionHash: string;
   underlyingAmountRealized: TokenBalance;
   underlyingAmountSpot: TokenBalance;
   realizedPrice: TokenBalance;
   spotPrice: TokenBalance;
-  vaultName?: string;
   impliedFixedRate?: number;
-  isTransientLineItem: boolean;
   account?: string;
 }
 

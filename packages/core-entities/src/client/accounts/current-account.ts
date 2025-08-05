@@ -1,17 +1,8 @@
-import {
-  ERC20ABI,
-  ISingleSidedLPStrategyVaultABI,
-  NotionalV3,
-  NotionalV3ABI,
-} from '@notional-finance/contracts';
+import { ERC20ABI } from '@notional-finance/contracts';
 import {
   MAX_APPROVAL,
   Network,
-  NotionalAddress,
-  PRIME_CASH_VAULT_MATURITY,
-  SCALAR_PRECISION,
   ZERO_ADDRESS,
-  encodefCashId,
   getNowSeconds,
   sNOTE,
 } from '@notional-finance/util';
@@ -26,9 +17,12 @@ import {
   AccountDefinition,
   AccountIncentiveDebt,
   StakeNoteStatus,
-  TokenDefinition,
 } from '../../Definitions';
-import { fetchUsingMulticall } from '../../server/server-registry';
+import {
+  fetchGraph,
+  fetchUsingMulticall,
+  loadGraphClientDeferred,
+} from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
 import { getNetworkModel } from '../../Models';
 import { getVaultType } from '../../config/whitelisted-vaults';
@@ -39,15 +33,17 @@ export async function fetchCurrentAccount(
   account: string,
   provider: providers.Provider
 ) {
-  const notional = new Contract(
-    NotionalAddress[network],
-    NotionalV3ABI,
-    provider
-  ) as NotionalV3;
   const isContract = (await provider.getCode(account)) !== '0x';
+  const { AccountPositionsDocument } = await loadGraphClientDeferred();
+  const positions = await fetchGraph(
+    network,
+    AccountPositionsDocument,
+    (r) => r.balances,
+    subgraphApiKey,
+    { account }
+  );
 
   const allCalls = getNotionalAccount(network, account, notional)
-    .concat(getSecondaryIncentiveCalls(network, account))
     .concat(getWalletCalls(network, account, notional))
     .concat(getVaultCalls(network, account, notional))
     .concat(getStakedNOTECalls(network, account, provider));
@@ -123,67 +119,6 @@ export async function fetchCurrentAccount(
   );
 }
 
-function getNotionalAccount(
-  network: Network,
-  account: string,
-  notional: NotionalV3
-): AggregateCall[] {
-  const model = getNetworkModel(network);
-  const NOTE = model.getTokenBySymbol('NOTE');
-
-  return [
-    {
-      target: notional,
-      method: 'getAccount',
-      args: [account],
-      key: `${notional.address}.account`,
-      transform: (r: Awaited<ReturnType<NotionalV3['getAccount']>>) => {
-        const accountIncentiveDebt: AccountIncentiveDebt[] = [];
-
-        const accountBalances = r.accountBalances.flatMap((b) => {
-          const balances: TokenBalance[] = [];
-
-          if (b.cashBalance.gt(0)) {
-            const pCash = model.getPrimeCash(b.currencyId);
-            balances.push(TokenBalance.from(b.cashBalance, pCash));
-          } else if (b.cashBalance.lt(0)) {
-            const pCash = model.getPrimeCash(b.currencyId);
-            const pDebt = model.getPrimeDebt(b.currencyId);
-            balances.push(
-              TokenBalance.from(b.cashBalance, pCash).toToken(pDebt)
-            );
-          }
-
-          if (b.nTokenBalance.gt(0)) {
-            const nToken = model.getNToken(b.currencyId);
-            balances.push(TokenBalance.from(b.nTokenBalance, nToken));
-          }
-
-          if (b.currencyId > 0) {
-            accountIncentiveDebt.push({
-              value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
-              currencyId: b.currencyId,
-            });
-          }
-
-          return balances;
-        });
-
-        const portfolioBalances = r.portfolio.map((a) => {
-          const fCashId = encodefCashId(a.currencyId, a.maturity.toNumber());
-          return new TokenBalance(a.notional, fCashId, network);
-        });
-
-        return {
-          balances: accountBalances.concat(portfolioBalances),
-          accountIncentiveDebt,
-          allowPrimeBorrow: r.accountContext.allowPrimeBorrow,
-        };
-      },
-    },
-  ];
-}
-
 function getWalletCalls(
   network: Network,
   account: string,
@@ -253,46 +188,6 @@ function getWalletCalls(
       ];
     }
   });
-}
-
-function getSecondaryIncentiveCalls(
-  network: Network,
-  account: string
-): AggregateCall[] {
-  const model = getNetworkModel(network);
-
-  return model
-    .getAllTokens()
-    .filter(
-      (t) =>
-        t.currencyId !== undefined &&
-        t.tokenType === 'nToken' &&
-        model.getSecondaryRewarder(t)
-    )
-    .flatMap((t) => {
-      const rewarder = model.getSecondaryRewarder(t);
-      const secondary = model.getAnnualizedSecondaryIncentives(t);
-      if (!rewarder || !secondary) return [];
-      const { rewardToken } = secondary;
-      const rewardPrecision = BigNumber.from(10).pow(rewardToken.decimals);
-      return [
-        {
-          stage: 0,
-          target: rewarder,
-          method: 'rewardDebtPerAccount',
-          args: [account],
-          key: `${t.currencyId}.secondaryIncentiveDebt`,
-          transform: (r: BigNumber) => ({
-            // Secondary rewarder always returns this in 18 decimals
-            value: TokenBalance.from(r, rewardToken).scale(
-              rewardPrecision,
-              SCALAR_PRECISION
-            ),
-            currencyId: t.currencyId,
-          }),
-        },
-      ];
-    });
 }
 
 function getStakedNOTECalls(
@@ -409,110 +304,3 @@ function getVaultCalls(
     }
   );
 }
-
-function parseVaultDebtBalance(
-  vaultDebt: TokenDefinition,
-  vaultUnderlying: TokenDefinition,
-  balance: BigNumber,
-  maturity: number
-) {
-  if (maturity === PRIME_CASH_VAULT_MATURITY) {
-    // In in the prime vault maturity, convert from underlying back to prime debt denomination
-    const pDebt = TokenBalance.from(balance, vaultUnderlying)
-      .scaleFromInternal()
-      .toPrimeDebt();
-    return TokenBalance.from(pDebt.n, vaultDebt);
-  }
-
-  return TokenBalance.from(balance, vaultDebt);
-}
-
-// NOTE: this is not used anywhere yet but will be activated when we add support for secondary debt
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-/*
-function getVaultSecondaryDebtCalls(
-  notional: Contract,
-  account: string,
-  vaultAddress: string,
-  network: Network,
-  model: Instance<typeof NetworkModel>
-) {
-  return [
-    {
-      stage: 0,
-      target: notional,
-      method: 'getVaultAccountSecondaryDebt',
-      args: [account, vaultAddress],
-      key: `${vaultAddress}.balance2`,
-      transform: (
-        r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
-      ) => {
-        const maturity = r.maturity.toNumber();
-        if (maturity === 0) return { balances: [] };
-        const {
-          secondaryOneCashID,
-          secondaryOneDebtID,
-          secondaryOneTokenId,
-          secondaryTwoCashID,
-          secondaryTwoDebtID,
-          secondaryTwoTokenId,
-        } = model.getSecondaryVaultIDs(network, vaultAddress, maturity);
-
-        const secondaries: TokenBalance[] = [];
-
-        if (
-          secondaryOneDebtID &&
-          secondaryOneTokenId &&
-          !r.accountSecondaryDebt[0].isZero()
-        ) {
-          secondaries.push(
-            parseVaultDebtBalance(
-              secondaryOneDebtID,
-              secondaryOneTokenId,
-              r.accountSecondaryDebt[0],
-              maturity
-            )
-          );
-        }
-
-        if (
-          secondaryTwoDebtID &&
-          secondaryTwoTokenId &&
-          !r.accountSecondaryDebt[1].isZero()
-        ) {
-          secondaries.push(
-            parseVaultDebtBalance(
-              secondaryTwoDebtID,
-              secondaryTwoTokenId,
-              r.accountSecondaryDebt[1],
-              maturity
-            )
-          );
-        }
-
-        if (secondaryOneCashID && !r.accountSecondaryCashHeld[0].isZero()) {
-          secondaries.push(
-            new TokenBalance(
-              r.accountSecondaryCashHeld[0],
-              secondaryOneCashID,
-              network
-            )
-          );
-        }
-
-        if (secondaryTwoCashID && !r.accountSecondaryCashHeld[1].isZero()) {
-          secondaries.push(
-            new TokenBalance(
-              r.accountSecondaryCashHeld[1],
-              secondaryTwoCashID,
-              network
-            )
-          );
-        }
-
-        return { balances: secondaries };
-      },
-    },
-  ];
-}
-*/

@@ -19,7 +19,7 @@ export const FIAT_NAMES = [
   'NOTE',
 ] as const;
 
-export type FiatKeys = typeof FIAT_NAMES[number];
+export type FiatKeys = (typeof FIAT_NAMES)[number];
 
 export const FiatSymbols: Record<FiatKeys, string> = FIAT_NAMES.filter(
   (k) => k !== 'NOTE'
@@ -85,7 +85,7 @@ export const fiatTokens: [string, TokenDefinition][] = assignTokenDefaults(
       network: Network.all,
       tokenInterface: 'ERC20',
       decimals: 8,
-      tokenType: 'NOTE',
+      tokenType: 'Fiat',
       symbol: 'NOTE',
       name: 'Notional',
       address: '0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5',

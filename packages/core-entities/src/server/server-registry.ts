@@ -34,11 +34,13 @@ export async function loadGraphClientDeferred() {
     ExchangeRateValuesDocument,
     MetaDocument,
     AccountHoldingsHistoricalDocument,
+    AccountPositionsDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
   } = await import('../.graphclient/index');
 
   return {
     execute,
+    AccountPositionsDocument,
     AllAccountsDocument,
     AllTokensDocument,
     AllOraclesDocument,

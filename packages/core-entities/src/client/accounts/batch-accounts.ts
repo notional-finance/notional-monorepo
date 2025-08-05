@@ -12,17 +12,15 @@ import { AllAccountsQuery } from '../../.graphclient';
 
 export async function fetchBatchAccounts(
   network: Network,
-  subgraphApiKey: string,
-  blockNumber?: number
+  subgraphApiKey: string
 ) {
-  const { AllAccountsDocument, AllAccountsByBlockDocument } =
-    await loadGraphClientDeferred();
+  const { AllAccountsDocument } = await loadGraphClientDeferred();
 
   const accountData: AccountDefinition[] = [];
   for (let i = 0; i < ACCOUNT_ID_RANGES.length - 1; i++) {
     const results = await fetchGraphPaginate(
       network,
-      blockNumber ? AllAccountsByBlockDocument : AllAccountsDocument,
+      AllAccountsDocument,
       'accounts',
       subgraphApiKey,
       {
@@ -38,7 +36,6 @@ export async function fetchBatchAccounts(
         accountData.push({
           address: a.id,
           network,
-          systemAccountType: a.systemAccountType,
           balances:
             a.balances?.map((b) =>
               parseGraphBalanceToTokenBalance(
