@@ -1,9 +1,6 @@
 import { VaultAddress } from '@notional-finance/util';
 import { PendlePT, SingleSidedLP } from '../../vaults';
-import {
-  getVaultType,
-  whitelistedVaults,
-} from '../../config/whitelisted-vaults';
+import { whitelistedVaults } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
 import { ChartType } from '../ModelTypes';
 import { Instance } from 'mobx-state-tree';
@@ -24,16 +21,13 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
   const getVaultAdapter = (vaultAddress: string) => {
     const params = self.vaults.get(vaultAddress);
     if (!params) throw Error(`No vault params found: ${vaultAddress}`);
-    const v = self.configuration?.vaultConfigurations.find(
-      (c) => c.id === vaultAddress
+    const v = self.configuration?.vaults.find(
+      (c) => c.vaultAddress === vaultAddress
     );
     if (!v) throw Error(`Configuration not found for ${vaultAddress}`);
-    const primaryToken = getTokenByID(v.primaryBorrowCurrency.id);
-    if (!primaryToken.currencyId)
-      throw Error(`Token not found for ${vaultAddress}`);
-    const vaultType = getVaultType(vaultAddress, self.network);
+    const primaryToken = getTokenByID(v.depositToken.id);
 
-    switch (vaultType) {
+    switch (v.strategyType) {
       case 'SingleSidedLP_AutoReinvest':
       case 'SingleSidedLP_DirectClaim':
       case 'SingleSidedLP_Points':
@@ -53,7 +47,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
           primaryToken
         );
       default:
-        throw Error(`Unknown vault type: ${vaultType}`);
+        throw Error(`Unknown vault type: ${v.strategyType}`);
     }
   };
 
@@ -63,21 +57,13 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     return vault.name;
   };
 
-  const getAllListedVaults = (
-    onlyWhitelisted = true,
-    includeDisabled = false
-  ) => {
-    return (
-      self.configuration?.vaultConfigurations
-        .filter((v) =>
-          onlyWhitelisted
-            ? whitelistedVaults(self.network).includes(
-                v.vaultAddress.toLowerCase() as Lowercase<VaultAddress>
-              )
-            : true
-        )
-        .map((v) => getVaultConfig(v.vaultAddress))
-        .filter((v) => v.enabled || includeDisabled) || []
+  const getAllListedVaults = (onlyWhitelisted = true) => {
+    return self.configuration?.vaults.filter((v) =>
+      onlyWhitelisted
+        ? whitelistedVaults(self.network).includes(
+            v.vaultAddress.toLowerCase() as Lowercase<VaultAddress>
+          )
+        : true
     );
   };
 

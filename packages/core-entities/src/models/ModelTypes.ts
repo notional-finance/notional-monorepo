@@ -156,9 +156,47 @@ const WithdrawRequestManagerModel = types.model('WithdrawRequestManager', {
   stakingToken: types.reference(TokenDefinitionModel),
 });
 
+const ProjectModel = types.model('ProjectModel', {
+  id: types.identifier,
+  name: types.string,
+  description: types.string,
+  logoURL: types.string,
+});
+
+const RewardModel = types.model('RewardModel', {
+  id: types.identifier,
+  name: types.string,
+  token: types.reference(TokenDefinitionModel),
+  isPoints: types.boolean,
+  pointMultiplier: types.number,
+  issuingProject: types.string, // Changed from reference to simple string
+});
+
+export const VaultModel = types.model('VaultModel', {
+  vaultAddress: types.identifier,
+  name: types.string,
+  network: NotionalTypes.Network,
+  vaultFeatures: types.array(types.string),
+  launchedOn: types.Date,
+  strategyType: types.string,
+  vaultDescription: types.string,
+  rewards: types.optional(types.array(RewardModel), []),
+  projects: types.optional(types.array(ProjectModel), []),
+
+  depositToken: types.reference(TokenDefinitionModel),
+  yieldToken: types.reference(TokenDefinitionModel),
+  vaultToken: types.reference(TokenDefinitionModel),
+  feeRate: NotionalTypes.BigNumber,
+  withdrawRequestManagers: types.optional(
+    types.array(types.reference(WithdrawRequestManagerModel)),
+    []
+  ),
+});
+
 export const ConfigurationModel = types.model('Configuration', {
   lendingRouters: types.array(LendingRouterModel),
   withdrawRequestManagers: types.array(WithdrawRequestManagerModel),
+  vaults: types.array(VaultModel),
 });
 
 const PoolDataModel = types

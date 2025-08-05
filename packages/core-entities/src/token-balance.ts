@@ -11,12 +11,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
-import {
-  TokenDefinition,
-  RiskAdjustment,
-  getNetworkModel,
-  NetworkClientModel,
-} from '.';
+import { TokenDefinition, getNetworkModel, NetworkClientModel } from '.';
 import { FiatKeys, FiatSymbols } from './config/fiat-config';
 import { Instance } from 'mobx-state-tree';
 
@@ -490,11 +485,7 @@ export class TokenBalance {
    * @param discount a discount or buffer scaled to a 100, used for haircuts and buffers
    * @returns a new token balance object
    */
-  toToken(
-    token: TokenDefinition,
-    riskAdjustment: RiskAdjustment = 'None',
-    timestamp?: number
-  ): TokenBalance {
+  toToken(token: TokenDefinition, timestamp?: number): TokenBalance {
     const model = NetworkModelRegistry.getModel(this.network);
 
     if (this.symbol === 'NOTE' && this.network !== Network.all) {
@@ -511,7 +502,7 @@ export class TokenBalance {
       );
       return token.id === eth.id
         ? ethInCurrentNetwork
-        : ethInCurrentNetwork.toToken(token, riskAdjustment);
+        : ethInCurrentNetwork.toToken(token);
     }
 
     // Fetch the latest exchange rate
@@ -537,7 +528,7 @@ export class TokenBalance {
     if (this.tokenType === 'Underlying') return this;
     if (this.symbol === 'NOTE') return this;
     // Does the exchange rate conversion and decimal scaling
-    return this.toToken(this.underlying, undefined, atTimestamp);
+    return this.toToken(this.underlying, atTimestamp);
   }
 
   toFiat(symbol: FiatKeys, atTimestamp?: number) {
@@ -549,19 +540,19 @@ export class TokenBalance {
       // "All" network since the only price oracle that exists is on mainnet
       const note = allNetwork.getTokenBySymbol('NOTE');
       const noteInAllNetwork = TokenBalance.from(this.n, note);
-      return noteInAllNetwork.toToken(fiatToken, undefined, atTimestamp);
+      return noteInAllNetwork.toToken(fiatToken, atTimestamp);
     } else {
       // Other tokens convert to ETH first and then go via the "All" network
       // for fiat currency conversions
       const eth = NetworkModelRegistry.getModel(this.network).getTokenBySymbol(
         'ETH'
       );
-      const valueInETH = this.toToken(eth, undefined, atTimestamp);
+      const valueInETH = this.toToken(eth, atTimestamp);
       const ethInAllNetwork = TokenBalance.from(
         valueInETH.n,
         allNetwork.getTokenBySymbol('ETH') as TokenDefinition
       );
-      return ethInAllNetwork.toToken(fiatToken, undefined, atTimestamp);
+      return ethInAllNetwork.toToken(fiatToken, atTimestamp);
     }
   }
 

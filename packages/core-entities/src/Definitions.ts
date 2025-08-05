@@ -1,7 +1,7 @@
 import { Network, TokenAddress, VaultAddress } from '@notional-finance/util';
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumber } from 'ethers';
 import { PoolClasses } from './exchanges';
-import { SerializedTokenBalance, TokenBalance } from './token-balance';
+import { TokenBalance } from './token-balance';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import {
   OracleType,
@@ -137,11 +137,6 @@ export interface AccountHistory {
   account?: string;
 }
 
-export interface AccountIncentiveDebt {
-  value: TokenBalance;
-  currencyId: number;
-}
-
 export interface StakeNoteStatus {
   inCoolDown: boolean;
   inRedeemWindow: boolean;
@@ -163,14 +158,8 @@ export interface AccountDefinition {
   isContract: boolean;
   /** Balances may include external wallet balances */
   balances: TokenBalance[];
-  /** If prime borrows are enabled */
-  allowPrimeBorrow?: boolean;
   /** Stores the last update time for vault positions, used to calculate prime debt fees */
   vaultLastUpdateTime?: Map<string, number>;
-  /** Account incentive debt for nToken incentives */
-  accountIncentiveDebt?: AccountIncentiveDebt[];
-  /** Account incentive debt for nToken incentives */
-  secondaryIncentiveDebt?: AccountIncentiveDebt[];
   /** Current profit and loss on every given balance */
   balanceStatement?: BalanceStatement[];
   /** Any transactions that have included transfers to this account */
@@ -181,42 +170,6 @@ export interface AccountDefinition {
   stakeNOTEStatus?: StakeNoteStatus;
   historicalBalances?: HistoricalBalance[];
   rewardClaims?: Record<string, TokenBalance[]>;
-}
-
-export interface SerializedAccountDefinition {
-  /** Address of the account */
-  address: string;
-  /** Network this account definition is associated with */
-  network: Network;
-  /** Balances may include external wallet balances */
-  balances: SerializedTokenBalance[];
-  /** Current profit and loss on every given balance */
-  balanceStatement: {
-    token: string;
-    underlying: string;
-    currentBalance: SerializedTokenBalance;
-    adjustedCostBasis: SerializedTokenBalance;
-    totalILAndFees: SerializedTokenBalance;
-    totalProfitAndLoss: SerializedTokenBalance;
-    totalInterestAccrual: SerializedTokenBalance;
-    impliedFixedRate?: number;
-  }[];
-
-  /** Any transactions that have included transfers to this account */
-  accountHistory?: {
-    timestamp: number;
-    token: string;
-    underlying: string;
-    tokenAmount: SerializedTokenBalance;
-    bundleName: string;
-    transactionHash: string;
-    underlyingAmountRealized: SerializedTokenBalance;
-    underlyingAmountSpot: SerializedTokenBalance;
-    realizedPrice: SerializedTokenBalance;
-    spotPrice: SerializedTokenBalance;
-    impliedFixedRate?: number;
-    isTransientLineItem: boolean;
-  }[];
 }
 
 /** ERC20 allowances tracked for UI purposes */
@@ -232,7 +185,6 @@ export interface CacheSchema<T> {
   lastUpdateBlock: number;
 }
 
-export type RiskAdjustment = 'None' | 'Asset' | 'Debt';
 export interface YieldData {
   token: TokenDefinition;
   underlying: TokenDefinition;
@@ -301,50 +253,11 @@ export type HistoricalOracles = {
   historicalRates: HistoricalRate[];
 }[];
 
-export type HistoricalTrading = Record<
-  string,
-  {
-    bundleName: string;
-    currencyId: number;
-    fCashId: string;
-    fCashValue: string;
-    pCash: string;
-    pCashInUnderlying: string;
-    timestamp: number;
-    blockNumber: number;
-    transactionHash: string;
-    underlyingTokenBalance?: TokenBalance;
-    interestRate?: string;
-    fCashMaturity?: number;
-  }[]
->;
-
-export type VaultReinvestment = Record<
-  string,
-  {
-    vault: string;
-    blockNumber: number;
-    timestamp: number;
-    transactionHash: string;
-    rewardTokenSold: TokenDefinition;
-    rewardAmountSold: BigNumber;
-    tokensReinvested: TokenBalance;
-    tokensPerVaultShare?: TokenBalance;
-    underlyingAmountRealized?: BigNumberish;
-    vaultSharePrice?: BigNumber;
-  }[]
->;
-// Can change this to fCashOracleRate to use oracle rates
-const FCASH_RATE_SOURCE = 'fCashSpotRate';
-
 export const PRICE_ORACLES = [
   'sNOTE',
   'Chainlink',
-  FCASH_RATE_SOURCE,
-  'fCashSettlementRate',
-  'PrimeCashToUnderlyingExchangeRate',
-  'PrimeDebtToUnderlyingExchangeRate',
   'VaultShareOracleRate',
-  'nTokenToUnderlyingExchangeRate',
+  'BorrowShareOracleRate',
   'sNOTEToETHExchangeRate',
+  'WithdrawTokenExchangeRate',
 ];

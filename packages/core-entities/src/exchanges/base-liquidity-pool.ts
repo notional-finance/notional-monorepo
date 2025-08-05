@@ -72,14 +72,7 @@ export default abstract class BaseLiquidityPool<
     const primaryToken = balances[primaryTokenIndex].token;
     return (
       balances
-        .map((b, i) =>
-          i === primaryTokenIndex
-            ? b
-            : b.toToken(
-                primaryToken,
-                'None' // No Risk adjustment here
-              )
-        )
+        .map((b, i) => (i === primaryTokenIndex ? b : b.toToken(primaryToken)))
         // Sum all balances in primary valuation
         .reduce((v, i) => v.add(i), TokenBalance.zero(primaryToken))
     );
