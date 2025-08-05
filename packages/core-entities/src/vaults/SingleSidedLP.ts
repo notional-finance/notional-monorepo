@@ -21,7 +21,6 @@ export interface SingleSidedLPParams extends BaseVaultParams {
   singleSidedTokenIndex: number;
   totalLPTokens: TokenBalance;
   totalVaultShares: BigNumber;
-  secondaryTradeParams: string;
   maxPoolShares: BigNumber;
   totalPoolSupply?: TokenBalance;
   rewardState?: RewardState[];
@@ -69,14 +68,9 @@ export class SingleSidedLP extends VaultAdapter {
   public totalLPTokens: TokenBalance;
   // This does not have a token balance because maturity is unset
   public totalVaultShares: BigNumber;
-  public secondaryTradeParams: string;
   public maxPoolShares: BigNumber;
   public totalPoolSupply: TokenBalance | undefined;
   public rewardState?: RewardState[];
-
-  get strategy() {
-    return 'SingleSidedLP';
-  }
 
   get bptIndex() {
     return (
@@ -109,7 +103,7 @@ export class SingleSidedLP extends VaultAdapter {
     borrowedToken: TokenDefinition,
     public apyHistory?: TimeSeriesResponse
   ) {
-    super(p.enabled, p.name, network, vaultAddress, borrowedToken);
+    super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
 
     this.pool = _pool;
 
@@ -126,7 +120,6 @@ export class SingleSidedLP extends VaultAdapter {
 
     this.totalLPTokens = p.totalLPTokens;
     this.totalVaultShares = p.totalVaultShares;
-    this.secondaryTradeParams = p.secondaryTradeParams;
     this.maxPoolShares = p.maxPoolShares;
     this.totalPoolSupply = p.totalPoolSupply;
     this.rewardState = p.rewardState;

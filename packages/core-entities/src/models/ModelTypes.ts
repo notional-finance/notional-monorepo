@@ -273,11 +273,7 @@ export const OracleGraphModel = types.model('OracleGraph', {
 const BaseVaultDefinitionModel = types.model('BaseVaultDefinition', {
   vaultAddress: types.identifier,
   enabled: types.boolean,
-  name: types.string,
-  technicalName: types.maybe(types.string),
-  boosterProtocol: types.maybe(types.string),
-  poolName: types.maybe(types.string),
-  baseProtocol: types.maybe(types.string),
+  strategyType: types.string,
 });
 
 const SingleSidedLPVaultModel = BaseVaultDefinitionModel.props({

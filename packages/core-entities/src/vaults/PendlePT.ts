@@ -35,17 +35,13 @@ export class PendlePT extends VaultAdapter {
   public marketAddress: string;
   protected market: PendleMarket;
 
-  get strategy() {
-    return 'PendlePT';
-  }
-
   constructor(
     network: Network,
     vaultAddress: string,
     p: PendlePTVaultParams,
     borrowedToken: TokenDefinition
   ) {
-    super(p.enabled, p.name, network, vaultAddress, borrowedToken);
+    super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
     this.tokenInSy = p.tokenInSy.toLowerCase();
     this.tokenOutSy = p.tokenOutSy.toLowerCase();
     this.marketAddress = p.marketAddress.toLowerCase();
