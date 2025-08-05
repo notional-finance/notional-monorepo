@@ -11,12 +11,7 @@ import {
 } from '@notional-finance/util';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
-import {
-  BalancerPoolABI,
-  ERC20ABI,
-  ISingleSidedLPStrategyVault,
-  ISingleSidedLPStrategyVaultABI,
-} from '@notional-finance/contracts';
+import { BalancerPoolABI, ERC20ABI } from '@notional-finance/contracts';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import {

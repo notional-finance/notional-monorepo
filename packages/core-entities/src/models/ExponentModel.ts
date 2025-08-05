@@ -215,11 +215,11 @@ const VaultActions = (self: Instance<typeof VaultStore>) => {
   });
 
   const afterAttach = flow(function* () {
-    yield refreshVaultData();
+    yield refresh();
   });
 
   return {
-    refreshVaultData,
+    refresh,
     afterAttach,
   };
 };

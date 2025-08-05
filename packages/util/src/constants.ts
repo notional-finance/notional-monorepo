@@ -299,3 +299,8 @@ export enum TransactionStatus {
   REVERT = 'revert',
   APPROVAL_PENDING = 'approval-pending',
 }
+
+export const ADDRESS_REGISTRY = {
+  [Network.mainnet]: '0xe335d314BD4eF7DD44F103dC124FEFb7Ce63eC95',
+  [Network.arbitrum]: '0x0000000000000000000000000000000000000000',
+};

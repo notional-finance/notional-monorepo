@@ -14,7 +14,6 @@ export {
   fetchGraphPaginate,
 } from './server/server-registry';
 export * from './config/whitelisted-vaults';
-export { SecondaryIncentiveToken } from './config/whitelisted-tokens';
 
 export * from './Models';
 export { NetworkServerModel, NetworkClientModel } from './models/NetworkModel';

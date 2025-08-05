@@ -8,11 +8,11 @@ export function assertDefined<T>(v: T | null | undefined): T {
 
 export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
   const getLendingRouters = () => {
-    return self.configuration?.lendingRouters;
+    return assertDefined(self.configuration?.lendingRouters);
   };
 
   const getWithdrawRequestManagers = () => {
-    return self.configuration?.withdrawRequestManagers;
+    return assertDefined(self.configuration?.withdrawRequestManagers);
   };
 
   return {
