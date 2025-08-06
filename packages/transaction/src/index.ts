@@ -9,11 +9,7 @@ import {
 
 export * from './builders';
 export * from './calculate';
-export {
-  simulatePopulatedTxn,
-  applySimulationToAccount,
-  simulateRewardClaims,
-} from './simulate';
+export { simulatePopulatedTxn, simulateRewardClaims } from './simulate';
 export type { SimulationCallTrace } from './simulate';
 export type { PopulateTransactionInputs } from './builders/common';
 

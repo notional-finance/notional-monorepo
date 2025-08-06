@@ -4,7 +4,7 @@ import {
   PoolConstructor,
   SNOTEWeightedPool,
 } from '../../exchanges/index';
-import { MorphoVariableMarket } from '../../exchanges';
+import { LendingMarket } from '../../exchanges';
 import { Network } from '@notional-finance/util';
 import { NetworkModel } from '../NetworkModel';
 import { ethers } from 'ethers';
@@ -62,7 +62,7 @@ export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
 
     if (lr?.name === 'Morpho' && m) {
       const marketParams = decodeMorphoLendingRouterParams(m.params);
-      return getPoolInstance<MorphoVariableMarket>(marketParams.marketId);
+      return getPoolInstance<LendingMarket>(marketParams.marketId);
     } else {
       throw Error(`Market params for ${vault} on ${lendingRouter} not found`);
     }

@@ -50,6 +50,8 @@ const PoolClasses: Record<
   MorphoAdaptiveIRM: MorphoAdaptiveIRM,
 };
 
+export type LendingMarket = MorphoVariableMarket;
+
 export {
   MorphoVariableMarket,
   MorphoAdaptiveIRM,

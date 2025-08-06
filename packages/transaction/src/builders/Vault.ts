@@ -77,9 +77,7 @@ export async function EnterVault({
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
 
   const totalDeposit = profile
-    ? underlyingOut
-        .sub(profile.accruedVaultFees.toUnderlying())
-        .add(depositBalance)
+    ? underlyingOut.add(depositBalance)
     : underlyingOut.add(depositBalance);
   const vaultData = await vaultAdapter.getDepositParameters(
     address,
@@ -230,7 +228,7 @@ export async function RollVault({
     vaultLastUpdateTime.get(vaultAddress) || 0
   );
 
-  const currentDebtBalance = profile.vaultDebt.sub(profile.accruedVaultFees);
+  const currentDebtBalance = profile.vaultDebt;
   const costToRepay = currentDebtBalance?.neg().toUnderlying();
   const amountBorrowed = debtBalance.toUnderlying();
 
