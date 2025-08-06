@@ -114,6 +114,7 @@ export interface BalanceStatement {
   totalProfitAndLoss: TokenBalance;
   totalInterestAccrual: TokenBalance;
   accumulatedCostRealized: TokenBalance;
+  totalVaultFees: TokenBalance;
   incentives: {
     totalClaimed: TokenBalance;
     adjustedClaimed: TokenBalance;

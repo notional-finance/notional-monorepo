@@ -107,6 +107,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return d;
   }
 
+  get vaultConfig() {
+    return this.model.getVaultConfig(this.vaultAddress);
+  }
+
   get vaultAdapter() {
     return this.model.getVaultAdapter(this.vaultAddress);
   }

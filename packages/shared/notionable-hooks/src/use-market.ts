@@ -2,12 +2,9 @@ import {
   getNetworkModel,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { firstValue, Network, PRODUCTS } from '@notional-finance/util';
+import { firstValue, Network } from '@notional-finance/util';
 import { useEffect } from 'react';
-import {
-  useCurrentNetworkStore,
-  usePortfolioStore,
-} from './context/use-root-store';
+import { useCurrentNetworkStore } from './context/use-root-store';
 import { useObserver } from 'mobx-react-lite';
 
 export interface MaturityData {
@@ -27,14 +24,6 @@ export function useVaultAdapter(vaultAddress: string | undefined) {
     return undefined;
   }
 }
-
-export const useProductNetwork = (
-  product: PRODUCTS,
-  underlyingSymbol: string | undefined
-) => {
-  const portfolioStore = usePortfolioStore();
-  return portfolioStore.getNetworksForProduct(product, underlyingSymbol);
-};
 
 export const useSNOTEPool = () => {
   return useObserver(() => {

@@ -86,7 +86,7 @@ export const BalanceStatementModel = types.model('BalanceStatement', {
   underlying: TokenDefinitionReference,
   currentBalance: NotionalTypes.TokenBalance,
   adjustedCostBasis: NotionalTypes.TokenBalance,
-  totalILAndFees: NotionalTypes.TokenBalance,
+  totalVaultFees: NotionalTypes.TokenBalance,
   totalProfitAndLoss: NotionalTypes.TokenBalance,
   totalInterestAccrual: NotionalTypes.TokenBalance,
   accumulatedCostRealized: NotionalTypes.TokenBalance,
@@ -100,22 +100,19 @@ export const BalanceStatementModel = types.model('BalanceStatement', {
 });
 
 const AccountHistoryModel = types.model('AccountHistory', {
-  label: types.string,
+  lineItemType: types.string,
   txnLabel: types.optional(types.maybe(types.string), undefined),
   timestamp: types.number,
   blockNumber: types.number,
   token: TokenDefinitionReference,
   underlying: TokenDefinitionReference,
   tokenAmount: NotionalTypes.TokenBalance,
-  bundleName: types.string,
   transactionHash: types.string,
   underlyingAmountRealized: NotionalTypes.TokenBalance,
   underlyingAmountSpot: NotionalTypes.TokenBalance,
   realizedPrice: NotionalTypes.TokenBalance,
   spotPrice: NotionalTypes.TokenBalance,
-  vaultName: types.maybe(types.string),
   impliedFixedRate: types.maybe(types.number),
-  isTransientLineItem: types.boolean,
   account: types.maybe(types.string),
 });
 
@@ -198,22 +195,9 @@ export const AccountModel = types
         if (accountDefinition.systemAccountType) {
           self.systemAccountType = accountDefinition.systemAccountType;
         }
-        if (accountDefinition.allowPrimeBorrow) {
-          self.allowPrimeBorrow = accountDefinition.allowPrimeBorrow;
-        }
         if (accountDefinition.vaultLastUpdateTime) {
           self.vaultLastUpdateTime.replace(
             accountDefinition.vaultLastUpdateTime
-          );
-        }
-        if (accountDefinition.accountIncentiveDebt) {
-          self.accountIncentiveDebt.replace(
-            accountDefinition.accountIncentiveDebt
-          );
-        }
-        if (accountDefinition.secondaryIncentiveDebt) {
-          self.secondaryIncentiveDebt.replace(
-            accountDefinition.secondaryIncentiveDebt
           );
         }
         if (accountDefinition.stakeNOTEStatus) {

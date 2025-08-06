@@ -1,6 +1,5 @@
 import {
   createLeveragedAPYData,
-  fCashMarket,
   getVaultType,
   NotionalTypes,
   PendlePT,
@@ -42,10 +41,7 @@ import {
   unique,
   zipByKeyToArray,
 } from '@notional-finance/util';
-import {
-  AccountRiskProfile,
-  VaultAccountRiskProfile,
-} from '@notional-finance/risk-engine';
+import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import {
   formatNumberAsPercentWithUndefined,
   formatTokenType,

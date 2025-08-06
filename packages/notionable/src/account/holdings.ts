@@ -1,16 +1,7 @@
-import {
-  Network,
-  RATE_PRECISION,
-  SECONDS_IN_DAY,
-  convertToSignedfCashId,
-  getNowSeconds,
-  leveragedYield,
-} from '@notional-finance/util';
-import { AccruedIncentives } from './incentives';
+import { Network, SECONDS_IN_DAY } from '@notional-finance/util';
 import {
   AccountDefinition,
   FiatKeys,
-  getVaultType,
   PendlePT,
   TokenBalance,
   NetworkClientModel,
@@ -20,328 +11,9 @@ import {
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { Instance } from 'mobx-state-tree';
-import { HistoricalBalanceModel } from '../stores/AccountModel';
 
-export type PortfolioHolding = ReturnType<typeof calculateHoldings>[number];
-export type GroupedHolding = ReturnType<
-  typeof calculateGroupedHoldings
->[number];
 export type VaultHolding = ReturnType<typeof calculateVaultHoldings>[number];
 export type CurrentFactors = ReturnType<typeof calculateAccountCurrentFactors>;
-
-function isHighUtilization(
-  balance: TokenBalance,
-  model: Instance<typeof NetworkClientModel>,
-  positionEstablished = getNowSeconds(),
-  threshold = -0.005
-) {
-  const token = balance.token;
-  if (balance.hasMatured) return undefined;
-  const priceChanges = model.getPriceChanges(token.id);
-
-  if (
-    token.tokenType === 'nToken' ||
-    // Only show this for positive fCash
-    (token.tokenType === 'fCash' && balance.isPositive())
-  ) {
-    const oneDay = priceChanges?.oneDay;
-    const threeDay = priceChanges?.threeDay;
-
-    if (
-      (oneDay?.underlyingChange &&
-        oneDay.underlyingChange < threshold &&
-        positionEstablished < getNowSeconds() - SECONDS_IN_DAY) ||
-      (threeDay?.underlyingChange &&
-        threeDay.underlyingChange < threshold &&
-        positionEstablished < getNowSeconds() - 3 * SECONDS_IN_DAY)
-    ) {
-      return token.tokenType === 'fCash'
-        ? 'fCashHighUtilization'
-        : 'nTokenHighUtilization';
-    }
-  }
-
-  return undefined;
-}
-
-/**
- * Exposes all the relevant information for account holdings in the normal portfolio,
- * excludes Vault, Underlying and NOTE balances
- */
-export function calculateHoldings(
-  model: Instance<typeof NetworkClientModel>,
-  _balances: TokenBalance[],
-  balanceStatements: BalanceStatement[],
-  accruedIncentives: AccruedIncentives[],
-  historicalBalances: Instance<typeof HistoricalBalanceModel>[]
-) {
-  const balances = _balances
-    .filter(
-      (b) =>
-        !b.isZero() &&
-        !b.isVaultToken &&
-        b.token.tokenType !== 'Underlying' &&
-        b.token.tokenType !== 'NOTE'
-    )
-    .sort((a, b) => a.currencyId - b.currencyId);
-
-  const holdings = balances.map((balance) => {
-    let statement: BalanceStatement | undefined;
-    try {
-      statement = balanceStatements?.find(
-        (s) =>
-          s.token.id ===
-          // Balance statements use signed fCash ids
-          convertToSignedfCashId(balance.tokenId, balance.isNegative())
-      );
-    } catch {
-      // No-op, allow the statement to be undefined
-    }
-
-    // Convert the matured fcash token to pcash or pdebt token id
-    const maturedTokenId = balance.hasMatured
-      ? balance.isPositive()
-        ? balance.toPrimeCash().tokenId
-        : balance.toPrimeDebt().tokenId
-      : balance.token.id;
-
-    const manageTokenId = balance.hasMatured
-      ? balance.isPositive()
-        ? // This is the opposite of `maturedTokenId`
-          balance.toPrimeDebt().tokenId
-        : balance.toPrimeCash().tokenId
-      : balance.token.id;
-
-    const marketYield = model.getSpotAPY(maturedTokenId);
-
-    // Returns accrued incentives and adjusted claimed incentives as an array
-    const _incentiveEarnings: TokenBalance[] =
-      balance.tokenType === 'nToken'
-        ? statement?.incentives
-            .map(({ adjustedClaimed }) => adjustedClaimed)
-            .concat(
-              accruedIncentives?.find(
-                ({ currencyId }) => balance.currencyId === currencyId
-              )?.incentives || []
-            ) || []
-        : [];
-
-    // Reduces the array above to one entry per incentive token
-    const perIncentiveEarnings: TokenBalance[] = Array.from(
-      _incentiveEarnings
-        .reduce((m, b) => {
-          const match = m.get(b.tokenId);
-          if (match) {
-            m.set(match.tokenId, match.add(b));
-          } else {
-            m.set(b.tokenId, b);
-          }
-          return m;
-        }, new Map<string, TokenBalance>())
-        .values()
-    );
-    const totalIncentiveEarnings = perIncentiveEarnings.reduce(
-      (s, i) => s.add(i.toFiat('USD')),
-      new TokenBalance(0, 'USD', Network.all)
-    );
-
-    const earnings =
-      statement?.token.tokenType === 'PrimeDebt' ||
-      statement?.token.isFCashDebt === true
-        ? statement?.totalProfitAndLoss.neg()
-        : statement?.totalProfitAndLoss;
-
-    const totalEarningsWithIncentives = earnings
-      ?.toFiat('USD')
-      .add(totalIncentiveEarnings);
-
-    const positionEstablished = historicalBalances
-      ?.reverse()
-      .find(
-        (h) => h.balance.tokenId === balance.tokenId && !balance.isZero()
-      )?.timestamp;
-
-    let hasNToken: boolean;
-    try {
-      hasNToken = !!model.getNToken(balance.currencyId);
-    } catch (e) {
-      hasNToken = false;
-    }
-    const totalAtMaturity =
-      balance.token.tokenType === 'fCash' && statement?.accumulatedCostRealized
-        ? TokenBalance.from(
-            balance.scaleTo(balance.underlying.decimals),
-            balance.underlying
-          ).sub(
-            statement.token.isFCashDebt
-              ? statement?.accumulatedCostRealized.neg()
-              : statement?.accumulatedCostRealized
-          )
-        : undefined;
-    const totalInterestAccrual = balance.isNegative()
-      ? statement?.totalInterestAccrual.neg()
-      : statement?.totalInterestAccrual;
-
-    return {
-      balance,
-      statement,
-      marketYield,
-      manageTokenId,
-      maturedTokenId,
-      perIncentiveEarnings,
-      totalIncentiveEarnings,
-      totalEarningsWithIncentives,
-      entryPrice: statement?.adjustedCostBasis,
-      totalAtMaturity,
-      impliedFixedRate: statement?.impliedFixedRate,
-      amountPaid: balance.isNegative()
-        ? statement?.accumulatedCostRealized.neg()
-        : statement?.accumulatedCostRealized,
-      earnings,
-      marketProfitLoss: totalEarningsWithIncentives?.sub(
-        totalInterestAccrual?.toFiat('USD') ||
-          new TokenBalance(0, 'USD', Network.all)
-      ),
-      feesPaid: statement?.totalILAndFees,
-      totalInterestAccrual,
-      hasMatured: balance.hasMatured,
-      isHighUtilization: isHighUtilization(balance, model, positionEstablished),
-      hasNToken,
-    };
-  });
-
-  return holdings;
-}
-
-/**
- * Calculates grouped tokens which are paired asset / debt portfolio holdings in the same currency
- */
-export function calculateGroupedHoldings(
-  _balances: TokenBalance[],
-  holdings: PortfolioHolding[]
-) {
-  const balances =
-    _balances.filter(
-      (b) =>
-        !b.isZero() &&
-        !b.isVaultToken &&
-        b.token.tokenType !== 'Underlying' &&
-        b.token.tokenType !== 'NOTE'
-    ) || [];
-  const assets = balances.filter((b) => b.isPositive());
-  const debts = balances.filter((b) => b.isNegative());
-
-  return assets.reduce(
-    (l, asset) => {
-      const matchingDebts = debts.filter(
-        (b) => b.currencyId === asset.currencyId
-      );
-      const matchingAssets = assets.filter(
-        (b) => b.currencyId === asset.currencyId && asset.tokenType === 'nToken'
-      );
-
-      // Only creates a grouped holding if there is exactly one matching asset and debt
-      if (matchingDebts.length === 1 && matchingAssets.length === 1) {
-        const asset = matchingAssets[0];
-        const debt = matchingDebts[0];
-        const presentValue = asset.toUnderlying().add(debt.toUnderlying());
-        const leverageRatio =
-          debt.toUnderlying().neg().ratioWith(presentValue).toNumber() /
-          RATE_PRECISION;
-
-        // NOTE: enforce a minimum leverage ratio on these to ensure that dust balances
-        // don't create leveraged positions
-        if (leverageRatio > 0.05) {
-          const debtHoldings = holdings.find(
-            ({ balance }) => balance.tokenId === debt.tokenId
-          );
-
-          const assetHoldings = holdings.find(
-            ({ balance }) => balance.tokenId === asset.tokenId
-          ) as (typeof holdings)[number];
-
-          const borrowApyData = debtHoldings?.marketYield.totalAPY || 0;
-          const zeroUnderlying = TokenBalance.zero(asset.underlying);
-
-          const totalEarnings = (
-            assetHoldings.statement?.totalProfitAndLoss || zeroUnderlying
-          ).sub(debtHoldings?.statement?.totalProfitAndLoss || zeroUnderlying);
-          const totalEarningsWithIncentives = (
-            assetHoldings.totalEarningsWithIncentives || zeroUnderlying
-          )
-            .toFiat('USD')
-            .sub(
-              (
-                debtHoldings?.statement?.totalProfitAndLoss || zeroUnderlying
-              ).toFiat('USD')
-            );
-
-          const totalInterestAccrual = (
-            assetHoldings.statement?.totalInterestAccrual || zeroUnderlying
-          ).sub(
-            debtHoldings?.statement?.totalInterestAccrual || zeroUnderlying
-          );
-          const totalILAndFees = (
-            assetHoldings.statement?.totalILAndFees || zeroUnderlying
-          ).sub(debtHoldings?.statement?.totalILAndFees || zeroUnderlying);
-
-          const marketProfitLoss = totalEarnings.sub(totalInterestAccrual);
-          const amountPaid =
-            assetHoldings.statement?.accumulatedCostRealized &&
-            debtHoldings?.statement?.accumulatedCostRealized
-              ? assetHoldings.statement?.accumulatedCostRealized.sub(
-                  debtHoldings.statement?.accumulatedCostRealized
-                )
-              : undefined;
-
-          l.push({
-            asset: assetHoldings,
-            debt: debtHoldings as PortfolioHolding,
-            amountPaid,
-            presentValue,
-            leverageRatio,
-            hasMatured: asset?.hasMatured || debt?.hasMatured ? true : false,
-            borrowAPY: borrowApyData,
-            totalInterestAccrual,
-            totalILAndFees,
-            marketProfitLoss,
-            totalEarnings,
-            totalEarningsWithIncentives,
-            totalLeveragedApy: leveragedYield(
-              assetHoldings.marketYield?.totalAPY,
-              borrowApyData,
-              leverageRatio
-            ),
-            totalIncentiveAPY: assetHoldings.marketYield.incentives?.reduce(
-              (sum, incentive) =>
-                sum +
-                (leveragedYield(incentive.incentiveAPY, 0, leverageRatio) || 0),
-              0
-            ),
-          });
-        }
-      }
-
-      return l;
-    },
-    [] as {
-      asset: PortfolioHolding;
-      debt: PortfolioHolding;
-      amountPaid: TokenBalance | undefined;
-      presentValue: TokenBalance;
-      totalInterestAccrual: TokenBalance;
-      marketProfitLoss: TokenBalance;
-      totalILAndFees: TokenBalance;
-      totalEarnings: TokenBalance;
-      totalEarningsWithIncentives: TokenBalance;
-      leverageRatio: number;
-      hasMatured: boolean;
-      borrowAPY: number | undefined;
-      totalLeveragedApy: number | undefined;
-      totalIncentiveAPY: number | undefined;
-    }[]
-  );
-}
 
 /**
  * Calculates data to display for each vault holding
@@ -363,7 +35,6 @@ export function calculateVaultHoldings(
   return vaultProfiles.map((v) => {
     let debtPnL: BalanceStatement | undefined;
     let assetPnL: BalanceStatement | undefined;
-    let cashPnL: BalanceStatement | undefined;
     try {
       debtPnL = balanceStatements.find(
         (b) => b.token.id === v.vaultDebt.tokenId
@@ -371,34 +42,26 @@ export function calculateVaultHoldings(
       assetPnL = balanceStatements?.find(
         (b) => b.token.id === v.vaultShares.tokenId
       );
-      cashPnL = balanceStatements?.find(
-        (b) => b.token.id === v.vaultCash.tokenId
-      );
     } catch {
       // No-op, allow the statement to be undefined
     }
 
     const denom = v.denom(v.defaultSymbol);
     const zeroDenom = TokenBalance.zero(denom);
-    const profit = (assetPnL?.totalProfitAndLoss || zeroDenom)
-      .sub(debtPnL?.totalProfitAndLoss || zeroDenom)
-      .add(cashPnL?.totalProfitAndLoss || zeroDenom)
-      // Subtract accrued vault fees
-      .sub(v.accruedVaultFees.toToken(zeroDenom.token));
+    const profit = (assetPnL?.totalProfitAndLoss || zeroDenom).sub(
+      debtPnL?.totalProfitAndLoss || zeroDenom
+    );
     const vaultYield = model.getSpotAPY(v.vaultShares.tokenId);
     const debtAPY = model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
     const assetInterestAccrual = assetPnL?.totalInterestAccrual || zeroDenom;
 
-    const debtInterestAccrual = (
-      debtPnL?.totalInterestAccrual.neg() || zeroDenom
-    )
-      // Subtract accrued vault fees here as well
-      .sub(v.accruedVaultFees.toToken(zeroDenom.token));
+    const debtInterestAccrual =
+      debtPnL?.totalInterestAccrual.neg() || zeroDenom;
 
     const assetEarnings = assetPnL?.totalProfitAndLoss || zeroDenom;
     const debtEarnings = debtPnL?.totalProfitAndLoss.neg() || zeroDenom;
-    const assetFeesPaid = assetPnL?.totalILAndFees || zeroDenom;
-    const debtFeesPaid = debtPnL?.totalILAndFees || zeroDenom;
+    const assetFeesPaid = assetPnL?.totalVaultFees || zeroDenom;
+    const debtFeesPaid = zeroDenom;
     const assetMarketPnL = assetEarnings?.sub(
       assetInterestAccrual || zeroDenom
     );
@@ -407,24 +70,18 @@ export function calculateVaultHoldings(
     const debtAmountPaid = debtPnL?.accumulatedCostRealized.neg() || zeroDenom;
     const debtEntryPrice = debtPnL?.adjustedCostBasis.neg();
 
-    const amountPaid = assetAmountPaid
-      .add(debtAmountPaid)
-      .add(cashPnL?.accumulatedCostRealized || zeroDenom);
+    const amountPaid = assetAmountPaid.add(debtAmountPaid);
 
     const leverageRatio = v.leverageRatio() || 0;
     const { maxLeverageRatio } = model.getLeverageRatios(v.vaultShares.token);
 
-    const totalInterestAccrual = assetInterestAccrual
-      .add(debtInterestAccrual)
-      .add(cashPnL?.totalInterestAccrual || zeroDenom);
+    const totalInterestAccrual = assetInterestAccrual.add(debtInterestAccrual);
 
-    const totalILAndFees = assetFeesPaid
-      .add(debtFeesPaid)
-      .add(cashPnL?.totalILAndFees || zeroDenom);
+    const totalILAndFees = assetFeesPaid.add(debtFeesPaid);
     const debtMarketPnL = debtEarnings?.add(debtInterestAccrual || zeroDenom);
 
     const marketProfitLoss = profit.sub(totalInterestAccrual);
-    const vaultType = getVaultType(v.vaultAddress, v.network);
+    const vaultType = v.vaultConfig.strategyType;
 
     const vaultMetadata = {
       rewardClaims: rewardClaims[v.vaultAddress],
@@ -478,7 +135,6 @@ export function calculateVaultHoldings(
 }
 
 export function calculateAccountCurrentFactors(
-  holdings: ReturnType<typeof calculateHoldings>,
   vaults: VaultHolding[],
   baseCurrency: FiatKeys
 ) {
@@ -495,27 +151,12 @@ export function calculateAccountCurrentFactors(
         assets: assets.add(a.toFiat(baseCurrency)),
       };
     },
-    holdings.reduce(
-      (
-        { weightedYield, netWorth, assets, debts },
-        { marketYield, balance }
-      ) => {
-        const w = balance.toFiat(baseCurrency);
-        return {
-          weightedYield:
-            weightedYield + (marketYield?.totalAPY || 0) * w.toFloat(),
-          netWorth: netWorth.add(w),
-          debts: balance.isNegative() ? debts.add(w) : debts,
-          assets: balance.isPositive() ? assets.add(w) : assets,
-        };
-      },
-      {
-        weightedYield: 0,
-        netWorth: new TokenBalance(0, baseCurrency, Network.all),
-        debts: new TokenBalance(0, baseCurrency, Network.all),
-        assets: new TokenBalance(0, baseCurrency, Network.all),
-      }
-    )
+    {
+      weightedYield: 0,
+      netWorth: new TokenBalance(0, baseCurrency, Network.all),
+      debts: new TokenBalance(0, baseCurrency, Network.all),
+      assets: new TokenBalance(0, baseCurrency, Network.all),
+    }
   );
 
   return {

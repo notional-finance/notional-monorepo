@@ -69,10 +69,19 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     );
   };
 
+  const getVaultConfig = (vaultAddress: string) => {
+    const v = self.configuration?.vaults.find(
+      (v) => v.vaultAddress === vaultAddress
+    );
+    if (!v) throw Error(`No vault params found: ${vaultAddress}`);
+    return v;
+  };
+
   return {
     getAllListedVaults,
     isVaultEnabled,
     getVaultAdapter,
     getVaultName,
+    getVaultConfig,
   };
 };

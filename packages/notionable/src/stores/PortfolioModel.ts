@@ -1,22 +1,14 @@
-import {
-  AccountRiskProfile,
-  VaultAccountRiskProfile,
-} from '@notional-finance/risk-engine';
+import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { RootStoreInterface } from './root-store';
 import {
   AccountHistory,
   BalanceStatement,
-  FiatKeys,
   NotionalTypes,
   TokenBalance,
-  TokenDefinition,
 } from '@notional-finance/core-entities';
 import { getRoot, Instance, types, cast, flow } from 'mobx-state-tree';
-import { calculateAccruedIncentives } from '../account/incentives';
 import {
   calculateAccountCurrentFactors,
-  calculateGroupedHoldings,
-  calculateHoldings,
   calculateVaultHoldings,
 } from '../account/holdings';
 import { Network } from '@notional-finance/util';
@@ -43,44 +35,6 @@ const APYDataModel = types.model('APYDataModel', {
   ),
   utilization: types.maybe(types.number),
   pointMultiples: types.maybe(types.map(types.number)),
-});
-
-const DetailedHoldingModel = types.model('DetailedHolding', {
-  balance: NotionalTypes.TokenBalance,
-  marketYield: types.maybe(APYDataModel),
-  manageTokenId: types.string,
-  maturedTokenId: types.string,
-  perIncentiveEarnings: types.array(NotionalTypes.TokenBalance),
-  totalIncentiveEarnings: NotionalTypes.TokenBalance,
-  totalEarningsWithIncentives: types.maybe(NotionalTypes.TokenBalance),
-  marketProfitLoss: types.maybe(NotionalTypes.TokenBalance),
-  hasMatured: types.boolean,
-  hasNToken: types.boolean,
-  isHighUtilization: types.maybe(types.string),
-  amountPaid: types.maybe(NotionalTypes.TokenBalance),
-  entryPrice: types.maybe(NotionalTypes.TokenBalance),
-  earnings: types.maybe(NotionalTypes.TokenBalance),
-  totalAtMaturity: types.maybe(NotionalTypes.TokenBalance),
-  impliedFixedRate: types.maybe(types.number),
-  feesPaid: types.maybe(NotionalTypes.TokenBalance),
-  totalInterestAccrual: types.maybe(NotionalTypes.TokenBalance),
-});
-
-const GroupedHoldingModel = types.model('GroupedHoldingModel', {
-  asset: DetailedHoldingModel,
-  debt: DetailedHoldingModel,
-  amountPaid: types.maybe(NotionalTypes.TokenBalance),
-  presentValue: NotionalTypes.TokenBalance,
-  totalInterestAccrual: NotionalTypes.TokenBalance,
-  marketProfitLoss: NotionalTypes.TokenBalance,
-  totalILAndFees: NotionalTypes.TokenBalance,
-  totalEarnings: NotionalTypes.TokenBalance,
-  totalEarningsWithIncentives: NotionalTypes.TokenBalance,
-  leverageRatio: types.number,
-  hasMatured: types.boolean,
-  borrowAPY: types.maybe(types.number),
-  totalLeveragedApy: types.maybe(types.number),
-  totalIncentiveAPY: types.maybe(types.number),
 });
 
 const VaultHoldingModel = types.model('VaultHoldingModel', {
@@ -144,56 +98,6 @@ const PortfolioModel = types.model('PortfolioModel', {
     ),
     []
   ),
-  portfolioRiskProfile: types.optional(
-    types.maybe(
-      types.model({
-        loanToValue: types.maybeNull(types.number),
-        healthFactor: types.maybeNull(types.number),
-        totalAssets: NotionalTypes.TokenBalance,
-        totalDebt: NotionalTypes.TokenBalance,
-        balances: types.array(NotionalTypes.TokenBalance),
-      })
-    ),
-    undefined
-  ),
-  totalIncentives: types.optional(
-    types.map(
-      types.model({
-        current: NotionalTypes.TokenBalance,
-        in100Sec: NotionalTypes.TokenBalance,
-      })
-    ),
-    {}
-  ),
-  accruedIncentives: types.optional(
-    types.array(
-      types.model({
-        currencyId: types.number,
-        incentives: types.array(NotionalTypes.TokenBalance),
-        incentivesIn100Seconds: types.array(NotionalTypes.TokenBalance),
-      })
-    ),
-    []
-  ),
-  detailedHoldings: types.optional(types.array(DetailedHoldingModel), []),
-  groupedHoldings: types.optional(types.array(GroupedHoldingModel), []),
-  totalPortfolioHoldings: types.optional(
-    types.maybe(
-      types.model({
-        amountPaid: NotionalTypes.TokenBalance,
-        presentValue: NotionalTypes.TokenBalance,
-        earnings: NotionalTypes.TokenBalance,
-        nonNoteEarnings: NotionalTypes.TokenBalance,
-        perIncentiveEarnings: types.array(NotionalTypes.TokenBalance),
-        noteEarnings: NotionalTypes.TokenBalance,
-        marketPNL: NotionalTypes.TokenBalance,
-        feesPaid: NotionalTypes.TokenBalance,
-        incentiveEarnings: NotionalTypes.TokenBalance,
-        accruedInterest: NotionalTypes.TokenBalance,
-      })
-    ),
-    undefined
-  ),
   vaultHoldings: types.optional(types.array(VaultHoldingModel), []),
   totalVaultHoldings: types.optional(
     types.maybe(
@@ -252,22 +156,6 @@ const PortfolioModel = types.model('PortfolioModel', {
 const _AccountPortfolioModel = types
   .compose(AccountModel, PortfolioModel)
   .views((self) => {
-    const getAccountRiskProfile = () => {
-      return new AccountRiskProfile(
-        self.balances.filter(
-          (b) =>
-            !b.isVaultToken &&
-            b.tokenType !== 'Underlying' &&
-            b.tokenType !== 'NOTE'
-        ),
-        self.network
-      );
-    };
-
-    const maxPortfolioWithdraw = (token: TokenDefinition) => {
-      return getAccountRiskProfile().maxWithdraw(token);
-    };
-
     const maxVaultWithdraw = (vaultAddress: string) => {
       try {
         return new VaultAccountRiskProfile(
@@ -281,49 +169,8 @@ const _AccountPortfolioModel = types
       }
     };
 
-    const getRepayAmounts = (baseCurrency: FiatKeys) => {
-      const balances = getAccountRiskProfile().balances.filter(
-        (b) =>
-          b.isNegative() &&
-          (b.tokenType === 'PrimeCash' || b.tokenType === 'fCash')
-      );
-
-      return balances.map((b) => ({
-        token: b.tokenType === 'PrimeCash' ? b.toPrimeDebt().token : b.token,
-        largeFigure: b.toUnderlying().toFloat() || 0,
-        largeFigureDecimals: 4,
-        largeFigureSuffix: ' ' + b.underlying.symbol,
-        caption: b
-          .toUnderlying()
-          .toFiat(baseCurrency)
-          .toDisplayStringWithSymbol(),
-      }));
-    };
-
-    const getWithdrawAmounts = () => {
-      const balances = getAccountRiskProfile().balances.filter(
-        (b) =>
-          b.isPositive() &&
-          (b.tokenType === 'PrimeCash' ||
-            b.tokenType === 'fCash' ||
-            b.tokenType === 'nToken')
-      );
-      return balances.map((b) => {
-        const maxWithdraw = maxPortfolioWithdraw(b.token);
-        return {
-          token: b.token,
-          largeFigure: maxWithdraw?.toUnderlying().toFloat() || 0,
-          largeFigureDecimals: 4,
-          largeFigureSuffix: ' ' + b.underlying.symbol,
-        };
-      });
-    };
-
     return {
-      maxPortfolioWithdraw,
       maxVaultWithdraw,
-      getRepayAmounts,
-      getWithdrawAmounts,
     };
   });
 
@@ -331,137 +178,6 @@ export const AccountPortfolioActions = (
   self: Instance<typeof _AccountPortfolioModel>
 ) => {
   const root = () => getRoot<RootStoreInterface>(self);
-
-  const getAccountRiskProfile = () => {
-    return new AccountRiskProfile(
-      self.balances.filter(
-        (b) =>
-          !b.isVaultToken &&
-          b.tokenType !== 'Underlying' &&
-          b.tokenType !== 'NOTE'
-      ),
-      self.network
-    );
-  };
-
-  const getPortfolioRiskProfile = () => {
-    const profile = getAccountRiskProfile();
-    return {
-      freeCollateral: profile.freeCollateral(),
-      loanToValue: profile.loanToValue(),
-      healthFactor: profile.healthFactor(),
-      totalAssets: profile.totalAssets(),
-      totalDebt: profile.totalDebt(),
-      balances: profile.balances,
-    };
-  };
-
-  const getPortfolioLiquidationPrices = () => {
-    return getAccountRiskProfile().getAllLiquidationPrices();
-  };
-
-  const getAccountIncentives = () => {
-    return calculateAccruedIncentives(
-      root().getNetworkClient(self.network),
-      self.balances,
-      self.accountIncentiveDebt,
-      self.secondaryIncentiveDebt
-    );
-  };
-
-  const getPortfolioHoldings = () => {
-    const detailedHoldings = calculateHoldings(
-      root().getNetworkClient(self.network),
-      self.balances,
-      self.balanceStatement as BalanceStatement[],
-      getAccountIncentives().accruedIncentives,
-      self.historicalBalances
-    );
-    const groupedHoldings = calculateGroupedHoldings(
-      self.balances,
-      detailedHoldings
-    );
-
-    const baseCurrency = root().appStore.baseCurrency;
-    const zeroFiat = new TokenBalance(0, baseCurrency, Network.all);
-    const NOTE = root().getNetworkClient(self.network).getTokenBySymbol('NOTE');
-
-    const totalPortfolioHoldings = detailedHoldings.reduce(
-      (
-        t,
-        {
-          balance,
-          statement,
-          perIncentiveEarnings,
-          marketProfitLoss,
-          totalIncentiveEarnings,
-          totalEarningsWithIncentives,
-        }
-      ) => {
-        if (statement) {
-          t.amountPaid = t.amountPaid.add(
-            statement.accumulatedCostRealized.toFiat(baseCurrency)
-          );
-          t.presentValue = t.presentValue.add(balance.toFiat(baseCurrency));
-          t.nonNoteEarnings = t.nonNoteEarnings.add(
-            statement.totalProfitAndLoss.toFiat(baseCurrency)
-          );
-
-          t.incentiveEarnings = t.incentiveEarnings.add(
-            totalIncentiveEarnings.toFiat(baseCurrency)
-          );
-          t.accruedInterest = statement.totalInterestAccrual
-            ? t.accruedInterest.add(
-                statement.totalInterestAccrual.toFiat(baseCurrency)
-              )
-            : t.accruedInterest;
-          t.marketPNL = marketProfitLoss
-            ? t.marketPNL.add(marketProfitLoss.toFiat(baseCurrency))
-            : t.marketPNL;
-          t.feesPaid = t.feesPaid.add(
-            statement.totalILAndFees.toFiat(baseCurrency)
-          );
-          t.earnings = totalEarningsWithIncentives
-            ? t.earnings.add(totalEarningsWithIncentives.toFiat(baseCurrency))
-            : t.earnings.add(statement.totalProfitAndLoss.toFiat(baseCurrency));
-
-          const totalNOTEEarnings = perIncentiveEarnings.find(
-            (t) => t.symbol === 'NOTE'
-          );
-          t.noteEarnings = totalNOTEEarnings
-            ? t?.noteEarnings?.add(totalNOTEEarnings)
-            : t.noteEarnings;
-
-          perIncentiveEarnings.forEach((data) => {
-            const currentTokenBalance = t.perIncentiveEarnings.findIndex(
-              (t) => t.symbol === data.symbol
-            );
-            if (currentTokenBalance > -1) {
-              t.perIncentiveEarnings[currentTokenBalance] =
-                t.perIncentiveEarnings[currentTokenBalance].add(data);
-            } else {
-              t.perIncentiveEarnings.push(data);
-            }
-          });
-        }
-        return t;
-      },
-      {
-        amountPaid: zeroFiat,
-        presentValue: zeroFiat,
-        nonNoteEarnings: zeroFiat,
-        feesPaid: zeroFiat,
-        incentiveEarnings: zeroFiat,
-        accruedInterest: zeroFiat,
-        marketPNL: zeroFiat,
-        earnings: zeroFiat,
-        perIncentiveEarnings: [] as TokenBalance[],
-        noteEarnings: TokenBalance.from(0, NOTE),
-      }
-    );
-
-    return { detailedHoldings, groupedHoldings, totalPortfolioHoldings };
-  };
 
   const getVaultHoldings = () => {
     const vaultHoldings = calculateVaultHoldings(
@@ -520,94 +236,19 @@ export const AccountPortfolioActions = (
   };
 
   const getCurrentFactors = () => {
-    const { detailedHoldings } = getPortfolioHoldings();
     const { vaultHoldings } = getVaultHoldings();
 
     return calculateAccountCurrentFactors(
-      detailedHoldings,
       vaultHoldings,
       root().appStore.baseCurrency
     );
   };
 
-  const getTotalCurrencyHoldings = () => {
-    const profile = getAccountRiskProfile();
-
-    const holdings = profile.allCurrencyIds.map((currencyId) => {
-      const underlying = root()
-        .getNetworkClient(self.network)
-        .getUnderlying(currencyId);
-      const totalAssets = profile.totalCurrencyAssets(
-        currencyId,
-        underlying.symbol
-      );
-      const totalDebts = profile.totalCurrencyDebts(
-        currencyId,
-        underlying.symbol
-      );
-
-      return {
-        currency: underlying.symbol,
-        netWorth: totalAssets.add(totalDebts),
-        assets: totalAssets,
-        debts: totalDebts,
-      };
-    });
-
-    const totals = {
-      netWorth: profile.netWorth(),
-      assets: profile.totalAssets(),
-      debts: profile.totalDebt(),
-    };
-
-    return { holdings, totals };
-  };
-
   const refreshAccountHoldings = () => {
     const startTime = performance.now();
-    const { detailedHoldings, groupedHoldings, totalPortfolioHoldings } =
-      getPortfolioHoldings();
-    const { totalIncentives, accruedIncentives } = getAccountIncentives();
     const { vaultHoldings, totalVaultHoldings } = getVaultHoldings();
     const currentFactors = getCurrentFactors();
-    const totalCurrencyHoldings = getTotalCurrencyHoldings();
-    const portfolioLiquidationPrices = getPortfolioLiquidationPrices();
-    const portfolioRiskProfile = getPortfolioRiskProfile();
-
-    self.portfolioRiskProfile = {
-      ...portfolioRiskProfile,
-      balances: cast(portfolioRiskProfile.balances),
-    };
-
-    self.totalIncentives.replace(totalIncentives);
-    self.accruedIncentives.replace(
-      accruedIncentives.map((item) => ({
-        currencyId: item.currencyId,
-        incentives: cast(item.incentives),
-        incentivesIn100Seconds: cast(item.incentivesIn100Seconds),
-      }))
-    );
-
     self.currentFactors = currentFactors;
-    self.detailedHoldings.replace(
-      detailedHoldings.map((h) => ({
-        ...h,
-        marketYield: APYDataModel.create(h.marketYield),
-        perIncentiveEarnings: cast(h.perIncentiveEarnings),
-      }))
-    );
-    self.totalPortfolioHoldings = {
-      ...totalPortfolioHoldings,
-      perIncentiveEarnings: cast(totalPortfolioHoldings.perIncentiveEarnings),
-    };
-
-    self.groupedHoldings.replace(
-      groupedHoldings.map((h) => ({
-        ...h,
-        asset: DetailedHoldingModel.create(h.asset),
-        debt: DetailedHoldingModel.create(h.debt),
-      }))
-    );
     self.totalVaultHoldings = totalVaultHoldings;
     self.vaultHoldings.replace(
       vaultHoldings.map((h) => ({
@@ -628,16 +269,6 @@ export const AccountPortfolioActions = (
             h.vaultMetadata.rewardClaims?.map((r) => r.toJSON())
           ),
         },
-      }))
-    );
-
-    self.totalCurrencyHoldings.holdings.replace(totalCurrencyHoldings.holdings);
-    self.totalCurrencyHoldings.totals = totalCurrencyHoldings.totals;
-    self.portfolioLiquidationPrices.replace(
-      portfolioLiquidationPrices.map((item) => ({
-        asset: item.asset.id,
-        threshold: item.threshold,
-        isDebtThreshold: item.isDebtThreshold,
       }))
     );
 
@@ -674,7 +305,12 @@ export const AccountPortfolioActions = (
   const refreshRewardClaims = flow(function* (vaultAddress: string) {
     self.rewardClaims.set(
       vaultAddress,
-      yield simulateRewardClaims(self.network, self.address, vaultAddress)
+      yield simulateRewardClaims(
+        self.network,
+        self.address,
+        vaultAddress,
+        '' // Lending Router
+      )
     );
   });
 
@@ -706,14 +342,6 @@ export const AccountPortfolioModel = _AccountPortfolioModel
           TokenBalance.zero(
             root().getNetworkClient(self.network).getTokenBySymbol(symbol)
           )
-        );
-      },
-      calculateAccruedIncentives: () => {
-        return calculateAccruedIncentives(
-          root().getNetworkClient(self.network),
-          self.balances,
-          self.accountIncentiveDebt,
-          self.secondaryIncentiveDebt
         );
       },
     };

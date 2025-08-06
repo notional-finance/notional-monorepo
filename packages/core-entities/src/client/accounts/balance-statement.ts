@@ -202,6 +202,7 @@ export function parseCurrentBalanceStatement(
     // Amount Paid
     accumulatedCostRealized: currentStatement.accumulatedCostRealized,
     incentives,
+    totalVaultFees: currentStatement.totalVaultFeesAtSnapshot,
   };
 }
 
@@ -234,6 +235,11 @@ export function parseBalanceStatement(
     ),
     totalInterestAccrual: new TokenBalance(
       snapshot.totalInterestAccrualAtSnapshot,
+      underlyingId,
+      network
+    ),
+    totalVaultFeesAtSnapshot: new TokenBalance(
+      snapshot.totalVaultFeesAtSnapshot,
       underlyingId,
       network
     ),

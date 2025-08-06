@@ -1,8 +1,5 @@
 import { getVaultType, SingleSidedLP } from '@notional-finance/core-entities';
-import {
-  useCurrentNetworkStore,
-  useVaultStore,
-} from './context/use-root-store';
+import { useCurrentNetworkStore } from './context/use-root-store';
 
 export function useVaultPoints(vaultAddress?: string) {
   const currentNetworkStore = useCurrentNetworkStore();
@@ -25,8 +22,8 @@ export function useVaultRewardTokens(vaultAddress?: string) {
 }
 
 export function useVaultMetadata(vaultAddress?: string) {
-  const vaultStore = useVaultStore();
-  return vaultAddress && vaultStore
-    ? vaultStore.getVaultByAddress(vaultAddress)
+  const currentNetworkStore = useCurrentNetworkStore();
+  return vaultAddress
+    ? currentNetworkStore.getVaultConfig(vaultAddress)
     : undefined;
 }
