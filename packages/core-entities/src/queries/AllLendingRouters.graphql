@@ -5,7 +5,9 @@ query AllLendingRouters($skip: Int) {
   }
 
   markets(first: 1000) {
-    vault
+    vault {
+      id
+    }
     params
   }
 

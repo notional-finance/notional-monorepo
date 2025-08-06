@@ -881,6 +881,7 @@ type LendingRouter {
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   name: String!
+  markets(skip: Int = 0, first: Int = 100, orderBy: Market_orderBy, orderDirection: OrderDirection, where: Market_filter): [Market!]
 }
 
 input LendingRouter_filter {
@@ -964,6 +965,7 @@ input LendingRouter_filter {
   name_ends_with_nocase: String
   name_not_ends_with: String
   name_not_ends_with_nocase: String
+  markets_: Market_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [LendingRouter_filter]
@@ -979,6 +981,7 @@ enum LendingRouter_orderBy {
   lastUpdateTimestamp
   lastUpdateTransactionHash
   name
+  markets
 }
 
 enum LineItemType {
@@ -989,6 +992,172 @@ enum LineItemType {
   WithdrawRequest
   WithdrawRequestFinalized
   TradeExecution
+}
+
+"""Only set on the first entry for a lending router / vault combination"""
+type Market {
+  """Vault:LendingRouter"""
+  id: ID!
+  firstUpdateBlockNumber: BigInt!
+  firstUpdateTimestamp: Int!
+  firstUpdateTransactionHash: Bytes!
+  lastUpdateBlockNumber: BigInt!
+  lastUpdateTimestamp: Int!
+  lastUpdateTransactionHash: Bytes!
+  lendingRouter: LendingRouter!
+  vault: Vault!
+  """Generic abi-encoded params for the market"""
+  params: Bytes!
+}
+
+input Market_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  firstUpdateBlockNumber: BigInt
+  firstUpdateBlockNumber_not: BigInt
+  firstUpdateBlockNumber_gt: BigInt
+  firstUpdateBlockNumber_lt: BigInt
+  firstUpdateBlockNumber_gte: BigInt
+  firstUpdateBlockNumber_lte: BigInt
+  firstUpdateBlockNumber_in: [BigInt!]
+  firstUpdateBlockNumber_not_in: [BigInt!]
+  firstUpdateTimestamp: Int
+  firstUpdateTimestamp_not: Int
+  firstUpdateTimestamp_gt: Int
+  firstUpdateTimestamp_lt: Int
+  firstUpdateTimestamp_gte: Int
+  firstUpdateTimestamp_lte: Int
+  firstUpdateTimestamp_in: [Int!]
+  firstUpdateTimestamp_not_in: [Int!]
+  firstUpdateTransactionHash: Bytes
+  firstUpdateTransactionHash_not: Bytes
+  firstUpdateTransactionHash_gt: Bytes
+  firstUpdateTransactionHash_lt: Bytes
+  firstUpdateTransactionHash_gte: Bytes
+  firstUpdateTransactionHash_lte: Bytes
+  firstUpdateTransactionHash_in: [Bytes!]
+  firstUpdateTransactionHash_not_in: [Bytes!]
+  firstUpdateTransactionHash_contains: Bytes
+  firstUpdateTransactionHash_not_contains: Bytes
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
+  lastUpdateTimestamp: Int
+  lastUpdateTimestamp_not: Int
+  lastUpdateTimestamp_gt: Int
+  lastUpdateTimestamp_lt: Int
+  lastUpdateTimestamp_gte: Int
+  lastUpdateTimestamp_lte: Int
+  lastUpdateTimestamp_in: [Int!]
+  lastUpdateTimestamp_not_in: [Int!]
+  lastUpdateTransactionHash: Bytes
+  lastUpdateTransactionHash_not: Bytes
+  lastUpdateTransactionHash_gt: Bytes
+  lastUpdateTransactionHash_lt: Bytes
+  lastUpdateTransactionHash_gte: Bytes
+  lastUpdateTransactionHash_lte: Bytes
+  lastUpdateTransactionHash_in: [Bytes!]
+  lastUpdateTransactionHash_not_in: [Bytes!]
+  lastUpdateTransactionHash_contains: Bytes
+  lastUpdateTransactionHash_not_contains: Bytes
+  lendingRouter: String
+  lendingRouter_not: String
+  lendingRouter_gt: String
+  lendingRouter_lt: String
+  lendingRouter_gte: String
+  lendingRouter_lte: String
+  lendingRouter_in: [String!]
+  lendingRouter_not_in: [String!]
+  lendingRouter_contains: String
+  lendingRouter_contains_nocase: String
+  lendingRouter_not_contains: String
+  lendingRouter_not_contains_nocase: String
+  lendingRouter_starts_with: String
+  lendingRouter_starts_with_nocase: String
+  lendingRouter_not_starts_with: String
+  lendingRouter_not_starts_with_nocase: String
+  lendingRouter_ends_with: String
+  lendingRouter_ends_with_nocase: String
+  lendingRouter_not_ends_with: String
+  lendingRouter_not_ends_with_nocase: String
+  lendingRouter_: LendingRouter_filter
+  vault: String
+  vault_not: String
+  vault_gt: String
+  vault_lt: String
+  vault_gte: String
+  vault_lte: String
+  vault_in: [String!]
+  vault_not_in: [String!]
+  vault_contains: String
+  vault_contains_nocase: String
+  vault_not_contains: String
+  vault_not_contains_nocase: String
+  vault_starts_with: String
+  vault_starts_with_nocase: String
+  vault_not_starts_with: String
+  vault_not_starts_with_nocase: String
+  vault_ends_with: String
+  vault_ends_with_nocase: String
+  vault_not_ends_with: String
+  vault_not_ends_with_nocase: String
+  vault_: Vault_filter
+  params: Bytes
+  params_not: Bytes
+  params_gt: Bytes
+  params_lt: Bytes
+  params_gte: Bytes
+  params_lte: Bytes
+  params_in: [Bytes!]
+  params_not_in: [Bytes!]
+  params_contains: Bytes
+  params_not_contains: Bytes
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Market_filter]
+  or: [Market_filter]
+}
+
+enum Market_orderBy {
+  id
+  firstUpdateBlockNumber
+  firstUpdateTimestamp
+  firstUpdateTransactionHash
+  lastUpdateBlockNumber
+  lastUpdateTimestamp
+  lastUpdateTransactionHash
+  lendingRouter
+  lendingRouter__id
+  lendingRouter__firstUpdateBlockNumber
+  lendingRouter__firstUpdateTimestamp
+  lendingRouter__firstUpdateTransactionHash
+  lendingRouter__lastUpdateBlockNumber
+  lendingRouter__lastUpdateTimestamp
+  lendingRouter__lastUpdateTransactionHash
+  lendingRouter__name
+  vault
+  vault__id
+  vault__firstUpdateBlockNumber
+  vault__firstUpdateTimestamp
+  vault__firstUpdateTransactionHash
+  vault__lastUpdateBlockNumber
+  vault__lastUpdateTimestamp
+  vault__lastUpdateTransactionHash
+  vault__isWhitelisted
+  vault__feeRate
+  vault__strategyType
+  params
 }
 
 type Oracle {
@@ -1762,6 +1931,32 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [LendingRouter!]!
+  market(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Market
+  markets(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Market_orderBy
+    orderDirection: OrderDirection
+    where: Market_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Market!]!
   withdrawRequestManager(
     id: ID!
     """
@@ -2634,6 +2829,7 @@ type Vault {
   strategyType: String!
   withdrawRequestManagers(skip: Int = 0, first: Int = 100, orderBy: WithdrawRequestManager_orderBy, orderDirection: OrderDirection, where: WithdrawRequestManager_filter): [WithdrawRequestManager!]!
   withdrawRequests(skip: Int = 0, first: Int = 100, orderBy: WithdrawRequest_orderBy, orderDirection: OrderDirection, where: WithdrawRequest_filter): [WithdrawRequest!]
+  markets(skip: Int = 0, first: Int = 100, orderBy: Market_orderBy, orderDirection: OrderDirection, where: Market_filter): [Market!]
 }
 
 input Vault_filter {
@@ -2800,6 +2996,7 @@ input Vault_filter {
   withdrawRequestManagers_not_contains_nocase: [String!]
   withdrawRequestManagers_: WithdrawRequestManager_filter
   withdrawRequests_: WithdrawRequest_filter
+  markets_: Market_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [Vault_filter]
@@ -2873,6 +3070,7 @@ enum Vault_orderBy {
   strategyType
   withdrawRequestManagers
   withdrawRequests
+  markets
 }
 
 type WithdrawRequest {

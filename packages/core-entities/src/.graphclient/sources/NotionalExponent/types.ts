@@ -928,6 +928,16 @@ export type LendingRouter = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   name: Scalars['String'];
+  markets?: Maybe<Array<Market>>;
+};
+
+
+export type LendingRoutermarketsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Market_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Market_filter>;
 };
 
 export type LendingRouter_filter = {
@@ -1011,6 +1021,7 @@ export type LendingRouter_filter = {
   name_ends_with_nocase?: InputMaybe<Scalars['String']>;
   name_not_ends_with?: InputMaybe<Scalars['String']>;
   name_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  markets_?: InputMaybe<Market_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<LendingRouter_filter>>>;
@@ -1025,7 +1036,8 @@ export type LendingRouter_orderBy =
   | 'lastUpdateBlockNumber'
   | 'lastUpdateTimestamp'
   | 'lastUpdateTransactionHash'
-  | 'name';
+  | 'name'
+  | 'markets';
 
 export type LineItemType =
   | 'EnterPosition'
@@ -1035,6 +1047,171 @@ export type LineItemType =
   | 'WithdrawRequest'
   | 'WithdrawRequestFinalized'
   | 'TradeExecution';
+
+/** Only set on the first entry for a lending router / vault combination */
+export type Market = {
+  /** Vault:LendingRouter */
+  id: Scalars['ID'];
+  firstUpdateBlockNumber: Scalars['BigInt'];
+  firstUpdateTimestamp: Scalars['Int'];
+  firstUpdateTransactionHash: Scalars['Bytes'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
+  lastUpdateTimestamp: Scalars['Int'];
+  lastUpdateTransactionHash: Scalars['Bytes'];
+  lendingRouter: LendingRouter;
+  vault: Vault;
+  /** Generic abi-encoded params for the market */
+  params: Scalars['Bytes'];
+};
+
+export type Market_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  firstUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  firstUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  firstUpdateTimestamp?: InputMaybe<Scalars['Int']>;
+  firstUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
+  firstUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
+  firstUpdateTimestamp_lt?: InputMaybe<Scalars['Int']>;
+  firstUpdateTimestamp_gte?: InputMaybe<Scalars['Int']>;
+  firstUpdateTimestamp_lte?: InputMaybe<Scalars['Int']>;
+  firstUpdateTimestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  firstUpdateTimestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  firstUpdateTransactionHash?: InputMaybe<Scalars['Bytes']>;
+  firstUpdateTransactionHash_not?: InputMaybe<Scalars['Bytes']>;
+  firstUpdateTransactionHash_gt?: InputMaybe<Scalars['Bytes']>;
+  firstUpdateTransactionHash_lt?: InputMaybe<Scalars['Bytes']>;
+  firstUpdateTransactionHash_gte?: InputMaybe<Scalars['Bytes']>;
+  firstUpdateTransactionHash_lte?: InputMaybe<Scalars['Bytes']>;
+  firstUpdateTransactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  firstUpdateTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  firstUpdateTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
+  firstUpdateTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_lt?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_gte?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_lte?: InputMaybe<Scalars['Int']>;
+  lastUpdateTimestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateTimestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateTransactionHash?: InputMaybe<Scalars['Bytes']>;
+  lastUpdateTransactionHash_not?: InputMaybe<Scalars['Bytes']>;
+  lastUpdateTransactionHash_gt?: InputMaybe<Scalars['Bytes']>;
+  lastUpdateTransactionHash_lt?: InputMaybe<Scalars['Bytes']>;
+  lastUpdateTransactionHash_gte?: InputMaybe<Scalars['Bytes']>;
+  lastUpdateTransactionHash_lte?: InputMaybe<Scalars['Bytes']>;
+  lastUpdateTransactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  lastUpdateTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  lastUpdateTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
+  lastUpdateTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  lendingRouter?: InputMaybe<Scalars['String']>;
+  lendingRouter_not?: InputMaybe<Scalars['String']>;
+  lendingRouter_gt?: InputMaybe<Scalars['String']>;
+  lendingRouter_lt?: InputMaybe<Scalars['String']>;
+  lendingRouter_gte?: InputMaybe<Scalars['String']>;
+  lendingRouter_lte?: InputMaybe<Scalars['String']>;
+  lendingRouter_in?: InputMaybe<Array<Scalars['String']>>;
+  lendingRouter_not_in?: InputMaybe<Array<Scalars['String']>>;
+  lendingRouter_contains?: InputMaybe<Scalars['String']>;
+  lendingRouter_contains_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_contains?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_starts_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_starts_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_ends_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_ends_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_?: InputMaybe<LendingRouter_filter>;
+  vault?: InputMaybe<Scalars['String']>;
+  vault_not?: InputMaybe<Scalars['String']>;
+  vault_gt?: InputMaybe<Scalars['String']>;
+  vault_lt?: InputMaybe<Scalars['String']>;
+  vault_gte?: InputMaybe<Scalars['String']>;
+  vault_lte?: InputMaybe<Scalars['String']>;
+  vault_in?: InputMaybe<Array<Scalars['String']>>;
+  vault_not_in?: InputMaybe<Array<Scalars['String']>>;
+  vault_contains?: InputMaybe<Scalars['String']>;
+  vault_contains_nocase?: InputMaybe<Scalars['String']>;
+  vault_not_contains?: InputMaybe<Scalars['String']>;
+  vault_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  vault_starts_with?: InputMaybe<Scalars['String']>;
+  vault_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  vault_not_starts_with?: InputMaybe<Scalars['String']>;
+  vault_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  vault_ends_with?: InputMaybe<Scalars['String']>;
+  vault_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  vault_not_ends_with?: InputMaybe<Scalars['String']>;
+  vault_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  vault_?: InputMaybe<Vault_filter>;
+  params?: InputMaybe<Scalars['Bytes']>;
+  params_not?: InputMaybe<Scalars['Bytes']>;
+  params_gt?: InputMaybe<Scalars['Bytes']>;
+  params_lt?: InputMaybe<Scalars['Bytes']>;
+  params_gte?: InputMaybe<Scalars['Bytes']>;
+  params_lte?: InputMaybe<Scalars['Bytes']>;
+  params_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  params_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  params_contains?: InputMaybe<Scalars['Bytes']>;
+  params_not_contains?: InputMaybe<Scalars['Bytes']>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Market_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<Market_filter>>>;
+};
+
+export type Market_orderBy =
+  | 'id'
+  | 'firstUpdateBlockNumber'
+  | 'firstUpdateTimestamp'
+  | 'firstUpdateTransactionHash'
+  | 'lastUpdateBlockNumber'
+  | 'lastUpdateTimestamp'
+  | 'lastUpdateTransactionHash'
+  | 'lendingRouter'
+  | 'lendingRouter__id'
+  | 'lendingRouter__firstUpdateBlockNumber'
+  | 'lendingRouter__firstUpdateTimestamp'
+  | 'lendingRouter__firstUpdateTransactionHash'
+  | 'lendingRouter__lastUpdateBlockNumber'
+  | 'lendingRouter__lastUpdateTimestamp'
+  | 'lendingRouter__lastUpdateTransactionHash'
+  | 'lendingRouter__name'
+  | 'vault'
+  | 'vault__id'
+  | 'vault__firstUpdateBlockNumber'
+  | 'vault__firstUpdateTimestamp'
+  | 'vault__firstUpdateTransactionHash'
+  | 'vault__lastUpdateBlockNumber'
+  | 'vault__lastUpdateTimestamp'
+  | 'vault__lastUpdateTransactionHash'
+  | 'vault__isWhitelisted'
+  | 'vault__feeRate'
+  | 'vault__strategyType'
+  | 'params';
 
 export type Oracle = {
   /** Base Token Id:Quote Token Id:Oracle Type */
@@ -1628,6 +1805,8 @@ export type Query = {
   vaults: Array<Vault>;
   lendingRouter?: Maybe<LendingRouter>;
   lendingRouters: Array<LendingRouter>;
+  market?: Maybe<Market>;
+  markets: Array<Market>;
   withdrawRequestManager?: Maybe<WithdrawRequestManager>;
   withdrawRequestManagers: Array<WithdrawRequestManager>;
   balance?: Maybe<Balance>;
@@ -1786,6 +1965,24 @@ export type QuerylendingRoutersArgs = {
   orderBy?: InputMaybe<LendingRouter_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<LendingRouter_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerymarketArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerymarketsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Market_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Market_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2630,6 +2827,7 @@ export type Vault = {
   strategyType: Scalars['String'];
   withdrawRequestManagers: Array<WithdrawRequestManager>;
   withdrawRequests?: Maybe<Array<WithdrawRequest>>;
+  markets?: Maybe<Array<Market>>;
 };
 
 
@@ -2648,6 +2846,15 @@ export type VaultwithdrawRequestsArgs = {
   orderBy?: InputMaybe<WithdrawRequest_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<WithdrawRequest_filter>;
+};
+
+
+export type VaultmarketsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Market_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Market_filter>;
 };
 
 export type Vault_filter = {
@@ -2814,6 +3021,7 @@ export type Vault_filter = {
   withdrawRequestManagers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   withdrawRequestManagers_?: InputMaybe<WithdrawRequestManager_filter>;
   withdrawRequests_?: InputMaybe<WithdrawRequest_filter>;
+  markets_?: InputMaybe<Market_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Vault_filter>>>;
@@ -2886,7 +3094,8 @@ export type Vault_orderBy =
   | 'feeRate'
   | 'strategyType'
   | 'withdrawRequestManagers'
-  | 'withdrawRequests';
+  | 'withdrawRequests'
+  | 'markets';
 
 export type WithdrawRequest = {
   /** Withdraw Request Manager:Vault:Account */
@@ -3446,6 +3655,10 @@ export type _SubgraphErrorPolicy_ =
   lendingRouter: InContextSdkMethod<Query['lendingRouter'], QuerylendingRouterArgs, MeshContext>,
   /** null **/
   lendingRouters: InContextSdkMethod<Query['lendingRouters'], QuerylendingRoutersArgs, MeshContext>,
+  /** null **/
+  market: InContextSdkMethod<Query['market'], QuerymarketArgs, MeshContext>,
+  /** null **/
+  markets: InContextSdkMethod<Query['markets'], QuerymarketsArgs, MeshContext>,
   /** null **/
   withdrawRequestManager: InContextSdkMethod<Query['withdrawRequestManager'], QuerywithdrawRequestManagerArgs, MeshContext>,
   /** null **/
