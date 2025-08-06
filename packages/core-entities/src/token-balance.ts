@@ -506,11 +506,8 @@ export class TokenBalance {
     }
 
     // Fetch the latest exchange rate
-    const unwrapped = this.unwrapVaultToken();
-    const id = unwrapped.tokenId;
-
     const exchangeRate: BigNumber | null = model.getExchangeRateBetweenTokens(
-      id,
+      this.tokenId,
       token.id,
       timestamp
     );
@@ -554,13 +551,5 @@ export class TokenBalance {
       );
       return ethInAllNetwork.toToken(fiatToken, atTimestamp);
     }
-  }
-
-  /** Does some token id manipulation for exchange rates */
-  unwrapVaultToken() {
-    const newToken = NetworkModelRegistry.getModel(
-      this.network
-    ).unwrapVaultToken(this.token);
-    return TokenBalance.from(this.n, newToken);
   }
 }

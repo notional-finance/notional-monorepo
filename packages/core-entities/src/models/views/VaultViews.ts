@@ -28,9 +28,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     const primaryToken = getTokenByID(v.depositToken.id);
 
     switch (v.strategyType) {
-      case 'SingleSidedLP_AutoReinvest':
-      case 'SingleSidedLP_DirectClaim':
-      case 'SingleSidedLP_Points':
+      case 'CurveConvex2Token':
         return new SingleSidedLP(
           self.network,
           vaultAddress,
@@ -60,12 +58,14 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getAllListedVaults = (onlyWhitelisted = true) => {
-    return self.configuration?.vaults.filter((v) =>
-      onlyWhitelisted
-        ? whitelistedVaults(self.network).includes(
-            v.vaultAddress.toLowerCase() as Lowercase<VaultAddress>
-          )
-        : true
+    return (
+      self.configuration?.vaults.filter((v) =>
+        onlyWhitelisted
+          ? whitelistedVaults(self.network).includes(
+              v.vaultAddress.toLowerCase() as Lowercase<VaultAddress>
+            )
+          : true
+      ) || []
     );
   };
 

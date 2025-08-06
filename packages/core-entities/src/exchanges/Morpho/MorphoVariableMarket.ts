@@ -9,7 +9,7 @@ import {
   SCALAR_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
 } from '@notional-finance/util';
-import { BigNumber, Contract } from 'ethers';
+import { BigNumber, Contract, ethers } from 'ethers';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import {
   Morpho,
@@ -37,7 +37,7 @@ interface MorphoVariableMarketParams {
 const MORPHO = '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb';
 const ADAPTIVE_IRM = '0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC';
 
-abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVariableMarketParams> {
+export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVariableMarketParams> {
   public static override getInitData(
     network: Network,
     marketId: string
@@ -124,12 +124,30 @@ abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVariableMark
     return calls;
   }
 
+  public getSpotInterestRate(): number {
+    return this.getInterestRate(this.getUtilization());
+  }
+
+  public getUtilizationPercent(
+    netSupply?: TokenBalance,
+    netBorrow?: TokenBalance
+  ): number {
+    return (
+      parseFloat(
+        ethers.utils.formatUnits(
+          this.getUtilization(netSupply, netBorrow),
+          SCALAR_DECIMALS
+        )
+      ) * 100
+    );
+  }
+
   public abstract getUtilization(
     netSupply?: TokenBalance,
     netBorrow?: TokenBalance
   ): BigNumber;
 
-  public abstract getInterestRate(utilization: BigNumber): BigNumber;
+  public abstract getInterestRate(utilization: BigNumber): number;
 
   public override calculateTokenTrade(
     _tokensIn: TokenBalance,
@@ -233,7 +251,10 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
       }
     }
 
-    return this.curve(avgRateAtTarget, err);
+    const rateInScalar = this.curve(avgRateAtTarget, err);
+    return (
+      parseFloat(ethers.utils.formatUnits(rateInScalar, SCALAR_DECIMALS)) * 100
+    );
   }
 
   private curve(rateAtTarget: BigNumber, err: BigNumber) {

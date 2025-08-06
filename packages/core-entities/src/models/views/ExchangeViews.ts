@@ -4,11 +4,14 @@ import {
   PoolConstructor,
   SNOTEWeightedPool,
 } from '../../exchanges/index';
+import { MorphoVariableMarket } from '../../exchanges';
 import { Network } from '@notional-finance/util';
 import { NetworkModel } from '../NetworkModel';
 import { ethers } from 'ethers';
 import { Instance } from 'mobx-state-tree';
 import { reviver } from '../../client';
+import { TokenDefinition } from '../../Definitions';
+import { decodeMorphoLendingRouterParams } from './ConfigurationViews';
 
 export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
   self: Instance<typeof NetworkModel>,
@@ -51,8 +54,30 @@ export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
       : undefined;
   };
 
+  const getLendingMarket = (vault: string, lendingRouter: string) => {
+    const lr = self.configuration?.lendingRouters.find(
+      (lr) => lr.id === lendingRouter
+    );
+    const m = lr?.markets.find((m) => m.vault === vault);
+
+    if (lr?.name === 'Morpho' && m) {
+      const marketParams = decodeMorphoLendingRouterParams(m.params);
+      return getPoolInstance<MorphoVariableMarket>(marketParams.marketId);
+    } else {
+      throw Error(`Market params for ${vault} on ${lendingRouter} not found`);
+    }
+  };
+
+  const getLendingMarketFromVaultDebt = (vaultDebt: TokenDefinition) => {
+    if (!vaultDebt.vaultAddress)
+      throw Error('Vault debt token has no vault address');
+    return getLendingMarket(vaultDebt.vaultAddress, vaultDebt.address);
+  };
+
   return {
     getPoolInstance,
+    getLendingMarket,
     getSNOTEPool,
+    getLendingMarketFromVaultDebt,
   };
 };

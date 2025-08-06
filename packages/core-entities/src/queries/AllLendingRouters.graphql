@@ -4,6 +4,11 @@ query AllLendingRouters($skip: Int) {
     name
   }
 
+  markets(first: 1000) {
+    vault
+    params
+  }
+
   _meta {
     block {
       number

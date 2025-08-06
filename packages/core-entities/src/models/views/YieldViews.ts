@@ -1,14 +1,12 @@
 import { TokenBalance } from '../../token-balance';
 import { NetworkModel } from '../NetworkModel';
-import {
-  leveragedYield,
-  PRIME_CASH_VAULT_MATURITY,
-  RATE_PRECISION,
-} from '@notional-finance/util';
+import { firstValue, leveragedYield } from '@notional-finance/util';
 import { TokenDefinition } from '../../Definitions';
 import { Instance } from 'mobx-state-tree';
 import { TokenViews } from './TokenViews';
 import { VaultViews } from './VaultViews';
+import { ExchangeViews } from './ExchangeViews';
+import { ConfigurationViews } from './ConfigurationViews';
 
 export interface APYData {
   totalAPY?: number;
@@ -79,9 +77,10 @@ export function createLeveragedAPYData(
 }
 
 export const YieldViews = (self: Instance<typeof NetworkModel>) => {
-  const { getTokenByID, getDebtTokens, getVaultShares, getVaultDebt } =
-    TokenViews(self);
+  const { getTokenByID, getVaultShare, getVaultDebt } = TokenViews(self);
   const { getVaultAdapter, getAllListedVaults } = VaultViews(self);
+  const { getLendingMarketFromVaultDebt } = ExchangeViews(self);
+  const { getMaxLeverageRatio } = ConfigurationViews(self);
 
   const getTVL = (token: TokenDefinition) => {
     if (token.tokenType === 'VaultShare' && token.vaultAddress) {
@@ -104,7 +103,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     const token = getTokenByID(tokenId);
 
     if (token.tokenType === 'VaultDebt') {
-      apyData.organicAPY = market.getSpotInterestRate(token) || 0;
+      const market = getLendingMarketFromVaultDebt(token);
+      apyData.organicAPY = market.getSpotInterestRate();
       apyData.totalAPY = apyData.organicAPY;
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = getVaultAdapter(token.vaultAddress);
@@ -117,16 +117,14 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     return apyData;
   };
 
-  const getLeverageRatios = (collateral: TokenDefinition) => {
-    if (collateral.tokenType === 'VaultShare' && collateral.vaultAddress) {
-      const config = getVaultConfig(collateral.vaultAddress);
-      const minLeverageRatio =
-        RATE_PRECISION /
-        (config.maxRequiredAccountCollateralRatioBasisPoints as number);
-      const defaultLeverageRatio =
-        RATE_PRECISION / config.maxDeleverageCollateralRatioBasisPoints;
-      const maxLeverageRatio =
-        RATE_PRECISION / config.minCollateralRatioBasisPoints;
+  const getLeverageRatios = (vaultDebt: TokenDefinition) => {
+    if (vaultDebt.tokenType === 'VaultDebt' && vaultDebt.vaultAddress) {
+      const maxLeverageRatio = getMaxLeverageRatio(
+        vaultDebt.vaultAddress,
+        vaultDebt.address
+      );
+      const minLeverageRatio = 0;
+      const defaultLeverageRatio = maxLeverageRatio * 0.8;
 
       return { minLeverageRatio, defaultLeverageRatio, maxLeverageRatio };
     }
@@ -141,26 +139,13 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     const apyData: APYData = { totalAPY: 0 };
 
     if (netAmount.tokenType === 'VaultDebt') {
-      // If borrowing and withdrawing then it is just prime debt increase. This
-      // includes vault debt
-      const market = getNotionalMarket(netAmount.currencyId);
-      apyData.utilization = market.getPrimeCashUtilization(
+      // Get the market from the vault debt token
+      const market = getLendingMarketFromVaultDebt(netAmount.token);
+      apyData.utilization = market.getUtilizationPercent(
         undefined,
-        netAmount.unwrapVaultToken().neg()
+        netAmount.neg()
       );
-      apyData.organicAPY =
-        100 * (market.getPrimeDebtRate(apyData.utilization) / RATE_PRECISION) ||
-        0;
-      if (
-        netAmount.token.tokenType === 'VaultDebt' &&
-        netAmount.maturity === PRIME_CASH_VAULT_MATURITY &&
-        netAmount.vaultAddress
-      ) {
-        // Add the debt fee to the organic APY
-        const config = getVaultConfig(netAmount.vaultAddress);
-        apyData.organicAPY +=
-          (config.feeRateBasisPoints * 100) / RATE_PRECISION;
-      }
+      apyData.organicAPY = market.getSpotInterestRate();
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.tokenType === 'VaultShare' && netAmount.vaultAddress) {
       const adapter = getVaultAdapter(netAmount.vaultAddress);
@@ -190,50 +175,54 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     );
   };
 
-  const getDefaultVaultAPYs = (vaultAddress: string) => {
-    return getVaultShares(vaultAddress).map((share) => {
-      if (!share.maturity) throw Error('Invalid share maturity');
-      const debt = getVaultDebt(vaultAddress);
-      const { maxLeverageRatio } = getLeverageRatios(share);
+  const getDefaultVaultAPY = (vaultAddress: string) => {
+    const lrs = self.configuration?.lendingRouters.map((l) => l.id) || [];
+    const share = getVaultShare(vaultAddress);
+    // Loop over each lending router and get the APY for that vault
+    // on that particular lending router
+    const apys = lrs
+      .map((l) => {
+        const debt = getVaultDebt(vaultAddress, l);
+        const { maxLeverageRatio } = getLeverageRatios(debt);
 
-      return {
-        apy: getLeveragedAPY(
-          TokenBalance.zero(share),
-          TokenBalance.zero(debt),
-          maxLeverageRatio
-        ),
-        debtToken: debt,
-        vaultShare: share,
-      };
-    });
+        try {
+          return {
+            apy: getLeveragedAPY(
+              TokenBalance.zero(share),
+              TokenBalance.zero(debt),
+              maxLeverageRatio
+            ),
+            debtToken: debt,
+            vaultShare: share,
+          };
+        } catch (e) {
+          // We may get errors if the vault is not supported by the lending router
+          console.error(e);
+          return undefined;
+        }
+      })
+      .filter((a) => a !== undefined);
+
+    // Sort descending and take the highest APY
+    return firstValue(
+      apys.sort((a, b) => {
+        return (b?.apy.totalAPY || 0) - (a?.apy.totalAPY || 0);
+      })
+    );
   };
 
-  const getAllListedVaultsWithYield = (currencyId?: number) => {
+  const getAllListedVaultsWithYield = (depositToken?: string) => {
     return getAllListedVaults()
-      .filter((v) =>
-        currencyId ? v.primaryToken.currencyId === currencyId : true
-      )
+      .filter((v) => (depositToken ? v.depositToken.id === depositToken : true))
       .map((v) => {
-        const defaultAPYs = getDefaultVaultAPYs(v.vaultAddress || '');
-        const maxVaultAPY =
-          defaultAPYs.length > 0
-            ? defaultAPYs.reduce((max, current) => {
-                return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
-                  ? current
-                  : max;
-              }, defaultAPYs[0])
-            : undefined;
-
+        const maxVaultAPY = getDefaultVaultAPY(v.vaultAddress);
         const vaultShare = maxVaultAPY?.vaultShare;
 
         return {
           token: vaultShare,
           apy: maxVaultAPY?.apy,
-          tvl: v.vaultTVL,
-          maxLeverageRatio: vaultShare
-            ? getLeverageRatios(vaultShare).maxLeverageRatio
-            : undefined,
-          liquidity: v.vaultTVL,
+          tvl: getTVL(v.vaultToken as TokenDefinition),
+          liquidity: getLiquidity(v.vaultToken as TokenDefinition),
           underlying: vaultShare?.underlying
             ? getTokenByID(vaultShare.underlying)
             : undefined,
@@ -250,7 +239,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     getLeverageRatios,
     getSimulatedAPY,
     getLeveragedAPY,
-    getDefaultVaultAPYs,
+    getDefaultVaultAPY,
     getAllListedVaultsWithYield,
   };
 };

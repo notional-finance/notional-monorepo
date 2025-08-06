@@ -146,6 +146,12 @@ export const TokenDefinitionModel = types.model('TokenDefinition', {
 const LendingRouterModel = types.model('LendingRouter', {
   id: types.identifier,
   name: types.string,
+  markets: types.array(
+    types.model({
+      vault: types.string,
+      params: types.string,
+    })
+  ),
 });
 
 const WithdrawRequestManagerModel = types.model('WithdrawRequestManager', {

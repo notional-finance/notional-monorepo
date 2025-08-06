@@ -80,15 +80,6 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return t;
   };
 
-  const getVaultShares = (vaultAddress: string, excludeMatured = true) => {
-    return getAllTokens().filter(
-      (t) =>
-        t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
-        t.tokenType === 'VaultShare' &&
-        (excludeMatured ? getNowSeconds() < (t.maturity || 0) : true)
-    );
-  };
-
   return {
     getAllTokens,
     getTokenByID,
@@ -99,6 +90,5 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     getTokenBalanceFromSymbol,
     getTokensByType,
     getDebtTokens,
-    getVaultShares,
   };
 };
