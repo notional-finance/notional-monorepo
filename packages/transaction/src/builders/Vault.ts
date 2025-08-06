@@ -19,49 +19,6 @@ import {
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { NotionalV3 } from '@notional-finance/contracts';
 
-function getVaultSlippageRate(
-  debtBalance: TokenBalance,
-  slippageFactor = 5 * BASIS_POINT
-) {
-  if (debtBalance.maturity === PRIME_CASH_VAULT_MATURITY) {
-    return {
-      slippageRate: 0,
-      // NOTE: no fees applied here
-      underlyingOut: debtBalance.neg().toUnderlying(),
-    };
-  }
-
-  const pool = getNetworkModel(debtBalance.network).getfCashMarket(
-    debtBalance.currencyId
-  );
-
-  const slippageRate = pool.getSlippageRate(
-    debtBalance.unwrapVaultToken(),
-    slippageFactor
-  );
-  const { tokensOut } = pool.calculateTokenTrade(
-    debtBalance.neg().unwrapVaultToken(),
-    0
-  );
-
-  const underlyingOut = debtBalance.isPositive()
-    ? // If lending, no fees are applied on the vault side
-      tokensOut.toUnderlying()
-    : // If borrowing, fees are applied on the vault side
-      getNetworkModel(debtBalance.network)
-        .getVaultBorrowWithFees(
-          debtBalance.vaultAddress,
-          debtBalance.maturity,
-          tokensOut
-        )
-        .cashBorrowed.toUnderlying();
-
-  return {
-    slippageRate,
-    underlyingOut,
-  };
-}
-
 export async function DepositVault({
   address,
   network,
@@ -116,8 +73,7 @@ export async function EnterVault({
     debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
       ? debtBalance.toUnderlying().neg().scaleTo(INTERNAL_TOKEN_DECIMALS)
       : debtBalance.neg().n;
-  const { slippageRate: maxBorrowRate, underlyingOut } =
-    getVaultSlippageRate(debtBalance);
+  const underlyingOut = debtBalance.toUnderlying();
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
 
   const totalDeposit = profile
@@ -137,7 +93,7 @@ export async function EnterVault({
     depositBalance?.n,
     debtBalance.maturity,
     debtBalanceNum,
-    maxBorrowRate,
+    0,
     vaultData,
     getETHValue(depositBalance),
   ]);
@@ -193,15 +149,8 @@ export async function ExitVault({
     }
   }
 
-  let minLendRate: number;
-  let underlyingOut: TokenBalance;
-  try {
-    ({ slippageRate: minLendRate, underlyingOut } =
-      getVaultSlippageRate(debtBalance));
-  } catch {
-    minLendRate = 0;
-    underlyingOut = debtBalance.neg().toUnderlying();
-  }
+  const minLendRate = 0;
+  const underlyingOut = debtBalance.neg().toUnderlying();
 
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
   const vaultData = await vaultAdapter.getRedeemParameters(
@@ -282,10 +231,8 @@ export async function RollVault({
   );
 
   const currentDebtBalance = profile.vaultDebt.sub(profile.accruedVaultFees);
-  const { slippageRate: minLendRate, underlyingOut: costToRepay } =
-    getVaultSlippageRate(currentDebtBalance?.neg());
-  const { slippageRate: maxBorrowRate, underlyingOut: amountBorrowed } =
-    getVaultSlippageRate(debtBalance);
+  const costToRepay = currentDebtBalance?.neg().toUnderlying();
+  const amountBorrowed = debtBalance.toUnderlying();
 
   // NOTE: this has to be scaled to internal token decimals
   const debtBalanceNum =
@@ -308,8 +255,8 @@ export async function RollVault({
     debtBalanceNum.mul(RATE_PRECISION + 0.1 * BASIS_POINT).div(RATE_PRECISION),
     debtBalance.maturity,
     depositBalance?.n || TokenBalance.zero(debtBalance.underlying),
-    minLendRate,
-    maxBorrowRate,
+    0,
+    0,
     vaultData,
     getETHValue(depositBalance),
   ]);

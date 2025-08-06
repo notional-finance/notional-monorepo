@@ -24,44 +24,27 @@ function getOrderDetails(
 ): DetailItem[] {
   const { title, caption } = formatTokenType(b.token);
   const apyLabel =
-    b.tokenType === 'fCash' || b.tokenType === 'VaultShare'
+    b.tokenType === 'VaultShare'
       ? OrderDetailLabels.captionAPY
       : OrderDetailLabels.apy;
   const feeLabel =
-    b.tokenType === 'fCash' || b.tokenType === 'VaultShare'
+    b.tokenType === 'VaultShare'
       ? OrderDetailLabels.captionFee
       : OrderDetailLabels.fee;
   const priceLabel =
-    b.tokenType === 'fCash' || b.tokenType === 'VaultShare'
+    b.tokenType === 'VaultShare'
       ? OrderDetailLabels.captionPrice
       : OrderDetailLabels.price;
   const apy = options?.find((o) => o.token.id === b.tokenId)?.interestRate;
 
   let valueLabel: MessageDescriptor;
   switch (b.tokenType) {
-    case 'PrimeCash':
-    case 'nToken':
-      valueLabel = b.isPositive()
-        ? OrderDetailLabels.assetMinted
-        : OrderDetailLabels.assetRedeemed;
-      break;
-    case 'fCash':
-      valueLabel = b.isPositive()
-        ? OrderDetailLabels.fCashBought
-        : OrderDetailLabels.fCashSold;
-      break;
     case 'VaultShare':
       valueLabel = b.isPositive()
         ? OrderDetailLabels.vaultShareMinted
         : OrderDetailLabels.vaultShareRedeemed;
       break;
-    case 'PrimeDebt':
-      valueLabel = b.isPositive()
-        ? OrderDetailLabels.primeDebtRepaid
-        : OrderDetailLabels.primeDebtBorrowed;
-      break;
     case 'Underlying':
-    case 'NOTE':
       valueLabel = b.isPositive()
         ? OrderDetailLabels.assetMinted
         : OrderDetailLabels.assetRedeemed;
@@ -193,7 +176,7 @@ export function useOrderDetails(): OrderDetails {
   if (debtBalance?.isZero() === false && netRealizedDebtBalance) {
     orderDetails.push(
       ...getOrderDetails(
-        debtBalance.unwrapVaultToken(),
+        debtBalance,
         netRealizedDebtBalance,
         debtFee?.toUnderlying() || netRealizedDebtBalance.copy(0),
         intl,
@@ -207,7 +190,7 @@ export function useOrderDetails(): OrderDetails {
     // Undo withdraw and convert token type here
     orderDetails.push(
       ...getOrderDetails(
-        collateralBalance.unwrapVaultToken(),
+        collateralBalance,
         netRealizedCollateralBalance,
         collateralFee?.toUnderlying() || netRealizedCollateralBalance.copy(0),
         intl,

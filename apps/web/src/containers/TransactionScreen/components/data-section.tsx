@@ -4,7 +4,7 @@ import { Button, H2, LargeInputTextEmphasized } from '@notional-finance/mui';
 import { TotalBox } from './total-box';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
-import { VaultPerformanceChart } from '@notional-finance/vault-feature-shell';
+import { VaultPerformanceChart } from './vault-performance-chart';
 
 const DataSection = () => {
   const { isMobileView } = useAppStore();

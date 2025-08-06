@@ -23,7 +23,7 @@ export function useAccountHasPositions() {
   return SupportedNetworks.filter((n) => {
     const hasPosition = walletStore.networkAccounts
       .get(n)
-      ?.balances.some((t) => !!t.token.currencyId && !t.isZero());
+      ?.balances.some((t) => t.tokenType === 'VaultShare' && !t.isZero());
     return hasPosition;
   });
 }

@@ -13,10 +13,7 @@ import {
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
-import {
-  DeprecatedVaults,
-  NetworkClientModel,
-} from '@notional-finance/core-entities';
+import { NetworkClientModel } from '@notional-finance/core-entities';
 import { Instance } from 'mobx-state-tree';
 
 export class VaultAccountRiskProfile extends BaseRiskProfile {
@@ -75,10 +72,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return (
       model
         // Include disabled vaults here in case the account still has a position
-        .getAllListedVaults(true, true)
+        .getAllListedVaults(true)
         ?.map(({ vaultAddress }) => {
-          if (DeprecatedVaults.includes(vaultAddress.toLowerCase()))
-            return undefined;
           return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
         })
         .filter((v) => v !== undefined) as VaultAccountRiskProfile[]

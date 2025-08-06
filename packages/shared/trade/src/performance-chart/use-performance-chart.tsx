@@ -54,9 +54,7 @@ export function usePerformanceChart(currentPositionFactors?: {
     currentPositionFactors?.leverageRatio) as number | undefined;
   const data = useLeveragedPerformance(
     collateral,
-    debt
-      ? debt.tokenType === 'PrimeDebt'
-      : currentPositionFactors?.isPrimeBorrow || false,
+    false,
     currentBorrowRate,
     leverageRatio
   );

@@ -9,7 +9,6 @@ import {
 } from '@notional-finance/mui';
 import {
   calculateDepositValue,
-  useCurrentNetworkStore,
   useSpotMaturityData,
   useVaultAdapter,
 } from '@notional-finance/notionable-hooks';
@@ -23,12 +22,12 @@ import {
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
-import { useVaultExistingFactors } from '../hooks';
 import {
   useAssetPriceHistory,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
+import { useVaultExistingFactors } from '../hooks/use-vault-existing-factors';
 
 const usePendlePerformanceChart = () => {
   const trade = useCurrentTradeContext();
@@ -46,14 +45,7 @@ const usePendlePerformanceChart = () => {
   } = useVaultExistingFactors();
   const adapter = useVaultAdapter(vaultAddress) as PendlePT | undefined;
   const spotData = useSpotMaturityData(debt ? [debt] : undefined);
-  const currentNetworkStore = useCurrentNetworkStore();
-  const borrowedCurrencyId = adapter?.borrowedToken.currencyId;
-
-  const primeDebtSpotRate = borrowedCurrencyId
-    ? currentNetworkStore.getSpotAPY(
-        currentNetworkStore.getPrimeDebt(borrowedCurrencyId)?.id
-      )?.totalAPY
-    : undefined;
+  const primeDebtSpotRate = undefined;
 
   const nowMidnight = floorToMidnight(getNowSeconds());
   const ptExpires = adapter?.expiry;

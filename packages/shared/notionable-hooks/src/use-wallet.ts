@@ -2,29 +2,20 @@ import { useCallback, useEffect, useMemo } from 'react';
 import {
   Allowance,
   getNetworkModel,
-  ProductAPY,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
+import { useAccountDefinition } from './use-account';
 import {
   Network,
-  RATE_PRECISION,
   SupportedNetworks,
   getNetworkFromId,
-  groupArrayToMap,
 } from '@notional-finance/util';
-import {
-  formatNumberAsPercent,
-  truncateAddress,
-} from '@notional-finance/helpers';
+import { truncateAddress } from '@notional-finance/helpers';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber, PopulatedTransaction } from 'ethers';
 import { Community } from '@notional-finance/notionable';
-import {
-  useCurrentNetworkStore,
-  useWalletStore,
-} from './context/use-root-store';
+import { useWalletStore } from './context/use-root-store';
 import { useSelectedNetwork } from './use-network';
 
 export function useSubmitTxn() {
@@ -57,18 +48,6 @@ export function useSubmitTxn() {
     },
     [submitTxn, wallet, selectedNetwork]
   );
-}
-
-export function usePrimeCashBalance(selectedToken: string | undefined | null) {
-  const model = useCurrentNetworkStore();
-  const token = selectedToken
-    ? model.getTokenBySymbol(selectedToken)
-    : undefined;
-  const primeCash = token?.currencyId
-    ? model.getPrimeCash(token.currencyId)
-    : undefined;
-
-  return useMaxAssetBalance(primeCash);
 }
 
 export function useWalletCommunities() {
@@ -155,54 +134,6 @@ export function useWalletBalanceInputCheck(
   };
 }
 
-const getMax = (y: ProductAPY[]) => {
-  return y.reduce(
-    (m, t) => ((t.apy.totalAPY ?? 0) > m ? t.apy.totalAPY ?? 0 : m),
-    0
-  );
-};
-
-const getMin = (y: ProductAPY[]) => {
-  return y.reduce(
-    (m, t) => ((t.apy.totalAPY ?? 0) < m ? t.apy.totalAPY ?? 0 : m),
-    RATE_PRECISION
-  );
-};
-
-const getHeadlineYield = (y: ProductAPY[], isMax: boolean) => {
-  return Array.from(
-    groupArrayToMap(y, (t) => t?.underlying?.symbol).entries()
-  ).reduce((acc, [symbol, yields]) => {
-    if (symbol) {
-      acc[symbol] = isMax ? getMax(yields) : getMin(yields);
-    }
-    return acc;
-  }, {} as Record<string, number>);
-};
-
-function useApyValues(tradeType: string | undefined) {
-  const currentNetworkStore = useCurrentNetworkStore();
-
-  if (tradeType === 'LendFixed') {
-    return getHeadlineYield(currentNetworkStore.getAllFCashYields(), true);
-  } else if (tradeType === 'LendVariable') {
-    return getHeadlineYield(currentNetworkStore.getAllPrimeCashYields(), true);
-  } else if (tradeType === 'MintNToken') {
-    return getHeadlineYield(currentNetworkStore.getAllNTokenYields(), true);
-  } else if (tradeType === 'BorrowFixed') {
-    return getHeadlineYield(currentNetworkStore.getAllFCashDebt(), false);
-  } else if (tradeType === 'BorrowVariable') {
-    return getHeadlineYield(currentNetworkStore.getAllPrimeCashDebt(), false);
-  } else if (tradeType === 'LeveragedNToken') {
-    return getHeadlineYield(
-      currentNetworkStore.getAllLeveragedNTokenYields(),
-      true
-    );
-  } else {
-    return {} as Record<string, number>;
-  }
-}
-
 export function useWalletBalancesOnNetworks(
   networks: Network[],
   underlyingSymbol: string | undefined
@@ -224,11 +155,9 @@ export function useWalletBalancesOnNetworks(
 
 export function useWalletBalances(
   network: Network | undefined,
-  tokens: TokenDefinition[] | undefined,
-  tradeType: string | undefined
+  tokens: TokenDefinition[] | undefined
 ) {
   const account = useAccountDefinition(network);
-  const apyData = useApyValues(tradeType);
 
   return useMemo(() => {
     return tokens
@@ -247,8 +176,6 @@ export function useWalletBalances(
             usdBalance: maxBalance?.isPositive()
               ? maxBalance?.toFiat('USD').toFloat()
               : undefined,
-            apyNumber: apyData[token.symbol] || 0,
-            apy: `${formatNumberAsPercent(apyData[token.symbol] || 0, 2)} APY`,
           },
         };
       })
@@ -256,52 +183,7 @@ export function useWalletBalances(
         // Sorts descending by balance first, then by APY if balances are equal
         const balanceA = a.content.usdBalance || 0;
         const balanceB = b.content.usdBalance || 0;
-        if (balanceA === 0 && balanceB === 0) {
-          const apyA = a.content.apyNumber || 0;
-          const apyB = b.content.apyNumber || 0;
-          return apyB - apyA;
-        }
         return balanceB - balanceA;
       });
-  }, [tokens, account, apyData]);
-}
-
-export function useMaxAssetBalance(token: TokenDefinition | undefined) {
-  const profile = usePortfolioRiskProfile(token?.network);
-  return token?.tokenType === 'PrimeDebt'
-    ? profile?.balances
-        .find(
-          (b) =>
-            b.tokenType === 'PrimeCash' && b.currencyId === token.currencyId
-        )
-        ?.toToken(token)
-    : profile?.balances.find((b) => b.tokenId === token?.id);
-}
-
-export function useExceedsSupplyCap(
-  deposit: TokenBalance | undefined,
-  excludeSupplyCap: boolean
-) {
-  const currentNetworkStore = useCurrentNetworkStore();
-  if (
-    !excludeSupplyCap &&
-    deposit?.currencyId &&
-    deposit.network === currentNetworkStore.network
-  ) {
-    const { maxUnderlyingSupply, currentUnderlyingSupply } =
-      currentNetworkStore.getMaxSupply(deposit.currencyId);
-
-    return {
-      currentUnderlyingSupply,
-      maxUnderlyingSupply,
-      maxDeposit: maxUnderlyingSupply.gt(currentUnderlyingSupply)
-        ? maxUnderlyingSupply.sub(currentUnderlyingSupply)
-        : currentUnderlyingSupply.copy(0),
-      willExceedCap: currentUnderlyingSupply
-        .add(deposit)
-        .gt(maxUnderlyingSupply),
-    };
-  }
-
-  return undefined;
+  }, [tokens, account]);
 }

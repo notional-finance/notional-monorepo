@@ -11,7 +11,6 @@ export * from './use-query-params';
 export * from './use-chart';
 export * from './use-liquidation-prices';
 export * from './use-geoip-block';
-export * from './use-contest';
 export * from './use-network';
 export * from './use-note-data';
 export * from './summary/use-liquidation-risk';

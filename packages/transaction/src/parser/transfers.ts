@@ -70,12 +70,6 @@ function decodeSystemAccount(address: string, network: Network): SystemAccount {
   try {
     const token = getNetworkModel(network).getTokenByAddress(address);
     if (
-      token.tokenType === 'PrimeCash' ||
-      token.tokenType === 'PrimeDebt' ||
-      token.tokenType === 'nToken'
-    ) {
-      return token.tokenType;
-    } else if (
       token.vaultAddress !== undefined &&
       token.vaultAddress !== ZERO_ADDRESS
     ) {
@@ -145,7 +139,7 @@ export function parseTransfersFromLogs(
           transferType: decodeTransferType(from, to),
           fromSystemAccount: decodeSystemAccount(from, network),
           toSystemAccount: decodeSystemAccount(to, network),
-          value: token.isFCashDebt ? value.neg() : value,
+          value,
           token,
           tokenType: token.tokenType,
           maturity: token.maturity,

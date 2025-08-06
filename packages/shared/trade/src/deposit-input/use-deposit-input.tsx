@@ -1,7 +1,6 @@
 import {
   useAccountReady,
   useWalletBalanceInputCheck,
-  useExceedsSupplyCap,
 } from '@notional-finance/notionable-hooks';
 import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
@@ -14,8 +13,7 @@ export function useDepositInput(
   selectedNetwork: Network | undefined,
   depositSymbol?: string,
   isWithdraw?: boolean,
-  useZeroDefault?: boolean,
-  excludeSupplyCap = false
+  useZeroDefault?: boolean
 ) {
   const [inputString, setInputString] = useState<string>('');
   const isAccountReady = useAccountReady(selectedNetwork);
@@ -33,7 +31,6 @@ export function useDepositInput(
 
   const { maxBalanceString, maxBalance, insufficientBalance } =
     useWalletBalanceInputCheck(token, inputAmount);
-  const supply = useExceedsSupplyCap(inputAmount, excludeSupplyCap);
 
   let errorMsg: MessageDescriptor | undefined;
   // Check that this is strictly true, when undefined it means the wallet data is
@@ -48,11 +45,6 @@ export function useDepositInput(
     errorMsg = tradeErrors.usdcNotUSDCeMsg;
   } else if (!isWithdraw && isAccountReady && insufficientBalance === true) {
     errorMsg = tradeErrors.insufficientBalance;
-  } else if (!excludeSupplyCap && supply?.willExceedCap) {
-    errorMsg = {
-      ...tradeErrors.exceedSupplyCap,
-      values: { maxDeposit: supply.maxDeposit.toDisplayStringWithSymbol(2) },
-    } as MessageDescriptor;
   }
 
   return {
