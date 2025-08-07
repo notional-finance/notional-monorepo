@@ -27,10 +27,7 @@ export type FilterFunc = (
     vaultAddress?: string;
     vaultConfig?: {
       vaultAddress?: string;
-      maxBorrowMarketIndex?: number;
-      primaryBorrowCurrency: {
-        id: string;
-      };
+      depositTokenId?: string;
     };
   },
   l: TokenDefinition[]

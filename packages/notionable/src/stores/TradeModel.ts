@@ -38,7 +38,6 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
-  unique,
   zipByKeyToArray,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
@@ -270,93 +269,6 @@ export const TradeModel = types
       }
     };
 
-    // TODO: this comes directly from the vault config
-    const setAvailableDepositTokens = () => {
-      // Skip this for NOTE staking
-      if (isNOTEStake(self.tradeType)) return;
-      // Skip this for vaults
-      if (self.vaultAddress) return;
-
-      const model = root().getNetworkClient(self.selectedNetwork);
-      const account = root().getAccountDefinition(self.selectedNetwork);
-      const { depositFilter } = getTradeConfig(self.tradeType);
-      const listedTokens = model.getAllTokens();
-
-      const availableDepositTokens = listedTokens
-        .filter((t) => t.tokenType === 'Underlying' && !!t.currencyId)
-        .filter((t) =>
-          depositFilter
-            ? depositFilter(
-                t,
-                account,
-                self as unknown as BaseTradeState,
-                listedTokens
-              )
-            : true
-        );
-      self.availableDepositTokens.replace(
-        availableDepositTokens as Instance<typeof TokenDefinitionModel>[]
-      );
-
-      self.deposit = getSelectedToken(
-        availableDepositTokens,
-        self.selectedDepositToken,
-        'Deposit',
-        self.tradeType
-      ) as Instance<typeof TokenDefinitionModel> | undefined;
-    };
-
-    // TODO: this should just be 1-1 for each vault
-    const setAvailableCollateralTokens = () => {
-      const model = root().getNetworkClient(self.selectedNetwork);
-      const account = root().getAccountDefinition(self.selectedNetwork);
-      const { collateralFilter } = getTradeConfig(self.tradeType);
-      const listedTokens = model.getAllTokens();
-
-      const availableCollateralTokens = listedTokens
-        .filter(
-          (t) =>
-            t.tokenType === 'PrimeCash' ||
-            t.tokenType === 'nToken' ||
-            (t.tokenType === 'VaultShare' &&
-              (t.maturity || 0) > getNowSeconds()) ||
-            (t.tokenType === 'fCash' &&
-              t.isFCashDebt === false &&
-              (t.maturity || 0) > getNowSeconds())
-        )
-        .filter((t) =>
-          collateralFilter
-            ? collateralFilter(
-                t,
-                account,
-                {
-                  deposit: self.deposit as TokenDefinition | undefined,
-                  collateral: self.collateral as TokenDefinition | undefined,
-                  debt: self.debt as TokenDefinition | undefined,
-                  vaultAddress: self.vaultAddress,
-                  vaultConfig: self.vaultAddress
-                    ? model.getVaultConfig(self.vaultAddress)
-                    : undefined,
-                },
-                listedTokens
-              )
-            : true
-        );
-
-      self.availableCollateralTokens.replace(
-        availableCollateralTokens as Instance<typeof TokenDefinitionModel>[]
-      );
-
-      self.collateral = getSelectedToken(
-        availableCollateralTokens,
-        self.selectedToken,
-        'Collateral',
-        self.tradeType
-      ) as Instance<typeof TokenDefinitionModel> | undefined;
-    };
-
-    // TODO: this needs to include all potential lending markets that the vault
-    // is available on
     const setAvailableDebtTokens = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
       const account = root().getAccountDefinition(self.selectedNetwork);
@@ -366,13 +278,7 @@ export const TradeModel = types
       const availableDebtTokens = listedTokens
         .filter(
           (t) =>
-            t.tokenType === 'nToken' ||
-            t.tokenType === 'PrimeDebt' ||
-            (t.tokenType === 'VaultDebt' &&
-              (t.maturity || 0) > getNowSeconds()) ||
-            (t.tokenType === 'fCash' &&
-              t.isFCashDebt === false &&
-              (t.maturity || 0) > getNowSeconds())
+            t.tokenType === 'VaultDebt' && (t.maturity || 0) > getNowSeconds()
         )
         .filter((t) =>
           debtFilter
@@ -385,7 +291,11 @@ export const TradeModel = types
                   debt: self.debt as TokenDefinition | undefined,
                   vaultAddress: self.vaultAddress,
                   vaultConfig: self.vaultAddress
-                    ? model.getVaultConfig(self.vaultAddress)
+                    ? {
+                        vaultAddress: self.vaultAddress,
+                        depositTokenId: model.getVaultConfig(self.vaultAddress)
+                          ?.depositToken.id,
+                      }
                     : undefined,
                 },
                 listedTokens
@@ -438,30 +348,19 @@ export const TradeModel = types
 
     const afterAttach = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
-      // Set deposit token
-      self.deposit = self.selectedDepositToken
-        ? (model.getTokenBySymbol(self.selectedDepositToken) as Instance<
-            typeof TokenDefinitionModel
-          >)
-        : undefined;
-
       if (self.vaultAddress) {
         self.vaultType = getVaultType(self.vaultAddress, self.selectedNetwork);
         const config = model.getVaultConfig(self.vaultAddress);
-        self.deposit = config?.primaryToken as Instance<
-          typeof TokenDefinitionModel
-        >;
+        self.deposit = config.depositToken;
         self.availableDepositTokens.replace([self.deposit]);
-        self.minLeverageRatio =
-          RATE_PRECISION /
-          (config.maxRequiredAccountCollateralRatioBasisPoints as number);
-        self.defaultLeverageRatio =
-          RATE_PRECISION / config.maxDeleverageCollateralRatioBasisPoints;
-        self.maxLeverageRatio =
-          RATE_PRECISION / config.minCollateralRatioBasisPoints;
-      }
+      } else if (isNOTEStake(self.tradeType)) {
+        // Set deposit token
+        self.deposit = self.selectedDepositToken
+          ? (model.getTokenBySymbol(self.selectedDepositToken) as Instance<
+              typeof TokenDefinitionModel
+            >)
+          : undefined;
 
-      if (isNOTEStake(self.tradeType)) {
         const stakeNOTEStatus = root().getAccountDefinition(
           self.selectedNetwork
         )?.stakeNOTEStatus;
@@ -492,8 +391,6 @@ export const TradeModel = types
         }
       }
 
-      setAvailableDepositTokens();
-      setAvailableCollateralTokens();
       setAvailableDebtTokens();
 
       // NOTE: everything above here is just setting the initial state including leverage
@@ -529,39 +426,6 @@ export const TradeModel = types
           acc['collateralPool'] = root()
             .getNetworkClient(self.selectedNetwork)
             .getSNOTEPool();
-        } else if (arg === 'collateralPool') {
-          // TODO: can remove this branch
-          let currencyId: number | undefined;
-          if (self.collateral?.currencyId) {
-            currencyId = self.collateral.currencyId;
-          } else {
-            const ids = unique(
-              self.availableCollateralTokens?.map((t) => t.currencyId)
-            );
-            if (ids.length === 1) currencyId = ids[0];
-          }
-
-          acc['collateralPool'] = currencyId
-            ? root()
-                .getNetworkClient(self.selectedNetwork)
-                .getNotionalMarket(currencyId)
-            : undefined;
-        } else if (arg === 'debtPool') {
-          let currencyId: number | undefined;
-          if (self.debt?.currencyId) {
-            currencyId = self.debt.currencyId;
-          } else {
-            const ids = unique(
-              self.availableDebtTokens?.map((t) => t.currencyId)
-            );
-            if (ids.length === 1) currencyId = ids[0];
-          }
-          acc['debtPool'] = currencyId
-            ? root()
-                .getNetworkClient(self.selectedNetwork)
-                // TODO: this needs to be updated to use a more generic debt market
-                .getNotionalMarket(currencyId)
-            : undefined;
         } else if (arg === 'vaultAdapter' && self.vaultAddress) {
           acc['vaultAdapter'] = root()
             .getNetworkClient(self.selectedNetwork)
@@ -641,7 +505,6 @@ export const TradeModel = types
             inputs,
             calculationFn,
             self.availableCollateralTokens as TokenDefinition[],
-            inputs['collateralPool'] as fCashMarket | undefined,
             self.tradeType,
             inputs['vaultAdapter'] as VaultAdapter | undefined,
             root().getNetworkClient(self.selectedNetwork)
@@ -665,7 +528,6 @@ export const TradeModel = types
             inputs,
             calculationFn,
             self.availableDebtTokens as TokenDefinition[],
-            inputs['debtPool'] as fCashMarket,
             self.tradeType,
             root().getNetworkClient(self.selectedNetwork)
           ) || []
@@ -680,7 +542,7 @@ export const TradeModel = types
 
       if (self.useOptimalETH && self.depositBalance) {
         const account = root().getNetworkAccount(self.selectedNetwork);
-        const accountBalances = account?.portfolioRiskProfile?.balances || [];
+        const accountBalances = account?.balances || [];
         const maxETH = accountBalances.find(
           (b) => b.token.id === self.depositBalance?.tokenId
         );
@@ -765,12 +627,10 @@ export const TradeModel = types
 
       const config = getTradeConfig(self.tradeType);
       const accountBalances = self.vaultAddress
-        ? // TODO: debt tokens need to be linked to the vault address here
-          account.balances.filter(
+        ? account.balances.filter(
             (b) => b.token.vaultAddress === self.vaultAddress
           )
-        : // Using the risk profile here ensures that we use settled balances
-          new AccountRiskProfile(account.balances, account.network).balances;
+        : [];
 
       try {
         const populatedTransaction = yield config.transactionBuilder({
@@ -840,19 +700,14 @@ export const TradeModel = types
         self.collateralBalance = undefined;
       }
 
-      calculate();
-    };
+      if (self.debt) {
+        const model = root().getNetworkClient(self.selectedNetwork);
+        const l = model.getLeverageRatios(self.debt as TokenDefinition);
+        self.maxLeverageRatio = l.maxLeverageRatio;
+        self.defaultLeverageRatio = l.defaultLeverageRatio;
+        self.minLeverageRatio = l.minLeverageRatio;
+      }
 
-    const setVaultDebtByID = (id: string | undefined) => {
-      if (!isAlive(self)) return;
-      self.debt = id
-        ? self.availableDebtTokens?.find((t) => t.id === id)
-        : undefined;
-      self.collateral = id
-        ? self.availableCollateralTokens?.find(
-            (t) => t.maturity === self.debt?.maturity
-          )
-        : undefined;
       calculate();
     };
 
@@ -900,20 +755,6 @@ export const TradeModel = types
 
         self[k] = requiredState[k];
       });
-      calculate();
-    };
-
-    const setMaxWithdraw = (
-      depositBalance: TokenBalance,
-      collateralBalance: TokenBalance | undefined,
-      debtBalance: TokenBalance | undefined
-    ) => {
-      if (!isAlive(self)) return;
-      self.maxWithdraw = true;
-      self.calculationSuccess = true;
-      self.depositBalance = depositBalance;
-      self.collateralBalance = collateralBalance;
-      self.debtBalance = debtBalance;
       calculate();
     };
 
@@ -981,7 +822,6 @@ export const TradeModel = types
       setCollateralBalance,
       setDebtBalance,
       setDebtAndCollateralBalance,
-      setMaxWithdraw,
       setLeverageRatio,
       setRequiredSideDrawerState,
       afterAttach,
@@ -992,7 +832,6 @@ export const TradeModel = types
       clearTradeState,
       setCollateralByID,
       setDebtByID,
-      setVaultDebtByID,
       setNOTEBalanceForStaking,
       setETHBalanceForStaking,
       setUseOptimalETHForStaking,
@@ -1003,12 +842,12 @@ export const TradeModel = types
     const root = () => getRoot<RootStoreInterface>(self);
     const mergeLiquidationPrices = (
       prior: (ReturnType<
-        AccountRiskProfile['getAllLiquidationPrices']
+        VaultAccountRiskProfile['getAllLiquidationPrices']
       >[number] & {
         debt?: TokenDefinition;
       })[],
       post: (ReturnType<
-        AccountRiskProfile['getAllLiquidationPrices']
+        VaultAccountRiskProfile['getAllLiquidationPrices']
       >[number] & {
         debt?: TokenDefinition;
       })[]
@@ -1043,10 +882,7 @@ export const TradeModel = types
         .map(([_current, _updated]) => {
           const updated = (_updated || _current?.copy(0)) as TokenBalance;
           const current = (_current || _updated?.copy(0)) as TokenBalance;
-          const { titleWithMaturity } =
-            updated.tokenType === 'PrimeCash' && current.isNegative()
-              ? formatTokenType(current.toPrimeDebt().token)
-              : formatTokenType(current.token);
+          const { titleWithMaturity } = formatTokenType(current.token);
 
           return {
             label: titleWithMaturity,
@@ -1064,21 +900,7 @@ export const TradeModel = types
         .sort((a, b) => b.sortOrder - a.sortOrder);
     };
 
-    const getPostTradeSummary = () => {
-      const account = root().getNetworkAccount(self.selectedNetwork);
-      const newBalances = [self.collateralBalance, self.debtBalance].filter(
-        (b) => b !== undefined
-      ) as TokenBalance[];
-
-      return self.calculationSuccess &&
-        newBalances.length > 0 &&
-        !self.vaultAddress
-        ? AccountRiskProfile.simulate(account?.balances || [], newBalances)
-        : undefined;
-    };
-
     const getPortfolioComparison = () => {
-      const account = root().getNetworkAccount(self.selectedNetwork);
       let postBalances: TokenBalance[] | undefined;
       let priorBalances: TokenBalance[] | undefined;
       if (self.vaultAddress) {
@@ -1088,78 +910,12 @@ export const TradeModel = types
       } else if (isNOTEStake(self.tradeType)) {
         return [];
       } else {
-        priorBalances = account?.portfolioRiskProfile?.balances;
-        postBalances = getPostTradeSummary()?.balances;
+        throw Error('Not implemented');
       }
+
       return priorBalances && postBalances
         ? comparePortfolio(priorBalances, postBalances)
         : [];
-    };
-
-    const getTradeLiquidationPrices = () => {
-      const account = root().getNetworkAccount(self.selectedNetwork);
-      const postTrade = getPostTradeSummary()?.getAllLiquidationPrices();
-      const preTrade = account?.portfolioLiquidationPrices;
-      return {
-        postTrade,
-        preTrade,
-      };
-    };
-
-    const getPostTradeIncentives = () => {
-      const account = root().getNetworkAccount(self.selectedNetwork);
-      const accruedIncentives = account
-        ? account.calculateAccruedIncentives().accruedIncentives
-        : undefined;
-      return (
-        accruedIncentives
-          ?.filter(
-            ({ currencyId }) =>
-              (self.collateralBalance?.tokenType === 'nToken' &&
-                self.collateralBalance.currencyId === currencyId) ||
-              (self.debtBalance?.tokenType === 'nToken' &&
-                self.debtBalance.currencyId === currencyId)
-          )
-          .flatMap(({ incentives }) => incentives)
-          .filter((i) => i.isPositive()) || []
-      );
-    };
-
-    const getRiskSummary = () => {
-      const account = root().getNetworkAccount(self.selectedNetwork);
-      const priorAccountRisk = account?.portfolioRiskProfile;
-      const priorLiquidationPrice = account?.portfolioLiquidationPrices;
-      const postAccountRisk = getPostTradeSummary()?.getAllRiskFactors();
-
-      return {
-        onlyCurrent: !postAccountRisk,
-        tooRisky: postAccountRisk?.freeCollateral.isNegative() || false,
-        priorAccountNoRisk:
-          priorAccountRisk === undefined ||
-          (priorAccountRisk?.healthFactor === null &&
-            priorLiquidationPrice?.length === 0),
-        postAccountNoRisk:
-          postAccountRisk?.healthFactor === null &&
-          postAccountRisk?.liquidationPrice.length === 0,
-        healthFactor: {
-          current: priorAccountRisk?.healthFactor,
-          updated: postAccountRisk?.healthFactor,
-          changeType: getChangeType(
-            priorAccountRisk?.healthFactor,
-            postAccountRisk?.healthFactor
-          ),
-          greenOnArrowUp: true,
-        },
-        liquidationPrice: mergeLiquidationPrices(
-          priorLiquidationPrice?.map((p) => ({
-            ...p,
-            asset: root()
-              .getNetworkClient(self.selectedNetwork)
-              .getTokenByID(p.asset),
-          })) || [],
-          postAccountRisk?.liquidationPrice || []
-        ),
-      };
     };
 
     const getPriorVaultBalances = () => {
@@ -1287,61 +1043,9 @@ export const TradeModel = types
       };
     };
 
-    const getLeveragedNTokenPositions = () => {
-      const account = root().getNetworkAccount(self.selectedNetwork);
-      const model = root().getNetworkClient(self.selectedNetwork);
-      const groupedHoldings = account?.groupedHoldings;
-      if (!groupedHoldings) {
-        return {
-          isLoading: true,
-          currentPosition: undefined,
-          depositTokensWithPositions: [] as string[],
-          currentHoldings: undefined,
-          nTokenPositions: undefined,
-        };
-      }
-
-      const nTokenPositions = groupedHoldings?.filter(
-        ({ asset }) => asset.balance.tokenType === 'nToken'
-      );
-      const currentPosition = nTokenPositions.find(
-        ({ asset }) =>
-          asset.balance.underlying.symbol === self.selectedDepositToken
-      );
-      const depositTokensWithPositions = nTokenPositions.map(
-        ({ asset }) => asset.balance.underlying.symbol
-      );
-      // The difference between currentPosition and currentHoldings is that current holdings
-      // has more metadata but it arrives a little later
-      const currentHoldings = groupedHoldings.find(
-        ({ asset }) =>
-          asset.balance.underlying.symbol === self.selectedDepositToken
-      );
-      const currentAPYFactors = currentHoldings
-        ? model.getLeveragedAPY(
-            currentHoldings?.asset.balance,
-            currentHoldings?.debt.balance,
-            currentHoldings?.leverageRatio
-          )
-        : undefined;
-
-      return {
-        isLoading: false,
-        currentPosition,
-        depositTokensWithPositions,
-        currentHoldings,
-        nTokenPositions,
-        currentAPYFactors,
-      };
-    };
-
     const getVaultCapacity = () => {
-      let totalCapacityRemaining: TokenBalance | undefined;
       let totalPoolCapacityRemaining: TokenBalance | undefined;
-      let overCapacityError = false;
       let overPoolCapacityError = false;
-      let minBorrowSize: string | undefined = undefined;
-      let underMinAccountBorrow = false;
       let maxPoolShare: string | undefined;
       const vaultAdapter = self.vaultAddress
         ? root()
@@ -1353,53 +1057,18 @@ export const TradeModel = types
             .getNetworkClient(self.selectedNetwork)
             .getVaultConfig(self.vaultAddress)
         : undefined;
-      const priorVaultBalances = getPriorVaultBalances();
 
       if (vaultConfig) {
-        const {
-          minAccountBorrowSize,
-          totalUsedPrimaryBorrowCapacity,
-          maxPrimaryBorrowCapacity,
-        } = vaultConfig;
         // If the debt balance is the same as the current debt then
         // sum them together, otherwise just go with the new debt balance
-        const priorDebtBalance = priorVaultBalances?.find(
-          (t) => t.tokenType === 'VaultDebt'
-        );
-        const totalAccountDebt =
-          self.debtBalance &&
-          priorDebtBalance?.tokenId === self.debtBalance?.tokenId
-            ? priorDebtBalance?.add(self.debtBalance)
-            : self.debtBalance;
-        underMinAccountBorrow = totalAccountDebt?.isNegative()
-          ? toCapacityValue(totalAccountDebt).lt(minAccountBorrowSize)
-          : false;
-        const netDebtBalanceForCapacity =
-          priorDebtBalance && totalAccountDebt
-            ? toCapacityValue(totalAccountDebt).sub(
-                toCapacityValue(priorDebtBalance)
-              )
-            : totalAccountDebt
-            ? toCapacityValue(totalAccountDebt)
-            : undefined;
-        if (netDebtBalanceForCapacity && self.debtBalance?.isNegative()) {
-          overCapacityError =
-            // Over capacity due to borrow
-            totalUsedPrimaryBorrowCapacity
-              .add(netDebtBalanceForCapacity)
-              .gt(maxPrimaryBorrowCapacity);
-          overPoolCapacityError =
-            vaultAdapter?.strategy === 'SingleSidedLP'
-              ? (vaultAdapter as SingleSidedLP).isOverMaxPoolShare(
-                  self.collateralBalance
-                ) ?? false
-              : false;
-        }
-        totalCapacityRemaining = maxPrimaryBorrowCapacity.sub(
-          totalUsedPrimaryBorrowCapacity
-        );
+        overPoolCapacityError =
+          vaultAdapter?.strategyType === 'CurveConvex2Token'
+            ? (vaultAdapter as SingleSidedLP).isOverMaxPoolShare(
+                self.collateralBalance
+              ) ?? false
+            : false;
 
-        if (vaultAdapter?.strategy === 'SingleSidedLP') {
+        if (vaultAdapter?.strategyType === 'CurveConvex2Token') {
           totalPoolCapacityRemaining = (
             vaultAdapter as SingleSidedLP
           ).getRemainingPoolCapacity();
@@ -1410,27 +1079,16 @@ export const TradeModel = types
               )
             : undefined;
         }
-
-        // NOTE: these two values below do not need to be recalculated inside the observable
-        minBorrowSize =
-          minAccountBorrowSize.toFloat() < 10
-            ? minAccountBorrowSize.toDisplayStringWithSymbol(1)
-            : minAccountBorrowSize.toDisplayStringWithSymbol(0);
       }
 
       return {
-        minBorrowSize,
-        overCapacityError,
-        overPoolCapacityError,
+        overPoolCapacityError:
+          self.tradeType === 'WithdrawVault'
+            ? undefined
+            : overPoolCapacityError,
         maxPoolShare,
-        underMinAccountBorrow,
-        totalCapacityRemaining,
         totalPoolCapacityRemaining,
         vaultTVL: vaultAdapter?.getVaultTVL(),
-        vaultCapacityError:
-          self.tradeType === 'WithdrawVault'
-            ? underMinAccountBorrow
-            : overCapacityError || underMinAccountBorrow,
       };
     };
 
@@ -1438,7 +1096,7 @@ export const TradeModel = types
       if (self.vaultAddress) {
         const postAccountRisk = getPostVaultRiskProfile().postVaultRisk;
         const leverageRatio = postAccountRisk?.leverageRatio();
-        const { vaultCapacityError } = getVaultCapacity();
+        const { overPoolCapacityError } = getVaultCapacity();
 
         return (
           self.calculationSuccess &&
@@ -1447,7 +1105,7 @@ export const TradeModel = types
             (!!postAccountRisk.maxLeverageRatio &&
               !!leverageRatio &&
               leverageRatio < postAccountRisk.maxLeverageRatio)) &&
-          vaultCapacityError === false &&
+          overPoolCapacityError === false &&
           self.inputErrors === false
         );
       } else if (isNOTEStake(self.tradeType)) {
@@ -1474,13 +1132,7 @@ export const TradeModel = types
             : true)
         );
       } else {
-        const postAccountRisk = getPostTradeSummary();
-        return (
-          postAccountRisk &&
-          (postAccountRisk?.freeCollateral().isPositive() ||
-            postAccountRisk?.freeCollateral().isZero()) &&
-          self.inputErrors === false
-        );
+        throw Error('Not implemented');
       }
     };
 
@@ -1499,8 +1151,6 @@ export const TradeModel = types
           debt.token.maturity === undefined;
 
         try {
-          // TODO: The collateral balance changes depending on the maturity of the debt, this
-          // causes the APY to change when the maturity changes. (only occurs for leveraged liquidity)
           const collateralBalance =
             self.collateralOptions.find(
               (c) => c.token.id === self.collateral?.id
@@ -1571,8 +1221,7 @@ export const TradeModel = types
     };
 
     const getNetBalances = () => {
-      const account = root().getNetworkAccount(self.selectedNetwork);
-      const accountBalances = account?.portfolioRiskProfile?.balances || [];
+      const accountBalances = getPriorVaultBalances() || [];
       const netChange = self.collateralBalance || self.debtBalance;
       if (!netChange) return undefined;
 
@@ -1605,10 +1254,6 @@ export const TradeModel = types
 
         return {
           name: config?.name,
-          poolName: config?.poolName,
-          technicalName: config?.technicalName,
-          boosterProtocol: config?.boosterProtocol,
-          baseProtocol: config?.baseProtocol,
         };
       },
       get selectedTokens() {
@@ -1633,18 +1278,14 @@ export const TradeModel = types
           debt: self.debtOptions as TokenOption[] | undefined,
         };
       },
-      getLeveragedNTokenPositions,
       getNetBalances,
       getLeverageOptions,
       getAPYFactors,
-      getRiskSummary,
       getVaultRiskSummary,
-      getTradeLiquidationPrices,
       getPortfolioComparison,
       getPriorVaultBalances,
       getPostVaultFactors,
       getVaultCapacity,
-      getPostTradeIncentives,
       canSubmit,
     };
   });
@@ -1671,18 +1312,10 @@ function averageFixedRate(
   }
 }
 
-function toCapacityValue(balance: TokenBalance) {
-  return balance.maturity !== PRIME_CASH_VAULT_MATURITY
-    ? // fCash is 1-1 in internal precision
-      balance.toUnderlying().copy(balance?.n).scaleFromInternal().abs()
-    : balance.toUnderlying().abs();
-}
-
 function computeCollateralOptions(
   inputs: Record<CalculationFnParams, unknown>,
   calculationFn: CalculationFn,
   options: TokenDefinition[],
-  fCashMarket: fCashMarket | undefined,
   tradeType: AllTradeTypes | undefined,
   vaultAdapter: VaultAdapter | undefined,
   model: NetworkClientModelType
@@ -1712,7 +1345,6 @@ function computeCollateralOptions(
         ..._getTradedInterestRate(
           netRealizedCollateralBalance,
           collateralBalance,
-          fCashMarket,
           tradeType,
           vaultAdapter,
           model,
@@ -1737,7 +1369,6 @@ function computeDebtOptions(
   inputs: Record<CalculationFnParams, unknown>,
   calculationFn: CalculationFn,
   options: TokenDefinition[],
-  fCashMarket: fCashMarket,
   tradeType: AllTradeTypes | undefined,
   model: NetworkClientModelType
 ) {
@@ -1750,9 +1381,8 @@ function computeDebtOptions(
         try {
           if (isVaultTrade(tradeType)) {
             // Switch to the matching vault share token for vault trades
-            if (!d.vaultAddress || !d.maturity)
-              throw Error('Invalid debt token');
-            i['collateral'] = model.getVaultShare(d.vaultAddress, d.maturity);
+            if (!d.vaultAddress) throw Error('Invalid debt token');
+            i['collateral'] = model.getVaultShare(d.vaultAddress);
           }
 
           const { debtBalance, netRealizedDebtBalance } = calculationFn(
@@ -1771,7 +1401,6 @@ function computeDebtOptions(
             ..._getTradedInterestRate(
               netRealizedDebtBalance,
               debtBalance,
-              fCashMarket,
               tradeType,
               undefined, // Vault Adapter is not used for debt
               model,
@@ -1794,8 +1423,7 @@ function computeDebtOptions(
 
 function _getTradedInterestRate(
   realized: TokenBalance,
-  _amount: TokenBalance,
-  fCashMarket: fCashMarket | undefined,
+  amount: TokenBalance,
   tradeType: AllTradeTypes | NOTETradeType | undefined,
   vaultAdapter: VaultAdapter | undefined,
   model: NetworkClientModelType,
@@ -1806,23 +1434,18 @@ function _getTradedInterestRate(
 } {
   let interestRate: number | undefined;
   let utilization: number | undefined;
-  const amount = _amount.unwrapVaultToken();
-  if (amount.tokenType === 'PrimeDebt' && fCashMarket) {
+  if (amount.tokenType === 'VaultDebt') {
+    const market = model.getLendingMarketFromVaultDebt(amount.token);
     // If borrowing and withdrawing then it is just prime debt increase. This
     // includes vault debt
-    utilization = fCashMarket.getPrimeCashUtilization(undefined, amount.neg());
-    interestRate = fCashMarket.getPrimeDebtRate(utilization);
-    if (_amount.tokenType === 'VaultDebt') {
-      // Add the vault fee to the interest rate here..
-      const annualizedFeeRate = model.getVaultConfig(
-        _amount.vaultAddress
-      ).feeRateBasisPoints;
-      interestRate += annualizedFeeRate;
-    }
+    utilization = market.getUtilizationPercent(undefined, amount.neg());
+    interestRate = market.getInterestRate(
+      market.getUtilization(undefined, amount.neg())
+    );
   } else if (
     amount.tokenType === 'VaultShare' &&
     vaultAdapter &&
-    vaultAdapter.strategy === 'PendlePT' &&
+    vaultAdapter.strategyType === 'PendlePT' &&
     // Only calculate this on increasing the position, otherwise it will be based on
     // the current spot APY
     (tradeType === 'IncreaseVaultPosition' ||

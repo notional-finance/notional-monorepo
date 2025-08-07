@@ -1,9 +1,7 @@
-export * from './leveraged-borrow-terms/leveraged-borrow-terms';
 export * from './transaction-confirmation/transaction-confirmation';
 export * from './transaction-confirmation/components';
 export * from './transaction-approvals/hooks';
 export * from './leverage-slider/leverage-slider';
-export * from './leverage-terms/leverage-terms';
 export * from './deposit-input/deposit-input';
 export * from './tradeErrors';
 export * from './trade-action-button/trade-action-button';
@@ -12,7 +10,6 @@ export * from './transaction-sidebar/components';
 export * from './transaction-sidebar/components/transaction-headings';
 export * from './performance-chart/use-apy-chart';
 export * from './performance-chart/performance-chart';
-export * from './liquidation-chart/leveraged-liquidity-liquidation-chart';
 export * from './side-drawer-router/side-drawer-router';
 export * from './position-details-table/position-details-table';
 export * from './transaction-approvals/switch-network';

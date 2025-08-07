@@ -107,6 +107,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return d;
   }
 
+  get lastImpliedFixedRate() {
+    return undefined;
+  }
+
   get vaultConfig() {
     return this.model.getVaultConfig(this.vaultAddress);
   }
