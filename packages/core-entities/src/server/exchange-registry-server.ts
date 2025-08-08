@@ -2,18 +2,49 @@ import { aggregate } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { PoolClasses } from '../exchanges';
 import { PoolDefinition, PoolData, TokenBalance } from '..';
-import { ServerRegistry } from './server-registry';
+import {
+  DocumentTypes,
+  fetchGraphPaginate,
+  loadGraphClientDeferred,
+  ServerRegistry,
+  TypedDocumentReturnType,
+} from './server-registry';
 import defaultPools from '../exchanges/default-pools';
+import { decodeMorphoLendingRouterParams } from '../models/views/ConfigurationViews';
 
 export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
   protected async _refresh(network: Network, blockNumber?: number) {
-    // TODO: need to get all of the lending pools and add them to the default pools here.
+    const { AllLendingRoutersDocument } = await loadGraphClientDeferred();
+    const r: TypedDocumentReturnType<
+      DocumentTypes['AllLendingRoutersDocument']
+    > = (
+      await fetchGraphPaginate(
+        network,
+        AllLendingRoutersDocument,
+        'lendingRouters',
+        this.env.NX_SUBGRAPH_API_KEY,
+        {
+          skip: 0,
+        }
+      )
+    )['data'];
 
-    const networkPools = defaultPools[network].filter(({ earliestBlock }) =>
-      blockNumber !== undefined && earliestBlock !== undefined
-        ? earliestBlock <= blockNumber
-        : true
-    );
+    const lendingMarkets: PoolDefinition[] = r['markets'].map((m) => {
+      const marketParams = decodeMorphoLendingRouterParams(m.params);
+      return {
+        address: marketParams.marketId,
+        PoolClass: 'MorphoAdaptiveIRM',
+        registerTokens: [],
+      };
+    });
+
+    const networkPools = defaultPools[network]
+      .filter(({ earliestBlock }) =>
+        blockNumber !== undefined && earliestBlock !== undefined
+          ? earliestBlock <= blockNumber
+          : true
+      )
+      .concat(lendingMarkets);
     const poolKeys = new Map<string, string[]>();
 
     const calls = networkPools.flatMap(({ PoolClass, address }) => {
