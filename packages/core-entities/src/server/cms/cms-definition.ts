@@ -80,10 +80,7 @@ export interface ProjectDefinition {
 export interface RewardDefinition {
   id: string;
   name: string;
-  isPoints: boolean;
-  issuingProject: string;
-  token?: string;
-  pointMultiplier?: number;
+  token: string;
 }
 
 export interface VaultCMSData {

@@ -4517,9 +4517,12 @@ export type AllLendingRoutersQueryVariables = Exact<{
 }>;
 
 
-export type AllLendingRoutersQuery = { lendingRouters: Array<Pick<LendingRouter, 'id' | 'name'>>, markets: Array<(
-    Pick<Market, 'params'>
-    & { vault: Pick<Vault, 'id'> }
+export type AllLendingRoutersQuery = { lendingRouters: Array<(
+    Pick<LendingRouter, 'id' | 'name'>
+    & { markets?: Maybe<Array<(
+      Pick<Market, 'params'>
+      & { vault: Pick<Vault, 'id'> }
+    )>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllOraclesQueryVariables = Exact<{
@@ -4767,12 +4770,12 @@ export const AllLendingRoutersDocument = gql`
   lendingRouters(first: 1000, skip: $skip) {
     id
     name
-  }
-  markets(first: 1000) {
-    vault {
-      id
+    markets(first: 1000) {
+      vault {
+        id
+      }
+      params
     }
-    params
   }
   _meta {
     block {

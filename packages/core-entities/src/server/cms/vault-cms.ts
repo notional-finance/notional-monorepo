@@ -185,7 +185,9 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
     return {
       name: v.fieldData.name,
       address: v.fieldData['vault-address-2']['contract-address'],
-      network: v.fieldData['vault-address-2']['network']['name'] as Network,
+      network: v.fieldData['vault-address-2']['network'][
+        'name'
+      ].toLowerCase() as Network,
       depositToken: v.fieldData['deposit-token-2']['contract-address'],
       vaultFeatures: v.fieldData['vault-features'].map(
         (feature) => feature.name
@@ -199,14 +201,12 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
         logoURL: p['project-logo'].url,
         description: '',
       })),
-      rewards: v.fieldData['rewards'].map((r) => ({
-        id: r.slug,
-        name: r.name,
-        isPoints: r['is-points'],
-        issuingProject: r['issuing-project'].slug,
-        token: r['token-address-2']['contract-address'],
-        pointMultiplier: 1,
-      })),
+      rewards:
+        v.fieldData['rewards']?.map((r) => ({
+          id: r.slug,
+          name: r.name,
+          token: r['token-address-3']['contract-address'],
+        })) || [],
     };
   });
 }

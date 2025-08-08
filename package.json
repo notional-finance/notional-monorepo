@@ -169,7 +169,7 @@
     "eslint-config-next": "14.2.4",
     "eslint-plugin-address": "^0.0.2",
     "eslint-plugin-cypress": "^2.10.3",
-    "eslint-plugin-formatjs": "^4.3.4",
+    "eslint-plugin-formatjs": "4.3.4",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-jsx-a11y": "6.6.1",
     "eslint-plugin-mobx": "^0.0.11",
@@ -204,15 +204,15 @@
     "stylus-loader": "^7.1.0",
     "timers-browserify": "^2.0.12",
     "ts-jest": "28.0.5",
-    "ts-unused-exports": "^11.0.1",
     "ts-node": "10.9.1",
+    "ts-unused-exports": "^11.0.1",
     "typechain": "^8.3.2",
     "typescript": "^5.7.3",
     "url": "^0.11.0",
     "url-loader": "^4.1.1",
     "webpack": "^5.75.0",
     "webpack-merge": "^5.8.0",
-    "wrangler": "^4.19.1"
+    "wrangler": "^4.28.1"
   },
   "resolutions": {
     "@types/react": "18.2.0"

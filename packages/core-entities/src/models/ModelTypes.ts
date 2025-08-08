@@ -143,7 +143,7 @@ export const TokenDefinitionModel = types.model('TokenDefinition', {
   currencyId: types.maybe(types.number),
 });
 
-const LendingRouterModel = types.model('LendingRouter', {
+export const LendingRouterModel = types.model('LendingRouter', {
   id: types.identifier,
   name: types.string,
   markets: types.array(
@@ -154,13 +154,15 @@ const LendingRouterModel = types.model('LendingRouter', {
   ),
 });
 
-const WithdrawRequestManagerModel = types.model('WithdrawRequestManager', {
-  id: types.identifier,
-  name: types.string,
-  yieldToken: types.reference(TokenDefinitionModel),
-  withdrawToken: types.reference(TokenDefinitionModel),
-  stakingToken: types.reference(TokenDefinitionModel),
-});
+export const WithdrawRequestManagerModel = types.model(
+  'WithdrawRequestManager',
+  {
+    id: types.identifier,
+    yieldToken: types.reference(TokenDefinitionModel),
+    withdrawToken: types.reference(TokenDefinitionModel),
+    stakingToken: types.reference(TokenDefinitionModel),
+  }
+);
 
 const ProjectModel = types.model('ProjectModel', {
   id: types.identifier,
@@ -173,9 +175,6 @@ const RewardModel = types.model('RewardModel', {
   id: types.identifier,
   name: types.string,
   token: types.reference(TokenDefinitionModel),
-  isPoints: types.boolean,
-  pointMultiplier: types.number,
-  issuingProject: types.string, // Changed from reference to simple string
 });
 
 export const VaultModel = types.model('VaultModel', {

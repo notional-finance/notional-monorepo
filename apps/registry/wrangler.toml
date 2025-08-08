@@ -1,9 +1,10 @@
 account_id = '274f86c6dcfbb77c09e49e86d101c753'
 main = "./src/index.ts"
-compatibility_date = "2022-11-11"
+compatibility_date = "2025-08-08"
 
 workers_dev = true
-node_compat = true
+compatibility_flags = ["nodejs_compat"]
+
 minify = true
 logpush = true
 
@@ -18,7 +19,7 @@ crons = ["* * * * *"]
 
 [env.dev.vars]
 NX_ENV = 'dev'
-SUPPORTED_NETWORKS = ['arbitrum', 'all', 'mainnet']
+SUPPORTED_NETWORKS = ['all', 'mainnet']
 DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'
 
 [env.prod]
@@ -32,5 +33,5 @@ crons = ["* * * * *"]
 
 [env.prod.vars]
 NX_ENV = 'prod'
-SUPPORTED_NETWORKS = ['arbitrum', 'all', 'mainnet']
+SUPPORTED_NETWORKS = ['all', 'mainnet']
 DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'

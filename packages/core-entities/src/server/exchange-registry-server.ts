@@ -29,14 +29,20 @@ export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
       )
     )['data'];
 
-    const lendingMarkets: PoolDefinition[] = r['markets'].map((m) => {
-      const marketParams = decodeMorphoLendingRouterParams(m.params);
-      return {
-        address: marketParams.marketId,
-        PoolClass: 'MorphoAdaptiveIRM',
-        registerTokens: [],
-      };
-    });
+    const lendingMarkets: PoolDefinition[] = r['lendingRouters'].flatMap(
+      (l) => {
+        return (
+          l.markets?.map((m) => {
+            const marketParams = decodeMorphoLendingRouterParams(m.params);
+            return {
+              address: marketParams.marketId,
+              PoolClass: 'MorphoAdaptiveIRM',
+              registerTokens: [],
+            };
+          }) ?? []
+        );
+      }
+    );
 
     const networkPools = defaultPools[network]
       .filter(({ earliestBlock }) =>

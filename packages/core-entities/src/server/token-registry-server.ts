@@ -11,6 +11,7 @@ import {
   Network,
   sNOTE,
   WETHAddress,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 
 export type SerializedToken =
@@ -95,6 +96,20 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
             network: Network.mainnet,
             name: 'Wrapped Ether',
             symbol: 'WETH',
+            decimals: 18,
+            tokenInterface: 'ERC20',
+            tokenType: 'Underlying',
+            totalSupply: undefined,
+          },
+        ],
+        [
+          ZERO_ADDRESS,
+          {
+            id: ZERO_ADDRESS,
+            address: ZERO_ADDRESS,
+            network: Network.mainnet,
+            name: 'Ether',
+            symbol: 'ETH',
             decimals: 18,
             tokenInterface: 'ERC20',
             tokenType: 'Underlying',
