@@ -4,7 +4,6 @@ import { usePortfolioOverviewTable, useTotalsChart } from './hooks';
 import { usePortfolioNOTETable, usePortfolioSNOTETable } from '../../hooks';
 import { Box, styled, useTheme } from '@mui/material';
 import { useAppStore } from '@notional-finance/notionable-hooks';
-import PortfolioHoldingsOverview from './containers/portfolio-holdings-overview';
 import LeverageVaultsOverview from './containers/leverage-vaults-overview';
 import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
 import NOTEHoldingsOverview from './containers/note-holdings-overview';
@@ -14,7 +13,7 @@ import { SECONDS_IN_DAY, SECONDS_IN_MONTH } from '@notional-finance/util';
 const PortfolioOverviewMobile = () => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
-  const { mobilePortfolioHoldings, vaultHoldingsData, showVaultHoldingsTable } =
+  const { vaultHoldingsData, showVaultHoldingsTable } =
     usePortfolioOverviewTable(false);
   const { noteData } = usePortfolioNOTETable();
   const { data: sNoteData } = usePortfolioSNOTETable();
@@ -67,10 +66,6 @@ const PortfolioOverviewMobile = () => {
           gap: theme.spacing(2),
         }}
       >
-        {mobilePortfolioHoldings && (
-          <PortfolioHoldingsOverview holdings={mobilePortfolioHoldings} />
-        )}
-
         {showVaultHoldingsTable && (
           <LeverageVaultsOverview data={vaultHoldingsData} />
         )}

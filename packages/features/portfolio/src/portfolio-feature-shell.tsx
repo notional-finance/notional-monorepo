@@ -19,7 +19,6 @@ import { SideNav, PortfolioMobileNav, EmptyPortfolio } from './components';
 import {
   PortfolioOverview,
   PortfolioTransactionHistory,
-  PortfolioStateZero,
   PortfolioNoteStaking,
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/notionable-hooks';
@@ -174,7 +173,7 @@ const Portfolio = observer(() => {
           </PortfolioMainContent>
           <PortfolioMobileNav />
         </>
-      ) : params.category !== PORTFOLIO_CATEGORIES.WELCOME ? (
+      ) : (
         <>
           <PortfolioMainContent>
             {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
@@ -189,8 +188,6 @@ const Portfolio = observer(() => {
           </PortfolioMainContent>
           <PortfolioMobileNav />
         </>
-      ) : (
-        <PortfolioStateZero />
       )}
       {isMobileView && <MobileFooter />}
     </PortfolioContainer>
@@ -210,10 +207,6 @@ const Portfolio = observer(() => {
         >
           {SideDrawerComponent && <SideDrawerComponent />}
         </SideDrawer>
-      )}
-
-      {params.category === PORTFOLIO_CATEGORIES.WELCOME && (
-        <PortfolioStateZero />
       )}
       {params.category === PORTFOLIO_CATEGORIES.NOTE_STAKING &&
         hasNoteOrSNote && (

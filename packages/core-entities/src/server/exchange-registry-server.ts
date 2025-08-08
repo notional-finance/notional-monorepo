@@ -7,6 +7,8 @@ import defaultPools from '../exchanges/default-pools';
 
 export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
   protected async _refresh(network: Network, blockNumber?: number) {
+    // TODO: need to get all of the lending pools and add them to the default pools here.
+
     const networkPools = defaultPools[network].filter(({ earliestBlock }) =>
       blockNumber !== undefined && earliestBlock !== undefined
         ? earliestBlock <= blockNumber

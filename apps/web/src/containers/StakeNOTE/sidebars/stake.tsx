@@ -58,7 +58,6 @@ export const Stake = observer(() => {
           showScrollPopper
           ref={noteInputRef}
           inputRef={noteInputRef}
-          excludeSupplyCap
           useZeroDefault
           onUpdate={onNOTEUpdate}
           depositOverride={NOTE}
@@ -76,7 +75,6 @@ export const Stake = observer(() => {
         miniButtonLabel={'OPTIMIZE'}
         onUpdate={onETHUpdate}
         onMaxValue={onOptimize}
-        excludeSupplyCap
         newRoute={(newToken) => `/${PRODUCTS.STAKE_NOTE}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: 'Enter amount of ETH or WETH to stake:',

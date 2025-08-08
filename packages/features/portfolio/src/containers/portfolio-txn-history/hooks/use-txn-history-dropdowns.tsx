@@ -4,7 +4,6 @@ import { SelectedOptions } from '@notional-finance/mui';
 import { useLocation } from 'react-router-dom';
 
 export const useTxnHistoryDropdowns = (
-  txnHistoryCategory: number,
   allCurrencyOptions: any[],
   allAssetOrVaultOptions: any[]
 ) => {
@@ -19,7 +18,7 @@ export const useTxnHistoryDropdowns = (
   useEffect(() => {
     setAssetOrVaultOptions([]);
     setCurrencyOptions([]);
-  }, [txnHistoryCategory]);
+  }, []);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(search);
@@ -46,12 +45,7 @@ export const useTxnHistoryDropdowns = (
     {
       selectedOptions: assetOrVaultOptions,
       setSelectedOptions: setAssetOrVaultOptions,
-      placeHolderText:
-        txnHistoryCategory === 0 ? (
-          <FormattedMessage defaultMessage={'Assets'} />
-        ) : (
-          <FormattedMessage defaultMessage={'Vaults'} />
-        ),
+      placeHolderText: <FormattedMessage defaultMessage={'Vaults'} />,
       data: allAssetOrVaultOptions,
     },
   ];

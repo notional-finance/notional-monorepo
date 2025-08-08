@@ -14,7 +14,6 @@ import useTxnHistoryData from './use-txn-history-data';
 export const useTxnHistoryTable = (
   currencyOptions: SelectedOptions[],
   assetOrVaultOptions: SelectedOptions[],
-  txnHistoryCategory: number,
   accountHistoryData: ReturnType<typeof useTxnHistoryData>['accountHistoryData']
 ) => {
   const txnHistoryColumns = useMemo<DataTableColumn[]>(
@@ -100,27 +99,16 @@ export const useTxnHistoryTable = (
     if (filterData.length === 0) return accountHistoryData;
 
     if (assetOrVaultIds.length > 0 && currencyIds.length > 0) {
-      return txnHistoryCategory === 0
-        ? accountHistoryData
-            .filter(({ currency }) => filterData.includes(currency))
-            .filter(({ token }) => filterData.includes(token.id))
-        : accountHistoryData
-            .filter(({ currency }) => filterData.includes(currency))
-            .filter(({ token }) =>
-              filterData.includes(token.vaultAddress || '')
-            );
+      return accountHistoryData
+        .filter(({ currency }) => filterData.includes(currency))
+        .filter(({ token }) => filterData.includes(token.vaultAddress || ''));
     }
     if (currencyIds.length > 0) {
       return accountHistoryData.filter(({ currency }) =>
         currencyIds.includes(currency)
       );
     }
-    if (assetOrVaultIds.length > 0 && txnHistoryCategory === 0) {
-      return accountHistoryData.filter(({ token }) =>
-        filterData.includes(token.id)
-      );
-    }
-    if (assetOrVaultIds.length > 0 && txnHistoryCategory === 1) {
+    if (assetOrVaultIds.length > 0) {
       return accountHistoryData.filter(({ token }) =>
         filterData.includes(token.vaultAddress || '')
       );
