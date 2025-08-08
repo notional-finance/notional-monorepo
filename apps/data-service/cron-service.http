@@ -1,7 +1,0 @@
-@baseUrl={{$dotenv CRON_BASE_URL}}
-
-# @prompt network [Network] {mainnet|arbitrum}
-GET {{baseUrl}}/syncVaultAccounts?network={{network}}
-x-auth-token: bla
-
-###

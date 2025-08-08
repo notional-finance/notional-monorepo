@@ -27,3 +27,8 @@ export function useVaultMetadata(vaultAddress?: string) {
     ? currentNetworkStore.getVaultConfig(vaultAddress)
     : undefined;
 }
+
+export function useAllVaults() {
+  const currentNetworkStore = useCurrentNetworkStore();
+  return currentNetworkStore.getAllListedVaults();
+}

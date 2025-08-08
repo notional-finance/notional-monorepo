@@ -211,7 +211,7 @@ export const useAllVaultAccounts = (
       selectedOptions: vaultNameOptions,
       setSelectedOptions: setVaultNameOptions,
       placeHolderText: <FormattedMessage defaultMessage={'Vault Name'} />,
-      data: listedVaults.map(({ vaultConfig: { name } }) => {
+      data: listedVaults.map(({ name }) => {
         return {
           id: name,
           title: name,

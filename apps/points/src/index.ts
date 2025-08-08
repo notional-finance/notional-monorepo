@@ -1,4 +1,3 @@
-import { getAccountPoints } from './arb_points';
 import { getVaultData, getVaultTVL } from './calculate-points';
 
 export interface Env {
@@ -16,16 +15,7 @@ export default {
     if (!vaultAddress || !blockNumber) {
       return new Response('Invalid request', { status: 400 });
     }
-    if (vaultAddress === 'arb_account_points') {
-      return new Response(JSON.stringify(await getAccountPoints(blockNumber)), {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET,OPTIONS',
-          'Access-Control-Max-Age': '86400',
-        },
-      });
-    } else if (blockNumber === 'tvl') {
+    if (blockNumber === 'tvl') {
       const params = new URLSearchParams(url.search);
       const blockNum = params.has('blockNumber')
         ? parseInt(params.get('blockNumber') as string)
