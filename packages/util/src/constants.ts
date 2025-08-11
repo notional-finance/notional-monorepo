@@ -38,7 +38,6 @@ export const ALT_ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const SETTLEMENT_RESERVE = '0x00000000000000000000000000000000000005e7';
 export const FEE_RESERVE = '0x0000000000000000000000000000000000000FEE';
 // NOTE: the fiat address is not checksummed in the subgraph
-// eslint-disable-next-line address/addr-type
 export const FIAT_ADDRESS = '0x000000000000000000000000000000000000F147';
 export const MAX_UINT88 = BigNumber.from(2).pow(88).sub(1);
 export const IS_LOCAL_ENV =
@@ -144,7 +143,6 @@ export enum DexIds {
 // This kludge is necessary because the subgraph only allows a skip value of
 // less than 5000, so we query the entire account range by the prefix here with
 // a max number of accounts in each id range of 5000.
-/* eslint-disable address/addr-type */
 export const ACCOUNT_ID_RANGES = [
   '0x0000000000000000000000000000000000000000',
   '0x1000000000000000000000000000000000000000',
@@ -164,7 +162,6 @@ export const ACCOUNT_ID_RANGES = [
   '0xf000000000000000000000000000000000000000',
   '0xffffffffffffffffffffffffffffffffffffffff',
 ];
-/* eslint-enable address/addr-type */
 
 export type MainnetToken =
   (typeof tokens)[Network.mainnet][keyof typeof tokens.mainnet];
