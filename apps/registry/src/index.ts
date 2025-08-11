@@ -2,7 +2,7 @@ import { Request } from '@cloudflare/workers-types';
 import { NetworkServerModel } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 import { putStorageKey } from './registry-helpers';
-import { fetchReconciliationViews, refreshViews } from './views-helpers';
+import { refreshViews } from './views-helpers';
 
 export interface BaseDOEnv {
   NX_COMMIT_REF: string | undefined;
@@ -21,35 +21,11 @@ async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
     return;
   }
 
-  await fetchReconciliationViews(env, network);
   const networkModel = NetworkServerModel.create({ network });
   networkModel.initialize(async (data: string) => {
-    await putStorageKey(env, `${network}/snapshot`, data);
+    await putStorageKey(env, `${network}/v4/snapshot`, data);
   }, env);
   await networkModel.refresh(true);
-
-  const oracles = {
-    network,
-    values: Array.from(networkModel.oracles.entries()).map(([key, value]) => [
-      key,
-      value,
-    ]),
-    lastUpdateTimestamp: networkModel.lastUpdated,
-    lastUpdateBlock: networkModel.lastUpdatedBlock,
-  };
-
-  const vaults = {
-    network,
-    values: Array.from(networkModel.vaults.entries()).map(([key, value]) => [
-      key,
-      value,
-    ]),
-    lastUpdateTimestamp: networkModel.lastUpdated,
-    lastUpdateBlock: networkModel.lastUpdatedBlock,
-  };
-
-  await putStorageKey(env, `${network}/oracles`, JSON.stringify(oracles));
-  await putStorageKey(env, `${network}/vaults`, JSON.stringify(vaults));
 }
 
 export default {
@@ -85,7 +61,7 @@ export default {
       return new Response('Network not specified', { status: 400 });
     }
 
-    const obj = await env.VIEW_CACHE_R2.get(`${network}/snapshot`);
+    const obj = await env.VIEW_CACHE_R2.get(`${network}/v4/snapshot`);
     if (!obj) return new Response('Not found', { status: 404 });
     const { lastUpdated } = (await obj.json()) as { lastUpdated: number };
 

@@ -9,7 +9,7 @@ minify = true
 logpush = true
 
 [env.dev]
-name = "registry-dev"
+name = "registry-dev-v4"
 r2_buckets = [
   { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2-dev", preview_bucket_name = "view-cache-r2-dev" },
 ]
@@ -22,16 +22,16 @@ NX_ENV = 'dev'
 SUPPORTED_NETWORKS = ['all', 'mainnet']
 DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'
 
-[env.prod]
-name = "registry-prod"
-r2_buckets = [
-  { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
-]
+# [env.prod]
+# name = "registry-prod"
+# r2_buckets = [
+#   { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
+# ]
 
-[env.prod.triggers]
-crons = ["* * * * *"]
+# [env.prod.triggers]
+# crons = ["* * * * *"]
 
-[env.prod.vars]
-NX_ENV = 'prod'
-SUPPORTED_NETWORKS = ['all', 'mainnet']
-DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'
+# [env.prod.vars]
+# NX_ENV = 'prod'
+# SUPPORTED_NETWORKS = ['all', 'mainnet']
+# DATA_SERVICE_URL = 'https://us-central1-monitoring-agents.cloudfunctions.net/data-service'
