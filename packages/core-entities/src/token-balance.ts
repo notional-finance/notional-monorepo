@@ -37,17 +37,9 @@ export function initializeTokenBalanceRegistry(): Instance<
     Network.mainnet,
     getNetworkModel(Network.mainnet)
   );
-  NetworkModelRegistry.setModel(
-    Network.arbitrum,
-    getNetworkModel(Network.arbitrum)
-  );
   NetworkModelRegistry.setModel(Network.all, getNetworkModel(Network.all));
 
-  return [
-    getNetworkModel(Network.mainnet),
-    getNetworkModel(Network.arbitrum),
-    getNetworkModel(Network.all),
-  ];
+  return [getNetworkModel(Network.mainnet), getNetworkModel(Network.all)];
 }
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;

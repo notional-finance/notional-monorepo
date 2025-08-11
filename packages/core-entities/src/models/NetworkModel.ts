@@ -156,9 +156,9 @@ export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
     const startTime = performance.now();
     console.log(
       'Refreshing snapshot using url',
-      `${REGISTRY_URL}/${self.network}/snapshot`
+      `${REGISTRY_URL}/${self.network}/v4/snapshot`
     );
-    const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
+    const response = yield fetch(`${REGISTRY_URL}/${self.network}/v4/snapshot`);
     const snapshot = yield response.json();
     applySnapshot(self, {
       ...snapshot,

@@ -121,7 +121,7 @@ function getDepositTokenBalanceCalls(
         args: [account],
         key: `${token.address}.balance`,
         transform: (b: BigNumber) => {
-          return { balances: [TokenBalance.from(b, token)] };
+          return TokenBalance.from(b, token);
         },
       };
     }

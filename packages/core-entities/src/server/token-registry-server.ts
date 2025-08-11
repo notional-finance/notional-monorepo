@@ -10,6 +10,8 @@ import {
   getNowSeconds,
   Network,
   sNOTE,
+  TokenAddress,
+  tokens,
   WETHAddress,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
@@ -111,6 +113,24 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
             name: 'Ether',
             symbol: 'ETH',
             decimals: 18,
+            tokenInterface: 'ERC20',
+            tokenType: 'Underlying',
+            totalSupply: undefined,
+          },
+        ],
+        [
+          tokens[Network.mainnet].NOTE.toLowerCase() as Lowercase<TokenAddress>,
+          {
+            id: tokens[
+              Network.mainnet
+            ].NOTE.toLowerCase() as Lowercase<TokenAddress>,
+            address: tokens[
+              Network.mainnet
+            ].NOTE.toLowerCase() as Lowercase<TokenAddress>,
+            network: Network.mainnet,
+            name: 'Notional',
+            symbol: 'NOTE',
+            decimals: 8,
             tokenInterface: 'ERC20',
             tokenType: 'Underlying',
             totalSupply: undefined,
