@@ -24,12 +24,24 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
     const target = `/embed/${path}`;
     let timeoutId: number;
 
-    const initializeWebflow = () => {
+    const initializeWebflow = (bodyScripts: NodeListOf<HTMLScriptElement>) => {
       // Guard against memory leak in unmount state
       if (!mountedRef.current) return;
 
-      timeoutId = window.setTimeout(() => {
+      timeoutId = window.setTimeout(async () => {
         if (!mountedRef.current) return;
+
+        // Loading all the body scripts will cause them to execute in their own order
+        bodyScripts.forEach((s) => {
+          const newScript = document.createElement('script');
+          if (s.src) {
+            newScript.src = s.src;
+          } else {
+            newScript.textContent = s.textContent;
+          }
+          document.body.appendChild(newScript);
+        });
+
         // Once content is loaded and webflow is initialized, call the callback to perform
         // any custom DOM manipulation
         if (containerRef.current) {
@@ -54,7 +66,7 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
 
         if (containerRef.current) {
           containerRef.current.innerHTML = doc.body.innerHTML;
-          initializeWebflow();
+          initializeWebflow(bodyScripts);
         }
       })
       .catch((err) => {
@@ -75,7 +87,7 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
         <div
           ref={containerRef}
           id="webflow-embed"
-          className={path === '' ? 'body' : 'body-vaults'}
+          className={path === '' ? 'body' : 'body-vault'}
         />
       )}
     </Box>
@@ -85,13 +97,6 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
 export const LandingPageView = () => {
   // This needs to be a callback to avoid re-rendering the component
   const onContentLoaded = useCallback((container: HTMLDivElement) => {
-    // Initialize the webflow rendering engine
-    if ((window as any).Webflow && (window as any).Webflow.require) {
-      const ix2 = (window as any).Webflow.require('ix2');
-      if (ix2?.init) ix2.init();
-      (window as any).Webflow.ready?.();
-    }
-
     // TODO: get this data from MobX
     const tvlElement = container.querySelector('#tvl');
     const maxUsdcApyElement = container.querySelector('#max-usdc-apy');

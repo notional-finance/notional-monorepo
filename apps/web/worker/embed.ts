@@ -98,19 +98,7 @@ class ScriptInjector {
         });
       });
     } else if (element.tagName === 'body') {
-      // Inject body scripts
-      this.bodyScripts.forEach(({ content, attributes }) => {
-        const attrString = Object.entries(attributes)
-          .map(([key, value]) => `${key}="${value}"`)
-          .join(' ');
-        if (content) {
-          element.append(`<script ${attrString}>${content}</script>`, {
-            html: true,
-          });
-        } else {
-          element.append(`<script ${attrString}></script>`, { html: true });
-        }
-      });
+      // Body scripts are injected on the client side
     }
   }
 }
