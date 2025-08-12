@@ -14,9 +14,10 @@ export default class extends WorkerEntrypoint<{
 
     // Otherwise we're dealing with an html request and we have to inject the webflow scripts
     const url = new URL(request.url);
-    const { webflowHtml, isEmbed } = await fetchWebflowPage(url.pathname);
+    const isEmbed = url.pathname.startsWith('/embed');
 
     if (isEmbed) {
+      const webflowHtml = await fetchWebflowPage(url.pathname, true);
       return new Response(webflowHtml, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
@@ -24,6 +25,7 @@ export default class extends WorkerEntrypoint<{
         },
       });
     } else {
+      const webflowHtml = await fetchWebflowPage(url.pathname, false);
       const indexHtml = await this.env.ASSETS.fetch(request);
       const modifiedHtml = await extractWebflowHtml(
         webflowHtml,

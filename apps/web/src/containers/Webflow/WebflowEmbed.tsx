@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Box, SxProps, useTheme } from '@mui/material';
 
 interface WebflowEmbedProps {
   path: string;
   onContentLoaded?: (container: HTMLDivElement) => void;
+  sx?: SxProps;
 }
 
-const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
+const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState(null);
   const mountedRef = useRef(true);
@@ -28,17 +30,10 @@ const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
 
       timeoutId = window.setTimeout(() => {
         if (!mountedRef.current) return;
-
-        if ((window as any).Webflow && (window as any).Webflow.require) {
-          const ix2 = (window as any).Webflow.require('ix2');
-          if (ix2?.init) ix2.init();
-          (window as any).Webflow.ready?.();
-
-          // Once content is loaded and webflow is initialized, call the callback to perform
-          // any custom DOM manipulation
-          if (containerRef.current) {
-            onContentLoaded?.(containerRef.current);
-          }
+        // Once content is loaded and webflow is initialized, call the callback to perform
+        // any custom DOM manipulation
+        if (containerRef.current) {
+          onContentLoaded?.(containerRef.current);
         }
       }, 0);
     };
@@ -54,8 +49,8 @@ const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        const scripts = doc.body.querySelectorAll('script');
-        scripts.forEach((s) => s.remove());
+        const bodyScripts = doc.body.querySelectorAll('script');
+        bodyScripts.forEach((s) => s.remove());
 
         if (containerRef.current) {
           containerRef.current.innerHTML = doc.body.innerHTML;
@@ -73,19 +68,30 @@ const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
   }, [path, onContentLoaded]);
 
   return (
-    <div>
+    <Box sx={sx}>
       {error ? (
         <div style={{ color: 'red' }}>Error loading content: {error}</div>
       ) : (
-        <div ref={containerRef} id="webflow-embed" className="body" />
+        <div
+          ref={containerRef}
+          id="webflow-embed"
+          className={path === '' ? 'body' : 'body-vaults'}
+        />
       )}
-    </div>
+    </Box>
   );
 };
 
 export const LandingPageView = () => {
   // This needs to be a callback to avoid re-rendering the component
   const onContentLoaded = useCallback((container: HTMLDivElement) => {
+    // Initialize the webflow rendering engine
+    if ((window as any).Webflow && (window as any).Webflow.require) {
+      const ix2 = (window as any).Webflow.require('ix2');
+      if (ix2?.init) ix2.init();
+      (window as any).Webflow.ready?.();
+    }
+
     // TODO: get this data from MobX
     const tvlElement = container.querySelector('#tvl');
     const maxUsdcApyElement = container.querySelector('#max-usdc-apy');
@@ -102,11 +108,26 @@ export const LandingPageView = () => {
 };
 
 export const VaultPageView = () => {
+  const theme = useTheme();
   const onContentLoaded = useCallback(() => {
     console.log('content loaded');
+
+    if ((window as any).FinsweetAttributes) {
+      // First unmount the existing process because it initialized before the DOM content
+      // was loaded
+      (window as any).FinsweetAttributes.destroy();
+      // Re-initialize the process which will load all the attributes
+      (window as any).FinsweetAttributes.load('list');
+    }
   }, []);
 
-  return <WebflowEmbed path="/vaults" onContentLoaded={onContentLoaded} />;
+  return (
+    <WebflowEmbed
+      sx={{ background: theme.palette.background.default }}
+      path="/vaults"
+      onContentLoaded={onContentLoaded}
+    />
+  );
 };
 
 export const PointsPageView = () => {
