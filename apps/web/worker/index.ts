@@ -1,6 +1,8 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { fetchWebflowPage, extractWebflowHtml } from './embed';
 
+const WEBFLOW_PAGES = ['/', '/vaults', '/points'];
+
 export default class extends WorkerEntrypoint<{
   ASSETS: Fetcher;
   WEBFLOW_API_TOKEN: string;
@@ -24,7 +26,7 @@ export default class extends WorkerEntrypoint<{
           'Cache-Control': 'public, max-age=300',
         },
       });
-    } else {
+    } else if (WEBFLOW_PAGES.includes(url.pathname)) {
       const webflowHtml = await fetchWebflowPage(url.pathname, false);
       const indexHtml = await this.env.ASSETS.fetch(request);
       const modifiedHtml = await extractWebflowHtml(
@@ -37,6 +39,8 @@ export default class extends WorkerEntrypoint<{
           'Cache-Control': 'public, max-age=300',
         },
       });
+    } else {
+      return this.env.ASSETS.fetch(request);
     }
   }
 }

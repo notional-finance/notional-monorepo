@@ -114,16 +114,49 @@ export const LandingPageView = () => {
 
 export const VaultPageView = () => {
   const theme = useTheme();
-  const onContentLoaded = useCallback(() => {
-    console.log('content loaded');
-
+  const onContentLoaded = useCallback((container: HTMLDivElement) => {
     if ((window as any).FinsweetAttributes) {
       // First unmount the existing process because it initialized before the DOM content
       // was loaded
       (window as any).FinsweetAttributes.destroy();
+      (window as any).FinsweetAttributes =
+        (window as any).FinsweetAttributes || [];
+      (window as any).FinsweetAttributes.push([
+        'list',
+        ([l, _]: any[]) => {
+          l.cache = false;
+          l.showQuery = true;
+          // After the list is rendered we can update the href
+          l.addHook('start', () => {
+            container.querySelectorAll('.vault-row').forEach((e) => {
+              // TODO: add the network here
+              e['href'] = `/vault/mainnet/${e.getAttribute(
+                'n-vault-address'
+              )}`.toLowerCase();
+            });
+          });
+        },
+      ]);
+
       // Re-initialize the process which will load all the attributes
       (window as any).FinsweetAttributes.load('list');
     }
+
+    // Only set this text data once after the list is rendered so that the sorting engine
+    // can read it
+    // TODO: get the data from MobX
+    container.querySelectorAll('.vault-max-apy').forEach((e, i) => {
+      console.log('vault address max apy', e.getAttribute('n-vault-address'));
+      e.textContent = `${i + 1}.0%`;
+    });
+    container.querySelectorAll('.vault-liquidity').forEach((e, i) => {
+      console.log('vault address liquidity', e.getAttribute('n-vault-address'));
+      e.textContent = `$${i + 1}00.0M`;
+    });
+    container.querySelectorAll('.vault-tvl').forEach((e, i) => {
+      console.log('vault address tvl', e.getAttribute('n-vault-address'));
+      e.textContent = `$${i + 1}.0M`;
+    });
   }, []);
 
   return (
