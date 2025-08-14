@@ -18,12 +18,14 @@ export const VaultDepositScreen = () => {
     <TransactionScreen
       inputs={[
         <DepositInput
+          key="deposit-input"
           inputLabel={defineMessage({
             defaultMessage: 'Deposit',
           })}
           inputRef={currencyInputRef}
         />,
         <LeverageSlider
+          key="leverage-slider"
           inputLabel={defineMessage({
             defaultMessage: 'Leverage',
           })}

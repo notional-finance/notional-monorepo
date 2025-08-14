@@ -278,7 +278,8 @@ export const TradeModel = types
       const availableDebtTokens = listedTokens
         .filter(
           (t) =>
-            t.tokenType === 'VaultDebt' && (t.maturity || 0) > getNowSeconds()
+            t.tokenType === 'VaultDebt' &&
+            (t.maturity ? t.maturity > getNowSeconds() : true)
         )
         .filter((t) =>
           debtFilter
@@ -392,6 +393,13 @@ export const TradeModel = types
       }
 
       setAvailableDebtTokens();
+      if (self.availableDebtTokens.length === 1) {
+        self.debt = self.availableDebtTokens[0];
+        const l = model.getLeverageRatios(self.debt as TokenDefinition);
+        self.maxLeverageRatio = l.maxLeverageRatio;
+        self.defaultLeverageRatio = l.defaultLeverageRatio;
+        self.minLeverageRatio = l.minLeverageRatio;
+      }
 
       // NOTE: everything above here is just setting the initial state including leverage
       // ratios and the available tokens
