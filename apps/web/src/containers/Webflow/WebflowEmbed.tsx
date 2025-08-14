@@ -28,24 +28,29 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
       // Guard against memory leak in unmount state
       if (!mountedRef.current) return;
 
+      // Loading all the body scripts will cause them to execute in their own order
+      // async
+      bodyScripts.forEach((s) => {
+        const newScript = document.createElement('script');
+        if (s.src) {
+          newScript.src = s.src;
+        } else {
+          newScript.textContent = s.textContent;
+        }
+        document.body.appendChild(newScript);
+      });
+
       timeoutId = window.setTimeout(async () => {
         if (!mountedRef.current) return;
 
-        // Loading all the body scripts will cause them to execute in their own order
-        bodyScripts.forEach((s) => {
-          const newScript = document.createElement('script');
-          if (s.src) {
-            newScript.src = s.src;
-          } else {
-            newScript.textContent = s.textContent;
-          }
-          document.body.appendChild(newScript);
-        });
-
-        // Once content is loaded and webflow is initialized, call the callback to perform
-        // any custom DOM manipulation
-        if (containerRef.current) {
-          onContentLoaded?.(containerRef.current);
+        if ((window as any).Webflow) {
+          (window as any).Webflow = (window as any).Webflow || [];
+          // This runs after Webflow is fully initialized
+          (window as any).Webflow.push(() => {
+            if (containerRef.current) {
+              onContentLoaded?.(containerRef.current);
+            }
+          });
         }
       }, 0);
     };
