@@ -9,6 +9,7 @@ import { TokenViews } from './TokenViews';
 import { AnalyticsViews } from './AnalyticsViews';
 import { PendlePTVaultParams } from '../../vaults/PendlePT';
 import { SingleSidedLPParams } from '../../vaults/SingleSidedLP';
+import { Staking, StakingVaultParams } from '../../vaults/Staking';
 
 export const VaultViews = (self: Instance<typeof NetworkModel>) => {
   const { getTokenByID } = TokenViews(self);
@@ -42,6 +43,13 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
           self.network,
           vaultAddress,
           params as PendlePTVaultParams,
+          primaryToken
+        );
+      case 'Staking':
+        return new Staking(
+          self.network,
+          vaultAddress,
+          params as StakingVaultParams,
           primaryToken
         );
       default:

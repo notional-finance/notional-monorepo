@@ -30,6 +30,10 @@ const PendleMarketABI = new ethers.utils.Interface([
   'function expiry() view external returns (uint256)',
 ]);
 
+const StakingVaultABI = new ethers.utils.Interface([
+  'function yieldToken() view external returns (address)',
+]);
+
 const CurveConvex2Token = new ethers.utils.Interface([
   'function CURVE_POOL_TOKEN() view external returns (address)',
   'function PRIMARY_INDEX() view external returns (uint8)',
@@ -85,6 +89,8 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             return this.getCurveConvex2TokenCalls(vaultAddress, network);
           case 'PendlePT':
             return this.getPendlePTCalls(vaultAddress, network, enabled);
+          case 'Staking':
+            return this.getStakingCalls(vaultAddress, network, enabled);
           default:
             return [];
         }
@@ -296,6 +302,41 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         key: `${vaultAddress}.enabled`,
         transform: (expiry: BigNumber) =>
           enabled ? expiry.gt(getNowSeconds()) : false,
+      },
+    ];
+  }
+
+  protected getStakingCalls(
+    vaultAddress: string,
+    network: Network,
+    enabled: boolean
+  ): AggregateCall[] {
+    return [
+      {
+        target: 'NO_OP',
+        stage: 0,
+        method: 'NO_OP',
+        key: vaultAddress,
+        transform: () => ({
+          vaultAddress,
+        }),
+      },
+      {
+        target: 'NO_OP',
+        stage: 0,
+        method: 'NO_OP',
+        key: `${vaultAddress}.enabled`,
+        transform: () => enabled,
+      },
+      {
+        target: new Contract(
+          vaultAddress,
+          StakingVaultABI,
+          getProviderFromNetwork(network)
+        ),
+        stage: 0,
+        method: 'yieldToken',
+        key: `${vaultAddress}.stakingToken`,
       },
     ];
   }

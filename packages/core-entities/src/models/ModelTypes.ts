@@ -308,9 +308,14 @@ const PendlePTVaultModel = BaseVaultDefinitionModel.props({
   tokenOutSy: types.string,
 });
 
+const StakingVaultModel = BaseVaultDefinitionModel.props({
+  stakingToken: types.string,
+});
+
 export const VaultDefinitionModel = types.union(
   SingleSidedLPVaultModel,
-  PendlePTVaultModel
+  PendlePTVaultModel,
+  StakingVaultModel
 );
 
 export const TimeSeriesModel = types.model('TimeSeriesModel', {
