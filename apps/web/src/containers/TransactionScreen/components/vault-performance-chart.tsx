@@ -8,9 +8,8 @@ export const VaultPerformanceChart = () => {
   const trade = useCurrentTradeContext();
   const { vaultShare, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
-  const vaultType = trade?.vaultType;
 
-  return vaultType === 'PendlePT' ? (
+  return trade?.strategyType === 'PendlePT' ? (
     <PendlePerformanceChart />
   ) : (
     <PerformanceChart

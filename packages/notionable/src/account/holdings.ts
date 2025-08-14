@@ -81,15 +81,15 @@ export function calculateVaultHoldings(
     const debtMarketPnL = debtEarnings?.add(debtInterestAccrual || zeroDenom);
 
     const marketProfitLoss = profit.sub(totalInterestAccrual);
-    const vaultType = v.vaultConfig.strategyType;
+    const strategyType = v.vaultConfig.strategyType;
 
     const vaultMetadata = {
       rewardClaims: rewardClaims[v.vaultAddress],
-      vaultType,
+      strategyType,
       reinvestmentCadence:
         v.network === Network.arbitrum ? SECONDS_IN_DAY : 7 * SECONDS_IN_DAY,
       isExpired:
-        vaultType === 'PendlePT'
+        strategyType === 'PendlePT'
           ? (v.vaultAdapter as PendlePT).timeToExpiry === 0
           : undefined,
     };

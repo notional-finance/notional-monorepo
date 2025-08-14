@@ -1,6 +1,5 @@
 import {
   FiatKeys,
-  getNetworkModel,
   PointsLinks,
   TokenBalance,
   TokenDefinition,
@@ -22,8 +21,6 @@ import {
 } from '@notional-finance/notionable-hooks';
 import {
   formatMaturity,
-  getDateString,
-  Network,
   pointsMultiple,
   PRIME_CASH_VAULT_MATURITY,
   TXN_HISTORY_TYPE,
@@ -101,22 +98,6 @@ function dividerRow(label: string) {
     isPending: false,
     isDividerRow: true,
   };
-}
-
-function getVaultReinvestmentDate(
-  network: Network,
-  vaultAddress: string,
-  reinvestmentCadence: number
-) {
-  try {
-    const reinvestmentData =
-      getNetworkModel(network).getVaultReinvestment(vaultAddress);
-    return reinvestmentData
-      ? getDateString(reinvestmentData[0].timestamp + reinvestmentCadence)
-      : '';
-  } catch (e) {
-    return '';
-  }
 }
 
 function getSpecificVaultInfo(
@@ -225,26 +206,8 @@ function getSpecificVaultInfo(
       ],
       warning: undefined,
     };
-  } else if (v.vaultMetadata.vaultType === 'SingleSidedLP_AutoReinvest') {
-    return {
-      subRowInfo: [
-        {
-          label: (
-            <FormattedMessage defaultMessage={'Time to Next Reinvestment'} />
-          ),
-          value: getVaultReinvestmentDate(
-            v.network,
-            v.vaultAddress,
-            v.vaultMetadata.reinvestmentCadence
-          ),
-        },
-      ],
-      totalEarnings,
-      buttonBarData: [],
-      warning: undefined,
-    };
   } else if (
-    v.vaultMetadata.vaultType === 'PendlePT' &&
+    v.vaultMetadata.strategyType === 'PendlePT' &&
     v.vaultMetadata.isExpired
   ) {
     return {

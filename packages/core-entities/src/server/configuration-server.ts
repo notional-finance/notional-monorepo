@@ -74,6 +74,7 @@ export class ConfigurationServer extends ServerRegistry<AllConfigurationQuery> {
         return {
           ...m,
           vaultAddress: vault.id,
+          depositToken: vault.asset.id,
           yieldToken: vault.yieldToken.id,
           vaultToken: vault.vaultToken.id,
           feeRate: BigNumber.from(vault.feeRate).toJSON(),

@@ -1,6 +1,5 @@
 import {
   createLeveragedAPYData,
-  getVaultType,
   NotionalTypes,
   PendlePT,
   SingleSidedLP,
@@ -9,6 +8,7 @@ import {
   TokenDefinitionModel,
   VAULT_TYPES,
   VaultAdapter,
+  VaultType,
 } from '@notional-finance/core-entities';
 import {
   AllTradeTypes,
@@ -73,7 +73,7 @@ const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
     if (!selectedNetwork)
       throw Error('Token Definition parent reference not found');
     const model = root().getNetworkClient(selectedNetwork);
-    return model.getTokenByID(identifier.toString()) as Instance<
+    return model.getTokenByID(identifier.toString().toLowerCase()) as Instance<
       typeof TokenDefinitionModel
     >;
   },
@@ -228,7 +228,7 @@ export const TradeModel = types
     isDeleverage: types.optional(types.boolean, false),
 
     /** Vault type */
-    vaultType: types.optional(
+    strategyType: types.optional(
       types.maybe(types.enumeration('VaultType', VAULT_TYPES)),
       undefined
     ),
@@ -349,8 +349,8 @@ export const TradeModel = types
     const afterAttach = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
       if (self.vaultAddress) {
-        self.vaultType = getVaultType(self.vaultAddress, self.selectedNetwork);
         const config = model.getVaultConfig(self.vaultAddress);
+        self.strategyType = config.strategyType as VaultType;
         self.deposit = config.depositToken;
         self.availableDepositTokens.replace([self.deposit]);
       } else if (isNOTEStake(self.tradeType)) {

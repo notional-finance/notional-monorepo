@@ -4,7 +4,7 @@ import { colors } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { Caption } from '../typography/typography';
 import { VaultType } from '@notional-finance/core-entities';
-import { AutoReinvestIcon, DirectIcon } from '@notional-finance/icons';
+import { DirectIcon } from '@notional-finance/icons';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export const ReinvestPill = ({
@@ -18,21 +18,12 @@ export const ReinvestPill = ({
   const { themeVariant } = useAppStore();
 
   const reinvestOptions =
-    vaultType === 'SingleSidedLP_DirectClaim'
+    vaultType === 'CurveConvex2Token'
       ? {
           Icon: DirectIcon,
           label: defineMessage({
             defaultMessage: 'Direct Claim',
             description: 'Direct Claim',
-          }),
-        }
-      : vaultType === 'SingleSidedLP_AutoReinvest' ||
-        vaultType === 'SingleSidedLP_Points'
-      ? {
-          Icon: AutoReinvestIcon,
-          label: defineMessage({
-            defaultMessage: 'Auto-Reinvest',
-            description: 'Auto Reinvest',
           }),
         }
       : undefined;

@@ -5,7 +5,6 @@ import {
 } from './server-registry';
 import {
   Network,
-  VaultAddress,
   getNowSeconds,
   getProviderFromNetwork,
 } from '@notional-finance/util';
@@ -14,7 +13,7 @@ import { VaultMetadata } from '../vaults';
 import { ERC20ABI } from '@notional-finance/contracts';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
-import { CacheSchema, fetchFromRegistry, whitelistedVaults } from '..';
+import { CacheSchema, fetchFromRegistry } from '..';
 import { BaseVaultParams } from '../vaults/VaultAdapter';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
@@ -71,32 +70,26 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         });
     }
 
-    const calls = vaultConfigurations
-      .filter((v: { vaultAddress: string; strategyType: string }) =>
-        (whitelistedVaults(network) as string[]).includes(
-          v.vaultAddress as VaultAddress
-        )
-      )
-      .flatMap(
-        ({
-          vaultAddress,
-          enabled,
-          strategyType,
-        }: {
-          vaultAddress: string;
-          enabled: boolean;
-          strategyType: string;
-        }) => {
-          switch (strategyType) {
-            case 'CurveConvex2Token':
-              return this.getCurveConvex2TokenCalls(vaultAddress, network);
-            case 'PendlePT':
-              return this.getPendlePTCalls(vaultAddress, network, enabled);
-            default:
-              return [];
-          }
+    const calls = vaultConfigurations.flatMap(
+      ({
+        vaultAddress,
+        enabled,
+        strategyType,
+      }: {
+        vaultAddress: string;
+        enabled: boolean;
+        strategyType: string;
+      }) => {
+        switch (strategyType) {
+          case 'CurveConvex2Token':
+            return this.getCurveConvex2TokenCalls(vaultAddress, network);
+          case 'PendlePT':
+            return this.getPendlePTCalls(vaultAddress, network, enabled);
+          default:
+            return [];
         }
-      );
+      }
+    );
 
     const { block, results } = await aggregate(
       calls,

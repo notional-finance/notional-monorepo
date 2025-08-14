@@ -242,12 +242,8 @@ export class SingleSidedLP extends VaultAdapter {
           Object.keys(r)
             .filter((r) =>
               // Direct claim vaults have a reward APY based on incentives
-              vaultType === 'SingleSidedLP_DirectClaim'
+              vaultType === 'CurveConvex2Token'
                 ? r.toLowerCase().includes('incentive')
-                : // Points vaults only have rewards based on points, any other reward
-                // is compounded into the organic APY
-                vaultType === 'SingleSidedLP_Points'
-                ? r.toLowerCase().includes('points')
                 : false
             )
             .reduce((t, key) => t + (r[key] || 0), 0)
