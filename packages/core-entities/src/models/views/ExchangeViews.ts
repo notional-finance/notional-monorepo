@@ -18,8 +18,8 @@ export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
   address: string
 ) {
   const poolDefinition =
-    self.exchanges.get(ethers.utils.getAddress(address)) ||
-    self.exchanges.get(address.toLowerCase());
+    self.exchanges.get(address.toLowerCase()) ||
+    self.exchanges.get(ethers.utils.getAddress(address));
   if (!poolDefinition)
     throw Error(`Pool ${address} on ${self.network} not found`);
   if (!poolDefinition.latestPoolData)

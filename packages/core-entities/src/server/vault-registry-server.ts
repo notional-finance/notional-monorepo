@@ -53,11 +53,14 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
       const data = await fetchGraphPaginate(
         network,
         AllVaultsDocument,
-        'vaultConfigurations',
+        'vaults',
         this.env.NX_SUBGRAPH_API_KEY
       );
-      // TODO: this needs to change....
-      vaultConfigurations = data['data'].vaultConfigurations;
+      vaultConfigurations = data['data'].vaults.map((v) => ({
+        vaultAddress: v.id,
+        strategyType: v.strategyType,
+        enabled: v.isWhitelisted,
+      }));
     } catch (e) {
       const response = await fetchFromRegistry<CacheSchema<VaultMetadata>>(
         `${network}/vaults`,
@@ -84,16 +87,38 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         enabled: boolean;
         strategyType: string;
       }) => {
+        let calls: AggregateCall[] = [];
         switch (strategyType) {
           case 'CurveConvex2Token':
-            return this.getCurveConvex2TokenCalls(vaultAddress, network);
+            calls = this.getCurveConvex2TokenCalls(vaultAddress, network);
+            break;
           case 'PendlePT':
-            return this.getPendlePTCalls(vaultAddress, network, enabled);
+            calls = this.getPendlePTCalls(vaultAddress, network, enabled);
+            break;
           case 'Staking':
-            return this.getStakingCalls(vaultAddress, network, enabled);
+            calls = this.getStakingCalls(vaultAddress, network, enabled);
+            break;
           default:
-            return [];
+            calls = [];
         }
+        calls.push(
+          {
+            target: 'NO_OP',
+            stage: 0,
+            method: 'NO_OP',
+            key: vaultAddress,
+            transform: () => ({ vaultAddress }),
+          },
+          {
+            target: 'NO_OP',
+            stage: 0,
+            method: 'NO_OP',
+            key: `${vaultAddress}.strategyType`,
+            transform: () => strategyType,
+          }
+        );
+
+        return calls;
       }
     );
 
@@ -252,15 +277,6 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   ): AggregateCall[] {
     return [
       {
-        target: 'NO_OP',
-        stage: 0,
-        method: 'NO_OP',
-        key: vaultAddress,
-        transform: () => ({
-          vaultAddress,
-        }),
-      },
-      {
         target: new Contract(
           vaultAddress,
           PendlePTVaultABI,
@@ -312,15 +328,6 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     enabled: boolean
   ): AggregateCall[] {
     return [
-      {
-        target: 'NO_OP',
-        stage: 0,
-        method: 'NO_OP',
-        key: vaultAddress,
-        transform: () => ({
-          vaultAddress,
-        }),
-      },
       {
         target: 'NO_OP',
         stage: 0,

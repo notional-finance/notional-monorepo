@@ -163,14 +163,6 @@ export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
 
     applySnapshot(self, {
       ...snapshot,
-      // TODO: remove this once the registry is updated
-      configuration: {
-        ...snapshot.configuration,
-        vaults: snapshot.configuration?.vaults?.map((v) => ({
-          ...v,
-          depositToken: v.depositToken.toLowerCase(),
-        })),
-      },
       timeSeries: self.timeSeries,
       timeSeriesState: self.timeSeriesState,
       analytics: self.analytics,
