@@ -399,6 +399,7 @@ export const TradeModel = types
         self.maxLeverageRatio = l.maxLeverageRatio;
         self.defaultLeverageRatio = l.defaultLeverageRatio;
         self.minLeverageRatio = l.minLeverageRatio;
+        self.leverageRatio = l.defaultLeverageRatio;
       }
 
       // NOTE: everything above here is just setting the initial state including leverage

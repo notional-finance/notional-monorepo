@@ -54,13 +54,13 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
 
     if (lr?.name === 'Morpho' && m) {
       const marketParams = decodeMorphoLendingRouterParams(m.params);
-      const leverageInScalar = SCALAR_PRECISION.div(
+      const leverageInScalar = SCALAR_PRECISION.mul(SCALAR_PRECISION).div(
         SCALAR_PRECISION.sub(marketParams.lltv)
       );
-      return leverageInScalar
-        .mul(RATE_PRECISION)
-        .div(SCALAR_PRECISION)
-        .toNumber();
+      return (
+        leverageInScalar.mul(RATE_PRECISION).div(SCALAR_PRECISION).toNumber() /
+        RATE_PRECISION
+      );
     } else {
       throw Error(`Market params for ${vault} on ${lendingRouter} not found`);
     }
