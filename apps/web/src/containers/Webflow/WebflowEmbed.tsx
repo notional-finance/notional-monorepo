@@ -37,7 +37,12 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
         } else {
           newScript.textContent = s.textContent;
         }
-        document.body.appendChild(newScript);
+        try {
+          document.body.appendChild(newScript);
+        } catch (e) {
+          console.error('Error appending script', e);
+          console.log('script', newScript);
+        }
       });
 
       timeoutId = window.setTimeout(async () => {
@@ -67,7 +72,12 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const bodyScripts = doc.body.querySelectorAll('script');
+        const pageId = doc.documentElement.getAttribute('data-wf-page');
         bodyScripts.forEach((s) => s.remove());
+        if (pageId) {
+          // This ensures that all the correct event listeners are triggered
+          document.documentElement.setAttribute('data-wf-page', pageId);
+        }
 
         if (containerRef.current) {
           containerRef.current.innerHTML = doc.body.innerHTML;

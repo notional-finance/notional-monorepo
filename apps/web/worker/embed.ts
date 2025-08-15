@@ -8,9 +8,11 @@ interface ScriptData {
 class ScriptCollector {
   headScripts: ScriptData[] = [];
   headLinks: { href: string; rel: string | null }[] = [];
+  headStyles: ScriptData[] = [];
   bodyScripts: ScriptData[] = [];
   private inHead = false;
   private inScriptTag = false;
+  private inStyleTag = false;
   private prevText = '';
 
   element(element: Element) {
@@ -37,6 +39,13 @@ class ScriptCollector {
         if (href.endsWith('.ico')) return;
         this.headLinks.push({ href, rel });
       }
+    } else if (element.tagName === 'style') {
+      this.inStyleTag = true;
+      // Collect all attributes
+      const attributes: Record<string, string> = Object.fromEntries(
+        Array.from(element.attributes).map((attr) => [attr[0], attr[1]])
+      );
+      this.headStyles.push({ content: null, attributes });
     }
   }
 
@@ -62,6 +71,12 @@ class ScriptCollector {
           this.bodyScripts[this.bodyScripts.length - 1].content += text.text;
         }
       }
+    } else if (this.inStyleTag) {
+      if (this.headStyles.length === 0) return;
+
+      if (this.headStyles[this.headStyles.length - 1].content === null) {
+        this.headStyles[this.headStyles.length - 1].content = text.text;
+      }
     }
   }
 
@@ -74,7 +89,7 @@ class ScriptInjector {
   constructor(
     private headScripts: ScriptData[],
     private headLinks: { href: string; rel: string | null }[],
-    private bodyScripts: ScriptData[]
+    private headStyles: ScriptData[]
   ) {}
 
   element(element: Element) {
@@ -97,6 +112,14 @@ class ScriptInjector {
           html: true,
         });
       });
+      this.headStyles.forEach(({ content, attributes }) => {
+        const attrString = Object.entries(attributes)
+          .map(([key, value]) => `${key}="${value}"`)
+          .join(' ');
+        element.append(`<style ${attrString}>${content}</style>`, {
+          html: true,
+        });
+      });
     } else if (element.tagName === 'body') {
       // Body scripts are injected on the client side
     }
@@ -107,9 +130,9 @@ async function injectWebflowHtml(
   indexHtml: string,
   headScripts: ScriptData[],
   headLinks: { href: string; rel: string | null }[],
-  bodyScripts: ScriptData[]
+  headStyles: ScriptData[]
 ) {
-  const injector = new ScriptInjector(headScripts, headLinks, bodyScripts);
+  const injector = new ScriptInjector(headScripts, headLinks, headStyles);
   const rewriter = new HTMLRewriter().on('head', injector).on('body', injector);
 
   return await rewriter.transform(new Response(indexHtml)).text();
@@ -133,7 +156,7 @@ export async function extractWebflowHtml(
     indexHtml,
     collector.headScripts,
     collector.headLinks,
-    collector.bodyScripts
+    collector.headStyles
   );
 }
 
