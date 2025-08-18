@@ -192,6 +192,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
               TokenBalance.zero(debt),
               maxLeverageRatio
             ),
+            tvl: getTVL(share as TokenDefinition),
+            liquidity: getLiquidity(share as TokenDefinition),
             debtToken: debt,
             vaultShare: share,
           };
@@ -221,8 +223,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         return {
           token: vaultShare,
           apy: maxVaultAPY?.apy,
-          tvl: getTVL(v.vaultToken as TokenDefinition),
-          liquidity: getLiquidity(v.vaultToken as TokenDefinition),
+          tvl: maxVaultAPY?.tvl,
+          liquidity: maxVaultAPY?.liquidity,
           underlying: vaultShare?.underlying
             ? getTokenByID(vaultShare.underlying)
             : undefined,

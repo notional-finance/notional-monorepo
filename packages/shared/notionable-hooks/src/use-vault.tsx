@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { useCurrentNetworkStore } from './context/use-root-store';
 
 export function useVaultMetadata(vaultAddress?: string) {
@@ -7,7 +8,21 @@ export function useVaultMetadata(vaultAddress?: string) {
     : undefined;
 }
 
+export function useDefaultVaultAPY(vaultAddress?: string) {
+  const currentNetworkStore = useCurrentNetworkStore();
+  return vaultAddress
+    ? currentNetworkStore.getDefaultVaultAPY(vaultAddress)
+    : undefined;
+}
+
 export function useAllVaults() {
   const currentNetworkStore = useCurrentNetworkStore();
   return currentNetworkStore.getAllListedVaultsWithYield();
+}
+
+export function useVaultFeeRate(vaultAddress?: string) {
+  const v = useVaultMetadata(vaultAddress);
+  return v?.feeRate
+    ? parseFloat(ethers.utils.formatUnits(v.feeRate, 18))
+    : undefined;
 }

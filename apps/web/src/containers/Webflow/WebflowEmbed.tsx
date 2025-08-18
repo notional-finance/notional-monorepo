@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, SxProps, useTheme } from '@mui/material';
-import { useAllVaults } from '@notional-finance/notionable-hooks';
+import { useAllVaults, useAppStore } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { observer } from 'mobx-react-lite';
 import { PageLoading } from '@notional-finance/mui';
@@ -167,6 +167,8 @@ export const LandingPageView = () => {
 export const VaultPageView = observer(() => {
   const theme = useTheme();
   const vaults = useAllVaults();
+  const { baseCurrency } = useAppStore();
+
   const onContentLoaded = useCallback((container: HTMLDivElement) => {
     initializeAttributes(() => {
       container.querySelectorAll('.vault-row').forEach((e) => {
@@ -195,11 +197,15 @@ export const VaultPageView = observer(() => {
       const liquidityEl = e.querySelector('.vault-liquidity');
       if (liquidityEl)
         liquidityEl.textContent =
-          vault?.liquidity.toDisplayStringWithSymbol(2, true, false) || '-';
+          vault?.liquidity
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false) || '-';
       const tvlEl = e.querySelector('.vault-tvl');
       if (tvlEl)
         tvlEl.textContent =
-          vault?.tvl.toDisplayStringWithSymbol(2, true, false) || '-';
+          vault?.tvl
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false) || '-';
     });
   }, []);
 

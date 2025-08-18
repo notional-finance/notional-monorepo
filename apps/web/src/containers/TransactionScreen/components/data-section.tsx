@@ -2,12 +2,25 @@ import { Box, styled } from '@mui/material';
 import { ChartIcon } from '@notional-finance/icons';
 import { Button, H2, LargeInputTextEmphasized } from '@notional-finance/mui';
 import { TotalBox } from './total-box';
-import { useAppStore } from '@notional-finance/notionable-hooks';
+import {
+  useAppStore,
+  useCurrentTradeContext,
+  useDefaultVaultAPY,
+  useVaultFeeRate,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { VaultPerformanceChart } from './vault-performance-chart';
+import { useTheme } from '@mui/material/styles';
 
 const DataSection = () => {
-  const { isMobileView } = useAppStore();
+  const theme = useTheme();
+  const context = useCurrentTradeContext();
+  const { isMobileView, baseCurrency } = useAppStore();
+  const vault = useDefaultVaultAPY(context?.vaultAddress);
+  const feeRate = useVaultFeeRate(context?.vaultAddress);
+  const tvlFiat = vault?.tvl?.toFiat(baseCurrency);
+  const liquidityFiat = vault?.liquidity?.toFiat(baseCurrency);
+
   return (
     <DataSectionContainer>
       <HeaderContainer>
@@ -23,7 +36,7 @@ const DataSection = () => {
         {!isMobileView && (
           <Button
             variant="contained"
-            startIcon={<ChartIcon sx={{ fontSize: '16px' }} />}
+            startIcon={<ChartIcon sx={{ fontSize: theme.spacing(2) }} />}
             href={'/'}
           >
             <FormattedMessage defaultMessage={'View Analytics'} />
@@ -35,21 +48,21 @@ const DataSection = () => {
           <TotalBox
             key={'vault-tvl'}
             title={'Vault TVL'}
-            value={10_000_000}
+            value={tvlFiat?.toFloat()}
             decimals={0}
-            prefix="$"
+            prefix={tvlFiat?.fiatSymbol || '$'}
           />
           <TotalBox
             key={'borrow-liquidity'}
             title={'Borrow Liquidity'}
-            value={8_000_000}
+            value={liquidityFiat?.toFloat()}
             decimals={0}
-            prefix="$"
+            prefix={liquidityFiat?.fiatSymbol || '$'}
           />
           <TotalBox
             key={'fee-rate'}
             title={'Fee Rate'}
-            value={0.05}
+            value={feeRate}
             suffix="%"
           />
         </TotalBoxesContainer>
