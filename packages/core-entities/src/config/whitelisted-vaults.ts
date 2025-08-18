@@ -70,40 +70,9 @@ export const whitelistedVaults = (
     case Network.all:
       return [];
     case Network.mainnet:
-      return [
-        vaults.mainnet.Aura_GHO_USDT_xUSDC,
-        vaults.mainnet.Aura_xrETH_weETH,
-        vaults.mainnet.Aura_ezETH_xWETH,
-        vaults.mainnet.Curve_USDe_xUSDC,
-        vaults.mainnet.Convex_xGHO_crvUSD,
-        vaults.mainnet.Convex_xGHO_USDe,
-        vaults.mainnet.Balancer_rsETH_xWETH,
-        vaults.mainnet.Convex_xWBTC_tBTC,
-        vaults.mainnet.Pendle_ezETH_25DEC2024,
-        vaults.mainnet.Pendle_USDe_25DEC2024,
-        vaults.mainnet.Pendle_USDe_26MAR2025,
-        vaults.mainnet.Pendle_sUSDe_28MAY2025,
-        vaults.mainnet.Pendle_sUSDe_30JUL2025,
-        vaults.mainnet.Pendle_USDe_30JUL2025,
-        vaults.mainnet.Pendle_USDe_28MAY2025,
-      ].map(toLowercase);
+      return [vaults.mainnet.Staking_sUSDe].map(toLowercase);
     case Network.arbitrum:
-      return [
-        vaults.arbitrum.Curve_xFRAX_USDC,
-        vaults.arbitrum.Convex_USDCe_xUSDT,
-        vaults.arbitrum.Convex_crvUSD_xUSDC,
-        vaults.arbitrum.Convex_crvUSD_xUSDT,
-        vaults.arbitrum.Aura_xrETH_WETH,
-        vaults.arbitrum.Aura_xUSDC_DAI_USDT_USDCe,
-        vaults.arbitrum.Aura_wstETH_xWETH,
-        vaults.arbitrum.Aura_xwstETH_cbETH_rETH,
-        vaults.arbitrum.Aura_rETH_xWETH,
-        vaults.arbitrum.Aura_ezETH_xwstETH,
-        vaults.arbitrum.Convex_xWBTC_tBTC,
-        vaults.arbitrum.Aura_rsETH_xWETH,
-        vaults.arbitrum.Aura_cbETH_xwstETH_rETH,
-        vaults.arbitrum.Convex_tBTC_xWBTC,
-      ].map(toLowercase);
+      return [].map(toLowercase);
   }
 };
 

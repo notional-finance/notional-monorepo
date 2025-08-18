@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, SxProps, useTheme } from '@mui/material';
+import { useAllVaults } from '@notional-finance/notionable-hooks';
+import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import { observer } from 'mobx-react-lite';
+import { PageLoading } from '@notional-finance/mui';
 
 interface WebflowEmbedProps {
   path: string;
@@ -56,6 +60,16 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
               onContentLoaded?.(containerRef.current);
             }
           });
+
+          // Re-initialize ix2 if it exists to ensure that everything is triggered
+          // properly
+          if ((window as any).Webflow?.require) {
+            const ix2 = (window as any).Webflow.require('ix2');
+            if (ix2) {
+              ix2.store.dispatch({ type: 'IX2_SESSION_STOPPED' });
+              ix2.init();
+            }
+          }
         }
       }, 0);
     };
@@ -109,6 +123,29 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
   );
 };
 
+// Initializes FinsweetAttributes if used on that page
+function initializeAttributes(onStart: () => void) {
+  if ((window as any).FinsweetAttributes) {
+    // First unmount the existing process because it initialized before the DOM content
+    // was loaded
+    (window as any).FinsweetAttributes.destroy();
+    (window as any).FinsweetAttributes =
+      (window as any).FinsweetAttributes || [];
+    (window as any).FinsweetAttributes.push([
+      'list',
+      ([l, _]: any[]) => {
+        l.cache = false;
+        l.showQuery = true;
+        // After the list is rendered we can update the href
+        l.addHook('start', onStart);
+      },
+    ]);
+
+    // Re-initialize the process which will load all the attributes
+    (window as any).FinsweetAttributes.load('list');
+  }
+}
+
 export const LandingPageView = () => {
   // This needs to be a callback to avoid re-rendering the component
   const onContentLoaded = useCallback((container: HTMLDivElement) => {
@@ -127,61 +164,55 @@ export const LandingPageView = () => {
   return <WebflowEmbed path="" onContentLoaded={onContentLoaded} />;
 };
 
-export const VaultPageView = () => {
+export const VaultPageView = observer(() => {
   const theme = useTheme();
+  const vaults = useAllVaults();
   const onContentLoaded = useCallback((container: HTMLDivElement) => {
-    if ((window as any).FinsweetAttributes) {
-      // First unmount the existing process because it initialized before the DOM content
-      // was loaded
-      (window as any).FinsweetAttributes.destroy();
-      (window as any).FinsweetAttributes =
-        (window as any).FinsweetAttributes || [];
-      (window as any).FinsweetAttributes.push([
-        'list',
-        ([l, _]: any[]) => {
-          l.cache = false;
-          l.showQuery = true;
-          // After the list is rendered we can update the href
-          l.addHook('start', () => {
-            container.querySelectorAll('.vault-row').forEach((e) => {
-              // TODO: add the network here
-              e['href'] = `/vault/mainnet/${e.getAttribute(
-                'n-vault-address'
-              )}`.toLowerCase();
-            });
-          });
-        },
-      ]);
-
-      // Re-initialize the process which will load all the attributes
-      (window as any).FinsweetAttributes.load('list');
-    }
+    initializeAttributes(() => {
+      container.querySelectorAll('.vault-row').forEach((e) => {
+        // TODO: add the network inside the cms
+        e['href'] = `/vault/mainnet/${e.getAttribute(
+          'n-vault-address'
+        )}`.toLowerCase();
+      });
+    });
 
     // Only set this text data once after the list is rendered so that the sorting engine
     // can read it
-    // TODO: get the data from MobX
-    container.querySelectorAll('.vault-max-apy').forEach((e, i) => {
-      console.log('vault address max apy', e.getAttribute('n-vault-address'));
-      e.textContent = `${i + 1}.0%`;
-    });
-    container.querySelectorAll('.vault-liquidity').forEach((e, i) => {
-      console.log('vault address liquidity', e.getAttribute('n-vault-address'));
-      e.textContent = `$${i + 1}00.0M`;
-    });
-    container.querySelectorAll('.vault-tvl').forEach((e, i) => {
-      console.log('vault address tvl', e.getAttribute('n-vault-address'));
-      e.textContent = `$${i + 1}.0M`;
+    container.querySelectorAll('.vault-row').forEach((e) => {
+      const vaultAddress = e.getAttribute('n-vault-address')?.toLowerCase();
+      const vault = vaults.find(
+        (v) => v.vaultConfig.vaultAddress.toLowerCase() === vaultAddress
+      );
+      if (!vault) return;
+
+      const maxApyEl = e.querySelector('.vault-max-apy');
+      if (maxApyEl)
+        maxApyEl.textContent = formatNumberAsPercentWithUndefined(
+          vault?.apy?.totalAPY,
+          '-'
+        );
+      const liquidityEl = e.querySelector('.vault-liquidity');
+      if (liquidityEl)
+        liquidityEl.textContent =
+          vault?.liquidity.toDisplayStringWithSymbol(2, true, false) || '-';
+      const tvlEl = e.querySelector('.vault-tvl');
+      if (tvlEl)
+        tvlEl.textContent =
+          vault?.tvl.toDisplayStringWithSymbol(2, true, false) || '-';
     });
   }, []);
 
-  return (
+  return vaults.length > 0 ? (
     <WebflowEmbed
       sx={{ background: theme.palette.background.default }}
       path="/vaults"
       onContentLoaded={onContentLoaded}
     />
+  ) : (
+    <PageLoading type="notional" />
   );
-};
+});
 
 export const PointsPageView = () => {
   const onContentLoaded = useCallback(() => {

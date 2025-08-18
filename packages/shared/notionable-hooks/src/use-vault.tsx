@@ -9,5 +9,5 @@ export function useVaultMetadata(vaultAddress?: string) {
 
 export function useAllVaults() {
   const currentNetworkStore = useCurrentNetworkStore();
-  return currentNetworkStore.getAllListedVaults();
+  return currentNetworkStore.getAllListedVaultsWithYield();
 }

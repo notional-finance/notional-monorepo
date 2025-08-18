@@ -217,6 +217,7 @@ export const sNOTE = toLower(tokens.mainnet.sNOTE);
 
 export const vaults = {
   mainnet: {
+    Staking_sUSDe: '0xaf14d06a65c91541a5b2db627ecd1c92d7d9c48b' as const,
     Convex_pyUSD_xUSDC: '0x84e58d8faA4e3B74d55D9fc762230f15d95570B8' as const,
     Convex_xUSDC_crvUSD: '0xba4eb30f7F2e378249cf94E08F581e704326e9c6' as const,
     Convex_xUSDT_crvUSD: '0x86B222d44AC6cC56e75b3df01fdAD5Dc371EF538' as const,
