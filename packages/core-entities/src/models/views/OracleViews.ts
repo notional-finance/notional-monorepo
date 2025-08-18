@@ -20,9 +20,6 @@ interface Node {
 
 const UNIT_RATE = 'UNIT_RATE';
 
-// Can change this to fCashOracleRate to use oracle rates
-const FCASH_RATE_SOURCE = 'fCashSpotRate';
-
 function getUnitRate(
   network: Network,
   baseId: string,
@@ -121,8 +118,7 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
 
   const getRatesFromPath = (
     path: string[],
-    timestamp = getNowSeconds(),
-    useHistorical = false
+    timestamp = getNowSeconds()
   ): ExchangeRate[] => {
     const adjList = self.oracleGraph.adjList;
 
@@ -133,11 +129,7 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
       if (i === 0) {
         oracle = getUnitRate(self.network, token);
       } else {
-        let oracleId = path[i - 1];
-        if (useHistorical) {
-          // Uses oracle rates historically
-          oracleId = oracleId.replace(FCASH_RATE_SOURCE, 'fCashOracleRate');
-        }
+        const oracleId = path[i - 1];
         const n = adjList.get(token)?.get(oracleId);
 
         if (n) {
@@ -172,11 +164,7 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
     timestamp?: number
   ) => {
     const path = findPath(base, quote);
-    const rates = getRatesFromPath(
-      path,
-      timestamp,
-      timestamp !== undefined // useHistorical
-    );
+    const rates = getRatesFromPath(path, timestamp);
 
     if (rates.length === 0) return null;
 

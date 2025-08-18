@@ -354,6 +354,8 @@ export const TradeModel = types
         self.strategyType = config.strategyType as VaultType;
         self.deposit = config.depositToken;
         self.availableDepositTokens.replace([self.deposit]);
+        self.availableCollateralTokens.replace([config.vaultToken]);
+        self.collateral = config.vaultToken;
       } else if (isNOTEStake(self.tradeType)) {
         // Set deposit token
         self.deposit = self.selectedDepositToken

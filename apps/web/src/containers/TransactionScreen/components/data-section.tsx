@@ -63,6 +63,7 @@ const DataSection = () => {
             key={'fee-rate'}
             title={'Fee Rate'}
             value={feeRate}
+            decimals={4}
             suffix="%"
           />
         </TotalBoxesContainer>
