@@ -102,7 +102,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get vaultDebt() {
-    const d = this.debts.find((t) => t.tokenType === 'VaultDebt');
+    const d = this.balances.find((t) => t.tokenType === 'VaultDebt');
     if (!d) throw Error('Vault Debt not found');
     return d;
   }
@@ -151,10 +151,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   totalAssetsRiskAdjusted() {
-    const vaultShareValue = this.vaultShares.toUnderlying();
-    const debtVault = this.vaultDebt.toUnderlying();
-
-    return vaultShareValue.add(debtVault);
+    return this.vaultShares.toUnderlying();
   }
 
   /** Total debt with risk adjustments */

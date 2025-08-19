@@ -47,17 +47,17 @@ export const LeverageSlider = observer(
     const topRightCaption =
       borrowOrRepayAmount !== undefined ? (
         <>
+          {isDeleverage ? (
+            <FormattedMessage defaultMessage={'Repay Amount:'} />
+          ) : (
+            <FormattedMessage defaultMessage={'Borrow Amount:'} />
+          )}
+          &nbsp;
           <CountUp
             value={borrowOrRepayAmount.abs().toFloat()}
-            suffix={`${borrowOrRepayAmount.symbol || ''}`}
+            suffix={` ${borrowOrRepayAmount.symbol || ''}`}
             decimals={2}
           />
-          &nbsp;
-          {isDeleverage ? (
-            <FormattedMessage defaultMessage={'Repay Amount'} />
-          ) : (
-            <FormattedMessage defaultMessage={'Borrow Amount'} />
-          )}
         </>
       ) : undefined;
 

@@ -46,6 +46,7 @@ export const TransactionScreen = observer(
             tokenSymbol={vaultMetadata?.depositToken.symbol || ''}
             secondaryTitle={vaultMetadata?.vaultFeatures.map((feature) => (
               <Chip
+                key={feature}
                 label={feature}
                 color="info"
                 size="small"

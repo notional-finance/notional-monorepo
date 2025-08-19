@@ -29,7 +29,7 @@ export class Staking extends VaultAdapter {
   }
 
   override get hashKey(): string {
-    throw new Error('Method not implemented.');
+    return [this.stakingToken.id].join(':');
   }
 
   override getInitialVaultShareValuation(): ExchangeRate {
@@ -42,22 +42,31 @@ export class Staking extends VaultAdapter {
     };
   }
 
-  override getNetVaultSharesCost(_netVaultShares: TokenBalance): {
+  override getNetVaultSharesCost(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
-    throw new Error('Method not implemented.');
+    const netUnderlyingForVaultShares = netVaultShares.toToken(
+      this.borrowedToken
+    );
+    return {
+      netUnderlyingForVaultShares: netUnderlyingForVaultShares,
+      feesPaid: netUnderlyingForVaultShares.copy(0),
+    };
   }
 
   override getNetVaultSharesMinted(
-    _netUnderlying: TokenBalance,
-    _vaultShare: TokenDefinition
+    netUnderlying: TokenBalance,
+    vaultShare: TokenDefinition
   ): {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
     vaultTradeMetadata?: unknown;
   } {
-    throw new Error('Method not implemented.');
+    return {
+      feesPaid: netUnderlying.copy(0),
+      netVaultSharesForUnderlying: netUnderlying.toToken(vaultShare),
+    };
   }
 
   override getDepositParameters(

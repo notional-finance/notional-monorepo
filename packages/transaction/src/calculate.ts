@@ -13,7 +13,6 @@ import {
 import {
   BASIS_POINT,
   Network,
-  PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
 } from '@notional-finance/util';
@@ -46,7 +45,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
 
   let profile = new VaultAccountRiskProfile(
     vaultAddress,
-    balances || [TokenBalance.zero(collateral)],
+    balances || [TokenBalance.zero(collateral), TokenBalance.zero(debt)],
     vaultLastUpdateTime || 0
   );
 
@@ -172,7 +171,7 @@ function calculateVaultCollateral({
   depositBalance?: TokenBalance;
 }) {
   if (debtBalance.tokenType !== 'VaultDebt') throw Error('Invalid inputs');
-  const underlyingBorrowed = debtBalance.toUnderlying();
+  const underlyingBorrowed = debtBalance.neg().toUnderlying();
   const netRealizedCollateralBalance = depositBalance
     ? underlyingBorrowed.add(depositBalance)
     : underlyingBorrowed;
