@@ -4,14 +4,21 @@ import { useAllVaults, useAppStore } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { observer } from 'mobx-react-lite';
 import { PageLoading } from '@notional-finance/mui';
+import { colors } from '@notional-finance/styles';
 
 interface WebflowEmbedProps {
   path: string;
+  bodyClass: string;
   onContentLoaded?: (container: HTMLDivElement) => void;
   sx?: SxProps;
 }
 
-const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
+const WebflowEmbed = ({
+  path,
+  onContentLoaded,
+  sx,
+  bodyClass,
+}: WebflowEmbedProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState(null);
   const mountedRef = useRef(true);
@@ -113,11 +120,7 @@ const WebflowEmbed = ({ path, onContentLoaded, sx }: WebflowEmbedProps) => {
       {error ? (
         <div style={{ color: 'red' }}>Error loading content: {error}</div>
       ) : (
-        <div
-          ref={containerRef}
-          id="webflow-embed"
-          className={path === '' ? 'body' : 'body-vault'}
-        />
+        <div ref={containerRef} id="webflow-embed" className={bodyClass} />
       )}
     </Box>
   );
@@ -161,7 +164,9 @@ export const LandingPageView = () => {
     // TODO: update blog cards
   }, []);
 
-  return <WebflowEmbed path="" onContentLoaded={onContentLoaded} />;
+  return (
+    <WebflowEmbed bodyClass="body" path="" onContentLoaded={onContentLoaded} />
+  );
 };
 
 export const VaultPageView = observer(() => {
@@ -173,6 +178,7 @@ export const VaultPageView = observer(() => {
     initializeAttributes(() => {
       container.querySelectorAll('.vault-row').forEach((e) => {
         // TODO: add the network inside the cms
+        // TODO: prevent default on the modal pop ups
         e['href'] = `/vault/mainnet/${e.getAttribute(
           'n-vault-address'
         )}`.toLowerCase();
@@ -211,6 +217,7 @@ export const VaultPageView = observer(() => {
 
   return vaults.length > 0 ? (
     <WebflowEmbed
+      bodyClass="body-vault"
       sx={{ background: theme.palette.background.default }}
       path="/vaults"
       onContentLoaded={onContentLoaded}
@@ -225,5 +232,12 @@ export const PointsPageView = () => {
     console.log('content loaded');
   }, []);
 
-  return <WebflowEmbed path="/points" onContentLoaded={onContentLoaded} />;
+  return (
+    <WebflowEmbed
+      bodyClass="body-2"
+      sx={{ background: colors['black'] }}
+      path="/points"
+      onContentLoaded={onContentLoaded}
+    />
+  );
 };
