@@ -94,11 +94,11 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get vaultLeverageFactors() {
-    return this.model.getLeverageRatios(this.vaultShares.token);
+    return this.model.getLeverageRatios(this.vaultDebt.token);
   }
 
   get maturity() {
-    return this.vaultShares.maturity;
+    return this.vaultShares.token.maturity;
   }
 
   get vaultDebt() {
@@ -181,7 +181,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     const oneVaultShareValueAtLiquidation = this.totalDebtRiskAdjusted()
       .neg()
       .scale(
-        minCollateralRatioBasisPoints + RATE_PRECISION,
+        Math.floor(minCollateralRatioBasisPoints + RATE_PRECISION),
         this.vaultShares.scaleTo(RATE_DECIMALS)
       );
 

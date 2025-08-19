@@ -287,10 +287,7 @@ function formatVaultHoldings(
       symbol: underlying,
       symbolBottom: '',
       label: name,
-      caption:
-        maturity === PRIME_CASH_VAULT_MATURITY
-          ? 'Open Term'
-          : `Maturity: ${formatMaturity(maturity)}`,
+      caption: maturity ? `Maturity: ${formatMaturity(maturity)}` : 'Open Term',
     },
     vaultAddress,
     tokenId: vaultShares.tokenId,

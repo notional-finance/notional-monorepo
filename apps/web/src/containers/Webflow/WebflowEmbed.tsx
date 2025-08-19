@@ -225,5 +225,5 @@ export const PointsPageView = () => {
     console.log('content loaded');
   }, []);
 
-  return <WebflowEmbed path="/vaults" onContentLoaded={onContentLoaded} />;
+  return <WebflowEmbed path="/points" onContentLoaded={onContentLoaded} />;
 };

@@ -19,11 +19,15 @@ import {
   SmallTableCell,
   TableColumnHeading,
 } from '@notional-finance/mui';
-import { defineMessage, MessageDescriptor } from 'react-intl';
+import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
+import {
+  formatHealthFactorValues,
+  useCurrentTradeContext,
+} from '@notional-finance/notionable-hooks';
 
 interface LabelValueSectionProps {
-  sectionTitle?: string;
-  items: { label: string; content: ReactNode | string }[];
+  sectionTitle?: ReactNode;
+  items: { label: ReactNode; content: ReactNode | string }[];
 }
 
 const LabelValueSection = ({
@@ -38,9 +42,9 @@ const LabelValueSection = ({
         {sectionTitle}
       </H5>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        {items.map((item) => (
+        {items.map((item, index) => (
           <Box
-            key={item.label}
+            key={index}
             display="flex"
             justifyContent="space-between"
             flexDirection="row"
@@ -176,30 +180,48 @@ const TableSection = ({
   );
 };
 
+const useSummaryItems = () => {
+  const theme = useTheme();
+  const trade = useCurrentTradeContext();
+  const risk = trade?.getVaultRiskSummary();
+  const netWorth = risk?.netWorth.updated || risk?.netWorth.current || '-';
+  const healthFactor = formatHealthFactorValues(
+    risk?.healthFactor.updated || risk?.healthFactor.current,
+    theme
+  );
+  const liquidationPrices =
+    risk?.liquidationPrice.map((price) => {
+      return {
+        label: `${price.asset.symbol} Liquidation Price`,
+        content:
+          price.updated?.toDisplayStringWithSymbol(4, false, false) ||
+          price.current?.toDisplayStringWithSymbol(4, false, false) ||
+          '-',
+      };
+    }) || [];
+
+  return [
+    {
+      label: <FormattedMessage defaultMessage={'Net Worth'} />,
+      content: netWorth,
+    },
+    {
+      label: <FormattedMessage defaultMessage={'Health Factor'} />,
+      content: <Box color={healthFactor.textColor}>{healthFactor.value}</Box>,
+    },
+    ...liquidationPrices,
+  ];
+};
+
 export const useInfoBox = () => {
+  const summaryItems = useSummaryItems();
+
   const tabs = [
     {
       tabTitle: 'Summary',
       tabContent: (
         <DividedSections>
-          <LabelValueSection
-            items={[
-              { label: 'Net Worth', content: '-' },
-              { label: 'Health Factor', content: '-' },
-              {
-                label: 'Leverage Ratio',
-                content: '-',
-              },
-              {
-                label: 'Liquidation Price',
-                content: '-',
-              },
-              {
-                label: 'Fees and Slippage',
-                content: '-',
-              },
-            ]}
-          />
+          <LabelValueSection items={summaryItems} />
         </DividedSections>
       ),
     },

@@ -10,10 +10,7 @@ import {
   MultiRowTableData,
 } from '@notional-finance/helpers';
 import { FiatKeys, TokenDefinition } from '@notional-finance/core-entities';
-import {
-  formatMaturity,
-  PRIME_CASH_VAULT_MATURITY,
-} from '@notional-finance/util';
+import { formatMaturity } from '@notional-finance/util';
 
 interface EarningsBreakdownRow {
   isTotalRow?: boolean;
@@ -61,10 +58,7 @@ function formatGroupedVaultEarnings(
       symbol: underlying,
       symbolBottom: '',
       label: name,
-      caption:
-        maturity === PRIME_CASH_VAULT_MATURITY
-          ? 'Open Term'
-          : `Maturity: ${formatMaturity(maturity)}`,
+      caption: maturity ? `Maturity: ${formatMaturity(maturity)}` : 'Open Term',
     },
     incentivesEarnings: '',
     accruedInterest: formatCryptoWithFiat(baseCurrency, totalInterestAccrual),
@@ -100,10 +94,7 @@ function formatDetailedVaultEarnings(
     symbol: underlying,
     symbolBottom: '',
     label: name,
-    caption:
-      maturity === PRIME_CASH_VAULT_MATURITY
-        ? 'Open Term'
-        : `Maturity: ${formatMaturity(maturity)}`,
+    caption: maturity ? `Maturity: ${formatMaturity(maturity)}` : 'Open Term',
   };
 
   return [

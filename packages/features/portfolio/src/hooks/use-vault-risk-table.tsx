@@ -119,10 +119,9 @@ export const useVaultRiskTable = () => {
               vault: {
                 symbol: vaultHolding.underlying,
                 label: vaultHolding.name,
-                caption:
-                  vaultHolding.maturity === PRIME_CASH_VAULT_MATURITY
-                    ? 'Open Term'
-                    : `Maturity: ${formatMaturity(vaultHolding.maturity)}`,
+                caption: vaultHolding.maturity
+                  ? `Maturity: ${formatMaturity(vaultHolding.maturity)}`
+                  : 'Open Term',
               },
               healthFactor: vaultHolding.healthFactor,
               manageLink: `/vaults/${network}/${l.vaultAddress}/Manage`,

@@ -852,29 +852,23 @@ export const TradeModel = types
   .views((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
     const mergeLiquidationPrices = (
-      prior: (ReturnType<
+      prior: ReturnType<
         VaultAccountRiskProfile['getAllLiquidationPrices']
-      >[number] & {
-        debt?: TokenDefinition;
-      })[],
-      post: (ReturnType<
+      >[number][],
+      post: ReturnType<
         VaultAccountRiskProfile['getAllLiquidationPrices']
-      >[number] & {
-        debt?: TokenDefinition;
-      })[]
+      >[number][]
     ) => {
       return zipByKeyToArray(prior, post, (t) => t.asset.id).map(
         ([current, updated]) => {
           const asset = (current?.asset || updated?.asset) as TokenDefinition;
-          const debt = (current?.debt || updated?.debt) as
-            | TokenDefinition
-            | undefined;
+          const debt = (current?.debt || updated?.debt) as TokenDefinition;
 
           return {
             asset,
             debt,
-            current: current?.threshold,
-            updated: updated?.threshold,
+            current: current?.threshold?.toToken(debt),
+            updated: updated?.threshold?.toToken(debt),
             changeType: getChangeType(
               current?.threshold?.toFloat(),
               updated?.threshold?.toFloat()
@@ -976,7 +970,6 @@ export const TradeModel = types
     };
 
     const getVaultRiskSummary = () => {
-      const baseCurrency = root().appStore.baseCurrency;
       const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
 
       const priorBorrowRate = priorVaultRisk?.borrowAPY;
@@ -985,7 +978,7 @@ export const TradeModel = types
         (t) => t.token.id === self.debtBalance?.tokenId
       )?.interestRate;
       const postBorrowRate =
-        postVaultRisk?.maturity === PRIME_CASH_VAULT_MATURITY
+        postVaultRisk?.maturity === undefined
           ? newBorrowRate
           : averageFixedRate(priorVaultRisk, postVaultRisk, newBorrowRate);
       const vaultSharesAPY = postVaultRisk?.vaultShares?.tokenId
@@ -1026,12 +1019,10 @@ export const TradeModel = types
           current:
             priorVaultRisk
               ?.netWorth()
-              .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(2, true, false) || '-',
           updated:
             postVaultRisk
               ?.netWorth()
-              .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(2, true, false) || '-',
           changeType: getChangeType(
             priorVaultRisk?.netWorth().toFloat(),
