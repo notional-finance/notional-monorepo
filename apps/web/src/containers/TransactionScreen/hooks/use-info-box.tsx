@@ -24,6 +24,9 @@ import {
   formatHealthFactorValues,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
+import { formatNumber, RATE_PRECISION } from '@notional-finance/util';
+import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 
 interface LabelValueSectionProps {
   sectionTitle?: ReactNode;
@@ -213,8 +216,148 @@ const useSummaryItems = () => {
   ];
 };
 
+function formatAPYValues(
+  apy: number | undefined,
+  amount: TokenBalance | undefined,
+  positiveGreen: string
+) {
+  const earningsString =
+    amount && apy
+      ? amount
+          .abs()
+          .mulInRatePrecision(Math.floor((apy * RATE_PRECISION) / 100))
+          .toDisplayStringWithSymbol(2, false, false)
+      : undefined;
+
+  return [
+    { value: formatNumberAsPercentWithUndefined(apy, '-', 4) },
+    {
+      value: (
+        <Box color={apy && apy > 0 ? positiveGreen : undefined}>
+          {earningsString}
+        </Box>
+      ),
+    },
+  ];
+}
+
+const useApyBreakdown = () => {
+  const theme = useTheme();
+  const trade = useCurrentTradeContext();
+  const apyBreakdown = trade?.getVaultAPYBreakdown();
+  const leverageRatio = apyBreakdown?.leverageRatio || 0;
+  let points: { label: string; values: { value: string }[] }[] | undefined;
+
+  if (apyBreakdown?.vaultSharesAPY?.pointMultiples) {
+    points = Object.entries(apyBreakdown.vaultSharesAPY.pointMultiples).map(
+      ([key, value]) => {
+        return {
+          label: key,
+          values: [{ value: `${formatNumber(value * leverageRatio)}x` }],
+        };
+      }
+    );
+  }
+
+  const apy = [
+    {
+      label: 'Staking APY',
+      values: formatAPYValues(
+        apyBreakdown?.vaultSharesAPY?.totalAPY,
+        apyBreakdown?.assets,
+        theme.palette.success.main
+      ),
+    },
+    {
+      label: 'Vault Fee APY',
+      values: formatAPYValues(
+        apyBreakdown?.vaultSharesAPY?.feeAPY,
+        apyBreakdown?.assets,
+        theme.palette.success.main
+      ),
+    },
+    {
+      label: 'Borrow APY',
+      values: formatAPYValues(
+        apyBreakdown?.borrowAPY,
+        apyBreakdown?.debts,
+        theme.palette.success.main
+      ),
+    },
+    {
+      label: 'Total APY',
+      values: formatAPYValues(
+        apyBreakdown?.totalAPY,
+        apyBreakdown?.netWorth,
+        theme.palette.success.main
+      ),
+    },
+  ];
+
+  const assetsDebts = [
+    {
+      label: 'Asset Amount',
+      content:
+        apyBreakdown?.assets?.toDisplayStringWithSymbol(4, false, false) || '-',
+    },
+    {
+      label: 'Debt Amount',
+      content:
+        apyBreakdown?.debts?.toDisplayStringWithSymbol(4, false, false) || '-',
+    },
+  ];
+
+  return {
+    apy,
+    points,
+    assetsDebts,
+  };
+};
+
+const useOrderDetails = () => {
+  const trade = useCurrentTradeContext();
+  const orderDetails: LabelValueSectionProps['items'] = [];
+
+  if (trade?.depositBalance) {
+    orderDetails.push({
+      label: 'Amount Deposited',
+      content: trade.depositBalance.toDisplayStringWithSymbol(4, false, false),
+    });
+  }
+
+  if (trade?.debtBalance) {
+    orderDetails.push({
+      label: 'Amount Borrowed',
+      content: trade.debtBalance
+        .abs()
+        .toUnderlying()
+        .toDisplayStringWithSymbol(4, false, false),
+    });
+  }
+
+  if (trade?.collateralBalance) {
+    orderDetails.push({
+      label: 'Vault Shares Minted',
+      content: trade.collateralBalance.toDisplayString(4, false, false),
+    });
+  }
+
+  if (trade?.collateral) {
+    orderDetails.push({
+      label: 'Vault Share Price',
+      content: TokenBalance.unit(trade.collateral as TokenDefinition)
+        .toUnderlying()
+        .toDisplayStringWithSymbol(4, false, false),
+    });
+  }
+
+  return orderDetails;
+};
+
 export const useInfoBox = () => {
   const summaryItems = useSummaryItems();
+  const apyBreakdown = useApyBreakdown();
+  const orderDetails = useOrderDetails();
 
   const tabs = [
     {
@@ -229,23 +372,15 @@ export const useInfoBox = () => {
       tabTitle: 'APY Breakdown',
       tabContent: (
         <DividedSections>
-          <TableSection
-            headings={[
-              defineMessage({ defaultMessage: 'Points' }),
-              defineMessage({ defaultMessage: 'Multiplier' }),
-              defineMessage({ defaultMessage: 'Points/Day' }),
-            ]}
-            contents={[
-              {
-                label: 'EigenLayer',
-                values: [{ value: '40x' }, { value: '100.00' }],
-              },
-              {
-                label: 'ezPoints',
-                values: [{ value: '20x' }, { value: '250.22' }],
-              },
-            ]}
-          />
+          {apyBreakdown.points && (
+            <TableSection
+              headings={[
+                defineMessage({ defaultMessage: 'Points' }),
+                defineMessage({ defaultMessage: 'Multiplier' }),
+              ]}
+              contents={apyBreakdown.points}
+            />
+          )}
           <TableSection
             highlightLastRow
             headings={[
@@ -253,36 +388,9 @@ export const useInfoBox = () => {
               defineMessage({ defaultMessage: 'APY' }),
               defineMessage({ defaultMessage: 'Earnings (1yr)' }),
             ]}
-            contents={[
-              {
-                label: 'Vault Shares',
-                values: [
-                  { value: '7.25%' },
-                  { value: '35,000 USDC', primary: true },
-                ],
-              },
-              {
-                label: 'Borrow Interest',
-                values: [
-                  { value: '-1.25%' },
-                  { value: '-1,000 USDC', primary: false },
-                ],
-              },
-              {
-                label: 'Total APY',
-                values: [
-                  { value: '6.0%' },
-                  { value: '34,000 USDC', primary: true },
-                ],
-              },
-            ]}
+            contents={apyBreakdown.apy}
           />
-          <LabelValueSection
-            items={[
-              { label: 'Asset Amount', content: '-' },
-              { label: 'Debt Amount', content: '-' },
-            ]}
-          />
+          <LabelValueSection items={apyBreakdown.assetsDebts} />
         </DividedSections>
       ),
     },
@@ -290,26 +398,7 @@ export const useInfoBox = () => {
       tabTitle: 'Order Details',
       tabContent: (
         <DividedSections>
-          <LabelValueSection
-            items={[
-              {
-                label: 'Amount Deposited',
-                content: '-',
-              },
-              {
-                label: 'Amount Borrowed',
-                content: '-',
-              },
-              {
-                label: 'Vault Shares Minted',
-                content: '-',
-              },
-              {
-                label: 'Vault Share Price',
-                content: '-',
-              },
-            ]}
-          />
+          <LabelValueSection items={orderDetails} />
           <LabelValueSection
             sectionTitle="Trade: USDC → USDT"
             items={[

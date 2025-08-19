@@ -78,7 +78,7 @@ export function createLeveragedAPYData(
 
 export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   const { getTokenByID, getVaultShare, getVaultDebt } = TokenViews(self);
-  const { getVaultAdapter, getAllListedVaults } = VaultViews(self);
+  const { getVaultAdapter, getAllListedVaults, getVaultFee } = VaultViews(self);
   const { getLendingMarketFromVaultDebt } = ExchangeViews(self);
   const { getMaxLeverageRatio } = ConfigurationViews(self);
 
@@ -112,6 +112,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.totalAPY = adapter.getVaultAPY();
       apyData.organicAPY = apyData.totalAPY - apyData.incentiveAPY;
       apyData.pointMultiples = adapter.getPointMultiples();
+      apyData.feeAPY = -1 * getVaultFee(token.vaultAddress);
     }
 
     return apyData;

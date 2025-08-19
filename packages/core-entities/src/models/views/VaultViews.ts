@@ -10,6 +10,7 @@ import { AnalyticsViews } from './AnalyticsViews';
 import { PendlePTVaultParams } from '../../vaults/PendlePT';
 import { SingleSidedLPParams } from '../../vaults/SingleSidedLP';
 import { Staking, StakingVaultParams } from '../../vaults/Staking';
+import { ethers } from 'ethers';
 
 export const VaultViews = (self: Instance<typeof NetworkModel>) => {
   const { getTokenByID } = TokenViews(self);
@@ -85,11 +86,17 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     return v;
   };
 
+  const getVaultFee = (vaultAddress: string) => {
+    const v = getVaultConfig(vaultAddress);
+    return parseFloat(ethers.utils.formatUnits(v.feeRate, 18));
+  };
+
   return {
     getAllListedVaults,
     isVaultEnabled,
     getVaultAdapter,
     getVaultName,
     getVaultConfig,
+    getVaultFee,
   };
 };

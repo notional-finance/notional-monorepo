@@ -969,6 +969,41 @@ export const TradeModel = types
       return postVaultRisk?.getAllRiskFactors();
     };
 
+    const getVaultAPYBreakdown = () => {
+      const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
+      const priorBorrowRate = priorVaultRisk?.borrowAPY;
+      const newBorrowRate = self.debtOptions?.find(
+        (t) => t.token.id === self.debtBalance?.tokenId
+      )?.interestRate;
+      const postBorrowRate =
+        postVaultRisk?.maturity === undefined
+          ? newBorrowRate
+          : averageFixedRate(priorVaultRisk, postVaultRisk, newBorrowRate);
+      const vaultSharesAPY = postVaultRisk?.vaultShares?.tokenId
+        ? root()
+            .getNetworkClient(self.selectedNetwork)
+            .getSpotAPY(postVaultRisk.vaultShares.tokenId)
+        : undefined;
+      const borrowAPY = postBorrowRate || priorBorrowRate;
+      const leverageRatio =
+        postVaultRisk?.leverageRatio() || priorVaultRisk?.leverageRatio() || 0;
+      const totalAPY = leveragedYield(
+        vaultSharesAPY?.totalAPY,
+        borrowAPY,
+        leverageRatio
+      );
+
+      return {
+        totalAPY,
+        vaultSharesAPY,
+        borrowAPY: borrowAPY ? -borrowAPY : undefined,
+        leverageRatio,
+        assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
+        debts: postVaultRisk?.totalDebt() || priorVaultRisk?.totalDebt(),
+        netWorth: postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
+      };
+    };
+
     const getVaultRiskSummary = () => {
       const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
 
@@ -1288,6 +1323,7 @@ export const TradeModel = types
       getPriorVaultBalances,
       getPostVaultFactors,
       getVaultCapacity,
+      getVaultAPYBreakdown,
       canSubmit,
     };
   });
