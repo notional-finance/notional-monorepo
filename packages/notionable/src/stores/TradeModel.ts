@@ -987,17 +987,13 @@ export const TradeModel = types
       const borrowAPY = postBorrowRate || priorBorrowRate;
       const leverageRatio =
         postVaultRisk?.leverageRatio() || priorVaultRisk?.leverageRatio() || 0;
-      const totalAPY = leveragedYield(
-        vaultSharesAPY?.totalAPY,
-        borrowAPY,
-        leverageRatio
-      );
+      const leveragedAPY =
+        vaultSharesAPY && borrowAPY
+          ? createLeveragedAPYData(vaultSharesAPY, borrowAPY, leverageRatio)
+          : undefined;
 
       return {
-        totalAPY,
-        vaultSharesAPY,
-        borrowAPY: borrowAPY ? -borrowAPY : undefined,
-        leverageRatio,
+        leveragedAPY,
         assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
         debts: postVaultRisk?.totalDebt() || priorVaultRisk?.totalDebt(),
         netWorth: postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
@@ -1227,36 +1223,6 @@ export const TradeModel = types
       };
     };
 
-    const getAPYFactors = () => {
-      const model = root().getNetworkClient(self.selectedNetwork);
-
-      try {
-        if (self.tradeType === 'RollVaultPosition' && self.collateral) {
-          const debtAPY = self.debtOptions?.find(
-            (o) => o.token.id === self.debtBalance?.tokenId
-          )?.interestRate;
-          return createLeveragedAPYData(
-            model.getSpotAPY(self.collateral?.id),
-            debtAPY || 0,
-            self.leverageRatio || 0
-          );
-        } else if (self.collateralBalance) {
-          return model.getSimulatedAPY(self.collateralBalance);
-        } else if (self.debtBalance) {
-          return model.getSimulatedAPY(self.debtBalance);
-        } else if (self.collateral) {
-          return model.getSpotAPY(self.collateral.id);
-        } else if (self.debt) {
-          return model.getSpotAPY(self.debt.id);
-        } else {
-          return undefined;
-        }
-      } catch (e) {
-        console.error(e);
-        return undefined;
-      }
-    };
-
     const getNetBalances = () => {
       const accountBalances = getPriorVaultBalances() || [];
       const netChange = self.collateralBalance || self.debtBalance;
@@ -1317,7 +1283,6 @@ export const TradeModel = types
       },
       getNetBalances,
       getLeverageOptions,
-      getAPYFactors,
       getVaultRiskSummary,
       getPortfolioComparison,
       getPriorVaultBalances,

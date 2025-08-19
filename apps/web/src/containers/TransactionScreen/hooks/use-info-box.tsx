@@ -73,14 +73,15 @@ const DividedSections = ({
   children: ReactNode | ReactNode[];
 }) => {
   const theme = useTheme();
+  const c = Array.isArray(children) ? children.filter((c) => !!c) : children;
 
   return (
     <Box>
-      {Array.isArray(children)
-        ? children.map((child, index) => (
+      {Array.isArray(c)
+        ? c.map((child, index) => (
             <Box key={index}>
               {child}
-              {index !== children.length - 1 && (
+              {index !== c.length - 1 && (
                 <Divider sx={{ margin: theme.spacing(3, 0) }} />
               )}
             </Box>
@@ -244,51 +245,50 @@ function formatAPYValues(
 const useApyBreakdown = () => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
-  const apyBreakdown = trade?.getVaultAPYBreakdown();
-  const leverageRatio = apyBreakdown?.leverageRatio || 0;
+  const { leveragedAPY, assets, debts, netWorth } =
+    trade?.getVaultAPYBreakdown() || {};
+  const leverageRatio = leveragedAPY?.leverageRatio || 0;
   let points: { label: string; values: { value: string }[] }[] | undefined;
 
-  if (apyBreakdown?.vaultSharesAPY?.pointMultiples) {
-    points = Object.entries(apyBreakdown.vaultSharesAPY.pointMultiples).map(
-      ([key, value]) => {
-        return {
-          label: key,
-          values: [{ value: `${formatNumber(value * leverageRatio)}x` }],
-        };
-      }
-    );
+  if (leveragedAPY?.pointMultiples) {
+    points = Object.entries(leveragedAPY.pointMultiples).map(([key, value]) => {
+      return {
+        label: key,
+        values: [{ value: `${formatNumber(value * leverageRatio)}x` }],
+      };
+    });
   }
 
   const apy = [
     {
       label: 'Staking APY',
       values: formatAPYValues(
-        apyBreakdown?.vaultSharesAPY?.totalAPY,
-        apyBreakdown?.assets,
+        leveragedAPY?.assetAPY,
+        assets,
         theme.palette.success.main
       ),
     },
     {
       label: 'Vault Fee APY',
       values: formatAPYValues(
-        apyBreakdown?.vaultSharesAPY?.feeAPY,
-        apyBreakdown?.assets,
+        leveragedAPY?.feeAPY,
+        assets,
         theme.palette.success.main
       ),
     },
     {
       label: 'Borrow APY',
       values: formatAPYValues(
-        apyBreakdown?.borrowAPY,
-        apyBreakdown?.debts,
+        leveragedAPY?.debtAPY,
+        debts,
         theme.palette.success.main
       ),
     },
     {
       label: 'Total APY',
       values: formatAPYValues(
-        apyBreakdown?.totalAPY,
-        apyBreakdown?.netWorth,
+        leveragedAPY?.totalAPY,
+        netWorth,
         theme.palette.success.main
       ),
     },
@@ -297,13 +297,11 @@ const useApyBreakdown = () => {
   const assetsDebts = [
     {
       label: 'Asset Amount',
-      content:
-        apyBreakdown?.assets?.toDisplayStringWithSymbol(4, false, false) || '-',
+      content: assets?.toDisplayStringWithSymbol(4, false, false) || '-',
     },
     {
       label: 'Debt Amount',
-      content:
-        apyBreakdown?.debts?.toDisplayStringWithSymbol(4, false, false) || '-',
+      content: debts?.toDisplayStringWithSymbol(4, false, false) || '-',
     },
   ];
 

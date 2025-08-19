@@ -30,7 +30,7 @@ export const TransactionScreen = observer(
     const trade = useCurrentTradeContext();
     const vaultMetadata = useVaultMetadata(trade?.vaultAddress);
     const isReady = vaultMetadata !== undefined;
-    const apyInfo = trade?.getAPYFactors();
+    const { leveragedAPY } = trade?.getVaultAPYBreakdown() || {};
 
     const tabs = useInfoBox();
 
@@ -56,7 +56,7 @@ export const TransactionScreen = observer(
                 }}
               />
             ))}
-            apyInfo={apyInfo}
+            apyInfo={leveragedAPY}
           />
           <ContentContainer>
             <TopSection>

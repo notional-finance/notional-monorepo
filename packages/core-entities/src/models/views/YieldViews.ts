@@ -55,6 +55,7 @@ export function createLeveragedAPYData(
       debtAPY,
       leverageRatio
     ),
+    feeAPY: leveragedYield(assetData?.feeAPY, 0, leverageRatio),
     incentiveAPY: leveragedYield(assetData?.incentiveAPY, 0, leverageRatio),
     incentives: assetData?.incentives?.map(({ symbol, incentiveAPY }) => ({
       symbol,
