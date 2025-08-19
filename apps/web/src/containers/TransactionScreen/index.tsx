@@ -5,6 +5,11 @@ import { DepositInput, LeverageSlider } from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
 import { Box, styled, useTheme } from '@mui/material';
 
+export const VaultDefaultScreen = () => {
+  // TODO: switch between deposit and manage screens based on the position
+  return <VaultDepositScreen />;
+};
+
 export const VaultDepositScreen = () => {
   const { currencyInputRef } = useCurrencyInputRef();
   useTradeContext('CreateVaultPosition');
@@ -13,12 +18,14 @@ export const VaultDepositScreen = () => {
     <TransactionScreen
       inputs={[
         <DepositInput
+          key="deposit-input"
           inputLabel={defineMessage({
             defaultMessage: 'Deposit',
           })}
           inputRef={currencyInputRef}
         />,
         <LeverageSlider
+          key="leverage-slider"
           inputLabel={defineMessage({
             defaultMessage: 'Leverage',
           })}

@@ -18,7 +18,6 @@ import {
 import { TokenBalance } from '@notional-finance/core-entities';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import TransactionConfirmation from '../transaction-confirmation/transaction-confirmation';
-import { LiquidationRisk } from './components';
 import {
   TransactionHeadings,
   CombinedTokenTypes,
@@ -28,10 +27,6 @@ import {
   useTransactionApprovals,
 } from '../transaction-approvals/hooks';
 import { TransactionApprovals } from '../transaction-approvals/transaction-approvals';
-import { useLocation } from 'react-router-dom';
-import { TradeSummary } from './components/trade-summary';
-import { isLeveragedTrade } from '@notional-finance/notionable';
-import { PRODUCTS } from '@notional-finance/util';
 import { SwitchNetwork } from '../transaction-approvals/switch-network';
 import { observer } from 'mobx-react-lite';
 
@@ -55,7 +50,6 @@ interface TransactionSidebarProps {
   onCancelRouteCallback?: () => void;
   isWithdraw?: boolean;
   hideTextOnMobile?: boolean;
-  variableBorrowRequired?: boolean;
   NetworkSelector?: React.ReactNode;
   mobileTopMargin?: string;
   hideActionButtons?: boolean;
@@ -69,13 +63,11 @@ const TransactionSidebarComponent = ({
   advancedToggle,
   isPortfolio,
   showDrawer = false,
-  riskComponent,
   NetworkSelector,
   onReturnToForm,
   onCancelCallback,
   requiredApprovalAmount,
   onCancelRouteCallback,
-  variableBorrowRequired,
   isWithdraw = false,
   hideTextOnMobile,
   hideActionButtons,
@@ -83,7 +75,6 @@ const TransactionSidebarComponent = ({
 }: TransactionSidebarProps) => {
   const trade = useCurrentTradeContext();
   const setConfirm = trade?.setConfirm;
-  const { pathname } = useLocation();
   const [showTxnApprovals, setShowTxnApprovals] = useState(false);
   const [showSwitchNetwork, setShowSwitchNetwork] = useState(false);
   const canSubmit = canSubmitOverride ? trade?.canSubmit() || false : false;
@@ -93,10 +84,7 @@ const TransactionSidebarComponent = ({
   const { debt, collateral } = trade?.selectedTokens ?? {};
   const { mustSwitchNetwork } = useChangeNetwork(selectedNetwork);
   const isBlocked = useLeverageBlock();
-  const approvalData = useTransactionApprovals(
-    requiredApprovalAmount,
-    variableBorrowRequired
-  );
+  const approvalData = useTransactionApprovals(requiredApprovalAmount);
 
   const { showApprovals } = approvalData;
 
@@ -149,14 +137,6 @@ const TransactionSidebarComponent = ({
 
   if (tradeType === undefined) return <PageLoading />;
 
-  const leverageDisabled =
-    // Always allow users to withdraw
-    tradeType === 'DeleverageWithdraw'
-      ? false
-      : isBlocked &&
-        (isLeveragedTrade(tradeType) ||
-          pathname.includes(PRODUCTS.LIQUIDITY_LEVERAGED));
-
   const errorMessage = defineMessages({
     geoErrorHeading: {
       defaultMessage:
@@ -165,7 +145,7 @@ const TransactionSidebarComponent = ({
   });
 
   const getTokenSpecificHelpText = () => {
-    if (leverageDisabled) {
+    if (isBlocked) {
       return errorMessage.geoErrorHeading;
     } else if (helptext) {
       return helptext;
@@ -219,9 +199,9 @@ const TransactionSidebarComponent = ({
       }
       walletConnectedText={TransactionHeadings[tradeType].walletConnectedText}
       handleSubmit={handleSubmit}
-      canSubmit={!!canSubmit && !leverageDisabled}
+      canSubmit={!!canSubmit && !isBlocked}
       onCancelCallback={handleActionSidebarCancel}
-      leverageDisabled={leverageDisabled}
+      leverageDisabled={isBlocked}
       hideTextOnMobile={isPortfolio || !hideTextOnMobile ? false : true}
       NetworkSelector={NetworkSelector}
       hideActionButtons={hideActionButtons}
@@ -229,8 +209,6 @@ const TransactionSidebarComponent = ({
     >
       <ScrollToTop />
       {children}
-      {riskComponent || <LiquidationRisk />}
-      {tradeType !== 'StakeNOTECoolDown' && <TradeSummary />}
     </ActionSidebar>
   );
 

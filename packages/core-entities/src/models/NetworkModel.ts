@@ -5,7 +5,6 @@ import {
 } from '@notional-finance/util';
 import { types, flow, getSnapshot, applySnapshot } from 'mobx-state-tree';
 import {
-  ConfigurationModel,
   ExchangeModel,
   NotionalTypes,
   OracleDefinitionModel,
@@ -15,6 +14,7 @@ import {
   TimeSeriesModel,
   ChartType,
   AnalyticsModel,
+  ConfigurationModel,
 } from './ModelTypes';
 import { Env } from '../server';
 import { TokenRegistryServer } from '../server/token-registry-server';
@@ -29,10 +29,7 @@ import { TokenViews } from './views/TokenViews';
 import { VaultViews } from './views/VaultViews';
 import { ExchangeViews } from './views/ExchangeViews';
 import { AnalyticsActions, AnalyticsViews } from './views/AnalyticsViews';
-import {
-  ConfigurationViews,
-  registerVaultData,
-} from './views/ConfigurationViews';
+import { ConfigurationViews } from './views/ConfigurationViews';
 import defaultPools from '../exchanges/default-pools';
 import { buildOracleGraph, OracleViews } from './views/OracleViews';
 import { YieldViews } from './views/YieldViews';
@@ -118,8 +115,6 @@ export const NetworkServerModel = NetworkModelWithViews.named(
     self.oracles.replace(oracles);
     self.vaults.replace(vaults);
 
-    // Registers vault tokens and vault oracles
-    registerVaultData(self);
     // Registers default pool tokens for exchanges
     defaultPools[self.network].forEach((pool) =>
       pool.registerTokens.forEach((t) => {
@@ -161,10 +156,11 @@ export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
     const startTime = performance.now();
     console.log(
       'Refreshing snapshot using url',
-      `${REGISTRY_URL}/${self.network}/snapshot`
+      `${REGISTRY_URL}/${self.network}/v4/snapshot`
     );
-    const response = yield fetch(`${REGISTRY_URL}/${self.network}/snapshot`);
+    const response = yield fetch(`${REGISTRY_URL}/${self.network}/v4/snapshot`);
     const snapshot = yield response.json();
+
     applySnapshot(self, {
       ...snapshot,
       timeSeries: self.timeSeries,

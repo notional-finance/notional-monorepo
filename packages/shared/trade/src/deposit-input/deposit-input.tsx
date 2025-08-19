@@ -29,7 +29,6 @@ interface DepositInputProps {
   maxWithdraw?: TokenBalance;
   useZeroDefault?: boolean;
   showScrollPopper?: boolean;
-  excludeSupplyCap?: boolean;
   depositOverride?: TokenDefinition;
   depositTokens?: TokenDefinition[];
   onUpdate?: (inputAmount: TokenBalance | undefined) => void;
@@ -58,7 +57,6 @@ export const DepositInput = React.forwardRef<
       maxWithdraw,
       useZeroDefault,
       showScrollPopper,
-      excludeSupplyCap,
       miniButtonLabel = 'MAX',
       // These two props allow the state values to be overridden, used
       // in the case of Staked NOTE
@@ -75,7 +73,6 @@ export const DepositInput = React.forwardRef<
     const availableDepositTokens =
       depositTokens || trade?.availableTokens.deposit;
     const deposit = depositOverride || trade?.selectedTokens.deposit;
-    const tradeType = trade?.tradeType;
     const selectedNetwork = trade?.selectedNetwork;
     const calculateError = trade?.calculateError;
     const setDepositBalance = trade?.setDepositBalance;
@@ -92,8 +89,7 @@ export const DepositInput = React.forwardRef<
       selectedNetwork,
       deposit?.symbol,
       isWithdraw,
-      useZeroDefault,
-      excludeSupplyCap
+      useZeroDefault
     );
 
     useEffect(() => {
@@ -114,10 +110,9 @@ export const DepositInput = React.forwardRef<
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setHasInputErrors, errorMsg?.id, errorMsgOverride?.id]);
 
-    const balanceAndApyData = useWalletBalances(
+    const walletBalances = useWalletBalances(
       selectedNetwork,
-      availableDepositTokens,
-      tradeType
+      availableDepositTokens
     );
 
     const errorMessage = getDepositErrorMessage(
@@ -172,7 +167,7 @@ export const DepositInput = React.forwardRef<
           warningMsg={warningMsg}
           showScrollPopper={showScrollPopper}
           options={
-            balanceAndApyData?.map(({ token, content }) => ({
+            walletBalances?.map(({ token, content }) => ({
               token,
               content,
             })) || []

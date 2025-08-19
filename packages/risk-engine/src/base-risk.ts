@@ -9,11 +9,9 @@ import {
   unique,
   PERCENTAGE_BASIS,
   RATE_DECIMALS,
-  getNowSeconds,
-  PRIME_CASH_VAULT_MATURITY,
   doSecantSearch,
 } from '@notional-finance/util';
-import { RiskFactorLimit, RiskFactors, SymbolOrID } from './types';
+import { RiskFactorLimit, RiskFactors } from './types';
 
 export abstract class BaseRiskProfile implements RiskFactors {
   static merge(a: TokenBalance[], b?: TokenBalance[]) {
@@ -25,13 +23,6 @@ export abstract class BaseRiskProfile implements RiskFactors {
     map: Map<string, TokenBalance> = new Map<string, TokenBalance>()
   ) => {
     return tokens.reduce((m, t) => {
-      if (t.tokenType === 'PrimeDebt') {
-        // Rewrite all prime debt to prime cash, this only applies to AccountRiskProfile, not
-        // VaultAccountRiskProfile
-        const pCash = getNetworkModel(t.network).getPrimeCash(t.currencyId);
-        t = t.toToken(pCash);
-      }
-
       const match = m.get(t.typeKey);
       if (match) {
         m.set(match.typeKey, match.add(t));
@@ -52,44 +43,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
     return getNetworkModel(this.network);
   }
 
-  protected _settle(
-    b: TokenBalance,
-    blockTime = getNowSeconds()
-  ): TokenBalance {
-    if (!b.token.maturity || b.token.maturity > blockTime) return b;
-
-    this.settledBalances.push(b);
-
-    if (b.tokenType === 'fCash') {
-      return b.toPrimeCash();
-    } else if (b.tokenType === 'VaultDebt') {
-      const primeVaultDebt = this.model.getVaultDebt(
-        b.vaultAddress,
-        PRIME_CASH_VAULT_MATURITY
-      );
-      return TokenBalance.from(
-        b.unwrapVaultToken().toPrimeDebt().n,
-        primeVaultDebt
-      );
-    } else if (b.tokenType === 'VaultCash') {
-      const primeVaultCash = this.model.getVaultCash(
-        b.vaultAddress,
-        PRIME_CASH_VAULT_MATURITY
-      );
-      // No conversion required for vault cash. It is always prime cash.
-      return TokenBalance.from(b.unwrapVaultToken().n, primeVaultCash);
-    } else if (b.tokenType === 'VaultShare') {
-      const adapter = this.model.getVaultAdapter(b.vaultAddress);
-      return adapter.convertToPrimeVaultShares(b);
-    }
-
-    throw Error('Invalid settle balance');
-  }
-
   /** Takes a set of token balances to create a new risk profile */
   constructor(
     balances: TokenBalance[],
-    public defaultSymbol: SymbolOrID,
+    public defaultSymbol: string,
     _network?: Network
   ) {
     this.settledBalances = [];
@@ -105,25 +62,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       this.network = network[0];
     }
 
-    this.balances = BaseRiskProfile.merge(balances.map((b) => this._settle(b)));
-  }
-
-  /** All currency ids represented in the account */
-  get allCurrencyIds() {
-    return unique(
-      this.balances
-        .map((b) => b.token.currencyId)
-        .filter((b) => b !== undefined)
-    ) as number[];
-  }
-
-  /** All symbols represented in the account */
-  get allSymbols() {
-    return unique(
-      this.allCurrencyIds.map((id) => {
-        return this.model.getUnderlying(id).symbol;
-      })
-    ) as string[];
+    this.balances = BaseRiskProfile.merge(balances);
   }
 
   toString() {
@@ -131,17 +70,12 @@ export abstract class BaseRiskProfile implements RiskFactors {
   }
 
   /** Returns a token definition of the given symbol or currency id */
-  denom(d: SymbolOrID) {
-    if (typeof d === 'string') {
-      try {
-        // If the symbol does not work, try to look up by ID
-        return this.model.getTokenBySymbol(d);
-      } catch {
-        return this.model.getTokenByID(d);
-      }
-    } else {
-      // If the input is a currency id, then use the underlying
-      return this.model.getUnderlying(d);
+  denom(d: string) {
+    try {
+      // If the symbol does not work, try to look up by ID
+      return this.model.getTokenBySymbol(d);
+    } catch {
+      return this.model.getTokenByID(d);
     }
   }
 
@@ -185,22 +119,6 @@ export abstract class BaseRiskProfile implements RiskFactors {
   /** Total debt without risk adjustments */
   totalDebt(denominated = this.defaultSymbol) {
     return this._totalValue(this.debts, this.denom(denominated));
-  }
-
-  /** Total value of debts in the specified currency */
-  totalCurrencyDebts(currencyId: number, denominated = this.defaultSymbol) {
-    return this._totalValue(
-      this.debts.filter((t) => t.token.currencyId === currencyId),
-      this.denom(denominated)
-    );
-  }
-
-  /** Total value of assets in the specified currency */
-  totalCurrencyAssets(currencyId: number, denominated = this.defaultSymbol) {
-    return this._totalValue(
-      this.collateral.filter((t) => t.token.currencyId === currencyId),
-      this.denom(denominated)
-    );
   }
 
   netWorth() {
@@ -283,14 +201,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
     const value = this.getRiskFactor(riskFactor, args);
     const riskFactorInRP = this.getRiskFactorInRP(riskFactor, limit);
     const netLocal = this.netCollateralAvailable(localUnderlyingId);
-    const totalAssets =
-      args && riskFactor === 'leverageRatio' && typeof args[0] === 'number'
-        ? this.totalCurrencyAssets(args[0])
-        : this.totalAssets(localUnderlyingId);
-    const totalDebt =
-      args && riskFactor === 'leverageRatio' && typeof args[0] === 'number'
-        ? this.totalCurrencyDebts(args[0])
-        : this.totalDebt(localUnderlyingId);
+    const totalAssets = this.totalAssets(localUnderlyingId);
+    const totalDebt = this.totalDebt(localUnderlyingId);
 
     // NOTE: multiples should move the risk factor closer towards limit == value, so
     // if the limit is satisfied the next iteration of the loop will move closer towards
@@ -530,15 +442,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // terms before we multiply it to get the debt figure. Use the currency id so that vault
       // debts convert properly.
       const defaultToken = this.denom(localUnderlyingId);
-      const debtBalance =
-        debt.currencyId === defaultToken.currencyId
-          ? TokenBalance.unit(debt)
-              .mulInRatePrecision(Math.floor(debtUnits))
-              .neg()
-          : TokenBalance.unit(defaultToken)
-              .mulInRatePrecision(Math.floor(debtUnits))
-              .toToken(debt)
-              .neg();
+      const debtBalance = TokenBalance.unit(defaultToken)
+        .mulInRatePrecision(Math.floor(debtUnits))
+        .toToken(debt)
+        .neg();
 
       const collateralOutputs = convertToCollateral(debtBalance);
 
@@ -573,9 +480,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
   getAllLiquidationPrices() {
     const assets = this.balances
       .map((a) => a.token)
-      .concat(unique(this.balances.map((a) => a.underlying)))
-      // Prefer to show underlying over prime cash
-      .filter((c) => c.tokenType !== 'PrimeCash');
+      .concat(unique(this.balances.map((a) => a.underlying)));
 
     return assets
       .map((a) => {
@@ -592,50 +497,6 @@ export abstract class BaseRiskProfile implements RiskFactors {
       .filter(({ threshold }) => threshold !== null);
   }
 
-  getRiskExposureType(
-    collateral: TokenDefinition,
-    debt: TokenDefinition,
-    collateralThreshold: TokenBalance | null
-  ) {
-    if (
-      collateral.tokenType === 'fCash' &&
-      (collateral.maturity || 0) < getNowSeconds() &&
-      debt.tokenType === 'PrimeDebt'
-    ) {
-      // Matured fCash with prime debt in the same currency must be settled
-      return { isCrossCurrency: false, isPrimeDebt: true, risk: 'Settlement' };
-    } else if (
-      collateral.tokenType === 'PrimeCash' &&
-      debt.tokenType === 'fCash' &&
-      (debt.maturity || 0) < getNowSeconds()
-    ) {
-      // Matured fCash with prime debt in the same currency must be settled
-      return { isCrossCurrency: false, isPrimeDebt: false, risk: 'Settlement' };
-    } else if (
-      collateral.currencyId === debt.currencyId &&
-      collateralThreshold
-    ) {
-      // All local currency risks
-      return {
-        isCrossCurrency: false,
-        isPrimeDebt: false,
-        risk: collateral.tokenType,
-      };
-    } else if (collateralThreshold) {
-      return {
-        isCrossCurrency: true,
-        isPrimeDebt:
-          debt.tokenType === 'PrimeDebt' ||
-          (debt.tokenType === 'VaultDebt' &&
-            debt.maturity === PRIME_CASH_VAULT_MATURITY &&
-            !!collateralThreshold),
-        risk: collateral.tokenType,
-      };
-    }
-
-    return undefined;
-  }
-
   /** Abstract Risk Factor Implementations **/
   abstract freeCollateral(): TokenBalance;
   abstract collateralRatio(): number | null;
@@ -645,8 +506,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
     asset: TokenDefinition
   ): TokenBalance | null;
   abstract simulate(apply: TokenBalance[]): BaseRiskProfile;
-  abstract totalAssetsRiskAdjusted(denominated: SymbolOrID): TokenBalance;
-  abstract totalDebtRiskAdjusted(denominated: SymbolOrID): TokenBalance;
-  abstract netCollateralAvailable(denominated: SymbolOrID): TokenBalance;
+  abstract totalAssetsRiskAdjusted(denominated: string): TokenBalance;
+  abstract totalDebtRiskAdjusted(denominated: string): TokenBalance;
+  abstract netCollateralAvailable(denominated: string): TokenBalance;
   //   getLiquidationPenalty() {}
 }

@@ -5,113 +5,62 @@ import {
 } from './server-registry';
 import {
   Network,
-  VaultAddress,
   getNowSeconds,
   getProviderFromNetwork,
 } from '@notional-finance/util';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
-import {
-  BalancerPoolABI,
-  ERC20ABI,
-  ISingleSidedLPStrategyVault,
-  ISingleSidedLPStrategyVaultABI,
-} from '@notional-finance/contracts';
+import { ERC20ABI } from '@notional-finance/contracts';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { TokenBalance } from '../token-balance';
-import { DeprecatedVaults } from './vault-overrides';
-import {
-  CacheSchema,
-  fetchFromRegistry,
-  getVaultType,
-  whitelistedVaults,
-} from '..';
-
-function getBaseProtocol(boosterProtocol: string) {
-  switch (boosterProtocol) {
-    case 'Curve':
-      return 'Curve';
-    case 'Convex':
-      return 'Curve';
-    case 'Aura':
-      return 'Balancer';
-    case 'Balancer':
-      return 'Balancer';
-    default:
-      return 'unknown';
-  }
-}
-
-function parseVaultName(name: string) {
-  if (name === 'Curve FRAX/USDC LP (FRAX Leverage)') {
-    name = 'SingleSidedLP:Convex:[FRAX]/USDC.e';
-  } else if (name === 'Pendle:PT USDe 28MAY2025:[USDC]') {
-    name = 'Pendle:PT eUSDe 28MAY2025:[USDC]';
-  }
-
-  try {
-    if (name.startsWith('Pendle')) {
-      const [protocol, poolName, _] = name.split(':');
-      return {
-        technicalName: name,
-        boosterProtocol: protocol,
-        poolName: poolName,
-        baseProtocol: protocol,
-        name: poolName,
-      };
-    } else {
-      const [_, boosterProtocol, pool] = name.split(':');
-      const poolName = pool.replace('[', '').replace(']', '');
-      return {
-        technicalName: name,
-        boosterProtocol,
-        poolName,
-        baseProtocol: getBaseProtocol(boosterProtocol),
-        name: `${boosterProtocol}: ${poolName}`,
-      };
-    }
-  } catch {
-    return {
-      technicalName: name,
-      boosterProtocol: 'unknown',
-      poolName: 'unknown',
-      baseProtocol: 'unknown',
-      name,
-    };
-  }
-}
+import { CacheSchema, fetchFromRegistry } from '..';
+import { BaseVaultParams } from '../vaults/VaultAdapter';
 
 // NOTE: this is currently hardcoded because we cannot access the worker
 // process environment directly here.
 const NX_REGISTRY_URL = 'https://registry.notional.finance';
 
+const PendlePTVaultABI = new ethers.utils.Interface([
+  'function MARKET() view external returns (address)',
+  'function TOKEN_IN_SY() view external returns (address)',
+  'function TOKEN_OUT_SY() view external returns (address)',
+]);
+
+const PendleMarketABI = new ethers.utils.Interface([
+  'function expiry() view external returns (uint256)',
+]);
+
+const StakingVaultABI = new ethers.utils.Interface([
+  'function yieldToken() view external returns (address)',
+]);
+
+const CurveConvex2Token = new ethers.utils.Interface([
+  'function CURVE_POOL_TOKEN() view external returns (address)',
+  'function PRIMARY_INDEX() view external returns (uint8)',
+  'function yieldToken() view external returns (address)',
+  'function maxPoolShare() view external returns (uint256)',
+  'function totalSupply() view external returns (uint256)',
+  // TODO: get this from the abi
+  'function getRewardSettings() view external returns (uint256[])',
+]);
+
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   protected async _refresh(network: Network, blockNumber?: number) {
-    const { AllVaultsDocument, AllVaultsByBlockDocument } =
-      await loadGraphClientDeferred();
+    const { AllVaultsDocument } = await loadGraphClientDeferred();
 
-    let vaultConfigurations: {
-      vaultAddress: string;
-      enabled: boolean;
-      name: string;
-    }[];
+    let vaultConfigurations: BaseVaultParams[];
     try {
-      const data =
-        blockNumber === undefined
-          ? await fetchGraphPaginate(
-              network,
-              AllVaultsDocument,
-              'vaultConfigurations',
-              this.env.NX_SUBGRAPH_API_KEY
-            )
-          : await fetchGraphPaginate(
-              network,
-              AllVaultsByBlockDocument,
-              'vaultConfigurations',
-              this.env.NX_SUBGRAPH_API_KEY,
-              { blockNumber }
-            );
-      vaultConfigurations = data['data'].vaultConfigurations;
+      const data = await fetchGraphPaginate(
+        network,
+        AllVaultsDocument,
+        'vaults',
+        this.env.NX_SUBGRAPH_API_KEY
+      );
+      vaultConfigurations = data['data'].vaults.map((v) => ({
+        vaultAddress: v.id,
+        strategyType: v.strategyType,
+        enabled: v.isWhitelisted,
+      }));
     } catch (e) {
       const response = await fetchFromRegistry<CacheSchema<VaultMetadata>>(
         `${network}/vaults`,
@@ -122,54 +71,56 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         .map(([v, p]) => {
           return {
             vaultAddress: v,
+            strategyType: (p as { strategyType: string }).strategyType,
             enabled: (p as { enabled: boolean }).enabled,
-            name: (p as { name: string }).name,
           };
         });
     }
 
-    const calls = vaultConfigurations
-      .filter(
-        (v: { vaultAddress: string; name: string }) =>
-          !DeprecatedVaults.includes(v.vaultAddress) &&
-          (whitelistedVaults(network) as string[]).includes(
-            v.vaultAddress as VaultAddress
-          )
-      )
-      .flatMap(
-        ({
-          vaultAddress,
-          enabled,
-          name,
-        }: {
-          vaultAddress: string;
-          enabled: boolean;
-          name: string;
-        }) => {
-          const vaultType = getVaultType(vaultAddress, network);
-          switch (vaultType) {
-            case 'SingleSidedLP_AutoReinvest':
-            case 'SingleSidedLP_DirectClaim':
-            case 'SingleSidedLP_Points':
-              return this.getSingleSidedLPCalls(
-                vaultAddress,
-                network,
-                enabled,
-                name,
-                vaultType === 'SingleSidedLP_DirectClaim'
-              );
-            case 'PendlePT':
-              return this.getPendlePTCalls(
-                vaultAddress,
-                network,
-                enabled,
-                name
-              );
-            default:
-              return [];
-          }
+    const calls = vaultConfigurations.flatMap(
+      ({
+        vaultAddress,
+        enabled,
+        strategyType,
+      }: {
+        vaultAddress: string;
+        enabled: boolean;
+        strategyType: string;
+      }) => {
+        let calls: AggregateCall[] = [];
+        switch (strategyType) {
+          case 'CurveConvex2Token':
+            calls = this.getCurveConvex2TokenCalls(vaultAddress, network);
+            break;
+          case 'PendlePT':
+            calls = this.getPendlePTCalls(vaultAddress, network, enabled);
+            break;
+          case 'Staking':
+            calls = this.getStakingCalls(vaultAddress, network, enabled);
+            break;
+          default:
+            calls = [];
         }
-      );
+        calls.push(
+          {
+            target: 'NO_OP',
+            stage: 0,
+            method: 'NO_OP',
+            key: vaultAddress,
+            transform: () => ({ vaultAddress }),
+          },
+          {
+            target: 'NO_OP',
+            stage: 0,
+            method: 'NO_OP',
+            key: `${vaultAddress}.strategyType`,
+            transform: () => strategyType,
+          }
+        );
+
+        return calls;
+      }
+    );
 
     const { block, results } = await aggregate(
       calls,
@@ -217,107 +168,104 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     };
   }
 
-  protected getSingleSidedLPCalls(
+  protected getCurveConvex2TokenCalls(
     vaultAddress: string,
-    network: Network,
-    enabled: boolean,
-    name: string,
-    hasRewarder: boolean
+    network: Network
   ): AggregateCall[] {
     const vaultContract = new Contract(
       vaultAddress,
-      ISingleSidedLPStrategyVaultABI,
+      CurveConvex2Token,
       getProviderFromNetwork(network)
     );
     const calls: AggregateCall[] = [
       {
         target: vaultContract,
         stage: 0,
-        method: 'getStrategyVaultInfo',
-        key: vaultAddress,
-        transform: (
-          r: Awaited<
-            ReturnType<ISingleSidedLPStrategyVault['getStrategyVaultInfo']>
-          >
-        ) => {
-          const totalLPTokens = TokenBalance.toJSON(
-            r.totalLPTokens,
-            r.pool,
-            network
-          );
-
-          const totalVaultShares = r.totalVaultShares;
-
-          return {
-            pool: r.pool,
-            singleSidedTokenIndex: r.singleSidedTokenIndex,
-            maxPoolShares: r.maxPoolShare,
-            totalLPTokens,
-            totalVaultShares,
-            secondaryTradeParams: '0x',
-            enabled,
-            vaultAddress,
-            rewardState: undefined,
-            ...parseVaultName(name),
-          };
-        },
+        method: 'CURVE_POOL_TOKEN',
+        key: `${vaultAddress}.pool`,
       },
       {
+        target: 'NO_OP',
+        stage: 0,
+        method: 'NO_OP',
+        key: `${vaultAddress}.enabled`,
+        transform: () => true,
+      },
+      {
+        target: vaultContract,
+        stage: 0,
+        method: 'PRIMARY_INDEX',
+        key: `${vaultAddress}.singleSidedTokenIndex`,
+      },
+      {
+        target: vaultContract,
+        stage: 0,
+        method: 'yieldToken',
+        key: `${vaultAddress}.yieldToken`,
+      },
+      {
+        stage: 0,
+        target: vaultContract,
+        method: 'maxPoolShare',
+        key: `${vaultAddress}.maxPoolShares`,
+      },
+      {
+        target: vaultContract,
+        stage: 0,
+        method: 'totalSupply',
+        key: `${vaultAddress}.totalVaultShares`,
+      },
+      {
+        stage: 1,
         target: (r: Record<string, unknown>) =>
           new Contract(
-            (r[vaultAddress] as { pool: string }).pool,
+            r[`${vaultAddress}.pool`] as string,
             ERC20ABI,
             getProviderFromNetwork(network)
           ),
-        stage: 1,
         method: 'totalSupply',
         key: `${vaultAddress}.totalPoolSupply`,
         transform: (r: BigNumber, prevResults: Record<string, unknown>) =>
           TokenBalance.toJSON(
             r,
-            (prevResults[vaultAddress] as { pool: string }).pool,
+            prevResults[`${vaultAddress}.pool`] as string,
             network
           ),
       },
       {
+        stage: 1,
         target: (r: Record<string, unknown>) =>
           new Contract(
-            (r[vaultAddress] as { pool: string }).pool,
-            BalancerPoolABI,
+            r[`${vaultAddress}.yieldToken`] as string,
+            ERC20ABI,
             getProviderFromNetwork(network)
           ),
-        stage: 1,
-        method: 'getActualSupply',
-        key: `${vaultAddress}.totalPoolSupply`,
+        method: 'balanceOf',
+        args: [vaultAddress],
+        key: `${vaultAddress}.totalLPTokens`,
         transform: (r: BigNumber, prevResults: Record<string, unknown>) =>
           TokenBalance.toJSON(
             r,
-            (prevResults[vaultAddress] as { pool: string }).pool,
+            prevResults[`${vaultAddress}.yieldToken`] as string,
             network
           ),
       },
-    ];
-
-    if (hasRewarder) {
-      calls.push({
+      {
         target: vaultContract,
         stage: 0,
         method: 'getRewardSettings',
         key: `${vaultAddress}.rewardState`,
-        transform: (
-          r: Awaited<
-            ReturnType<ISingleSidedLPStrategyVault['getRewardSettings']>
-          >
-        ) =>
-          r[0].map((v) => ({
-            lastAccumulatedTime: v.lastAccumulatedTime,
-            endTime: v.endTime,
-            rewardToken: v.rewardToken,
-            emissionRatePerYear: v.emissionRatePerYear,
-            accumulatedRewardPerVaultShare: v.accumulatedRewardPerVaultShare,
-          })),
-      });
-    }
+        // TODO: fix this
+        // transform: (r: BigNumber[]) =>
+        //   r[0].map((v) => ({
+        //     lastAccumulatedTime: v.lastAccumulatedTime,
+        //     endTime: v.endTime,
+        //     rewardToken: v.rewardToken,
+        //     emissionRatePerYear: v.emissionRatePerYear,
+        //     accumulatedRewardPerVaultShare: v.accumulatedRewardPerVaultShare,
+        //   })),
+      },
+    ];
 
     return calls;
   }
@@ -325,30 +273,9 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   protected getPendlePTCalls(
     vaultAddress: string,
     network: Network,
-    enabled: boolean,
-    name: string
+    enabled: boolean
   ): AggregateCall[] {
-    const PendlePTVaultABI = new ethers.utils.Interface([
-      'function MARKET() view external returns (address)',
-      'function TOKEN_IN_SY() view external returns (address)',
-      'function TOKEN_OUT_SY() view external returns (address)',
-    ]);
-
-    const PendleMarketABI = new ethers.utils.Interface([
-      'function expiry() view external returns (uint256)',
-    ]);
-
     return [
-      {
-        target: 'NO_OP',
-        stage: 0,
-        method: 'NO_OP',
-        key: vaultAddress,
-        transform: () => ({
-          ...parseVaultName(name),
-          vaultAddress,
-        }),
-      },
       {
         target: new Contract(
           vaultAddress,
@@ -391,6 +318,32 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         key: `${vaultAddress}.enabled`,
         transform: (expiry: BigNumber) =>
           enabled ? expiry.gt(getNowSeconds()) : false,
+      },
+    ];
+  }
+
+  protected getStakingCalls(
+    vaultAddress: string,
+    network: Network,
+    enabled: boolean
+  ): AggregateCall[] {
+    return [
+      {
+        target: 'NO_OP',
+        stage: 0,
+        method: 'NO_OP',
+        key: `${vaultAddress}.enabled`,
+        transform: () => enabled,
+      },
+      {
+        target: new Contract(
+          vaultAddress,
+          StakingVaultABI,
+          getProviderFromNetwork(network)
+        ),
+        stage: 0,
+        method: 'yieldToken',
+        key: `${vaultAddress}.stakingToken`,
       },
     ];
   }

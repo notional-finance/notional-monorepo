@@ -12,7 +12,6 @@ interface PortfolioSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
   isWithdraw?: boolean;
-  enablePrimeBorrow?: boolean;
   requiredApprovalAmount?: TokenBalance;
 }
 
@@ -20,7 +19,6 @@ export const PortfolioSideDrawer = ({
   children,
   advancedToggle,
   isWithdraw,
-  enablePrimeBorrow,
   requiredApprovalAmount,
 }: PortfolioSideDrawerProps) => {
   const theme = useTheme();
@@ -41,7 +39,6 @@ export const PortfolioSideDrawer = ({
       onReturnToForm={onCancel}
       advancedToggle={advancedToggle}
       isWithdraw={isWithdraw}
-      variableBorrowRequired={enablePrimeBorrow}
       requiredApprovalAmount={requiredApprovalAmount}
     >
       <Box sx={{ marginBottom: theme.spacing(9) }}>{children}</Box>

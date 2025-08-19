@@ -1,19 +1,14 @@
 import {
   IAggregatorABI,
   IAggregator,
-  NotionalV3ABI,
-  NotionalV3,
   BalancerPoolABI,
   BalancerPool,
 } from '@notional-finance/contracts';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import {
   batchArray,
-  decodeERC1155Id,
   getNowSeconds,
-  INTERNAL_TOKEN_PRECISION,
   Network,
-  NotionalAddress,
   SCALAR_PRECISION,
   sNOTE,
   WETHAddress,
@@ -38,8 +33,13 @@ import { fetchFromRegistry } from '../client';
 // process environment directly here.
 const NX_REGISTRY_URL = 'https://registry.notional.finance';
 
-const VaultABI = new ethers.utils.Interface([
-  'function getExchangeRate(uint256 maturity) view external returns (int256)',
+const VaultOracleABI = new ethers.utils.Interface([
+  'function price(address borrower) view external returns (uint256)',
+  'function convertSharesToYieldToken(uint256 shares) view external returns (uint256)',
+  // This one is on the lending router
+  'function convertBorrowSharesToAssets(address vault, uint256 shares) view external returns (uint256)',
+  // This one is on the withdraw request manager
+  'function getExchangeRate() view external returns (uint256)',
 ]);
 
 const sNOTE_Pool = '0x5122E01D819E58BB2E22528c0D68D310f0AA6FD7';
@@ -126,14 +126,14 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   }
 
   private async _queryAllOracles(network: Network, blockNumber?: number) {
-    const { AllOraclesDocument, AllOraclesByBlockDocument } =
+    const { AllOraclesDocument, AllOraclesByBlockNumberDocument } =
       await loadGraphClientDeferred();
 
     try {
       return await this._fetchUsingGraph(
         network,
         (blockNumber !== undefined
-          ? AllOraclesByBlockDocument
+          ? AllOraclesByBlockNumberDocument
           : AllOraclesDocument) as TypedDocumentNode<AllOraclesQuery, unknown>,
         (r) => {
           return r.oracles.reduce((obj, v) => {
@@ -145,7 +145,6 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               base: v.base.id,
               baseDecimals: v.base.decimals,
               quote: v.quote.id,
-              quoteCurrencyId: v.quote.currencyId,
               decimals:
                 // Override PT vault addresses b/c the decimals are not right in the subgraph
                 PendlePTVaults[network].includes(v.oracleAddress)
@@ -202,7 +201,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     schema: CacheSchema<OracleDefinition>,
     blockNumber?: number
   ): Promise<CacheSchema<OracleDefinition>> {
-    const calls = await this._getAggregateCalls(schema, blockNumber);
+    const calls = await this._getAggregateCalls(schema);
     const batchedCalls = batchArray(calls, 100);
 
     let block: Block | undefined;
@@ -251,23 +250,9 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
 
   /** Returns an array of aggregate calls that will override the latest rates in the oracles */
   private async _getAggregateCalls(
-    results: CacheSchema<OracleDefinition>,
-    blockNumber?: number
+    results: CacheSchema<OracleDefinition>
   ): Promise<AggregateCall<{ rate: BigNumber; timestamp?: number }>[]> {
     const provider = this.getProvider(results.network);
-    let ts = getNowSeconds();
-    if (blockNumber) {
-      const block = await provider.getBlock(blockNumber);
-      ts = block.timestamp;
-    } else {
-      blockNumber = await provider.getBlockNumber();
-    }
-
-    const notional = new Contract(
-      NotionalAddress[results.network],
-      NotionalV3ABI,
-      provider
-    ) as NotionalV3;
 
     return results.values
       .map(([id, oracle]) => {
@@ -293,117 +278,53 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             ) => ({ rate: r.answer, timestamp: r.updatedAt.toNumber() }),
           };
         } else if (oracle.oracleType === 'VaultShareOracleRate') {
-          const { maturity } = decodeERC1155Id(oracle.quote);
           return {
             key: id,
-            target: new Contract(oracle.oracleAddress, VaultABI, provider),
-            method: 'getExchangeRate',
-            args: [maturity],
+            target: new Contract(
+              oracle.oracleAddress,
+              VaultOracleABI,
+              provider
+            ),
+            method: 'price',
+            args: [ZERO_ADDRESS],
             transform: (r: BigNumber) => ({ rate: r }),
           };
-        } else if (
-          oracle.oracleType === 'fCashOracleRate' ||
-          oracle.oracleType === 'fCashSpotRate'
-        ) {
-          const { maturity, currencyId } = decodeERC1155Id(oracle.quote);
+        } else if (oracle.oracleType === 'VaultFeeAccrualRate') {
           return {
             key: id,
-            target: notional,
-            method: 'getActiveMarkets',
-            args: [currencyId],
-            transform: (
-              r: Awaited<ReturnType<NotionalV3['getActiveMarkets']>>
-            ) => {
-              const market = r.find((m) => m.maturity.toNumber() === maturity);
-              return {
-                rate:
-                  oracle.oracleType === 'fCashOracleRate'
-                    ? market?.oracleRate
-                    : market?.lastImpliedRate,
-              };
-            },
+            target: new Contract(
+              oracle.oracleAddress,
+              VaultOracleABI,
+              provider
+            ),
+            method: 'convertSharesToYieldToken',
+            args: [SCALAR_PRECISION],
+            transform: (r: BigNumber) => ({ rate: r }),
           };
-        } else if (
-          oracle.oracleType === 'PrimeCashToUnderlyingExchangeRate' ||
-          oracle.oracleType === 'PrimeDebtToUnderlyingExchangeRate' ||
-          oracle.oracleType === 'PrimeCashToUnderlyingOracleInterestRate'
-        ) {
+        } else if (oracle.oracleType === 'BorrowShareOracleRate') {
+          const vault = oracle.id.split(':')[0];
           return {
             key: id,
-            target: notional,
-            method: 'getPrimeFactors',
-            args: [oracle.quoteCurrencyId, getNowSeconds()],
-            transform: (
-              r: Awaited<ReturnType<NotionalV3['getPrimeFactors']>>
-            ) => {
-              if (oracle.oracleType === 'PrimeCashToUnderlyingExchangeRate') {
-                return { rate: r.primeRate.supplyFactor };
-              } else if (
-                oracle.oracleType === 'PrimeDebtToUnderlyingExchangeRate'
-              ) {
-                return { rate: r.primeRate.debtFactor };
-              } else {
-                return { rate: r.primeRate.oracleSupplyRate };
-              }
-            },
+            target: new Contract(
+              oracle.oracleAddress,
+              VaultOracleABI,
+              provider
+            ),
+            method: 'convertBorrowSharesToAssets',
+            args: [vault, BigNumber.from(10).pow(oracle.baseDecimals || 0)],
+            transform: (r: BigNumber) => ({ rate: r }),
           };
-        } else if (
-          oracle.oracleType === 'PrimeCashPremiumInterestRate' ||
-          oracle.oracleType === 'PrimeDebtPremiumInterestRate'
-        ) {
-          if (JSON.parse(process.env['HAS_ABI_VERSIONING'] || 'false')) {
-            return {
-              key: id,
-              target: notional,
-              method: 'getPrimeInterestRate',
-              args: [oracle.quoteCurrencyId],
-              transform: (
-                r: Awaited<ReturnType<NotionalV3['getPrimeInterestRate']>>
-              ) => {
-                return {
-                  rate:
-                    oracle.oracleType === 'PrimeCashPremiumInterestRate'
-                      ? r.annualSupplyRate
-                      : r.annualDebtRatePostFee,
-                };
-              },
-            };
-          } else {
-            return null;
-          }
-        } else if (oracle.oracleType === 'nTokenToUnderlyingExchangeRate') {
+        } else if (oracle.oracleType === 'WithdrawTokenExchangeRate') {
           return {
             key: id,
-            target: notional,
-            method: 'convertNTokenToUnderlying',
-            args: [oracle.quoteCurrencyId, INTERNAL_TOKEN_PRECISION],
-            transform: (
-              r: Awaited<ReturnType<NotionalV3['convertNTokenToUnderlying']>>
-            ) => {
-              if (!oracle.baseDecimals) throw Error('base decimals undefined');
-              return {
-                rate: r
-                  .mul(BigNumber.from(10).pow(oracle.decimals))
-                  .div(BigNumber.from(10).pow(oracle.baseDecimals)),
-              };
-            },
-          };
-        } else if (oracle.oracleType === 'fCashToUnderlyingExchangeRate') {
-          const { maturity, currencyId } = decodeERC1155Id(oracle.quote);
-          return {
-            key: id,
-            target: notional,
-            method: 'getPresentfCashValue',
-            args: [currencyId, maturity, INTERNAL_TOKEN_PRECISION, ts, false],
-            transform: (
-              r: Awaited<ReturnType<NotionalV3['getPresentfCashValue']>>
-            ) => {
-              return {
-                rate: r
-                  .mul(BigNumber.from(10).pow(oracle.decimals))
-                  .div(INTERNAL_TOKEN_PRECISION),
-              };
-            },
+            target: new Contract(
+              oracle.oracleAddress,
+              VaultOracleABI,
+              provider
+            ),
+            method: 'getExchangeRate',
+            args: [],
+            transform: (r: BigNumber) => ({ rate: r }),
           };
         } else if (
           oracle.oracleType === 'sNOTEToETHExchangeRate' ||

@@ -1,4 +1,4 @@
-import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
 import { useState } from 'react';
@@ -23,7 +23,7 @@ export function useAccountHasPositions() {
   return SupportedNetworks.filter((n) => {
     const hasPosition = walletStore.networkAccounts
       .get(n)
-      ?.balances.some((t) => !!t.token.currencyId && !t.isZero());
+      ?.balances.some((t) => t.tokenType === 'VaultShare' && !t.isZero());
     return hasPosition;
   });
 }
@@ -55,14 +55,6 @@ export function useAccountDefinition(network: Network | undefined) {
   return account;
 }
 
-export function useTotalIncentives(
-  network: Network | undefined,
-  symbol: string
-) {
-  const totalIncentives = useNetworkAccounts(network)?.totalIncentives;
-  return useObserver(() => totalIncentives?.get(symbol));
-}
-
 export function useAccountReady(network: Network | undefined) {
   return useAccountDefinition(network) !== undefined;
 }
@@ -74,7 +66,7 @@ export function useAccountLoading() {
 
 export function useTransactionHistory(network: Network | undefined) {
   const account = useAccountDefinition(network);
-  return account?.accountHistory?.filter((h) => !h.isTransientLineItem) || [];
+  return account?.accountHistory || [];
 }
 
 export function useVaultHoldings(network: Network | undefined) {
@@ -92,29 +84,6 @@ export function useVaultPosition(
   return useVaultHoldings(network)?.find(
     (v) => v.vaultAddress === vaultAddress
   );
-}
-
-export function useTotalPortfolioHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.totalPortfolioHoldings;
-}
-
-export function usePortfolioHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.detailedHoldings;
-}
-
-export function useGroupedHoldings(network: Network | undefined) {
-  return useNetworkAccounts(network)?.groupedHoldings;
-}
-
-export function usePortfolioRiskProfile(network: Network | undefined) {
-  return useNetworkAccounts(network)?.portfolioRiskProfile;
-}
-
-export function usePortfolioMaxWithdraw(token: TokenDefinition | undefined) {
-  const networkAccounts = useNetworkAccounts(token?.network);
-  return networkAccounts && token
-    ? networkAccounts.maxPortfolioWithdraw(token)
-    : undefined;
 }
 
 export function useVaultMaxWithdraw(

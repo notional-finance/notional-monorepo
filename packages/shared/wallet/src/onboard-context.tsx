@@ -23,12 +23,6 @@ import { checkMobileView } from '@notional-finance/helpers';
 
 export const chains = [
   {
-    id: `0x${NetworkId[Network.arbitrum].toString(16)}`,
-    token: 'ETH',
-    label: Network.arbitrum,
-    rpcUrl: getProviderURLFromNetwork(Network.arbitrum),
-  },
-  {
     id: `0x${NetworkId[Network.mainnet].toString(16)}`,
     token: 'ETH',
     label: Network.mainnet,

@@ -7,7 +7,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Caption, H4, H5, LabelValue, Paragraph } from '@notional-finance/mui';
 import { useTheme, Box, Button, styled, Popover, SxProps } from '@mui/material';
 import {
-  PRODUCTS,
   SupportedNetworks,
   getFromLocalStorage,
   getNetworkSymbol,
@@ -17,7 +16,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Network } from '@notional-finance/util';
 import {
   useAccountNetWorth,
-  useProductNetwork,
   useWalletBalancesOnNetworks,
   useSelectedNetwork,
   useCurrentTradeContext,
@@ -107,27 +105,25 @@ export const NetworkSelectorButton = ({
   );
 };
 
-export const TransactionNetworkSelector = observer(
-  ({ product }: { product: PRODUCTS }) => {
-    const trade = useCurrentTradeContext();
-    const deposit = trade?.selectedTokens?.deposit;
-    const selectedNetwork = trade?.selectedNetwork;
+export const TransactionNetworkSelector = observer(() => {
+  const trade = useCurrentTradeContext();
+  const deposit = trade?.selectedTokens?.deposit;
+  const selectedNetwork = trade?.selectedNetwork;
 
-    const availableNetworks = useProductNetwork(product, deposit?.symbol);
-    const walletBalances = useWalletBalancesOnNetworks(
-      availableNetworks,
-      deposit?.symbol
-    );
+  const availableNetworks = [Network.mainnet];
+  const walletBalances = useWalletBalancesOnNetworks(
+    availableNetworks,
+    deposit?.symbol
+  );
 
-    return (
-      <NetworkSelector
-        availableNetworks={availableNetworks}
-        selectedNetwork={selectedNetwork}
-        walletBalances={walletBalances}
-      />
-    );
-  }
-);
+  return (
+    <NetworkSelector
+      availableNetworks={availableNetworks}
+      selectedNetwork={selectedNetwork}
+      walletBalances={walletBalances}
+    />
+  );
+});
 
 export const PortfolioNetworkSelector = observer(
   ({ sx, hideNetWorth }: { sx?: SxProps; hideNetWorth?: boolean }) => {

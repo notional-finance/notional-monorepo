@@ -5,6 +5,9 @@
   "scripts": {
     "prepare": "husky install"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.8.4",
@@ -33,16 +36,14 @@
     "@typeform/embed-react": "^1.16.0",
     "@types/echarts": "^4.9.22",
     "@types/recharts": "^1.8.24",
-    "@web3-onboard/coinbase": "^2.4.1",
-    "@web3-onboard/core": "^2.22.2",
+    "@web3-onboard/coinbase": "^2.4.2",
+    "@web3-onboard/core": "^2.24.1",
     "@web3-onboard/gnosis": "^2.3.2",
-    "@web3-onboard/injected-wallets": "^2.11.1",
-    "@web3-onboard/ledger": "^2.7.1",
-    "@web3-onboard/metamask": "^2.2.0",
-    "@web3-onboard/react": "^2.9.2",
-    "@web3-onboard/trezor": "^2.4.6",
-    "@web3-onboard/walletconnect": "^2.6.1",
-    "@web3-onboard/web3auth": "^2.4.0",
+    "@web3-onboard/injected-wallets": "^2.11.3",
+    "@web3-onboard/metamask": "^2.2.1",
+    "@web3-onboard/react": "^2.11.0",
+    "@web3-onboard/trezor": "^2.4.7",
+    "@web3-onboard/walletconnect": "^2.6.2",
     "abi-decoder": "^2.4.0",
     "axios": "^0.27.2",
     "browserify-zlib": "^0.2.0",
@@ -164,9 +165,8 @@
     "debug": "^4.3.7",
     "eslint": "~8.15.0",
     "eslint-config-next": "14.2.4",
-    "eslint-plugin-address": "^0.0.2",
     "eslint-plugin-cypress": "^2.10.3",
-    "eslint-plugin-formatjs": "^4.3.4",
+    "eslint-plugin-formatjs": "4.3.4",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-jsx-a11y": "6.6.1",
     "eslint-plugin-mobx": "^0.0.11",
@@ -202,16 +202,19 @@
     "timers-browserify": "^2.0.12",
     "ts-jest": "28.0.5",
     "ts-node": "10.9.1",
+    "ts-unused-exports": "^11.0.1",
     "typechain": "^8.3.2",
     "typescript": "^5.7.3",
     "url": "^0.11.0",
     "url-loader": "^4.1.1",
     "webpack": "^5.75.0",
     "webpack-merge": "^5.8.0",
-    "wrangler": "^4.19.1"
+    "wrangler": "^4.28.1"
   },
   "resolutions": {
-    "@types/react": "18.2.0"
+    "@types/react": "18.2.0",
+    "@noble/hashes": "1.8.0",
+    "@noble/curves": "1.9.2"
   },
   "workspaces": {
     "packages": [

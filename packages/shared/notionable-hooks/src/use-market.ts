@@ -1,20 +1,10 @@
 import {
   getNetworkModel,
-  TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import {
-  firstValue,
-  Network,
-  PRODUCTS,
-  RATE_PRECISION,
-} from '@notional-finance/util';
+import { firstValue, Network } from '@notional-finance/util';
 import { useEffect } from 'react';
-import { exchangeToLocalPrime } from '@notional-finance/transaction';
-import {
-  useCurrentNetworkStore,
-  usePortfolioStore,
-} from './context/use-root-store';
+import { useCurrentNetworkStore } from './context/use-root-store';
 import { useObserver } from 'mobx-react-lite';
 
 export interface MaturityData {
@@ -22,17 +12,6 @@ export interface MaturityData {
   tokenId: string;
   tradeRate: number | undefined;
   maturity: number;
-}
-
-export function usePrimeCash(currencyId: number | undefined) {
-  const currentNetworkStore = useCurrentNetworkStore();
-  try {
-    return currentNetworkStore.isReady()
-      ? currentNetworkStore.getPrimeCash(currencyId)
-      : undefined;
-  } catch {
-    return undefined;
-  }
 }
 
 export function useVaultAdapter(vaultAddress: string | undefined) {
@@ -45,65 +24,6 @@ export function useVaultAdapter(vaultAddress: string | undefined) {
     return undefined;
   }
 }
-
-export function usePrimeDebt(currencyId: number | undefined) {
-  const currentNetworkStore = useCurrentNetworkStore();
-  try {
-    return currentNetworkStore.isReady()
-      ? currentNetworkStore.getPrimeDebt(currencyId)
-      : undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-export function usePrimeTokens() {
-  const currentNetworkStore = useCurrentNetworkStore();
-  try {
-    if (currentNetworkStore.isReady()) {
-      const allTokens = currentNetworkStore.getAllTokens();
-      return {
-        primeCash: allTokens.filter((t) => t.tokenType === 'PrimeCash'),
-        primeDebt: allTokens.filter((t) => t.tokenType === 'PrimeDebt'),
-      };
-    } else {
-      return undefined;
-    }
-  } catch {
-    return undefined;
-  }
-}
-
-export const useProductNetwork = (
-  product: PRODUCTS,
-  underlyingSymbol: string | undefined
-) => {
-  const portfolioStore = usePortfolioStore();
-  return portfolioStore.getNetworksForProduct(product, underlyingSymbol);
-};
-
-/** This is used to generate the utilization charts */
-export const useNotionalMarket = (token: TokenDefinition | undefined) => {
-  const currentNetworkStore = useCurrentNetworkStore();
-  try {
-    return currentNetworkStore.isReady() && token && token.currencyId
-      ? currentNetworkStore.getNotionalMarket(token?.currencyId)
-      : undefined;
-  } catch {
-    return undefined;
-  }
-};
-
-export const useFCashMarket = (token?: TokenDefinition | undefined) => {
-  const currentNetworkStore = useCurrentNetworkStore();
-  try {
-    return currentNetworkStore.isReady() && token && token.currencyId
-      ? currentNetworkStore.getfCashMarket(token?.currencyId)
-      : undefined;
-  } catch {
-    return undefined;
-  }
-};
 
 export const useSNOTEPool = () => {
   return useObserver(() => {
@@ -128,21 +48,7 @@ export const useSpotMaturityData = (
 
   return (
     tokens?.map((t) => {
-      const _t = currentNetworkStore.unwrapVaultToken(t);
-      let spotRate = currentNetworkStore.getSpotAPY(t.id).totalAPY || 0;
-      if (
-        _t.tokenType === 'PrimeDebt' &&
-        t.tokenType === 'VaultDebt' &&
-        t.vaultAddress
-      ) {
-        // Add the vault fee to the debt rate here
-        spotRate +=
-          (currentNetworkStore.getVaultConfig(t.vaultAddress)
-            .feeRateBasisPoints *
-            100) /
-          RATE_PRECISION;
-      }
-
+      const spotRate = currentNetworkStore.getSpotAPY(t.id).totalAPY || 0;
       return {
         token: t,
         tokenId: t.id,
@@ -152,34 +58,6 @@ export const useSpotMaturityData = (
     }) || []
   );
 };
-
-export function useTradedValue(amount: TokenBalance | undefined) {
-  if (amount?.network) {
-    const model = getNetworkModel(amount.network);
-    const primeCash = model.getPrimeCash(amount.currencyId);
-    let fCashMarket: ReturnType<typeof model.getfCashMarket> | undefined;
-    try {
-      fCashMarket = model.getfCashMarket(amount.currencyId);
-    } catch (e) {
-      // NO-OP
-    }
-
-    try {
-      return primeCash
-        ? exchangeToLocalPrime(
-            amount,
-            fCashMarket,
-            primeCash
-          ).localPrime.toUnderlying()
-        : undefined;
-    } catch (e) {
-      console.error(e);
-      return undefined;
-    }
-  }
-
-  return undefined;
-}
 
 export function useFetchAnalyticsData(
   id: string,

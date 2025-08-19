@@ -11,11 +11,9 @@ import {
   firstValue,
   floorToMidnight,
   getNowSeconds,
-  groupArrayByKey,
   groupArrayToMap,
   INTERNAL_TOKEN_DECIMALS,
   Network,
-  RATE_DECIMALS,
   SECONDS_IN_DAY,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
@@ -29,20 +27,13 @@ import {
 } from '../models/ModelTypes';
 import { Env } from '.';
 import { formatUnits } from 'ethers/lib/utils';
-import { OracleType, TimeSeriesDataPoint } from '../models/ModelTypes';
-import { getSecondaryTokenIncentive } from '../config/whitelisted-tokens';
+import { TimeSeriesDataPoint } from '../models/ModelTypes';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import {
-  HistoricalOracleValuesQuery,
-  HistoricalTradingActivityDocument,
-  HistoricalTradingActivityQuery,
-  VaultReinvestmentQuery,
-} from '../.graphclient';
+import { HistoricalOracleValuesQuery } from '../.graphclient';
 import {
   PendlePTVaults,
   whitelistedVaults,
 } from '../config/whitelisted-vaults';
-import { interestToExchangeRate } from '../models/views/OracleViews';
 import { TokenBalance } from '../token-balance';
 
 export type GraphDocument = keyof Omit<
@@ -54,36 +45,6 @@ const USE_CROSS_FETCH =
   process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
 
 export type ActiveAccounts = Record<string, number>;
-
-export const ASSET_PRICE_ORACLES = [
-  'nTokenToUnderlyingExchangeRate',
-  'PrimeCashToUnderlyingExchangeRate',
-  'PrimeDebtToUnderlyingExchangeRate',
-  'VaultShareOracleRate',
-];
-
-function getOracleName(oracleType: OracleType, incentiveSymbol?: string) {
-  switch (oracleType) {
-    case 'fCashOracleRate':
-      return 'Fixed Rate';
-    case 'PrimeCashPremiumInterestRate':
-      return 'Variable Lend Rate';
-    case 'PrimeDebtPremiumInterestRate':
-      return 'Variable Borrow Rate';
-    case 'nTokenBlendedInterestRate':
-      return 'Interest Yield';
-    case 'nTokenFeeRate':
-      return 'Trading Fees';
-    case 'nTokenIncentiveRate':
-      return 'NOTE Incentive APY';
-    case 'nTokenSecondaryIncentiveRate':
-      return `${incentiveSymbol || 'Secondary'} Incentive APY`;
-    case 'sNOTEReinvestmentAPY':
-      return 'sNOTE APY';
-    default:
-      return oracleType;
-  }
-}
 
 export class AnalyticsServer extends ServerRegistry<unknown> {
   constructor(env: Env) {
@@ -187,8 +148,6 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
   }
 
   public async fetchTimeSeries(network: Network) {
-    const { VaultReinvestmentDocument } = await loadGraphClientDeferred();
-
     const allNetworkPrices = await this.allNetworkPrices();
     if (network === Network.all) {
       return {
@@ -197,90 +156,12 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       };
     }
 
-    const notePrices = allNetworkPrices.find(
-      (p) => p.id === `eth:note:${ChartType.PRICE}`
-    );
-
-    const timeSeries = await this._fetchTokenTimeSeries(network, notePrices);
+    const timeSeries = await this._fetchTokenTimeSeries(network);
     const priceChanges = this.calculatePriceChanges(timeSeries, network);
-
-    const vaultReinvestmentResult = (
-      await fetchGraphPaginate(
-        network,
-        VaultReinvestmentDocument,
-        'reinvestments',
-        this.env.NX_SUBGRAPH_API_KEY,
-        { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY }
-      )
-    )['data'] as VaultReinvestmentQuery;
-
-    const vaultReinvestment = groupArrayToMap(
-      vaultReinvestmentResult.reinvestments.map((i) => ({
-        vault: i.vault.id,
-        blockNumber: parseInt(i.blockNumber),
-        timestamp: i.timestamp,
-        transactionHash: i.transactionHash,
-        rewardAmountSold: TokenBalance.toJSON(
-          BigNumber.from(i.rewardAmountSold),
-          i.rewardTokenSold.id,
-          network
-        ),
-        tokensReinvested: BigNumber.from(i.tokensReinvested).toJSON(),
-        tokensPerVaultShare: BigNumber.from(i.tokensPerVaultShare).toJSON(),
-        underlyingAmountRealized: BigNumber.from(
-          i.underlyingAmountRealized
-        ).toJSON(),
-        vaultSharePrice: BigNumber.from(i.vaultSharePrice).toJSON(),
-      })),
-      (t) => t.vault
-    );
-
-    const historicalTradingResult = (
-      await fetchGraphPaginate(
-        network,
-        HistoricalTradingActivityDocument,
-        'tradingActivity',
-        this.env.NX_SUBGRAPH_API_KEY,
-        { minTimestamp: getNowSeconds() - 30 * SECONDS_IN_DAY }
-      )
-    )['data'] as HistoricalTradingActivityQuery;
-
-    const historicalTrading = groupArrayToMap(
-      historicalTradingResult.tradingActivity.map((i) => {
-        return i.bundleName === 'Mint nToken' ||
-          i.bundleName === 'Redeem nToken'
-          ? {
-              bundleName: i.bundleName,
-              currencyId: i.transfers[0].token.currencyId as number,
-              // Spot underlying value of the nToken
-              valueInUnderlying: i.transfers[1].valueInUnderlying,
-              timestamp: i.timestamp,
-              blockNumber: parseInt(i.blockNumber),
-              transactionHash: i.transactionHash.id,
-            }
-          : // These are fCash transactions
-            {
-              bundleName: i.bundleName,
-              currencyId: i.transfers[0].token.currencyId as number,
-              fCashId: i.transfers[2].token.id,
-              fCashValue: i.transfers[2].value,
-              fCashMaturity: i.transfers[2].token.maturity
-                ? parseInt(i.transfers[2].token.maturity)
-                : undefined,
-              valueInUnderlying: i.transfers[0].valueInUnderlying,
-              timestamp: i.timestamp,
-              blockNumber: parseInt(i.blockNumber),
-              transactionHash: i.transactionHash.id,
-            };
-      }),
-      (t) => t.currencyId
-    );
 
     return {
       timeSeries,
       priceChanges,
-      vaultReinvestment,
-      historicalTrading,
     };
   }
 
@@ -370,15 +251,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     network: Network
   ) {
     const priceOracle = oracles.find((o) => {
-      if (o.quote.tokenType === 'fCash') {
-        return o.oracleType === 'fCashOracleRate';
-      } else if (o.quote.tokenType === 'nToken') {
-        return o.oracleType === 'nTokenToUnderlyingExchangeRate';
-      } else if (o.quote.tokenType === 'PrimeCash') {
-        return o.oracleType === 'PrimeCashToUnderlyingExchangeRate';
-      } else if (o.quote.tokenType === 'PrimeDebt') {
-        return o.oracleType === 'PrimeDebtToUnderlyingExchangeRate';
-      } else if (o.quote.tokenType === 'VaultShare') {
+      if (o.quote.tokenType === 'VaultShare') {
         return o.oracleType === 'VaultShareOracleRate';
       }
       return false;
@@ -414,16 +287,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
               r.timestamp
             );
 
-            // If fCash need to convert to the exchange rate
-            const price =
-              priceOracle.oracleType === 'fCashOracleRate' &&
-              priceOracle.quote.maturity
-                ? interestToExchangeRate(
-                    BigNumber.from(r.rate),
-                    priceOracle.quote.maturity,
-                    r.timestamp
-                  )
-                : BigNumber.from(r.rate);
+            const price = BigNumber.from(r.rate);
             const oracleDecimals =
               // Override PT vault addresses b/c the decimals are not right in the subgraph
               PendlePTVaults[network].includes(priceOracle.oracleAddress)
@@ -504,143 +368,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     };
   }
 
-  protected getAPYData(
-    oracles: HistoricalOracleValuesQuery['oracles'],
-    network: Network,
-    chainlinkOracles: TimeSeriesResponse[],
-    notePrices: TimeSeriesResponse | undefined
-  ) {
-    const apyOracles = oracles.filter((o) => {
-      if (o.quote.tokenType === 'fCash') {
-        return o.oracleType === 'fCashOracleRate';
-      } else if (o.quote.tokenType === 'PrimeCash') {
-        return o.oracleType === 'PrimeCashPremiumInterestRate';
-      } else if (o.quote.tokenType === 'PrimeDebt') {
-        return o.oracleType === 'PrimeDebtPremiumInterestRate';
-      } else if (o.quote.tokenType === 'nToken') {
-        return [
-          'nTokenBlendedInterestRate',
-          'nTokenFeeRate',
-          'nTokenIncentiveRate',
-          'nTokenSecondaryIncentiveRate',
-        ].includes(o.oracleType);
-      }
-      return false;
-    });
-
-    let apyData: TimeSeriesDataPoint[] = [];
-    let apyLegend: TimeSeriesLegend[] = [];
-
-    if (apyOracles.length === 1) {
-      apyLegend = [
-        {
-          series: 'totalAPY',
-          format: 'percent',
-        },
-      ];
-
-      // Non-nToken APYs are all based on the same oracle so we can just use the first one
-      apyData = this.reduceTimeSeriesToMidnight(
-        apyOracles[0].historicalRates?.map((r) => {
-          return {
-            timestamp: r.timestamp,
-            totalAPY:
-              apyOracles[0].oracleType === 'PrimeDebtPremiumInterestRate' ||
-              apyOracles[0].oracleType === 'PrimeCashPremiumInterestRate'
-                ? this.formatToPercent(r.rate, RATE_DECIMALS) // This decimals are not marked correctly in the subgraph
-                : this.formatToPercent(r.rate, apyOracles[0].decimals),
-          };
-        }) || []
-      );
-    } else if (apyOracles.length > 1) {
-      const base = apyOracles[0].base.id;
-      const ethPriceHistory = chainlinkOracles.find(
-        (c) => c.id === `${ZERO_ADDRESS}:${base}:${ChartType.PRICE}`
-      );
-
-      // In the other case, we are dealing with nTokens which have multiple oracles
-      const flooredSeries = apyOracles.flatMap((o) => {
-        let incentiveSymbol: string | undefined;
-        let incentivePriceHistory: TimeSeriesResponse | undefined;
-        if (o.oracleType === 'nTokenSecondaryIncentiveRate') {
-          let secondaryToken: string | undefined;
-          ({ symbol: incentiveSymbol, token: secondaryToken } =
-            getSecondaryTokenIncentive(network, o.base.id));
-          incentivePriceHistory = chainlinkOracles.find(
-            (c) =>
-              c.id === `${ZERO_ADDRESS}:${secondaryToken}:${ChartType.PRICE}`
-          );
-        }
-        const keyName = getOracleName(o.oracleType, incentiveSymbol);
-
-        return this.reduceTimeSeriesToMidnight(o.historicalRates || []).map(
-          (r) => {
-            let apy = this.formatToPercent(r.rate, o.decimals);
-            const ethBasePrice =
-              base === ZERO_ADDRESS
-                ? 1
-                : this.getPriceAtTime(ethPriceHistory, r.timestamp);
-            const incentiveETHPrice = this.getPriceAtTime(
-              incentivePriceHistory,
-              r.timestamp
-            );
-            const noteETHPrice = this.getPriceAtTime(notePrices, r.timestamp);
-
-            if (o.oracleType === 'nTokenIncentiveRate') {
-              apy =
-                (this.formatToPercent(r.rate, o.decimals) * noteETHPrice) /
-                ethBasePrice;
-            } else if (incentiveSymbol && incentiveETHPrice) {
-              // NOTE: even though o.decimals is marked as 9, this is actually in 17 decimal precision,
-              // because it is in 9 decimals of rate and 8 decimals of internal token precision.
-              apy =
-                (this.formatToPercent(r.rate, 17) * incentiveETHPrice) /
-                ethBasePrice;
-            }
-
-            return {
-              timestamp: r.timestamp,
-              [keyName]: apy || 0,
-            };
-          }
-        );
-      });
-
-      // Flatten all the APYs into a single array
-      apyData = groupArrayByKey(flooredSeries, (d) => d.timestamp)
-        .map((d) => {
-          return d.reduce((acc, v) => {
-            return {
-              ...acc,
-              ...v,
-            };
-          }, {} as TimeSeriesDataPoint);
-        })
-        .map((d) => ({
-          ...d,
-          // Add the total APY by summing all the other APYs
-          totalAPY: Object.keys(d)
-            .filter((k) => k !== 'timestamp')
-            .reduce((acc, k) => acc + (d[k] || 0), 0),
-        }));
-
-      apyLegend = Object.keys(firstValue(apyData) || {})
-        .filter((k) => k !== 'timestamp')
-        .map((k) => ({
-          series: k,
-          format: 'percent',
-        }));
-    }
-
-    return {
-      apyData: this.fillChartDaily(apyData, { totalAPY: 0 }),
-      apyLegend,
-    };
-  }
-
   protected async _fetchTokenTimeSeries(
     network: Network,
-    notePrices: TimeSeriesResponse | undefined,
     minTimestamp = getNowSeconds() - 90 * SECONDS_IN_DAY
   ) {
     const results: TimeSeriesResponse[] = [];
@@ -675,27 +404,11 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
         network
       );
 
-      const { apyData, apyLegend } = this.getAPYData(
-        // Exclude vault share oracles here for APYs, we get them using a different method.
-        oracles.filter((o) => o.oracleType !== 'VaultShareOracleRate'),
-        network,
-        chainlinkOracles,
-        notePrices
-      );
-
       results.push({
         id: `${quote}:${ChartType.PRICE}`,
         data: priceData,
         legend: priceLegend,
       });
-
-      if (apyData.length > 0) {
-        results.push({
-          id: `${quote}:${ChartType.APY}`,
-          data: apyData,
-          legend: apyLegend,
-        });
-      }
     });
 
     const vaults: TimeSeriesResponse[] = await Promise.all(

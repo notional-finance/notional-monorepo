@@ -1,9 +1,8 @@
-import { getNetworkModel, TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { NoteSupplyData, useNOTE } from '@notional-finance/notionable-hooks';
 import {
   Network,
   SECONDS_IN_YEAR_ACTUAL,
-  SupportedNetworks,
   annualizedPercentChange,
   firstValue,
   getMidnightUTC,
@@ -27,9 +26,7 @@ export function useNoteSupply(
     }
   }, [noteSupplyData, minDate]);
 
-  const annualEmissionRate = SupportedNetworks.reduce((total, n) => {
-    return total.add(getNetworkModel(n).getTotalAnnualEmission());
-  }, new TokenBalance(0, 'NOTE', Network.all));
+  const annualEmissionRate = new TokenBalance(0, 'NOTE', Network.all);
 
   const noteHistoricalSupply: [Date, number][] = supplyData
     .filter(({ address }) => address === 'Circulating Supply')

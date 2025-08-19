@@ -9,16 +9,13 @@ import {
   TransactionBuilder,
 } from '@notional-finance/transaction';
 import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
-import { TradeConfiguration, TradeType } from './trade-config';
 import { Network } from '@notional-finance/util';
 import { NOTETradeConfiguration, NOTETradeType } from './note-trade-config';
-export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
-export type { TradeType } from './trade-config';
 export type { VaultTradeType } from './vault-trade-config';
 export type { NOTETradeType } from './note-trade-config';
 
-export type AllTradeTypes = TradeType | VaultTradeType | NOTETradeType;
+export type AllTradeTypes = VaultTradeType | NOTETradeType;
 
 export type FilterFunc = (
   t: TokenDefinition,
@@ -30,10 +27,7 @@ export type FilterFunc = (
     vaultAddress?: string;
     vaultConfig?: {
       vaultAddress?: string;
-      maxBorrowMarketIndex?: number;
-      primaryBorrowCurrency: {
-        id: string;
-      };
+      depositTokenId?: string;
     };
   },
   l: TokenDefinition[]
@@ -235,44 +229,7 @@ export function isVaultTrade(tradeType?: AllTradeTypes) {
 
 export function isRollOrConvert(tradeType?: AllTradeTypes) {
   if (!tradeType) return false;
-  return (
-    tradeType === 'RollDebt' ||
-    tradeType === 'ConvertAsset' ||
-    tradeType === 'RollVaultPosition'
-  );
-}
-
-export function isLeveragedTrade(tradeType?: AllTradeTypes) {
-  if (!tradeType) return false;
-  return (
-    isVaultTrade(tradeType) ||
-    tradeType === 'LeveragedLend' ||
-    tradeType === 'LeveragedNToken' ||
-    tradeType === 'IncreaseLeveragedNToken' ||
-    tradeType === 'LeveragedNTokenAdjustLeverage'
-  );
-}
-
-export function isDeleverageTrade(tradeType?: AllTradeTypes) {
-  if (!tradeType) return false;
-  return (
-    tradeType === 'Deleverage' ||
-    tradeType === 'DeleverageWithdraw' ||
-    tradeType === 'LeveragedNTokenAdjustLeverage'
-  );
-}
-
-export function isDeleverageWithSwappedTokens(s?: {
-  tradeType?: AllTradeTypes;
-  collateral?: TokenDefinition;
-}) {
-  if (!s?.tradeType) return false;
-  return (
-    s?.tradeType === 'Deleverage' ||
-    s?.tradeType === 'DeleverageWithdraw' ||
-    (s?.tradeType === 'LeveragedNTokenAdjustLeverage' &&
-      s?.collateral?.tokenType !== 'nToken')
-  );
+  return tradeType === 'RollVaultPosition';
 }
 
 export function isNOTEStake(tradeType?: AllTradeTypes) {
@@ -308,7 +265,6 @@ export function getTradeConfig(tradeType?: AllTradeTypes) {
   if (!tradeType) throw Error('Trade type undefined');
 
   const config =
-    TradeConfiguration[tradeType as TradeType] ||
     VaultTradeConfiguration[tradeType as VaultTradeType] ||
     NOTETradeConfiguration[tradeType as NOTETradeType];
 

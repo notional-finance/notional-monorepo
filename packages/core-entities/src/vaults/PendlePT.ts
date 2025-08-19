@@ -5,7 +5,6 @@ import {
   INTERNAL_TOKEN_DECIMALS,
   Network,
   NetworkId,
-  PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
@@ -35,17 +34,13 @@ export class PendlePT extends VaultAdapter {
   public marketAddress: string;
   protected market: PendleMarket;
 
-  get strategy() {
-    return 'PendlePT';
-  }
-
   constructor(
     network: Network,
     vaultAddress: string,
     p: PendlePTVaultParams,
     borrowedToken: TokenDefinition
   ) {
-    super(p.enabled, p.name, network, vaultAddress, borrowedToken);
+    super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
     this.tokenInSy = p.tokenInSy.toLowerCase();
     this.tokenOutSy = p.tokenOutSy.toLowerCase();
     this.marketAddress = p.marketAddress.toLowerCase();
@@ -98,15 +93,6 @@ export class PendlePT extends VaultAdapter {
       timestamp: getNowSeconds(),
       blockNumber: 0,
     };
-  }
-
-  convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance {
-    // Prime vault shares convert 1-1
-    const token = getNetworkModel(vaultShares.network).getVaultShare(
-      vaultShares.vaultAddress,
-      PRIME_CASH_VAULT_MATURITY
-    );
-    return TokenBalance.from(vaultShares.n, token);
   }
 
   unwrapToSyOutToken(token: TokenBalance) {

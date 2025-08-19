@@ -27,17 +27,14 @@ export function usePerformanceChart(currentPositionFactors?: {
   const trade = useCurrentTradeContext();
   const {
     collateral: _collateral,
-    debt: _debt,
+    debt,
     deposit,
   } = trade?.selectedTokens || {};
   const selectedLeverageRatio = trade?.leverageRatio;
   const { action } = useParams<{ action: string }>();
 
   // Allow the vault collateral to override the set collateral for the unset state
-  const collateral =
-    currentPositionFactors?.collateralToken ||
-    (trade?.hasSwappedTokens() ? _debt : _collateral);
-  const debt = trade?.hasSwappedTokens() ? _collateral : _debt;
+  const collateral = currentPositionFactors?.collateralToken || _collateral;
   const tradeType = trade?.tradeType;
   const { debt: debtOptions } = trade?.computedOptions || {};
 
@@ -57,9 +54,7 @@ export function usePerformanceChart(currentPositionFactors?: {
     currentPositionFactors?.leverageRatio) as number | undefined;
   const data = useLeveragedPerformance(
     collateral,
-    debt
-      ? debt.tokenType === 'PrimeDebt'
-      : currentPositionFactors?.isPrimeBorrow || false,
+    false,
     currentBorrowRate,
     leverageRatio
   );

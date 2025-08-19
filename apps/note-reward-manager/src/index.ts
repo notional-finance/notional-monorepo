@@ -1,6 +1,6 @@
-import { getProviderFromNetwork, } from '@notional-finance/util';
-import TreasuryManager from "./treasury_manager";
-import { Env, RunType } from "./types";
+import { getProviderFromNetwork } from '@notional-finance/util';
+import TreasuryManager from './treasury_manager';
+import { Env, RunType } from './types';
 
 export async function handler(env: Env, runType: RunType) {
   const provider = getProviderFromNetwork(env.NETWORK, true);
@@ -13,8 +13,12 @@ export async function handler(env: Env, runType: RunType) {
 }
 
 export default {
-  async fetch(request: Request, env: Env, _: ExecutionContext): Promise<Response> {
-    const authKey = request.headers.get('x-auth-key');
+  async fetch(
+    request: Request,
+    env: Env,
+    _: ExecutionContext
+  ): Promise<Response> {
+    const authKey = request.headers['x-auth-key'];
     if (authKey !== env.AUTH_KEY) {
       return new Response(null, { status: 401 });
     }
@@ -24,12 +28,11 @@ export default {
   // this method can be only call by cloudflare internal system so it does not
   // require any authentication
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
-
     const currentMinuteInHour = new Date().getMinutes();
     if (currentMinuteInHour < 10) {
-        await handler(env, RunType.sellCOMP);
+      await handler(env, RunType.sellCOMP);
     } else {
-        await handler(env, RunType.burnNOTE);
+      await handler(env, RunType.burnNOTE);
     }
   },
 };

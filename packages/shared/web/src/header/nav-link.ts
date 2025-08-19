@@ -7,6 +7,7 @@ export interface INavLink {
   iconImg?: React.ReactElement;
   external?: boolean;
   target?: '_blank' | '_parent' | '_self' | '_top';
+  refresh?: boolean;
   noBottomBorder?: boolean;
   CustomComponent?: any;
 }

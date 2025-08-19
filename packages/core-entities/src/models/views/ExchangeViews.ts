@@ -1,26 +1,25 @@
 import {
   BaseLiquidityPool,
-  fCashMarket,
-  pCashMarket,
   PoolClasses,
   PoolConstructor,
   SNOTEWeightedPool,
 } from '../../exchanges/index';
+import { LendingMarket } from '../../exchanges';
 import { Network } from '@notional-finance/util';
 import { NetworkModel } from '../NetworkModel';
 import { ethers } from 'ethers';
-import { TokenBalance } from '../../token-balance';
 import { Instance } from 'mobx-state-tree';
-import { TokenViews } from './TokenViews';
 import { reviver } from '../../client';
+import { TokenDefinition } from '../../Definitions';
+import { decodeMorphoLendingRouterParams } from './ConfigurationViews';
 
 export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
   self: Instance<typeof NetworkModel>,
   address: string
 ) {
   const poolDefinition =
-    self.exchanges.get(ethers.utils.getAddress(address)) ||
-    self.exchanges.get(address.toLowerCase());
+    self.exchanges.get(address.toLowerCase()) ||
+    self.exchanges.get(ethers.utils.getAddress(address));
   if (!poolDefinition)
     throw Error(`Pool ${address} on ${self.network} not found`);
   if (!poolDefinition.latestPoolData)
@@ -43,8 +42,6 @@ export function getPoolInstance_<T extends BaseLiquidityPool<unknown>>(
 }
 
 export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
-  const { getNToken, getPrimeCash } = TokenViews(self);
-
   const getPoolInstance = <T extends BaseLiquidityPool<unknown>>(
     address: string
   ) => {
@@ -57,42 +54,30 @@ export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
       : undefined;
   };
 
-  const getfCashMarket = (currencyId: number) => {
-    const nToken = getNToken(currencyId);
-    return getPoolInstance<fCashMarket>(nToken.address);
+  const getLendingMarket = (vault: string, lendingRouter: string) => {
+    const lr = self.configuration?.lendingRouters.find(
+      (lr) => lr.id === lendingRouter
+    );
+    const m = lr?.markets.find((m) => m.vault === vault);
+
+    if (lr?.name === 'Morpho' && m) {
+      const marketParams = decodeMorphoLendingRouterParams(m.params);
+      return getPoolInstance<LendingMarket>(marketParams.marketId);
+    } else {
+      throw Error(`Market params for ${vault} on ${lendingRouter} not found`);
+    }
   };
 
-  const getNotionalMarket = (currencyId: number) => {
-    try {
-      // If there is an nToken, return the fCash market
-      if (getNToken(currencyId)) return getfCashMarket(currencyId);
-    } catch (e) {
-      // getNToken throws an error if the nToken is not found, but just swallow it
-      // and return the pCash market
-    }
-
-    const pCash = getPrimeCash(currencyId);
-    const config = self.configuration?.currencyConfigurations.find(
-      (c) => c.id === `${currencyId}`
-    );
-
-    if (!pCash || !config?.primeCashCurve)
-      throw Error('Prime Cash Curve not found');
-    return new pCashMarket(
-      self.network,
-      [pCash.totalSupply || TokenBalance.zero(pCash)],
-      pCash.totalSupply || TokenBalance.zero(pCash),
-      {
-        currencyId,
-        primeCashCurve: config.primeCashCurve,
-      }
-    );
+  const getLendingMarketFromVaultDebt = (vaultDebt: TokenDefinition) => {
+    if (!vaultDebt.vaultAddress)
+      throw Error('Vault debt token has no vault address');
+    return getLendingMarket(vaultDebt.vaultAddress, vaultDebt.address);
   };
 
   return {
     getPoolInstance,
+    getLendingMarket,
     getSNOTEPool,
-    getfCashMarket,
-    getNotionalMarket,
+    getLendingMarketFromVaultDebt,
   };
 };

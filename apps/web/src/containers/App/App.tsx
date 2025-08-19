@@ -38,6 +38,7 @@ import {
   VaultWithdrawScreen,
   VaultAdjustLeverageScreen,
   VaultManageScreen,
+  VaultDefaultScreen,
 } from '../TransactionScreen';
 
 const RedirectToDefaultNetwork = () => {
@@ -180,6 +181,16 @@ const AllRoutes = observer(() => {
             <AppLayoutRoute
               path="/vault/:selectedNetwork/:vaultAddress/deposit"
               component={VaultDepositScreen}
+              routeType="Transaction"
+            />
+          }
+        />
+        <Route
+          path="/vault/:selectedNetwork/:vaultAddress"
+          element={
+            <AppLayoutRoute
+              path="/vault/:selectedNetwork/:vaultAddress"
+              component={VaultDefaultScreen}
               routeType="Transaction"
             />
           }

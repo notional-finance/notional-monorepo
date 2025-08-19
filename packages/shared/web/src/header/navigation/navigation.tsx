@@ -52,6 +52,14 @@ export function Navigation({ navLinks, isLandingPage }: NavigationProps) {
                 iconPosition="start"
                 label={navLink?.label}
                 to={navLink?.link || ''}
+                onClick={
+                  navLink?.refresh
+                    ? (e) => {
+                        e.preventDefault();
+                        window.location.href = navLink?.link || '';
+                      }
+                    : undefined
+                }
                 value={navLink?.link}
                 component={Link}
                 disableRipple
@@ -111,6 +119,14 @@ export function Navigation({ navLinks, isLandingPage }: NavigationProps) {
               iconPosition="start"
               label={navLink?.label}
               to={navLink?.link || ''}
+              onClick={
+                navLink?.refresh
+                  ? (e) => {
+                      e.preventDefault();
+                      window.location.href = navLink?.link || '';
+                    }
+                  : undefined
+              }
               value={navLink?.link}
               component={Link}
               disableRipple

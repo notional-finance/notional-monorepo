@@ -8,15 +8,7 @@ import {
 } from '@notional-finance/util';
 import { Contract, ethers, PopulatedTransaction } from 'ethers';
 import { parseTransfersFromLogs } from './parser/transfers';
-import {
-  AccountDefinition,
-  TokenBalance,
-} from '@notional-finance/core-entities';
-import { AccountRiskProfile } from '@notional-finance/risk-engine';
-import {
-  ISingleSidedLPStrategyVaultABI,
-  ISingleSidedLPStrategyVault,
-} from '@notional-finance/contracts';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 // Types taken from: https://github.com/alchemyplatform/alchemy-sdk-js/blob/main/src/types/types.ts#L2051
 
@@ -177,64 +169,24 @@ export async function simulatePopulatedTxn(
   return { simulatedCalls: calls, simulatedLogs, rawLogs: logs };
 }
 
-export async function applySimulationToAccount(
-  network: Network,
-  populateTxn: PopulatedTransaction,
-  priorAccount: AccountDefinition
-) {
-  const {
-    simulatedLogs: { transfers },
-  } = await simulatePopulatedTxn(network, populateTxn);
-  const balancesAfter = [...priorAccount.balances];
-
-  const accountTransfers = transfers.filter(
-    (t) =>
-      t.from.toLowerCase() === priorAccount.address.toLowerCase() ||
-      t.to.toLowerCase() === priorAccount.address.toLowerCase()
-  );
-
-  accountTransfers.forEach((t) => {
-    // NOTE: need to flip the sign on debt values since all transfer signs are positive
-    const value =
-      t.value.tokenType === 'PrimeDebt' ||
-      t.token.isFCashDebt ||
-      t.value.tokenType === 'VaultDebt'
-        ? t.value.neg()
-        : t.value;
-    const netValue =
-      t.from.toLowerCase() === priorAccount.address.toLowerCase()
-        ? value.neg()
-        : value;
-
-    const i = balancesAfter.findIndex((b) => b.tokenId === t.value.tokenId);
-    if (i < 0) {
-      balancesAfter.push(netValue);
-    } else {
-      balancesAfter[i] = balancesAfter[i].add(netValue);
-    }
-  });
-
-  return {
-    balancesAfter: AccountRiskProfile.merge(balancesAfter),
-    accountTransfers,
-  };
-}
-
 export async function simulateRewardClaims(
   network: Network,
   account: string,
-  vaultAddress: string
+  vaultAddress: string,
+  lendingRouter: string
 ) {
   const VaultRewarderInterface = new ethers.utils.Interface([
     'event VaultRewardTransfer(address rewardToken, address account, uint256 amount)',
+    'function claimRewards(address account, address vault) external',
   ]);
   const contract = new Contract(
-    vaultAddress,
-    ISingleSidedLPStrategyVaultABI,
+    lendingRouter,
+    VaultRewarderInterface,
     getProviderFromNetwork(network)
-  ) as ISingleSidedLPStrategyVault;
-  const populatedTx = await contract.populateTransaction.claimAccountRewards(
+  );
+  const populatedTx = await contract.populateTransaction.claimRewards(
     account,
+    vaultAddress,
     { from: account }
   );
   const { rawLogs } = await simulatePopulatedTxn(network, populatedTx);

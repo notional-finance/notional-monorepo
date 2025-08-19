@@ -14,7 +14,7 @@ import {
 } from '@notional-finance/util';
 import { useAccountDefinition } from './use-account';
 import { useEffect, useMemo } from 'react';
-import { useAppStore, useCurrentNetworkStore } from './context/use-root-store';
+import { useAppStore } from './context/use-root-store';
 import { useObserver } from 'mobx-react-lite';
 
 const useFetchAPYData = (
@@ -98,10 +98,12 @@ export function useLeveragedPerformance(
   currentBorrowRate: number | undefined,
   leverageRatio: number | null | undefined
 ) {
-  const currentNetworkStore = useCurrentNetworkStore();
-  const primeDebt = token
-    ? currentNetworkStore.getPrimeDebt(token.currencyId)
-    : undefined;
+  // TODO: need to get the selecting lending router debt here
+  // const currentNetworkStore = useCurrentNetworkStore();
+  // const primeDebt = token
+  //   ? currentNetworkStore.getPrimeDebt(token.currencyId)
+  //   : undefined;
+  const primeDebt = undefined;
   const { data: tokenAPY } = useChartData(token, ChartType.APY);
   const { data: primeBorrowAPY } = useChartData(primeDebt, ChartType.APY);
 
@@ -230,10 +232,7 @@ export function useAccountHistoryChart(
           const { assets, debts } = snapshotsAtTime.reduce(
             ({ assets, debts }, { balance }) => {
               const isDebt =
-                balance.tokenType === 'VaultDebt' ||
-                balance.unwrapVaultToken().token.isFCashDebt === true ||
-                balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
-                balance.isNegative();
+                balance.tokenType === 'VaultDebt' || balance.isNegative();
 
               if (isDebt) {
                 debts = debts.add(

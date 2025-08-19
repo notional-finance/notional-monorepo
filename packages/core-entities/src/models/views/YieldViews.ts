@@ -1,21 +1,12 @@
 import { TokenBalance } from '../../token-balance';
 import { NetworkModel } from '../NetworkModel';
-import {
-  getNowSeconds,
-  INTERNAL_TOKEN_PRECISION,
-  leveragedYield,
-  PRIME_CASH_VAULT_MATURITY,
-  RATE_DECIMALS,
-  RATE_PRECISION,
-  SCALAR_PRECISION,
-} from '@notional-finance/util';
-import { BigNumber } from 'ethers';
-import { assertDefined, ConfigurationViews } from './ConfigurationViews';
+import { firstValue, leveragedYield } from '@notional-finance/util';
 import { TokenDefinition } from '../../Definitions';
 import { Instance } from 'mobx-state-tree';
 import { TokenViews } from './TokenViews';
 import { VaultViews } from './VaultViews';
 import { ExchangeViews } from './ExchangeViews';
+import { ConfigurationViews } from './ConfigurationViews';
 
 export interface APYData {
   totalAPY?: number;
@@ -64,6 +55,7 @@ export function createLeveragedAPYData(
       debtAPY,
       leverageRatio
     ),
+    feeAPY: leveragedYield(assetData?.feeAPY, 0, leverageRatio),
     incentiveAPY: leveragedYield(assetData?.incentiveAPY, 0, leverageRatio),
     incentives: assetData?.incentives?.map(({ symbol, incentiveAPY }) => ({
       symbol,
@@ -86,114 +78,13 @@ export function createLeveragedAPYData(
 }
 
 export const YieldViews = (self: Instance<typeof NetworkModel>) => {
-  const {
-    getTokenBySymbol,
-    getTokenByID,
-    getPrimeCash,
-    getPrimeDebt,
-    getUnderlying,
-    getNToken,
-    getDebtTokens,
-    getVaultShares,
-    getTokensByType,
-    getVaultDebt,
-    unwrapVaultToken,
-  } = TokenViews(self);
-  const { getVaultAdapter, getVaultConfig, getAllListedVaults } =
-    VaultViews(self);
-  const { getConfig } = ConfigurationViews(self);
-  const { getfCashMarket, getNotionalMarket } = ExchangeViews(self);
-
-  const convertRatioToYield = (num: TokenBalance, denom: TokenBalance) => {
-    if (num.isZero()) return 0;
-
-    return (
-      (num.toToken(denom.token).ratioWith(denom).toNumber() * 100) /
-      RATE_PRECISION
-    );
-  };
-
-  const getAnnualizedNOTEIncentives = (nToken: TokenDefinition) => {
-    if (!nToken.currencyId) throw Error('Invalid nToken');
-    const config = getConfig(nToken.currencyId);
-    const NOTE = getTokenBySymbol('NOTE');
-
-    const incentiveEmissionRate = TokenBalance.from(
-      BigNumber.from(
-        (config.incentives?.incentiveEmissionRate as string | undefined) || 0
-      ).mul(INTERNAL_TOKEN_PRECISION),
-      NOTE
-    );
-
-    const accumulatedNOTEPerNToken = config.incentives?.accumulatedNOTEPerNToken
-      ? // NOTE: this value is stored in 18 decimals natively, but downscale it here
-        // for calculations
-        TokenBalance.from(
-          config.incentives.accumulatedNOTEPerNToken,
-          NOTE
-        ).scale(INTERNAL_TOKEN_PRECISION, SCALAR_PRECISION)
-      : undefined;
-
-    const lastAccumulatedTime = config.incentives?.lastAccumulatedTime
-      ? parseInt(config.incentives.lastAccumulatedTime)
-      : undefined;
-
-    return {
-      incentiveEmissionRate,
-      lastAccumulatedTime,
-      accumulatedNOTEPerNToken,
-    };
-  };
-
-  const getAnnualizedSecondaryIncentives = (nToken: TokenDefinition) => {
-    if (!nToken.currencyId) throw Error('Invalid nToken');
-    const config = getConfig(nToken.currencyId);
-    if (!config?.incentives?.currentSecondaryReward) return undefined;
-    const rewardEndTime = config?.incentives?.secondaryRewardEndTime
-      ? parseInt(config.incentives.secondaryRewardEndTime)
-      : undefined;
-    if (rewardEndTime && rewardEndTime < getNowSeconds()) return undefined;
-
-    const rewardToken = getTokenByID(
-      config.incentives.currentSecondaryReward.id
-    );
-
-    const incentiveEmissionRate = TokenBalance.fromFloat(
-      BigNumber.from(
-        (config.incentives.secondaryEmissionRate as string | undefined) || 0
-      ).toNumber() / INTERNAL_TOKEN_PRECISION,
-      rewardToken
-    );
-    const accumulatedRewardPerNToken = config.incentives
-      ?.accumulatedSecondaryRewardPerNToken
-      ? TokenBalance.from(
-          // This value is stored in 18 decimals but we want to scale it to reward token precision
-          BigNumber.from(config.incentives.accumulatedSecondaryRewardPerNToken)
-            .mul(TokenBalance.unit(rewardToken).precision)
-            .div(SCALAR_PRECISION),
-          rewardToken
-        )
-      : undefined;
-
-    return {
-      rewardToken,
-      incentiveEmissionRate,
-      accumulatedRewardPerNToken,
-      lastAccumulatedTime: config.incentives?.lastSecondaryAccumulatedTime
-        ? parseInt(config.incentives.lastSecondaryAccumulatedTime)
-        : undefined,
-      rewardEndTime,
-    };
-  };
+  const { getTokenByID, getVaultShare, getVaultDebt } = TokenViews(self);
+  const { getVaultAdapter, getAllListedVaults, getVaultFee } = VaultViews(self);
+  const { getLendingMarketFromVaultDebt } = ExchangeViews(self);
+  const { getMaxLeverageRatio } = ConfigurationViews(self);
 
   const getTVL = (token: TokenDefinition) => {
-    if (token.tokenType === 'fCash' && token.currencyId) {
-      const market = getfCashMarket(token.currencyId);
-      const marketIndex = market.getMarketIndex(token.maturity);
-      const pCash = market.poolParams.perMarketCash[marketIndex - 1];
-      const fCash = market.poolParams.perMarketfCash[marketIndex - 1];
-      return fCash.toUnderlying().add(pCash.toUnderlying());
-    } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
+    if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = getVaultAdapter(token.vaultAddress);
       // NOTE: this returns the TVL of the vault across all maturities
       return adapter.getVaultTVL();
@@ -203,226 +94,61 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getLiquidity = (token: TokenDefinition) => {
-    if (token.tokenType === 'PrimeDebt') {
-      // Liquidity for prime debt is based on prime cash supply
-      return getTVL(getPrimeCash(token.currencyId));
-    }
-
+    // TODO: this refers to the total liquidity available to borrow
     return getTVL(token);
-  };
-
-  const getIncentiveAPY = (token: TokenDefinition, tvl: TokenBalance) => {
-    const incentives: { symbol: string; incentiveAPY: number }[] = [];
-    const { incentiveEmissionRate: annualizedNOTEIncentives } =
-      getAnnualizedNOTEIncentives(token);
-
-    if (annualizedNOTEIncentives.isPositive()) {
-      incentives.push({
-        symbol: 'NOTE',
-        incentiveAPY: convertRatioToYield(annualizedNOTEIncentives, tvl),
-      });
-    }
-    const secondaryIncentives = getAnnualizedSecondaryIncentives(token);
-    if (secondaryIncentives) {
-      incentives.push({
-        symbol: secondaryIncentives.incentiveEmissionRate.symbol,
-        incentiveAPY: convertRatioToYield(
-          secondaryIncentives.incentiveEmissionRate,
-          tvl
-        ),
-      });
-    }
-
-    return incentives;
-  };
-
-  const getNTokenFeeAPY = (token: TokenDefinition) => {
-    const feeRate = self.oracles.get(
-      `${token.underlying}:${token.id}:nTokenFeeRate`
-    );
-    return feeRate
-      ? (100 * (feeRate.latestRate?.rate?.toNumber() || 0)) / RATE_PRECISION
-      : 0;
   };
 
   const getSpotAPY = (tokenId: string) => {
     const apyData: APYData = { totalAPY: 0 };
 
-    const _token = getTokenByID(tokenId);
-    const token = unwrapVaultToken(_token);
-    if (!token.currencyId) throw Error('Token currencyId not found');
+    const token = getTokenByID(tokenId);
 
-    if (
-      token.tokenType === 'PrimeCash' ||
-      token.tokenType === 'PrimeDebt' ||
-      token.tokenType === 'fCash'
-    ) {
-      const market = getNotionalMarket(token.currencyId);
-      apyData.organicAPY = market.getSpotInterestRate(token) || 0;
-      if (
-        _token.tokenType === 'VaultDebt' &&
-        _token.maturity === PRIME_CASH_VAULT_MATURITY &&
-        _token.vaultAddress
-      ) {
-        // Add the debt fee to the organic APY
-        const config = getVaultConfig(_token.vaultAddress);
-        apyData.organicAPY +=
-          (config.feeRateBasisPoints * 100) / RATE_PRECISION;
-      }
+    if (token.tokenType === 'VaultDebt') {
+      const market = getLendingMarketFromVaultDebt(token);
+      apyData.organicAPY = market.getSpotInterestRate();
       apyData.totalAPY = apyData.organicAPY;
-    } else if (token.tokenType === 'nToken') {
-      const market = getfCashMarket(token.currencyId);
-      apyData.organicAPY = market.getNTokenBlendedYield();
-      apyData.feeAPY = getNTokenFeeAPY(token);
-      const tvl = getTVL(token);
-      apyData.incentives = getIncentiveAPY(token, tvl);
-      apyData.totalAPY =
-        apyData.organicAPY +
-        apyData.feeAPY +
-        apyData.incentives.reduce((acc, curr) => acc + curr.incentiveAPY, 0);
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = getVaultAdapter(token.vaultAddress);
       apyData.incentiveAPY = adapter.getRewardAPY();
       apyData.totalAPY = adapter.getVaultAPY();
       apyData.organicAPY = apyData.totalAPY - apyData.incentiveAPY;
       apyData.pointMultiples = adapter.getPointMultiples();
+      apyData.feeAPY = -1 * getVaultFee(token.vaultAddress);
     }
 
     return apyData;
   };
 
-  const getLeverageRatios = (
-    collateral: TokenDefinition,
-    debt?: TokenDefinition
-  ) => {
-    if (collateral.tokenType === 'VaultShare' && collateral.vaultAddress) {
-      const config = getVaultConfig(collateral.vaultAddress);
-      const minLeverageRatio =
-        RATE_PRECISION /
-        (config.maxRequiredAccountCollateralRatioBasisPoints as number);
-      const defaultLeverageRatio =
-        RATE_PRECISION / config.maxDeleverageCollateralRatioBasisPoints;
-      const maxLeverageRatio =
-        RATE_PRECISION / config.minCollateralRatioBasisPoints;
+  const getLeverageRatios = (vaultDebt: TokenDefinition) => {
+    if (vaultDebt.tokenType === 'VaultDebt' && vaultDebt.vaultAddress) {
+      const maxLeverageRatio = getMaxLeverageRatio(
+        vaultDebt.vaultAddress,
+        vaultDebt.address
+      );
+      const minLeverageRatio = 0;
+      const defaultLeverageRatio = maxLeverageRatio * 0.8;
 
       return { minLeverageRatio, defaultLeverageRatio, maxLeverageRatio };
-    } else if (collateral.tokenType === 'nToken') {
-      if (!collateral.currencyId) throw Error('Invalid nToken');
-      // NOTE: this would include the fCash discount
-      const pvFactor =
-        debt?.tokenType === 'fCash'
-          ? TokenBalance.unit(debt).toUnderlying().scaleTo(RATE_DECIMALS)
-          : RATE_PRECISION;
-      const config = getConfig(collateral.currencyId);
-      const nTokenHaircut =
-        (assertDefined(config.pvHaircutPercentage) * RATE_PRECISION) / 100;
-      const maxFactor = BigNumber.from(RATE_PRECISION)
-        .pow(2)
-        .sub(BigNumber.from(pvFactor).mul(nTokenHaircut));
-      const maxFactorInverted = BigNumber.from(RATE_PRECISION)
-        .pow(3)
-        .div(maxFactor)
-        .toNumber();
-      const maxLeverageRatio = maxFactorInverted / RATE_PRECISION - 1;
-      const defaultLeverageRatio = maxLeverageRatio * 0.6;
-      return { minLeverageRatio: 0, defaultLeverageRatio, maxLeverageRatio };
     }
 
     throw Error('Invalid token');
   };
 
-  const getMaxSupply = (currencyId: number) => {
-    const underlying = getUnderlying(currencyId);
-    const pCash = getTokensByType('PrimeCash').find(
-      (t) => t.currencyId === currencyId
-    );
-    const maxUnderlyingSupply = TokenBalance.from(
-      getConfig(currencyId).maxUnderlyingSupply,
-      underlying
-    ).scaleFromInternal();
-
-    if (!pCash?.totalSupply) throw Error('pCash total supply not found');
-    const currentUnderlyingSupply = pCash.totalSupply.toUnderlying();
-
-    return {
-      maxUnderlyingSupply,
-      currentUnderlyingSupply,
-      capacityRemaining: maxUnderlyingSupply.sub(currentUnderlyingSupply),
-    };
-  };
-
   const getSimulatedAPY = (
     netAmount: TokenBalance,
-    netPrimeDebt?: TokenBalance,
     vaultTradeMetadata?: unknown
   ) => {
     const apyData: APYData = { totalAPY: 0 };
 
-    if (netAmount.unwrapVaultToken().tokenType === 'fCash') {
-      const market = getfCashMarket(netAmount.currencyId);
-      const { tokensOut, feesPaid } = market.calculateTokenTrade(
-        netAmount.unwrapVaultToken().neg(),
-        0
-      );
-      // We net off the fee for fcash so that we show it as an up-front
-      // trading fee rather than part of the implied yield
-      apyData.organicAPY =
-        (100 *
-          (market.getImpliedInterestRate(
-            tokensOut.add(feesPaid[0]),
-            netAmount
-          ) || 0)) /
-        RATE_PRECISION;
-      apyData.totalAPY = apyData.organicAPY;
-    } else if (netAmount.unwrapVaultToken().tokenType === 'PrimeCash') {
-      // Increases or decreases the prime supply accordingly
-      const market = getNotionalMarket(netAmount.currencyId);
-      apyData.utilization = market.getPrimeCashUtilization(
-        netAmount.unwrapVaultToken(),
-        undefined
-      );
-      apyData.organicAPY =
-        (100 * market.getPrimeSupplyRate(apyData.utilization)) / RATE_PRECISION;
-      apyData.totalAPY = apyData.organicAPY;
-    } else if (netAmount.unwrapVaultToken().tokenType === 'PrimeDebt') {
-      // If borrowing and withdrawing then it is just prime debt increase. This
-      // includes vault debt
-      const market = getNotionalMarket(netAmount.currencyId);
-      apyData.utilization = market.getPrimeCashUtilization(
+    if (netAmount.tokenType === 'VaultDebt') {
+      // Get the market from the vault debt token
+      const market = getLendingMarketFromVaultDebt(netAmount.token);
+      apyData.utilization = market.getUtilizationPercent(
         undefined,
-        netAmount.unwrapVaultToken().neg()
+        netAmount.neg()
       );
-      apyData.organicAPY =
-        100 * (market.getPrimeDebtRate(apyData.utilization) / RATE_PRECISION) ||
-        0;
-      if (
-        netAmount.token.tokenType === 'VaultDebt' &&
-        netAmount.maturity === PRIME_CASH_VAULT_MATURITY &&
-        netAmount.vaultAddress
-      ) {
-        // Add the debt fee to the organic APY
-        const config = getVaultConfig(netAmount.vaultAddress);
-        apyData.organicAPY +=
-          (config.feeRateBasisPoints * 100) / RATE_PRECISION;
-      }
+      apyData.organicAPY = market.getSpotInterestRate();
       apyData.totalAPY = apyData.organicAPY;
-    } else if (netAmount.tokenType === 'nToken') {
-      const market = getfCashMarket(netAmount.currencyId);
-      apyData.organicAPY = market.getNTokenBlendedYield(
-        netAmount,
-        netPrimeDebt
-      );
-      apyData.feeAPY = getNTokenFeeAPY(netAmount.token);
-
-      const simulatedTVL = getTVL(netAmount.token).add(
-        netAmount.toUnderlying()
-      );
-      // The additional TVL will dilute the incentives
-      apyData.incentives = getIncentiveAPY(netAmount.token, simulatedTVL);
-      apyData.totalAPY =
-        apyData.organicAPY +
-        apyData.feeAPY +
-        apyData.incentives.reduce((acc, curr) => acc + curr.incentiveAPY, 0);
     } else if (netAmount.tokenType === 'VaultShare' && netAmount.vaultAddress) {
       const adapter = getVaultAdapter(netAmount.vaultAddress);
       return adapter.getSimulatedAPY(netAmount, vaultTradeMetadata);
@@ -439,14 +165,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   ): APYData => {
     const collateralAPY = collateralAmount.isZero()
       ? getSpotAPY(collateralAmount.tokenId)
-      : getSimulatedAPY(
-          collateralAmount,
-          collateralAmount.token.tokenType === 'nToken' &&
-            debtAmount.token.tokenType === 'PrimeDebt'
-            ? debtAmount
-            : undefined,
-          vaultTradeMetadata
-        );
+      : getSimulatedAPY(collateralAmount, vaultTradeMetadata);
     const debtAPY = debtAmount.isZero()
       ? getSpotAPY(debtAmount.tokenId)
       : getSimulatedAPY(debtAmount);
@@ -458,282 +177,56 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     );
   };
 
-  const getDefaultLeveragedNTokenAPYs = (token: TokenDefinition) => {
-    if (!token.currencyId) throw Error('Invalid token currency');
-    if (token.tokenType !== 'nToken') throw Error('Invalid token type');
-    const { maxLeverageRatio } = getLeverageRatios(token);
-    const debtTokens = getDebtTokens(token.currencyId);
+  const getDefaultVaultAPY = (vaultAddress: string) => {
+    const lrs = self.configuration?.lendingRouters.map((l) => l.id) || [];
+    const share = getVaultShare(vaultAddress);
+    // Loop over each lending router and get the APY for that vault
+    // on that particular lending router
+    const apys = lrs
+      .map((l) => {
+        const debt = getVaultDebt(vaultAddress, l);
+        const { maxLeverageRatio } = getLeverageRatios(debt);
 
-    return debtTokens.map((d) => ({
-      apy: getLeveragedAPY(
-        TokenBalance.zero(token),
-        TokenBalance.zero(d),
-        maxLeverageRatio
-      ),
-      debtToken: d,
-    }));
-  };
+        try {
+          return {
+            apy: getLeveragedAPY(
+              TokenBalance.zero(share),
+              TokenBalance.zero(debt),
+              maxLeverageRatio
+            ),
+            tvl: getTVL(share as TokenDefinition),
+            liquidity: getLiquidity(share as TokenDefinition),
+            debtToken: debt,
+            vaultShare: share,
+          };
+        } catch (e) {
+          // We may get errors if the vault is not supported by the lending router
+          console.error(e);
+          return undefined;
+        }
+      })
+      .filter((a) => a !== undefined);
 
-  const getDefaultVaultAPYs = (vaultAddress: string) => {
-    return getVaultShares(vaultAddress).map((share) => {
-      if (!share.maturity) throw Error('Invalid share maturity');
-      const debt = getVaultDebt(vaultAddress, share.maturity);
-      const { maxLeverageRatio } = getLeverageRatios(share);
-
-      return {
-        apy: getLeveragedAPY(
-          TokenBalance.zero(share),
-          TokenBalance.zero(debt),
-          maxLeverageRatio
-        ),
-        debtToken: debt,
-        vaultShare: share,
-      };
-    });
-  };
-
-  const getDebtOrCollateralFactor = (
-    token: TokenDefinition,
-    isBorrow: boolean
-  ) => {
-    if (!token.currencyId) throw Error('Invalid token currency');
-    const buffer = getConfig(token.currencyId).debtBuffer;
-    const haircut = getConfig(token.currencyId).collateralHaircut;
-    const underlying = getUnderlying(token.currencyId);
-
-    const unit = TokenBalance.unit(underlying).toToken(token);
-    if (isBorrow) {
-      return (
-        Math.abs(unit.neg().toRiskAdjustedUnderlying().toFloat() * buffer) / 100
-      ).toFixed(4);
-    } else {
-      return (
-        (unit.toRiskAdjustedUnderlying().toFloat() * haircut) /
-        100
-      ).toFixed(4);
-    }
-  };
-
-  const getAllNTokenYields = (): ProductAPY[] => {
-    return getTokensByType('nToken').map((t) => {
-      return {
-        token: t,
-        apy: getSpotAPY(t.id),
-        tvl: getTVL(t),
-        liquidity: getLiquidity(t),
-        underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
-        collateralFactor: getDebtOrCollateralFactor(t, false),
-        debtToken: undefined,
-      };
-    });
-  };
-
-  const getAllNonLeveragedYields = (): ProductAPY[] => {
-    const nTokenYields = getAllNTokenYields();
-    const fCashYields = getAllFCashYields();
-    const primeCashYields = getAllPrimeCashYields();
-
-    return [...nTokenYields, ...fCashYields, ...primeCashYields];
-  };
-
-  const getAllFCashYields = (currencyId?: number): ProductAPY[] => {
-    return getTokensByType('fCash')
-      .filter(
-        (data) =>
-          !data?.isFCashDebt &&
-          (currencyId ? data.currencyId === currencyId : true)
-      )
-      .map((t) => {
-        return {
-          token: t,
-          apy: getSpotAPY(t.id),
-          tvl: getTVL(t),
-          liquidity: getLiquidity(t),
-          underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
-          collateralFactor: getDebtOrCollateralFactor(t, false),
-          debtToken: undefined,
-        };
-      });
-  };
-
-  const getFCashTotalsData = (
-    deposit: TokenDefinition | undefined,
-    token: TokenDefinition | undefined,
-    isDebt: boolean
-  ) => {
-    if (!deposit) return undefined;
-
-    const fCashTokens = isDebt
-      ? getTokensByType('fCash').filter((t) => t?.isFCashDebt)
-      : getTokensByType('fCash').filter((t) => !t?.isFCashDebt);
-    const liquidityToken = fCashTokens.find(
-      (t) => t.totalSupply?.tokenId === token?.id
+    // Sort descending and take the highest APY
+    return firstValue(
+      apys.sort((a, b) => {
+        return (b?.apy.totalAPY || 0) - (a?.apy.totalAPY || 0);
+      })
     );
-    const zeroUnderlying = deposit
-      ? TokenBalance.fromFloat(0, deposit)
-      : undefined;
-    const capacityRemaining =
-      deposit && deposit?.currencyId
-        ? getMaxSupply(deposit?.currencyId).capacityRemaining
-        : undefined;
-
-    return {
-      capacityRemaining,
-      totalFixedRateDebt: deposit
-        ? fCashTokens
-            .filter(
-              (data) =>
-                data?.underlying &&
-                getTokenByID(data.underlying).id === deposit?.id
-            )
-            .map((t) => t.totalSupply?.toUnderlying())
-            .reduce((sum, balance) => {
-              return balance && sum ? sum?.add(balance) : sum;
-            }, zeroUnderlying)
-        : undefined,
-      liquidity: liquidityToken ? getLiquidity(liquidityToken) : undefined,
-    };
   };
 
-  const getPrimeCashTotalsData = (deposit: TokenDefinition | undefined) => {
-    if (!deposit) return undefined;
-
-    const primeCash = getPrimeCash(deposit?.currencyId);
-    const primeDebt = getPrimeDebt(deposit?.currencyId);
-    const capacityRemaining = deposit?.currencyId
-      ? getMaxSupply(deposit?.currencyId).capacityRemaining
-      : undefined;
-
-    return {
-      capacityRemaining,
-      primeCashTotalSupply: primeCash?.totalSupply,
-      primeDebtTotalSupply: primeDebt?.totalSupply,
-    };
-  };
-
-  const getNTokenTotalsData = (deposit: TokenDefinition | undefined) => {
-    if (!deposit) return undefined;
-    const nToken = getNToken(deposit?.currencyId);
-    const spotAPY = getSpotAPY(nToken?.id);
-    const tvl = getTVL(nToken);
-
-    const totalIncentives = spotAPY?.incentives?.reduce(
-      (acc, curr) => acc + curr.incentiveAPY,
-      0
-    );
-
-    const capacityRemaining =
-      deposit && deposit?.currencyId
-        ? getMaxSupply(deposit?.currencyId).capacityRemaining
-        : undefined;
-
-    return {
-      capacityRemaining,
-      totalIncentives,
-      tvl,
-    };
-  };
-
-  const getAllFCashDebt = (): ProductAPY[] => {
-    return getTokensByType('fCash')
-      .filter((data) => data?.isFCashDebt)
-      .map((t) => {
-        return {
-          token: t,
-          apy: getSpotAPY(t.id),
-          tvl: getTVL(t),
-          liquidity: getLiquidity(t),
-          underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
-          collateralFactor: getDebtOrCollateralFactor(t, true),
-          debtToken: undefined,
-        };
-      });
-  };
-
-  const getAllPrimeCashYields = (): ProductAPY[] => {
-    return getTokensByType('PrimeCash').map((t) => {
-      return {
-        token: t,
-        apy: getSpotAPY(t.id),
-        tvl: getTVL(t),
-        liquidity: getLiquidity(t),
-        underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
-        collateralFactor: getDebtOrCollateralFactor(t, false),
-        debtToken: undefined,
-      };
-    });
-  };
-
-  const getAllPrimeCashDebt = () => {
-    return getTokensByType('PrimeDebt').map((t) => {
-      return {
-        token: t,
-        apy: getSpotAPY(t.id),
-        tvl: getTVL(t),
-        liquidity: getLiquidity(t),
-        underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
-        collateralFactor: getDebtOrCollateralFactor(t, true),
-        debtToken: undefined,
-      };
-    });
-  };
-
-  const getAllLeveragedNTokenYields = (currencyId?: number): ProductAPY[] => {
-    const leveragedNTokenData = getTokensByType('nToken')
-      .filter((t) => (currencyId ? t.currencyId === currencyId : true))
-      .map((t) => {
-        const debtTokens = getDefaultLeveragedNTokenAPYs(t);
-        const leveragedNTokenData =
-          debtTokens.length > 0
-            ? debtTokens.reduce((max, current) => {
-                return current?.apy?.totalAPY &&
-                  max?.apy?.totalAPY &&
-                  current.apy.totalAPY > max.apy.totalAPY
-                  ? current
-                  : max;
-              }, debtTokens[0])
-            : undefined;
-
-        return {
-          token: t,
-          apy: leveragedNTokenData?.apy as APYData,
-          tvl: getTVL(t),
-          maxLeverageRatio: getLeverageRatios(t).maxLeverageRatio,
-          liquidity: getLiquidity(t),
-          underlying: t.underlying ? getTokenByID(t.underlying) : undefined,
-          collateralFactor: getDebtOrCollateralFactor(t, false),
-          debtToken: leveragedNTokenData?.debtToken,
-        };
-      });
-    return leveragedNTokenData;
-  };
-
-  const getAllListedVaultsWithYield = (currencyId?: number) => {
+  const getAllListedVaultsWithYield = (depositToken?: string) => {
     return getAllListedVaults()
-      .filter((v) =>
-        currencyId ? v.primaryToken.currencyId === currencyId : true
-      )
+      .filter((v) => (depositToken ? v.depositToken.id === depositToken : true))
       .map((v) => {
-        const defaultAPYs = getDefaultVaultAPYs(v.vaultAddress || '');
-        const maxVaultAPY =
-          defaultAPYs.length > 0
-            ? defaultAPYs.reduce((max, current) => {
-                return (current.apy.totalAPY || 0) > (max.apy.totalAPY || 0)
-                  ? current
-                  : max;
-              }, defaultAPYs[0])
-            : undefined;
-
+        const maxVaultAPY = getDefaultVaultAPY(v.vaultAddress);
         const vaultShare = maxVaultAPY?.vaultShare;
 
         return {
           token: vaultShare,
           apy: maxVaultAPY?.apy,
-          tvl: v.vaultTVL,
-          maxLeverageRatio: vaultShare
-            ? getLeverageRatios(vaultShare).maxLeverageRatio
-            : undefined,
-          liquidity: v.vaultTVL,
+          tvl: maxVaultAPY?.tvl,
+          liquidity: maxVaultAPY?.liquidity,
           underlying: vaultShare?.underlying
             ? getTokenByID(vaultShare.underlying)
             : undefined,
@@ -745,27 +238,12 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
 
   return {
     getSpotAPY,
-    getAnnualizedNOTEIncentives,
-    getAnnualizedSecondaryIncentives,
     getTVL,
     getLiquidity,
     getLeverageRatios,
     getSimulatedAPY,
     getLeveragedAPY,
-    getMaxSupply,
-    getDebtOrCollateralFactor,
-    getDefaultLeveragedNTokenAPYs,
-    getDefaultVaultAPYs,
-    getAllNTokenYields,
-    getAllLeveragedNTokenYields,
+    getDefaultVaultAPY,
     getAllListedVaultsWithYield,
-    getAllFCashYields,
-    getAllFCashDebt,
-    getAllPrimeCashYields,
-    getAllPrimeCashDebt,
-    getAllNonLeveragedYields,
-    getFCashTotalsData,
-    getNTokenTotalsData,
-    getPrimeCashTotalsData,
   };
 };

@@ -1,0 +1,18 @@
+query AllLendingRouters($skip: Int) {
+  lendingRouters(first: 1000, skip: $skip) {
+    id
+    name
+    markets(first: 1000) {
+      vault {
+        id
+      }
+      params
+    }
+  }
+
+  _meta {
+    block {
+      number
+    }
+  }
+}

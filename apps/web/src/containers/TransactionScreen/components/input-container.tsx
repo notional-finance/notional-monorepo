@@ -1,12 +1,18 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { TradeActionButton } from '@notional-finance/trade';
+import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import { PendingTransactionModal } from '../modals/pending-transaction';
+import { Network, TransactionStatus } from '@notional-finance/util';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
 }
 
-const InputContainer = ({ children }: InputContainerProps) => {
+const InputContainer = observer(({ children }: InputContainerProps) => {
   const theme = useTheme();
+  const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
+
   return (
     <InputContainerWrapper>
       <Box
@@ -24,13 +30,20 @@ const InputContainer = ({ children }: InputContainerProps) => {
         <TradeActionButton
           canSubmit={true}
           onSubmit={() => {
-            console.log('submit');
+            setIsApprovalModalOpen(true);
           }}
         />
       </Box>
+      <PendingTransactionModal
+        isOpen={isApprovalModalOpen}
+        onDismiss={() => setIsApprovalModalOpen(false)}
+        hash="0x1234567890"
+        transactionStatus={TransactionStatus.CONFIRMED}
+        selectedNetwork={Network.mainnet}
+      />
     </InputContainerWrapper>
   );
-};
+});
 
 const InputContainerWrapper = styled(Box)(
   ({ theme }) => `
@@ -38,7 +51,7 @@ const InputContainerWrapper = styled(Box)(
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
-  flex: 2;
+  flex: 1;
   width: 100%;
   min-height: 100%;
   background-color: ${theme.palette.background.paper};

@@ -56,9 +56,6 @@ export async function fetchReconciliationViews(
 
   await Promise.all([
     analyticsServer
-      .fetchGraphDocument(network, 'ExternalLendingHistoryDocument')
-      .then((d) => storeDocument(env, d, 'ExternalLendingHistory', network)),
-    analyticsServer
       .fetchGraphDocument(network, 'MetaDocument')
       .then((d) => storeDocument(env, d, 'SubgraphMeta', network)),
   ]);
@@ -71,8 +68,9 @@ export async function refreshViews(env: BaseDOEnv, network: Network) {
   await fetchAllDBViews(env, network);
   await fetchReconciliationViews(env, network);
   // Saves time series data to R2 for the registry to serve
-  const { timeSeries, priceChanges, vaultReinvestment, historicalTrading } =
-    await analyticsServer.fetchTimeSeries(network);
+  const { timeSeries, priceChanges } = await analyticsServer.fetchTimeSeries(
+    network
+  );
 
   await putStorageKey(
     env,
@@ -80,25 +78,6 @@ export async function refreshViews(env: BaseDOEnv, network: Network) {
     JSON.stringify(Object.fromEntries(priceChanges))
   );
 
-  if (vaultReinvestment) {
-    await putStorageKey(
-      env,
-      `${network}/views/vaultReinvestment`,
-      JSON.stringify(Object.fromEntries(vaultReinvestment))
-    );
-  }
-
-  if (historicalTrading) {
-    await putStorageKey(
-      env,
-      `${network}/views/historicalTrading`,
-      JSON.stringify(Object.fromEntries(historicalTrading))
-    );
-  }
-
-  console.log('xxx');
-  console.log('timeSeries on network', network, timeSeries.length);
-  console.log('xxx');
   await Promise.all(
     timeSeries.map((v) =>
       putStorageKey(env, `${network}/views/${v.id}`, JSON.stringify(v))

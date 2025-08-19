@@ -8,6 +8,17 @@ query AccountBalanceStatement($accountId: ID!) {
           id
         }
       }
+      withdrawRequest {
+        id
+        requestId
+        yieldTokenAmount
+        sharesAmount
+        tokenizedWithdrawRequest {
+          totalYieldTokenAmount
+          totalWithdraw
+          finalized
+        }
+      }
       current {
         timestamp
         blockNumber
@@ -15,10 +26,10 @@ query AccountBalanceStatement($accountId: ID!) {
         _accumulatedCostRealized
         adjustedCostBasis
         currentProfitAndLossAtSnapshot
-        totalILAndFeesAtSnapshot
-        totalProfitAndLossAtSnapshot
+        totalVaultFeesAtSnapshot
         totalInterestAccrualAtSnapshot
         _lastInterestAccumulator
+        _lastVaultFeeAccumulator
         impliedFixedRate
         incentives {
           rewardToken {

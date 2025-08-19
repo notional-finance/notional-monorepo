@@ -38,7 +38,6 @@ export const ALT_ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const SETTLEMENT_RESERVE = '0x00000000000000000000000000000000000005e7';
 export const FEE_RESERVE = '0x0000000000000000000000000000000000000FEE';
 // NOTE: the fiat address is not checksummed in the subgraph
-// eslint-disable-next-line address/addr-type
 export const FIAT_ADDRESS = '0x000000000000000000000000000000000000F147';
 export const MAX_UINT88 = BigNumber.from(2).pow(88).sub(1);
 export const IS_LOCAL_ENV =
@@ -61,7 +60,7 @@ export const NetworkId: Record<Network, number> = {
   [Network.arbitrum]: 42161,
 };
 
-export const SupportedNetworks = [Network.arbitrum, Network.mainnet];
+export const SupportedNetworks = [Network.mainnet];
 export const STABLE_COINS = ['USDC', 'USDT', 'DAI', 'FRAX', 'sDAI'];
 export const LSDS = ['wstETH', 'cbETH', 'rETH'];
 export const NATIVE_YIELD = [...LSDS, 'sDAI'];
@@ -144,7 +143,6 @@ export enum DexIds {
 // This kludge is necessary because the subgraph only allows a skip value of
 // less than 5000, so we query the entire account range by the prefix here with
 // a max number of accounts in each id range of 5000.
-/* eslint-disable address/addr-type */
 export const ACCOUNT_ID_RANGES = [
   '0x0000000000000000000000000000000000000000',
   '0x1000000000000000000000000000000000000000',
@@ -164,7 +162,6 @@ export const ACCOUNT_ID_RANGES = [
   '0xf000000000000000000000000000000000000000',
   '0xffffffffffffffffffffffffffffffffffffffff',
 ];
-/* eslint-enable address/addr-type */
 
 export type MainnetToken =
   (typeof tokens)[Network.mainnet][keyof typeof tokens.mainnet];
@@ -220,6 +217,7 @@ export const sNOTE = toLower(tokens.mainnet.sNOTE);
 
 export const vaults = {
   mainnet: {
+    Staking_sUSDe: '0xaf14d06a65c91541a5b2db627ecd1c92d7d9c48b' as const,
     Convex_pyUSD_xUSDC: '0x84e58d8faA4e3B74d55D9fc762230f15d95570B8' as const,
     Convex_xUSDC_crvUSD: '0xba4eb30f7F2e378249cf94E08F581e704326e9c6' as const,
     Convex_xUSDT_crvUSD: '0x86B222d44AC6cC56e75b3df01fdAD5Dc371EF538' as const,
@@ -299,3 +297,8 @@ export enum TransactionStatus {
   REVERT = 'revert',
   APPROVAL_PENDING = 'approval-pending',
 }
+
+export const ADDRESS_REGISTRY = {
+  [Network.mainnet]: '0xe335d314BD4eF7DD44F103dC124FEFb7Ce63eC95',
+  [Network.arbitrum]: '0x0000000000000000000000000000000000000000',
+};

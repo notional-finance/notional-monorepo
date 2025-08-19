@@ -1,11 +1,7 @@
-import {
-  getNetworkModel,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { TokenDefinition } from '@notional-finance/core-entities';
 import {
   PRIME_CASH_VAULT_MATURITY,
   formatMaturity,
-  getNowSeconds,
 } from '@notional-finance/util';
 
 export function truncateAddress(
@@ -25,79 +21,25 @@ export function truncateText(text: string, numOfChars: number) {
 }
 
 /** Used with the transaction history table */
-export function formatTokenType(
-  token: TokenDefinition,
-  isDebt?: boolean,
-  switchMaturedFCash?: boolean
-): {
+export function formatTokenType(token: TokenDefinition): {
   title: string;
   icon: string;
   caption?: string;
   formattedTitle: string;
   titleWithMaturity: string;
 } {
-  const underlying =
-    token.tokenType === 'NOTE' || token.tokenType === 'Underlying'
-      ? token
-      : getNetworkModel(token.network).getUnderlying(token.currencyId);
   switch (token.tokenType) {
     case 'Underlying':
-    case 'nToken':
       return {
         title: token.symbol,
         icon: token.symbol,
-        formattedTitle: `${underlying.symbol} Liquidity`,
+        formattedTitle: token.symbol,
         titleWithMaturity: token.symbol,
       };
-    case 'PrimeDebt':
-      return {
-        title: token.name,
-        // Prime Debt shares the same icon as Prime Cash
-        icon: getNetworkModel(token.network).getPrimeCash(token.currencyId)
-          .symbol,
-        titleWithMaturity: token.name,
-        formattedTitle: `Variable ${underlying.symbol} Borrow`,
-      };
-    case 'PrimeCash':
-      return {
-        title: token.name,
-        icon: token.symbol,
-        titleWithMaturity: token.name,
-        formattedTitle: `Variable ${underlying.symbol} Lend`,
-      };
-    case 'fCash': {
-      if (
-        switchMaturedFCash &&
-        token.maturity &&
-        token.maturity < getNowSeconds()
-      ) {
-        return {
-          title: `f${underlying.symbol}`,
-          icon: `f${underlying.symbol}`,
-          titleWithMaturity: `Matured ${formatMaturity(token.maturity)} f${
-            underlying.symbol
-          }`,
-          formattedTitle: isDebt
-            ? `Variable ${underlying.symbol} Borrow`
-            : `Variable ${underlying.symbol} Lend`,
-        };
-      } else {
-        return {
-          title: `f${underlying.symbol}`,
-          formattedTitle: `Fixed ${underlying.symbol} ${
-            isDebt ? 'Borrow' : 'Lend'
-          }`,
-          caption: formatMaturity(token.maturity || 0),
-          icon: `f${underlying.symbol}`,
-          titleWithMaturity: `f${underlying.symbol} ${formatMaturity(
-            token.maturity || 0
-          )}`,
-        };
-      }
-    }
     case 'VaultShare': {
       const maturity =
-        token.maturity === PRIME_CASH_VAULT_MATURITY
+        token.maturity === PRIME_CASH_VAULT_MATURITY ||
+        token.maturity === undefined
           ? 'Open Term'
           : formatMaturity(token.maturity || 0);
 
@@ -109,11 +51,22 @@ export function formatTokenType(
         titleWithMaturity: `Vault Shares ${maturity}`,
       };
     }
-    case 'VaultDebt':
-    case 'VaultCash':
-      return formatTokenType(
-        getNetworkModel(token.network).unwrapVaultToken(token)
-      );
+    case 'VaultDebt': {
+      const maturity =
+        token.maturity === PRIME_CASH_VAULT_MATURITY ||
+        token.maturity === undefined
+          ? 'Open Term'
+          : formatMaturity(token.maturity || 0);
+
+      // TODO: add the lending router name here
+      return {
+        title: 'Vault Debt',
+        formattedTitle: 'Vault Debt',
+        icon: token.tokenType,
+        caption: maturity,
+        titleWithMaturity: `Vault Debt ${maturity}`,
+      };
+    }
     default:
       return {
         title: token.symbol,

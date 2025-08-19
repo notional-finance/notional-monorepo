@@ -1,14 +1,13 @@
 import { Network, TokenAddress, VaultAddress } from '@notional-finance/util';
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumber } from 'ethers';
 import { PoolClasses } from './exchanges';
-import { SerializedTokenBalance, TokenBalance } from './token-balance';
+import { TokenBalance } from './token-balance';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import {
   OracleType,
   SystemAccount,
   TokenInterface,
   TokenType,
-  TransferType,
 } from './.graphclient';
 import { RegisterToken } from './exchanges/default-pools';
 import { PriceChangeModel } from './models/ModelTypes';
@@ -19,10 +18,9 @@ export type {
   SystemAccount,
   TokenInterface,
   TokenType,
-  TransferType,
 } from './.graphclient';
 
-interface TokenDefinitionBase {
+export interface TokenDefinition {
   /** Defines the ERC1155 or ERC721 id of the token, if it exists */
   id: string;
   /** Address of the token */
@@ -46,24 +44,8 @@ interface TokenDefinitionBase {
   /** Defines the maturity of the token, if it exists */
   maturity?: number;
   /** Vault Address */
-  vaultAddress?: string;
-  /** Only true for fCash assets */
-  isFCashDebt?: boolean;
-  /** Currency ID for notional listed tokens */
-  currencyId?: number;
+  vaultAddress?: Lowercase<VaultAddress> | string;
 }
-
-type VaultTokenTypes = 'VaultShare' | 'VaultDebt' | 'VaultCash';
-
-interface TokenDefinitionOthers extends TokenDefinitionBase {
-  tokenType: Exclude<TokenType, VaultTokenTypes>;
-}
-interface TokenDefinitionVault extends TokenDefinitionBase {
-  tokenType: VaultTokenTypes;
-  vaultAddress: Lowercase<VaultAddress>;
-}
-
-export type TokenDefinition = TokenDefinitionOthers | TokenDefinitionVault;
 
 export interface OracleDefinition {
   /** Base Token ID:Quote Token ID:OracleType */
@@ -77,7 +59,6 @@ export interface OracleDefinition {
     | OracleType
     | 'sNOTE'
     | 'VaultShareAPY'
-    | 'nTokenTotalAPY'
     | 'sNOTEToETHExchangeRate'
     | 'sNOTEReinvestmentAPY';
   /** Base ID for the oracle, rate is quoted as 1 unit of this token.  */
@@ -130,10 +111,10 @@ export interface BalanceStatement {
   underlying: TokenDefinition;
   currentBalance: TokenBalance;
   adjustedCostBasis: TokenBalance;
-  totalILAndFees: TokenBalance;
   totalProfitAndLoss: TokenBalance;
   totalInterestAccrual: TokenBalance;
   accumulatedCostRealized: TokenBalance;
+  totalVaultFees: TokenBalance;
   incentives: {
     totalClaimed: TokenBalance;
     adjustedClaimed: TokenBalance;
@@ -142,28 +123,19 @@ export interface BalanceStatement {
 }
 
 export interface AccountHistory {
-  label: string;
-  txnLabel?: string;
+  lineItemType: string;
   timestamp: number;
   blockNumber: number;
   token: TokenDefinition;
   underlying: TokenDefinition;
   tokenAmount: TokenBalance;
-  bundleName: string;
   transactionHash: string;
   underlyingAmountRealized: TokenBalance;
   underlyingAmountSpot: TokenBalance;
   realizedPrice: TokenBalance;
   spotPrice: TokenBalance;
-  vaultName?: string;
   impliedFixedRate?: number;
-  isTransientLineItem: boolean;
   account?: string;
-}
-
-export interface AccountIncentiveDebt {
-  value: TokenBalance;
-  currencyId: number;
 }
 
 export interface StakeNoteStatus {
@@ -187,14 +159,8 @@ export interface AccountDefinition {
   isContract: boolean;
   /** Balances may include external wallet balances */
   balances: TokenBalance[];
-  /** If prime borrows are enabled */
-  allowPrimeBorrow?: boolean;
   /** Stores the last update time for vault positions, used to calculate prime debt fees */
   vaultLastUpdateTime?: Map<string, number>;
-  /** Account incentive debt for nToken incentives */
-  accountIncentiveDebt?: AccountIncentiveDebt[];
-  /** Account incentive debt for nToken incentives */
-  secondaryIncentiveDebt?: AccountIncentiveDebt[];
   /** Current profit and loss on every given balance */
   balanceStatement?: BalanceStatement[];
   /** Any transactions that have included transfers to this account */
@@ -207,68 +173,10 @@ export interface AccountDefinition {
   rewardClaims?: Record<string, TokenBalance[]>;
 }
 
-export interface SerializedAccountDefinition {
-  /** Address of the account */
-  address: string;
-  /** Network this account definition is associated with */
-  network: Network;
-  /** Balances may include external wallet balances */
-  balances: SerializedTokenBalance[];
-  /** Current profit and loss on every given balance */
-  balanceStatement: {
-    token: string;
-    underlying: string;
-    currentBalance: SerializedTokenBalance;
-    adjustedCostBasis: SerializedTokenBalance;
-    totalILAndFees: SerializedTokenBalance;
-    totalProfitAndLoss: SerializedTokenBalance;
-    totalInterestAccrual: SerializedTokenBalance;
-    impliedFixedRate?: number;
-  }[];
-
-  /** Any transactions that have included transfers to this account */
-  accountHistory?: {
-    timestamp: number;
-    token: string;
-    underlying: string;
-    tokenAmount: SerializedTokenBalance;
-    bundleName: string;
-    transactionHash: string;
-    underlyingAmountRealized: SerializedTokenBalance;
-    underlyingAmountSpot: SerializedTokenBalance;
-    realizedPrice: SerializedTokenBalance;
-    spotPrice: SerializedTokenBalance;
-    impliedFixedRate?: number;
-    isTransientLineItem: boolean;
-  }[];
-}
-
 /** ERC20 allowances tracked for UI purposes */
 export interface Allowance {
   spender: string;
   amount: TokenBalance;
-}
-
-/** A logical grouping of transfers */
-export interface TransferBundle {
-  id: string;
-  startLogIndex: number;
-  endLogIndex: number;
-  transfers: Transfer[];
-}
-
-/** Transfer of a single asset */
-export interface Transfer {
-  id: string;
-  logIndex: number;
-  token: TokenDefinition;
-  transferType: TransferType;
-  from: string;
-  fromSystemAccount: SystemAccount;
-  to: string;
-  toSystemAccount: SystemAccount;
-  value: TokenBalance;
-  valueInUnderlying: TokenBalance;
 }
 
 export interface CacheSchema<T> {
@@ -278,7 +186,6 @@ export interface CacheSchema<T> {
   lastUpdateBlock: number;
 }
 
-export type RiskAdjustment = 'None' | 'Asset' | 'Debt';
 export interface YieldData {
   token: TokenDefinition;
   underlying: TokenDefinition;
@@ -347,50 +254,11 @@ export type HistoricalOracles = {
   historicalRates: HistoricalRate[];
 }[];
 
-export type HistoricalTrading = Record<
-  string,
-  {
-    bundleName: string;
-    currencyId: number;
-    fCashId: string;
-    fCashValue: string;
-    pCash: string;
-    pCashInUnderlying: string;
-    timestamp: number;
-    blockNumber: number;
-    transactionHash: string;
-    underlyingTokenBalance?: TokenBalance;
-    interestRate?: string;
-    fCashMaturity?: number;
-  }[]
->;
-
-export type VaultReinvestment = Record<
-  string,
-  {
-    vault: string;
-    blockNumber: number;
-    timestamp: number;
-    transactionHash: string;
-    rewardTokenSold: TokenDefinition;
-    rewardAmountSold: BigNumber;
-    tokensReinvested: TokenBalance;
-    tokensPerVaultShare?: TokenBalance;
-    underlyingAmountRealized?: BigNumberish;
-    vaultSharePrice?: BigNumber;
-  }[]
->;
-// Can change this to fCashOracleRate to use oracle rates
-const FCASH_RATE_SOURCE = 'fCashSpotRate';
-
 export const PRICE_ORACLES = [
   'sNOTE',
   'Chainlink',
-  FCASH_RATE_SOURCE,
-  'fCashSettlementRate',
-  'PrimeCashToUnderlyingExchangeRate',
-  'PrimeDebtToUnderlyingExchangeRate',
   'VaultShareOracleRate',
-  'nTokenToUnderlyingExchangeRate',
+  'BorrowShareOracleRate',
   'sNOTEToETHExchangeRate',
+  'WithdrawTokenExchangeRate',
 ];

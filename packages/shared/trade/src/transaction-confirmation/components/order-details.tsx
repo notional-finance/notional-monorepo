@@ -4,12 +4,8 @@ import {
   DataTable,
   TABLE_VARIANTS,
   MultiValueCell,
-  Body,
 } from '@notional-finance/mui';
-import {
-  useCurrentTradeContext,
-  useOrderDetails,
-} from '@notional-finance/notionable-hooks';
+import { useOrderDetails } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { observer } from 'mobx-react-lite';
 
@@ -17,8 +13,9 @@ export const OrderDetails = observer(() => {
   const theme = useTheme();
   const [showHiddenRows, setShowHiddenRows] = useState(false);
   const { orderDetails, filteredOrderDetails } = useOrderDetails();
-  const trade = useCurrentTradeContext();
-  const postTradeIncentives = trade?.getPostTradeIncentives();
+  // TODO: need to put this back in
+  // const trade = useCurrentTradeContext();
+  // const postTradeIncentives = trade?.getPostTradeIncentives();
   const tableData = showHiddenRows ? orderDetails : filteredOrderDetails;
 
   return (
@@ -46,7 +43,7 @@ export const OrderDetails = observer(() => {
           },
         ]}
       />
-      {postTradeIncentives?.map((i) => (
+      {/* {postTradeIncentives?.map((i) => (
         <Body
           sx={{
             display: 'inline-flex',
@@ -65,7 +62,7 @@ export const OrderDetails = observer(() => {
             values={{ i: i.toDisplayStringWithSymbol(3) }}
           />
         </Body>
-      ))}
+      ))} */}
     </Box>
   );
 });

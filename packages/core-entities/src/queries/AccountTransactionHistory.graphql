@@ -1,27 +1,26 @@
-query AccountTransactionHistory($accountId: String!) {
-  transactions(
-    where: { profitLossLineItems_: { account: $accountId } },
-    orderBy: timestamp,
+query AccountTransactionHistory($accountId: String!, $skip: Int!) {
+  profitLossLineItems(
+    where: { account: $accountId }
+    orderBy: timestamp
     orderDirection: desc
+    skip: $skip
+    first: 1000
   ) {
     timestamp
     blockNumber
-    transactionHash 
-    profitLossLineItems(where: { account: $accountId, isTransientLineItem: false }) {
-      timestamp
-      blockNumber
-      transactionHash { id }
-      token { id tokenType }
-      underlyingToken { id }
-      tokenAmount
-      bundle { bundleName }
-      underlyingAmountRealized
-      underlyingAmountSpot
-      realizedPrice
-      spotPrice
-      impliedFixedRate
-      isTransientLineItem
-      account { id }
+    transactionHash
+    lineItemType
+    token {
+      id
     }
+    underlyingToken {
+      id
+    }
+    tokenAmount
+    underlyingAmountRealized
+    underlyingAmountSpot
+    realizedPrice
+    spotPrice
+    impliedFixedRate
   }
 }

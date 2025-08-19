@@ -1,16 +1,20 @@
 import { BigNumber } from 'ethers';
 import { SerializedTokenBalance, TokenBalance, TokenDefinition } from '..';
 import { fiatTokens } from '../config/fiat-config';
-import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
+import {
+  fetchUsingGraph,
+  loadGraphClientDeferred,
+  ServerRegistry,
+} from './server-registry';
 import {
   getNowSeconds,
   Network,
   sNOTE,
+  TokenAddress,
+  tokens,
   WETHAddress,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
-import { TypedDocumentNode } from '@apollo/client/core';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AllTokensQuery } from '../.graphclient';
 
 export type SerializedToken =
   | (Omit<TokenDefinition, 'totalSupply'> & {
@@ -33,14 +37,11 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
       };
     }
 
-    const { AllTokensDocument, AllTokensByBlockDocument } =
-      await loadGraphClientDeferred();
+    const { AllTokensDocument } = await loadGraphClientDeferred();
 
-    const allTokens = await this._fetchUsingGraph(
+    const allTokens = await fetchUsingGraph(
       network,
-      (blockNumber !== undefined
-        ? AllTokensByBlockDocument
-        : AllTokensDocument) as TypedDocumentNode<AllTokensQuery, unknown>,
+      AllTokensDocument,
       (r) => {
         return r.tokens.reduce((obj, v) => {
           obj[v.id] = {
@@ -55,8 +56,6 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
             underlying: v.underlying?.id || undefined,
             maturity: parseInt(v.maturity) || undefined,
             vaultAddress: v.vaultAddress || undefined,
-            isFCashDebt: v.isfCashDebt,
-            currencyId: v.currencyId || undefined,
             totalSupply: v.totalSupply
               ? TokenBalance.toJSON(
                   BigNumber.from(v.totalSupply),
@@ -70,9 +69,7 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
         }, {} as Record<string, SerializedToken>);
       },
       this.env.NX_SUBGRAPH_API_KEY,
-      {
-        blockNumber,
-      },
+      {},
       'tokens'
     );
 
@@ -102,6 +99,38 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
             name: 'Wrapped Ether',
             symbol: 'WETH',
             decimals: 18,
+            tokenInterface: 'ERC20',
+            tokenType: 'Underlying',
+            totalSupply: undefined,
+          },
+        ],
+        [
+          ZERO_ADDRESS,
+          {
+            id: ZERO_ADDRESS,
+            address: ZERO_ADDRESS,
+            network: Network.mainnet,
+            name: 'Ether',
+            symbol: 'ETH',
+            decimals: 18,
+            tokenInterface: 'ERC20',
+            tokenType: 'Underlying',
+            totalSupply: undefined,
+          },
+        ],
+        [
+          tokens[Network.mainnet].NOTE.toLowerCase() as Lowercase<TokenAddress>,
+          {
+            id: tokens[
+              Network.mainnet
+            ].NOTE.toLowerCase() as Lowercase<TokenAddress>,
+            address: tokens[
+              Network.mainnet
+            ].NOTE.toLowerCase() as Lowercase<TokenAddress>,
+            network: Network.mainnet,
+            name: 'Notional',
+            symbol: 'NOTE',
+            decimals: 8,
             tokenInterface: 'ERC20',
             tokenType: 'Underlying',
             totalSupply: undefined,

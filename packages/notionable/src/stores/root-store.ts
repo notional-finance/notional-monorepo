@@ -4,7 +4,6 @@ import {
   NetworkClientModel,
 } from '@notional-finance/core-entities';
 import { types, Instance } from 'mobx-state-tree';
-import { PortfolioStoreModel } from './portfolio-store';
 import {
   getFromLocalStorage,
   Network,
@@ -17,7 +16,6 @@ import { TradeModel } from './TradeModel';
 import { AllTradeTypes } from '../base-trade/base-trade-store';
 import { AccountPortfolioModel } from './PortfolioModel';
 import { checkMobileView } from '@notional-finance/helpers';
-import { VaultStoreModel } from './VaultModel';
 
 export type RootStoreType = Instance<typeof RootStore>;
 export type NetworkClientModelType = Instance<typeof NetworkClientModel>;
@@ -37,10 +35,8 @@ const userSettings = getFromLocalStorage('userSettings');
 
 const RootStore = types
   .model('RootStore', {
-    portfolioStore: PortfolioStoreModel,
     appStore: AppStoreModel,
     walletStore: WalletModel,
-    vaultStore: types.maybe(VaultStoreModel),
     route: types.string,
     tradeModel: types.maybe(TradeModel),
   })
@@ -59,11 +55,6 @@ const RootStore = types
     },
     setRoute(route: string) {
       self.route = route;
-    },
-    afterCreate() {
-      self.vaultStore = VaultStoreModel.create({
-        vaults: [],
-      });
     },
   }))
   .views((self) => ({
@@ -93,14 +84,6 @@ export const createRootStore = (): RootStoreType => {
         selectedAddress: '',
         isReadOnlyAddress: false,
         label: '',
-      },
-    },
-    vaultStore: {},
-    portfolioStore: {
-      network: userSettings?.network ? userSettings?.network : Network.mainnet,
-      pointsStore: {
-        arbPoints: [],
-        totalPoints: 0,
       },
     },
     route: '',

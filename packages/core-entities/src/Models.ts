@@ -5,9 +5,6 @@ import { Instance } from 'mobx-state-tree';
 const MainnetNetworkModel = NetworkClientModel.create({
   network: Network.mainnet,
 });
-const ArbitrumNetworkModel = NetworkClientModel.create({
-  network: Network.arbitrum,
-});
 const AllNetworkModel = NetworkClientModel.create({
   network: Network.all,
 });
@@ -18,8 +15,6 @@ export function getNetworkModel(
   switch (network) {
     case Network.mainnet:
       return MainnetNetworkModel;
-    case Network.arbitrum:
-      return ArbitrumNetworkModel;
     case Network.all:
       return AllNetworkModel;
     default:
@@ -31,7 +26,6 @@ export function getNetworkModel(
 export function refreshNetworkModels(refreshInterval: number = ONE_MINUTE_MS) {
   return setInterval(() => {
     MainnetNetworkModel.triggerRefresh();
-    ArbitrumNetworkModel.triggerRefresh();
     AllNetworkModel.triggerRefresh();
   }, refreshInterval);
 }

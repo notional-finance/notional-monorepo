@@ -2,33 +2,21 @@ import { ObservableMap, values } from 'mobx';
 import { NetworkModel } from '../NetworkModel';
 import { Instance, ISimpleType } from 'mobx-state-tree';
 import { TokenDefinitionModel } from '../ModelTypes';
-import {
-  AssetType,
-  encodeERC1155Id,
-  getNowSeconds,
-  PRIME_CASH_VAULT_MATURITY,
-  unique,
-} from '@notional-finance/util';
+import { getNowSeconds } from '@notional-finance/util';
 import { BigNumberish } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import { TokenDefinition, TokenType } from '../../Definitions';
-import { MaxCurrencyId } from '../../config/whitelisted-tokens';
 
 export const TokenViews = (self: Instance<typeof NetworkModel>) => {
   const getAllTokens = () => {
-    const maxCurrencyId = MaxCurrencyId[self.network];
     const allTokens = values(
       self.tokens as unknown as ObservableMap<
         ISimpleType<string>,
         Instance<typeof TokenDefinitionModel>
       >
-    ) as TokenDefinition[];
+    ) as unknown as TokenDefinition[];
 
-    return maxCurrencyId
-      ? allTokens.filter(
-          (t) => t.currencyId === undefined || t.currencyId <= maxCurrencyId
-        )
-      : allTokens;
+    return allTokens;
   };
 
   const getTokenBySymbol = (symbol: string) => {
@@ -49,93 +37,25 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return t;
   };
 
-  const getTokenByCurrencyId = (currencyId?: number, tokenType?: string) => {
-    const t = getAllTokens().find(
-      (t) => t.currencyId === currencyId && t.tokenType === tokenType
-    );
-    if (!t) throw Error(`Token ${currencyId} ${tokenType} not found`);
-    return t;
-  };
-
-  const getPrimeCash = (currencyId?: number) => {
-    return getTokenByCurrencyId(currencyId, 'PrimeCash');
-  };
-
-  const getPrimeDebt = (currencyId?: number) => {
-    return getTokenByCurrencyId(currencyId, 'PrimeDebt');
-  };
-
-  const getNToken = (currencyId?: number) => {
-    return getTokenByCurrencyId(currencyId, 'nToken');
-  };
-
-  const getUnderlying = (currencyId?: number) => {
-    return getTokenByCurrencyId(currencyId, 'Underlying');
-  };
-
-  const getVaultShare = (vaultAddress: string, maturity: number) => {
+  const getVaultShare = (vaultAddress: string) => {
     const t = getAllTokens().find(
       (t) =>
         t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
-        t.maturity === maturity &&
         t.tokenType === 'VaultShare'
     );
-    if (!t) throw Error(`VaultShare ${vaultAddress} ${maturity} not found`);
+    if (!t) throw Error(`VaultShare ${vaultAddress} not found`);
     return t;
   };
 
-  const getVaultDebt = (vaultAddress: string, maturity: number) => {
+  const getVaultDebt = (vaultAddress: string, lendingRouter: string) => {
     const t = getAllTokens().find(
       (t) =>
         t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
-        t.maturity === maturity &&
+        t.address === lendingRouter &&
         t.tokenType === 'VaultDebt'
     );
-    if (!t) throw Error(`VaultDebt ${vaultAddress} ${maturity} not found`);
+    if (!t) throw Error(`VaultDebt ${vaultAddress} not found`);
     return t;
-  };
-
-  const getVaultCash = (vaultAddress: string, maturity: number) => {
-    const t = getAllTokens().find(
-      (t) =>
-        t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
-        t.maturity === maturity &&
-        t.tokenType === 'VaultCash'
-    );
-    if (!t) throw Error(`VaultCash ${vaultAddress} ${maturity} not found`);
-    return t;
-  };
-
-  const unwrapVaultToken = (
-    token: Instance<typeof TokenDefinitionModel> | TokenDefinition
-  ): TokenDefinition => {
-    if (!token.currencyId) {
-      return token as TokenDefinition;
-    } else if (
-      token.tokenType === 'VaultDebt' &&
-      token.maturity &&
-      token.maturity !== PRIME_CASH_VAULT_MATURITY
-    ) {
-      const t = self.tokens.get(
-        encodeERC1155Id(
-          token.currencyId,
-          token.maturity,
-          AssetType.FCASH_ASSET_TYPE
-        )
-      );
-      if (!t)
-        throw Error(`Token ${token.currencyId} ${token.maturity} not found`);
-      return t as TokenDefinition;
-    } else if (
-      token.tokenType === 'VaultDebt' &&
-      token.maturity === PRIME_CASH_VAULT_MATURITY
-    ) {
-      return getPrimeDebt(token.currencyId);
-    } else if (token.tokenType === 'VaultCash') {
-      return getPrimeCash(token.currencyId);
-    } else {
-      return token as TokenDefinition;
-    }
   };
 
   const getTokenBalanceFromSymbol = (n: BigNumberish, symbol: string) => {
@@ -155,68 +75,20 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     return t;
   };
 
-  const getTokensByCurrencyId = (currencyId: number) => {
-    const t = getAllTokens().filter(
-      (t) =>
-        t.currencyId === currencyId &&
-        t.tokenType !== 'VaultDebt' &&
-        t.tokenType !== 'VaultCash' &&
-        (t.isFCashDebt !== undefined ? !t.isFCashDebt : true) &&
-        (t.tokenType === 'fCash' && t.maturity
-          ? getNowSeconds() < t.maturity
-          : true)
-    );
+  const getDebtTokens = () => {
+    const t = getAllTokens().filter((t) => t.tokenType === 'VaultDebt');
     return t;
-  };
-
-  const getDebtTokens = (currencyId: number) => {
-    const t = getAllTokens().filter(
-      (t) =>
-        t.currencyId === currencyId &&
-        (t.tokenType === 'PrimeDebt' ||
-          (t.tokenType === 'fCash' &&
-            t.isFCashDebt &&
-            t.maturity &&
-            getNowSeconds() < t.maturity))
-    );
-    return t;
-  };
-
-  const getVaultShares = (vaultAddress: string, excludeMatured = true) => {
-    return getAllTokens().filter(
-      (t) =>
-        t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
-        t.tokenType === 'VaultShare' &&
-        (excludeMatured ? getNowSeconds() < (t.maturity || 0) : true)
-    );
-  };
-
-  const getUnderlyingSymbolsForTokenTypes = (tokenTypes: TokenType[]) => {
-    return unique(
-      tokenTypes.flatMap((t) => getTokensByType(t)).map((t) => t.underlying)
-    )
-      .filter((t) => t !== undefined)
-      .map((u) => getTokenByID(u).symbol);
   };
 
   return {
-    getTokensByCurrencyId,
-    getUnderlyingSymbolsForTokenTypes,
     getAllTokens,
     getTokenByID,
     getTokenBySymbol,
     getTokenByAddress,
-    getPrimeCash,
-    getPrimeDebt,
-    getNToken,
-    getUnderlying,
     getVaultShare,
     getVaultDebt,
-    getVaultCash,
-    unwrapVaultToken,
     getTokenBalanceFromSymbol,
     getTokensByType,
     getDebtTokens,
-    getVaultShares,
   };
 };

@@ -1,7 +1,7 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { fetchWebflowPage, extractWebflowHtml } from './embed';
-import { getAllVaults } from './collections';
-import { ONE_MINUTE_MS } from '@notional-finance/util';
+
+const WEBFLOW_PAGES = ['/', '/vaults', '/points'];
 
 export default class extends WorkerEntrypoint<{
   ASSETS: Fetcher;
@@ -16,42 +16,18 @@ export default class extends WorkerEntrypoint<{
 
     // Otherwise we're dealing with an html request and we have to inject the webflow scripts
     const url = new URL(request.url);
-
-    if (url.pathname.startsWith('/collections/vaults')) {
-      const cachedVaults = await this.env.VIEW_CACHE_R2.get(
-        '/collections/vaults'
-      );
-      const cacheExpiration = Date.now() - 5 * ONE_MINUTE_MS;
-      if (
-        cachedVaults &&
-        // Redo the cache every 5 minutes
-        cachedVaults.uploaded.getTime() > cacheExpiration
-      ) {
-        return new Response(cachedVaults.body, {
-          headers: { 'Content-Type': 'application/json' },
-        });
-      }
-
-      const vaults = await getAllVaults(this.env.WEBFLOW_API_TOKEN);
-      await this.env.VIEW_CACHE_R2.put(
-        '/collections/vaults',
-        JSON.stringify(vaults)
-      );
-      return new Response(JSON.stringify(vaults), {
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const { webflowHtml, isEmbed } = await fetchWebflowPage(url.pathname);
+    const isEmbed = url.pathname.startsWith('/embed');
 
     if (isEmbed) {
+      const webflowHtml = await fetchWebflowPage(url.pathname, true);
       return new Response(webflowHtml, {
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'public, max-age=300',
         },
       });
-    } else {
+    } else if (WEBFLOW_PAGES.includes(url.pathname)) {
+      const webflowHtml = await fetchWebflowPage(url.pathname, false);
       const indexHtml = await this.env.ASSETS.fetch(request);
       const modifiedHtml = await extractWebflowHtml(
         webflowHtml,
@@ -63,6 +39,8 @@ export default class extends WorkerEntrypoint<{
           'Cache-Control': 'public, max-age=300',
         },
       });
+    } else {
+      return this.env.ASSETS.fetch(request);
     }
   }
 }

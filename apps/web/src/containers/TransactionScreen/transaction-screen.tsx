@@ -30,6 +30,7 @@ export const TransactionScreen = observer(
     const trade = useCurrentTradeContext();
     const vaultMetadata = useVaultMetadata(trade?.vaultAddress);
     const isReady = vaultMetadata !== undefined;
+    const { leveragedAPY } = trade?.getVaultAPYBreakdown() || {};
 
     const tabs = useInfoBox();
 
@@ -45,6 +46,7 @@ export const TransactionScreen = observer(
             tokenSymbol={vaultMetadata?.depositToken.symbol || ''}
             secondaryTitle={vaultMetadata?.vaultFeatures.map((feature) => (
               <Chip
+                key={feature}
                 label={feature}
                 color="info"
                 size="small"
@@ -54,13 +56,7 @@ export const TransactionScreen = observer(
                 }}
               />
             ))}
-            apyInfo={{
-              totalAPY: 25.4,
-              organicAPY: 10,
-              assetAPY: 10,
-              feeAPY: 10,
-              apySpread: 10,
-            }}
+            apyInfo={leveragedAPY}
           />
           <ContentContainer>
             <TopSection>

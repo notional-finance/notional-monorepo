@@ -3,9 +3,6 @@ import {
   RATE_PRECISION,
   Network,
   getNowSeconds,
-  PRIME_CASH_VAULT_MATURITY,
-  encodeERC1155Id,
-  AssetType,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
@@ -24,7 +21,6 @@ export interface SingleSidedLPParams extends BaseVaultParams {
   singleSidedTokenIndex: number;
   totalLPTokens: TokenBalance;
   totalVaultShares: BigNumber;
-  secondaryTradeParams: string;
   maxPoolShares: BigNumber;
   totalPoolSupply?: TokenBalance;
   rewardState?: RewardState[];
@@ -72,14 +68,9 @@ export class SingleSidedLP extends VaultAdapter {
   public totalLPTokens: TokenBalance;
   // This does not have a token balance because maturity is unset
   public totalVaultShares: BigNumber;
-  public secondaryTradeParams: string;
   public maxPoolShares: BigNumber;
   public totalPoolSupply: TokenBalance | undefined;
   public rewardState?: RewardState[];
-
-  get strategy() {
-    return 'SingleSidedLP';
-  }
 
   get bptIndex() {
     return (
@@ -91,16 +82,6 @@ export class SingleSidedLP extends VaultAdapter {
 
   get rewardTokens() {
     return this.rewardState?.map((r) => r.rewardToken) || [];
-  }
-
-  protected get primeVaultShareId() {
-    return encodeERC1155Id(
-      this.borrowedToken.currencyId as number,
-      PRIME_CASH_VAULT_MATURITY,
-      AssetType.VAULT_SHARE_ASSET_TYPE,
-      false,
-      this.vaultAddress
-    );
   }
 
   getLiquidationPriceTokens() {
@@ -122,7 +103,7 @@ export class SingleSidedLP extends VaultAdapter {
     borrowedToken: TokenDefinition,
     public apyHistory?: TimeSeriesResponse
   ) {
-    super(p.enabled, p.name, network, vaultAddress, borrowedToken);
+    super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
 
     this.pool = _pool;
 
@@ -139,7 +120,6 @@ export class SingleSidedLP extends VaultAdapter {
 
     this.totalLPTokens = p.totalLPTokens;
     this.totalVaultShares = p.totalVaultShares;
-    this.secondaryTradeParams = p.secondaryTradeParams;
     this.maxPoolShares = p.maxPoolShares;
     this.totalPoolSupply = p.totalPoolSupply;
     this.rewardState = p.rewardState;
@@ -157,7 +137,7 @@ export class SingleSidedLP extends VaultAdapter {
   public getRemainingPoolCapacity() {
     if (this.totalPoolSupply) {
       const vaultShare = getNetworkModel(this.network).getTokenByID(
-        this.primeVaultShareId
+        this.vaultAddress
       );
       const maxLPTokens = this.totalPoolSupply.scale(
         this.maxPoolShares,
@@ -228,19 +208,10 @@ export class SingleSidedLP extends VaultAdapter {
     );
   }
 
-  convertToPrimeVaultShares(vaultShares: TokenBalance) {
-    // Prime vault shares convert 1-1
-    return new TokenBalance(
-      vaultShares.n,
-      this.primeVaultShareId,
-      this.network
-    );
-  }
-
   override getVaultTVL() {
     return new TokenBalance(
       this.totalVaultShares,
-      this.primeVaultShareId,
+      this.vaultAddress,
       this.network
     ).toUnderlying();
   }
@@ -271,12 +242,8 @@ export class SingleSidedLP extends VaultAdapter {
           Object.keys(r)
             .filter((r) =>
               // Direct claim vaults have a reward APY based on incentives
-              vaultType === 'SingleSidedLP_DirectClaim'
+              vaultType === 'CurveConvex2Token'
                 ? r.toLowerCase().includes('incentive')
-                : // Points vaults only have rewards based on points, any other reward
-                // is compounded into the organic APY
-                vaultType === 'SingleSidedLP_Points'
-                ? r.toLowerCase().includes('points')
                 : false
             )
             .reduce((t, key) => t + (r[key] || 0), 0)

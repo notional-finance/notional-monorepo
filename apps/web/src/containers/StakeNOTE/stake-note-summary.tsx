@@ -1,5 +1,4 @@
 import { Box, useTheme } from '@mui/material';
-import { TradeActionSummary } from '@notional-finance/trade';
 import {
   MultiDisplayChart,
   AreaChart,
@@ -38,7 +37,6 @@ const StakeNOTESummary = ({
     historicalSNOTEAPY,
     annualizedRewardRate,
     totalSNOTEValue,
-    currentSNOTEYield,
   } = useStakedNote(stakedNoteData, 90 * SECONDS_IN_DAY, baseCurrency);
   const { reinvestmentTableColumns, reinvestmentTableData } =
     useReinvestmentData();
@@ -65,7 +63,8 @@ const StakeNOTESummary = ({
   ];
 
   return (
-    <TradeActionSummary stakedNOTEApy={currentSNOTEYield}>
+    <Box>
+      {/* <TradeActionSummary stakedNOTEApy={currentSNOTEYield}> */}
       <MultiDisplayChart
         chartComponents={[
           {
@@ -141,7 +140,7 @@ const StakeNOTESummary = ({
           />
         ))}
       </Box>
-    </TradeActionSummary>
+    </Box>
   );
 };
 

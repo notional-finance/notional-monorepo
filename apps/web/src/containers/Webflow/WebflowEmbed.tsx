@@ -1,11 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Box, SxProps, useTheme } from '@mui/material';
+import { useAllVaults, useAppStore } from '@notional-finance/notionable-hooks';
+import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import { observer } from 'mobx-react-lite';
+import { PageLoading } from '@notional-finance/mui';
+import { colors } from '@notional-finance/styles';
 
 interface WebflowEmbedProps {
   path: string;
+  bodyClass: string;
   onContentLoaded?: (container: HTMLDivElement) => void;
+  sx?: SxProps;
 }
 
-const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
+const WebflowEmbed = ({
+  path,
+  onContentLoaded,
+  sx,
+  bodyClass,
+}: WebflowEmbedProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState(null);
   const mountedRef = useRef(true);
@@ -22,22 +35,47 @@ const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
     const target = `/embed/${path}`;
     let timeoutId: number;
 
-    const initializeWebflow = () => {
+    const initializeWebflow = (bodyScripts: NodeListOf<HTMLScriptElement>) => {
       // Guard against memory leak in unmount state
       if (!mountedRef.current) return;
 
-      timeoutId = window.setTimeout(() => {
+      // Loading all the body scripts will cause them to execute in their own order
+      // async
+      bodyScripts.forEach((s) => {
+        const newScript = document.createElement('script');
+        if (s.src) {
+          newScript.src = s.src;
+        } else {
+          newScript.textContent = s.textContent;
+        }
+        try {
+          document.body.appendChild(newScript);
+        } catch (e) {
+          console.error('Error appending script', e);
+          console.log('script', newScript);
+        }
+      });
+
+      timeoutId = window.setTimeout(async () => {
         if (!mountedRef.current) return;
 
-        if ((window as any).Webflow && (window as any).Webflow.require) {
-          const ix2 = (window as any).Webflow.require('ix2');
-          if (ix2?.init) ix2.init();
-          (window as any).Webflow.ready?.();
+        if ((window as any).Webflow) {
+          (window as any).Webflow = (window as any).Webflow || [];
+          // This runs after Webflow is fully initialized
+          (window as any).Webflow.push(() => {
+            if (containerRef.current) {
+              onContentLoaded?.(containerRef.current);
+            }
+          });
 
-          // Once content is loaded and webflow is initialized, call the callback to perform
-          // any custom DOM manipulation
-          if (containerRef.current) {
-            onContentLoaded?.(containerRef.current);
+          // Re-initialize ix2 if it exists to ensure that everything is triggered
+          // properly
+          if ((window as any).Webflow?.require) {
+            const ix2 = (window as any).Webflow.require('ix2');
+            if (ix2) {
+              ix2.store.dispatch({ type: 'IX2_SESSION_STOPPED' });
+              ix2.init();
+            }
           }
         }
       }, 0);
@@ -54,12 +92,17 @@ const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        const scripts = doc.body.querySelectorAll('script');
-        scripts.forEach((s) => s.remove());
+        const bodyScripts = doc.body.querySelectorAll('script');
+        const pageId = doc.documentElement.getAttribute('data-wf-page');
+        bodyScripts.forEach((s) => s.remove());
+        if (pageId) {
+          // This ensures that all the correct event listeners are triggered
+          document.documentElement.setAttribute('data-wf-page', pageId);
+        }
 
         if (containerRef.current) {
           containerRef.current.innerHTML = doc.body.innerHTML;
-          initializeWebflow();
+          initializeWebflow(bodyScripts);
         }
       })
       .catch((err) => {
@@ -73,15 +116,38 @@ const WebflowEmbed = ({ path, onContentLoaded }: WebflowEmbedProps) => {
   }, [path, onContentLoaded]);
 
   return (
-    <div>
+    <Box sx={sx}>
       {error ? (
         <div style={{ color: 'red' }}>Error loading content: {error}</div>
       ) : (
-        <div ref={containerRef} id="webflow-embed" className="body" />
+        <div ref={containerRef} id="webflow-embed" className={bodyClass} />
       )}
-    </div>
+    </Box>
   );
 };
+
+// Initializes FinsweetAttributes if used on that page
+function initializeAttributes(onStart: () => void) {
+  if ((window as any).FinsweetAttributes) {
+    // First unmount the existing process because it initialized before the DOM content
+    // was loaded
+    (window as any).FinsweetAttributes.destroy();
+    (window as any).FinsweetAttributes =
+      (window as any).FinsweetAttributes || [];
+    (window as any).FinsweetAttributes.push([
+      'list',
+      ([l, _]: any[]) => {
+        l.cache = false;
+        l.showQuery = true;
+        // After the list is rendered we can update the href
+        l.addHook('start', onStart);
+      },
+    ]);
+
+    // Re-initialize the process which will load all the attributes
+    (window as any).FinsweetAttributes.load('list');
+  }
+}
 
 export const LandingPageView = () => {
   // This needs to be a callback to avoid re-rendering the component
@@ -98,21 +164,80 @@ export const LandingPageView = () => {
     // TODO: update blog cards
   }, []);
 
-  return <WebflowEmbed path="" onContentLoaded={onContentLoaded} />;
+  return (
+    <WebflowEmbed bodyClass="body" path="" onContentLoaded={onContentLoaded} />
+  );
 };
 
-export const VaultPageView = () => {
-  const onContentLoaded = useCallback(() => {
-    console.log('content loaded');
+export const VaultPageView = observer(() => {
+  const theme = useTheme();
+  const vaults = useAllVaults();
+  const { baseCurrency } = useAppStore();
+
+  const onContentLoaded = useCallback((container: HTMLDivElement) => {
+    initializeAttributes(() => {
+      container.querySelectorAll('.vault-row').forEach((e) => {
+        // TODO: add the network inside the cms
+        // TODO: prevent default on the modal pop ups
+        e['href'] = `/vault/mainnet/${e.getAttribute(
+          'n-vault-address'
+        )}`.toLowerCase();
+      });
+    });
+
+    // Only set this text data once after the list is rendered so that the sorting engine
+    // can read it
+    container.querySelectorAll('.vault-row').forEach((e) => {
+      const vaultAddress = e.getAttribute('n-vault-address')?.toLowerCase();
+      const vault = vaults.find(
+        (v) => v.vaultConfig.vaultAddress.toLowerCase() === vaultAddress
+      );
+      if (!vault) return;
+
+      const maxApyEl = e.querySelector('.vault-max-apy');
+      if (maxApyEl)
+        maxApyEl.textContent = formatNumberAsPercentWithUndefined(
+          vault?.apy?.totalAPY,
+          '-'
+        );
+      const liquidityEl = e.querySelector('.vault-liquidity');
+      if (liquidityEl)
+        liquidityEl.textContent =
+          vault?.liquidity
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false) || '-';
+      const tvlEl = e.querySelector('.vault-tvl');
+      if (tvlEl)
+        tvlEl.textContent =
+          vault?.tvl
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false) || '-';
+    });
   }, []);
 
-  return <WebflowEmbed path="/vaults" onContentLoaded={onContentLoaded} />;
-};
+  return vaults.length > 0 ? (
+    <WebflowEmbed
+      bodyClass="body-vault"
+      sx={{ background: theme.palette.background.default }}
+      path="/vaults"
+      onContentLoaded={onContentLoaded}
+    />
+  ) : (
+    <PageLoading type="notional" />
+  );
+});
 
 export const PointsPageView = () => {
   const onContentLoaded = useCallback(() => {
     console.log('content loaded');
   }, []);
 
-  return <WebflowEmbed path="/vaults" onContentLoaded={onContentLoaded} />;
+  return (
+    <WebflowEmbed
+      bodyClass="body-2"
+      sx={{ background: colors['black'] }}
+      path="/points"
+      onContentLoaded={onContentLoaded}
+    />
+  );
 };

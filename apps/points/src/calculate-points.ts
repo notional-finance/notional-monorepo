@@ -1,18 +1,12 @@
 import {
-  BalancerBoostedPoolABI,
-  BalancerVault,
-  BalancerVaultABI,
   IAggregator,
   IAggregatorABI,
-  ISingleSidedLPStrategyVault,
-  ISingleSidedLPStrategyVaultABI,
-  IStrategyVault,
-  IStrategyVaultABI,
+  IYieldStrategy,
+  YieldStrategyABI,
 } from '@notional-finance/contracts';
 import { fetchGraphPaginate } from '@notional-finance/core-entities';
-import { aggregate } from '@notional-finance/multicall';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
-import { BigNumber, Contract, ethers, providers } from 'ethers';
+import { BigNumber, Contract, ethers } from 'ethers';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllVaultAccountsQuery } from 'packages/core-entities/src/.graphclient';
 
@@ -85,6 +79,7 @@ const VaultConfig: Record<
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function loadAllVaultsQuery(
   vaultAddress: string,
   blockNumber: number,
@@ -108,61 +103,18 @@ async function loadAllVaultsQuery(
   ).then((d) => d.data as AllVaultAccountsQuery);
 }
 
-async function getVaultInfo(
-  vaultAddress: string,
-  network: Network,
-  blockNumber: number
-) {
-  const { results: vaultInfo } = (await aggregate<unknown>(
-    [
-      {
-        target: new Contract(
-          vaultAddress,
-          ISingleSidedLPStrategyVaultABI,
-          getProviderFromNetwork(network)
-        ),
-        method: 'getStrategyVaultInfo',
-        key: 'info',
-      },
-    ],
-    getProviderFromNetwork(network, true),
-    blockNumber
-  )) as unknown as {
-    block: providers.Block;
-    results: {
-      info: Awaited<
-        ReturnType<
-          ISingleSidedLPStrategyVault['functions']['getStrategyVaultInfo']
-        >
-      >[number];
-    };
-  };
-
-  return vaultInfo;
-}
-
 export async function getVaultTVL(vaultAddress: string, blockNumber?: number) {
   const { network, usdOracle, decimals } =
     VaultConfig[vaultAddress as keyof typeof VaultConfig];
   const provider = getProviderFromNetwork(network, true);
   const vault = new Contract(
     vaultAddress,
-    [...IStrategyVaultABI, ...ISingleSidedLPStrategyVaultABI],
+    YieldStrategyABI,
     provider
-  ) as ISingleSidedLPStrategyVault & IStrategyVault;
-  const totalVaultShares = (
-    await vault.getStrategyVaultInfo({
-      blockTag: blockNumber || 'latest',
-    })
-  ).totalVaultShares;
-  const totalValuePrimary = await vault.convertStrategyToUnderlying(
-    ethers.constants.AddressZero,
-    totalVaultShares,
-    0,
-    {
-      blockTag: blockNumber || 'latest',
-    }
-  );
+  ) as IYieldStrategy;
+  const totalValuePrimary = await vault.totalAssets({
+    blockTag: blockNumber || 'latest',
+  });
   const usdOraclePrice = await (
     new Contract(usdOracle, IAggregatorABI, provider) as IAggregator
   ).latestAnswer({
@@ -180,117 +132,50 @@ export async function getVaultTVL(vaultAddress: string, blockNumber?: number) {
 }
 
 export async function getVaultData(
-  vaultAddress: string,
-  blockNumber: number,
-  apiKey: string
+  _vaultAddress: string,
+  _blockNumber: number,
+  _apiKey: string
 ) {
-  const { targetToken, poolId, network, symbol } =
-    VaultConfig[vaultAddress as keyof typeof VaultConfig];
+  return [];
+  // const { targetToken, network, symbol } =
+  //   VaultConfig[vaultAddress as keyof typeof VaultConfig];
 
-  const vaultInfo = await getVaultInfo(vaultAddress, network, blockNumber);
+  // const allVaultAccounts = await loadAllVaultsQuery(
+  //   vaultAddress,
+  //   blockNumber,
+  //   network,
+  //   apiKey
+  // );
 
-  const { results: poolData } = (await aggregate<{
-    totalSupply: BigNumber;
-    balances: Awaited<ReturnType<BalancerVault['functions']['getPoolTokens']>>;
-  }>(
-    [
-      {
-        stage: 0,
-        target: new Contract(vaultInfo.info.pool, BalancerBoostedPoolABI),
-        method: 'getActualSupply',
-        key: 'totalSupply',
-        args: [],
-      },
-      {
-        target: new Contract(
-          '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-          BalancerVaultABI
-        ),
-        method: 'getPoolTokens',
-        args: [poolId],
-        key: 'balances',
-      },
-    ],
-    getProviderFromNetwork(network, true),
-    blockNumber
-  )) as unknown as {
-    block: providers.Block;
-    results: {
-      totalSupply: BigNumber;
-      balances: Awaited<
-        ReturnType<BalancerVault['functions']['getPoolTokens']>
-      >;
-    };
-  };
+  // const provider = getProviderFromNetwork(network, true);
+  // const vault = new Contract(
+  //   vaultAddress,
+  //   YieldStrategyABI,
+  //   provider
+  // ) as IYieldStrategy;
 
-  const allVaultAccounts = await loadAllVaultsQuery(
-    vaultAddress,
-    blockNumber,
-    network,
-    apiKey
-  );
+  // const totalLPTokens = vaultInfo.info.totalLPTokens;
+  // const totalVaultShares = vaultInfo.info.totalVaultShares;
+  // const totalLPSupply = poolData.totalSupply;
+  // const tokenIndex = poolData.balances.tokens.findIndex(
+  //   (t) => t === targetToken
+  // );
+  // const totalTokenBalance = poolData.balances.balances[tokenIndex];
 
-  const totalLPTokens = vaultInfo.info.totalLPTokens;
-  const totalVaultShares = vaultInfo.info.totalVaultShares;
-  const totalLPSupply = poolData.totalSupply;
-  const tokenIndex = poolData.balances.tokens.findIndex(
-    (t) => t === targetToken
-  );
-  const totalTokenBalance = poolData.balances.balances[tokenIndex];
+  // return allVaultAccounts.balances
+  //   .filter((a) => !BigNumber.from(a.current.currentBalance).isZero())
+  //   .map((a) => {
+  //     const lpTokens = totalLPTokens
+  //       .mul(BigNumber.from(a.current.currentBalance))
+  //       .div(totalVaultShares);
+  //     const tokenBalance = totalTokenBalance.mul(lpTokens).div(totalLPSupply);
 
-  let rsETHPrice: BigNumber | undefined;
-  if (
-    vaultAddress.toLowerCase() ===
-      '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb' ||
-    vaultAddress.toLowerCase() === '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68'
-  ) {
-    const rsETHOracle = new Contract(
-      '0x03c68933f7a3F76875C0bc670a58e69294cDFD01',
-      IAggregatorABI,
-      getProviderFromNetwork(Network.mainnet, true)
-    ) as IAggregator;
-    rsETHPrice = await rsETHOracle.latestAnswer();
-  }
-
-  return allVaultAccounts.balances
-    .filter((a) => !BigNumber.from(a.current.currentBalance).isZero())
-    .map((a) => {
-      const lpTokens = totalLPTokens
-        .mul(BigNumber.from(a.current.currentBalance))
-        .div(totalVaultShares);
-      const tokenBalance = totalTokenBalance.mul(lpTokens).div(totalLPSupply);
-
-      if (
-        (vaultAddress.toLowerCase() ===
-          '0xf94507f3dece4cc4c73b6cf228912b85eadc9cfb' ||
-          vaultAddress.toLowerCase() ===
-            '0xcac9c01d1207e5d06bb0fd5b854832f35fe97e68') &&
-        rsETHPrice
-      ) {
-        // For Kelp RS ETH its the value of all holdings in rsETH terms.
-        const ethBalance = poolData.balances.balances[
-          network === Network.mainnet ? 2 : 1
-        ]
-          .mul(lpTokens)
-          .div(totalLPSupply);
-
-        return {
-          address: a.account.id,
-          effective_balance: `${ethers.utils.formatUnits(
-            tokenBalance.add(
-              ethBalance.mul(rsETHPrice).div(ethers.constants.WeiPerEther)
-            ),
-            18
-          )} ${symbol}`,
-        };
-      } else {
-        return {
-          address: a.account.id,
-          effective_balance: `${ethers.utils.formatUnits(
-            tokenBalance,
-            18
-          )} ${symbol}`,
-        };
-      }
-    });
+  //     return {
+  //       address: a.account.id,
+  //       effective_balance: `${ethers.utils.formatUnits(
+  //         tokenBalance,
+  //         18
+  //       )} ${symbol}`,
+  //     };
+  //   });
 }

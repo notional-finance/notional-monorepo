@@ -10,28 +10,18 @@ import {
 } from '@notional-finance/transaction';
 import {
   PRIME_CASH_VAULT_MATURITY,
-  getMarketIndexForMaturity,
   getNowSeconds,
-  isIdiosyncratic,
 } from '@notional-finance/util';
 
 function eligibleDebtToken(
   t: TokenDefinition,
   vaultConfig?: {
     vaultAddress?: string;
-    maxBorrowMarketIndex?: number;
-    primaryBorrowCurrency?: {
-      id: string;
-    };
+    depositTokenId?: string;
   }
 ) {
   return (
-    t.tokenType === 'VaultDebt' &&
-    t.vaultAddress === vaultConfig?.vaultAddress &&
-    !!t.maturity &&
-    !isIdiosyncratic(t.maturity) &&
-    getMarketIndexForMaturity(t.maturity) <=
-      (vaultConfig?.maxBorrowMarketIndex || 0)
+    t.tokenType === 'VaultDebt' && t.vaultAddress === vaultConfig?.vaultAddress
   );
 }
 
@@ -39,13 +29,10 @@ function isPrimaryCurrency(
   t: TokenDefinition,
   vaultConfig?: {
     vaultAddress?: string;
-    maxBorrowMarketIndex?: number;
-    primaryBorrowCurrency: {
-      id: string;
-    };
+    depositTokenId?: string;
   }
 ) {
-  return t.id === vaultConfig?.primaryBorrowCurrency.id;
+  return t.id === vaultConfig?.depositTokenId;
 }
 
 function sameVaultMaturity(
@@ -91,7 +78,6 @@ export const VaultTradeConfiguration = {
       'collateral',
       'debt',
       'vaultAdapter',
-      'debtPool',
       'depositBalance',
       'riskFactorLimit',
     ],
@@ -118,7 +104,6 @@ export const VaultTradeConfiguration = {
       'collateral',
       'debt',
       'vaultAdapter',
-      'debtPool',
       'depositBalance',
       'balances',
       'riskFactorLimit',
@@ -147,7 +132,6 @@ export const VaultTradeConfiguration = {
       'collateral',
       'debt',
       'vaultAdapter',
-      'debtPool',
       'depositBalance',
       'balances',
       'riskFactorLimit',
@@ -181,7 +165,6 @@ export const VaultTradeConfiguration = {
     requiredArgs: [
       'debt',
       'vaultAdapter',
-      'debtPool',
       'balances',
       'depositBalance',
       'vaultLastUpdateTime',
@@ -214,7 +197,6 @@ export const VaultTradeConfiguration = {
       'collateral',
       'debt',
       'vaultAdapter',
-      'debtPool',
       'depositBalance',
       'balances',
       'riskFactorLimit',

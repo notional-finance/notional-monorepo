@@ -11,15 +11,16 @@ import Curve2TokenPoolV2 from './Curve/Curve2TokenPoolV2';
 import { ComposableStablePool } from './BalancerV2/composable-stable-pool';
 import { TokenBalance } from '../token-balance';
 import { Network } from '@notional-finance/util';
-import { fCashMarket } from './NotionalV3/fCash-market';
-import { BaseNotionalMarket } from './NotionalV3/BaseNotionalMarket';
-import { pCashMarket } from './NotionalV3/pCash-market';
 import SNOTEWeightedPool from './BalancerV2/snote-weighted-pool';
 import {
   PendleMarket,
   PendleMarketWithFixedSyToAssetExchangeRate,
 } from './Pendle/PendleMarket';
 import { Curve2TokenPoolNG } from './Curve/Curve2TokenPoolNG';
+import {
+  MorphoAdaptiveIRM,
+  MorphoVariableMarket,
+} from './Morpho/MorphoVariableMarket';
 
 type PoolConstructor = new (
   network: Network,
@@ -35,7 +36,6 @@ const PoolClasses: Record<
 > = {
   WeightedPool: WeightedPool,
   SNOTEWeightedPool: SNOTEWeightedPool,
-  fCashMarket: fCashMarket,
   ComposableStablePool: ComposableStablePool,
   Curve2TokenPoolV1: Curve2TokenPoolV1,
   Curve2TokenPoolV1_SelfLPToken: Curve2TokenPoolV1_SelfLPToken,
@@ -47,21 +47,23 @@ const PoolClasses: Record<
   PendleMarketWithFixedSyToAssetExchangeRate:
     PendleMarketWithFixedSyToAssetExchangeRate,
   Curve2TokenPoolNG: Curve2TokenPoolNG,
+  MorphoAdaptiveIRM: MorphoAdaptiveIRM,
 };
 
+export type LendingMarket = MorphoVariableMarket;
+
 export {
+  MorphoVariableMarket,
+  MorphoAdaptiveIRM,
   WeightedPool,
   BaseLiquidityPool,
   ComposableStablePool,
-  fCashMarket,
   PoolClasses,
   PoolConstructor,
   Curve2TokenPoolV1,
   Curve2TokenPoolV2,
   Curve2TokenPoolV1_SelfLPTokenNoAdmin,
   Curve2TokenPoolV1_SelfLPToken,
-  BaseNotionalMarket,
-  pCashMarket,
   SNOTEWeightedPool,
   PendleMarket,
   Curve2TokenPoolNG,

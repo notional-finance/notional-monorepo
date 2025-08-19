@@ -8,16 +8,15 @@ import { APYData } from '../models/views/YieldViews';
 export interface BaseVaultParams {
   vaultAddress: string;
   enabled: boolean;
-  name: string;
+  strategyType: string;
 }
 
 export abstract class VaultAdapter {
   abstract get hashKey(): string;
-  abstract get strategy(): string;
 
   constructor(
     public enabled: boolean,
-    public name: string,
+    public strategyType: string,
     public network: Network,
     public vaultAddress: string,
     public borrowedToken: TokenDefinition
@@ -26,8 +25,6 @@ export abstract class VaultAdapter {
   }
 
   abstract getInitialVaultShareValuation(maturity: number): ExchangeRate;
-
-  abstract convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance;
 
   /**
    * Returns the underlying received when redeeming a negative amount of vault shares

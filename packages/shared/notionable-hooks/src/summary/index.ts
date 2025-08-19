@@ -1,4 +1,4 @@
-import { TradeType } from '@notional-finance/notionable';
+import { AllTradeTypes } from '@notional-finance/notionable';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 
 interface MessageData {
@@ -40,51 +40,6 @@ export const OrderDetailLabels = defineMessages({
   captionAPY: { defaultMessage: '{title} APY ({caption})' },
   captionPrice: { defaultMessage: '{title} Price ({caption})' },
 });
-
-export const TradeSummaryLabels = {
-  VaultShare: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Mint Vault Shares ({caption})' },
-    withdraw: { defaultMessage: 'Withdraw Vault Shares ({caption})' },
-    none: { defaultMessage: 'Mint Vault Shares ({caption})' },
-    repay: { defaultMessage: 'N/A' },
-  }),
-  fCashLend: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Lend Fixed ({caption})' },
-    withdraw: { defaultMessage: 'Withdraw Fixed Lend ({caption})' },
-    none: { defaultMessage: 'Lend Fixed ({caption})' },
-    repay: { defaultMessage: 'N/A' },
-  }),
-  PrimeCash: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Lend Variable' },
-    withdraw: { defaultMessage: 'Withdraw Variable Lend' },
-    none: { defaultMessage: 'Lend Variable' },
-    repay: { defaultMessage: 'N/A' },
-  }),
-  nToken: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Provide Liquidity' },
-    withdraw: { defaultMessage: 'Withdraw Liquidity' },
-    none: { defaultMessage: 'Provide Liquidity' },
-    repay: { defaultMessage: 'N/A' },
-  }),
-  fCashDebt: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Repay Fixed Debt ({caption})' },
-    withdraw: { defaultMessage: 'Borrow Fixed ({caption})' },
-    none: { defaultMessage: 'Borrow Fixed ({caption})' },
-    repay: { defaultMessage: 'Repay Fixed ({caption})' },
-  }),
-  PrimeDebt: defineMessages({
-    deposit: { defaultMessage: 'Deposit and Repay Variable Debt' },
-    withdraw: { defaultMessage: 'Borrow Variable' },
-    none: { defaultMessage: 'Borrow Variable' },
-    repay: { defaultMessage: 'Repay Variable Debt' },
-  }),
-  Underlying: defineMessages({
-    deposit: { defaultMessage: 'Deposit {symbol}' },
-    withdraw: { defaultMessage: 'Withdraw {symbol}' },
-    none: { defaultMessage: 'Mint {symbol}' },
-    repay: { defaultMessage: 'Redeem {symbol}' },
-  }),
-};
 
 export const Earnings = {
   LendFixed: defineMessages({
@@ -138,4 +93,4 @@ export const Earnings = {
         'Estimate is based on current APY. Variable borrow rates can increase or decrease over time.',
     },
   }),
-} as unknown as Record<TradeType, MessageData>;
+} as unknown as Record<AllTradeTypes, MessageData>;

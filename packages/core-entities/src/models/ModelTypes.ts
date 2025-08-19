@@ -14,15 +14,8 @@ export const NotionalTypes = {
   Network: types.enumeration<Network>('Network', Object.values(Network)),
   TokenType: types.enumeration<TokenType>('TokenType', [
     'Underlying',
-    'nToken',
-    'WrappedfCash',
-    'PrimeCash',
-    'PrimeDebt',
-    'fCash',
     'VaultShare',
     'VaultDebt',
-    'VaultCash',
-    'NOTE',
     'Fiat',
   ]),
   TokenInterface: types.enumeration<TokenInterface>('TokenInterface', [
@@ -33,15 +26,8 @@ export const NotionalTypes = {
   SystemAccount: types.enumeration<SystemAccount>('SystemAccount', [
     'None',
     'ZeroAddress',
-    'FeeReserve',
-    'SettlementReserve',
     'Vault',
-    'nToken',
-    'PrimeCash',
-    'PrimeDebt',
-    'Notional',
     'NOTE',
-    'SecondaryIncentiveRewarder',
   ]),
   BigNumber: types.custom<{ type: 'BigNumber'; hex: string }, BigNumber>({
     name: 'BigNumber',
@@ -157,127 +143,65 @@ export const TokenDefinitionModel = types.model('TokenDefinition', {
   currencyId: types.maybe(types.number),
 });
 
-const InterestRateCurveModel = types.model('InterestRateCurve', {
-  kinkUtilization1: types.number,
-  kinkUtilization2: types.number,
-  kinkRate1: types.number,
-  kinkRate2: types.number,
-  maxRate: types.number,
-  minFeeRate: types.number,
-  maxFeeRate: types.number,
-  feeRatePercent: types.number,
-});
-
-const IncentiveModel = types.model('Incentive', {
-  incentiveEmissionRate: types.maybeNull(types.string),
-  accumulatedNOTEPerNToken: types.maybeNull(types.string),
-  lastAccumulatedTime: types.maybeNull(types.string),
-  currentSecondaryReward: types.maybeNull(
-    types.model({
-      id: types.string,
-      symbol: types.string,
-    })
-  ),
-  secondaryIncentiveRewarder: types.maybeNull(types.string),
-  secondaryEmissionRate: types.maybeNull(types.string),
-  accumulatedSecondaryRewardPerNToken: types.maybeNull(types.string),
-  lastSecondaryAccumulatedTime: types.maybeNull(types.string),
-  secondaryRewardEndTime: types.maybeNull(types.string),
-});
-
-const CurrencyConfigurationModel = types.model('CurrencyConfiguration', {
-  id: types.identifier,
-  underlying: types.model({ id: types.string }),
-  pCash: types.model({ id: types.string }),
-  pDebt: types.model({ id: types.string }),
-  maxUnderlyingSupply: types.string,
-  collateralHaircut: types.number,
-  debtBuffer: types.number,
-  liquidationDiscount: types.number,
-  primeCashRateOracleTimeWindowSeconds: types.number,
-  primeCashHoldingsOracle: types.string,
-  primeCashCurve: InterestRateCurveModel,
-  primeDebtAllowed: types.boolean,
-  fCashRateOracleTimeWindowSeconds: types.maybeNull(types.number),
-  fCashReserveFeeSharePercent: types.maybeNull(types.number),
-  fCashDebtBufferBasisPoints: types.maybeNull(types.number),
-  fCashHaircutBasisPoints: types.maybeNull(types.number),
-  fCashMinOracleRate: types.maybeNull(types.number),
-  fCashMaxOracleRate: types.maybeNull(types.number),
-  fCashMaxDiscountFactor: types.maybeNull(types.number),
-  fCashLiquidationHaircutBasisPoints: types.maybeNull(types.number),
-  fCashLiquidationDebtBufferBasisPoints: types.maybeNull(types.number),
-  fCashActiveCurves: types.maybeNull(types.array(InterestRateCurveModel)),
-  fCashNextCurves: types.maybeNull(types.array(InterestRateCurveModel)),
-  treasuryReserveBuffer: types.maybeNull(types.string),
-  depositShares: types.maybeNull(types.array(types.number)),
-  leverageThresholds: types.maybeNull(types.array(types.number)),
-  proportions: types.maybeNull(types.array(types.number)),
-  residualPurchaseIncentiveBasisPoints: types.maybeNull(types.number),
-  residualPurchaseTimeBufferSeconds: types.maybeNull(types.number),
-  cashWithholdingBufferBasisPoints: types.maybeNull(types.number),
-  pvHaircutPercentage: types.maybeNull(types.number),
-  liquidationHaircutPercentage: types.maybeNull(types.number),
-  maxMintDeviationBasisPoints: types.maybeNull(types.number),
-  incentives: types.maybeNull(IncentiveModel),
-});
-
-const VaultConfigurationModel = types.model('VaultConfiguration', {
-  id: types.identifier,
-  vaultAddress: types.string,
-  strategy: types.string,
-  primaryBorrowCurrency: types.model({
-    id: types.string,
-  }),
-  minAccountBorrowSize: types.string,
-  minCollateralRatioBasisPoints: types.number,
-  maxDeleverageCollateralRatioBasisPoints: types.number,
-  feeRateBasisPoints: types.number,
-  reserveFeeSharePercent: types.number,
-  liquidationRatePercent: types.number,
-  maxBorrowMarketIndex: types.number,
-  secondaryBorrowCurrencies: types.maybeNull(
-    types.array(
-      types.model({
-        id: types.string,
-      })
-    )
-  ),
-  maxRequiredAccountCollateralRatioBasisPoints: types.number,
-  enabled: types.boolean,
-  allowRollPosition: types.boolean,
-  onlyVaultEntry: types.boolean,
-  onlyVaultExit: types.boolean,
-  onlyVaultRoll: types.boolean,
-  onlyVaultDeleverage: types.boolean,
-  onlyVaultSettle: types.boolean,
-  discountfCash: types.boolean,
-  allowsReentrancy: types.boolean,
-  deleverageDisabled: types.boolean,
-  maxPrimaryBorrowCapacity: types.string,
-  totalUsedPrimaryBorrowCapacity: types.string,
-  maxSecondaryBorrowCapacity: types.maybeNull(types.string),
-  totalUsedSecondaryBorrowCapacity: types.maybeNull(types.string),
-  minAccountSecondaryBorrow: types.maybeNull(types.string),
-});
-
-const WhitelistedContractModel = types.model('WhitelistedContract', {
+export const LendingRouterModel = types.model('LendingRouter', {
   id: types.identifier,
   name: types.string,
-  capability: types.array(
-    types.enumeration('WhitelistedCapability', [
-      'GlobalTransferOperator',
-      'AuthorizedCallbackContract',
-      'SecondaryIncentiveRewarder',
-      'DetachedSecondaryIncentiveRewarder',
-    ])
+  markets: types.array(
+    types.model({
+      vault: types.string,
+      params: types.string,
+    })
+  ),
+});
+
+export const WithdrawRequestManagerModel = types.model(
+  'WithdrawRequestManager',
+  {
+    id: types.identifier,
+    yieldToken: types.reference(TokenDefinitionModel),
+    withdrawToken: types.reference(TokenDefinitionModel),
+    stakingToken: types.reference(TokenDefinitionModel),
+  }
+);
+
+const ProjectModel = types.model('ProjectModel', {
+  id: types.identifier,
+  name: types.string,
+  description: types.string,
+  logoURL: types.string,
+});
+
+const RewardModel = types.model('RewardModel', {
+  id: types.identifier,
+  name: types.string,
+  token: types.reference(TokenDefinitionModel),
+});
+
+export const VaultModel = types.model('VaultModel', {
+  vaultAddress: types.identifier,
+  name: types.string,
+  network: NotionalTypes.Network,
+  vaultFeatures: types.array(types.string),
+  launchedOn: types.Date,
+  strategyType: types.string,
+  vaultDescription: types.string,
+  rewards: types.optional(types.array(RewardModel), []),
+  projects: types.optional(types.array(ProjectModel), []),
+
+  depositToken: types.reference(TokenDefinitionModel),
+  yieldToken: types.reference(TokenDefinitionModel),
+  vaultToken: types.reference(TokenDefinitionModel),
+  feeRate: NotionalTypes.BigNumber,
+  withdrawRequestManagers: types.optional(
+    types.array(types.reference(WithdrawRequestManagerModel)),
+    []
   ),
 });
 
 export const ConfigurationModel = types.model('Configuration', {
-  currencyConfigurations: types.array(CurrencyConfigurationModel),
-  vaultConfigurations: types.array(VaultConfigurationModel),
-  whitelistedContracts: types.array(WhitelistedContractModel),
+  lendingRouters: types.array(LendingRouterModel),
+  withdrawRequestManagers: types.array(WithdrawRequestManagerModel),
+  vaults: types.array(VaultModel),
 });
 
 const PoolDataModel = types
@@ -310,30 +234,12 @@ const ExchangeRateModel = types.model('ExchangeRate', {
 
 export const OracleType = [
   'Chainlink',
-  'fCashOracleRate',
-  'fCashSettlementRate',
-  'fCashToUnderlyingExchangeRate',
-  'fCashSpotRate',
-  'PrimeCashToUnderlyingOracleInterestRate',
-  'PrimeCashPremiumInterestRate',
-  'PrimeDebtPremiumInterestRate',
-  'PrimeCashExternalLendingInterestRate',
-  'PrimeCashToUnderlyingExchangeRate',
-  'PrimeCashToMoneyMarketExchangeRate',
-  'PrimeDebtToUnderlyingExchangeRate',
-  'PrimeDebtToMoneyMarketExchangeRate',
-  'MoneyMarketToUnderlyingExchangeRate',
   'VaultShareOracleRate',
-  'VaultShareInterestAccrued',
-  'nTokenInterestAccrued',
-  'nTokenToUnderlyingExchangeRate',
-  'nTokenBlendedInterestRate',
-  'nTokenFeeRate',
-  'nTokenIncentiveRate',
-  'nTokenSecondaryIncentiveRate',
+  'VaultFeeAccrualRate',
+  'BorrowShareOracleRate',
+  'WithdrawTokenExchangeRate',
   'sNOTE',
   'VaultShareAPY',
-  'nTokenTotalAPY',
   'sNOTEToETHExchangeRate',
   'sNOTEReinvestmentAPY',
 ] as const;
@@ -372,11 +278,7 @@ export const OracleGraphModel = types.model('OracleGraph', {
 const BaseVaultDefinitionModel = types.model('BaseVaultDefinition', {
   vaultAddress: types.identifier,
   enabled: types.boolean,
-  name: types.string,
-  technicalName: types.maybe(types.string),
-  boosterProtocol: types.maybe(types.string),
-  poolName: types.maybe(types.string),
-  baseProtocol: types.maybe(types.string),
+  strategyType: types.string,
 });
 
 const SingleSidedLPVaultModel = BaseVaultDefinitionModel.props({
@@ -406,9 +308,14 @@ const PendlePTVaultModel = BaseVaultDefinitionModel.props({
   tokenOutSy: types.string,
 });
 
+const StakingVaultModel = BaseVaultDefinitionModel.props({
+  stakingToken: types.string,
+});
+
 export const VaultDefinitionModel = types.union(
   SingleSidedLPVaultModel,
-  PendlePTVaultModel
+  PendlePTVaultModel,
+  StakingVaultModel
 );
 
 export const TimeSeriesModel = types.model('TimeSeriesModel', {

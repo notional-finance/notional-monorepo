@@ -3,10 +3,7 @@ import {
   Network,
   RATE_PRECISION,
   SCALAR_PRECISION,
-  SECONDS_IN_YEAR,
   getNowSeconds,
-  decodeERC1155Id,
-  isERC1155Id,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
@@ -116,10 +113,7 @@ export function parseGraphBalanceToTokenBalance(
   network: Network
 ) {
   const model = getNetworkModel(network);
-  const isDebt =
-    model.getTokenByID(tokenId).tokenType === 'PrimeDebt' ||
-    model.getTokenByID(tokenId).tokenType === 'VaultDebt' ||
-    (isERC1155Id(tokenId) && decodeERC1155Id(tokenId).isfCashDebt);
+  const isDebt = model.getTokenByID(tokenId).tokenType === 'VaultDebt';
   let b = BigNumber.from(balance);
   if (isDebt && b.gt(0)) b = b.mul(-1);
 
@@ -168,7 +162,7 @@ export function parseCurrentBalanceStatement(
 
   let totalInterestAccrual: TokenBalance = currentProfitAndLoss;
 
-  if (token.tokenType === 'VaultShare' || token.tokenType === 'nToken') {
+  if (token.tokenType === 'VaultShare') {
     const a = model.getInterestAccrualRate(token);
     // This interest accumulator is always in 18 decimals
     const currentInterestAccumulator = a?.rate;
@@ -188,20 +182,6 @@ export function parseCurrentBalanceStatement(
     } else {
       totalInterestAccrual = currentStatement.totalInterestAccrual;
     }
-  } else if (token.tokenType === 'fCash') {
-    const lastInterestAccumulator = TokenBalance.from(
-      current._lastInterestAccumulator,
-      underlying
-    );
-    const additionalAccruedInterest = lastInterestAccumulator.scale(
-      getNowSeconds() - currentStatement.timestamp,
-      SECONDS_IN_YEAR
-    );
-    totalInterestAccrual = currentStatement.totalInterestAccrual.add(
-      additionalAccruedInterest
-    );
-    if (currentStatement.balance.isNegative())
-      totalInterestAccrual = totalInterestAccrual.neg();
   } else {
     // For Prime Cash and Prime Debt, the entire PNL is interest accrual
     totalInterestAccrual = currentProfitAndLoss;
@@ -214,8 +194,6 @@ export function parseCurrentBalanceStatement(
     underlying,
     currentBalance: currentStatement.balance,
     adjustedCostBasis: currentStatement.adjustedCostBasis,
-    // TODO: this is total fees but includes slippage....
-    totalILAndFees: currentStatement.totalILAndFees,
     impliedFixedRate: currentStatement.impliedFixedRate,
     // Organic Earnings
     totalProfitAndLoss: currentProfitAndLoss,
@@ -224,6 +202,7 @@ export function parseCurrentBalanceStatement(
     // Amount Paid
     accumulatedCostRealized: currentStatement.accumulatedCostRealized,
     incentives,
+    totalVaultFees: currentStatement.totalVaultFeesAtSnapshot,
   };
 }
 
@@ -249,18 +228,18 @@ export function parseBalanceStatement(
     adjustedCostBasis,
     timestamp: snapshot.timestamp,
     accumulatedCostRealized,
-    totalILAndFees: new TokenBalance(
-      snapshot.totalILAndFeesAtSnapshot,
-      underlyingId,
-      network
-    ),
     totalProfitAndLoss: new TokenBalance(
-      snapshot.totalProfitAndLossAtSnapshot,
+      snapshot.currentProfitAndLossAtSnapshot,
       underlyingId,
       network
     ),
     totalInterestAccrual: new TokenBalance(
       snapshot.totalInterestAccrualAtSnapshot,
+      underlyingId,
+      network
+    ),
+    totalVaultFeesAtSnapshot: new TokenBalance(
+      snapshot.totalVaultFeesAtSnapshot,
       underlyingId,
       network
     ),

@@ -125,7 +125,7 @@ export const SliderBasic = ({
     ?.map(({ color, value }) => `rgb(${color.join(',')}) ${value.toFixed(0)}%`)
     .join(',')})`;
 
-  // NOTE: Leaving this incase we ever want to have a gradient colored thumb again
+  // NOTE: Leaving this in case we ever want to have a gradient colored thumb again
   // const currentGradient =
   //   railGradients && `rgba(${getMarkColor(railGradients, value).join(',')})`;
 

@@ -1,15 +1,28 @@
 query AllVaults($skip: Int) {
-    vaultConfigurations(first: 1000, skip: $skip) {
-        id
-        vaultAddress
-        strategy
-        name
-        enabled
+  vaults(first: 1000, skip: $skip) {
+    id
+    isWhitelisted
+    asset {
+      id
     }
+    yieldToken {
+      id
+    }
+    vaultToken {
+      id
+    }
+
+    feeRate
+    strategyType
+
+    withdrawRequestManagers {
+      id
+    }
+  }
 
   _meta {
     block {
-        number
+      number
     }
   }
 }

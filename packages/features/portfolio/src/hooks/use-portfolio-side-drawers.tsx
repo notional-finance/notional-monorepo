@@ -1,23 +1,11 @@
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { useSideDrawerState } from '@notional-finance/notionable-hooks';
-import {
-  ConvertAsset,
-  DepositCollateral,
-  RollDebt,
-  Withdraw,
-  RepayDebt,
-  CoolDownDrawer,
-} from '../side-drawers';
+import { CoolDownDrawer } from '../side-drawers';
 
 export const usePortfolioSideDrawers = () => {
   const { sideDrawerOpen, currentSideDrawerKey } = useSideDrawerState();
 
   const drawers = {
-    [PORTFOLIO_ACTIONS.DEPOSIT]: DepositCollateral,
-    [PORTFOLIO_ACTIONS.WITHDRAW]: Withdraw,
-    [PORTFOLIO_ACTIONS.CONVERT_ASSET]: ConvertAsset,
-    [PORTFOLIO_ACTIONS.ROLL_DEBT]: RollDebt,
-    [PORTFOLIO_ACTIONS.REPAY_DEBT]: RepayDebt,
     [PORTFOLIO_ACTIONS.COOL_DOWN]: CoolDownDrawer,
   };
 

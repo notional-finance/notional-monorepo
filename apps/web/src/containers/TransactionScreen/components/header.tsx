@@ -1,22 +1,16 @@
 import { ReactNode } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
-import {
-  CountUp,
-  H2,
-  H3,
-  LargeInputTextEmphasized,
-  Body,
-  InfoTooltip,
-} from '@notional-finance/mui';
+import { H2, LargeInputTextEmphasized } from '@notional-finance/mui';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { APYData } from '@notional-finance/core-entities';
-import { defineMessage } from 'react-intl';
+import { APYBeforePoints, APYBox } from './apy-header';
 
 interface HeaderProps {
   title: string;
   tokenSymbol?: string;
   secondaryTitle?: ReactNode;
+  isPointsOnly?: boolean;
   apyInfo?: APYData;
 }
 
@@ -26,6 +20,7 @@ const Header = ({
   secondaryTitle,
   apyInfo,
   tokenSymbol,
+  isPointsOnly,
 }: HeaderProps) => {
   const { isMobileView } = useAppStore();
   const theme = useTheme();
@@ -50,45 +45,20 @@ const Header = ({
       </LeftSection>
       <RightSection>
         {apyInfo && (
-          <Column sx={{ alignItems: 'flex-end' }}>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: theme.spacing(1),
-              }}
-            >
-              <InfoTooltip
-                toolTipText={defineMessage({
-                  defaultMessage:
-                    'Total APY = Vault APY + (Vault APY - Borrow APY) x Leverage',
-                })}
-                iconColor={theme.palette.info.dark}
-                iconSize={theme.spacing(2)}
-                disableMaxWidth
-              />
-              <H3>
-                <CountUp
-                  value={apyInfo.totalAPY}
-                  decimals={2}
-                  duration={1}
-                  suffix="% Total APY"
-                />{' '}
-              </H3>
-            </Box>
-            <Body>
-              {apyInfo.assetAPY ? (
-                <CountUp
-                  value={apyInfo.assetAPY}
-                  decimals={2}
-                  duration={1}
-                  suffix="% Vault APY"
-                />
-              ) : (
-                ''
-              )}
-            </Body>
+          <Column
+            sx={{
+              alignItems: 'flex-end',
+              padding: theme.spacing(1.5, 3),
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: theme.shape.borderRadius(),
+              border: theme.shape.borderStandard,
+            }}
+          >
+            {isPointsOnly ? (
+              <APYBeforePoints apyInfo={apyInfo} />
+            ) : (
+              <APYBox apyInfo={apyInfo} />
+            )}
           </Column>
         )}
       </RightSection>
@@ -103,7 +73,7 @@ const HeaderContainer = styled(Box)(
     align-items: center;
     justify-content: space-between;
     gap: ${theme.spacing(2)};
-    padding: ${theme.spacing(2)};
+    padding: ${theme.spacing(2, 0)};
     `
 );
 

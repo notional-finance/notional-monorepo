@@ -29,7 +29,6 @@ export const Redeem = observer(() => {
         inputLabel={defineMessage({
           defaultMessage: 'Enter amount of sNOTE to redeem',
         })}
-        excludeSupplyCap
         ref={sNOTEInputRef}
         inputRef={sNOTEInputRef}
       />

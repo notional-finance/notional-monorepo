@@ -34,21 +34,12 @@ export type MultiRowTableData =
 const tokenTypeSortOrder: TokenType[] = [
   'Underlying',
   'Fiat',
-  'NOTE',
-  'PrimeCash',
-  'PrimeDebt',
-  'nToken',
-  'fCash',
-  'WrappedfCash',
   'VaultShare',
   'VaultDebt',
-  'VaultCash',
 ];
 
 export const getHoldingsSortOrder = (t: TokenDefinition) => {
-  if (t.currencyId)
-    return t.currencyId * 10000 + tokenTypeSortOrder.indexOf(t.tokenType);
-  else return tokenTypeSortOrder.indexOf(t.tokenType);
+  return tokenTypeSortOrder.indexOf(t.tokenType);
 };
 
 // ===== NOTE: All of these helpers are to be used with the MultiValueCell
@@ -135,9 +126,6 @@ export const formatTxnTableData = (
   network: Network | undefined
 ) => {
   const {
-    bundleName,
-    label,
-    txnLabel,
     underlyingAmountRealized,
     token,
     realizedPrice,
@@ -146,20 +134,18 @@ export const formatTxnTableData = (
     underlying,
     impliedFixedRate,
     account,
-    vaultName,
+    lineItemType,
   } = data;
 
   const assetData = formatTokenType(token);
-  const isIncentive =
-    bundleName === 'Transfer Incentive' ||
-    bundleName === 'Transfer Secondary Incentive';
+  const isIncentive = lineItemType === 'Transfer Incentive';
   const result = {
     transactionType: {
-      label: label,
-      caption: vaultName || txnLabel,
+      label: lineItemType,
+      caption: '', // TODO: vault name
       showSentIcon: underlyingAmountRealized.isNegative(),
     },
-    vaultName: vaultName,
+    vaultName: '', // TODO: vault name
     address: {
       text: account ? truncateAddress(account) : '-',
       fullAddress: `${account}`,

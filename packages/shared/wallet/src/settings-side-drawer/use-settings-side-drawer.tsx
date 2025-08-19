@@ -7,11 +7,9 @@ import {
   EnabledCurrencies,
   BaseCurrencyButton,
   useDarkModeToggle,
-  useVariableBorrowToggle,
 } from './components';
 import DarkModeToggle from './components/dark-mode-toggle/dark-mode-toggle';
 import EnabledCurrenciesButton from './components/enabled-currencies/enabled-currencies';
-import VariableBorrowToggle from './components/variable-borrow-toggle/variable-borrow-toggle';
 import BaseCurrency from './components/base-currency/base-currency';
 import { FormattedMessage } from 'react-intl';
 import { ReactNode } from 'react';
@@ -30,7 +28,6 @@ export interface SettingsItem {
 export const useSettingsSideDrawer = () => {
   const truncatedAddress = useTruncatedAddress();
   const { toggleDarkMode } = useDarkModeToggle();
-  const { variableBorrowToggle } = useVariableBorrowToggle();
   const walletAction = truncatedAddress
     ? {
         key: 'reset-wallets',
@@ -145,19 +142,6 @@ export const useSettingsSideDrawer = () => {
       ),
       ViewComponent: BaseCurrency,
       CustomButton: BaseCurrencyButton,
-      buttonText: '',
-    },
-    {
-      key: 'primeBorrow',
-      active: false,
-      label: (
-        <FormattedMessage
-          defaultMessage="Variable Borrow"
-          description={'Dark Mode option title'}
-        />
-      ),
-      CustomButton: VariableBorrowToggle,
-      callback: variableBorrowToggle,
       buttonText: '',
     },
   ];

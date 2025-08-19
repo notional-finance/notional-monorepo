@@ -1,9 +1,13 @@
-query ExchangeRateValues($skip: Int, $oracleId: String, $minTimestamp: Int) {
+query ExchangeRateValues(
+  $skip: Int
+  $oracleId: String
+  $minTimestamp: Timestamp
+) {
   exchangeRates(
-    where:{ oracle: $oracleId, timestamp_gt: $minTimestamp },
-    first: 1000,
-    skip: $skip,
-    orderBy: timestamp,
+    where: { oracle: $oracleId, timestamp_gt: $minTimestamp }
+    first: 1000
+    skip: $skip
+    orderBy: timestamp
     orderDirection: desc
   ) {
     timestamp
