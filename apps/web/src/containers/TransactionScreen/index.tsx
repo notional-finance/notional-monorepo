@@ -4,13 +4,14 @@ import { Button, H5, useCurrencyInputRef } from '@notional-finance/mui';
 import { DepositInput, LeverageSlider } from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
 import { Box, styled, useTheme } from '@mui/material';
+import { observer } from 'mobx-react-lite';
 
-export const VaultDefaultScreen = () => {
+export const VaultDefaultScreen = observer(() => {
   // TODO: switch between deposit and manage screens based on the position
   return <VaultDepositScreen />;
-};
+});
 
-export const VaultDepositScreen = () => {
+export const VaultDepositScreen = observer(() => {
   const { currencyInputRef } = useCurrencyInputRef();
   useTradeContext('CreateVaultPosition');
 
@@ -33,15 +34,15 @@ export const VaultDepositScreen = () => {
       ]}
     />
   );
-};
+});
 
-export const VaultWithdrawScreen = () => {
+export const VaultWithdrawScreen = observer(() => {
   useTradeContext('WithdrawVault');
   // TODO: add withdraw input
   return <TransactionScreen actionPrefix="Withdraw" inputs={[]} />;
-};
+});
 
-export const VaultAdjustLeverageScreen = () => {
+export const VaultAdjustLeverageScreen = observer(() => {
   useTradeContext('AdjustVaultLeverage');
   // TODO: add adjust leverage input
   return (
@@ -54,9 +55,9 @@ export const VaultAdjustLeverageScreen = () => {
       ]}
     />
   );
-};
+});
 
-export const VaultManageScreen = () => {
+export const VaultManageScreen = observer(() => {
   const theme = useTheme();
 
   // TODO: create a new manage trade context
@@ -85,7 +86,7 @@ export const VaultManageScreen = () => {
       ]}
     />
   );
-};
+});
 
 const ManageButton = styled(Button)(({ theme }) => ({
   flexGrow: 1,

@@ -93,7 +93,7 @@ export class Staking extends VaultAdapter {
     vaultShares: TokenBalance;
     maturity: number;
   }): number {
-    return 0;
+    return 5.3;
   }
 
   override getLiquidationPriceTokens(): TokenDefinition[] {

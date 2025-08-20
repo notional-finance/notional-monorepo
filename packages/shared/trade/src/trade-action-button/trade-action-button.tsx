@@ -9,6 +9,7 @@ import {
   useSideDrawerManager,
 } from '@notional-finance/notionable-hooks';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
 
 /* eslint-disable-next-line */
 export interface TradeActionButtonProps {
@@ -44,71 +45,72 @@ const StyledTradeActionButton = styled(Button, {
 `
 );
 
-export function TradeActionButton({
-  canSubmit,
-  onSubmit,
-  walletConnectedText,
-  errorText,
-  buttonVariant = 'contained',
-  width,
-  margin,
-  leverageDisabled,
-}: TradeActionButtonProps) {
-  const theme = useTheme();
-  const isWalletConnected = useWalletConnected();
-  const { sideDrawerOpen } = useSideDrawerState();
-  const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const _onSubmit = onSubmit ?? (() => navigate(`${pathname}?confirm=true`));
+export const TradeActionButton = observer(
+  ({
+    canSubmit,
+    onSubmit,
+    walletConnectedText,
+    errorText,
+    buttonVariant = 'contained',
+    width,
+    margin,
+    leverageDisabled,
+  }: TradeActionButtonProps) => {
+    const theme = useTheme();
+    const isWalletConnected = useWalletConnected();
+    const { sideDrawerOpen } = useSideDrawerState();
+    const { setWalletSideDrawer, clearWalletSideDrawer } =
+      useSideDrawerManager();
+    const { pathname } = useLocation();
+    const navigate = useNavigate();
+    const _onSubmit = onSubmit ?? (() => navigate(`${pathname}?confirm=true`));
 
-  const handleConnectWallet = () => {
-    if (sideDrawerOpen) {
-      clearWalletSideDrawer();
-    }
-    if (!sideDrawerOpen) {
-      setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET);
-    }
-  };
+    const handleConnectWallet = () => {
+      if (sideDrawerOpen) {
+        clearWalletSideDrawer();
+      }
+      if (!sideDrawerOpen) {
+        setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET);
+      }
+    };
 
-  const buttonTextWalletConnected =
-    walletConnectedText ||
-    defineMessage({
-      defaultMessage: 'Continue to Review',
+    const buttonTextWalletConnected =
+      walletConnectedText ||
+      defineMessage({
+        defaultMessage: 'Continue to Review',
+        description: 'call to action button',
+      });
+
+    const buttonTextWalletNotConnected = defineMessage({
+      defaultMessage: 'Connect Wallet to Trade',
       description: 'call to action button',
     });
 
-  const buttonTextWalletNotConnected = defineMessage({
-    defaultMessage: 'Connect Wallet to Trade',
-    description: 'call to action button',
-  });
-
-  return (
-    <StyledTradeActionButton
-      theme={theme}
-      size="large"
-      width={width}
-      margin={margin}
-      variant={buttonVariant || 'contained'}
-      disabled={!isWalletConnected && !leverageDisabled ? false : !canSubmit}
-      canSubmit={!isWalletConnected && !leverageDisabled ? true : canSubmit}
-      onClick={isWalletConnected ? _onSubmit : () => handleConnectWallet()}
-    >
-      {leverageDisabled ? (
-        <FormattedMessage
-          defaultMessage={'Not Available for US Persons or VPN Users'}
-        />
-      ) : errorText ? (
-        <FormattedMessage {...errorText} />
-      ) : (
-        <FormattedMessage
-          {...(isWalletConnected
-            ? buttonTextWalletConnected
-            : buttonTextWalletNotConnected)}
-        />
-      )}
-    </StyledTradeActionButton>
-  );
-}
-
-export default TradeActionButton;
+    return (
+      <StyledTradeActionButton
+        theme={theme}
+        size="large"
+        width={width}
+        margin={margin}
+        variant={buttonVariant || 'contained'}
+        disabled={!isWalletConnected && !leverageDisabled ? false : !canSubmit}
+        canSubmit={!isWalletConnected && !leverageDisabled ? true : canSubmit}
+        onClick={isWalletConnected ? _onSubmit : () => handleConnectWallet()}
+      >
+        {leverageDisabled ? (
+          <FormattedMessage
+            defaultMessage={'Not Available for US Persons or VPN Users'}
+          />
+        ) : errorText ? (
+          <FormattedMessage {...errorText} />
+        ) : (
+          <FormattedMessage
+            {...(isWalletConnected
+              ? buttonTextWalletConnected
+              : buttonTextWalletNotConnected)}
+          />
+        )}
+      </StyledTradeActionButton>
+    );
+  }
+);

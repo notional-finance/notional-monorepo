@@ -43,6 +43,7 @@ export const PendingTransactionModal = observer(
         fill={theme.palette.success.main}
       />
     );
+
     return (
       <TransactionModal
         isOpen={isOpen}

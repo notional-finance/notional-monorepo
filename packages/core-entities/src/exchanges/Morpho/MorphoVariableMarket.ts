@@ -202,14 +202,22 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
       ? this.poolParams.marketState.totalSupplyAssets.add(netSupply)
       : this.poolParams.marketState.totalSupplyAssets;
     const totalBorrowAssets = netBorrow
-      ? this.poolParams.marketState.totalBorrowAssets.add(netBorrow)
+      ? this.poolParams.marketState.totalBorrowAssets.add(
+          netBorrow.toUnderlying()
+        )
       : this.poolParams.marketState.totalBorrowAssets;
 
     // Utilization is in 1e18 precision
-    return totalBorrowAssets
+    const utilization = totalBorrowAssets
       .scaleTo(SCALAR_DECIMALS)
       .mul(SCALAR_PRECISION)
       .div(totalSupplyAssets.scaleTo(SCALAR_DECIMALS));
+
+    if (utilization.lt(0) || utilization.gt(SCALAR_PRECISION)) {
+      throw new Error('Utilization is out of bounds');
+    } else {
+      return utilization;
+    }
   }
 
   public getInterestRate(utilization: BigNumber) {
@@ -251,7 +259,9 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
       }
     }
 
-    const rateInScalar = this.curve(avgRateAtTarget, err);
+    const rateInScalar = this.curve(avgRateAtTarget, err).mul(
+      SECONDS_IN_YEAR_ACTUAL
+    );
     return (
       parseFloat(ethers.utils.formatUnits(rateInScalar, SCALAR_DECIMALS)) * 100
     );

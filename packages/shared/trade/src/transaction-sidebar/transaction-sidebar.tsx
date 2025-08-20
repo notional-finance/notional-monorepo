@@ -16,7 +16,7 @@ import {
   defineMessages,
 } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
-import TradeActionButton from '../trade-action-button/trade-action-button';
+import { TradeActionButton } from '../trade-action-button/trade-action-button';
 import TransactionConfirmation from '../transaction-confirmation/transaction-confirmation';
 import {
   TransactionHeadings,

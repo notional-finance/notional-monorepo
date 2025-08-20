@@ -17,6 +17,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
+import { observer } from 'mobx-react-lite';
 
 interface DepositInputProps {
   onMaxValue?: () => void;
@@ -40,156 +41,155 @@ interface DepositInputProps {
  * it will handle proper parsing, balance checks, and max input amounts.
  * Token approvals will be handled by the token-approval-view
  */
-export const DepositInput = React.forwardRef<
-  CurrencyInputHandle,
-  DepositInputProps
->(
-  (
-    {
-      newRoute,
-      onMaxValue,
-      onUpdate,
-      warningMsg,
-      inputLabel,
-      inputRef,
-      errorMsgOverride,
-      isWithdraw,
-      maxWithdraw,
-      useZeroDefault,
-      showScrollPopper,
-      miniButtonLabel = 'MAX',
-      // These two props allow the state values to be overridden, used
-      // in the case of Staked NOTE
-      depositOverride,
-      depositTokens,
-    },
-    ref
-  ) => {
-    const navigate = useNavigate();
-    const { pathname } = useLocation();
-    const theme = useTheme();
-    const trade = useCurrentTradeContext();
+export const DepositInput = observer(
+  React.forwardRef<CurrencyInputHandle, DepositInputProps>(
+    (
+      {
+        newRoute,
+        onMaxValue,
+        onUpdate,
+        warningMsg,
+        inputLabel,
+        inputRef,
+        errorMsgOverride,
+        isWithdraw,
+        maxWithdraw,
+        useZeroDefault,
+        showScrollPopper,
+        miniButtonLabel = 'MAX',
+        // These two props allow the state values to be overridden, used
+        // in the case of Staked NOTE
+        depositOverride,
+        depositTokens,
+      },
+      ref
+    ) => {
+      const navigate = useNavigate();
+      const { pathname } = useLocation();
+      const theme = useTheme();
+      const trade = useCurrentTradeContext();
 
-    const availableDepositTokens =
-      depositTokens || trade?.availableTokens.deposit;
-    const deposit = depositOverride || trade?.selectedTokens.deposit;
-    const selectedNetwork = trade?.selectedNetwork;
-    const calculateError = trade?.calculateError;
-    const setDepositBalance = trade?.setDepositBalance;
-    const setHasInputErrors = trade?.setHasInputErrors;
+      const availableDepositTokens =
+        depositTokens || trade?.availableTokens.deposit;
+      const deposit = depositOverride || trade?.selectedTokens.deposit;
+      const selectedNetwork = trade?.selectedNetwork;
+      const calculateError = trade?.calculateError;
+      const setDepositBalance = trade?.setDepositBalance;
+      const setHasInputErrors = trade?.setHasInputErrors;
 
-    const {
-      inputAmount,
-      maxBalance,
-      maxBalanceString,
-      errorMsg,
-      decimalPlaces,
-      setInputString,
-    } = useDepositInput(
-      selectedNetwork,
-      deposit?.symbol,
-      isWithdraw,
-      useZeroDefault
-    );
+      const {
+        inputAmount,
+        maxBalance,
+        maxBalanceString,
+        errorMsg,
+        decimalPlaces,
+        setInputString,
+      } = useDepositInput(
+        selectedNetwork,
+        deposit?.symbol,
+        isWithdraw,
+        useZeroDefault
+      );
 
-    useEffect(() => {
-      if (onUpdate) {
-        onUpdate(inputAmount);
-      } else if (setDepositBalance) {
-        setDepositBalance(inputAmount, false);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [setDepositBalance, onUpdate, inputAmount?.hashKey]);
+      useEffect(() => {
+        if (onUpdate) {
+          onUpdate(inputAmount);
+        } else if (setDepositBalance) {
+          setDepositBalance(inputAmount, false);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [setDepositBalance, onUpdate, inputAmount?.hashKey]);
 
-    useEffect(() => {
-      if (setHasInputErrors) {
-        setHasInputErrors(!!errorMsg || !!errorMsgOverride);
-      }
-      // Use message descriptor ids here for the comparison. If there is a values object
-      // included then will get into an infinite loop here due to object reference comparison
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [setHasInputErrors, errorMsg?.id, errorMsgOverride?.id]);
+      useEffect(() => {
+        if (setHasInputErrors) {
+          setHasInputErrors(!!errorMsg || !!errorMsgOverride);
+        }
+        // Use message descriptor ids here for the comparison. If there is a values object
+        // included then will get into an infinite loop here due to object reference comparison
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [setHasInputErrors, errorMsg?.id, errorMsgOverride?.id]);
 
-    const walletBalances = useWalletBalances(
-      selectedNetwork,
-      availableDepositTokens
-    );
+      const walletBalances = useWalletBalances(
+        selectedNetwork,
+        availableDepositTokens
+      );
 
-    const errorMessage = getDepositErrorMessage(
-      errorMsgOverride,
-      errorMsg,
-      calculateError,
-      pathname
-    );
+      const errorMessage = getDepositErrorMessage(
+        errorMsgOverride,
+        errorMsg,
+        calculateError,
+        pathname
+      );
 
-    if (!availableDepositTokens || !deposit) return <PageLoading />;
+      if (!availableDepositTokens || !deposit) return <PageLoading />;
 
-    return (
-      <Box>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-          }}
-        >
-          <InputLabel inputLabel={inputLabel} />
-          {(maxWithdraw || maxBalance) && (
-            <Caption sx={{ color: theme.palette.typography.main }}>
-              {!isWithdraw && (
-                <WalletIcon
-                  fill={theme.palette.typography.light}
-                  sx={{
-                    fontSize: '12px',
-                    position: 'relative',
-                    top: '1px',
-                    marginRight: theme.spacing(0.5),
-                  }}
-                />
-              )}
-              &nbsp;
-              {(
-                (maxWithdraw || maxBalance) as TokenBalance
-              ).toDisplayStringWithSymbol(4, true)}
-            </Caption>
-          )}
-        </Box>
-        <CurrencyInput
-          ref={ref}
-          placeholder="0.00000000"
-          miniButtonLabel={miniButtonLabel}
-          // Use 18 decimals as a the default, but that should only be temporary during page load
-          decimals={decimalPlaces || 18}
-          maxValue={onMaxValue ? undefined : maxBalanceString}
-          onMaxValue={onMaxValue}
-          onInputChange={(input) => setInputString(input)}
-          errorMsg={errorMessage}
-          warningMsg={warningMsg}
-          showScrollPopper={showScrollPopper}
-          options={
-            walletBalances?.map(({ token, content }) => ({
-              token,
-              content,
-            })) || []
-          }
-          defaultValue={deposit?.id || null}
-          onSelectChange={(tokenId: string | null) => {
-            // Always clear the input string when we change tokens
-            inputRef.current?.setInputOverride('');
-            const newTokenSymbol = availableDepositTokens?.find(
-              (t) => t.id === tokenId
-            )?.symbol;
-
-            if (
-              newTokenSymbol &&
-              newTokenSymbol !== deposit.symbol &&
-              newRoute
-            ) {
-              navigate(newRoute(newTokenSymbol));
+      return (
+        <Box>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+            }}
+          >
+            <InputLabel inputLabel={inputLabel} />
+            {(maxWithdraw || maxBalance) && (
+              <Caption sx={{ color: theme.palette.typography.main }}>
+                {!isWithdraw && (
+                  <WalletIcon
+                    fill={theme.palette.typography.light}
+                    sx={{
+                      fontSize: '12px',
+                      position: 'relative',
+                      top: '1px',
+                      marginRight: theme.spacing(0.5),
+                    }}
+                  />
+                )}
+                &nbsp;
+                {(
+                  (maxWithdraw || maxBalance) as TokenBalance
+                ).toDisplayStringWithSymbol(4, true)}
+              </Caption>
+            )}
+          </Box>
+          <CurrencyInput
+            ref={ref}
+            placeholder="0.00000000"
+            miniButtonLabel={miniButtonLabel}
+            // Use 18 decimals as a the default, but that should only be temporary during page load
+            decimals={decimalPlaces || 18}
+            maxValue={onMaxValue ? undefined : maxBalanceString}
+            onMaxValue={onMaxValue}
+            onInputChange={(input) => setInputString(input)}
+            errorMsg={errorMessage}
+            warningMsg={warningMsg}
+            showScrollPopper={showScrollPopper}
+            options={
+              walletBalances?.map(({ token, content }) => ({
+                token,
+                content,
+              })) || []
             }
-          }}
-        />
-      </Box>
-    );
-  }
+            defaultValue={deposit?.id || null}
+            onSelectChange={(tokenId: string | null) => {
+              // Always clear the input string when we change tokens
+              inputRef.current?.setInputOverride('');
+              const newTokenSymbol = availableDepositTokens?.find(
+                (t) => t.id === tokenId
+              )?.symbol;
+
+              if (
+                newTokenSymbol &&
+                newTokenSymbol !== deposit.symbol &&
+                newRoute
+              ) {
+                navigate(newRoute(newTokenSymbol));
+              }
+            }}
+          />
+        </Box>
+      );
+    }
+  )
 );

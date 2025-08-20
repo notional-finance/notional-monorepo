@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { PendingTransactionModal } from '../modals/pending-transaction';
 import { Network, TransactionStatus } from '@notional-finance/util';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
@@ -11,6 +12,7 @@ interface InputContainerProps {
 
 const InputContainer = observer(({ children }: InputContainerProps) => {
   const theme = useTheme();
+  const context = useCurrentTradeContext();
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
 
   return (
@@ -28,7 +30,7 @@ const InputContainer = observer(({ children }: InputContainerProps) => {
       </Box>
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
         <TradeActionButton
-          canSubmit={true}
+          canSubmit={context?.canSubmit() ?? false}
           onSubmit={() => {
             setIsApprovalModalOpen(true);
           }}

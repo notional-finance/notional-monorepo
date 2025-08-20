@@ -74,10 +74,27 @@ export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
     return getLendingMarket(vaultDebt.vaultAddress, vaultDebt.address);
   };
 
+  const getMorphoMarketId = (vaultDebt?: TokenDefinition) => {
+    if (!vaultDebt) return undefined;
+    const lendingRouter = vaultDebt.address;
+    const lr = self.configuration?.lendingRouters.find(
+      (lr) => lr.id === lendingRouter
+    );
+    const m = lr?.markets.find((m) => m.vault === vaultDebt.vaultAddress);
+
+    if (lr?.name === 'Morpho' && m) {
+      const marketParams = decodeMorphoLendingRouterParams(m.params);
+      return marketParams.marketId;
+    } else {
+      return undefined;
+    }
+  };
+
   return {
     getPoolInstance,
     getLendingMarket,
     getSNOTEPool,
     getLendingMarketFromVaultDebt,
+    getMorphoMarketId,
   };
 };
