@@ -349,10 +349,9 @@ function formatDetailedVaultHoldings(
       symbol: underlying,
       symbolBottom: '',
       label: name,
-      caption:
-        vaultShares.maturity === PRIME_CASH_VAULT_MATURITY
-          ? 'Open Term'
-          : `Maturity: ${formatMaturity(vaultShares.maturity)}`,
+      caption: vaultShares.maturity
+        ? `Maturity: ${formatMaturity(vaultShares.maturity || 0)}`
+        : 'Open Term',
     },
     healthFactor: tableRow.healthFactor,
     tokenId: vaultShares.tokenId,

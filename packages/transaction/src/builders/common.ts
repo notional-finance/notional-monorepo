@@ -1,10 +1,9 @@
-import { NotionalV3, NotionalV3ABI } from '@notional-finance/contracts';
+import { ILendingRouter, LendingRouterABI } from '@notional-finance/contracts';
 import { BigNumber, Contract, PayableOverrides } from 'ethers';
 import {
   getProviderFromNetwork,
   IS_TEST_ENV,
   Network,
-  NotionalAddress,
 } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
 
@@ -61,20 +60,21 @@ export async function populateTxnAndGas(
   return txn;
 }
 
-export async function populateNotionalTxnAndGas<
-  M extends keyof NotionalV3['functions']
+export async function populateLendingRouterTxnAndGas<
+  M extends keyof ILendingRouter['functions']
 >(
   network: Network,
   msgSender: string,
+  lendingRouter: string,
   methodName: M,
-  methodArgs: Parameters<NotionalV3['functions'][M]>,
+  methodArgs: Parameters<ILendingRouter['functions'][M]>,
   gasBufferPercent = 5
 ) {
   const contract = new Contract(
-    NotionalAddress[network],
-    NotionalV3ABI,
+    lendingRouter,
+    LendingRouterABI,
     getProviderFromNetwork(network)
-  ) as NotionalV3;
+  ) as ILendingRouter;
 
   return populateTxnAndGas(
     contract,

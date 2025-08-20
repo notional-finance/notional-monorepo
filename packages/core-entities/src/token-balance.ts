@@ -121,7 +121,6 @@ export class TokenBalance {
 
   get maturity() {
     const m = this.token.maturity;
-    if (!m) throw Error('Invalid maturity');
     return m;
   }
 
