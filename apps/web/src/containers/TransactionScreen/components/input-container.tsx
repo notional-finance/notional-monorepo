@@ -1,19 +1,53 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { TradeActionButton } from '@notional-finance/trade';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { PendingTransactionModal } from '../modals/pending-transaction';
-import { Network, TransactionStatus } from '@notional-finance/util';
-import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import { TransactionStatus } from '@notional-finance/util';
+import {
+  useCurrentTradeContext,
+  useSubmitTxn,
+  useWalletStore,
+} from '@notional-finance/notionable-hooks';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
 }
 
+const useTriggerSubmit = () => {
+  const trade = useCurrentTradeContext();
+  const submitTxn = useSubmitTxn();
+  const tradeType = trade?.tradeType;
+  const selectedNetwork = trade?.selectedNetwork;
+  const { userWallet, setTransactionStatus } = useWalletStore();
+  const [error, setTransactionError] = useState<string | undefined>();
+
+  const submit = useCallback(() => {
+    if (tradeType && selectedNetwork && userWallet) {
+      trade
+        .buildTransaction()
+        .then(({ populatedTransaction, transactionError }) => {
+          if (populatedTransaction) {
+            submitTxn(tradeType, populatedTransaction);
+          } else {
+            setTransactionStatus(TransactionStatus.ERROR_BUILDING);
+            setTransactionError(
+              transactionError || 'Error building transaction'
+            );
+          }
+        });
+    }
+  }, [tradeType, selectedNetwork, userWallet, trade, submitTxn]);
+
+  return { submit, error };
+};
+
 const InputContainer = observer(({ children }: InputContainerProps) => {
   const theme = useTheme();
   const context = useCurrentTradeContext();
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
+  const { submit, error } = useTriggerSubmit();
+  const { transactionStatus, transactionHash } = useWalletStore();
 
   return (
     <InputContainerWrapper>
@@ -32,6 +66,8 @@ const InputContainer = observer(({ children }: InputContainerProps) => {
         <TradeActionButton
           canSubmit={context?.canSubmit() ?? false}
           onSubmit={() => {
+            context?.setConfirm(true);
+            submit();
             setIsApprovalModalOpen(true);
           }}
         />
@@ -39,9 +75,10 @@ const InputContainer = observer(({ children }: InputContainerProps) => {
       <PendingTransactionModal
         isOpen={isApprovalModalOpen}
         onDismiss={() => setIsApprovalModalOpen(false)}
-        hash="0x1234567890"
-        transactionStatus={TransactionStatus.CONFIRMED}
-        selectedNetwork={Network.mainnet}
+        hash={transactionHash}
+        transactionStatus={transactionStatus}
+        selectedNetwork={context?.selectedNetwork}
+        errorMsg={error}
       />
     </InputContainerWrapper>
   );

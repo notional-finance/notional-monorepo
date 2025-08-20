@@ -296,6 +296,7 @@ export enum TransactionStatus {
   CONFIRMED = 'confirmed',
   REVERT = 'revert',
   APPROVAL_PENDING = 'approval-pending',
+  REJECTED = 'rejected',
 }
 
 export const ADDRESS_REGISTRY = {

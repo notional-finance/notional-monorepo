@@ -228,7 +228,7 @@ export const WalletModel = types
           transactionLabel,
           selectedNetwork: self.userWallet?.selectedChain,
         });
-        setTransactionStatus(TransactionStatus.NONE);
+        setTransactionStatus(TransactionStatus.REJECTED);
       }
     });
 

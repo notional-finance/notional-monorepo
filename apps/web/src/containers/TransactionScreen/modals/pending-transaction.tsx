@@ -19,9 +19,9 @@ export const PendingTransactionModal = observer(
     isOpen: boolean;
     errorMsg?: React.ReactNode;
     onDismiss: () => void;
-    hash?: string;
-    transactionStatus: TransactionStatus;
-    selectedNetwork: Network;
+    hash?: string | undefined;
+    transactionStatus: TransactionStatus | undefined;
+    selectedNetwork: Network | undefined;
   }) => {
     const theme = useTheme();
     const isPending =
