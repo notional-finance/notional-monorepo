@@ -23,14 +23,13 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 
 const DiscordButton = () => {
-  const theme = useTheme();
   return (
     <Button
       startIcon={<DiscordIcon />}
       variant="outlined"
       size="large"
       href={'https://discord.notional.finance'}
-      sx={{ width: theme.spacing(56) }}
+      sx={{ width: '100%' }}
     >
       <FormattedMessage defaultMessage={'Get Help in Discord'} />
     </Button>
@@ -56,7 +55,10 @@ export const TransactionModal = ({
   let topIcon: React.ReactNode;
   let isError = false;
 
-  if (transactionStatus === TransactionStatus.NONE) {
+  if (
+    transactionStatus === TransactionStatus.NONE ||
+    transactionStatus === TransactionStatus.REJECTED
+  ) {
     // Pending Approval
     topIcon = (
       <InfoIcon
@@ -142,7 +144,7 @@ export const TransactionModal = ({
           />
         </Box>
         <LargeInputTextEmphasized> {title}</LargeInputTextEmphasized>
-        <Body>{description}</Body>
+        <Body sx={{ overflowWrap: 'break-word' }}>{description}</Body>
         {children}
         {isError && <DiscordButton />}
       </Container>

@@ -2,6 +2,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { TradeActionButton } from '@notional-finance/trade';
 import { observer } from 'mobx-react-lite';
 import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import { SubmitModal } from '../modals/submit-modal';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
@@ -35,21 +36,7 @@ const InputContainer = observer(({ children }: InputContainerProps) => {
           }}
         />
       </Box>
-      {/* <ApprovalModal
-        isOpen={isApprovalModalOpen}
-        onDismiss={() => setIsApprovalModalOpen(false)}
-        onApprove={() => {
-          approveRouter(true);
-        }}
-      />
-      <PendingTransactionModal
-        isOpen={isTransactionModalOpen}
-        onDismiss={() => setIsTransactionModalOpen(false)}
-        hash={transactionHash}
-        transactionStatus={transactionStatus}
-        selectedNetwork={context?.selectedNetwork}
-        errorMsg={error}
-      /> */}
+      <SubmitModal />
     </InputContainerWrapper>
   );
 });

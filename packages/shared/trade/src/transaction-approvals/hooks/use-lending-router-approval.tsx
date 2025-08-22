@@ -3,7 +3,6 @@ import {
   useAccountDefinition,
   useSelectedNetwork,
   useSubmitTxn,
-  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { MorphoRouter } from '@notional-finance/util';
 import { Contract } from 'ethers';
@@ -17,7 +16,7 @@ export const useLendingRouterApproval = (lendingRouter: string | undefined) => {
   const model = useCurrentNetworkStore();
   const isApproved =
     account && lendingRouter
-      ? account.lendingRouterApprovals[lendingRouter]
+      ? account.lendingRouterApprovals.get(lendingRouter)
       : false;
   const routerName = lendingRouter
     ? model.getLendingRouter(lendingRouter)?.name

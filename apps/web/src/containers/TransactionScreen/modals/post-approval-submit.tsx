@@ -4,30 +4,41 @@ import { FormattedMessage } from 'react-intl';
 import { observer } from 'mobx-react-lite';
 import { TransactionStatus } from '@notional-finance/util';
 
-export const PendingApprovalModal = observer(
+export const PostApprovalSubmit = observer(
   ({
     isOpen = false,
     onDismiss,
     onSubmit,
+    transactionError,
   }: {
     isOpen: boolean;
-    isPending: boolean;
     onDismiss: () => void;
     onSubmit: () => void;
+    transactionError: string | undefined;
   }) => {
     return (
       <TransactionModal
         isOpen={isOpen}
         onDismiss={onDismiss}
-        transactionStatus={TransactionStatus.CONFIRMED}
+        transactionStatus={
+          transactionError
+            ? TransactionStatus.ERROR_BUILDING
+            : TransactionStatus.CONFIRMED
+        }
         title={<FormattedMessage defaultMessage="Approvals Successful" />}
         description={
-          <FormattedMessage defaultMessage="All approvals are made and transaction is ready to execute. Click below to submit the transaction." />
+          transactionError ? (
+            transactionError
+          ) : (
+            <FormattedMessage defaultMessage="All approvals are made and transaction is ready to execute. Click below to submit the transaction." />
+          )
         }
       >
-        <Button sx={{ width: '100%' }} size="large" onClick={onSubmit}>
-          <FormattedMessage defaultMessage="Submit Transaction" />
-        </Button>
+        {!!transactionError && (
+          <Button sx={{ width: '100%' }} size="large" onClick={onSubmit}>
+            <FormattedMessage defaultMessage="Submit Transaction" />
+          </Button>
+        )}
       </TransactionModal>
     );
   }

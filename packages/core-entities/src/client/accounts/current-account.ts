@@ -7,6 +7,7 @@ import {
 import {
   ADDRESS_REGISTRY,
   MAX_APPROVAL,
+  MorphoRouter,
   Network,
   ZERO_ADDRESS,
   getNowSeconds,
@@ -61,7 +62,9 @@ export async function fetchCurrentAccount(
     )
     .concat(getVaultBalanceCalls(network, account, positions, provider))
     .concat(getStakedNOTECalls(network, account, provider))
-    .concat(getLendingRouterApprovalCalls(account, lendingRouters, provider));
+    .concat(
+      getLendingRouterApprovalCalls(network, account, lendingRouters, provider)
+    );
   // TODO: get reward claims, get withdraw requests.
 
   return fetchUsingMulticall<AccountDefinition>(
@@ -298,6 +301,7 @@ function getStakedNOTECalls(
 }
 
 function getLendingRouterApprovalCalls(
+  network: Network,
   account: string,
   lendingRouters: ReturnType<
     ReturnType<typeof getNetworkModel>['getLendingRouters']
@@ -309,10 +313,10 @@ function getLendingRouterApprovalCalls(
     .map((l) => {
       return {
         stage: 0,
-        target: new Contract(l.id, MorphoABI, provider),
+        target: new Contract(MorphoRouter[network], MorphoABI, provider),
         method: 'isAuthorized',
         args: [account, l.id],
-        key: `${l.id}.isLendingRouterApproved`,
+        key: `${l.id}.lendingRouterApproval`,
         transform: (b: boolean) => b,
       };
     });

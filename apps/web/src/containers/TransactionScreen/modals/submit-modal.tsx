@@ -11,6 +11,9 @@ import { TransactionStatus } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
 import { SingleApprovalModal } from './single-approval';
 import { FormattedMessage } from 'react-intl';
+import { MultiApprovalModal } from './multi-approval-modal';
+import { PostApprovalSubmit } from './post-approval-submit';
+import { SubmitTransaction } from './submit-transaction';
 
 const useTriggerSubmit = () => {
   const trade = useCurrentTradeContext();
@@ -20,7 +23,7 @@ const useTriggerSubmit = () => {
   const { userWallet, setTransactionStatus } = useWalletStore();
   const [error, setTransactionError] = useState<string | undefined>();
 
-  const submit = useCallback(() => {
+  const submitTransaction = useCallback(() => {
     if (tradeType && selectedNetwork && userWallet) {
       trade
         .buildTransaction()
@@ -37,7 +40,7 @@ const useTriggerSubmit = () => {
     }
   }, [tradeType, selectedNetwork, userWallet, trade, submitTxn]);
 
-  return { submit, error };
+  return { submitTransaction, transactionError: error };
 };
 
 enum ApprovalState {
@@ -49,7 +52,7 @@ enum ApprovalState {
 export const SubmitModal = observer(() => {
   const trade = useCurrentTradeContext();
   const lendingRouter = trade?.debt?.address;
-  const { userWallet } = useWalletStore();
+  const { userWallet, clearTransaction } = useWalletStore();
   const isSignerConnected = userWallet && !userWallet.isReadOnlyAddress;
 
   const { enableToken, tokenApprovalRequired, allowanceIncreaseRequired } =
@@ -58,14 +61,17 @@ export const SubmitModal = observer(() => {
     useLendingRouterApproval(lendingRouter);
   const [initialApprovalState, setInitialApprovalState] =
     useState<ApprovalState | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const isOpen = trade?.confirm ?? false;
   const onDismiss = () => {
-    setIsOpen(false);
+    setInitialApprovalState(null);
+    clearTransaction();
+    trade?.setConfirm(false);
   };
+  const { submitTransaction, transactionError } = useTriggerSubmit();
 
   // This marks the initial state of the approval process so we go back to the correct
   // screen when the pending approval modal completes.
-  if (initialApprovalState === null) {
+  if (initialApprovalState === null && isOpen) {
     if (!isSignerConnected) {
       // Skip approvals if the user is not connected
       setInitialApprovalState(ApprovalState.TRANSACTION);
@@ -78,9 +84,23 @@ export const SubmitModal = observer(() => {
     }
   }
 
-  if (initialApprovalState === ApprovalState.MULTI_APPROVAL) {
-    // TODO: fill this out
-    return null;
+  if (
+    initialApprovalState === ApprovalState.MULTI_APPROVAL &&
+    (tokenApprovalRequired || routerApprovalRequired)
+  ) {
+    return (
+      <MultiApprovalModal
+        isOpen={isOpen}
+        onDismiss={onDismiss}
+        tokenSymbol={trade?.deposit?.symbol}
+        enableToken={
+          tokenApprovalRequired ? () => enableToken(true) : undefined
+        }
+        approveRouter={
+          routerApprovalRequired ? () => approveRouter(true) : undefined
+        }
+      />
+    );
   } else if (initialApprovalState === ApprovalState.SINGLE_APPROVAL) {
     if (tokenApprovalRequired) {
       return (
@@ -96,7 +116,7 @@ export const SubmitModal = observer(() => {
             )
           }
           actionButtonText={`Enable ${trade?.deposit?.symbol}`}
-          submit={enableToken}
+          submit={() => enableToken(true)}
         />
       );
     } else if (routerApprovalRequired) {
@@ -109,13 +129,31 @@ export const SubmitModal = observer(() => {
             <FormattedMessage defaultMessage="Notional requires approval to manage your positions on Morpho. You only need to do this once." />
           }
           actionButtonText={`Enable Morpho`}
-          submit={approveRouter}
+          submit={() => approveRouter(true)}
         />
       );
     }
-  } else if (initialApprovalState === ApprovalState.TRANSACTION) {
-    return null;
   }
 
-  return null;
+  if (initialApprovalState === ApprovalState.TRANSACTION) {
+    return (
+      <SubmitTransaction
+        isOpen={isOpen}
+        onDismiss={onDismiss}
+        submit={submitTransaction}
+        transactionError={transactionError}
+      />
+    );
+  } else {
+    // The initial approval state was set and all the approvals are done, so we can show the
+    // post approval submit modal.
+    return (
+      <PostApprovalSubmit
+        isOpen={isOpen}
+        onDismiss={onDismiss}
+        onSubmit={submitTransaction}
+        transactionError={transactionError}
+      />
+    );
+  }
 });
