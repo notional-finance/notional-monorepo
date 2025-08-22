@@ -4,6 +4,7 @@ import { BaseLiquidityPool } from '../index';
 import {
   getNowSeconds,
   getProviderFromNetwork,
+  MorphoRouter,
   Network,
   SCALAR_DECIMALS,
   SCALAR_PRECISION,
@@ -34,7 +35,6 @@ interface MorphoVariableMarketParams {
   rateAtTarget: BigNumber;
 }
 
-const MORPHO = '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb';
 const ADAPTIVE_IRM = '0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC';
 
 export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVariableMarketParams> {
@@ -43,7 +43,7 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
     marketId: string
   ): AggregateCall[] {
     const provider = getProviderFromNetwork(network);
-    const morpho = new Contract(MORPHO, MorphoABI, provider);
+    const morpho = new Contract(MorphoRouter[network], MorphoABI, provider);
     const adaptiveIRM = new Contract(
       ADAPTIVE_IRM,
       MorphoAdaptiveIRMABI,

@@ -8,6 +8,7 @@ import {
   TokenDefinition,
 } from '..';
 import { BytesLike } from 'ethers';
+import { defaultAbiCoder } from 'ethers/lib/utils';
 
 export interface StakingVaultParams extends BaseVaultParams {
   stakingToken: string;
@@ -75,7 +76,7 @@ export class Staking extends VaultAdapter {
     _totalDeposit: TokenBalance,
     _slippageFactor?: number
   ): Promise<BytesLike> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve(defaultAbiCoder.encode(['bytes'], ['0x']));
   }
 
   override getRedeemParameters(

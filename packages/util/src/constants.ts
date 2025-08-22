@@ -107,6 +107,13 @@ export const SubgraphId: Record<Network, string> = {
   [Network.arbitrum]: 'DnghsCNvJ4xmp4czX8Qn7UpkJ8HyHjy7cFN4wcH91Nrx',
 };
 
+export const MorphoRouter: Record<Network, string> = {
+  [Network.all]: '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb',
+  [Network.mainnet]: '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb',
+  [Network.arbitrum]: '0x0000000000000000000000000000000000000000',
+};
+
+
 export function getSubgraphEndpoint(network: Network, subgraphKey: string) {
   return `https://gateway-arbitrum.network.thegraph.com/api/${subgraphKey}/subgraphs/id/${SubgraphId[network]}`;
 }

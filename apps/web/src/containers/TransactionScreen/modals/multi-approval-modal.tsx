@@ -1,29 +1,26 @@
 import { Box, Divider, useTheme } from '@mui/material';
-import { InfoIcon, TokenIcon } from '@notional-finance/icons';
+import { TokenIcon } from '@notional-finance/icons';
 import { Body, Button, LabelValue } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TransactionModal } from './transaction-modal';
+import { TransactionStatus } from '@notional-finance/util';
 
 export const MultiApprovalModal = ({
   isOpen = false,
+  transactionStatus,
   onDismiss,
 }: {
   isOpen: boolean;
+  transactionStatus: TransactionStatus;
   onDismiss: () => void;
 }) => {
   const theme = useTheme();
-  const topIcon = (
-    <InfoIcon
-      sx={{ fontSize: theme.spacing(5) }}
-      fill={theme.palette.warning.main}
-    />
-  );
 
   return (
     <TransactionModal
       isOpen={isOpen}
       onDismiss={onDismiss}
-      topIcon={topIcon}
+      transactionStatus={transactionStatus}
       title={<FormattedMessage defaultMessage="System Approval" />}
       description={
         <FormattedMessage defaultMessage="Notional requires the following approvals. You will only have to do this once." />

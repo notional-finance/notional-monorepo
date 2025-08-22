@@ -2,6 +2,7 @@ import {
   AddressRegistryABI,
   ERC20ABI,
   LendingRouterABI,
+  MorphoABI,
 } from '@notional-finance/contracts';
 import {
   ADDRESS_REGISTRY,
@@ -35,7 +36,7 @@ export async function fetchCurrentAccount(
 ) {
   const isContract = (await provider.getCode(account)) !== '0x';
   const model = getNetworkModel(network);
-  const lendingRouters = model.getLendingRouters().map((l) => l.id);
+  const lendingRouters = model.getLendingRouters();
   const depositTokens = model
     .getAllTokens()
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
@@ -50,9 +51,17 @@ export async function fetchCurrentAccount(
   );
 
   const allCalls = getDepositTokenBalanceCalls(account, depositTokens, provider)
-    .concat(getAllowanceCalls(account, lendingRouters, depositTokens, provider))
+    .concat(
+      getAllowanceCalls(
+        account,
+        lendingRouters.map((l) => l.id),
+        depositTokens,
+        provider
+      )
+    )
     .concat(getVaultBalanceCalls(network, account, positions, provider))
-    .concat(getStakedNOTECalls(network, account, provider));
+    .concat(getStakedNOTECalls(network, account, provider))
+    .concat(getLendingRouterApprovalCalls(account, lendingRouters, provider));
   // TODO: get reward claims, get withdraw requests.
 
   return fetchUsingMulticall<AccountDefinition>(
@@ -91,6 +100,14 @@ export async function fetchCurrentAccount(
                   [k.split('.')[0]]: results[k],
                 });
               }, {} as Record<string, TokenBalance[]>),
+            lendingRouterApprovals: Object.keys(results)
+              .filter((k) => k.includes('.lendingRouterApproval'))
+              .reduce((agg, k) => {
+                const [lendingRouter, _] = k.split('.');
+                return Object.assign(agg, {
+                  [lendingRouter]: results[k] as boolean,
+                });
+              }, {} as Record<string, boolean>),
           },
         };
       },
@@ -278,4 +295,25 @@ function getStakedNOTECalls(
       },
     },
   ];
+}
+
+function getLendingRouterApprovalCalls(
+  account: string,
+  lendingRouters: ReturnType<
+    ReturnType<typeof getNetworkModel>['getLendingRouters']
+  >,
+  provider: providers.Provider
+): AggregateCall[] {
+  return lendingRouters
+    .filter((l) => l.name === 'Morpho')
+    .map((l) => {
+      return {
+        stage: 0,
+        target: new Contract(l.id, MorphoABI, provider),
+        method: 'isAuthorized',
+        args: [account, l.id],
+        key: `${l.id}.isLendingRouterApproved`,
+        transform: (b: boolean) => b,
+      };
+    });
 }

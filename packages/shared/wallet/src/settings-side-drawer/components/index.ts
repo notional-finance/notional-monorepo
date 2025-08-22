@@ -1,5 +1,4 @@
 export * from './base-currency/base-currency';
-export * from './currency-icon/currency-icon';
 export * from './dark-mode-toggle/dark-mode-toggle';
 export * from './enabled-currencies/enabled-currencies';
 export * from './language/language';

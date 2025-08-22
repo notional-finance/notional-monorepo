@@ -1,37 +1,52 @@
-import { InfoIcon } from '@notional-finance/icons';
 import { TransactionModal } from './transaction-modal';
-import { FormattedMessage } from 'react-intl';
-import { useTheme } from '@mui/material';
 import { Button } from '@notional-finance/mui';
+import { TransactionStatus } from '@notional-finance/util';
+import { PendingTransaction } from '@notional-finance/trade';
+import {
+  useSelectedNetwork,
+  useWalletStore,
+} from '@notional-finance/notionable-hooks';
 
 export const SingleApprovalModal = ({
   isOpen = false,
   onDismiss,
+  title,
+  approvalDescription,
+  actionButtonText,
+  submit,
 }: {
   isOpen: boolean;
   onDismiss: () => void;
+  title: React.ReactNode;
+  approvalDescription: React.ReactNode;
+  actionButtonText: React.ReactNode;
+  submit: (enable: boolean) => void;
 }) => {
-  const theme = useTheme();
-
-  const topIcon = (
-    <InfoIcon
-      sx={{ fontSize: theme.spacing(5) }}
-      fill={theme.palette.warning.main}
-    />
-  );
+  const selectedNetwork = useSelectedNetwork();
+  const { transactionStatus, transactionHash } = useWalletStore();
   return (
     <TransactionModal
       isOpen={isOpen}
       onDismiss={onDismiss}
-      topIcon={topIcon}
-      title={<FormattedMessage defaultMessage="USDC Disabled" />}
-      description={
-        <FormattedMessage defaultMessage="Enabling a currency is required for Notional to access funds in your wallet. You will only have to do this once." />
-      }
+      transactionStatus={transactionStatus || TransactionStatus.NONE}
+      title={title}
+      description={approvalDescription}
     >
-      <Button sx={{ width: '100%' }} size="large">
-        Enable USDC
-      </Button>
+      {transactionHash ? (
+        <PendingTransaction
+          hash={transactionHash}
+          transactionStatus={transactionStatus}
+          selectedNetwork={selectedNetwork}
+        />
+      ) : (
+        <Button
+          sx={{ width: '100%' }}
+          size="large"
+          onClick={() => submit(true)}
+        >
+          {actionButtonText}
+        </Button>
+      )}
     </TransactionModal>
   );
 };

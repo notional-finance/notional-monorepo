@@ -13,7 +13,11 @@ import {
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
-import { SupportedNetworks, UNLIMITED_APPROVAL } from '@notional-finance/util';
+import {
+  SupportedNetworks,
+  UNLIMITED_APPROVAL,
+  ZERO_ADDRESS,
+} from '@notional-finance/util';
 import { Title } from '../../settings-side-drawer';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { EditIcon, TokenIcon } from '@notional-finance/icons';
@@ -54,7 +58,11 @@ const TokenAllowanceRow = ({ amount }: { amount: TokenBalance }) => {
   const walletConnected = useAccountReady(network);
   const isUnlimited = amount.n.gte(UNLIMITED_APPROVAL);
   const canEdit = network === amount.network && walletConnected;
-  const { enableToken } = useTokenApproval(amount.symbol, amount.network);
+  const { enableToken } = useTokenApproval(
+    amount.symbol,
+    ZERO_ADDRESS,
+    amount.network
+  );
   const { changeNetwork } = useChangeNetwork(amount.network);
 
   return (
