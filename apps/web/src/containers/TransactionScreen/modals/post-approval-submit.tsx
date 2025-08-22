@@ -13,7 +13,7 @@ export const PostApprovalSubmit = observer(
   }: {
     isOpen: boolean;
     onDismiss: () => void;
-    onSubmit: () => void;
+    onSubmit: (() => void) | undefined;
     transactionError: string | undefined;
   }) => {
     return (
@@ -23,6 +23,8 @@ export const PostApprovalSubmit = observer(
         transactionStatus={
           transactionError
             ? TransactionStatus.ERROR_BUILDING
+            : !onSubmit
+            ? TransactionStatus.BUILDING
             : TransactionStatus.CONFIRMED
         }
         title={<FormattedMessage defaultMessage="Approvals Successful" />}
@@ -34,7 +36,7 @@ export const PostApprovalSubmit = observer(
           )
         }
       >
-        {!!transactionError && (
+        {!!transactionError && onSubmit && (
           <Button sx={{ width: '100%' }} size="large" onClick={onSubmit}>
             <FormattedMessage defaultMessage="Submit Transaction" />
           </Button>

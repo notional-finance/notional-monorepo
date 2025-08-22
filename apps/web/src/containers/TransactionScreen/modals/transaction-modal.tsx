@@ -82,7 +82,8 @@ export const TransactionModal = ({
     title = <FormattedMessage defaultMessage="Transaction Failed" />;
   } else if (
     transactionStatus === TransactionStatus.WAIT_USER_CONFIRM ||
-    transactionStatus === TransactionStatus.SUBMITTED
+    transactionStatus === TransactionStatus.SUBMITTED ||
+    transactionStatus === TransactionStatus.BUILDING
   ) {
     // Pending
     topIcon = (

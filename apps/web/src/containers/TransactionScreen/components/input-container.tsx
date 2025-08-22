@@ -31,8 +31,6 @@ const InputContainer = observer(({ children }: InputContainerProps) => {
           onSubmit={() => {
             // This triggers all of the approval and transaction logic
             context?.setConfirm(true);
-            // submit();
-            // setIsTransactionModalOpen(true);
           }}
         />
       </Box>

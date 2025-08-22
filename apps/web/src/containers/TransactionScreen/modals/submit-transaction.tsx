@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { TransactionModal } from './transaction-modal';
 import { Button } from '@notional-finance/mui';
 import { TransactionStatus } from '@notional-finance/util';
@@ -19,18 +19,27 @@ export const SubmitTransaction = observer(
   }: {
     isOpen: boolean;
     onDismiss: () => void;
-    submit: () => void;
+    submit: (() => void) | undefined;
     transactionError: string | undefined;
   }) => {
     const selectedNetwork = useSelectedNetwork();
     const { transactionStatus, transactionHash } = useWalletStore();
+    const [didTriggerSubmit, setDidTriggerSubmit] = useState(false);
 
     useEffect(() => {
       // Opening the modal will trigger the submit function right away
-      if (!transactionError && isOpen) {
+      if (!transactionError && isOpen && submit && !didTriggerSubmit) {
         submit();
+        setDidTriggerSubmit(true);
       }
     }, [transactionError, isOpen, submit]);
+
+    // If the transaction is rejected, dismiss the modal
+    useEffect(() => {
+      if (transactionStatus === TransactionStatus.REJECTED) {
+        onDismiss();
+      }
+    }, [transactionStatus, onDismiss]);
 
     return (
       <TransactionModal
@@ -51,6 +60,7 @@ export const SubmitTransaction = observer(
             sx={{ width: '100%' }}
             size="large"
             to={`/portfolio/${selectedNetwork}`}
+            disabled={transactionStatus !== TransactionStatus.CONFIRMED}
           >
             <FormattedMessage defaultMessage="View Portfolio" />
           </Button>

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   useLendingRouterApproval,
   useTransactionApprovals,
@@ -6,7 +7,6 @@ import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { useSubmitTxn } from '@notional-finance/notionable-hooks';
 import { useWalletStore } from '@notional-finance/notionable-hooks';
 import { useState } from 'react';
-import { useCallback } from 'react';
 import { TransactionStatus } from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
 import { SingleApprovalModal } from './single-approval';
@@ -14,22 +14,31 @@ import { FormattedMessage } from 'react-intl';
 import { MultiApprovalModal } from './multi-approval-modal';
 import { PostApprovalSubmit } from './post-approval-submit';
 import { SubmitTransaction } from './submit-transaction';
+import { PopulatedTransaction } from 'ethers';
 
-const useTriggerSubmit = () => {
+const useTriggerSubmit = (readyToBuild: boolean) => {
   const trade = useCurrentTradeContext();
   const submitTxn = useSubmitTxn();
   const tradeType = trade?.tradeType;
-  const selectedNetwork = trade?.selectedNetwork;
-  const { userWallet, setTransactionStatus } = useWalletStore();
-  const [error, setTransactionError] = useState<string | undefined>();
+  const { setTransactionStatus, clearTransaction } = useWalletStore();
+  const [transactionError, setTransactionError] = useState<
+    string | undefined
+  >();
+  const [populatedTransaction, setPopulatedTransaction] = useState<
+    PopulatedTransaction | undefined
+  >();
 
-  const submitTransaction = useCallback(() => {
-    if (tradeType && selectedNetwork && userWallet) {
+  useEffect(() => {
+    if (readyToBuild) {
+      clearTransaction();
+      setTransactionStatus(TransactionStatus.BUILDING);
+
       trade
-        .buildTransaction()
+        ?.buildTransaction()
         .then(({ populatedTransaction, transactionError }) => {
           if (populatedTransaction) {
-            submitTxn(tradeType, populatedTransaction);
+            setPopulatedTransaction(populatedTransaction);
+            setTransactionStatus(TransactionStatus.BUILT);
           } else {
             setTransactionStatus(TransactionStatus.ERROR_BUILDING);
             setTransactionError(
@@ -38,9 +47,14 @@ const useTriggerSubmit = () => {
           }
         });
     }
-  }, [tradeType, selectedNetwork, userWallet, trade, submitTxn]);
+  }, [readyToBuild, trade]);
 
-  return { submitTransaction, transactionError: error };
+  const submitTransaction =
+    tradeType && populatedTransaction
+      ? () => submitTxn(tradeType, populatedTransaction)
+      : undefined;
+
+  return { submitTransaction, transactionError };
 };
 
 enum ApprovalState {
@@ -67,7 +81,9 @@ export const SubmitModal = observer(() => {
     clearTransaction();
     trade?.setConfirm(false);
   };
-  const { submitTransaction, transactionError } = useTriggerSubmit();
+  const { submitTransaction, transactionError } = useTriggerSubmit(
+    !routerApprovalRequired && !tokenApprovalRequired && isOpen
+  );
 
   // This marks the initial state of the approval process so we go back to the correct
   // screen when the pending approval modal completes.

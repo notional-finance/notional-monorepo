@@ -57,6 +57,20 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
       riskFactorLimit.riskFactor,
       riskFactorLimit.limit
     );
+
+    if (limitInRP === 0) {
+      // In this case, nothing is being borrowed so just return the collateral balances
+      return {
+        ...calculateVaultCollateral({
+          collateral,
+          vaultAdapter,
+          debtBalance: TokenBalance.zero(debt),
+          depositBalance,
+        }),
+        debtBalance: TokenBalance.zero(debt),
+      };
+    }
+
     initialDebtUnitsEstimateInRP = depositBalance
       .mulInRatePrecision(limitInRP)
       .scaleTo(RATE_DECIMALS)
@@ -112,6 +126,12 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   ) {
     collateralBalance = profile.vaultShares;
   }
+
+  // NOTE: this will throw if the market cannot support the utilization
+  const market = getNetworkModel(
+    collateral.network
+  ).getLendingMarketFromVaultDebt(debt);
+  market.getInterestRate(market.getUtilization(undefined, results.debtBalance));
 
   return {
     ...results,
