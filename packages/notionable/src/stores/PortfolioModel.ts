@@ -62,7 +62,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   apyData: types.maybe(APYDataModel),
   leverageRatio: types.number,
   amountPaid: NotionalTypes.TokenBalance,
-  profit: NotionalTypes.TokenBalance,
+  totalEarnings: NotionalTypes.TokenBalance,
   vaultYield: types.maybeNull(APYDataModel),
   marketProfitLoss: NotionalTypes.TokenBalance,
   totalILAndFees: NotionalTypes.TokenBalance,
@@ -200,7 +200,7 @@ export const AccountPortfolioActions = (
             vault.netWorth.toFiat(baseCurrency)
           ),
           totalEarnings: accumulator.totalEarnings.add(
-            vault.profit.toFiat(baseCurrency)
+            vault.totalEarnings.toFiat(baseCurrency)
           ),
           assets: accumulator.assets.add(
             vault.totalAssets.toFiat(baseCurrency)

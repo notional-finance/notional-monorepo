@@ -45,7 +45,7 @@ function formatGroupedVaultEarnings(
     totalInterestAccrual,
     totalILAndFees,
     marketProfitLoss,
-    profit,
+    totalEarnings,
     vaultShares,
   }: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
   pendingTokens: TokenDefinition[] | undefined,
@@ -64,7 +64,7 @@ function formatGroupedVaultEarnings(
     accruedInterest: formatCryptoWithFiat(baseCurrency, totalInterestAccrual),
     marketPNL: formatCryptoWithFiat(baseCurrency, marketProfitLoss),
     feesPaid: formatCryptoWithFiat(baseCurrency, totalILAndFees),
-    totalEarnings: formatCryptoWithFiat(baseCurrency, profit),
+    totalEarnings: formatCryptoWithFiat(baseCurrency, totalEarnings),
   };
 }
 

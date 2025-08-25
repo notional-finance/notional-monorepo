@@ -111,7 +111,7 @@ function getSpecificVaultInfo(
   warning: TableActionRowWarning | undefined;
   showRowWarning?: boolean;
 } {
-  const totalEarnings = formatCryptoWithFiat(baseCurrency, v.profit);
+  const totalEarnings = formatCryptoWithFiat(baseCurrency, v.totalEarnings);
 
   // Point Farming Vaults
   if (v.vaultYield?.pointMultiples) {

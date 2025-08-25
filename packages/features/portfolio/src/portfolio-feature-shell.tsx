@@ -5,8 +5,6 @@ import {
   useAccountReady,
   useSelectedNetwork,
   useAppStore,
-  useWalletConnected,
-  useAccountHasPositions,
 } from '@notional-finance/notionable-hooks';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -75,42 +73,12 @@ const Portfolio = observer(() => {
   const isAccountReady = useAccountReady(network);
   const { hasNoteOrSNote } = usePortfolioNOTETable();
 
-  const isWalletConnected = useWalletConnected();
-  const isAccountLoading = useAccountLoading();
-  const hasPositions = useAccountHasPositions();
-
-  const isWelcomeScreen =
-    isWalletConnected &&
-    isAccountLoading === false &&
-    (hasNoteOrSNote || hasPositions.length > 0)
-      ? false
-      : true;
-
-  useEffect(() => {
-    if (isWelcomeScreen && params.sideDrawerKey !== 'cool-down') {
-      const toggleKey = params.sideDrawerKey ? params.sideDrawerKey : '';
-      navigate(
-        `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}/${toggleKey}`
-      );
-    }
-  }, [
-    isWelcomeScreen,
-    navigate,
-    network,
-    params.sideDrawerKey,
-    hasNoteOrSNote,
-  ]);
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [params.category]);
 
   useEffect(() => {
-    if (
-      params.category &&
-      params.category !== PORTFOLIO_CATEGORIES.WELCOME &&
-      params.category !== PORTFOLIO_CATEGORIES.DETAILS
-    ) {
+    if (params.category && params.category !== PORTFOLIO_CATEGORIES.DETAILS) {
       clearSideDrawer(
         `/portfolio/${network}/${
           params?.category || PORTFOLIO_CATEGORIES.OVERVIEW
@@ -208,7 +176,6 @@ const Portfolio = observer(() => {
           </PortfolioMainContent>
         )}
       {params.category !== PORTFOLIO_CATEGORIES.NOTE_STAKING &&
-        params.category !== PORTFOLIO_CATEGORIES.WELCOME &&
         hasNoteOrSNote && (
           <PortfolioMainContent>
             <EmptyPortfolio />

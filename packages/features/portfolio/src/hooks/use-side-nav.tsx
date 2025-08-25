@@ -7,7 +7,6 @@ import {
   StakeIcon,
   HistoryIcon,
   GaugeIcon,
-  PercentIcon,
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../portfolio-feature-shell';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
@@ -72,21 +71,6 @@ export const useSideNav = () => {
         Icon: <HistoryIcon sx={{ width: theme.spacing(3) }} />,
         id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
         to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
-        notifications: 0,
-      },
-      {
-        Icon: (
-          <PercentIcon
-            stroke={
-              category === PORTFOLIO_CATEGORIES.WELCOME
-                ? theme.palette.common.white
-                : theme.palette.typography.light
-            }
-            sx={{ width: theme.spacing(3) }}
-          />
-        ),
-        id: PORTFOLIO_CATEGORIES.WELCOME,
-        to: `/portfolio/${network}/${PORTFOLIO_CATEGORIES.WELCOME}`,
         notifications: 0,
       },
     ];

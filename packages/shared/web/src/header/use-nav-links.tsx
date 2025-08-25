@@ -30,9 +30,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     {
       key: 'portfolio',
       label: <FormattedMessage defaultMessage={'Portfolio'} />,
-      link: selectedAddress
-        ? `/portfolio/${network}/overview`
-        : `/portfolio/${network}/welcome/earn`,
+      link: `/portfolio/${network}/overview`,
       iconImg: (
         <PortfolioIcon
           className="color-fill"

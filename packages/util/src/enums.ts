@@ -99,7 +99,6 @@ export enum PORTFOLIO_CATEGORIES {
   OVERVIEW = 'overview',
   NOTE_STAKING = 'note-staking',
   TRANSACTION_HISTORY = 'transaction-history',
-  WELCOME = 'welcome',
   DETAILS = 'details',
   RISK = 'risk',
 }

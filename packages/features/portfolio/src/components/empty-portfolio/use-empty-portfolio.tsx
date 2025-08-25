@@ -55,19 +55,6 @@ export const useEmptyPortfolio = () => {
       link: '',
       href: 'https://matcha.xyz/tokens/ethereum/0xcfeaead4947f0705a14ec42ac3d44129e1ef3ed5',
     },
-    [PORTFOLIO_CATEGORIES.WELCOME]: {
-      messages: defineMessages({
-        promptText: {
-          defaultMessage: 'Nothing to display',
-          description: 'empty leveraged vault overview prompt text',
-        },
-        buttonText: {
-          defaultMessage: 'Nothing to display',
-          description: 'empty leveraged vault overview button text',
-        },
-      }),
-      link: '',
-    },
     [PORTFOLIO_CATEGORIES.DETAILS]: {
       messages: defineMessages({
         promptText: {

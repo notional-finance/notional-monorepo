@@ -48,7 +48,7 @@ export function calculateVaultHoldings(
 
     const denom = v.denom(v.defaultSymbol);
     const zeroDenom = TokenBalance.zero(denom);
-    const profit = (assetPnL?.totalProfitAndLoss || zeroDenom).sub(
+    const totalEarnings = (assetPnL?.totalProfitAndLoss || zeroDenom).sub(
       debtPnL?.totalProfitAndLoss || zeroDenom
     );
     const vaultYield = model.getSpotAPY(v.vaultShares.tokenId);
@@ -80,7 +80,7 @@ export function calculateVaultHoldings(
     const totalILAndFees = assetFeesPaid.add(debtFeesPaid);
     const debtMarketPnL = debtEarnings?.add(debtInterestAccrual || zeroDenom);
 
-    const marketProfitLoss = profit.sub(totalInterestAccrual);
+    const marketProfitLoss = totalEarnings.sub(totalInterestAccrual);
     const strategyType = v.vaultConfig.strategyType;
 
     const vaultMetadata = {
@@ -111,7 +111,7 @@ export function calculateVaultHoldings(
       impliedFixedRate: debtPnL?.impliedFixedRate,
       leverageRatio,
       amountPaid,
-      profit,
+      totalEarnings,
       underlying: denom.symbol,
       vaultYield,
       marketProfitLoss,

@@ -63,8 +63,7 @@ export function useAccountLoading() {
 }
 
 export function useTransactionHistory(network: Network | undefined) {
-  const account = useAccountDefinition(network);
-  return account?.accountHistory || [];
+  return useAccountDefinition(network)?.accountHistory;
 }
 
 export function useVaultHoldings(network: Network | undefined) {
