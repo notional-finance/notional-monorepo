@@ -97,35 +97,37 @@ function formatDetailedVaultEarnings(
     caption: maturity ? `Maturity: ${formatMaturity(maturity)}` : 'Open Term',
   };
 
-  return [
-    // Vault Shares
-    {
-      tokenId: vaultShares.tokenId,
-      isPending: !!pendingTokens?.includes(vaultShares.token),
-      asset: vaultCell,
-      incentivesEarnings: '',
-      accruedInterest: formatCryptoWithFiat(baseCurrency, assetInterestAccrual),
-      marketPNL: formatCryptoWithFiat(baseCurrency, assetMarketPnL),
-      feesPaid: formatCryptoWithFiat(baseCurrency, assetFeesPaid),
-      totalEarnings: formatCryptoWithFiat(baseCurrency, assetEarnings),
+  const shares: EarningsBreakdownRow = {
+    tokenId: vaultShares.tokenId,
+    isPending: !!pendingTokens?.includes(vaultShares.token),
+    asset: vaultCell,
+    incentivesEarnings: '',
+    accruedInterest: formatCryptoWithFiat(baseCurrency, assetInterestAccrual),
+    marketPNL: formatCryptoWithFiat(baseCurrency, assetMarketPnL),
+    feesPaid: formatCryptoWithFiat(baseCurrency, assetFeesPaid),
+    totalEarnings: formatCryptoWithFiat(baseCurrency, assetEarnings),
+  };
+
+  // Short circuit if there are no debts
+  if (vaultDebt.isZero()) return [shares];
+
+  const debt: EarningsBreakdownRow = {
+    asset: {
+      symbol: icon,
+      symbolBottom: '',
+      label: formattedTitle,
+      caption: titleWithMaturity,
     },
-    // Vault Debt
-    {
-      asset: {
-        symbol: icon,
-        symbolBottom: '',
-        label: formattedTitle,
-        caption: titleWithMaturity,
-      },
-      tokenId: vaultDebt.tokenId,
-      isPending: !!pendingTokens?.includes(vaultDebt.token),
-      incentivesEarnings: '',
-      accruedInterest: formatCryptoWithFiat(baseCurrency, debtInterestAccrual),
-      marketPNL: formatCryptoWithFiat(baseCurrency, debtMarketPnL),
-      feesPaid: formatCryptoWithFiat(baseCurrency, debtFeesPaid),
-      totalEarnings: formatCryptoWithFiat(baseCurrency, debtEarnings),
-    },
-  ];
+    tokenId: vaultDebt.tokenId,
+    isPending: !!pendingTokens?.includes(vaultDebt.token),
+    incentivesEarnings: '',
+    accruedInterest: formatCryptoWithFiat(baseCurrency, debtInterestAccrual),
+    marketPNL: formatCryptoWithFiat(baseCurrency, debtMarketPnL),
+    feesPaid: formatCryptoWithFiat(baseCurrency, debtFeesPaid),
+    totalEarnings: formatCryptoWithFiat(baseCurrency, debtEarnings),
+  };
+
+  return [shares, debt];
 }
 
 export function useEarningsBreakdown(

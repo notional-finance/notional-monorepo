@@ -42,7 +42,7 @@ export const useTotalsChart = (
         timestamp,
       };
     });
-  }, [historyData]);
+  }, [historyData, historyData?.length]);
 
   // Memoize barConfig to prevent recreation on every render
   const barConfig = useMemo(() => {
@@ -59,9 +59,9 @@ export const useTotalsChart = (
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value:
-          currentFactors?.netWorth?.toDisplayStringWithSymbol(2, true, false) ??
-          '0',
+        value: currentFactors?.netWorth
+          ?.toFiat(baseCurrency)
+          .toDisplayStringWithSymbol(2, true, false),
       },
     ];
 
@@ -79,9 +79,9 @@ export const useTotalsChart = (
           currencySymbol: FiatSymbols[baseCurrency]
             ? FiatSymbols[baseCurrency]
             : '$',
-          value:
-            currentFactors?.assets?.toDisplayStringWithSymbol(2, true, false) ??
-            '0',
+          value: currentFactors?.assets
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false),
         },
         {
           dataKey: 'totalDebts',
@@ -95,10 +95,10 @@ export const useTotalsChart = (
           currencySymbol: FiatSymbols[baseCurrency]
             ? FiatSymbols[baseCurrency]
             : '$',
-          value:
-            currentFactors?.debts
-              ?.abs()
-              .toDisplayStringWithSymbol(2, true, false) ?? '0',
+          value: currentFactors?.debts
+            .toFiat(baseCurrency)
+            .abs()
+            .toDisplayStringWithSymbol(2, true, false),
         }
       );
     }
@@ -110,44 +110,36 @@ export const useTotalsChart = (
         toolTipTitle: <FormattedMessage defaultMessage="Current APY" />,
         fill: 'transparent',
         radius: [8, 8, 0, 0],
-        currencySymbol: FiatSymbols[baseCurrency]
-          ? FiatSymbols[baseCurrency]
-          : '$',
+        currencySymbol: '',
         value: formatNumberAsPercent(currentFactors?.currentAPY),
       });
     }
 
     return config;
-  }, [currentFactors, themeVariant, isMobileView, baseCurrency]);
+  }, [
+    themeVariant,
+    isMobileView,
+    baseCurrency,
+    currentFactors?.currentAPY,
+    currentFactors?.netWorth,
+    currentFactors?.assets,
+    currentFactors?.debts,
+  ]);
 
-  // Memoize hasData computation
-  const hasData = useMemo(() => {
-    return (
-      historyData?.find(({ netWorth }) => netWorth.toFloat() > 0) &&
-      currentFactors
-    );
-  }, [historyData, currentFactors]);
-
-  // Memoize totalsData to prevent recalculation
-  const totalsData = useMemo(() => {
-    return barConfig.map((data) => {
-      return {
-        title: data.title,
-        fill: data.fill,
-        value: data.value,
-        dataKey: data.dataKey,
-      };
-    }) as ChartHeaderTotalsDataProps[];
-  }, [barConfig]);
-
-  // Memoize the return value to prevent object recreation
-  return useMemo(() => {
+  const totalsData = barConfig.map((data) => {
     return {
-      barChartData: hasData ? barChartData : undefined,
-      barConfig: hasData ? barConfig : undefined,
-      totalsData: hasData ? totalsData : undefined,
+      title: data.title,
+      fill: data.fill,
+      value: data.value,
+      dataKey: data.dataKey,
     };
-  }, [hasData, barChartData, barConfig, totalsData]);
+  }) as ChartHeaderTotalsDataProps[];
+
+  return {
+    barChartData,
+    barConfig,
+    totalsData,
+  };
 };
 
 export default { useTotalsChart };

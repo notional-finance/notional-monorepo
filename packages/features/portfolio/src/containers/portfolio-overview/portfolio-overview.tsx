@@ -17,6 +17,7 @@ import {
 } from '../../components';
 import { Box, styled, useTheme } from '@mui/material';
 import {
+  formatNumber,
   getDateString,
   PORTFOLIO_CATEGORIES,
   SECONDS_IN_DAY,
@@ -30,6 +31,7 @@ import { FormattedMessage } from 'react-intl';
 import { ExpandedState } from '@tanstack/react-table';
 import LineChart from '@notional-finance/mui/lib/line-chart/line-chart';
 import { useEarningsBreakdown } from './hooks/use-earnings-breakdown';
+import { FiatSymbols } from '@notional-finance/core-entities';
 
 const HealthFactorCell = ({ cell }) => {
   const { getValue } = cell;
@@ -215,7 +217,7 @@ const useTableTabState = () => {
   return { Columns, initialState, setCurrentTab, currentTab, setExpandedRows };
 };
 
-const PortfolioOverview = () => {
+export const PortfolioOverview = observer(() => {
   const theme = useTheme();
   const { baseCurrency } = useAppStore();
   const [slot, setSlot] = useState<'all' | '1y' | '3m' | '1m'>('all');
@@ -305,6 +307,12 @@ const PortfolioOverview = () => {
                     areaKey="totalNetWorth"
                     XAxisKey="date"
                     showYAxis={true}
+                    yAxisTickFormatter={(value) => {
+                      return `${FiatSymbols[baseCurrency]}${formatNumber(
+                        value,
+                        0
+                      )}`;
+                    }}
                     tickFormatter={(value) => {
                       return getDateString(value, { hideYear: true });
                     }}
@@ -374,7 +382,7 @@ const PortfolioOverview = () => {
       </Box>
     </Box>
   );
-};
+});
 
 export const Container = styled(Box)(
   ({ theme }) => `
@@ -384,5 +392,3 @@ export const Container = styled(Box)(
   }
 `
 );
-
-export default observer(PortfolioOverview);

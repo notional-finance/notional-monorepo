@@ -256,7 +256,9 @@ function formatVaultHoldings(
   const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
     {
       label: <FormattedMessage defaultMessage={'Borrow APY'} />,
-      value: formatNumberAsPercent(apyData?.debtAPY || 0, 2),
+      value: totalDebt.isZero()
+        ? 'N/A'
+        : formatNumberAsPercent(apyData?.debtAPY || 0, 2),
     },
     {
       label: <FormattedMessage defaultMessage={'Strategy APY'} />,
@@ -386,6 +388,9 @@ function formatDetailedVaultHoldings(
       ],
     },
   };
+
+  // Short circuit if there are no debts
+  if (vaultDebt.isZero()) return [dividerRow(name), assets];
 
   const { icon, formattedTitle, titleWithMaturity, title } = formatTokenType(
     vaultDebt.token

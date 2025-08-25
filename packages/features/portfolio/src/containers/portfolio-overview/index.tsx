@@ -1,5 +1,5 @@
 import { useAppStore } from '@notional-finance/notionable-hooks';
-import PortfolioOverview from './portfolio-overview';
+import { PortfolioOverview } from './portfolio-overview';
 import PortfolioOverviewMobile from './portfolio-overview-mobile';
 
 const PortfolioOverviewContainer = () => {
