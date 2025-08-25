@@ -314,7 +314,7 @@ function formatVaultHoldings(
         ...buttonBarData,
         {
           buttonText: <FormattedMessage defaultMessage={'Manage / Withdraw'} />,
-          link: `/vaults/${network}/${vaultAddress}/Manage`,
+          link: `/vault/${network}/${vaultAddress}/manage`,
         },
       ],
       txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
