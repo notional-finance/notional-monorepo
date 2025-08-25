@@ -269,5 +269,12 @@ export function useAccountHistoryChart(
     } catch (e) {
       return undefined;
     }
-  }, [account, baseCurrency, endTime, tickSizeInSeconds, _startTime]);
+  }, [
+    account,
+    baseCurrency,
+    endTime,
+    tickSizeInSeconds,
+    _startTime,
+    account?.historicalBalances?.length,
+  ]);
 }

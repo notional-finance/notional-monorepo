@@ -1,8 +1,12 @@
-import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useWalletStore,
+} from '@notional-finance/notionable-hooks';
 import { useTokenApproval } from './use-token-approval';
 import { TokenBalance } from '@notional-finance/core-entities';
 
 export const useTransactionApprovals = (
+  spender?: string,
   requiredApprovalAmount?: TokenBalance
 ) => {
   const trade = useCurrentTradeContext();
@@ -10,19 +14,22 @@ export const useTransactionApprovals = (
   const selectedNetwork = trade?.selectedNetwork;
   const depositBalance = trade?.depositBalance;
   const secondaryDepositBalance = trade?.secondaryDepositBalance;
-  const {
-    tokenStatus,
-    isSignerConnected,
-    enableToken,
-    tokenApprovalTxnStatus,
-  } = useTokenApproval(deposit?.symbol || '', selectedNetwork);
+  const { tokenStatus, enableToken } = useTokenApproval(
+    deposit?.symbol || '',
+    spender,
+    selectedNetwork
+  );
+  const { userWallet } = useWalletStore();
+  const isSignerConnected = userWallet && !userWallet.isReadOnlyAddress;
 
   const {
     tokenStatus: secondaryTokenStatus,
-    isSignerConnected: secondaryIsSignerConnected,
     enableToken: secondaryEnableToken,
-    tokenApprovalTxnStatus: secondaryTokenApprovalTxnStatus,
-  } = useTokenApproval(secondaryDepositBalance?.symbol || '', selectedNetwork);
+  } = useTokenApproval(
+    secondaryDepositBalance?.symbol || '',
+    spender,
+    selectedNetwork
+  );
 
   const approvalRequired =
     requiredApprovalAmount ||
@@ -48,7 +55,7 @@ export const useTransactionApprovals = (
     tokenStatus?.amount.isZero() === true;
 
   const secondaryTokenApprovalRequired =
-    !!secondaryIsSignerConnected &&
+    !!isSignerConnected &&
     secondaryInsufficientAllowance === true &&
     secondaryTokenStatus?.amount.isZero() === true;
 
@@ -60,15 +67,9 @@ export const useTransactionApprovals = (
   return {
     enableToken,
     secondaryEnableToken,
-    tokenApprovalTxnStatus,
-    secondaryTokenApprovalTxnStatus,
     tokenApprovalRequired,
     secondaryTokenApprovalRequired,
     allowanceIncreaseRequired,
-    showApprovals:
-      tokenApprovalRequired ||
-      allowanceIncreaseRequired ||
-      secondaryTokenApprovalRequired,
   };
 };
 

@@ -1,9 +1,8 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { TradeActionButton } from '@notional-finance/trade';
-import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { PendingTransactionModal } from '../modals/pending-transaction';
-import { Network, TransactionStatus } from '@notional-finance/util';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import { SubmitModal } from '../modals/submit-modal';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
@@ -11,7 +10,7 @@ interface InputContainerProps {
 
 const InputContainer = observer(({ children }: InputContainerProps) => {
   const theme = useTheme();
-  const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
+  const context = useCurrentTradeContext();
 
   return (
     <InputContainerWrapper>
@@ -28,19 +27,14 @@ const InputContainer = observer(({ children }: InputContainerProps) => {
       </Box>
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
         <TradeActionButton
-          canSubmit={true}
+          canSubmit={context?.canSubmit() ?? false}
           onSubmit={() => {
-            setIsApprovalModalOpen(true);
+            // This triggers all of the approval and transaction logic
+            context?.setConfirm(true);
           }}
         />
       </Box>
-      <PendingTransactionModal
-        isOpen={isApprovalModalOpen}
-        onDismiss={() => setIsApprovalModalOpen(false)}
-        hash="0x1234567890"
-        transactionStatus={TransactionStatus.CONFIRMED}
-        selectedNetwork={Network.mainnet}
-      />
+      <SubmitModal />
     </InputContainerWrapper>
   );
 });

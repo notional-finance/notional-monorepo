@@ -22,6 +22,7 @@ import {
   Network,
   SETTINGS_SIDE_DRAWERS,
   getDateString,
+  sNOTE,
 } from '@notional-finance/util';
 import { useCancelCoolDown } from './use-cancel-cooldown';
 import { observer } from 'mobx-react-lite';
@@ -59,6 +60,7 @@ export const CoolDown = observer(() => {
       showDrawer
       mobileTopMargin={theme.spacing(16)}
       hideActionButtons={true}
+      spender={sNOTE}
       helptext={{
         ...TransactionHeadings.StakeNOTECoolDown.helptext,
         values: {

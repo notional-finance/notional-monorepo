@@ -2,10 +2,12 @@ import {
   AddressRegistryABI,
   ERC20ABI,
   LendingRouterABI,
+  MorphoABI,
 } from '@notional-finance/contracts';
 import {
   ADDRESS_REGISTRY,
   MAX_APPROVAL,
+  MorphoRouter,
   Network,
   ZERO_ADDRESS,
   getNowSeconds,
@@ -35,13 +37,12 @@ export async function fetchCurrentAccount(
 ) {
   const isContract = (await provider.getCode(account)) !== '0x';
   const model = getNetworkModel(network);
-  const lendingRouters = model.getLendingRouters().map((l) => l.id);
+  const lendingRouters = model.getLendingRouters();
   const depositTokens = model
     .getAllTokens()
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
 
-  // TODO: get this from the vault views
-  const vaultAddresses: string[] = [];
+  const vaultAddresses = model.getAllListedVaults().map((v) => v.vaultAddress);
   const { results: positions } = await getAccountPositions(
     network,
     account,
@@ -50,9 +51,19 @@ export async function fetchCurrentAccount(
   );
 
   const allCalls = getDepositTokenBalanceCalls(account, depositTokens, provider)
-    .concat(getAllowanceCalls(account, lendingRouters, depositTokens, provider))
+    .concat(
+      getAllowanceCalls(
+        account,
+        lendingRouters.map((l) => l.id),
+        depositTokens,
+        provider
+      )
+    )
     .concat(getVaultBalanceCalls(network, account, positions, provider))
-    .concat(getStakedNOTECalls(network, account, provider));
+    .concat(getStakedNOTECalls(network, account, provider))
+    .concat(
+      getLendingRouterApprovalCalls(network, account, lendingRouters, provider)
+    );
   // TODO: get reward claims, get withdraw requests.
 
   return fetchUsingMulticall<AccountDefinition>(
@@ -91,6 +102,14 @@ export async function fetchCurrentAccount(
                   [k.split('.')[0]]: results[k],
                 });
               }, {} as Record<string, TokenBalance[]>),
+            lendingRouterApprovals: Object.keys(results)
+              .filter((k) => k.includes('.lendingRouterApproval'))
+              .reduce((agg, k) => {
+                const [lendingRouter, _] = k.split('.');
+                return Object.assign(agg, {
+                  [lendingRouter]: results[k] as boolean,
+                });
+              }, {} as Record<string, boolean>),
           },
         };
       },
@@ -228,7 +247,7 @@ function getVaultBalanceCalls(
           target: l,
           method: 'balanceOfCollateral',
           args: [account, v],
-          key: `${v}.vaultShares`,
+          key: `${v}.balance.vaultShares`,
           transform: (b: BigNumber) => {
             return TokenBalance.from(b, model.getVaultShare(v));
           },
@@ -238,7 +257,7 @@ function getVaultBalanceCalls(
           target: l,
           method: 'balanceOfBorrowShares',
           args: [account, v],
-          key: `${v}.vaultDebt`,
+          key: `${v}.balance.vaultDebt`,
           transform: (b: BigNumber) => {
             return TokenBalance.from(b, model.getVaultDebt(v, lendingRouter));
           },
@@ -278,4 +297,26 @@ function getStakedNOTECalls(
       },
     },
   ];
+}
+
+function getLendingRouterApprovalCalls(
+  network: Network,
+  account: string,
+  lendingRouters: ReturnType<
+    ReturnType<typeof getNetworkModel>['getLendingRouters']
+  >,
+  provider: providers.Provider
+): AggregateCall[] {
+  return lendingRouters
+    .filter((l) => l.name === 'Morpho')
+    .map((l) => {
+      return {
+        stage: 0,
+        target: new Contract(MorphoRouter[network], MorphoABI, provider),
+        method: 'isAuthorized',
+        args: [account, l.id],
+        key: `${l.id}.lendingRouterApproval`,
+        transform: (b: boolean) => b,
+      };
+    });
 }

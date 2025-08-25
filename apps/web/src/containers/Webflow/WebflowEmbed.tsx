@@ -27,6 +27,10 @@ const WebflowEmbed = ({
   useEffect(() => {
     return () => {
       mountedRef.current = false;
+      // Remove all the webflow style sheets
+      document
+        .querySelectorAll('link[rel="stylesheet"]')
+        .forEach((link) => link.remove());
     };
   }, []);
 

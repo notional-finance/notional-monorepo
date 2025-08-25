@@ -309,7 +309,7 @@ const PendlePTVaultModel = BaseVaultDefinitionModel.props({
 });
 
 const StakingVaultModel = BaseVaultDefinitionModel.props({
-  stakingToken: types.string,
+  yieldToken: types.string,
 });
 
 export const VaultDefinitionModel = types.union(

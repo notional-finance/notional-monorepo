@@ -6,26 +6,114 @@ import {
   styled,
   Box,
 } from '@mui/material';
-import { CloseX } from '@notional-finance/icons';
-import { Body, LargeInputTextEmphasized } from '@notional-finance/mui';
+import {
+  CheckmarkIcon,
+  CloseX,
+  DiscordIcon,
+  InfoIcon,
+} from '@notional-finance/icons';
+import {
+  Body,
+  Button,
+  LargeInputTextEmphasized,
+  ProgressIndicator,
+} from '@notional-finance/mui';
+import { TransactionStatus } from '@notional-finance/util';
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
+
+const DiscordButton = () => {
+  return (
+    <Button
+      startIcon={<DiscordIcon />}
+      variant="outlined"
+      size="large"
+      href={'https://discord.notional.finance'}
+      sx={{ width: '100%' }}
+    >
+      <FormattedMessage defaultMessage={'Get Help in Discord'} />
+    </Button>
+  );
+};
 
 export const TransactionModal = ({
   isOpen = false,
-  topIcon,
+  transactionStatus,
   title,
   description,
   onDismiss,
   children,
 }: {
   isOpen: boolean;
-  topIcon: React.ReactNode;
+  transactionStatus: TransactionStatus;
   onDismiss: () => void;
   children: React.ReactNode | React.ReactNode[];
-  title: React.ReactNode;
+  title?: React.ReactNode;
   description: React.ReactNode;
 }) => {
   const theme = useTheme();
+  let topIcon: React.ReactNode;
+  let isError = false;
+
+  if (
+    transactionStatus === TransactionStatus.NONE ||
+    transactionStatus === TransactionStatus.REJECTED
+  ) {
+    // Pending Approval
+    topIcon = (
+      <InfoIcon
+        sx={{ fontSize: theme.spacing(5) }}
+        fill={theme.palette.warning.main}
+      />
+    );
+    // Title should be passed in in this case
+  } else if (
+    transactionStatus === TransactionStatus.ERROR_BUILDING ||
+    transactionStatus === TransactionStatus.REVERT
+  ) {
+    isError = true;
+    // Error
+    topIcon = (
+      <InfoIcon
+        sx={{ fontSize: theme.spacing(5) }}
+        fill={theme.palette.error.main}
+      />
+    );
+    title = <FormattedMessage defaultMessage="Transaction Failed" />;
+  } else if (
+    transactionStatus === TransactionStatus.WAIT_USER_CONFIRM ||
+    transactionStatus === TransactionStatus.SUBMITTED ||
+    transactionStatus === TransactionStatus.BUILDING
+  ) {
+    // Pending
+    topIcon = (
+      <Box>
+        <ProgressIndicator type="notional" width="75" />
+      </Box>
+    );
+    title = <FormattedMessage defaultMessage="Transaction Pending" />;
+  } else {
+    // Success
+    topIcon = (
+      <CheckmarkIcon
+        sx={{ fontSize: theme.spacing(5) }}
+        fill={theme.palette.success.main}
+      />
+    );
+    title = (
+      <FormattedMessage
+        defaultMessage="<a1>Success!</a1> Transaction is confirmed."
+        values={{
+          a1: (msg: React.ReactNode) => (
+            <Box component="span" sx={{ color: theme.palette.success.main }}>
+              {msg}
+            </Box>
+          ),
+        }}
+      />
+    );
+  }
+
   return (
     <MuiModal
       open={isOpen}
@@ -57,8 +145,9 @@ export const TransactionModal = ({
           />
         </Box>
         <LargeInputTextEmphasized> {title}</LargeInputTextEmphasized>
-        <Body>{description}</Body>
+        <Body sx={{ overflowWrap: 'break-word' }}>{description}</Body>
         {children}
+        {isError && <DiscordButton />}
       </Container>
     </MuiModal>
   );

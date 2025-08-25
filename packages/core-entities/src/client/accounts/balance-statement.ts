@@ -143,7 +143,7 @@ export function parseCurrentBalanceStatement(
     .sub(
       currentStatement.adjustedCostBasis.scale(
         currentStatement.balance.n,
-        INTERNAL_TOKEN_PRECISION
+        currentStatement.balance.precision
       )
     );
 

@@ -3,6 +3,7 @@ import {
   getProviderFromNetwork,
   getProviderURLFromNetwork,
   Network,
+  NetworkId,
   padToHex256,
   stripHexLeadingZero,
 } from '@notional-finance/util';
@@ -204,4 +205,38 @@ export async function simulateRewardClaims(
       return null;
     })
     .filter((t) => !!t);
+}
+
+export async function simulateOnTenderly(
+  network: Network,
+  populateTxn: PopulatedTransaction,
+  tenderlyAPIKey: string,
+  tenderlyAccount: string,
+  tenderlyProjectId: string
+) {
+  const response = await fetch(
+    `https://api.tenderly.co/api/v1/account/${tenderlyAccount}/project/${tenderlyProjectId}/simulate`,
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Access-Key': tenderlyAPIKey,
+      },
+      body: JSON.stringify({
+        network_id: NetworkId[network].toString(),
+        from: populateTxn.from,
+        to: populateTxn.to,
+        input: populateTxn.data,
+        gas: populateTxn.gasLimit,
+        value: populateTxn.value?.toString() || '0',
+        save: true,
+        save_if_fails: true,
+        simulation_type: 'full',
+      }),
+    }
+  );
+
+  const body = await response.json();
+  return body as { simulation: { id: string } };
 }

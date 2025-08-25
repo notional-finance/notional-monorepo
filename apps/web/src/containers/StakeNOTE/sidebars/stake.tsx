@@ -6,7 +6,7 @@ import {
   useCurrentTradeContext,
   useNOTE,
 } from '@notional-finance/notionable-hooks';
-import { Network, PRODUCTS } from '@notional-finance/util';
+import { Network, PRODUCTS, sNOTE } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { observer } from 'mobx-react-lite';
@@ -51,6 +51,7 @@ export const Stake = observer(() => {
     <TransactionSidebar
       riskComponent={<div />}
       showDrawer
+      spender={sNOTE}
       mobileTopMargin={theme.spacing(16)}
     >
       {NOTE && (

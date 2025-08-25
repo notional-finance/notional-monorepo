@@ -51,7 +51,7 @@ export const TokenViews = (self: Instance<typeof NetworkModel>) => {
     const t = getAllTokens().find(
       (t) =>
         t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
-        t.address === lendingRouter &&
+        t.address?.toLowerCase() === lendingRouter.toLowerCase() &&
         t.tokenType === 'VaultDebt'
     );
     if (!t) throw Error(`VaultDebt ${vaultAddress} not found`);

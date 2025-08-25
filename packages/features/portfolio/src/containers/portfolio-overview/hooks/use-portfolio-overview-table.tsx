@@ -111,7 +111,7 @@ function getSpecificVaultInfo(
   warning: TableActionRowWarning | undefined;
   showRowWarning?: boolean;
 } {
-  const totalEarnings = formatCryptoWithFiat(baseCurrency, v.profit);
+  const totalEarnings = formatCryptoWithFiat(baseCurrency, v.totalEarnings);
 
   // Point Farming Vaults
   if (v.vaultYield?.pointMultiples) {
@@ -256,7 +256,9 @@ function formatVaultHoldings(
   const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
     {
       label: <FormattedMessage defaultMessage={'Borrow APY'} />,
-      value: formatNumberAsPercent(apyData?.debtAPY || 0, 2),
+      value: totalDebt.isZero()
+        ? 'N/A'
+        : formatNumberAsPercent(apyData?.debtAPY || 0, 2),
     },
     {
       label: <FormattedMessage defaultMessage={'Strategy APY'} />,
@@ -312,7 +314,7 @@ function formatVaultHoldings(
         ...buttonBarData,
         {
           buttonText: <FormattedMessage defaultMessage={'Manage / Withdraw'} />,
-          link: `/vaults/${network}/${vaultAddress}/Manage`,
+          link: `/vault/${network}/${vaultAddress}/manage`,
         },
       ],
       txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
@@ -349,10 +351,9 @@ function formatDetailedVaultHoldings(
       symbol: underlying,
       symbolBottom: '',
       label: name,
-      caption:
-        vaultShares.maturity === PRIME_CASH_VAULT_MATURITY
-          ? 'Open Term'
-          : `Maturity: ${formatMaturity(vaultShares.maturity)}`,
+      caption: vaultShares.maturity
+        ? `Maturity: ${formatMaturity(vaultShares.maturity || 0)}`
+        : 'Open Term',
     },
     healthFactor: tableRow.healthFactor,
     tokenId: vaultShares.tokenId,
@@ -387,6 +388,9 @@ function formatDetailedVaultHoldings(
       ],
     },
   };
+
+  // Short circuit if there are no debts
+  if (vaultDebt.isZero()) return [dividerRow(name), assets];
 
   const { icon, formattedTitle, titleWithMaturity, title } = formatTokenType(
     vaultDebt.token

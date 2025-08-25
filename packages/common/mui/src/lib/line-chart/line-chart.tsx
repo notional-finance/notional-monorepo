@@ -31,6 +31,7 @@ const LineChart = ({
   showYAxis,
   lineConfig,
   tickFormatter,
+  yAxisTickFormatter,
   areaChartProps,
 }: {
   data: any[];
@@ -39,6 +40,7 @@ const LineChart = ({
   showYAxis?: boolean;
   lineConfig: LineChartConfigProps[];
   tickFormatter?: (value: number) => string;
+  yAxisTickFormatter?: (value: number) => string;
   areaChartProps?: {
     width?: number | undefined;
     height?: number | undefined;
@@ -114,7 +116,9 @@ const LineChart = ({
                 fill: theme.palette.typography.light,
               }}
               tickFormatter={(value) => {
-                return formatNumber(value, 0);
+                return yAxisTickFormatter
+                  ? yAxisTickFormatter(value)
+                  : formatNumber(value, 0);
               }}
             />
           </>

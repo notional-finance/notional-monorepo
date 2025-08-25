@@ -12,9 +12,10 @@ export const useTxnHistoryData = () => {
   const network = useSelectedNetwork();
   const pendingTokenData = usePendingPnLCalculation(network);
   const accountHistory = useTransactionHistory(network);
-  const accountHistoryData = accountHistory
-    .sort((x, y) => y.timestamp - x.timestamp)
-    .map((data) => formatTxnTableData(data as AccountHistory, network));
+  const accountHistoryData =
+    accountHistory?.map((data) =>
+      formatTxnTableData(data as AccountHistory, network)
+    ) || [];
 
   const removeDuplicateObjects = useCallback((data) => {
     const uniqueObjects = {};

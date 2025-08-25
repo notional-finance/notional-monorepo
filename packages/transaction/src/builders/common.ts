@@ -1,12 +1,12 @@
-import { NotionalV3, NotionalV3ABI } from '@notional-finance/contracts';
+import { ILendingRouter, LendingRouterABI } from '@notional-finance/contracts';
 import { BigNumber, Contract, PayableOverrides } from 'ethers';
 import {
   getProviderFromNetwork,
   IS_TEST_ENV,
   Network,
-  NotionalAddress,
 } from '@notional-finance/util';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { simulateOnTenderly } from '../simulate';
 
 export enum TradeActionType {
   Lend,
@@ -51,30 +51,53 @@ export async function populateTxnAndGas(
 ) {
   const c = contract.connect(msgSender);
   const txn = await c.populateTransaction[methodName].apply(c, methodArgs);
-  if (!IS_TEST_ENV) {
-    // NOTE: this fails inside unit tests for some reason
-    const gasLimit = await c.estimateGas[methodName].apply(c, methodArgs);
-    // Add 5% to the estimated gas limit to reduce the risk of out of gas errors
-    txn.gasLimit = gasLimit.add(gasLimit.mul(gasBufferPercent).div(100));
+
+  try {
+    if (!IS_TEST_ENV) {
+      // NOTE: this fails inside unit tests for some reason
+      const gasLimit = await c.estimateGas[methodName].apply(c, methodArgs);
+      // Add 5% to the estimated gas limit to reduce the risk of out of gas errors
+      txn.gasLimit = gasLimit.add(gasLimit.mul(gasBufferPercent).div(100));
+    }
+  } catch (e) {
+    const apiKey = process.env['NX_TENDERLY_API_KEY'];
+    const account = process.env['NX_TENDERLY_ACCOUNT'];
+    const project = process.env['NX_TENDERLY_PROJECT'];
+    if (apiKey && account && project) {
+      // If gas estimation fails then we get an error here.
+      const resp = await simulateOnTenderly(
+        Network.mainnet,
+        txn,
+        process.env['NX_TENDERLY_API_KEY'] as string,
+        process.env['NX_TENDERLY_ACCOUNT'] as string,
+        process.env['NX_TENDERLY_PROJECT'] as string
+      );
+
+      console.error(
+        `Tenderly Simulation URL: https://dashboard.tenderly.co/${account}/${project}/simulator/${resp.simulation.id}`
+      );
+    }
+    throw e;
   }
 
   return txn;
 }
 
-export async function populateNotionalTxnAndGas<
-  M extends keyof NotionalV3['functions']
+export async function populateLendingRouterTxnAndGas<
+  M extends keyof ILendingRouter['functions']
 >(
   network: Network,
   msgSender: string,
+  lendingRouter: string,
   methodName: M,
-  methodArgs: Parameters<NotionalV3['functions'][M]>,
+  methodArgs: Parameters<ILendingRouter['functions'][M]>,
   gasBufferPercent = 5
 ) {
   const contract = new Contract(
-    NotionalAddress[network],
-    NotionalV3ABI,
+    lendingRouter,
+    LendingRouterABI,
     getProviderFromNetwork(network)
-  ) as NotionalV3;
+  ) as ILendingRouter;
 
   return populateTxnAndGas(
     contract,

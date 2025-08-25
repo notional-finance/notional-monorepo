@@ -13,10 +13,7 @@ interface SideNavItemProps extends LinkProps {
   selected?: boolean;
   open?: boolean;
 }
-interface DividerProps {
-  theme: NotionalTheme;
-  open?: boolean;
-}
+
 interface SideNavOptionsProps {
   open?: boolean;
 }
@@ -26,25 +23,11 @@ export const SideNavOptions = observer(({ open }: SideNavOptionsProps) => {
   const { sideNavOptions } = useSideNav();
   const { category } = useParams<PortfolioParams>();
 
-  const lastNavOption = sideNavOptions[sideNavOptions.length - 1];
-
   return (
     <Box>
       {sideNavOptions.map(({ id, Icon, notifications, to }) => {
         return (
           <Box key={id}>
-            {lastNavOption.id === id && (
-              <Box
-                sx={{
-                  height: theme.spacing(8),
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <Divider theme={theme} open={open} />
-              </Box>
-            )}
             <SideNavItem
               key={id}
               selected={
@@ -143,20 +126,6 @@ const SideNavItem = styled(Link, {
           : ''
       }
       cursor: pointer;
-    }
-    `
-);
-
-const Divider = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'open',
-})(
-  ({ theme, open }: DividerProps) => `
-    height: 2px;
-    width: ${open ? '89%' : theme.spacing(6)};
-    margin-left: ${theme.spacing(2)};
-    background: ${theme.palette.borders.paper};
-    ${theme.breakpoints.up('xxl')} {
-      width: 89%;
     }
     `
 );

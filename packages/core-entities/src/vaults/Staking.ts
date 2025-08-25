@@ -1,4 +1,4 @@
-import { getNowSeconds, Network } from '@notional-finance/util';
+import { BASIS_POINT, getNowSeconds, Network } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import {
   APYData,
@@ -6,14 +6,17 @@ import {
   getNetworkModel,
   TokenBalance,
   TokenDefinition,
+  VaultDefaultDexParameters,
 } from '..';
 import { BytesLike } from 'ethers';
+import { defaultAbiCoder } from 'ethers/lib/utils';
 
 export interface StakingVaultParams extends BaseVaultParams {
-  stakingToken: string;
+  yieldToken: string;
 }
 
 export class Staking extends VaultAdapter {
+  public yieldToken: TokenDefinition;
   public stakingToken: TokenDefinition;
 
   constructor(
@@ -23,9 +26,16 @@ export class Staking extends VaultAdapter {
     borrowedToken: TokenDefinition
   ) {
     super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
-    this.stakingToken = getNetworkModel(this.network).getTokenByID(
-      p.stakingToken
-    );
+    const model = getNetworkModel(this.network);
+    this.yieldToken = model.getTokenByID(p.yieldToken);
+    const vaultConfig = model.getVaultConfig(this.vaultAddress);
+    if (vaultConfig.withdrawRequestManagers.length === 1) {
+      this.stakingToken = model.getTokenByID(
+        vaultConfig.withdrawRequestManagers[0].stakingToken.id
+      );
+    } else {
+      this.stakingToken = this.yieldToken;
+    }
   }
 
   override get hashKey(): string {
@@ -69,13 +79,33 @@ export class Staking extends VaultAdapter {
     };
   }
 
-  override getDepositParameters(
+  override async getDepositParameters(
     _account: string,
     _maturity: number,
-    _totalDeposit: TokenBalance,
-    _slippageFactor?: number
-  ): Promise<BytesLike> {
-    throw new Error('Method not implemented.');
+    totalDeposit: TokenBalance,
+    slippageFactor = 25 * BASIS_POINT
+  ) {
+    const { dexId, depositExchangeData: exchangeData } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    const tradeType = 0; // Exact In Single
+    const minPurchaseAmount = totalDeposit
+      .toToken(this.stakingToken)
+      .mulInRatePrecision(slippageFactor).n;
+
+    return defaultAbiCoder.encode(
+      [
+        'tuple(uint8 tradeType, uint256 minPurchaseAmount, bytes exchangeData, uint16 dexId, bytes stakeData)',
+      ],
+      [
+        {
+          tradeType,
+          minPurchaseAmount,
+          exchangeData,
+          dexId,
+          stakeData: '0x',
+        },
+      ]
+    );
   }
 
   override getRedeemParameters(
@@ -93,7 +123,7 @@ export class Staking extends VaultAdapter {
     vaultShares: TokenBalance;
     maturity: number;
   }): number {
-    return 0;
+    return 5.3;
   }
 
   override getLiquidationPriceTokens(): TokenDefinition[] {

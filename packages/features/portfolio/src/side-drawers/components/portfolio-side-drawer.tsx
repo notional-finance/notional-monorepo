@@ -35,6 +35,8 @@ export const PortfolioSideDrawer = ({
   return (
     <TransactionSidebar
       isPortfolio
+      // TODO: fill this in
+      spender={''}
       onCancelCallback={onCancel}
       onReturnToForm={onCancel}
       advancedToggle={advancedToggle}

@@ -20,10 +20,6 @@ export const messages: Record<
     defaultMessage: 'Transaction History',
     description: '',
   }),
-  [PORTFOLIO_CATEGORIES.WELCOME]: defineMessage({
-    defaultMessage: 'Welcome',
-    description: '',
-  }),
   [PORTFOLIO_CONNECTED_WALLET.PORTFOLIO]: defineMessage({
     defaultMessage: 'Portfolio',
     description: '',

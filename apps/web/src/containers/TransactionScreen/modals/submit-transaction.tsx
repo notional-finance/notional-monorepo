@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { TransactionModal } from './transaction-modal';
 import { Button } from '@notional-finance/mui';
 import { TransactionStatus } from '@notional-finance/util';
@@ -7,46 +8,61 @@ import {
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
+import { FormattedMessage } from 'react-intl';
 
-export const SingleApprovalModal = observer(
+export const SubmitTransaction = observer(
   ({
     isOpen = false,
     onDismiss,
-    title,
-    approvalDescription,
-    actionButtonText,
     submit,
+    transactionError,
   }: {
     isOpen: boolean;
     onDismiss: () => void;
-    title: React.ReactNode;
-    approvalDescription: React.ReactNode;
-    actionButtonText: React.ReactNode;
-    submit: (enable: boolean) => void;
+    submit: (() => void) | undefined;
+    transactionError: string | undefined;
   }) => {
     const selectedNetwork = useSelectedNetwork();
     const { transactionStatus, transactionHash } = useWalletStore();
+    const [didTriggerSubmit, setDidTriggerSubmit] = useState(false);
+
+    useEffect(() => {
+      // Opening the modal will trigger the submit function right away
+      if (!transactionError && isOpen && submit && !didTriggerSubmit) {
+        submit();
+        setDidTriggerSubmit(true);
+      }
+    }, [transactionError, isOpen, submit]);
+
+    // If the transaction is rejected, dismiss the modal
+    useEffect(() => {
+      if (transactionStatus === TransactionStatus.REJECTED) {
+        onDismiss();
+      }
+    }, [transactionStatus, onDismiss]);
+
     return (
       <TransactionModal
         isOpen={isOpen}
         onDismiss={onDismiss}
         transactionStatus={transactionStatus || TransactionStatus.NONE}
-        title={title}
-        description={approvalDescription}
+        description={transactionError || ''}
       >
-        {transactionHash ? (
+        {transactionHash && (
           <PendingTransaction
             hash={transactionHash}
             transactionStatus={transactionStatus}
             selectedNetwork={selectedNetwork}
           />
-        ) : (
+        )}
+        {!transactionError && (
           <Button
             sx={{ width: '100%' }}
             size="large"
-            onClick={() => submit(true)}
+            to={`/portfolio/${selectedNetwork}`}
+            disabled={transactionStatus !== TransactionStatus.CONFIRMED}
           >
-            {actionButtonText}
+            <FormattedMessage defaultMessage="View Portfolio" />
           </Button>
         )}
       </TransactionModal>

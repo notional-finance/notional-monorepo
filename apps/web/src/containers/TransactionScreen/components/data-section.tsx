@@ -4,6 +4,7 @@ import { Button, H2, LargeInputTextEmphasized } from '@notional-finance/mui';
 import { TotalBox } from './total-box';
 import {
   useAppStore,
+  useCurrentNetworkStore,
   useCurrentTradeContext,
   useDefaultVaultAPY,
   useVaultFeeRate,
@@ -11,15 +12,20 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { VaultPerformanceChart } from './vault-performance-chart';
 import { useTheme } from '@mui/material/styles';
+import { TokenDefinition } from '@notional-finance/core-entities';
 
 const DataSection = () => {
   const theme = useTheme();
   const context = useCurrentTradeContext();
+  const network = useCurrentNetworkStore();
   const { isMobileView, baseCurrency } = useAppStore();
   const vault = useDefaultVaultAPY(context?.vaultAddress);
   const feeRate = useVaultFeeRate(context?.vaultAddress);
   const tvlFiat = vault?.tvl?.toFiat(baseCurrency);
   const liquidityFiat = vault?.liquidity?.toFiat(baseCurrency);
+  const marketId = network.getMorphoMarketId(context?.debt as TokenDefinition);
+  let networkName: string = network.network as string;
+  if (networkName === 'mainnet') networkName = 'ethereum';
 
   return (
     <DataSectionContainer>
@@ -37,7 +43,7 @@ const DataSection = () => {
           <Button
             variant="contained"
             startIcon={<ChartIcon sx={{ fontSize: theme.spacing(2) }} />}
-            href={'/'}
+            href={`https://app.morpho.org/${networkName}/market/${marketId}`}
           >
             <FormattedMessage defaultMessage={'View Analytics'} />
           </Button>

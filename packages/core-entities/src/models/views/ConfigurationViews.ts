@@ -66,7 +66,14 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     }
   };
 
+  const getLendingRouter = (lendingRouter: string) => {
+    return self.configuration?.lendingRouters.find(
+      (lr) => lr.id === lendingRouter
+    );
+  };
+
   return {
+    getLendingRouter,
     getLendingRouters,
     getWithdrawRequestManagers,
     getMaxLeverageRatio,

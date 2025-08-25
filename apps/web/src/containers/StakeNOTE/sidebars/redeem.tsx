@@ -22,6 +22,7 @@ export const Redeem = observer(() => {
       showDrawer
       // No approvals required for sNOTE redeem
       requiredApprovalAmount={zeroSNOTE}
+      spender={sNOTE}
       mobileTopMargin={theme.spacing(16)}
       riskComponent={<div />}
     >

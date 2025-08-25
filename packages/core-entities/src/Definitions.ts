@@ -171,6 +171,7 @@ export interface AccountDefinition {
   stakeNOTEStatus?: StakeNoteStatus;
   historicalBalances?: HistoricalBalance[];
   rewardClaims?: Record<string, TokenBalance[]>;
+  lendingRouterApprovals?: Record<string, boolean>;
 }
 
 /** ERC20 allowances tracked for UI purposes */

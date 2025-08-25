@@ -16,7 +16,7 @@ import {
   defineMessages,
 } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
-import TradeActionButton from '../trade-action-button/trade-action-button';
+import { TradeActionButton } from '../trade-action-button/trade-action-button';
 import TransactionConfirmation from '../transaction-confirmation/transaction-confirmation';
 import {
   TransactionHeadings,
@@ -53,6 +53,7 @@ interface TransactionSidebarProps {
   NetworkSelector?: React.ReactNode;
   mobileTopMargin?: string;
   hideActionButtons?: boolean;
+  spender: string;
 }
 
 const TransactionSidebarComponent = ({
@@ -72,6 +73,7 @@ const TransactionSidebarComponent = ({
   hideTextOnMobile,
   hideActionButtons,
   canSubmitOverride = true,
+  spender,
 }: TransactionSidebarProps) => {
   const trade = useCurrentTradeContext();
   const setConfirm = trade?.setConfirm;
@@ -84,9 +86,11 @@ const TransactionSidebarComponent = ({
   const { debt, collateral } = trade?.selectedTokens ?? {};
   const { mustSwitchNetwork } = useChangeNetwork(selectedNetwork);
   const isBlocked = useLeverageBlock();
-  const approvalData = useTransactionApprovals(requiredApprovalAmount);
+  const approvalData = useTransactionApprovals(spender, requiredApprovalAmount);
 
-  const { showApprovals } = approvalData;
+  const showApprovals =
+    approvalData.tokenApprovalRequired ||
+    approvalData.secondaryTokenApprovalRequired;
 
   const handleSubmit = useCallback(() => {
     // Set the confirmation state up front to prevent the action sidebar

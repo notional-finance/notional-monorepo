@@ -343,7 +343,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         ),
         stage: 0,
         method: 'yieldToken',
-        key: `${vaultAddress}.stakingToken`,
+        key: `${vaultAddress}.yieldToken`,
       },
     ];
   }

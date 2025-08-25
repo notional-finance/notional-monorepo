@@ -1,8 +1,6 @@
 import { TokenBalance } from '@notional-finance/core-entities';
-import { Network, SEASONS, SupportedNetworks } from '@notional-finance/util';
+import { Network, SupportedNetworks } from '@notional-finance/util';
 import { useFiatToken } from './use-user-settings';
-import { useState } from 'react';
-import { getNowSeconds } from '@notional-finance/util';
 import { useWalletStore } from './context/use-root-store';
 import { useSelectedNetwork } from './use-network';
 import { useObserver } from 'mobx-react-lite';
@@ -65,8 +63,7 @@ export function useAccountLoading() {
 }
 
 export function useTransactionHistory(network: Network | undefined) {
-  const account = useAccountDefinition(network);
-  return account?.accountHistory || [];
+  return useAccountDefinition(network)?.accountHistory;
 }
 
 export function useVaultHoldings(network: Network | undefined) {
@@ -119,57 +116,3 @@ export function useAccountNetWorth() {
     return acc;
   }, {} as Record<Network, TokenBalance>);
 }
-
-export function useTotalArbPoints() {
-  const [totalPoints, _] = useState<{
-    [SEASONS.SEASON_ONE]: number;
-    [SEASONS.SEASON_TWO]: number;
-    [SEASONS.SEASON_THREE]: number;
-  }>({
-    [SEASONS.SEASON_ONE]: 0,
-    [SEASONS.SEASON_TWO]: 0,
-    [SEASONS.SEASON_THREE]: 0,
-  });
-  return totalPoints;
-}
-
-export function useCurrentSeason() {
-  const now = getNowSeconds();
-  if (now < PointsSeasonsData[SEASONS.SEASON_ONE].endDate.getTime() / 1000) {
-    return PointsSeasonsData[SEASONS.SEASON_ONE];
-  } else if (
-    now <
-    PointsSeasonsData[SEASONS.SEASON_TWO].endDate.getTime() / 1000
-  ) {
-    return PointsSeasonsData[SEASONS.SEASON_TWO];
-  } else {
-    return PointsSeasonsData[SEASONS.SEASON_THREE];
-  }
-}
-
-export const PointsSeasonsData = {
-  [SEASONS.SEASON_ONE]: {
-    name: 'Season One',
-    db_name: SEASONS.SEASON_ONE,
-    startDate: new Date(2024, 5, 24),
-    endDate: new Date(2024, 6, 22),
-    totalArb: 55_000,
-    totalPoints: '',
-  },
-  [SEASONS.SEASON_TWO]: {
-    name: 'Season Two',
-    db_name: SEASONS.SEASON_TWO,
-    startDate: new Date(2024, 6, 23),
-    endDate: new Date(2024, 7, 19),
-    totalArb: 60_000,
-    totalPoints: '',
-  },
-  [SEASONS.SEASON_THREE]: {
-    name: 'Season Three',
-    db_name: SEASONS.SEASON_THREE,
-    startDate: new Date(2024, 7, 20),
-    endDate: new Date(2024, 8, 16),
-    totalArb: 60_000,
-    totalPoints: '',
-  },
-};

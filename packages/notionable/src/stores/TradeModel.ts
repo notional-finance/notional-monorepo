@@ -531,8 +531,7 @@ export const TradeModel = types
           .filter((c) =>
             isVaultTrade(self.tradeType) ? c !== 'collateral' : true
           )
-          .every((r) => inputs[r] !== undefined) &&
-        inputs['debtPool'] !== undefined
+          .every((r) => inputs[r] !== undefined)
       ) {
         self.debtOptions.replace(
           computeDebtOptions(
@@ -973,20 +972,23 @@ export const TradeModel = types
       const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
       const priorBorrowRate = priorVaultRisk?.borrowAPY;
       const newBorrowRate = self.debtOptions?.find(
-        (t) => t.token.id === self.debtBalance?.tokenId
+        (t) => t.token.id === self.debt?.id
       )?.interestRate;
       const postBorrowRate =
         postVaultRisk?.maturity === undefined
           ? newBorrowRate
           : averageFixedRate(priorVaultRisk, postVaultRisk, newBorrowRate);
-      const vaultSharesAPY = postVaultRisk?.vaultShares?.tokenId
+      const vaultSharesAPY = self.collateral
         ? root()
             .getNetworkClient(self.selectedNetwork)
-            .getSpotAPY(postVaultRisk.vaultShares.tokenId)
+            .getSpotAPY(self.collateral.id)
         : undefined;
       const borrowAPY = postBorrowRate || priorBorrowRate;
       const leverageRatio =
-        postVaultRisk?.leverageRatio() || priorVaultRisk?.leverageRatio() || 0;
+        postVaultRisk?.leverageRatio() ||
+        priorVaultRisk?.leverageRatio() ||
+        self.leverageRatio ||
+        0;
       const leveragedAPY =
         vaultSharesAPY && borrowAPY
           ? createLeveragedAPYData(vaultSharesAPY, borrowAPY, leverageRatio)
@@ -1445,6 +1447,10 @@ function _getTradedInterestRate(
     interestRate = market.getInterestRate(
       market.getUtilization(undefined, amount.neg())
     );
+    return {
+      utilization,
+      interestRate,
+    };
   } else if (
     amount.tokenType === 'VaultShare' &&
     vaultAdapter &&

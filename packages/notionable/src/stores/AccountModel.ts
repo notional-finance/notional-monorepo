@@ -160,6 +160,7 @@ export const AccountModel = types
         redeemWindowEnd: types.number,
       })
     ),
+    lendingRouterApprovals: types.optional(types.map(types.boolean), {}),
     // NOTE: below here are values fetched from the graph and will be updated
     // later so that the UI can become active sooner
     accountHistory: types.optional(types.array(AccountHistoryModel), []),
@@ -205,6 +206,11 @@ export const AccountModel = types
         }
         if (accountDefinition.rewardClaims) {
           self.rewardClaims.replace(accountDefinition.rewardClaims);
+        }
+        if (accountDefinition.lendingRouterApprovals) {
+          self.lendingRouterApprovals.replace(
+            accountDefinition.lendingRouterApprovals
+          );
         }
         self.lastUpdateTimestamp = result.lastUpdateTimestamp;
         self.isContract = accountDefinition?.isContract || false;

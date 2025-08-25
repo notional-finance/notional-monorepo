@@ -4,6 +4,7 @@ import { BaseLiquidityPool } from '../index';
 import {
   getNowSeconds,
   getProviderFromNetwork,
+  MorphoRouter,
   Network,
   SCALAR_DECIMALS,
   SCALAR_PRECISION,
@@ -34,7 +35,6 @@ interface MorphoVariableMarketParams {
   rateAtTarget: BigNumber;
 }
 
-const MORPHO = '0xbbbbbbbbbb9cc5e90e3b3af64bdaf62c37eeffcb';
 const ADAPTIVE_IRM = '0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC';
 
 export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVariableMarketParams> {
@@ -43,7 +43,7 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
     marketId: string
   ): AggregateCall[] {
     const provider = getProviderFromNetwork(network);
-    const morpho = new Contract(MORPHO, MorphoABI, provider);
+    const morpho = new Contract(MorphoRouter[network], MorphoABI, provider);
     const adaptiveIRM = new Contract(
       ADAPTIVE_IRM,
       MorphoAdaptiveIRMABI,
@@ -202,14 +202,22 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
       ? this.poolParams.marketState.totalSupplyAssets.add(netSupply)
       : this.poolParams.marketState.totalSupplyAssets;
     const totalBorrowAssets = netBorrow
-      ? this.poolParams.marketState.totalBorrowAssets.add(netBorrow)
+      ? this.poolParams.marketState.totalBorrowAssets.add(
+          netBorrow.toUnderlying()
+        )
       : this.poolParams.marketState.totalBorrowAssets;
 
     // Utilization is in 1e18 precision
-    return totalBorrowAssets
+    const utilization = totalBorrowAssets
       .scaleTo(SCALAR_DECIMALS)
       .mul(SCALAR_PRECISION)
       .div(totalSupplyAssets.scaleTo(SCALAR_DECIMALS));
+
+    if (utilization.lt(0) || utilization.gt(SCALAR_PRECISION)) {
+      throw new Error('Utilization is out of bounds');
+    } else {
+      return utilization;
+    }
   }
 
   public getInterestRate(utilization: BigNumber) {
@@ -251,7 +259,9 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
       }
     }
 
-    const rateInScalar = this.curve(avgRateAtTarget, err);
+    const rateInScalar = this.curve(avgRateAtTarget, err).mul(
+      SECONDS_IN_YEAR_ACTUAL
+    );
     return (
       parseFloat(ethers.utils.formatUnits(rateInScalar, SCALAR_DECIMALS)) * 100
     );
