@@ -8,7 +8,7 @@ import {
   useWalletConnected,
   useAccountHasPositions,
 } from '@notional-finance/notionable-hooks';
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   PageLoading,
   SideBarSubHeader,
@@ -72,7 +72,6 @@ const Portfolio = observer(() => {
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const network = useSelectedNetwork();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const isAccountReady = useAccountReady(network);
   const { hasNoteOrSNote } = usePortfolioNOTETable();
 
@@ -123,21 +122,15 @@ const Portfolio = observer(() => {
   }, []);
 
   const handleDrawer = () => {
-    if (pathname.includes('convertTo')) {
-      navigate(
-        `/portfolio/${network}/${params?.category}/${params?.sideDrawerKey}/${params?.selectedToken}/manage`
-      );
+    if (window.history.length > 1) {
+      navigate(-1);
+      setTimeout(() => {
+        clearSideDrawer();
+      }, 100);
     } else {
-      if (window.history.length > 1) {
-        navigate(-1);
-        setTimeout(() => {
-          clearSideDrawer();
-        }, 100);
-      } else {
-        clearSideDrawer(
-          `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${params?.selectedToken}`
-        );
-      }
+      clearSideDrawer(
+        `/portfolio/${network}/${PORTFOLIO_CATEGORIES.OVERVIEW}/${params?.selectedToken}`
+      );
     }
   };
 

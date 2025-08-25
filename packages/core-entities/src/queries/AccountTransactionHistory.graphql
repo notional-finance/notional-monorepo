@@ -10,6 +10,9 @@ query AccountTransactionHistory($accountId: String!, $skip: Int!) {
     blockNumber
     transactionHash
     lineItemType
+    account {
+      id
+    }
     token {
       id
     }

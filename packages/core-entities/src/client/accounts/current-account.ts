@@ -42,8 +42,7 @@ export async function fetchCurrentAccount(
     .getAllTokens()
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
 
-  // TODO: get this from the vault views
-  const vaultAddresses: string[] = [];
+  const vaultAddresses = model.getAllListedVaults().map((v) => v.vaultAddress);
   const { results: positions } = await getAccountPositions(
     network,
     account,
@@ -248,7 +247,7 @@ function getVaultBalanceCalls(
           target: l,
           method: 'balanceOfCollateral',
           args: [account, v],
-          key: `${v}.vaultShares`,
+          key: `${v}.balance.vaultShares`,
           transform: (b: BigNumber) => {
             return TokenBalance.from(b, model.getVaultShare(v));
           },
@@ -258,7 +257,7 @@ function getVaultBalanceCalls(
           target: l,
           method: 'balanceOfBorrowShares',
           args: [account, v],
-          key: `${v}.vaultDebt`,
+          key: `${v}.balance.vaultDebt`,
           transform: (b: BigNumber) => {
             return TokenBalance.from(b, model.getVaultDebt(v, lendingRouter));
           },

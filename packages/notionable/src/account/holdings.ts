@@ -73,7 +73,7 @@ export function calculateVaultHoldings(
     const amountPaid = assetAmountPaid.add(debtAmountPaid);
 
     const leverageRatio = v.leverageRatio() || 0;
-    const { maxLeverageRatio } = model.getLeverageRatios(v.vaultShares.token);
+    const { maxLeverageRatio } = model.getLeverageRatios(v.vaultDebt.token);
 
     const totalInterestAccrual = assetInterestAccrual.add(debtInterestAccrual);
 

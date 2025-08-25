@@ -77,7 +77,7 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
     lineItemType: p.lineItemType,
     token,
     underlying,
-    transactionHash: p.transactionHash.id,
+    transactionHash: p.transactionHash,
     tokenAmount,
     underlyingAmountRealized,
     underlyingAmountSpot,
