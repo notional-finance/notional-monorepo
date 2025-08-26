@@ -11,7 +11,7 @@ import { MOBILE_SUB_NAV_ACTIONS, Network } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { useWalletAddress } from '@notional-finance/notionable-hooks';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
@@ -21,6 +21,11 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     params && 'selectedNetwork' in params
       ? params['selectedNetwork']
       : Network.mainnet;
+  const location = useLocation();
+  // We have to refresh going between points and vaults because of Webflow
+  // ready state issues
+  const isWebflowPage =
+    location.pathname === '/vaults' || location.pathname === '/points';
 
   const textColor = mobileNav
     ? theme.palette.common.black
@@ -46,7 +51,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       key: 'vaults',
       label: <FormattedMessage defaultMessage={'Vaults'} />,
       link: '/vaults',
-      refresh: true,
+      refresh: isWebflowPage,
       iconImg: (
         <LightningOutlineIcon
           className="color-stroke"
@@ -62,7 +67,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       key: 'points',
       label: <FormattedMessage defaultMessage={'Points'} />,
       link: '/points',
-      refresh: true,
+      refresh: isWebflowPage,
       iconImg: (
         <PointsOutlineIcon
           className="color-fill"

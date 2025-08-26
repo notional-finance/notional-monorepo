@@ -29,7 +29,7 @@ const WebflowEmbed = ({
       mountedRef.current = false;
       // Remove all the webflow style sheets
       document
-        .querySelectorAll('link[rel="stylesheet"]')
+        .querySelectorAll('link[data-is-webflow="true"]')
         .forEach((link) => link.remove());
     };
   }, []);
@@ -39,14 +39,25 @@ const WebflowEmbed = ({
     const target = `/embed/${path}`;
     let timeoutId: number;
 
-    const initializeWebflow = (bodyScripts: NodeListOf<HTMLScriptElement>) => {
+    const initializeWebflow = (
+      bodyScripts: NodeListOf<HTMLScriptElement>,
+      headLinks: NodeListOf<HTMLLinkElement>
+    ) => {
       // Guard against memory leak in unmount state
       if (!mountedRef.current) return;
+      headLinks.forEach((l) => {
+        const newLink = document.createElement('link');
+        newLink.setAttribute('data-is-webflow', 'true');
+        newLink.rel = l.rel;
+        newLink.href = l.href;
+        document.head.appendChild(newLink);
+      });
 
       // Loading all the body scripts will cause them to execute in their own order
       // async
       bodyScripts.forEach((s) => {
         const newScript = document.createElement('script');
+        newScript.setAttribute('data-is-webflow', 'true');
         if (s.src) {
           newScript.src = s.src;
         } else {
@@ -97,8 +108,12 @@ const WebflowEmbed = ({
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const bodyScripts = doc.body.querySelectorAll('script');
+        const headLinks = doc.head.querySelectorAll<HTMLLinkElement>(
+          'link[rel="stylesheet"]'
+        );
         const pageId = doc.documentElement.getAttribute('data-wf-page');
         bodyScripts.forEach((s) => s.remove());
+        headLinks.forEach((l) => l.remove());
         if (pageId) {
           // This ensures that all the correct event listeners are triggered
           document.documentElement.setAttribute('data-wf-page', pageId);
@@ -106,7 +121,7 @@ const WebflowEmbed = ({
 
         if (containerRef.current) {
           containerRef.current.innerHTML = doc.body.innerHTML;
-          initializeWebflow(bodyScripts);
+          initializeWebflow(bodyScripts, headLinks);
         }
       })
       .catch((err) => {
@@ -192,6 +207,13 @@ export const VaultPageView = observer(() => {
     // Only set this text data once after the list is rendered so that the sorting engine
     // can read it
     container.querySelectorAll('.vault-row').forEach((e) => {
+      const trigger = e.querySelector('.project-trigger');
+      if (trigger) {
+        trigger.addEventListener('click', (e) => {
+          e.preventDefault();
+        });
+      }
+
       const vaultAddress = e.getAttribute('n-vault-address')?.toLowerCase();
       const vault = vaults.find(
         (v) => v.vaultConfig.vaultAddress.toLowerCase() === vaultAddress
