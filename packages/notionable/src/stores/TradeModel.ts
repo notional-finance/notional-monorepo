@@ -991,7 +991,7 @@ export const TradeModel = types
         self.leverageRatio ||
         0;
       const leveragedAPY =
-        vaultSharesAPY && borrowAPY
+        vaultSharesAPY !== undefined && borrowAPY !== undefined
           ? createLeveragedAPYData(vaultSharesAPY, borrowAPY, leverageRatio)
           : undefined;
 
@@ -1050,14 +1050,12 @@ export const TradeModel = types
           postVaultRisk?.getAllLiquidationPrices() || []
         ),
         netWorth: {
-          current:
-            priorVaultRisk
-              ?.netWorth()
-              .toDisplayStringWithSymbol(2, true, false) || '-',
-          updated:
-            postVaultRisk
-              ?.netWorth()
-              .toDisplayStringWithSymbol(2, true, false) || '-',
+          current: priorVaultRisk
+            ?.netWorth()
+            .toDisplayStringWithSymbol(2, true, false),
+          updated: postVaultRisk
+            ?.netWorth()
+            .toDisplayStringWithSymbol(2, true, false),
           changeType: getChangeType(
             priorVaultRisk?.netWorth().toFloat(),
             postVaultRisk?.netWorth().toFloat()

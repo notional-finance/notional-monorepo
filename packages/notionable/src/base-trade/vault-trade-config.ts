@@ -214,7 +214,9 @@ export const VaultTradeConfiguration = {
     calculateDebtOptions: true,
   } as TransactionConfig,
   ManageVault: {
-    calculationFn: () => {},
+    calculationFn: () => {
+      throw new Error('Not implemented');
+    },
     requiredArgs: [],
     transactionBuilder: () => Promise.reject(new Error('Not implemented')),
   } as TransactionConfig,

@@ -33,13 +33,7 @@ import {
 } from '@notional-finance/core-entities';
 import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import {
-  VaultDepositScreen,
-  VaultWithdrawScreen,
-  VaultAdjustLeverageScreen,
-  VaultManageScreen,
-  VaultDefaultScreen,
-} from '../TransactionScreen';
+import { VaultDefaultScreen } from '../TransactionScreen';
 
 const RedirectToDefaultNetwork = () => {
   const selectedNetwork = useSelectedNetwork();
@@ -146,41 +140,11 @@ const AllRoutes = observer(() => {
           }
         />
         <Route
-          path="/vault/:selectedNetwork/:vaultAddress/withdraw"
+          path="/vault/:selectedNetwork/:vaultAddress/*"
           element={
             <AppLayoutRoute
-              path="/vault/:selectedNetwork/:vaultAddress/withdraw"
-              component={VaultWithdrawScreen}
-              routeType="Transaction"
-            />
-          }
-        />
-        <Route
-          path="/vault/:selectedNetwork/:vaultAddress/adjust-leverage"
-          element={
-            <AppLayoutRoute
-              path="/vault/:selectedNetwork/:vaultAddress/adjust-leverage"
-              component={VaultAdjustLeverageScreen}
-              routeType="Transaction"
-            />
-          }
-        />
-        <Route
-          path="/vault/:selectedNetwork/:vaultAddress/manage"
-          element={
-            <AppLayoutRoute
-              path="/vault/:selectedNetwork/:vaultAddress/manage"
-              component={VaultManageScreen}
-              routeType="Transaction"
-            />
-          }
-        />
-        <Route
-          path="/vault/:selectedNetwork/:vaultAddress/deposit"
-          element={
-            <AppLayoutRoute
-              path="/vault/:selectedNetwork/:vaultAddress/deposit"
-              component={VaultDepositScreen}
+              path="/vault/:selectedNetwork/:vaultAddress"
+              component={VaultDefaultScreen}
               routeType="Transaction"
             />
           }

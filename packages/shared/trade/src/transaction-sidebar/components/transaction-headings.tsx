@@ -42,6 +42,10 @@ export const TransactionHeadings: Record<
     heading: { defaultMessage: 'x' },
     helptext: { defaultMessage: 'x' },
   }),
+  ManageVault: defineMessages({
+    heading: { defaultMessage: 'x' },
+    helptext: { defaultMessage: 'x' },
+  }),
   StakeNOTE: defineMessages({
     heading: { defaultMessage: 'Stake NOTE' },
     headerText: { defaultMessage: 'Stake NOTE' },

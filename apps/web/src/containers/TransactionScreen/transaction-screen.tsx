@@ -21,8 +21,10 @@ export const TransactionScreen = observer(
   ({
     actionPrefix,
     inputs,
+    hasBackButton,
   }: {
     actionPrefix?: string;
+    hasBackButton?: boolean;
     inputs: ReactNode[];
   }) => {
     const theme = useTheme();
@@ -60,7 +62,9 @@ export const TransactionScreen = observer(
           />
           <ContentContainer>
             <TopSection>
-              <InputContainer>{inputs}</InputContainer>
+              <InputContainer hasBackButton={hasBackButton}>
+                {inputs}
+              </InputContainer>
               <InfoBox tabs={tabs} />
             </TopSection>
             <DataSection />

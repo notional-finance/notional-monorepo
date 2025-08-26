@@ -288,6 +288,7 @@ const StyledButton = styled(Button)(
     margin-right: 0px;
     margin-left: auto;
   }
+  background-color: transparent;
 `
 );
 
