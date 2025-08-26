@@ -11,6 +11,7 @@ interface InputContainerProps {
 const InputContainer = observer(({ children }: InputContainerProps) => {
   const theme = useTheme();
   const context = useCurrentTradeContext();
+  const isManage = context?.tradeType === 'ManageVault';
 
   return (
     <InputContainerWrapper>
@@ -25,15 +26,19 @@ const InputContainer = observer(({ children }: InputContainerProps) => {
       >
         {children}
       </Box>
-      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-        <TradeActionButton
-          canSubmit={context?.canSubmit() ?? false}
-          onSubmit={() => {
-            // This triggers all of the approval and transaction logic
-            context?.setConfirm(true);
-          }}
-        />
-      </Box>
+      {!isManage && (
+        <Box
+          sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}
+        >
+          <TradeActionButton
+            canSubmit={context?.canSubmit() ?? false}
+            onSubmit={() => {
+              // This triggers all of the approval and transaction logic
+              context?.setConfirm(true);
+            }}
+          />
+        </Box>
+      )}
       <SubmitModal />
     </InputContainerWrapper>
   );

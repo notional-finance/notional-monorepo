@@ -83,7 +83,9 @@ export const TransactionModal = ({
   } else if (
     transactionStatus === TransactionStatus.WAIT_USER_CONFIRM ||
     transactionStatus === TransactionStatus.SUBMITTED ||
-    transactionStatus === TransactionStatus.BUILDING
+    transactionStatus === TransactionStatus.BUILDING ||
+    // TODO: does this work with approvals?
+    transactionStatus === TransactionStatus.BUILT
   ) {
     // Pending
     topIcon = (

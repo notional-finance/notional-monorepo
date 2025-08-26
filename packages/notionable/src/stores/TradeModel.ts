@@ -102,6 +102,7 @@ export const TradeModel = types
       'AdjustVaultLeverage',
       'RollVaultPosition',
       'WithdrawVault',
+      'ManageVault',
     ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),

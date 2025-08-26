@@ -213,6 +213,11 @@ export const VaultTradeConfiguration = {
     transactionBuilder: ExitVault,
     calculateDebtOptions: true,
   } as TransactionConfig,
+  ManageVault: {
+    calculationFn: () => {},
+    requiredArgs: [],
+    transactionBuilder: () => Promise.reject(new Error('Not implemented')),
+  } as TransactionConfig,
 };
 
 export type VaultTradeType = keyof typeof VaultTradeConfiguration;
