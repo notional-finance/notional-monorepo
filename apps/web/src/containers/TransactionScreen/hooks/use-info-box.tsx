@@ -14,6 +14,7 @@ import {
   Theme,
 } from '@mui/material';
 import {
+  CountUp,
   H5,
   Label,
   LabelValue,
@@ -26,10 +27,7 @@ import {
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { formatNumber, RATE_PRECISION } from '@notional-finance/util';
-import {
-  formatLeverageRatio,
-  formatNumberAsPercentWithUndefined,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 
 interface LabelValueSectionProps {
@@ -57,13 +55,14 @@ const LabelValueSection = ({
             flexDirection="row"
           >
             <Label light>{item.label}</Label>
-            <Box>
+            <LabelValue>{item.content}</LabelValue>
+            {/* <Box>
               {typeof item.content === 'string' ? (
                 <LabelValue>{item.content}</LabelValue>
               ) : (
                 item.content
               )}
-            </Box>
+            </Box> */}
           </Box>
         ))}
       </Box>
@@ -206,8 +205,15 @@ const formatSummaryItems = (
   return [
     {
       label: <FormattedMessage defaultMessage={'Net Worth'} />,
-      content:
-        summary.netWorth?.toDisplayStringWithSymbol(4, false, false) || '-',
+      content: summary.netWorth ? (
+        <CountUp
+          value={summary.netWorth?.toFloat()}
+          decimals={4}
+          suffix={` ${summary.netWorth?.symbol}`}
+        />
+      ) : (
+        '-'
+      ),
     },
     {
       label: <FormattedMessage defaultMessage={'Health Factor'} />,
@@ -215,15 +221,24 @@ const formatSummaryItems = (
     },
     {
       label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
-      content: summary.leverageRatio
-        ? formatLeverageRatio(summary.leverageRatio, 4)
-        : '-',
+      content: summary.leverageRatio ? (
+        <CountUp value={summary.leverageRatio} decimals={4} suffix="x" />
+      ) : (
+        '-'
+      ),
     },
     ...summary.liquidationPrices.map((price) => {
       return {
         label: `${price.asset.symbol} Liquidation Price`,
-        content:
-          price.threshold?.toDisplayStringWithSymbol(4, false, false) || '-',
+        content: price.threshold ? (
+          <CountUp
+            value={price.threshold?.toFloat()}
+            decimals={4}
+            suffix={` ${price.threshold?.symbol}`}
+          />
+        ) : (
+          '-'
+        ),
       };
     }),
   ];
@@ -251,12 +266,11 @@ function formatAPYValues(
   amount: TokenBalance | undefined,
   positiveGreen: string
 ) {
-  const earningsString =
+  const earnings =
     amount && apy
       ? amount
           .abs()
           .mulInRatePrecision(Math.floor((apy * RATE_PRECISION) / 100))
-          .toDisplayStringWithSymbol(2, false, false)
       : undefined;
 
   return [
@@ -264,7 +278,15 @@ function formatAPYValues(
     {
       value: (
         <Box color={apy && apy > 0 ? positiveGreen : undefined}>
-          {earningsString}
+          {earnings ? (
+            <CountUp
+              value={earnings?.toFloat() || 0}
+              decimals={4}
+              suffix={` ${earnings?.symbol}`}
+            />
+          ) : (
+            '-'
+          )}
         </Box>
       ),
     },
@@ -326,11 +348,27 @@ const useApyBreakdown = () => {
   const assetsDebts = [
     {
       label: 'Asset Amount',
-      content: assets?.toDisplayStringWithSymbol(4, false, false) || '-',
+      content: assets ? (
+        <CountUp
+          value={assets.toFloat()}
+          decimals={4}
+          suffix={` ${assets.symbol}`}
+        />
+      ) : (
+        '-'
+      ),
     },
     {
       label: 'Debt Amount',
-      content: debts?.toDisplayStringWithSymbol(4, false, false) || '-',
+      content: debts ? (
+        <CountUp
+          value={debts.toFloat()}
+          decimals={4}
+          suffix={` ${debts.symbol}`}
+        />
+      ) : (
+        '-'
+      ),
     },
   ];
 
@@ -348,33 +386,52 @@ const useOrderDetails = () => {
   if (trade?.depositBalance) {
     orderDetails.push({
       label: 'Amount Deposited',
-      content: trade.depositBalance.toDisplayStringWithSymbol(4, false, false),
+      content: (
+        <CountUp
+          value={trade.depositBalance.toFloat()}
+          decimals={4}
+          suffix={` ${trade.depositBalance.symbol}`}
+        />
+      ),
     });
   }
 
   if (trade?.debtBalance) {
+    const borrowed = trade.debtBalance.abs().toUnderlying();
     orderDetails.push({
       label: 'Amount Borrowed',
-      content: trade.debtBalance
-        .abs()
-        .toUnderlying()
-        .toDisplayStringWithSymbol(4, false, false),
+      content: (
+        <CountUp
+          value={borrowed.toFloat()}
+          decimals={4}
+          suffix={` ${borrowed.symbol}`}
+        />
+      ),
     });
   }
 
   if (trade?.collateralBalance) {
     orderDetails.push({
       label: 'Vault Shares Minted',
-      content: trade.collateralBalance.toDisplayString(4, false, false),
+      content: (
+        <CountUp value={trade.collateralBalance.toFloat()} decimals={4} />
+      ),
     });
   }
 
   if (trade?.collateral) {
+    const price = TokenBalance.unit(
+      trade.collateral as TokenDefinition
+    ).toUnderlying();
     orderDetails.push({
       label: 'Vault Share Price',
-      content: TokenBalance.unit(trade.collateral as TokenDefinition)
-        .toUnderlying()
-        .toDisplayStringWithSymbol(4, false, false),
+      content: (
+        <CountUp
+          value={price.toFloat()}
+          decimals={4}
+          suffix={` ${price.symbol}`}
+        />
+      ),
     });
   }
 
