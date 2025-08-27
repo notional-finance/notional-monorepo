@@ -118,6 +118,13 @@ export class Staking extends VaultAdapter {
     throw new Error('Method not implemented.');
   }
 
+  override async getWithdrawParameters(
+    _account: string,
+    _vaultSharesToRedeem: TokenBalance
+  ): Promise<BytesLike> {
+    return '0x';
+  }
+
   override getVaultAPY(_factors?: {
     account: string;
     vaultShares: TokenBalance;

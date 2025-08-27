@@ -301,6 +301,7 @@ unenforceability
 unkill
 unleveraged
 unstake
+unstaked
 unstaking
 upgrader
 usdusdc

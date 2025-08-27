@@ -201,7 +201,7 @@ const TransactionSidebarComponent = ({
           ? undefined
           : TradeActionButton
       }
-      walletConnectedText={TransactionHeadings[tradeType].walletConnectedText}
+      submitText={TransactionHeadings[tradeType].submitText}
       handleSubmit={handleSubmit}
       canSubmit={!!canSubmit && !isBlocked}
       onCancelCallback={handleActionSidebarCancel}

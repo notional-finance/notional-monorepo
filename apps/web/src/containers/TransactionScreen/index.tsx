@@ -13,6 +13,7 @@ import {
   VaultIncreaseScreen,
   VaultInstantWithdraw,
   VaultManageScreen,
+  VaultSmartWithdraw,
 } from './screens';
 
 export const VaultDefaultScreen = observer(() => {
@@ -40,6 +41,7 @@ export const VaultDefaultScreen = observer(() => {
         />
         <Route path="increase" element={<VaultIncreaseScreen />} />
         <Route path="instant-withdraw" element={<VaultInstantWithdraw />} />
+        <Route path="smart-withdraw" element={<VaultSmartWithdraw />} />
       </Routes>
     </FeatureLoader>
   );

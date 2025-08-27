@@ -3,7 +3,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { SimpleToggle, TradeSummaryBox, Body } from '@notional-finance/mui';
 import { observer } from 'mobx-react-lite';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, MessageDescriptor } from 'react-intl';
 
 import Chip from '@mui/material/Chip';
 import Header from './components/header';
@@ -22,9 +22,11 @@ export const TransactionScreen = observer(
     actionPrefix,
     inputs,
     hasBackButton,
+    submitText,
   }: {
     actionPrefix?: string;
     hasBackButton?: boolean;
+    submitText?: MessageDescriptor;
     inputs: ReactNode[];
   }) => {
     const theme = useTheme();
@@ -62,7 +64,10 @@ export const TransactionScreen = observer(
           />
           <ContentContainer>
             <TopSection>
-              <InputContainer hasBackButton={hasBackButton}>
+              <InputContainer
+                hasBackButton={hasBackButton}
+                submitText={submitText}
+              >
                 {inputs}
               </InputContainer>
               <InfoBox tabs={tabs} />

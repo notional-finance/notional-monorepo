@@ -114,3 +114,36 @@ export function RollVault(
 ): Promise<PopulatedTransaction> {
   throw Error('Not implemented');
 }
+
+export async function InitiateWithdraw({
+  address,
+  network,
+  collateralBalance,
+  debtBalance,
+  vaultLastUpdateTime,
+}: PopulateTransactionInputs): Promise<PopulatedTransaction> {
+  if (
+    collateralBalance?.tokenType !== 'VaultShare' ||
+    debtBalance?.tokenType !== 'VaultDebt' ||
+    debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
+    collateralBalance.isPositive() ||
+    debtBalance.isNegative() ||
+    vaultLastUpdateTime === undefined
+  )
+    throw Error('Collateral balance, debt balance must be defined');
+  const vaultAddress = collateralBalance.vaultAddress;
+  const lendingRouter = debtBalance.token.address;
+  const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
+  const vaultData = await vaultAdapter.getWithdrawParameters(
+    address,
+    collateralBalance.neg()
+  );
+
+  return populateLendingRouterTxnAndGas(
+    network,
+    address,
+    lendingRouter,
+    'initiateWithdraw',
+    [address, vaultAddress, vaultData]
+  );
+}

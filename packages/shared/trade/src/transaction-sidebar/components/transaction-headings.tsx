@@ -1,5 +1,5 @@
-import { AllTradeTypes } from '@notional-finance/notionable';
-import { MessageDescriptor, defineMessages } from 'react-intl';
+import { defineMessages } from 'react-intl';
+
 export type CombinedTokenTypes =
   | 'fCash-PrimeDebt'
   | 'PrimeDebt-fCash'
@@ -12,15 +12,7 @@ export type CombinedTokenTypes =
   | 'PrimeCash-nToken'
   | 'PrimeDebt-nToken';
 
-export const TransactionHeadings: Record<
-  AllTradeTypes,
-  {
-    heading: MessageDescriptor;
-    helptext: MessageDescriptor;
-    headerText?: MessageDescriptor;
-    walletConnectedText?: MessageDescriptor;
-  }
-> = {
+export const TransactionHeadings = {
   /** Vault Headings **/
   CreateVaultPosition: defineMessages({
     heading: { defaultMessage: 'x' },
@@ -56,7 +48,7 @@ export const TransactionHeadings: Record<
   }),
   StakeNOTECoolDown: defineMessages({
     heading: { defaultMessage: 'Cooldown Period Initiated' },
-    walletConnectedText: {
+    submitText: {
       defaultMessage: 'Cancel Cooldown',
       description: 'call to action button',
     },

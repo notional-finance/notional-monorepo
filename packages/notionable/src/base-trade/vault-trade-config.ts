@@ -4,9 +4,11 @@ import {
   AdjustLeverage,
   EnterVault,
   ExitVault,
+  InitiateWithdraw,
   RollVault,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
   calculateVaultRoll,
+  calculateWithdraw,
 } from '@notional-finance/transaction';
 import {
   PRIME_CASH_VAULT_MATURITY,
@@ -221,6 +223,18 @@ export const VaultTradeConfiguration = {
     },
     requiredArgs: [],
     transactionBuilder: () => Promise.reject(new Error('Not implemented')),
+  } as TransactionConfig,
+  InitiateWithdraw: {
+    calculationFn: calculateWithdraw,
+    requiredArgs: ['collateral', 'debt', 'vaultAdapter', 'balances'],
+    collateralFilter: (t, _, s) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
+    debtFilter: (t, a, s) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
+    transactionBuilder: InitiateWithdraw,
   } as TransactionConfig,
 };
 

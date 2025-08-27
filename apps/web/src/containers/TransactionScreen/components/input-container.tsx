@@ -6,14 +6,16 @@ import { SubmitModal } from '../modals/submit-modal';
 import { ArrowIcon } from '@notional-finance/icons';
 import { LabelValue } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
+import { MessageDescriptor } from 'react-intl';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
+  submitText?: MessageDescriptor;
   hasBackButton?: boolean;
 }
 
 const InputContainer = observer(
-  ({ children, hasBackButton }: InputContainerProps) => {
+  ({ children, hasBackButton, submitText }: InputContainerProps) => {
     const theme = useTheme();
     const context = useCurrentTradeContext();
     const isManage = context?.tradeType === 'ManageVault';
@@ -62,6 +64,7 @@ const InputContainer = observer(
           >
             <TradeActionButton
               canSubmit={context?.canSubmit() ?? false}
+              submitText={submitText}
               onSubmit={() => {
                 // This triggers all of the approval and transaction logic
                 context?.setConfirm(true);

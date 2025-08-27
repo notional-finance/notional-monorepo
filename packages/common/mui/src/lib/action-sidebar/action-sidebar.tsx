@@ -17,7 +17,7 @@ export interface ActionSidebarProps {
   heading:
     | MessageDescriptor
     | { defaultMessage: string; values?: Record<string, React.ReactNode> };
-  walletConnectedText?: MessageDescriptor;
+  submitText?: MessageDescriptor;
   helptext:
     | MessageDescriptor
     | { defaultMessage: string; values?: Record<string, React.ReactNode> }
@@ -84,7 +84,7 @@ export const ActionSidebar = ({
   isPortfolio,
   leverageDisabled,
   mobileTopMargin,
-  walletConnectedText,
+  submitText,
 }: ActionSidebarProps) => {
   const theme = useTheme();
   const { isMobileView } = useAppStore();
@@ -167,7 +167,7 @@ export const ActionSidebar = ({
                 <CustomActionButton
                   onSubmit={handleSubmit}
                   canSubmit={canSubmit}
-                  walletConnectedText={walletConnectedText}
+                  submitText={submitText}
                   leverageDisabled={leverageDisabled}
                 />
               )}
@@ -188,7 +188,7 @@ export const ActionSidebar = ({
               <CustomActionButton
                 onSubmit={handleSubmit}
                 canSubmit={canSubmit}
-                walletConnectedText={walletConnectedText}
+                submitText={submitText}
                 leverageDisabled={leverageDisabled}
               />
             )}

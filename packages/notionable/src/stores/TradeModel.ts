@@ -101,6 +101,7 @@ export const TradeModel = types
       'RollVaultPosition',
       'WithdrawVault',
       'ManageVault',
+      'InitiateWithdraw',
     ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),
@@ -364,7 +365,10 @@ export const TradeModel = types
             };
           })
         );
-      } else if (isNOTEStake(self.tradeType)) {
+      } else if (
+        isNOTEStake(self.tradeType) ||
+        self.tradeType === 'InitiateWithdraw'
+      ) {
         calculate();
       }
     };

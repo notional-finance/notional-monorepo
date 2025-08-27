@@ -1,5 +1,6 @@
 import {
   SNOTEWeightedPool,
+  Staking,
   TokenBalance,
   TokenDefinition,
   VaultAdapter,
@@ -224,6 +225,42 @@ function calculateVaultCollateral({
       : netRealizedCollateralBalance.add(feesPaid.toUnderlying()),
     netRealizedDebtBalance: underlyingBorrowed.neg(),
     vaultTradeMetadata,
+  };
+}
+
+export function calculateWithdraw({
+  collateral,
+  vaultAdapter,
+  debt,
+  balances,
+  vaultLastUpdateTime,
+}: {
+  collateral: TokenDefinition;
+  vaultAdapter: VaultAdapter;
+  debt: TokenDefinition;
+  balances: TokenBalance[];
+  vaultLastUpdateTime: number;
+}) {
+  const vaultAddress = collateral.vaultAddress;
+  if (!vaultAddress) throw Error('Vault Address not defined');
+  const profile = new VaultAccountRiskProfile(
+    vaultAddress,
+    balances || [TokenBalance.zero(collateral), TokenBalance.zero(debt)],
+    vaultLastUpdateTime || 0
+  );
+
+  const withdrawAmount = profile.vaultShares.toToken(
+    (vaultAdapter as Staking).stakingToken
+  );
+
+  return {
+    collateralBalance: profile.vaultShares.neg(),
+    collateralFee: TokenBalance.zero(withdrawAmount.token),
+    debtBalance: profile.vaultDebt,
+    netRealizedCollateralBalance: withdrawAmount,
+    // These two are just used to satisfy the type system, not used in the UI
+    netRealizedDebtBalance: TokenBalance.zero(debt),
+    debtFee: TokenBalance.zero(debt),
   };
 }
 
