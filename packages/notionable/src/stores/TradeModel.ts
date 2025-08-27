@@ -816,36 +816,6 @@ export const TradeModel = types
   })
   .views((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
-    const mergeLiquidationPrices = (
-      prior: ReturnType<
-        VaultAccountRiskProfile['getAllLiquidationPrices']
-      >[number][],
-      post: ReturnType<
-        VaultAccountRiskProfile['getAllLiquidationPrices']
-      >[number][]
-    ) => {
-      return zipByKeyToArray(prior, post, (t) => t.asset.id).map(
-        ([current, updated]) => {
-          const asset = (current?.asset || updated?.asset) as TokenDefinition;
-          const debt = (current?.debt || updated?.debt) as TokenDefinition;
-
-          return {
-            asset,
-            debt,
-            current: current?.threshold?.toToken(debt),
-            updated: updated?.threshold?.toToken(debt),
-            changeType: getChangeType(
-              current?.threshold?.toFloat(),
-              updated?.threshold?.toFloat()
-            ),
-            // Debt thresholds improve as they increase
-            greenOnArrowUp: updated?.isDebtThreshold ? true : false,
-            isPriceRisk: asset.tokenType === 'Underlying',
-            isAssetRisk: asset.tokenType !== 'Underlying',
-          };
-        }
-      );
-    };
 
     const comparePortfolio = (prior: TokenBalance[], post: TokenBalance[]) => {
       return zipByKeyToArray(prior, post, (t) => t.tokenId)
@@ -993,52 +963,27 @@ export const TradeModel = types
       );
 
       return {
-        onlyCurrent: !postVaultRisk,
-        tooRisky: postVaultRisk?.aboveMaxLeverageRatio() || false,
-        priorAccountNoRisk:
-          priorVaultRisk === undefined ||
-          priorVaultRisk?.leverageRatio() === null,
-        postAccountNoRisk:
-          postVaultRisk === undefined ||
-          postVaultRisk?.leverageRatio() === null,
-        healthFactor: {
-          current: priorVaultRisk?.healthFactor(),
-          updated: postVaultRisk?.healthFactor(),
-          changeType: getChangeType(
-            priorVaultRisk?.healthFactor(),
-            postVaultRisk?.healthFactor()
-          ),
-          greenOnArrowUp: true,
+        current: {
+          healthFactor: priorVaultRisk?.healthFactor(),
+          leverageRatio: priorVaultRisk?.leverageRatio(),
+          netWorth: priorVaultRisk?.netWorth(),
+          liquidationPrices: priorVaultRisk?.getAllLiquidationPrices() || [],
+          borrowAPY: formatNumberAsPercentWithUndefined(priorBorrowRate, '-'),
+          totalAPY: formatNumberAsPercentWithUndefined(priorAPY, '-'),
         },
-        liquidationPrice: mergeLiquidationPrices(
-          priorVaultRisk?.getAllLiquidationPrices() || [],
-          postVaultRisk?.getAllLiquidationPrices() || []
-        ),
-        netWorth: {
-          current: priorVaultRisk
-            ?.netWorth()
-            .toDisplayStringWithSymbol(2, true, false),
-          updated: postVaultRisk
-            ?.netWorth()
-            .toDisplayStringWithSymbol(2, true, false),
-          changeType: getChangeType(
-            priorVaultRisk?.netWorth().toFloat(),
-            postVaultRisk?.netWorth().toFloat()
-          ),
-          greenOnArrowUp: true,
-        },
-        borrowAPY: {
-          current: formatNumberAsPercentWithUndefined(priorBorrowRate, '-'),
-          updated: formatNumberAsPercentWithUndefined(postBorrowRate, '-'),
-          changeType: getChangeType(priorBorrowRate, postBorrowRate),
-          greenOnArrowUp: false,
-        },
-        totalAPY: {
-          current: formatNumberAsPercentWithUndefined(priorAPY, '-'),
-          updated: formatNumberAsPercentWithUndefined(postAPY, '-'),
-          changeType: getChangeType(priorAPY, postAPY),
-          greenOnArrowUp: true,
-        },
+        updated: postVaultRisk
+          ? {
+              healthFactor: postVaultRisk?.healthFactor(),
+              leverageRatio: postVaultRisk?.leverageRatio(),
+              netWorth: postVaultRisk?.netWorth(),
+              liquidationPrices: postVaultRisk?.getAllLiquidationPrices() || [],
+              borrowAPY: formatNumberAsPercentWithUndefined(
+                postBorrowRate,
+                '-'
+              ),
+              totalAPY: formatNumberAsPercentWithUndefined(postAPY, '-'),
+            }
+          : undefined,
       };
     };
 
@@ -1135,86 +1080,6 @@ export const TradeModel = types
       }
     };
 
-    const getLeverageOptions = () => {
-      const model = root().getNetworkClient(self.selectedNetwork);
-
-      if (!self.collateralOptions && !self.collateral)
-        return {
-          leverageOptions: [],
-          selectedLeverageOption: undefined,
-        };
-
-      const leverageOptions = self.debtOptions?.map((debt) => {
-        const isVariableRate =
-          debt.token.maturity === PRIME_CASH_VAULT_MATURITY ||
-          debt.token.maturity === undefined;
-
-        try {
-          const collateralBalance =
-            self.collateralOptions.find(
-              (c) => c.token.id === self.collateral?.id
-            )?.balance || TokenBalance.zero(self.collateral as TokenDefinition);
-
-          const debtBalance =
-            debt.balance || TokenBalance.zero(debt.token as TokenDefinition);
-
-          const leveragedAPY = model.getLeveragedAPY(
-            collateralBalance,
-            debtBalance,
-            self.leverageRatio || self.defaultLeverageRatio || 0,
-            self.vaultTradeMetadata
-          );
-
-          return {
-            ...leveragedAPY,
-            isVariableRate,
-            debt,
-            error: debt.error,
-          };
-        } catch (e) {
-          console.error(e);
-          return {
-            isVariableRate,
-            debt,
-            error: (e as Error).toString(),
-          };
-        }
-      });
-
-      return {
-        leverageOptions,
-        selectedLeverageOption: leverageOptions.find(
-          (o) => o.debt.token.id === self.debt?.id
-        ),
-      };
-    };
-
-    const getNetBalances = () => {
-      const accountBalances = getPriorVaultBalances() || [];
-      const netChange = self.collateralBalance || self.debtBalance;
-      if (!netChange) return undefined;
-
-      const zero = netChange.copy(0);
-      const start =
-        accountBalances.find((b) => b.tokenId === netChange.tokenId) || zero;
-      const end = start.add(netChange);
-      if (start.eq(end) || (start.gte(zero) && end.gte(zero))) {
-        // Only asset changes
-        return { netAssetBalance: netChange, netDebtBalance: zero };
-      } else if (start.lte(zero) && end.lte(zero)) {
-        // Only debt changes
-        return { netAssetBalance: zero, netDebtBalance: netChange };
-      } else if (start.gte(zero) && end.lte(zero)) {
-        // Entire start balance has decreased to zero, entire negative balance is created
-        return { netAssetBalance: start.neg(), netDebtBalance: end };
-      } else if (start.lte(zero) && end.gte(zero)) {
-        // Entire start balance has been repaid, entire positive balance is created
-        return { netAssetBalance: end, netDebtBalance: start.neg() };
-      }
-
-      throw Error('unknown balance change');
-    };
-
     return {
       get vaultName() {
         if (!self.vaultAddress) return undefined;
@@ -1247,8 +1112,6 @@ export const TradeModel = types
           debt: self.debtOptions as TokenOption[] | undefined,
         };
       },
-      getNetBalances,
-      getLeverageOptions,
       getVaultRiskSummary,
       getPortfolioComparison,
       getPriorVaultBalances,

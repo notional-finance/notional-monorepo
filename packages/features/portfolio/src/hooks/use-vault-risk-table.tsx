@@ -1,6 +1,5 @@
 import { useTheme } from '@mui/material';
 import { DisplayCell, MultiValueIconCell } from '@notional-finance/mui';
-import { useAppStore } from '@notional-finance/notionable-hooks';
 import {
   formatHealthFactorValues,
   useCurrentLiquidationPrices,
@@ -8,10 +7,7 @@ import {
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import { NotionalTheme } from '@notional-finance/styles';
-import {
-  PRIME_CASH_VAULT_MATURITY,
-  formatMaturity,
-} from '@notional-finance/util';
+import { formatMaturity } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 const vaultRiskTableColumns = (theme: NotionalTheme) => [
@@ -100,11 +96,7 @@ export const useVaultRiskTable = () => {
   const theme = useTheme();
   const network = useSelectedNetwork();
   const vaults = useVaultHoldings(network);
-  const { baseCurrency } = useAppStore();
-  const { vaultLiquidation } = useCurrentLiquidationPrices(
-    network,
-    baseCurrency
-  );
+  const { vaultLiquidation } = useCurrentLiquidationPrices(network);
 
   const tableData = vaultLiquidation
     .filter((l) => l.liquidationPrices.length > 0)
@@ -124,7 +116,7 @@ export const useVaultRiskTable = () => {
                   : 'Open Term',
               },
               healthFactor: vaultHolding.healthFactor,
-              manageLink: `/vaults/${network}/${l.vaultAddress}/Manage`,
+              manageLink: `/vaults/${network}/${l.vaultAddress}/manage`,
               ...p,
             };
           })

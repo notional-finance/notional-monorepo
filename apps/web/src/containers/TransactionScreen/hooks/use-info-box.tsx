@@ -11,6 +11,7 @@ import {
   TableRow,
   Paper,
   styled,
+  Theme,
 } from '@mui/material';
 import {
   H5,
@@ -25,7 +26,10 @@ import {
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { formatNumber, RATE_PRECISION } from '@notional-finance/util';
-import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import {
+  formatLeverageRatio,
+  formatNumberAsPercentWithUndefined,
+} from '@notional-finance/helpers';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 
 interface LabelValueSectionProps {
@@ -184,37 +188,62 @@ const TableSection = ({
   );
 };
 
-const useSummaryItems = () => {
-  const theme = useTheme();
-  const trade = useCurrentTradeContext();
-  const risk = trade?.getVaultRiskSummary();
-  const netWorth = risk?.netWorth.updated || risk?.netWorth.current || '-';
-  const healthFactor = formatHealthFactorValues(
-    risk?.healthFactor.updated || risk?.healthFactor.current,
-    theme
-  );
-  const liquidationPrices =
-    risk?.liquidationPrice.map((price) => {
-      return {
-        label: `${price.asset.symbol} Liquidation Price`,
-        content:
-          price.updated?.toDisplayStringWithSymbol(4, false, false) ||
-          price.current?.toDisplayStringWithSymbol(4, false, false) ||
-          '-',
-      };
-    }) || [];
-
+const formatSummaryItems = (
+  summary: {
+    netWorth: TokenBalance | undefined;
+    healthFactor: number | null | undefined;
+    leverageRatio: number | undefined;
+    liquidationPrices: {
+      asset: TokenDefinition;
+      debt: TokenDefinition;
+      threshold: TokenBalance | null;
+      isDebtThreshold: boolean;
+    }[];
+  },
+  theme: Theme
+) => {
+  const healthFactor = formatHealthFactorValues(summary.healthFactor, theme);
   return [
     {
       label: <FormattedMessage defaultMessage={'Net Worth'} />,
-      content: netWorth,
+      content:
+        summary.netWorth?.toDisplayStringWithSymbol(4, false, false) || '-',
     },
     {
       label: <FormattedMessage defaultMessage={'Health Factor'} />,
       content: <Box color={healthFactor.textColor}>{healthFactor.value}</Box>,
     },
-    ...liquidationPrices,
+    {
+      label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+      content: summary.leverageRatio
+        ? formatLeverageRatio(summary.leverageRatio, 4)
+        : '-',
+    },
+    ...summary.liquidationPrices.map((price) => {
+      return {
+        label: `${price.asset.symbol} Liquidation Price`,
+        content:
+          price.threshold?.toDisplayStringWithSymbol(4, false, false) || '-',
+      };
+    }),
   ];
+};
+
+const useSummaryItems = () => {
+  const theme = useTheme();
+  const trade = useCurrentTradeContext();
+  const r = trade?.getVaultRiskSummary();
+  const currentItems = r?.current
+    ? formatSummaryItems(r.current, theme)
+    : undefined;
+  const updatedItems = r?.updated
+    ? formatSummaryItems(r.updated, theme)
+    : undefined;
+
+  return {
+    current: currentItems,
+    updated: updatedItems,
+  };
 };
 
 function formatAPYValues(
@@ -353,7 +382,7 @@ const useOrderDetails = () => {
 };
 
 export const useInfoBox = () => {
-  const summaryItems = useSummaryItems();
+  const { current, updated } = useSummaryItems();
   const apyBreakdown = useApyBreakdown();
   const orderDetails = useOrderDetails();
 
@@ -362,7 +391,22 @@ export const useInfoBox = () => {
       tabTitle: 'Summary',
       tabContent: (
         <DividedSections>
-          <LabelValueSection items={summaryItems} />
+          {updated === undefined ? (
+            <LabelValueSection items={current || []} />
+          ) : (
+            [
+              <LabelValueSection
+                sectionTitle="Updated Position"
+                items={updated}
+                key="updated"
+              />,
+              <LabelValueSection
+                sectionTitle="Current Position"
+                items={current || []}
+                key="current"
+              />,
+            ]
+          )}
         </DividedSections>
       ),
     },

@@ -93,10 +93,6 @@ export function useVaultMaxWithdraw(
     : undefined;
 }
 
-export function usePortfolioLiquidationPrices(network: Network | undefined) {
-  return useNetworkAccounts(network)?.portfolioLiquidationPrices;
-}
-
 export function useAccountCurrentFactors(network: Network | undefined) {
   return useNetworkAccounts(network)?.currentFactors;
 }
