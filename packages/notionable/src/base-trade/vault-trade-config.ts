@@ -45,6 +45,8 @@ function sameVaultMaturity(
       (t.tokenType === 'VaultDebt' || t.tokenType === 'VaultShare') &&
       t.token.vaultAddress === vaultAddress
   )?.maturity;
+  if (maturity === undefined) return true;
+
   return maturity && maturity < getNowSeconds()
     ? t.maturity === PRIME_CASH_VAULT_MATURITY
     : t.maturity === maturity;

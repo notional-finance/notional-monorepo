@@ -1027,9 +1027,7 @@ export const TradeModel = types
 
       return {
         overPoolCapacityError:
-          self.tradeType === 'WithdrawVault'
-            ? undefined
-            : overPoolCapacityError,
+          self.tradeType === 'WithdrawVault' ? false : overPoolCapacityError,
         maxPoolShare,
         totalPoolCapacityRemaining,
         vaultTVL: vaultAdapter?.getVaultTVL(),
@@ -1080,6 +1078,11 @@ export const TradeModel = types
       }
     };
 
+    const getVaultMaxWithdraw = () => {
+      const { priorVaultRisk } = getPostVaultRiskProfile();
+      return priorVaultRisk?.maxWithdraw();
+    };
+
     return {
       get vaultName() {
         if (!self.vaultAddress) return undefined;
@@ -1118,6 +1121,7 @@ export const TradeModel = types
       getPostVaultFactors,
       getVaultCapacity,
       getVaultAPYBreakdown,
+      getVaultMaxWithdraw,
       canSubmit,
     };
   });

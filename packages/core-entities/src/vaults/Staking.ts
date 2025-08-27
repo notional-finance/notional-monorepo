@@ -56,9 +56,9 @@ export class Staking extends VaultAdapter {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
-    const netUnderlyingForVaultShares = netVaultShares.toToken(
-      this.borrowedToken
-    );
+    const netUnderlyingForVaultShares = netVaultShares
+      .toToken(this.borrowedToken)
+      .neg();
     return {
       netUnderlyingForVaultShares: netUnderlyingForVaultShares,
       feesPaid: netUnderlyingForVaultShares.copy(0),

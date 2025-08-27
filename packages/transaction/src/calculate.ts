@@ -86,6 +86,18 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
       .scaleTo(RATE_DECIMALS)
       .toNumber();
 
+    if (initialDebtUnitsEstimateInRP === 0) {
+      return {
+        ...calculateVaultCollateral({
+          collateral,
+          vaultAdapter,
+          debtBalance: TokenBalance.zero(debt),
+          depositBalance,
+        }),
+        debtBalance: TokenBalance.zero(debt),
+      };
+    }
+
     ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } =
       vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral));
     profile = profile.simulate([netVaultSharesForWithdraw]);

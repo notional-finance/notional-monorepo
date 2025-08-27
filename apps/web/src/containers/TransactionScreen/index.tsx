@@ -11,6 +11,7 @@ import { FeatureLoader } from '@notional-finance/shared-web';
 import {
   VaultCreateScreen,
   VaultIncreaseScreen,
+  VaultInstantWithdraw,
   VaultManageScreen,
 } from './screens';
 
@@ -38,6 +39,7 @@ export const VaultDefaultScreen = observer(() => {
           }
         />
         <Route path="increase" element={<VaultIncreaseScreen />} />
+        <Route path="instant-withdraw" element={<VaultInstantWithdraw />} />
       </Routes>
     </FeatureLoader>
   );

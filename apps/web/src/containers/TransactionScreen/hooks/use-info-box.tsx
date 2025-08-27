@@ -385,10 +385,12 @@ const useOrderDetails = () => {
 
   if (trade?.depositBalance) {
     orderDetails.push({
-      label: 'Amount Deposited',
+      label: trade.depositBalance.isNegative()
+        ? 'Amount Withdrawn'
+        : 'Amount Deposited',
       content: (
         <CountUp
-          value={trade.depositBalance.toFloat()}
+          value={trade.depositBalance.abs().toFloat()}
           decimals={4}
           suffix={` ${trade.depositBalance.symbol}`}
         />
@@ -399,7 +401,9 @@ const useOrderDetails = () => {
   if (trade?.debtBalance) {
     const borrowed = trade.debtBalance.abs().toUnderlying();
     orderDetails.push({
-      label: 'Amount Borrowed',
+      label: trade.debtBalance.isPositive()
+        ? 'Amount Repaid'
+        : 'Amount Borrowed',
       content: (
         <CountUp
           value={borrowed.toFloat()}
@@ -412,9 +416,11 @@ const useOrderDetails = () => {
 
   if (trade?.collateralBalance) {
     orderDetails.push({
-      label: 'Vault Shares Minted',
+      label: trade.collateralBalance.isNegative()
+        ? 'Vault Shares Redeemed'
+        : 'Vault Shares Minted',
       content: (
-        <CountUp value={trade.collateralBalance.toFloat()} decimals={4} />
+        <CountUp value={trade.collateralBalance.abs().toFloat()} decimals={4} />
       ),
     });
   }
