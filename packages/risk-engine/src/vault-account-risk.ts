@@ -242,7 +242,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     } else if (collateralRatio === 0) {
       return Infinity;
     } else {
-      return null;
+      return 0;
     }
   }
 

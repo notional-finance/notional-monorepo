@@ -10,7 +10,6 @@ export * from './transaction-sidebar/components';
 export * from './transaction-sidebar/components/transaction-headings';
 export * from './performance-chart/use-apy-chart';
 export * from './performance-chart/performance-chart';
-export * from './side-drawer-router/side-drawer-router';
 export * from './position-details-table/position-details-table';
 export * from './transaction-approvals/switch-network';
 export * from './transaction-approvals/hooks/use-change-network';

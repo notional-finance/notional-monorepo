@@ -12,7 +12,6 @@ import {
 } from '@notional-finance/core-entities';
 import {
   AllTradeTypes,
-  BaseTradeState,
   isNOTEStake,
   isVaultTrade,
   NOTETradeType,
@@ -49,7 +48,6 @@ import {
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
-import { getComparisonKey } from '../utils';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -317,6 +315,29 @@ export const TradeModel = types
       ) as Instance<typeof TokenDefinitionModel> | undefined;
     };
 
+    const setInitialLeverageRatios = () => {
+      const model = root().getNetworkClient(self.selectedNetwork);
+      const account = root().getAccountDefinition(self.selectedNetwork);
+      const riskProfile =
+        account && self.vaultAddress
+          ? VaultAccountRiskProfile.fromAccount(self.vaultAddress, account)
+          : undefined;
+
+      if (self.availableDebtTokens.length === 1) {
+        self.debt = self.availableDebtTokens[0];
+        const l = model.getLeverageRatios(self.debt as TokenDefinition);
+        self.maxLeverageRatio = l.maxLeverageRatio;
+        self.defaultLeverageRatio = l.defaultLeverageRatio;
+        self.minLeverageRatio = l.minLeverageRatio;
+        self.leverageRatio = self.defaultLeverageRatio;
+      }
+
+      if (riskProfile) {
+        // If there is an existing risk profile, use the leverage ratio from the risk profile
+        self.leverageRatio = riskProfile.leverageRatio();
+      }
+    };
+
     const setInitialComputedOptions = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
 
@@ -396,14 +417,7 @@ export const TradeModel = types
       }
 
       setAvailableDebtTokens();
-      if (self.availableDebtTokens.length === 1) {
-        self.debt = self.availableDebtTokens[0];
-        const l = model.getLeverageRatios(self.debt as TokenDefinition);
-        self.maxLeverageRatio = l.maxLeverageRatio;
-        self.defaultLeverageRatio = l.defaultLeverageRatio;
-        self.minLeverageRatio = l.minLeverageRatio;
-        self.leverageRatio = l.defaultLeverageRatio;
-      }
+      setInitialLeverageRatios();
 
       // NOTE: everything above here is just setting the initial state including leverage
       // ratios and the available tokens
@@ -658,7 +672,6 @@ export const TradeModel = types
           populatedTransaction,
           transactionError: undefined,
         };
-        // TODO: add simulation
       } catch (e) {
         // Log these errors in full to the console
         console.error(e);
@@ -719,53 +732,6 @@ export const TradeModel = types
         self.minLeverageRatio = l.minLeverageRatio;
       }
 
-      calculate();
-    };
-
-    const setRequiredSideDrawerState = (
-      requiredState: Record<string, unknown>,
-      path: string
-    ) => {
-      if (!isAlive(self)) return;
-      const pathname = window.location.pathname;
-      const allStateMatches = Object.keys(requiredState)
-        // NOTE: this means that required state cannot clear previously set state
-        .filter((k) => requiredState[k] !== undefined)
-        .every((k) => {
-          const s = getComparisonKey(
-            k,
-            self as unknown as Partial<BaseTradeState>
-          );
-          const r = getComparisonKey(k, requiredState);
-          return s === r;
-        });
-
-      if (
-        allStateMatches ||
-        // Use a "startsWith" here to support potential suffix to the path
-        // such as in roll debt
-        !pathname.startsWith(path)
-      )
-        return;
-
-      // If resetting the state, clear the trade state first to avoid any
-      // stale state from previous calculations
-      clearTradeState();
-      Object.keys(requiredState).forEach((k) => {
-        if (k === 'debt' && requiredState[k]) {
-          const model = root().getNetworkClient(self.selectedNetwork);
-          self.debt = model.getTokenByID(
-            (requiredState[k] as TokenDefinition).id
-          ) as Instance<typeof TokenDefinitionModel>;
-        } else if (k === 'collateral' && requiredState[k]) {
-          const model = root().getNetworkClient(self.selectedNetwork);
-          self.collateral = model.getTokenByID(
-            (requiredState[k] as TokenDefinition).id
-          ) as Instance<typeof TokenDefinitionModel>;
-        }
-
-        self[k] = requiredState[k];
-      });
       calculate();
     };
 
@@ -834,7 +800,6 @@ export const TradeModel = types
       setDebtBalance,
       setDebtAndCollateralBalance,
       setLeverageRatio,
-      setRequiredSideDrawerState,
       afterAttach,
       setHasInputErrors,
       setDepositBalance,
@@ -1136,8 +1101,8 @@ export const TradeModel = types
           self.calculationSuccess &&
           !!postAccountRisk &&
           (leverageRatio === null ||
-            (!!postAccountRisk.maxLeverageRatio &&
-              !!leverageRatio &&
+            (postAccountRisk.maxLeverageRatio !== undefined &&
+              leverageRatio !== undefined &&
               leverageRatio < postAccountRisk.maxLeverageRatio)) &&
           overPoolCapacityError === false &&
           self.inputErrors === false
