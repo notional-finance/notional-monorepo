@@ -188,9 +188,16 @@ const TableSection = ({
   );
 };
 
-const formatCountUp = (value: TokenBalance | undefined | null) => {
+const formatCountUp = (
+  value: TokenBalance | undefined | null,
+  suffix?: string
+) => {
   return value ? (
-    <CountUp value={value.toFloat()} decimals={4} suffix={` ${value.symbol}`} />
+    <CountUp
+      value={value.toFloat()}
+      decimals={4}
+      suffix={suffix !== undefined ? suffix : ` ${value.symbol}`}
+    />
   ) : (
     '-'
   );
@@ -376,7 +383,7 @@ const useOrderDetails = () => {
       label: trade.collateralBalance.isNegative()
         ? 'Vault Shares Redeemed'
         : 'Vault Shares Minted',
-      content: formatCountUp(trade.collateralBalance.abs()),
+      content: formatCountUp(trade.collateralBalance.abs(), ''),
     });
   }
 

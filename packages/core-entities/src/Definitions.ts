@@ -150,6 +150,16 @@ export interface HistoricalBalance {
   balance: TokenBalance;
 }
 
+export interface WithdrawRequest {
+  withdrawManager: string;
+  requestId: string;
+  sharesAmount: TokenBalance;
+  yieldTokenAmount: TokenBalance;
+  finalized: boolean;
+  withdrawTokenAmount: TokenBalance;
+  canFinalize?: boolean;
+}
+
 export interface AccountDefinition {
   /** Address of the account */
   address: string;
@@ -172,6 +182,7 @@ export interface AccountDefinition {
   historicalBalances?: HistoricalBalance[];
   rewardClaims?: Record<string, TokenBalance[]>;
   lendingRouterApprovals?: Record<string, boolean>;
+  withdrawRequests?: Record<string, WithdrawRequest[]>;
 }
 
 /** ERC20 allowances tracked for UI purposes */

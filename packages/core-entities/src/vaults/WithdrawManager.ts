@@ -35,6 +35,7 @@ export class WithdrawManager {
   private strategy: WithdrawStrategy;
 
   constructor(
+    public address: string,
     public stakingToken: TokenDefinition,
     public withdrawToken: TokenDefinition,
     public yieldToken: TokenDefinition

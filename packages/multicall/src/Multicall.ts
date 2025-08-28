@@ -34,14 +34,19 @@ async function executeStage<T>(
       try {
         return {
           ...c,
-          target: contract.address,
-          callData: contract.interface.encodeFunctionData(c.method, args),
+          target: contract === NO_OP ? NO_OP : contract.address,
+          callData:
+            contract === NO_OP
+              ? '0x'
+              : contract.interface.encodeFunctionData(c.method, args),
           allowFailure: allowFailure,
           contract,
         };
       } catch (e) {
         throw new SyntaxError(`
-Error in Multicall, attempting to encode: ${contract.address}#${c.method}(${c.args}):
+Error in Multicall, attempting to encode: ${
+          contract === NO_OP ? 'NO_OP' : contract.address
+        }#${c.method}(${c.args}):
 ${e}`);
       }
     });
@@ -66,7 +71,7 @@ ${e}`);
     throw new Error(`
 Error executing Multicall: ${aggregateCall.map((c) =>
       JSON.stringify({
-        address: c.contract?.address,
+        address: c.contract === NO_OP ? 'NO_OP' : c.contract?.address,
         method: c.method,
         args: c.args,
       })
@@ -79,7 +84,7 @@ ${e}, blockNumber=${blockNumber}`);
       let result: unknown;
 
       // If the target is a NO_OP then the value must be fetched from the transform
-      if (target === NO_OP) {
+      if (target === NO_OP || contract === NO_OP) {
         if (transform === undefined)
           throw Error('Undefined transform for NO_OP');
         result = transform(undefined, obj);

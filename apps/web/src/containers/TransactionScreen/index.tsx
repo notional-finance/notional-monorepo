@@ -39,6 +39,7 @@ export const VaultDefaultScreen = observer(() => {
             vaultPosition ? <VaultManageScreen /> : <VaultCreateScreen />
           }
         />
+        <Route path="manage" element={<VaultManageScreen />} />
         <Route path="increase" element={<VaultIncreaseScreen />} />
         <Route path="instant-withdraw" element={<VaultInstantWithdraw />} />
         <Route path="smart-withdraw" element={<VaultSmartWithdraw />} />

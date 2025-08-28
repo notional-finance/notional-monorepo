@@ -6,7 +6,7 @@ export interface AggregateCall<T = unknown> {
   // Contract to target in the call
   target:
     | Contract
-    | ((prevResults: Partial<Record<string, T>>) => Contract)
+    | ((prevResults: Partial<Record<string, T>>) => Contract | typeof NO_OP)
     | typeof NO_OP;
   // Function fragment to get the corresponding interface
   method: string | utils.FunctionFragment | typeof NO_OP;

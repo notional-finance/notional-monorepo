@@ -1,46 +1,50 @@
 import { TransactionScreen } from '../transaction-screen';
 import { observer } from 'mobx-react-lite';
 import { useTradeContext } from '@notional-finance/notionable-hooks';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { alpha, Box, styled } from '@mui/material';
 import { Button, H5 } from '@notional-finance/mui';
 
 export const VaultManageScreen = observer(() => {
   useTradeContext('ManageVault');
-  const location = useLocation();
+  const { vaultAddress, selectedNetwork } = useParams<{
+    vaultAddress: string;
+    selectedNetwork: string;
+  }>();
+  const path = `/vault/${selectedNetwork}/${vaultAddress}`;
 
   const maintainLeverage = [
     {
       label: <FormattedMessage defaultMessage="Increase" />,
-      to: `${location.pathname}/increase`,
+      to: `${path}/increase`,
     },
     {
       label: <FormattedMessage defaultMessage="Instant Withdraw" />,
-      to: `${location.pathname}/instant-withdraw`,
+      to: `${path}/instant-withdraw`,
     },
     {
       label: <FormattedMessage defaultMessage="Smart Withdraw" />,
-      to: `${location.pathname}/smart-withdraw`,
+      to: `${path}/smart-withdraw`,
     },
   ];
 
   const adjustLeverage = [
     {
       label: <FormattedMessage defaultMessage="Deposit" />,
-      to: `${location.pathname}/deposit`,
+      to: `${path}/deposit`,
     },
     {
       label: <FormattedMessage defaultMessage="Borrow" />,
-      to: `${location.pathname}/borrow`,
+      to: `${path}/borrow`,
     },
     {
       label: <FormattedMessage defaultMessage="Repay" />,
-      to: `${location.pathname}/repay`,
+      to: `${path}/repay`,
     },
     {
       label: <FormattedMessage defaultMessage="Sell Assets" />,
-      to: `${location.pathname}/sell-assets`,
+      to: `${path}/sell-assets`,
     },
   ];
 

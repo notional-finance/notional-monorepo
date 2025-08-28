@@ -23,11 +23,6 @@ import { TradeModel } from './TradeModel';
 
 const NX_SUBGRAPH_API_KEY = process.env['NX_SUBGRAPH_API_KEY'] as string;
 
-const AccountIncentiveDebtModel = types.model('AccountIncentiveDebt', {
-  value: NotionalTypes.TokenBalance,
-  currencyId: types.number,
-});
-
 const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
   get(identifier, parent) {
     const root = () => getRoot<RootStoreInterface>(parent);
@@ -99,6 +94,16 @@ export const BalanceStatementModel = types.model('BalanceStatement', {
   impliedFixedRate: types.maybe(types.number),
 });
 
+const WithdrawRequestModel = types.model('WithdrawRequest', {
+  withdrawManager: types.string,
+  requestId: types.string,
+  sharesAmount: NotionalTypes.TokenBalance,
+  yieldTokenAmount: NotionalTypes.TokenBalance,
+  finalized: types.boolean,
+  withdrawTokenAmount: NotionalTypes.TokenBalance,
+  canFinalize: types.maybe(types.boolean),
+});
+
 const AccountHistoryModel = types.model('AccountHistory', {
   lineItemType: types.string,
   txnLabel: types.optional(types.maybe(types.string), undefined),
@@ -135,14 +140,6 @@ export const AccountModel = types
       types.map(types.array(NotionalTypes.TokenBalance)),
       {}
     ),
-    accountIncentiveDebt: types.optional(
-      types.array(AccountIncentiveDebtModel),
-      []
-    ),
-    secondaryIncentiveDebt: types.optional(
-      types.array(AccountIncentiveDebtModel),
-      []
-    ),
     allowances: types.optional(
       types.array(
         types.model({
@@ -166,6 +163,10 @@ export const AccountModel = types
     accountHistory: types.optional(types.array(AccountHistoryModel), []),
     balanceStatement: types.optional(types.array(BalanceStatementModel), []),
     historicalBalances: types.optional(types.array(HistoricalBalanceModel), []),
+    withdrawRequests: types.optional(
+      types.map(types.array(WithdrawRequestModel)),
+      {}
+    ),
   })
   .actions((self) => {
     let provider = getProviderFromNetwork(self.network);
@@ -211,6 +212,9 @@ export const AccountModel = types
           self.lendingRouterApprovals.replace(
             accountDefinition.lendingRouterApprovals
           );
+        }
+        if (accountDefinition.withdrawRequests) {
+          self.withdrawRequests.replace(accountDefinition.withdrawRequests);
         }
         self.lastUpdateTimestamp = result.lastUpdateTimestamp;
         self.isContract = accountDefinition?.isContract || false;

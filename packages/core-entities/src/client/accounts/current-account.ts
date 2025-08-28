@@ -3,6 +3,8 @@ import {
   ERC20ABI,
   LendingRouterABI,
   MorphoABI,
+  WithdrawRequestManagerABI,
+  IWithdrawRequestManager,
 } from '@notional-finance/contracts';
 import {
   ADDRESS_REGISTRY,
@@ -24,6 +26,7 @@ import {
   AccountDefinition,
   StakeNoteStatus,
   TokenDefinition,
+  WithdrawRequest,
 } from '../../Definitions';
 import { fetchUsingMulticall } from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
@@ -43,12 +46,19 @@ export async function fetchCurrentAccount(
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
 
   const vaultAddresses = model.getAllListedVaults().map((v) => v.vaultAddress);
-  const { results: positions } = await getAccountPositions(
+  const positions = await getAccountPositions(
     network,
     account,
     vaultAddresses,
     provider
-  );
+  ).then(({ results }) => {
+    // Filter results to only include entries where lendingRouter is not ZERO_ADDRESS
+    return Object.fromEntries(
+      Object.entries(results).filter(
+        ([_, { lendingRouter }]) => lendingRouter !== ZERO_ADDRESS
+      )
+    );
+  });
 
   const allCalls = getDepositTokenBalanceCalls(account, depositTokens, provider)
     .concat(
@@ -64,7 +74,7 @@ export async function fetchCurrentAccount(
     .concat(
       getLendingRouterApprovalCalls(network, account, lendingRouters, provider)
     );
-  // TODO: get reward claims, get withdraw requests.
+  // TODO: get reward claims
 
   return fetchUsingMulticall<AccountDefinition>(
     network,
@@ -110,6 +120,34 @@ export async function fetchCurrentAccount(
                   [lendingRouter]: results[k] as boolean,
                 });
               }, {} as Record<string, boolean>),
+            withdrawRequests: Object.keys(results)
+              .filter((k) => k.includes('.withdrawRequest'))
+              .sort((a, b) => {
+                // If the key includes .canFinalize, it should be last
+                if (a.includes('.canFinalize')) return 1;
+                if (b.includes('.canFinalize')) return -1;
+                return 0;
+              })
+              .reduce((agg, k) => {
+                const [vaultAddress, _, index] = k.split('.');
+                const wr: WithdrawRequest[] = agg[k] || [];
+                if (k.includes('.canFinalize') && parseInt(index) < wr.length) {
+                  wr[parseInt(index)] = {
+                    ...wr[parseInt(index)],
+                    canFinalize: results[k] as boolean,
+                  };
+                }
+
+                if (results[k]) {
+                  wr.push(results[k] as WithdrawRequest);
+
+                  return Object.assign(agg, {
+                    [vaultAddress]: wr,
+                  });
+                } else {
+                  return agg;
+                }
+              }, {} as Record<string, WithdrawRequest[]>),
           },
         };
       },
@@ -230,10 +268,10 @@ function getVaultBalanceCalls(
 ): AggregateCall[] {
   const model = getNetworkModel(network);
 
-  return Object.entries(positions)
-    .filter(([_, { lendingRouter }]) => lendingRouter !== ZERO_ADDRESS)
-    .flatMap(([v, { lendingRouter, lastEntryTime }]) => {
+  return Object.entries(positions).flatMap(
+    ([v, { lendingRouter, lastEntryTime }]) => {
       const l = new Contract(lendingRouter, LendingRouterABI, provider);
+      const withdrawManagers = model.getWithdrawManagers(v);
       return [
         {
           stage: 0,
@@ -262,8 +300,77 @@ function getVaultBalanceCalls(
             return TokenBalance.from(b, model.getVaultDebt(v, lendingRouter));
           },
         },
+        ...withdrawManagers.flatMap((w, index) => {
+          return [
+            {
+              stage: 0,
+              target: new Contract(
+                w.address,
+                WithdrawRequestManagerABI,
+                provider
+              ),
+              method: 'getWithdrawRequest',
+              args: [account, v],
+              key: `${v}.withdrawRequest.${index}`,
+              transform: (
+                r: Awaited<
+                  ReturnType<IWithdrawRequestManager['getWithdrawRequest']>
+                >
+              ) => {
+                if (r.w.requestId.isZero()) return undefined;
+
+                return {
+                  withdrawManager: w.address,
+                  requestId: r.w.requestId,
+                  finalized: r.s.finalized,
+                  sharesAmount: TokenBalance.from(
+                    r.w.sharesAmount,
+                    model.getVaultShare(v)
+                  ),
+                  yieldTokenAmount: TokenBalance.from(
+                    r.w.yieldTokenAmount,
+                    w.yieldToken
+                  ),
+                  withdrawTokenAmount: r.s.finalized
+                    ? TokenBalance.from(
+                        r.s.totalWithdraw
+                          .mul(r.w.yieldTokenAmount)
+                          .div(r.s.totalYieldTokenAmount),
+                        w.withdrawToken
+                      )
+                    : undefined,
+                };
+              },
+            },
+            {
+              stage: 1,
+              target: (prevResults: Record<string, unknown>) => {
+                const wr = prevResults[
+                  `${v}.withdrawRequest.${index}`
+                ] as WithdrawRequest;
+                if (!wr || wr.finalized) return NO_OP;
+                return new Contract(
+                  w.address,
+                  WithdrawRequestManagerABI,
+                  provider
+                );
+              },
+              method: 'canFinalizeWithdrawRequest',
+              args: (prevResults: Record<string, unknown>) => {
+                const wr = prevResults[
+                  `${v}.withdrawRequest.${index}`
+                ] as WithdrawRequest;
+                if (!wr || wr.finalized) return [];
+                return [wr.requestId];
+              },
+              key: `${v}.withdrawRequest.${index}.canFinalize`,
+              transform: (b: boolean | undefined) => b,
+            },
+          ];
+        }),
       ];
-    });
+    }
+  );
 }
 
 function getStakedNOTECalls(
