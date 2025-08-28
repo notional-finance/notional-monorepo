@@ -30,14 +30,9 @@ const PendleMarketABI = new ethers.utils.Interface([
   'function expiry() view external returns (uint256)',
 ]);
 
-const StakingVaultABI = new ethers.utils.Interface([
-  'function yieldToken() view external returns (address)',
-]);
-
 const CurveConvex2Token = new ethers.utils.Interface([
   'function CURVE_POOL_TOKEN() view external returns (address)',
   'function PRIMARY_INDEX() view external returns (uint8)',
-  'function yieldToken() view external returns (address)',
   'function maxPoolShare() view external returns (uint256)',
   'function totalSupply() view external returns (uint256)',
   // TODO: get this from the abi
@@ -58,6 +53,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
       );
       vaultConfigurations = data['data'].vaults.map((v) => ({
         vaultAddress: v.id,
+        yieldToken: v.yieldToken.id,
         strategyType: v.strategyType,
         enabled: v.isWhitelisted,
       }));
@@ -71,6 +67,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         .map(([v, p]) => {
           return {
             vaultAddress: v,
+            yieldToken: (p as { yieldToken: string }).yieldToken,
             strategyType: (p as { strategyType: string }).strategyType,
             enabled: (p as { enabled: boolean }).enabled,
           };
@@ -82,10 +79,12 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         vaultAddress,
         enabled,
         strategyType,
+        yieldToken,
       }: {
         vaultAddress: string;
         enabled: boolean;
         strategyType: string;
+        yieldToken: string;
       }) => {
         let calls: AggregateCall[] = [];
         switch (strategyType) {
@@ -96,7 +95,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             calls = this.getPendlePTCalls(vaultAddress, network, enabled);
             break;
           case 'Staking':
-            calls = this.getStakingCalls(vaultAddress, network, enabled);
+            calls = this.getStakingCalls(vaultAddress, enabled);
             break;
           default:
             calls = [];
@@ -108,6 +107,13 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             method: 'NO_OP',
             key: vaultAddress,
             transform: () => ({ vaultAddress }),
+          },
+          {
+            target: 'NO_OP',
+            stage: 0,
+            method: 'NO_OP',
+            key: `${vaultAddress}.yieldToken`,
+            transform: () => yieldToken,
           },
           {
             target: 'NO_OP',
@@ -196,12 +202,6 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         stage: 0,
         method: 'PRIMARY_INDEX',
         key: `${vaultAddress}.singleSidedTokenIndex`,
-      },
-      {
-        target: vaultContract,
-        stage: 0,
-        method: 'yieldToken',
-        key: `${vaultAddress}.yieldToken`,
       },
       {
         stage: 0,
@@ -324,7 +324,6 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
 
   protected getStakingCalls(
     vaultAddress: string,
-    network: Network,
     enabled: boolean
   ): AggregateCall[] {
     return [
@@ -334,16 +333,6 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         method: 'NO_OP',
         key: `${vaultAddress}.enabled`,
         transform: () => enabled,
-      },
-      {
-        target: new Contract(
-          vaultAddress,
-          StakingVaultABI,
-          getProviderFromNetwork(network)
-        ),
-        stage: 0,
-        method: 'yieldToken',
-        key: `${vaultAddress}.yieldToken`,
       },
     ];
   }

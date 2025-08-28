@@ -16,16 +16,23 @@ export interface StakingVaultParams extends BaseVaultParams {
 }
 
 export class Staking extends VaultAdapter {
-  public yieldToken: TokenDefinition;
   public stakingToken: TokenDefinition;
 
   constructor(
     network: Network,
     vaultAddress: string,
     p: StakingVaultParams,
-    borrowedToken: TokenDefinition
+    borrowedToken: TokenDefinition,
+    yieldToken: TokenDefinition
   ) {
-    super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
+    super(
+      p.enabled,
+      p.strategyType,
+      network,
+      vaultAddress,
+      borrowedToken,
+      yieldToken
+    );
     const model = getNetworkModel(this.network);
     this.yieldToken = model.getTokenByID(p.yieldToken);
     const vaultConfig = model.getVaultConfig(this.vaultAddress);

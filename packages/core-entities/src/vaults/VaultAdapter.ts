@@ -8,6 +8,7 @@ import { APYData } from '../models/views/YieldViews';
 export interface BaseVaultParams {
   vaultAddress: string;
   enabled: boolean;
+  yieldToken: string;
   strategyType: string;
 }
 
@@ -19,7 +20,8 @@ export abstract class VaultAdapter {
     public strategyType: string,
     public network: Network,
     public vaultAddress: string,
-    public borrowedToken: TokenDefinition
+    public borrowedToken: TokenDefinition,
+    public yieldToken: TokenDefinition
   ) {
     // NO-OP
   }

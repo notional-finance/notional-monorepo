@@ -101,9 +101,17 @@ export class SingleSidedLP extends VaultAdapter {
     p: SingleSidedLPParams,
     _pool: BaseLiquidityPool<unknown>,
     borrowedToken: TokenDefinition,
+    yieldToken: TokenDefinition,
     public apyHistory?: TimeSeriesResponse
   ) {
-    super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
+    super(
+      p.enabled,
+      p.strategyType,
+      network,
+      vaultAddress,
+      borrowedToken,
+      yieldToken
+    );
 
     this.pool = _pool;
 

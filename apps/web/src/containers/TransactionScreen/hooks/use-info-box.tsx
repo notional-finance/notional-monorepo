@@ -187,6 +187,14 @@ const TableSection = ({
   );
 };
 
+const formatCountUp = (value: TokenBalance | undefined | null) => {
+  return value ? (
+    <CountUp value={value.toFloat()} decimals={4} suffix={` ${value.symbol}`} />
+  ) : (
+    '-'
+  );
+};
+
 const formatSummaryItems = (
   summary: {
     netWorth: TokenBalance | undefined;
@@ -205,15 +213,7 @@ const formatSummaryItems = (
   return [
     {
       label: <FormattedMessage defaultMessage={'Net Worth'} />,
-      content: summary.netWorth ? (
-        <CountUp
-          value={summary.netWorth?.toFloat()}
-          decimals={4}
-          suffix={` ${summary.netWorth?.symbol}`}
-        />
-      ) : (
-        '-'
-      ),
+      content: formatCountUp(summary.netWorth),
     },
     {
       label: <FormattedMessage defaultMessage={'Health Factor'} />,
@@ -230,15 +230,7 @@ const formatSummaryItems = (
     ...summary.liquidationPrices.map((price) => {
       return {
         label: `${price.asset.symbol} Liquidation Price`,
-        content: price.threshold ? (
-          <CountUp
-            value={price.threshold?.toFloat()}
-            decimals={4}
-            suffix={` ${price.threshold?.symbol}`}
-          />
-        ) : (
-          '-'
-        ),
+        content: formatCountUp(price.threshold),
       };
     }),
   ];
@@ -278,15 +270,7 @@ function formatAPYValues(
     {
       value: (
         <Box color={apy && apy > 0 ? positiveGreen : undefined}>
-          {earnings ? (
-            <CountUp
-              value={earnings?.toFloat() || 0}
-              decimals={4}
-              suffix={` ${earnings?.symbol}`}
-            />
-          ) : (
-            '-'
-          )}
+          {formatCountUp(earnings)}
         </Box>
       ),
     },
@@ -348,27 +332,11 @@ const useApyBreakdown = () => {
   const assetsDebts = [
     {
       label: 'Asset Amount',
-      content: assets ? (
-        <CountUp
-          value={assets.toFloat()}
-          decimals={4}
-          suffix={` ${assets.symbol}`}
-        />
-      ) : (
-        '-'
-      ),
+      content: formatCountUp(assets),
     },
     {
       label: 'Debt Amount',
-      content: debts ? (
-        <CountUp
-          value={debts.toFloat()}
-          decimals={4}
-          suffix={` ${debts.symbol}`}
-        />
-      ) : (
-        '-'
-      ),
+      content: formatCountUp(debts),
     },
   ];
 
@@ -388,13 +356,7 @@ const useOrderDetails = () => {
       label: trade.depositBalance.isNegative()
         ? 'Amount Withdrawn'
         : 'Amount Deposited',
-      content: (
-        <CountUp
-          value={trade.depositBalance.abs().toFloat()}
-          decimals={4}
-          suffix={` ${trade.depositBalance.symbol}`}
-        />
-      ),
+      content: formatCountUp(trade.depositBalance.abs()),
     });
   }
 
@@ -404,13 +366,7 @@ const useOrderDetails = () => {
       label: trade.debtBalance.isPositive()
         ? 'Amount Repaid'
         : 'Amount Borrowed',
-      content: (
-        <CountUp
-          value={borrowed.toFloat()}
-          decimals={4}
-          suffix={` ${borrowed.symbol}`}
-        />
-      ),
+      content: formatCountUp(borrowed),
     });
   }
 
@@ -419,9 +375,7 @@ const useOrderDetails = () => {
       label: trade.collateralBalance.isNegative()
         ? 'Vault Shares Redeemed'
         : 'Vault Shares Minted',
-      content: (
-        <CountUp value={trade.collateralBalance.abs().toFloat()} decimals={4} />
-      ),
+      content: formatCountUp(trade.collateralBalance.abs()),
     });
   }
 
@@ -431,30 +385,56 @@ const useOrderDetails = () => {
     ).toUnderlying();
     orderDetails.push({
       label: 'Vault Share Price',
-      content: (
-        <CountUp
-          value={price.toFloat()}
-          decimals={4}
-          suffix={` ${price.symbol}`}
-        />
-      ),
+      content: formatCountUp(price),
     });
   }
 
   return orderDetails;
 };
 
+const useWithdrawDetails = () => {
+  const trade = useCurrentTradeContext();
+  if (trade?.tradeType !== 'InitiateWithdraw') return undefined;
+
+  return [
+    {
+      label: 'Estimated Redemption Time',
+      content: '7 days',
+    },
+    {
+      label: 'Tokens Redeemed',
+      content: formatCountUp(trade.netRealizedCollateralBalance),
+    },
+    {
+      label: 'Tokens to Receive',
+      content: formatCountUp(trade.netRealizedCollateralBalance),
+    },
+  ];
+};
+
 export const useInfoBox = () => {
   const { current, updated } = useSummaryItems();
   const apyBreakdown = useApyBreakdown();
   const orderDetails = useOrderDetails();
+  const withdrawDetails = useWithdrawDetails();
 
   const tabs = [
     {
       tabTitle: 'Summary',
       tabContent: (
         <DividedSections>
-          {updated === undefined ? (
+          {withdrawDetails ? (
+            [
+              <LabelValueSection
+                sectionTitle="Withdraw Details"
+                items={withdrawDetails}
+              />,
+              <LabelValueSection
+                sectionTitle="Current Position"
+                items={current || []}
+              />,
+            ]
+          ) : updated === undefined ? (
             <LabelValueSection items={current || []} />
           ) : (
             [

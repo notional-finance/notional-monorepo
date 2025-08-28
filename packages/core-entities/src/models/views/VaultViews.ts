@@ -28,6 +28,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     );
     if (!v) throw Error(`Configuration not found for ${vaultAddress}`);
     const primaryToken = getTokenByID(v.depositToken.id);
+    const yieldToken = getTokenByID(v.yieldToken.id);
 
     switch (v.strategyType) {
       case 'CurveConvex2Token':
@@ -37,6 +38,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
           params as SingleSidedLPParams,
           getPoolInstance_(self, (params as SingleSidedLPParams).pool),
           primaryToken,
+          yieldToken,
           getTimeSeries(v.vaultAddress, ChartType.APY)?.data
         );
       case 'PendlePT':
@@ -44,14 +46,16 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
           self.network,
           vaultAddress,
           params as PendlePTVaultParams,
-          primaryToken
+          primaryToken,
+          yieldToken
         );
       case 'Staking':
         return new Staking(
           self.network,
           vaultAddress,
           params as StakingVaultParams,
-          primaryToken
+          primaryToken,
+          yieldToken
         );
       default:
         throw Error(`Unknown vault type: ${v.strategyType}`);

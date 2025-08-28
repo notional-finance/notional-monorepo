@@ -38,9 +38,17 @@ export class PendlePT extends VaultAdapter {
     network: Network,
     vaultAddress: string,
     p: PendlePTVaultParams,
-    borrowedToken: TokenDefinition
+    borrowedToken: TokenDefinition,
+    yieldToken: TokenDefinition
   ) {
-    super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
+    super(
+      p.enabled,
+      p.strategyType,
+      network,
+      vaultAddress,
+      borrowedToken,
+      yieldToken
+    );
     this.tokenInSy = p.tokenInSy.toLowerCase();
     this.tokenOutSy = p.tokenOutSy.toLowerCase();
     this.marketAddress = p.marketAddress.toLowerCase();
