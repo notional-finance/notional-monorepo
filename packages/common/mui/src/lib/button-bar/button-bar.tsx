@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
-import { Box, ButtonGroup, Button, SxProps, styled } from '@mui/material';
+import { Box, ButtonGroup, SxProps, styled } from '@mui/material';
+import { Button } from '../button/button';
 import { useTheme } from '@mui/material/styles';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
-import { Link } from 'react-router-dom';
 
 /* eslint-disable-next-line */
 export type ButtonOptionsType = {
@@ -17,7 +17,6 @@ interface ButtonBarPropType {
   buttonOptions: ButtonOptionsType[];
   buttonVariant?: 'outlined' | 'contained';
   customButtonColor?: string;
-  customButtonBGColor?: string;
   barPosition?: 'absolute' | 'relative';
   sx?: SxProps;
 }
@@ -26,14 +25,10 @@ export const ButtonBar = ({
   buttonOptions,
   buttonVariant = 'contained',
   customButtonColor,
-  customButtonBGColor,
   barPosition,
   sx,
 }: ButtonBarPropType) => {
   const theme = useTheme();
-  const baseButtonColor = customButtonBGColor
-    ? customButtonBGColor
-    : theme.palette.primary.light;
   return (
     <div
       style={{
@@ -49,46 +44,41 @@ export const ButtonBar = ({
         >
           {buttonOptions.map(
             ({ buttonText, callback, disabled, active, link = '' }, index) => (
-              <Link
-                to={link}
-                key={`link-${index}`}
+              <Button
                 data-dd-action-name={`${link}`}
-              >
-                <Button
-                  key={`button-${index}`}
-                  onClick={callback}
-                  disabled={disabled}
-                  sx={{
-                    padding: theme.spacing(1, 4),
-                    borderColor:
-                      buttonVariant === 'contained'
-                        ? `${theme.palette.common.white} !important`
-                        : baseButtonColor,
-                    textTransform: 'capitalize',
-                    color:
-                      active && customButtonColor
-                        ? customButtonColor
-                        : active && !customButtonColor
-                        ? theme.palette.typography.contrastText
-                        : buttonVariant === 'contained'
-                        ? theme.palette.typography.contrastText
-                        : baseButtonColor,
+                to={disabled ? undefined : link}
+                key={`button-${index}`}
+                onClick={disabled ? undefined : callback}
+                disabled={disabled}
+                variant={buttonVariant}
+                size="medium"
+                sx={{
+                  borderColor:
+                    buttonVariant === 'contained'
+                      ? `${theme.palette.common.white} !important`
+                      : theme.palette.primary.light,
+                  color:
+                    active && customButtonColor
+                      ? customButtonColor
+                      : active && !customButtonColor
+                      ? theme.palette.typography.contrastText
+                      : buttonVariant === 'contained'
+                      ? theme.palette.typography.contrastText
+                      : theme.palette.primary.light,
+                  background:
+                    buttonVariant === 'contained' || active
+                      ? theme.palette.primary.light
+                      : 'transparent',
+                  '&:hover': {
                     background:
-                      buttonVariant === 'contained' || active
-                        ? baseButtonColor
-                        : 'transparent',
-                    borderRadius: theme.shape.borderRadius(),
-                    '&:hover': {
-                      background:
-                        active && buttonVariant === 'outlined'
-                          ? baseButtonColor
-                          : '',
-                    },
-                  }}
-                >
-                  {buttonText}
-                </Button>
-              </Link>
+                      active && buttonVariant === 'outlined'
+                        ? theme.palette.primary.light
+                        : '',
+                  },
+                }}
+              >
+                {buttonText}
+              </Button>
             )
           )}
         </ButtonBarGroup>

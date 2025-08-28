@@ -2,4 +2,5 @@ export { VaultCreateScreen } from './create';
 export { VaultManageScreen } from './manage';
 export { VaultIncreaseScreen } from './increase';
 export { VaultInstantWithdraw } from './instant-withdraw';
-export { VaultSmartWithdraw } from './smart-withdraw';
+export { VaultSmartWithdraw, VaultPendingWithdraw } from './smart-withdraw';
+export { VaultFinalizeWithdraw } from './finalize-withdraw';

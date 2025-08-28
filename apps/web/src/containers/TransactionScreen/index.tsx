@@ -14,6 +14,7 @@ import {
   VaultInstantWithdraw,
   VaultManageScreen,
   VaultSmartWithdraw,
+  VaultPendingWithdraw,
 } from './screens';
 
 export const VaultDefaultScreen = observer(() => {
@@ -25,6 +26,13 @@ export const VaultDefaultScreen = observer(() => {
   const isAccountReady = useAccountReady(selectedNetwork);
   // TODO: this is a little late from use account ready
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
+  const manageScreen = vaultPosition?.hasPendingWithdraw ? (
+    <VaultPendingWithdraw />
+  ) : vaultPosition ? (
+    <VaultManageScreen />
+  ) : (
+    <VaultCreateScreen />
+  );
 
   return (
     <FeatureLoader
@@ -33,16 +41,12 @@ export const VaultDefaultScreen = observer(() => {
       }
     >
       <Routes>
-        <Route
-          path=""
-          element={
-            vaultPosition ? <VaultManageScreen /> : <VaultCreateScreen />
-          }
-        />
-        <Route path="manage" element={<VaultManageScreen />} />
+        <Route path="" element={manageScreen} />
+        <Route path="manage" element={manageScreen} />
         <Route path="increase" element={<VaultIncreaseScreen />} />
         <Route path="instant-withdraw" element={<VaultInstantWithdraw />} />
         <Route path="smart-withdraw" element={<VaultSmartWithdraw />} />
+        <Route path="pending-withdraw" element={<VaultPendingWithdraw />} />
       </Routes>
     </FeatureLoader>
   );

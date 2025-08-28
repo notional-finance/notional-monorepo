@@ -10,15 +10,20 @@ import { MessageDescriptor } from 'react-intl';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
+  hideSubmitButton?: boolean;
   submitText?: MessageDescriptor;
   hasBackButton?: boolean;
 }
 
 const InputContainer = observer(
-  ({ children, hasBackButton, submitText }: InputContainerProps) => {
+  ({
+    children,
+    hasBackButton,
+    submitText,
+    hideSubmitButton = false,
+  }: InputContainerProps) => {
     const theme = useTheme();
     const context = useCurrentTradeContext();
-    const isManage = context?.tradeType === 'ManageVault';
 
     return (
       <InputContainerWrapper>
@@ -58,7 +63,7 @@ const InputContainer = observer(
           )}
           {children}
         </Box>
-        {!isManage && (
+        {hideSubmitButton === false && (
           <Box
             sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}
           >

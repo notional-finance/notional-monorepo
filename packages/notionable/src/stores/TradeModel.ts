@@ -888,7 +888,8 @@ export const TradeModel = types
             ? new VaultAccountRiskProfile(
                 self.vaultAddress,
                 [self.collateralBalance, self.debtBalance],
-                0
+                0,
+                account?.withdrawRequests?.[self.vaultAddress]
               )
             : priorVaultRisk?.simulate(
                 [self.collateralBalance, self.debtBalance].filter(

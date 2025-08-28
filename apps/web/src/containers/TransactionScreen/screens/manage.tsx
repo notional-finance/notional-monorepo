@@ -51,6 +51,7 @@ export const VaultManageScreen = observer(() => {
   return (
     <TransactionScreen
       actionPrefix="Manage"
+      hideSubmitButton
       inputs={[
         <ManageButtonSection
           heading={<FormattedMessage defaultMessage="Maintain Leverage" />}

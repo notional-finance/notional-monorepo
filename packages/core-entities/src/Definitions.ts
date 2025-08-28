@@ -152,11 +152,11 @@ export interface HistoricalBalance {
 
 export interface WithdrawRequest {
   withdrawManager: string;
-  requestId: string;
+  requestId: BigNumber;
   sharesAmount: TokenBalance;
   yieldTokenAmount: TokenBalance;
   finalized: boolean;
-  withdrawTokenAmount: TokenBalance;
+  withdrawTokenAmount?: TokenBalance;
   canFinalize?: boolean;
 }
 

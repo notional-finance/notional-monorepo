@@ -701,6 +701,7 @@ const getThemeData = (
         accent: colors.greenAccent,
         contrastText: colors.greenAccent,
         light: colors.aqua,
+        dark: colors.aqua,
       },
       typography: {
         main:

@@ -46,7 +46,8 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   let profile = new VaultAccountRiskProfile(
     vaultAddress,
     balances || [TokenBalance.zero(collateral), TokenBalance.zero(debt)],
-    vaultLastUpdateTime || 0
+    vaultLastUpdateTime || 0,
+    undefined // There should never be withdraw requests here
   );
 
   let initialDebtUnitsEstimateInRP = RATE_PRECISION;
@@ -166,7 +167,8 @@ export function calculateVaultRoll({
   const profile = new VaultAccountRiskProfile(
     debt.vaultAddress,
     balances,
-    vaultLastUpdateTime
+    vaultLastUpdateTime,
+    undefined // There should never be withdraw requests here
   );
   const collateralBalance = profile.vaultShares;
   const currentDebt = profile.vaultDebt;
@@ -245,7 +247,8 @@ export function calculateWithdraw({
   const profile = new VaultAccountRiskProfile(
     vaultAddress,
     balances || [TokenBalance.zero(collateral), TokenBalance.zero(debt)],
-    vaultLastUpdateTime || 0
+    vaultLastUpdateTime || 0,
+    undefined // There should never be withdraw requests here
   );
 
   // This is the amount of yield tokens that will be put into the withdraw queue

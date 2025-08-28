@@ -6,7 +6,7 @@ import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
 interface ErrorMessageProps {
-  variant: 'error' | 'warning' | 'info' | 'pending';
+  variant: 'error' | 'warning' | 'info' | 'pending' | 'success';
   title?: ReactNode;
   message?: ReactNode | string;
   marginBottom?: boolean;
@@ -43,6 +43,9 @@ export const ErrorMessage = ({
       break;
     case 'pending':
       defaultTitle = <FormattedMessage defaultMessage={'Pending'} />;
+      break;
+    case 'success':
+      defaultTitle = <FormattedMessage defaultMessage={'Success'} />;
       break;
   }
 

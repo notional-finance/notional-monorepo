@@ -96,11 +96,11 @@ export const BalanceStatementModel = types.model('BalanceStatement', {
 
 const WithdrawRequestModel = types.model('WithdrawRequest', {
   withdrawManager: types.string,
-  requestId: types.string,
+  requestId: NotionalTypes.BigNumber,
   sharesAmount: NotionalTypes.TokenBalance,
   yieldTokenAmount: NotionalTypes.TokenBalance,
   finalized: types.boolean,
-  withdrawTokenAmount: NotionalTypes.TokenBalance,
+  withdrawTokenAmount: types.maybe(NotionalTypes.TokenBalance),
   canFinalize: types.maybe(types.boolean),
 });
 
