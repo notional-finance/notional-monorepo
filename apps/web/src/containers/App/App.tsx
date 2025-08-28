@@ -24,6 +24,7 @@ import { NoteView } from '../NoteView';
 import {
   getDefaultNetworkFromHostname,
   ONE_MINUTE_MS,
+  REFRESH_PORTFOLIO_INTERVAL,
 } from '@notional-finance/util';
 import { RootStoreContext } from '@notional-finance/notionable-hooks';
 import { createRootStore } from '@notional-finance/notionable';
@@ -228,7 +229,7 @@ export const App = () => {
     const refreshNetworks = refreshNetworkModels();
     const refreshPortfolio = setInterval(() => {
       rootStore.walletStore.refreshPortfolio();
-    }, ONE_MINUTE_MS);
+    }, REFRESH_PORTFOLIO_INTERVAL);
     return () => {
       clearInterval(refreshNetworks);
       clearInterval(refreshPortfolio);

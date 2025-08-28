@@ -24,6 +24,7 @@ export const ONE_SECOND_MS = 1_000;
 export const ONE_MINUTE_MS = 60 * ONE_SECOND_MS;
 export const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
 
+export const REFRESH_PORTFOLIO_INTERVAL = 20 * ONE_MINUTE_MS;
 export const SECONDS_IN_DAY = 86400;
 export const SECONDS_IN_HOUR = 3600;
 export const SECONDS_IN_WEEK = SECONDS_IN_DAY * 6;

@@ -1,5 +1,5 @@
 import { VaultAddress } from '@notional-finance/util';
-import { PendlePT, SingleSidedLP } from '../../vaults';
+import { PendlePT, SingleSidedLP, WithdrawManager } from '../../vaults';
 import { whitelistedVaults } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
 import { ChartType } from '../ModelTypes';
@@ -95,7 +95,19 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     return parseFloat(ethers.utils.formatUnits(v.feeRate, 18));
   };
 
+  const getWithdrawManagers = (vaultAddress: string) => {
+    const v = getVaultConfig(vaultAddress);
+    return v.withdrawRequestManagers.map((wrm) => {
+      return new WithdrawManager(
+        getTokenByID(wrm.stakingToken.id),
+        getTokenByID(wrm.withdrawToken.id),
+        getTokenByID(wrm.yieldToken.id)
+      );
+    });
+  };
+
   return {
+    getWithdrawManagers,
     getAllListedVaults,
     isVaultEnabled,
     getVaultAdapter,

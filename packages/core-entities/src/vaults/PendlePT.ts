@@ -529,11 +529,4 @@ export class PendlePT extends VaultAdapter {
       );
     }
   }
-
-  override async getWithdrawParameters(
-    _account: string,
-    _vaultSharesToRedeem: TokenBalance
-  ): Promise<BytesLike> {
-    return '0x';
-  }
 }

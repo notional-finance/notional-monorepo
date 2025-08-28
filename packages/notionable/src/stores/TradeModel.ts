@@ -1043,14 +1043,16 @@ export const TradeModel = types
         const postAccountRisk = getPostVaultRiskProfile().postVaultRisk;
         const leverageRatio = postAccountRisk?.leverageRatio();
         const { overPoolCapacityError } = getVaultCapacity();
+        const hasPostAccountRisk = !!postAccountRisk;
+        const isLeverageRatioValid =
+          postAccountRisk?.maxLeverageRatio !== undefined &&
+          leverageRatio !== undefined &&
+          leverageRatio < postAccountRisk.maxLeverageRatio;
 
         return (
           self.calculationSuccess &&
-          !!postAccountRisk &&
-          (leverageRatio === null ||
-            (postAccountRisk.maxLeverageRatio !== undefined &&
-              leverageRatio !== undefined &&
-              leverageRatio < postAccountRisk.maxLeverageRatio)) &&
+          hasPostAccountRisk &&
+          isLeverageRatioValid &&
           overPoolCapacityError === false &&
           self.inputErrors === false
         );
@@ -1085,6 +1087,26 @@ export const TradeModel = types
     const getVaultMaxWithdraw = () => {
       const { priorVaultRisk } = getPostVaultRiskProfile();
       return priorVaultRisk?.maxWithdraw();
+    };
+
+    const getVaultInitiateWithdraw = () => {
+      if (!self.vaultAddress) return undefined;
+      const model = root().getNetworkClient(self.selectedNetwork);
+      const withdrawManagers = model.getWithdrawManagers(self.vaultAddress);
+      if (withdrawManagers.length === 1) {
+        return withdrawManagers.map((w) => {
+          return {
+            estimatedWithdrawTime: w.estimatedWithdrawTimeInSeconds,
+            // NOTE: this will not work with LP strategies
+            tokensRedeemed: self.netRealizedCollateralBalance,
+            tokensToReceive: self.netRealizedCollateralBalance?.toToken(
+              w.withdrawToken
+            ),
+          };
+        });
+      }
+
+      throw Error('Vault has multiple withdraw managers');
     };
 
     return {
@@ -1126,6 +1148,7 @@ export const TradeModel = types
       getVaultCapacity,
       getVaultAPYBreakdown,
       getVaultMaxWithdraw,
+      getVaultInitiateWithdraw,
       canSubmit,
     };
   });

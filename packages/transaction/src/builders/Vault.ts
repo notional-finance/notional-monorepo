@@ -133,8 +133,13 @@ export async function InitiateWithdraw({
     throw Error('Collateral balance, debt balance must be defined');
   const vaultAddress = collateralBalance.vaultAddress;
   const lendingRouter = debtBalance.token.address;
-  const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
-  const vaultData = await vaultAdapter.getWithdrawParameters(
+  const model = getNetworkModel(network);
+  const withdrawManagers = model.getWithdrawManagers(vaultAddress);
+  if (withdrawManagers.length !== 1) {
+    throw Error('Vault has multiple withdraw managers');
+  }
+
+  const vaultData = await withdrawManagers[0].getWithdrawParameters(
     address,
     collateralBalance.neg()
   );

@@ -29,6 +29,7 @@ import {
 import { formatNumber, RATE_PRECISION } from '@notional-finance/util';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
+import moment from 'moment';
 
 interface LabelValueSectionProps {
   sectionTitle?: ReactNode;
@@ -395,21 +396,31 @@ const useOrderDetails = () => {
 const useWithdrawDetails = () => {
   const trade = useCurrentTradeContext();
   if (trade?.tradeType !== 'InitiateWithdraw') return undefined;
+  const withdraws = trade.getVaultInitiateWithdraw();
+  if (!withdraws) return undefined;
+  return withdraws.flatMap((withdraw) => {
+    const items: { label: string; content: ReactNode }[] = [];
+    if (withdraw.estimatedWithdrawTime) {
+      items.push({
+        label: 'Estimated Redemption Time',
+        content: moment
+          .duration(withdraw.estimatedWithdrawTime, 'seconds')
+          .humanize(),
+      });
+    }
 
-  return [
-    {
-      label: 'Estimated Redemption Time',
-      content: '7 days',
-    },
-    {
+    items.push({
       label: 'Tokens Redeemed',
-      content: formatCountUp(trade.netRealizedCollateralBalance),
-    },
-    {
+      content: formatCountUp(withdraw.tokensRedeemed),
+    });
+
+    items.push({
       label: 'Tokens to Receive',
-      content: formatCountUp(trade.netRealizedCollateralBalance),
-    },
-  ];
+      content: formatCountUp(withdraw.tokensToReceive),
+    });
+
+    return items;
+  });
 };
 
 export const useInfoBox = () => {

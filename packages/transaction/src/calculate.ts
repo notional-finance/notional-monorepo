@@ -1,6 +1,5 @@
 import {
   SNOTEWeightedPool,
-  Staking,
   TokenBalance,
   TokenDefinition,
   VaultAdapter,
@@ -249,9 +248,8 @@ export function calculateWithdraw({
     vaultLastUpdateTime || 0
   );
 
-  const withdrawAmount = profile.vaultShares.toToken(
-    (vaultAdapter as Staking).stakingToken
-  );
+  // This is the amount of yield tokens that will be put into the withdraw queue
+  const withdrawAmount = profile.vaultShares.toToken(vaultAdapter.yieldToken);
 
   return {
     collateralBalance: profile.vaultShares.neg(),

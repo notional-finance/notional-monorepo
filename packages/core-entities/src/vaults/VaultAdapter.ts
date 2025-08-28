@@ -100,9 +100,4 @@ export abstract class VaultAdapter {
     netAmount: TokenBalance,
     vaultTradeMetadata?: unknown
   ): APYData;
-
-  abstract getWithdrawParameters(
-    account: string,
-    vaultSharesToRedeem: TokenBalance
-  ): Promise<BytesLike>;
 }
