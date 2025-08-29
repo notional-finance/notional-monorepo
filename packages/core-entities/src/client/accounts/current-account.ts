@@ -130,22 +130,18 @@ export async function fetchCurrentAccount(
               })
               .reduce((agg, k) => {
                 const [vaultAddress, _, index] = k.split('.');
-                const wr: WithdrawRequest[] = agg[k] || [];
+                const wr: WithdrawRequest[] = agg.get(vaultAddress) || [];
                 if (k.includes('.canFinalize') && parseInt(index) < wr.length) {
                   wr[parseInt(index)] = {
                     ...wr[parseInt(index)],
                     canFinalize: results[k] as boolean,
                   };
-                }
-
-                if (results[k]) {
+                } else if (results[k]) {
                   wr.push(results[k] as WithdrawRequest);
-
-                  agg.set(vaultAddress, wr);
-                  return agg;
-                } else {
-                  return agg;
                 }
+
+                agg.set(vaultAddress, wr);
+                return agg;
               }, new Map<string, WithdrawRequest[]>()),
           },
         };

@@ -26,7 +26,11 @@ import {
   formatHealthFactorValues,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
-import { formatNumber, RATE_PRECISION } from '@notional-finance/util';
+import {
+  formatNumber,
+  formatNumberAsPercent,
+  RATE_PRECISION,
+} from '@notional-finance/util';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import moment from 'moment';
@@ -77,7 +81,9 @@ const DividedSections = ({
   children: ReactNode | ReactNode[];
 }) => {
   const theme = useTheme();
-  const c = Array.isArray(children) ? children.filter((c) => !!c) : children;
+  const c = Array.isArray(children)
+    ? children.flatMap((c) => c).filter((c) => !!c)
+    : children;
 
   return (
     <Box>
@@ -248,9 +254,10 @@ const useSummaryItems = () => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
   const r = trade?.getVaultRiskSummary();
-  const currentItems = r?.current
-    ? formatSummaryItems(r.current, theme)
-    : undefined;
+  const currentItems =
+    r?.current && r.current.netWorth !== undefined
+      ? formatSummaryItems(r.current, theme)
+      : undefined;
   const updatedItems = r?.updated
     ? formatSummaryItems(r.updated, theme)
     : undefined;
@@ -426,12 +433,50 @@ const useWithdrawDetails = () => {
   });
 };
 
+const useTradeMetadata = () => {
+  const trade = useCurrentTradeContext();
+  if (trade?.tradeType === 'ManageVault') return undefined;
+  return trade?.vaultTradeMetadata?.map((metadata) => {
+    return (
+      <LabelValueSection
+        sectionTitle={`Trade: ${metadata.tokensSold.symbol} → ${metadata.tokensBought.symbol}`}
+        items={[
+          { label: 'Amount Sold', content: formatCountUp(metadata.tokensSold) },
+          {
+            label: 'Amount Bought',
+            content: formatCountUp(metadata.tokensBought),
+          },
+          {
+            label: 'Exchange Rate',
+            content: (
+              <Box>
+                {metadata.differenceFromSpot && (
+                  <LabelValue light inline>
+                    {`(${formatNumberAsPercent(
+                      metadata.differenceFromSpot,
+                      4
+                    )}) `}
+                  </LabelValue>
+                )}
+                <LabelValue inline>
+                  {formatNumber(metadata.exchangeRate, 4)}
+                </LabelValue>
+              </Box>
+            ),
+          },
+        ]}
+      />
+    );
+  });
+};
+
 export const useInfoBox = () => {
   const { current, updated } = useSummaryItems();
   const trade = useCurrentTradeContext();
   const apyBreakdown = useApyBreakdown();
   const orderDetails = useOrderDetails();
   const withdrawDetails = useWithdrawDetails();
+  const tradeMetadata = useTradeMetadata();
 
   const tabs = [
     {
@@ -449,6 +494,9 @@ export const useInfoBox = () => {
                 items={current || []}
               />,
             ]
+          ) : updated !== undefined && current === undefined ? (
+            // This happens when there is no existing position
+            <LabelValueSection items={updated || []} />
           ) : updated === undefined ? (
             <LabelValueSection items={current || []} />
           ) : (
@@ -502,14 +550,7 @@ export const useInfoBox = () => {
       tabContent: (
         <DividedSections>
           <LabelValueSection items={orderDetails} />
-          <LabelValueSection
-            sectionTitle="Trade: USDC → USDT"
-            items={[
-              { label: 'Amount Sold', content: '-' },
-              { label: 'Amount Bought', content: '-' },
-              { label: 'Exchange Rate', content: '-' },
-            ]}
-          />
+          {tradeMetadata}
         </DividedSections>
       ),
     });

@@ -16,6 +16,7 @@ import {
   SCALAR_PRECISION,
   SECONDS_IN_DAY,
   sNOTE,
+  DEX_ID,
 } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
 
@@ -141,6 +142,10 @@ export default class SNOTEWeightedPool extends WeightedPool<SNOTEParams> {
           TokenBalance.toJSON(r, this.sNOTE_Pool, Network.mainnet),
       },
     ];
+  }
+
+  public override get dexId() {
+    return DEX_ID.BALANCER_V2;
   }
 
   get sNOTE() {

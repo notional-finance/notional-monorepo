@@ -47,7 +47,7 @@ const messages: Record<
     }),
   },
   pendingWithdraw: {
-    variant: 'info',
+    variant: 'pending',
     ...defineMessages({
       title: { defaultMessage: 'Pending Smart Withdraw', description: '' },
       message: {
@@ -58,7 +58,7 @@ const messages: Record<
     }),
   },
   finalizedWithdraw: {
-    variant: 'success',
+    variant: 'info',
     ...defineMessages({
       title: { defaultMessage: 'Finalized Smart Withdraw', description: '' },
       message: {

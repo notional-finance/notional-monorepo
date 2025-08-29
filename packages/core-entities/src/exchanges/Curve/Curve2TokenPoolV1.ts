@@ -4,7 +4,7 @@ import {
   IAggregatorABI,
 } from '@notional-finance/contracts';
 import { AggregateCall, NO_OP } from '@notional-finance/multicall';
-import { Network } from '@notional-finance/util';
+import { DEX_ID, Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
@@ -167,6 +167,10 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     }
 
     return calls;
+  }
+
+  public override get dexId() {
+    return DEX_ID.CURVE_V2;
   }
 
   private _stored_rates() {

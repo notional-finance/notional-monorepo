@@ -8,6 +8,7 @@ import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import {
   BASIS_POINT,
+  DEX_ID,
   doSecantSearch,
   getNowSeconds,
   getProviderFromNetwork,
@@ -166,6 +167,10 @@ export class PendleMarket extends BaseLiquidityPool<PendleMarketParams> {
     }
 
     return calls;
+  }
+
+  public override get dexId() {
+    return DEX_ID.PENDLE;
   }
 
   public TOKEN_IN_INDEX = 0;

@@ -217,6 +217,8 @@ export enum DEX_ID {
   BALANCER_V2,
   CURVE,
   NOTIONAL_VAULT,
+  CURVE_V2,
+  PENDLE = 9999,
 }
 
 export enum TRADE_TYPE {

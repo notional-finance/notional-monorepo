@@ -15,6 +15,7 @@ import {
   VaultManageScreen,
   VaultSmartWithdraw,
   VaultPendingWithdraw,
+  VaultFinalizeWithdraw,
 } from './screens';
 
 export const VaultDefaultScreen = observer(() => {
@@ -47,6 +48,7 @@ export const VaultDefaultScreen = observer(() => {
         <Route path="instant-withdraw" element={<VaultInstantWithdraw />} />
         <Route path="smart-withdraw" element={<VaultSmartWithdraw />} />
         <Route path="pending-withdraw" element={<VaultPendingWithdraw />} />
+        <Route path="finalize-withdraw" element={<VaultFinalizeWithdraw />} />
       </Routes>
     </FeatureLoader>
   );

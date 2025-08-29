@@ -10,7 +10,7 @@ import { BaseLiquidityPool } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
-import { TokenDefinition } from '../Definitions';
+import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { getVaultType, PointsMultipliers } from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
 import { getNetworkModel } from '../Models';
@@ -263,14 +263,6 @@ export class SingleSidedLP extends VaultAdapter {
       : 0;
   }
 
-  getInitialVaultShareValuation(_maturity: number) {
-    return {
-      rate: this.pool.getLPTokenSpotValue(this.singleSidedTokenIndex).n,
-      timestamp: getNowSeconds(),
-      blockNumber: 0,
-    };
-  }
-
   getNetVaultSharesMinted(
     netUnderlying: TokenBalance,
     vaultShare: TokenDefinition
@@ -418,7 +410,7 @@ export class SingleSidedLP extends VaultAdapter {
   /** No dilution is applied to SingleSidedLP vaults */
   override getSimulatedAPY(
     _netAmount: TokenBalance,
-    _vaultTradeMetadata?: unknown
+    _vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData {
     const rewardAPY = this.getRewardAPY();
     const totalAPY = this.getVaultAPY();

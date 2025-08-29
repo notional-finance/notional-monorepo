@@ -9,6 +9,7 @@ import {
   TokenDefinitionModel,
   VAULT_TYPES,
   VaultAdapter,
+  VaultTradeMetadata,
   VaultType,
 } from '@notional-finance/core-entities';
 import {
@@ -30,6 +31,7 @@ import {
 } from 'mobx-state-tree';
 import { NetworkClientModelType, RootStoreInterface } from './root-store';
 import {
+  DEX_ID,
   formatNumberAsPercent,
   getChangeType,
   getNowSeconds,
@@ -222,8 +224,21 @@ export const TradeModel = types
     /** True if the optimal ETH amount should be used for NOTE staking */
     useOptimalETH: types.optional(types.boolean, false),
 
-    vaultTradeMetadata: types.optional(types.maybe(types.frozen()), undefined),
-
+    vaultTradeMetadata: types.optional(
+      types.array(
+        types.model({
+          tokensSold: NotionalTypes.TokenBalance,
+          tokensBought: NotionalTypes.TokenBalance,
+          exchangeRate: types.number,
+          differenceFromSpot: types.number,
+          dexId: types.number,
+          minPurchaseAmount: types.maybe(NotionalTypes.TokenBalance),
+          exchangeData: types.maybe(types.string),
+          isEstimated: types.boolean,
+        })
+      ),
+      []
+    ),
     /** True if the trade is a deleverage */
     isDeleverage: types.optional(types.boolean, false),
 
@@ -497,7 +512,11 @@ export const TradeModel = types
           const outputs = calculationFn(inputs as any);
           if (outputs) {
             Object.keys(outputs).forEach((key) => {
-              self[key] = outputs[key];
+              if (key === 'vaultTradeMetadata') {
+                self.vaultTradeMetadata.replace(outputs[key]);
+              } else {
+                self[key] = outputs[key];
+              }
             });
           }
 
@@ -1193,7 +1212,7 @@ function computeCollateralOptions(
         collateralFee: TokenBalance;
         collateralBalance: TokenBalance;
         netRealizedCollateralBalance: TokenBalance;
-        vaultTradeMetadata?: unknown;
+        vaultTradeMetadata?: VaultTradeMetadata[];
       };
 
       return {
@@ -1286,7 +1305,7 @@ function _getTradedInterestRate(
   tradeType: AllTradeTypes | NOTETradeType | undefined,
   vaultAdapter: VaultAdapter | undefined,
   model: NetworkClientModelType,
-  vaultTradeMetadata: unknown | undefined
+  vaultTradeMetadata: VaultTradeMetadata[] | undefined
 ): {
   interestRate: number | undefined;
   utilization: number | undefined;
@@ -1319,7 +1338,8 @@ function _getTradedInterestRate(
       // realized amount so that the interest rate does not include any exchange rate deviations
       // from the borrowed asset to the PT accounting asset.
       !(vaultAdapter as PendlePT).isBorrowSameAsAsset && vaultTradeMetadata
-        ? (vaultTradeMetadata as { tokensInSy: TokenBalance }).tokensInSy
+        ? vaultTradeMetadata.find((t) => t.dexId === DEX_ID.PENDLE)
+            ?.tokensSold || realized
         : realized;
     const impliedExchangeRate = amount.toFloat() / amountInSy.toFloat();
     const timeToMaturity = (vaultAdapter as PendlePT).timeToExpiry;
