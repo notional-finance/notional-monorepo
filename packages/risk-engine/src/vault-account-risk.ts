@@ -37,7 +37,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       vaultAddress,
       balances,
       lastUpdateBlockTime,
-      account.withdrawRequests?.[vaultAddress]
+      account.withdrawRequests?.get(vaultAddress)
     );
   }
 

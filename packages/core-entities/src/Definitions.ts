@@ -182,7 +182,7 @@ export interface AccountDefinition {
   historicalBalances?: HistoricalBalance[];
   rewardClaims?: Record<string, TokenBalance[]>;
   lendingRouterApprovals?: Record<string, boolean>;
-  withdrawRequests?: Record<string, WithdrawRequest[]>;
+  withdrawRequests?: Map<string, WithdrawRequest[]>;
 }
 
 /** ERC20 allowances tracked for UI purposes */

@@ -264,10 +264,10 @@ const useSummaryItems = () => {
 function formatAPYValues(
   apy: number | undefined,
   amount: TokenBalance | undefined,
-  positiveGreen: string
+  positiveGreen: string | undefined
 ) {
   const earnings =
-    amount && apy
+    amount && apy !== undefined
       ? amount
           .abs()
           .mulInRatePrecision(Math.floor((apy * RATE_PRECISION) / 100))
@@ -277,7 +277,7 @@ function formatAPYValues(
     { value: formatNumberAsPercentWithUndefined(apy, '-', 4) },
     {
       value: (
-        <Box color={apy && apy > 0 ? positiveGreen : undefined}>
+        <Box color={apy !== undefined && apy > 0 ? positiveGreen : undefined}>
           {formatCountUp(earnings)}
         </Box>
       ),
@@ -321,11 +321,7 @@ const useApyBreakdown = () => {
     },
     {
       label: 'Borrow APY',
-      values: formatAPYValues(
-        leveragedAPY?.debtAPY,
-        debts,
-        theme.palette.success.main
-      ),
+      values: formatAPYValues(leveragedAPY?.debtAPY, debts, undefined),
     },
     {
       label: 'Total APY',
@@ -432,6 +428,7 @@ const useWithdrawDetails = () => {
 
 export const useInfoBox = () => {
   const { current, updated } = useSummaryItems();
+  const trade = useCurrentTradeContext();
   const apyBreakdown = useApyBreakdown();
   const orderDetails = useOrderDetails();
   const withdrawDetails = useWithdrawDetails();
@@ -497,7 +494,10 @@ export const useInfoBox = () => {
         </DividedSections>
       ),
     },
-    {
+  ];
+
+  if (trade?.tradeType !== 'ManageVault') {
+    tabs.push({
       tabTitle: 'Order Details',
       tabContent: (
         <DividedSections>
@@ -512,8 +512,8 @@ export const useInfoBox = () => {
           />
         </DividedSections>
       ),
-    },
-  ];
+    });
+  }
 
   return tabs;
 };

@@ -141,13 +141,12 @@ export async function fetchCurrentAccount(
                 if (results[k]) {
                   wr.push(results[k] as WithdrawRequest);
 
-                  return Object.assign(agg, {
-                    [vaultAddress]: wr,
-                  });
+                  agg.set(vaultAddress, wr);
+                  return agg;
                 } else {
                   return agg;
                 }
-              }, {} as Record<string, WithdrawRequest[]>),
+              }, new Map<string, WithdrawRequest[]>()),
           },
         };
       },

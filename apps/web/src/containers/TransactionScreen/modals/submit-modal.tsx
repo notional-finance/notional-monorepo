@@ -47,7 +47,7 @@ const useTriggerSubmit = (readyToBuild: boolean) => {
           }
         });
     }
-  }, [readyToBuild, trade]);
+  }, [readyToBuild, trade, clearTransaction, setTransactionStatus]);
 
   const submitTransaction =
     tradeType && populatedTransaction

@@ -1,4 +1,4 @@
-import { Network, SECONDS_IN_DAY } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import {
   AccountDefinition,
   FiatKeys,
@@ -26,7 +26,7 @@ export function calculateVaultHoldings(
   accountHistory: AccountHistory[],
   vaultLastUpdateTime: Map<string, number>,
   rewardClaims: Record<string, TokenBalance[]>,
-  withdrawRequests: Record<string, WithdrawRequest[]>
+  withdrawRequests: Map<string, WithdrawRequest[]>
 ) {
   const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(model, {
     balances,
@@ -54,7 +54,7 @@ export function calculateVaultHoldings(
       debtPnL?.totalProfitAndLoss || zeroDenom
     );
     const vaultYield = v.hasPendingWithdraw
-      ? { totalAPY: 0 }
+      ? { totalAPY: 0, feeAPY: 0 }
       : model.getSpotAPY(v.vaultShares.tokenId);
     const debtAPY = model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
     const assetInterestAccrual = assetPnL?.totalInterestAccrual || zeroDenom;

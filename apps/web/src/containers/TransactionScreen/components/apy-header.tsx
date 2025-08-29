@@ -157,7 +157,7 @@ export const APYBox = ({ apyInfo }: { apyInfo: APYData }) => {
         </RowContainer>
         <RowContainer>
           <Body>
-            {apyInfo.assetAPY ? (
+            {apyInfo.assetAPY !== undefined ? (
               <CountUp
                 value={apyInfo.assetAPY}
                 decimals={2}
@@ -175,7 +175,7 @@ export const APYBox = ({ apyInfo }: { apyInfo: APYData }) => {
             sx={{ margin: theme.spacing(0) }}
           />
           <Body>
-            {apyInfo.debtAPY ? (
+            {apyInfo.debtAPY !== undefined ? (
               <CountUp
                 value={apyInfo.debtAPY}
                 decimals={2}

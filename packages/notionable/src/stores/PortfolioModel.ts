@@ -189,7 +189,7 @@ export const AccountPortfolioActions = (
       self.accountHistory as AccountHistory[],
       new Map(self.vaultLastUpdateTime.entries()),
       Object.fromEntries(self.rewardClaims.entries()),
-      Object.fromEntries(self.withdrawRequests.entries())
+      new Map(self.withdrawRequests.entries())
     );
 
     const baseCurrency = root().appStore.baseCurrency;

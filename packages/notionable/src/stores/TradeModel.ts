@@ -1,4 +1,5 @@
 import {
+  APYData,
   createLeveragedAPYData,
   NotionalTypes,
   PendlePT,
@@ -32,7 +33,6 @@ import {
   formatNumberAsPercent,
   getChangeType,
   getNowSeconds,
-  leveragedYield,
   Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
@@ -909,45 +909,16 @@ export const TradeModel = types
       return postVaultRisk?.getAllRiskFactors();
     };
 
-    const getVaultAPYBreakdown = () => {
-      const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
-      const priorBorrowRate = priorVaultRisk?.borrowAPY;
-      const newBorrowRate = self.debtOptions?.find(
-        (t) => t.token.id === self.debt?.id
-      )?.interestRate;
-      const postBorrowRate =
-        postVaultRisk?.maturity === undefined
-          ? newBorrowRate
-          : averageFixedRate(priorVaultRisk, postVaultRisk, newBorrowRate);
-      const vaultSharesAPY = self.collateral
-        ? root()
-            .getNetworkClient(self.selectedNetwork)
-            .getSpotAPY(self.collateral.id)
-        : undefined;
-      const borrowAPY = postBorrowRate || priorBorrowRate;
-      const leverageRatio =
-        postVaultRisk?.leverageRatio() ||
-        priorVaultRisk?.leverageRatio() ||
-        self.leverageRatio ||
-        0;
-      const leveragedAPY =
-        vaultSharesAPY !== undefined && borrowAPY !== undefined
-          ? createLeveragedAPYData(vaultSharesAPY, borrowAPY, leverageRatio)
-          : undefined;
-
-      return {
-        leveragedAPY,
-        assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
-        debts: postVaultRisk?.totalDebt() || priorVaultRisk?.totalDebt(),
-        netWorth: postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
-      };
-    };
-
     const getVaultRiskSummary = () => {
       const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const holdings = account?.vaultHoldings?.find(
+        ({ vaultAddress }) => vaultAddress === self.vaultAddress
+      );
 
-      const priorBorrowRate = priorVaultRisk?.borrowAPY;
-      const priorAPY = priorVaultRisk?.totalAPY;
+      const priorBorrowRate = holdings?.apyData?.debtAPY;
+      const priorAPY = holdings?.apyData;
+
       const newBorrowRate = self.debtOptions?.find(
         (t) => t.token.id === self.debtBalance?.tokenId
       )?.interestRate;
@@ -955,17 +926,20 @@ export const TradeModel = types
         postVaultRisk?.maturity === undefined
           ? newBorrowRate
           : averageFixedRate(priorVaultRisk, postVaultRisk, newBorrowRate);
-      const vaultSharesAPY = postVaultRisk?.vaultShares?.tokenId
+      const postVaultSharesAPY = postVaultRisk?.vaultShares?.tokenId
         ? root()
             .getNetworkClient(self.selectedNetwork)
-            .getSpotAPY(postVaultRisk.vaultShares.tokenId)?.totalAPY
+            .getSpotAPY(postVaultRisk.vaultShares.tokenId)
         : undefined;
 
-      const postAPY = leveragedYield(
-        vaultSharesAPY,
-        postBorrowRate,
-        postVaultRisk?.leverageRatio() || 0
-      );
+      const postAPY =
+        postVaultSharesAPY && postBorrowRate
+          ? createLeveragedAPYData(
+              postVaultSharesAPY,
+              postBorrowRate,
+              postVaultRisk?.leverageRatio() || 0
+            )
+          : undefined;
 
       return {
         current: {
@@ -974,7 +948,9 @@ export const TradeModel = types
           netWorth: priorVaultRisk?.netWorth(),
           liquidationPrices: priorVaultRisk?.getAllLiquidationPrices() || [],
           borrowAPY: formatNumberAsPercentWithUndefined(priorBorrowRate, '-'),
-          totalAPY: formatNumberAsPercentWithUndefined(priorAPY, '-'),
+          totalAPY: formatNumberAsPercentWithUndefined(priorAPY?.totalAPY, '-'),
+          priorBorrowRate,
+          priorAPY,
         },
         updated: postVaultRisk
           ? {
@@ -986,9 +962,28 @@ export const TradeModel = types
                 postBorrowRate,
                 '-'
               ),
-              totalAPY: formatNumberAsPercentWithUndefined(postAPY, '-'),
+              totalAPY: formatNumberAsPercentWithUndefined(
+                postAPY?.totalAPY,
+                '-'
+              ),
+              postBorrowRate,
+              postAPY,
             }
           : undefined,
+      };
+    };
+
+    const getVaultAPYBreakdown = () => {
+      const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
+      const { current, updated } = getVaultRiskSummary();
+
+      return {
+        leveragedAPY: (updated?.postAPY || current?.priorAPY || undefined) as
+          | APYData
+          | undefined,
+        assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
+        debts: postVaultRisk?.totalDebt() || priorVaultRisk?.totalDebt(),
+        netWorth: postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
       };
     };
 

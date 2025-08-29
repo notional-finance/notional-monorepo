@@ -40,7 +40,7 @@
         "mobx/missing-make-observable": "error",
         // NOTE: this is disabled because it is causing false positives
         "mobx/missing-observer": "off",
-        "react-hooks/exhaustive-deps": ["warn"],
+        "react-hooks/exhaustive-deps": "error",
         "mobx/no-anonymous-observer": "off"
       }
     },
