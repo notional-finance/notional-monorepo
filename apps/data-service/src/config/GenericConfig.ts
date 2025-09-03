@@ -683,4 +683,37 @@ export const configDefs: ConfigDefinition[] = [
     },
     network: Network.arbitrum,
   },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee',
+      contractABI: ['function getRate() view external returns (uint256)'],
+      method: 'getRate',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'weETH to ETH Exchange Rate',
+      decimals: 18,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
+      contractABI: [
+        'function convertToAssets(uint256 shares) view external returns (uint256)',
+      ],
+      method: 'convertToAssets',
+      args: [ethers.utils.parseEther('1')],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'sUSDe to USDe Exchange Rate',
+      decimals: 18,
+    },
+    network: Network.mainnet,
+  },
 ];
