@@ -1539,7 +1539,9 @@ export const TradeModel = types
         ? model.getLeveragedAPY(
             currentHoldings?.asset.balance,
             currentHoldings?.debt.balance,
-            currentHoldings?.leverageRatio
+            currentHoldings?.leverageRatio,
+            undefined,
+            true
           )
         : undefined;
 

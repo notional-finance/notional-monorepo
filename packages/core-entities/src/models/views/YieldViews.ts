@@ -435,21 +435,24 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     collateralAmount: TokenBalance,
     debtAmount: TokenBalance,
     leverageRatio: number,
-    vaultTradeMetadata?: unknown
+    vaultTradeMetadata?: unknown,
+    doNotSimulate = false
   ): APYData => {
-    const collateralAPY = collateralAmount.isZero()
-      ? getSpotAPY(collateralAmount.tokenId)
-      : getSimulatedAPY(
-          collateralAmount,
-          collateralAmount.token.tokenType === 'nToken' &&
-            debtAmount.token.tokenType === 'PrimeDebt'
-            ? debtAmount
-            : undefined,
-          vaultTradeMetadata
-        );
-    const debtAPY = debtAmount.isZero()
-      ? getSpotAPY(debtAmount.tokenId)
-      : getSimulatedAPY(debtAmount);
+    const collateralAPY =
+      collateralAmount.isZero() || doNotSimulate
+        ? getSpotAPY(collateralAmount.tokenId)
+        : getSimulatedAPY(
+            collateralAmount,
+            collateralAmount.token.tokenType === 'nToken' &&
+              debtAmount.token.tokenType === 'PrimeDebt'
+              ? debtAmount
+              : undefined,
+            vaultTradeMetadata
+          );
+    const debtAPY =
+      debtAmount.isZero() || doNotSimulate
+        ? getSpotAPY(debtAmount.tokenId)
+        : getSimulatedAPY(debtAmount);
 
     return createLeveragedAPYData(
       collateralAPY,
