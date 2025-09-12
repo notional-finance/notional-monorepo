@@ -1,7 +1,9 @@
 import { Box } from '@mui/material';
+import { colors } from '@notional-finance/styles';
 import { useEffect, useRef } from 'react';
 
 const DEBUG_MODE = false;
+const CACHE_KEY = '1';
 
 // These are initialized before any shadow dom is created
 const origQSA = Document.prototype.querySelectorAll;
@@ -27,7 +29,7 @@ function patchQuery(hostEl: Element) {
   Document.prototype.querySelectorAll = function (selector: any) {
     const lightResults = Array.from(origQSA.call(this, selector));
     const shadowResults = Array.from(shadow.querySelectorAll(selector));
-    if (DEBUG_MODE) {
+    if (DEBUG_MODE && selector.includes('fs-')) {
       console.log('selector', selector);
       console.log('lightResults', lightResults);
       console.log('shadowResults', shadowResults);
@@ -37,10 +39,12 @@ function patchQuery(hostEl: Element) {
 
   // Patch querySelector
   Document.prototype.querySelector = function (selector: any) {
+    console.log('querySelector', selector);
     return origQS.call(this, selector) || shadow.querySelector(selector);
   };
 
-  // Redirect addEventListener to the shadow root
+  // Redirect addEventListener to the shadow root, Webflow uses document.addEventListener for
+  // for all events.
   Document.prototype.addEventListener = function (
     type: string,
     listener: EventListenerOrEventListenerObject,
@@ -51,6 +55,24 @@ function patchQuery(hostEl: Element) {
     }
 
     if (redirectEvents.includes(type)) {
+      shadow.addEventListener(type, listener, options);
+    } else {
+      origAdd.call(this, type, listener, options);
+    }
+  };
+
+  // Redirect addEventListener to the shadow root, used for mirrorclick which uses
+  // window.addEventListener to bind to click events.
+  window.addEventListener = function (
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ) {
+    if (DEBUG_MODE) {
+      console.log('addEventListener', type, listener, options);
+    }
+
+    if (type === 'click') {
       shadow.addEventListener(type, listener, options);
     } else {
       origAdd.call(this, type, listener, options);
@@ -149,6 +171,7 @@ export const LandingPageInject = () => {
       fs-inject-element="target"
       fs-inject-source="/embed/"
       fs-inject-instance="landing-page"
+      fs-inject-cachekey={CACHE_KEY}
     />
   );
 };
@@ -159,10 +182,12 @@ export const PointsPageInject = () => {
   return (
     <Box
       ref={containerRef}
+      sx={{ background: colors['black'], minHeight: '80vh' }}
       className="body-2"
       fs-inject-element="target"
       fs-inject-source="/embed/points"
       fs-inject-instance="points-page"
+      fs-inject-cachekey={CACHE_KEY}
     />
   );
 };
@@ -172,11 +197,13 @@ export const VaultsPageInject = () => {
 
   return (
     <Box
+      sx={{ minHeight: '80vh' }}
       ref={containerRef}
       className="body-vault"
       fs-inject-element="target"
       fs-inject-source="/embed/vaults"
       fs-inject-instance="vaults-page"
+      fs-inject-cachekey={CACHE_KEY}
     />
   );
 };
