@@ -95,19 +95,19 @@ class ScriptInjector {
 
   element(element: Element) {
     if (element.tagName === 'head') {
-      // Inject head scripts and links
-      this.headScripts.forEach(({ content, attributes }) => {
-        const attrString = Object.entries(attributes)
-          .map(([key, value]) => `${key}="${value}"`)
-          .join(' ');
-        if (content) {
-          element.append(`<script ${attrString}>${content}</script>`, {
-            html: true,
-          });
-        } else {
-          element.append(`<script ${attrString}></script>`, { html: true });
-        }
-      });
+      // // Inject head scripts and links
+      // this.headScripts.forEach(({ content, attributes }) => {
+      //   const attrString = Object.entries(attributes)
+      //     .map(([key, value]) => `${key}="${value}"`)
+      //     .join(' ');
+      //   if (content) {
+      //     element.append(`<script ${attrString}>${content}</script>`, {
+      //       html: true,
+      //     });
+      //   } else {
+      //     element.append(`<script ${attrString}></script>`, { html: true });
+      //   }
+      // });
       this.headLinks.forEach(({ href, rel }) => {
         element.append(`<link href="${href}" rel="${rel || 'stylesheet'}">`, {
           html: true,

@@ -1,13 +1,18 @@
 import { Box } from '@mui/material';
 import { useEffect, useRef } from 'react';
 
+const DEBUG_MODE = false;
+
 // These are initialized before any shadow dom is created
 const origQSA = Document.prototype.querySelectorAll;
 const origQS = Document.prototype.querySelector;
+const origAdd = Document.prototype.addEventListener;
+const redirectEvents = ['click', 'mouseover', 'mouseout'];
 
 function restoreQuery() {
   Document.prototype.querySelectorAll = origQSA;
   Document.prototype.querySelector = origQS;
+  Document.prototype.addEventListener = origAdd;
 }
 
 function patchQuery(hostEl: Element) {
@@ -22,15 +27,34 @@ function patchQuery(hostEl: Element) {
   Document.prototype.querySelectorAll = function (selector: any) {
     const lightResults = Array.from(origQSA.call(this, selector));
     const shadowResults = Array.from(shadow.querySelectorAll(selector));
-    // console.log('selector', selector);
-    // console.log('lightResults', lightResults);
-    // console.log('shadowResults', shadowResults);
+    if (DEBUG_MODE) {
+      console.log('selector', selector);
+      console.log('lightResults', lightResults);
+      console.log('shadowResults', shadowResults);
+    }
     return lightResults.concat(shadowResults) as any;
   };
 
   // Patch querySelector
   Document.prototype.querySelector = function (selector: any) {
     return origQS.call(this, selector) || shadow.querySelector(selector);
+  };
+
+  // Redirect addEventListener to the shadow root
+  Document.prototype.addEventListener = function (
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ) {
+    if (DEBUG_MODE) {
+      console.log('addEventListener', type, listener, options);
+    }
+
+    if (redirectEvents.includes(type)) {
+      shadow.addEventListener(type, listener, options);
+    } else {
+      origAdd.call(this, type, listener, options);
+    }
   };
 }
 
@@ -39,20 +63,27 @@ function patchQueryAndRestart(shadowEl: Element) {
   setTimeout(() => {
     if ((window as any).Webflow?.require) {
       const ix2 = (window as any).Webflow.require('ix2');
-      // const originalDispatch = ix2.store.dispatch;
-      // ix2.store.dispatch = function (action) {
-      //   if (action.type !== 'IX2_ANIMATION_FRAME_CHANGED') {
-      //     console.log('[IX2 DISPATCH]', action.type, action);
-      //     console.log('IX2 store state:', ix2.store.getState());
-      //   }
-      //   return originalDispatch.call(this, action);
-      // };
-      console.log('IX2 store state:', ix2.store.getState());
+      if (DEBUG_MODE) {
+        const originalDispatch = ix2.store.dispatch;
+        ix2.store.dispatch = function (action) {
+          if (action.type !== 'IX2_ANIMATION_FRAME_CHANGED') {
+            console.log('[IX2 DISPATCH]', action.type, action);
+            console.log('IX2 store state:', ix2.store.getState());
+          }
+          return originalDispatch.call(this, action);
+        };
+        console.log('IX2 store state:', ix2.store.getState());
+      }
+
       if (ix2) {
+        // Restarts the ix2 session so it can bind the proper event listeners
         ix2.store.dispatch({ type: 'IX2_SESSION_STOPPED' });
         ix2.init();
       }
-      console.log('IX2 store state:', ix2.store.getState());
+
+      if (DEBUG_MODE) {
+        console.log('IX2 store state:', ix2.store.getState());
+      }
     }
     (window as any).FinsweetAttributes?.modules?.list?.restart();
     (window as any).FinsweetAttributes?.modules?.mirrorclick?.restart();
@@ -73,7 +104,9 @@ const useStartInject = (pageId: string) => {
     (window as any).FinsweetAttributes.push([
       'inject',
       (component: any[]) => {
-        console.log('inject loaded', component);
+        if (DEBUG_MODE) {
+          console.log('inject loaded', component);
+        }
         // Once inject is loaded, we check first to see if the container has any children. If it doesn't
         // then we trigger the inject process which will mount a shadow dom at the containerRef
         if (containerRef.current?.children.length === 0) {
@@ -85,7 +118,9 @@ const useStartInject = (pageId: string) => {
           (window as any).FinsweetAttributes.push([
             'inject',
             (component: any[]) => {
-              console.log('inject loaded on callback', component);
+              if (DEBUG_MODE) {
+                console.log('inject loaded on callback', component);
+              }
               patchQueryAndRestart(component[0]);
             },
           ]);
@@ -96,16 +131,7 @@ const useStartInject = (pageId: string) => {
     ]);
 
     return () => {
-      console.log('on unmount');
-      (window as any).FinsweetAttributes.push([
-        'inject',
-        (component: any[]) => {
-          console.log('removing components', component);
-          component.slice(0, 0);
-        },
-      ]);
-      // Need to remove the component from the inject process.
-      // Need to un-patch the query selector
+      // Need to un-patch the all the document methods
       restoreQuery();
     };
   }, [containerRef]);
