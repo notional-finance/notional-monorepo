@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const DEBUG_MODE = false;
 const CACHE_KEY = '1';
@@ -39,7 +40,6 @@ function patchQuery(hostEl: Element) {
 
   // Patch querySelector
   Document.prototype.querySelector = function (selector: any) {
-    console.log('querySelector', selector);
     return origQS.call(this, selector) || shadow.querySelector(selector);
   };
 
@@ -80,7 +80,10 @@ function patchQuery(hostEl: Element) {
   };
 }
 
-function patchQueryAndRestart(shadowEl: Element) {
+function patchQueryAndRestart(
+  shadowEl: Element,
+  mountCallbacks: (el: Element) => void
+) {
   patchQuery(shadowEl);
   setTimeout(() => {
     if ((window as any).Webflow?.require) {
@@ -109,10 +112,14 @@ function patchQueryAndRestart(shadowEl: Element) {
     }
     (window as any).FinsweetAttributes?.modules?.list?.restart();
     (window as any).FinsweetAttributes?.modules?.mirrorclick?.restart();
+    mountCallbacks(shadowEl);
   }, 0);
 }
 
-const useStartInject = (pageId: string) => {
+const useStartInject = (
+  pageId: string,
+  mountCallbacks: (el: Element) => void
+) => {
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // Set the page id so that webflow can mount the proper interactions
@@ -143,11 +150,11 @@ const useStartInject = (pageId: string) => {
               if (DEBUG_MODE) {
                 console.log('inject loaded on callback', component);
               }
-              patchQueryAndRestart(component[0]);
+              patchQueryAndRestart(component[0], mountCallbacks);
             },
           ]);
         } else if (component.length === 1) {
-          patchQueryAndRestart(component[0]);
+          patchQueryAndRestart(component[0], mountCallbacks);
         }
       },
     ]);
@@ -162,7 +169,9 @@ const useStartInject = (pageId: string) => {
 };
 
 export const LandingPageInject = () => {
-  const containerRef = useStartInject('6807f00cedf01dce8388f197');
+  const containerRef = useStartInject('6807f00cedf01dce8388f197', () => {
+    console.log('Landing page inject mounted');
+  });
 
   return (
     <Box
@@ -177,7 +186,26 @@ export const LandingPageInject = () => {
 };
 
 export const PointsPageInject = () => {
-  const containerRef = useStartInject('68825e92f8fa9c449f985a6b');
+  const rewriteLinks = (shadow: Element) => {
+    (window as any).FinsweetAttributes =
+      (window as any).FinsweetAttributes || [];
+    (window as any).FinsweetAttributes.push([
+      'list',
+      ([l, _]: any[]) => {
+        l.cache = false;
+        l.showQuery = true;
+        // After the list is rendered we can update the href
+        l.addHook('start', () => {
+          shadow.shadowRoot?.querySelectorAll('.vault-row').forEach((e) => {
+            e['href'] = `/vault/mainnet/${e.getAttribute(
+              'n-vault-address'
+            )}`.toLowerCase();
+          });
+        });
+      },
+    ]);
+  };
+  const containerRef = useStartInject('68825e92f8fa9c449f985a6b', rewriteLinks);
 
   return (
     <Box
@@ -193,7 +221,34 @@ export const PointsPageInject = () => {
 };
 
 export const VaultsPageInject = () => {
-  const containerRef = useStartInject('68433fd9a6eb09b8e396ad60');
+  const navigate = useNavigate();
+
+  const rewriteLinks = (shadow: Element) => {
+    (window as any).FinsweetAttributes =
+      (window as any).FinsweetAttributes || [];
+    (window as any).FinsweetAttributes.push([
+      'list',
+      ([l, _]: any[]) => {
+        l.cache = false;
+        l.showQuery = true;
+        // After the list is rendered we can update the href
+        l.addHook('start', () => {
+          shadow.shadowRoot?.querySelectorAll('.vault-row').forEach((e) => {
+            const vaultLink = `/vault/mainnet/${e.getAttribute(
+              'n-vault-address'
+            )}`.toLowerCase();
+            e['href'] = vaultLink;
+
+            e.addEventListener('click', (e) => {
+              e.preventDefault();
+              navigate(vaultLink);
+            });
+          });
+        });
+      },
+    ]);
+  };
+  const containerRef = useStartInject('68433fd9a6eb09b8e396ad60', rewriteLinks);
 
   return (
     <Box
