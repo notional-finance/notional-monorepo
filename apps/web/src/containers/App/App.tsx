@@ -15,15 +15,9 @@ import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { StakeNOTE } from '../../containers/StakeNOTE';
-import {
-  LandingPageView,
-  VaultPageView,
-  PointsPageView,
-} from '../../containers/Webflow/WebflowEmbed';
 import { NoteView } from '../NoteView';
 import {
   getDefaultNetworkFromHostname,
-  ONE_MINUTE_MS,
   REFRESH_PORTFOLIO_INTERVAL,
 } from '@notional-finance/util';
 import { RootStoreContext } from '@notional-finance/notionable-hooks';
@@ -35,6 +29,11 @@ import {
 import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { VaultDefaultScreen } from '../TransactionScreen';
+import {
+  LandingPageInject,
+  PointsPageInject,
+  VaultsPageInject,
+} from '../Webflow/AttributesInject';
 
 const RedirectToDefaultNetwork = () => {
   const selectedNetwork = useSelectedNetwork();
@@ -165,8 +164,9 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path="/vaults"
-              component={VaultPageView}
+              component={VaultsPageInject}
               routeType="Card"
+              isInjected
             />
           }
         />
@@ -175,8 +175,9 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path="/points"
-              component={PointsPageView}
+              component={PointsPageInject}
               routeType="Card"
+              isInjected
             />
           }
         />
@@ -215,7 +216,7 @@ const AllRoutes = observer(() => {
         <Route path="/:basePath" element={<RedirectToDefaultNetwork />} />
         <Route
           path="/"
-          element={<LandingLayoutRoute component={LandingPageView} />}
+          element={<LandingLayoutRoute component={LandingPageInject} />}
         />
       </Routes>
     </RouteContainer>
