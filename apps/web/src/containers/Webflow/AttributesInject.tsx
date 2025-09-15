@@ -32,8 +32,6 @@ function patchQuery(hostEl: Element) {
     const shadowResults = Array.from(shadow.querySelectorAll(selector));
     if (DEBUG_MODE && selector.includes('fs-')) {
       console.log('selector', selector);
-      console.log('lightResults', lightResults);
-      console.log('shadowResults', shadowResults);
     }
     return lightResults.concat(shadowResults) as any;
   };
@@ -85,6 +83,8 @@ function patchQueryAndRestart(
   mountCallbacks: (el: Element) => void
 ) {
   patchQuery(shadowEl);
+  // We still need to set a timeout here to ensure that webflow can find
+  // the necessary elements.
   setTimeout(() => {
     if ((window as any).Webflow?.require) {
       const ix2 = (window as any).Webflow.require('ix2');
@@ -118,49 +118,61 @@ function patchQueryAndRestart(
 
 const useStartInject = (
   pageId: string,
+  pageInstance: string,
   mountCallbacks: (el: Element) => void
 ) => {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Ensures that the page id is set and the inject process is restarted if
+  // it needs to be.
   useEffect(() => {
     // Set the page id so that webflow can mount the proper interactions
     document.documentElement.setAttribute('data-wf-page', pageId);
-  }, [pageId]);
 
-  useEffect(() => {
     (window as any).FinsweetAttributes =
       (window as any).FinsweetAttributes || [];
 
     (window as any).FinsweetAttributes.push([
       'inject',
       (component: any[]) => {
-        if (DEBUG_MODE) {
-          console.log('inject loaded', component);
-        }
-        // Once inject is loaded, we check first to see if the container has any children. If it doesn't
-        // then we trigger the inject process which will mount a shadow dom at the containerRef
-        if (containerRef.current?.children.length === 0) {
+        // Once inject is loaded, we check first to see if the container is loaded or if it is
+        // correctly referencing the right page instance. If not, we restart the inject process.
+        if (component.length === 0 || component[0]?.instance !== pageInstance) {
           (window as any).FinsweetAttributes?.modules?.inject?.restart();
-
-          // This mounts a second callback that will trigger once the dom is injected that
-          // will patch the querySelectorAll and querySelector methods to look into the
-          // shadow dom for the proper elements and restart ix2 and attributes.
-          (window as any).FinsweetAttributes.push([
-            'inject',
-            (component: any[]) => {
-              if (DEBUG_MODE) {
-                console.log('inject loaded on callback', component);
-              }
-              patchQueryAndRestart(component[0], mountCallbacks);
-            },
-          ]);
-        } else if (component.length === 1) {
-          patchQueryAndRestart(component[0], mountCallbacks);
         }
       },
     ]);
+  }, [pageId, pageInstance]);
+
+  // Patches the querySelectorAll and querySelector methods to look into the
+  // shadow dom for the proper elements and restarts ix2 and attributes once the
+  // shadow dom is mounted.
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    // The mutation observer receives a callback when the shadowRoot is mounted
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === 'childList' &&
+          mutation.addedNodes &&
+          mutation.addedNodes[0]['shadowRoot']
+        ) {
+          // We request an animation frame to ensure that webflow can find
+          // all the elements.
+          requestAnimationFrame(() => {
+            patchQueryAndRestart(
+              mutation.addedNodes[0] as Element,
+              mountCallbacks
+            );
+          });
+        }
+      });
+    });
+    observer.observe(containerRef.current, { childList: true });
 
     return () => {
-      // Need to un-patch the all the document methods
+      observer.disconnect();
       restoreQuery();
     };
   }, [containerRef]);
@@ -169,9 +181,13 @@ const useStartInject = (
 };
 
 export const LandingPageInject = () => {
-  const containerRef = useStartInject('6807f00cedf01dce8388f197', () => {
-    console.log('Landing page inject mounted');
-  });
+  const containerRef = useStartInject(
+    '6807f00cedf01dce8388f197',
+    'landing-page',
+    () => {
+      console.log('Landing page inject mounted');
+    }
+  );
 
   return (
     <Box
@@ -205,7 +221,11 @@ export const PointsPageInject = () => {
       },
     ]);
   };
-  const containerRef = useStartInject('68825e92f8fa9c449f985a6b', rewriteLinks);
+  const containerRef = useStartInject(
+    '68825e92f8fa9c449f985a6b',
+    'points-page',
+    rewriteLinks
+  );
 
   return (
     <Box
@@ -248,7 +268,11 @@ export const VaultsPageInject = () => {
       },
     ]);
   };
-  const containerRef = useStartInject('68433fd9a6eb09b8e396ad60', rewriteLinks);
+  const containerRef = useStartInject(
+    '68433fd9a6eb09b8e396ad60',
+    'vaults-page',
+    rewriteLinks
+  );
 
   return (
     <Box
