@@ -1,6 +1,8 @@
 import { Box } from '@mui/material';
+import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import { useAllVaults, useAppStore } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const DEBUG_MODE = false;
@@ -80,7 +82,7 @@ function patchQuery(hostEl: Element) {
 
 function patchQueryAndRestart(
   shadowEl: Element,
-  mountCallbacks: (el: Element) => void
+  mountCallbacks?: (el: Element) => void
 ) {
   patchQuery(shadowEl);
   // We still need to set a timeout here to ensure that webflow can find
@@ -112,14 +114,14 @@ function patchQueryAndRestart(
     }
     (window as any).FinsweetAttributes?.modules?.list?.restart();
     (window as any).FinsweetAttributes?.modules?.mirrorclick?.restart();
-    mountCallbacks(shadowEl);
+    mountCallbacks?.(shadowEl);
   }, 0);
 }
 
 const useStartInject = (
   pageId: string,
   pageInstance: string,
-  mountCallbacks: (el: Element) => void
+  mountCallbacks?: (el: Element) => void
 ) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -175,10 +177,52 @@ const useStartInject = (
       observer.disconnect();
       restoreQuery();
     };
-  }, [containerRef]);
+  }, [containerRef, mountCallbacks]);
 
   return containerRef;
 };
+
+function useListStart(afterListRendered: () => void) {
+  const navigate = useNavigate();
+  const [hasListRendered, setHasListRendered] = useState(false);
+
+  useEffect(() => {
+    if (hasListRendered) {
+      afterListRendered();
+    }
+  }, [hasListRendered]);
+
+  return useCallback(
+    (shadow: Element) => {
+      (window as any).FinsweetAttributes =
+        (window as any).FinsweetAttributes || [];
+      (window as any).FinsweetAttributes.push([
+        'list',
+        ([l, _]: any[]) => {
+          l.cache = false;
+          l.showQuery = true;
+          // After the list is rendered we can update the href
+          l.addHook('start', () => {
+            shadow.shadowRoot?.querySelectorAll('.vault-row').forEach((e) => {
+              const vaultLink = `/vault/mainnet/${e.getAttribute(
+                'n-vault-address'
+              )}`.toLowerCase();
+              e['href'] = vaultLink;
+
+              e.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigate(vaultLink);
+              });
+            });
+
+            setHasListRendered(true);
+          });
+        },
+      ]);
+    },
+    [navigate]
+  );
+}
 
 export const LandingPageInject = () => {
   const containerRef = useStartInject(
@@ -202,29 +246,13 @@ export const LandingPageInject = () => {
 };
 
 export const PointsPageInject = () => {
-  const rewriteLinks = (shadow: Element) => {
-    (window as any).FinsweetAttributes =
-      (window as any).FinsweetAttributes || [];
-    (window as any).FinsweetAttributes.push([
-      'list',
-      ([l, _]: any[]) => {
-        l.cache = false;
-        l.showQuery = true;
-        // After the list is rendered we can update the href
-        l.addHook('start', () => {
-          shadow.shadowRoot?.querySelectorAll('.vault-row').forEach((e) => {
-            e['href'] = `/vault/mainnet/${e.getAttribute(
-              'n-vault-address'
-            )}`.toLowerCase();
-          });
-        });
-      },
-    ]);
-  };
+  const onListStart = useListStart(() => {
+    console.log('Points page list rendered');
+  });
   const containerRef = useStartInject(
     '68825e92f8fa9c449f985a6b',
     'points-page',
-    rewriteLinks
+    onListStart
   );
 
   return (
@@ -241,37 +269,52 @@ export const PointsPageInject = () => {
 };
 
 export const VaultsPageInject = () => {
-  const navigate = useNavigate();
-
-  const rewriteLinks = (shadow: Element) => {
-    (window as any).FinsweetAttributes =
-      (window as any).FinsweetAttributes || [];
-    (window as any).FinsweetAttributes.push([
-      'list',
-      ([l, _]: any[]) => {
-        l.cache = false;
-        l.showQuery = true;
-        // After the list is rendered we can update the href
-        l.addHook('start', () => {
-          shadow.shadowRoot?.querySelectorAll('.vault-row').forEach((e) => {
-            const vaultLink = `/vault/mainnet/${e.getAttribute(
-              'n-vault-address'
-            )}`.toLowerCase();
-            e['href'] = vaultLink;
-
-            e.addEventListener('click', (e) => {
-              e.preventDefault();
-              navigate(vaultLink);
-            });
-          });
+  const vaults = useAllVaults();
+  const { baseCurrency } = useAppStore();
+  const onContentLoaded = useCallback(() => {
+    // Only set this text data once after the list is rendered so that the sorting engine
+    // can read it
+    document.querySelectorAll('.vault-row').forEach((e) => {
+      const trigger = e.querySelector('.project-trigger');
+      if (trigger) {
+        trigger.addEventListener('click', (e) => {
+          e.preventDefault();
         });
-      },
-    ]);
-  };
+      }
+
+      const vaultAddress = e.getAttribute('n-vault-address')?.toLowerCase();
+      const vault = vaults.find(
+        (v) => v.vaultConfig.vaultAddress.toLowerCase() === vaultAddress
+      );
+      if (!vault) return;
+
+      const maxApyEl = e.querySelector('.vault-max-apy');
+      if (maxApyEl)
+        maxApyEl.textContent = formatNumberAsPercentWithUndefined(
+          vault?.apy?.totalAPY,
+          '-'
+        );
+      const liquidityEl = e.querySelector('.vault-liquidity');
+      if (liquidityEl)
+        liquidityEl.textContent =
+          vault?.liquidity
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false) || '-';
+      const tvlEl = e.querySelector('.vault-tvl');
+      if (tvlEl)
+        tvlEl.textContent =
+          vault?.tvl
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false) || '-';
+    });
+  }, [vaults, baseCurrency]);
+
+  const onListStart = useListStart(onContentLoaded);
+
   const containerRef = useStartInject(
     '68433fd9a6eb09b8e396ad60',
     'vaults-page',
-    rewriteLinks
+    onListStart
   );
 
   return (
