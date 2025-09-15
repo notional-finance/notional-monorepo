@@ -196,6 +196,12 @@ function useListStart(afterListRendered: () => void) {
 
   useEffect(() => {
     if (hasListRendered) {
+      document.querySelectorAll('.prevent-default').forEach((e) => {
+        e.addEventListener('click', (e) => {
+          e['prevent-navigate'] = true;
+        });
+      });
+
       afterListRendered();
     }
   }, [hasListRendered]);
@@ -206,8 +212,8 @@ function useListStart(afterListRendered: () => void) {
         (window as any).FinsweetAttributes || [];
 
       shadow.shadowRoot?.querySelectorAll('#clear-button').forEach((e) => {
+        delete e['href'];
         e.addEventListener('click', (e) => {
-          delete e['href'];
           e.preventDefault();
         });
       });
@@ -228,6 +234,7 @@ function useListStart(afterListRendered: () => void) {
 
               e.addEventListener('click', (e) => {
                 e.preventDefault();
+                if (e['prevent-navigate']) return;
                 navigate(vaultLink);
               });
             });
