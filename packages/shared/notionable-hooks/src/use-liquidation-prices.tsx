@@ -1,11 +1,10 @@
 import {
   TokenDefinition,
-  FiatKeys,
   TokenBalance,
   PriceChange,
   getNetworkModel,
 } from '@notional-finance/core-entities';
-import { usePortfolioLiquidationPrices, useVaultHoldings } from './use-account';
+import { useVaultHoldings } from './use-account';
 import {
   formatNumberAsPercent,
   formatTokenType,
@@ -28,66 +27,6 @@ export function usePriceChanges(
   return dataSet && network && assetId
     ? getNetworkModel(network).getPriceChanges(assetId)
     : undefined;
-}
-
-function parseFiatLiquidationPrice(
-  asset: TokenDefinition,
-  baseCurrency: FiatKeys,
-  threshold: TokenBalance | null,
-  oneDay: PriceChange | undefined,
-  sevenDay: PriceChange | undefined,
-  secondary: string
-) {
-  return {
-    // Used on portfolio screen
-    exchangeRate: {
-      symbol: asset.symbol,
-      label: (
-        <span>
-          {asset.symbol}
-          <span style={{ color: secondary }}>&nbsp;/&nbsp;{baseCurrency}</span>
-        </span>
-      ),
-    },
-    // Used on overview screen
-    collateral: {
-      symbol: asset.symbol,
-      label: asset.symbol,
-    },
-    // Used on overview screen
-    riskFactor: {
-      data: [
-        {
-          displayValue: (
-            <span>
-              {asset.symbol}
-              <span style={{ color: secondary }}>
-                &nbsp;/&nbsp;{baseCurrency}
-              </span>
-            </span>
-          ),
-          isNegative: false,
-        },
-        {
-          displayValue: 'Chainlink Oracle Price',
-          isNegative: false,
-        },
-      ],
-    },
-    currentPrice:
-      TokenBalance.unit(asset)
-        .toFiat(baseCurrency)
-        .toDisplayStringWithSymbol(4, false) || '',
-    oneDayChange: oneDay?.fiatChange
-      ? formatNumberAsPercent(oneDay.fiatChange)
-      : '',
-    sevenDayChange: sevenDay?.fiatChange
-      ? formatNumberAsPercent(sevenDay?.fiatChange)
-      : '',
-    liquidationPrice: threshold
-      ?.toFiat(baseCurrency)
-      .toDisplayStringWithSymbol(4, false),
-  };
 }
 
 function parseUnderlyingLiquidationPrice(
@@ -157,55 +96,12 @@ export function useNotePrice() {
   return { notePrice, notePriceChange };
 }
 
-export function useCurrentLiquidationPrices(
-  network: Network | undefined,
-  baseCurrency: FiatKeys
-) {
-  const portfolio = usePortfolioLiquidationPrices(network);
+export function useCurrentLiquidationPrices(network: Network | undefined) {
   const vaults = useVaultHoldings(network);
   // Ensures price changes are fetched
   usePriceChanges(network, undefined);
   const theme = useTheme();
   const secondary = (theme as NotionalTheme).palette.typography.light;
-
-  const exchangeRateRisk =
-    portfolio
-      ?.map((p) => ({
-        ...p,
-        asset: getNetworkModel(network).getTokenByID(p.asset),
-      }))
-      .filter((p) => p.asset.tokenType === 'Underlying')
-      .map(({ asset, threshold }) => {
-        const { oneDay, sevenDay } =
-          getNetworkModel(network).getPriceChanges(asset.id) || {};
-        return parseFiatLiquidationPrice(
-          asset,
-          baseCurrency,
-          threshold,
-          oneDay,
-          sevenDay,
-          secondary
-        );
-      }) || [];
-
-  const assetPriceRisk =
-    portfolio
-      ?.map((p) => ({
-        ...p,
-        asset: getNetworkModel(network).getTokenByID(p.asset),
-      }))
-      .filter((p) => p.asset.tokenType !== 'Underlying')
-      .map(({ asset, threshold }) => {
-        const { oneDay, sevenDay } =
-          getNetworkModel(network).getPriceChanges(asset.id) || {};
-        return parseUnderlyingLiquidationPrice(
-          asset as TokenDefinition,
-          threshold,
-          oneDay,
-          sevenDay,
-          secondary
-        );
-      }) || [];
 
   const vaultLiquidation =
     vaults?.map(({ vaultAddress, liquidationPrices, name, underlying }) => {
@@ -254,5 +150,5 @@ export function useCurrentLiquidationPrices(
       };
     }) || [];
 
-  return { exchangeRateRisk, assetPriceRisk, vaultLiquidation };
+  return { vaultLiquidation };
 }

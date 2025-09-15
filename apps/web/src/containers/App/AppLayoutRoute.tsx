@@ -24,13 +24,14 @@ interface AppLayoutRouteProps {
   component: React.ComponentType<unknown>;
   path: string;
   routeType: RouteType;
-  landingLayout?: boolean;
+  isInjected?: boolean;
 }
 
 const AppLayoutRoute = ({
   component: Component,
   path,
   routeType,
+  isInjected,
 }: AppLayoutRouteProps) => {
   const { themeVariant } = useAppStore();
   const { setRoute } = useRootStore();
@@ -64,7 +65,7 @@ const AppLayoutRoute = ({
               <WalletSelector />
             </Header>
 
-            <MainContent>
+            <MainContent sx={isInjected ? { paddingTop: 0 } : {}}>
               <Component {...params} />
             </MainContent>
             <Footer />

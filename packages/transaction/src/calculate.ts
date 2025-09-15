@@ -46,7 +46,8 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   let profile = new VaultAccountRiskProfile(
     vaultAddress,
     balances || [TokenBalance.zero(collateral), TokenBalance.zero(debt)],
-    vaultLastUpdateTime || 0
+    vaultLastUpdateTime || 0,
+    undefined // There should never be withdraw requests here
   );
 
   let initialDebtUnitsEstimateInRP = RATE_PRECISION;
@@ -85,6 +86,18 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
       .mulInRatePrecision(withdrawPortion)
       .scaleTo(RATE_DECIMALS)
       .toNumber();
+
+    if (initialDebtUnitsEstimateInRP === 0) {
+      return {
+        ...calculateVaultCollateral({
+          collateral,
+          vaultAdapter,
+          debtBalance: TokenBalance.zero(debt),
+          depositBalance,
+        }),
+        debtBalance: TokenBalance.zero(debt),
+      };
+    }
 
     ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } =
       vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral));
@@ -154,7 +167,8 @@ export function calculateVaultRoll({
   const profile = new VaultAccountRiskProfile(
     debt.vaultAddress,
     balances,
-    vaultLastUpdateTime
+    vaultLastUpdateTime,
+    undefined // There should never be withdraw requests here
   );
   const collateralBalance = profile.vaultShares;
   const currentDebt = profile.vaultDebt;
@@ -212,6 +226,42 @@ function calculateVaultCollateral({
       : netRealizedCollateralBalance.add(feesPaid.toUnderlying()),
     netRealizedDebtBalance: underlyingBorrowed.neg(),
     vaultTradeMetadata,
+  };
+}
+
+export function calculateWithdraw({
+  collateral,
+  vaultAdapter,
+  debt,
+  balances,
+  vaultLastUpdateTime,
+}: {
+  collateral: TokenDefinition;
+  vaultAdapter: VaultAdapter;
+  debt: TokenDefinition;
+  balances: TokenBalance[];
+  vaultLastUpdateTime: number;
+}) {
+  const vaultAddress = collateral.vaultAddress;
+  if (!vaultAddress) throw Error('Vault Address not defined');
+  const profile = new VaultAccountRiskProfile(
+    vaultAddress,
+    balances || [TokenBalance.zero(collateral), TokenBalance.zero(debt)],
+    vaultLastUpdateTime || 0,
+    undefined // There should never be withdraw requests here
+  );
+
+  // This is the amount of yield tokens that will be put into the withdraw queue
+  const withdrawAmount = profile.vaultShares.toToken(vaultAdapter.yieldToken);
+
+  return {
+    collateralBalance: profile.vaultShares.neg(),
+    collateralFee: TokenBalance.zero(withdrawAmount.token),
+    debtBalance: profile.vaultDebt,
+    netRealizedCollateralBalance: withdrawAmount,
+    // These two are just used to satisfy the type system, not used in the UI
+    netRealizedDebtBalance: TokenBalance.zero(debt),
+    debtFee: TokenBalance.zero(debt),
   };
 }
 

@@ -26,7 +26,8 @@ export default class extends WorkerEntrypoint<{
           'Cache-Control': 'public, max-age=300',
         },
       });
-    } else if (WEBFLOW_PAGES.includes(url.pathname)) {
+    } else {
+      // This ensures that webflow is always injected for all HTML pages
       const webflowHtml = await fetchWebflowPage(url.pathname, false);
       const indexHtml = await this.env.ASSETS.fetch(request);
       const modifiedHtml = await extractWebflowHtml(
@@ -39,8 +40,6 @@ export default class extends WorkerEntrypoint<{
           'Cache-Control': 'public, max-age=300',
         },
       });
-    } else {
-      return this.env.ASSETS.fetch(request);
     }
   }
 }

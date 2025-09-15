@@ -50,7 +50,7 @@ class ScriptCollector {
   }
 
   text(text: Text) {
-    if (this.prevText == text.text) return;
+    if (this.prevText === text.text) return;
     this.prevText = text.text;
 
     if (this.inScriptTag) {
@@ -89,24 +89,25 @@ class ScriptInjector {
   constructor(
     private headScripts: ScriptData[],
     private headLinks: { href: string; rel: string | null }[],
-    private headStyles: ScriptData[]
+    private headStyles: ScriptData[],
+    private bodyScripts: ScriptData[]
   ) {}
 
   element(element: Element) {
     if (element.tagName === 'head') {
-      // Inject head scripts and links
-      this.headScripts.forEach(({ content, attributes }) => {
-        const attrString = Object.entries(attributes)
-          .map(([key, value]) => `${key}="${value}"`)
-          .join(' ');
-        if (content) {
-          element.append(`<script ${attrString}>${content}</script>`, {
-            html: true,
-          });
-        } else {
-          element.append(`<script ${attrString}></script>`, { html: true });
-        }
-      });
+      // // Inject head scripts and links
+      // this.headScripts.forEach(({ content, attributes }) => {
+      //   const attrString = Object.entries(attributes)
+      //     .map(([key, value]) => `${key}="${value}"`)
+      //     .join(' ');
+      //   if (content) {
+      //     element.append(`<script ${attrString}>${content}</script>`, {
+      //       html: true,
+      //     });
+      //   } else {
+      //     element.append(`<script ${attrString}></script>`, { html: true });
+      //   }
+      // });
       this.headLinks.forEach(({ href, rel }) => {
         element.append(`<link href="${href}" rel="${rel || 'stylesheet'}">`, {
           html: true,
@@ -122,6 +123,14 @@ class ScriptInjector {
       });
     } else if (element.tagName === 'body') {
       // Body scripts are injected on the client side
+      this.bodyScripts.forEach(({ content, attributes }) => {
+        const attrString = Object.entries(attributes)
+          .map(([key, value]) => `${key}="${value}"`)
+          .join(' ');
+        element.append(`<script ${attrString}>${content}</script>`, {
+          html: true,
+        });
+      });
     }
   }
 }
@@ -130,9 +139,15 @@ async function injectWebflowHtml(
   indexHtml: string,
   headScripts: ScriptData[],
   headLinks: { href: string; rel: string | null }[],
-  headStyles: ScriptData[]
+  headStyles: ScriptData[],
+  bodyScripts: ScriptData[]
 ) {
-  const injector = new ScriptInjector(headScripts, headLinks, headStyles);
+  const injector = new ScriptInjector(
+    headScripts,
+    headLinks,
+    headStyles,
+    bodyScripts
+  );
   const rewriter = new HTMLRewriter().on('head', injector).on('body', injector);
 
   return await rewriter.transform(new Response(indexHtml)).text();
@@ -156,7 +171,8 @@ export async function extractWebflowHtml(
     indexHtml,
     collector.headScripts,
     collector.headLinks,
-    collector.headStyles
+    collector.headStyles,
+    collector.bodyScripts
   );
 }
 
@@ -167,8 +183,11 @@ export async function fetchWebflowPage(pathname: string, isEmbed: boolean) {
   console.log('isEmbed', isEmbed);
   console.log('pathname', pathname);
   console.log('fetching webflow page', targetPath);
-  const url = `${WEBFLOW_ROOT}${targetPath}`;
+  const url = `${WEBFLOW_ROOT}/${targetPath}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to load Webflow page: ${url}`);
+  if (!res.ok) {
+    // Just return the root page if the target page is not found
+    return await fetch(WEBFLOW_ROOT).then((res) => res.text());
+  }
   return await res.text();
 }

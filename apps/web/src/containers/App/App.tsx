@@ -15,15 +15,10 @@ import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { StakeNOTE } from '../../containers/StakeNOTE';
-import {
-  LandingPageView,
-  VaultPageView,
-  PointsPageView,
-} from '../../containers/Webflow/WebflowEmbed';
 import { NoteView } from '../NoteView';
 import {
   getDefaultNetworkFromHostname,
-  ONE_MINUTE_MS,
+  REFRESH_PORTFOLIO_INTERVAL,
 } from '@notional-finance/util';
 import { RootStoreContext } from '@notional-finance/notionable-hooks';
 import { createRootStore } from '@notional-finance/notionable';
@@ -33,13 +28,12 @@ import {
 } from '@notional-finance/core-entities';
 import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
+import { VaultDefaultScreen } from '../TransactionScreen';
 import {
-  VaultDepositScreen,
-  VaultWithdrawScreen,
-  VaultAdjustLeverageScreen,
-  VaultManageScreen,
-  VaultDefaultScreen,
-} from '../TransactionScreen';
+  LandingPageInject,
+  PointsPageInject,
+  VaultsPageInject,
+} from '../Webflow/AttributesInject';
 
 const RedirectToDefaultNetwork = () => {
   const selectedNetwork = useSelectedNetwork();
@@ -146,41 +140,11 @@ const AllRoutes = observer(() => {
           }
         />
         <Route
-          path="/vault/:selectedNetwork/:vaultAddress/withdraw"
+          path="/vault/:selectedNetwork/:vaultAddress/*"
           element={
             <AppLayoutRoute
-              path="/vault/:selectedNetwork/:vaultAddress/withdraw"
-              component={VaultWithdrawScreen}
-              routeType="Transaction"
-            />
-          }
-        />
-        <Route
-          path="/vault/:selectedNetwork/:vaultAddress/adjust-leverage"
-          element={
-            <AppLayoutRoute
-              path="/vault/:selectedNetwork/:vaultAddress/adjust-leverage"
-              component={VaultAdjustLeverageScreen}
-              routeType="Transaction"
-            />
-          }
-        />
-        <Route
-          path="/vault/:selectedNetwork/:vaultAddress/manage"
-          element={
-            <AppLayoutRoute
-              path="/vault/:selectedNetwork/:vaultAddress/manage"
-              component={VaultManageScreen}
-              routeType="Transaction"
-            />
-          }
-        />
-        <Route
-          path="/vault/:selectedNetwork/:vaultAddress/deposit"
-          element={
-            <AppLayoutRoute
-              path="/vault/:selectedNetwork/:vaultAddress/deposit"
-              component={VaultDepositScreen}
+              path="/vault/:selectedNetwork/:vaultAddress"
+              component={VaultDefaultScreen}
               routeType="Transaction"
             />
           }
@@ -200,8 +164,9 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path="/vaults"
-              component={VaultPageView}
+              component={VaultsPageInject}
               routeType="Card"
+              isInjected
             />
           }
         />
@@ -210,8 +175,9 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path="/points"
-              component={PointsPageView}
+              component={PointsPageInject}
               routeType="Card"
+              isInjected
             />
           }
         />
@@ -250,7 +216,7 @@ const AllRoutes = observer(() => {
         <Route path="/:basePath" element={<RedirectToDefaultNetwork />} />
         <Route
           path="/"
-          element={<LandingLayoutRoute component={LandingPageView} />}
+          element={<LandingLayoutRoute component={LandingPageInject} />}
         />
       </Routes>
     </RouteContainer>
@@ -264,7 +230,7 @@ export const App = () => {
     const refreshNetworks = refreshNetworkModels();
     const refreshPortfolio = setInterval(() => {
       rootStore.walletStore.refreshPortfolio();
-    }, ONE_MINUTE_MS);
+    }, REFRESH_PORTFOLIO_INTERVAL);
     return () => {
       clearInterval(refreshNetworks);
       clearInterval(refreshPortfolio);

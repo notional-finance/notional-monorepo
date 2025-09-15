@@ -46,7 +46,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       key: 'vaults',
       label: <FormattedMessage defaultMessage={'Vaults'} />,
       link: '/vaults',
-      refresh: true,
       iconImg: (
         <LightningOutlineIcon
           className="color-stroke"
@@ -62,7 +61,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       key: 'points',
       label: <FormattedMessage defaultMessage={'Points'} />,
       link: '/points',
-      refresh: true,
       iconImg: (
         <PointsOutlineIcon
           className="color-fill"
@@ -112,7 +110,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       key: MOBILE_SUB_NAV_ACTIONS.VAULTS,
       label: <FormattedMessage defaultMessage={'Vaults'} />,
       link: '/vaults',
-      refresh: true,
       iconImg: (
         <BarChartIcon
           className="color-stroke"
@@ -124,7 +121,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       key: MOBILE_SUB_NAV_ACTIONS.POINTS,
       label: <FormattedMessage defaultMessage={'Points'} />,
       link: '/points',
-      refresh: true,
       iconImg: (
         <CoinsIcon
           className="color-stroke"

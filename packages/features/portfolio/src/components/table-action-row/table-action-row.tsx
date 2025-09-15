@@ -19,33 +19,11 @@ export type TableActionRowWarning = keyof typeof messages;
 const messages: Record<
   string,
   {
-    variant: 'error' | 'warning' | 'info' | 'pending';
+    variant: 'error' | 'warning' | 'info' | 'pending' | 'success';
     title: MessageDescriptor;
     message: MessageDescriptor;
   }
 > = {
-  nTokenHighUtilization: {
-    variant: 'warning',
-    ...defineMessages({
-      title: { defaultMessage: 'Impermanent Loss', description: '' },
-      message: {
-        defaultMessage:
-          'Fixed rate volatility has caused IL. IL will go away when fixed rates go down.',
-        description: '',
-      },
-    }),
-  },
-  fCashHighUtilization: {
-    variant: 'warning',
-    ...defineMessages({
-      title: { defaultMessage: 'Impermanent Loss', description: '' },
-      message: {
-        defaultMessage:
-          'Fixed rate volatility has caused temporary fCash price declines. Your fixed rate is guaranteed if you hold until maturity.',
-        description: '',
-      },
-    }),
-  },
   pointsWarning: {
     variant: 'info',
     ...defineMessages({
@@ -57,17 +35,6 @@ const messages: Record<
       },
     }),
   },
-  fCashMatured: {
-    variant: 'info',
-    ...defineMessages({
-      title: { defaultMessage: 'Asset Matured', description: '' },
-      message: {
-        defaultMessage:
-          'Your matured asset is currently earning the variable lending rate. You can roll to a new fixed rate or do nothing and continue earning the variable rate.',
-        description: '',
-      },
-    }),
-  },
   pendleExpired: {
     variant: 'warning',
     ...defineMessages({
@@ -75,6 +42,28 @@ const messages: Record<
       message: {
         defaultMessage:
           'Your PT tokens have expired. Withdraw your profits and close your vault position.',
+        description: '',
+      },
+    }),
+  },
+  pendingWithdraw: {
+    variant: 'pending',
+    ...defineMessages({
+      title: { defaultMessage: 'Pending Smart Withdraw', description: '' },
+      message: {
+        defaultMessage:
+          'Smart withdraw has been initialized. You can claim funds when the withdraw is finalized.',
+        description: '',
+      },
+    }),
+  },
+  finalizedWithdraw: {
+    variant: 'info',
+    ...defineMessages({
+      title: { defaultMessage: 'Finalized Smart Withdraw', description: '' },
+      message: {
+        defaultMessage:
+          'Smart withdraw has been finalized. You can now claim funds.',
         description: '',
       },
     }),

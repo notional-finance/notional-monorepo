@@ -164,7 +164,7 @@ export const SliderBasic = ({
         sx={{
           '& .MuiSlider-track': {
             border: 'none',
-            height: '8px',
+            height: '4px',
             background: showHFColors
               ? healthFactorGradient
               : railGradients?.length
@@ -175,7 +175,7 @@ export const SliderBasic = ({
           },
           '& .MuiSlider-rail': {
             opacity: 0.5,
-            height: '8px',
+            height: '4px',
             border: 'none',
             background: theme.palette.borders.default,
             boxShadow: 'inset 0px 0px 4px -2px #000',
@@ -243,8 +243,8 @@ const StyledSlider = styled(Slider)(
       .map(
         ({ color }, i) => `
       .mark[data-index='${i}'] {
-        height: 18px;
-        width: 7px;
+        height: 12px;
+        width: 4px;
         border-radius: 5px;
         color: ${color};
       }`

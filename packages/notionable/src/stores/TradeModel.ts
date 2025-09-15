@@ -1,4 +1,5 @@
 import {
+  APYData,
   createLeveragedAPYData,
   NotionalTypes,
   PendlePT,
@@ -8,11 +9,11 @@ import {
   TokenDefinitionModel,
   VAULT_TYPES,
   VaultAdapter,
+  VaultTradeMetadata,
   VaultType,
 } from '@notional-finance/core-entities';
 import {
   AllTradeTypes,
-  BaseTradeState,
   isNOTEStake,
   isVaultTrade,
   NOTETradeType,
@@ -30,10 +31,10 @@ import {
 } from 'mobx-state-tree';
 import { NetworkClientModelType, RootStoreInterface } from './root-store';
 import {
+  DEX_ID,
   formatNumberAsPercent,
   getChangeType,
   getNowSeconds,
-  leveragedYield,
   Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
@@ -49,7 +50,6 @@ import {
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
-import { getComparisonKey } from '../utils';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -102,6 +102,8 @@ export const TradeModel = types
       'AdjustVaultLeverage',
       'RollVaultPosition',
       'WithdrawVault',
+      'ManageVault',
+      'InitiateWithdraw',
     ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),
@@ -222,8 +224,21 @@ export const TradeModel = types
     /** True if the optimal ETH amount should be used for NOTE staking */
     useOptimalETH: types.optional(types.boolean, false),
 
-    vaultTradeMetadata: types.optional(types.maybe(types.frozen()), undefined),
-
+    vaultTradeMetadata: types.optional(
+      types.array(
+        types.model({
+          tokensSold: NotionalTypes.TokenBalance,
+          tokensBought: NotionalTypes.TokenBalance,
+          exchangeRate: types.number,
+          differenceFromSpot: types.number,
+          dexId: types.number,
+          minPurchaseAmount: types.maybe(NotionalTypes.TokenBalance),
+          exchangeData: types.maybe(types.string),
+          isEstimated: types.boolean,
+        })
+      ),
+      []
+    ),
     /** True if the trade is a deleverage */
     isDeleverage: types.optional(types.boolean, false),
 
@@ -316,6 +331,29 @@ export const TradeModel = types
       ) as Instance<typeof TokenDefinitionModel> | undefined;
     };
 
+    const setInitialLeverageRatios = () => {
+      const model = root().getNetworkClient(self.selectedNetwork);
+      const account = root().getAccountDefinition(self.selectedNetwork);
+      const riskProfile =
+        account && self.vaultAddress
+          ? VaultAccountRiskProfile.fromAccount(self.vaultAddress, account)
+          : undefined;
+
+      if (self.availableDebtTokens.length === 1) {
+        self.debt = self.availableDebtTokens[0];
+        const l = model.getLeverageRatios(self.debt as TokenDefinition);
+        self.maxLeverageRatio = l.maxLeverageRatio;
+        self.defaultLeverageRatio = l.defaultLeverageRatio;
+        self.minLeverageRatio = l.minLeverageRatio;
+        self.leverageRatio = self.defaultLeverageRatio;
+      }
+
+      if (riskProfile) {
+        // If there is an existing risk profile, use the leverage ratio from the risk profile
+        self.leverageRatio = riskProfile.leverageRatio();
+      }
+    };
+
     const setInitialComputedOptions = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
 
@@ -342,7 +380,10 @@ export const TradeModel = types
             };
           })
         );
-      } else if (isNOTEStake(self.tradeType)) {
+      } else if (
+        isNOTEStake(self.tradeType) ||
+        self.tradeType === 'InitiateWithdraw'
+      ) {
         calculate();
       }
     };
@@ -395,14 +436,7 @@ export const TradeModel = types
       }
 
       setAvailableDebtTokens();
-      if (self.availableDebtTokens.length === 1) {
-        self.debt = self.availableDebtTokens[0];
-        const l = model.getLeverageRatios(self.debt as TokenDefinition);
-        self.maxLeverageRatio = l.maxLeverageRatio;
-        self.defaultLeverageRatio = l.defaultLeverageRatio;
-        self.minLeverageRatio = l.minLeverageRatio;
-        self.leverageRatio = l.defaultLeverageRatio;
-      }
+      setInitialLeverageRatios();
 
       // NOTE: everything above here is just setting the initial state including leverage
       // ratios and the available tokens
@@ -478,7 +512,11 @@ export const TradeModel = types
           const outputs = calculationFn(inputs as any);
           if (outputs) {
             Object.keys(outputs).forEach((key) => {
-              self[key] = outputs[key];
+              if (key === 'vaultTradeMetadata') {
+                self.vaultTradeMetadata.replace(outputs[key]);
+              } else {
+                self[key] = outputs[key];
+              }
             });
           }
 
@@ -657,7 +695,6 @@ export const TradeModel = types
           populatedTransaction,
           transactionError: undefined,
         };
-        // TODO: add simulation
       } catch (e) {
         // Log these errors in full to the console
         console.error(e);
@@ -718,53 +755,6 @@ export const TradeModel = types
         self.minLeverageRatio = l.minLeverageRatio;
       }
 
-      calculate();
-    };
-
-    const setRequiredSideDrawerState = (
-      requiredState: Record<string, unknown>,
-      path: string
-    ) => {
-      if (!isAlive(self)) return;
-      const pathname = window.location.pathname;
-      const allStateMatches = Object.keys(requiredState)
-        // NOTE: this means that required state cannot clear previously set state
-        .filter((k) => requiredState[k] !== undefined)
-        .every((k) => {
-          const s = getComparisonKey(
-            k,
-            self as unknown as Partial<BaseTradeState>
-          );
-          const r = getComparisonKey(k, requiredState);
-          return s === r;
-        });
-
-      if (
-        allStateMatches ||
-        // Use a "startsWith" here to support potential suffix to the path
-        // such as in roll debt
-        !pathname.startsWith(path)
-      )
-        return;
-
-      // If resetting the state, clear the trade state first to avoid any
-      // stale state from previous calculations
-      clearTradeState();
-      Object.keys(requiredState).forEach((k) => {
-        if (k === 'debt' && requiredState[k]) {
-          const model = root().getNetworkClient(self.selectedNetwork);
-          self.debt = model.getTokenByID(
-            (requiredState[k] as TokenDefinition).id
-          ) as Instance<typeof TokenDefinitionModel>;
-        } else if (k === 'collateral' && requiredState[k]) {
-          const model = root().getNetworkClient(self.selectedNetwork);
-          self.collateral = model.getTokenByID(
-            (requiredState[k] as TokenDefinition).id
-          ) as Instance<typeof TokenDefinitionModel>;
-        }
-
-        self[k] = requiredState[k];
-      });
       calculate();
     };
 
@@ -833,7 +823,6 @@ export const TradeModel = types
       setDebtBalance,
       setDebtAndCollateralBalance,
       setLeverageRatio,
-      setRequiredSideDrawerState,
       afterAttach,
       setHasInputErrors,
       setDepositBalance,
@@ -850,36 +839,6 @@ export const TradeModel = types
   })
   .views((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
-    const mergeLiquidationPrices = (
-      prior: ReturnType<
-        VaultAccountRiskProfile['getAllLiquidationPrices']
-      >[number][],
-      post: ReturnType<
-        VaultAccountRiskProfile['getAllLiquidationPrices']
-      >[number][]
-    ) => {
-      return zipByKeyToArray(prior, post, (t) => t.asset.id).map(
-        ([current, updated]) => {
-          const asset = (current?.asset || updated?.asset) as TokenDefinition;
-          const debt = (current?.debt || updated?.debt) as TokenDefinition;
-
-          return {
-            asset,
-            debt,
-            current: current?.threshold?.toToken(debt),
-            updated: updated?.threshold?.toToken(debt),
-            changeType: getChangeType(
-              current?.threshold?.toFloat(),
-              updated?.threshold?.toFloat()
-            ),
-            // Debt thresholds improve as they increase
-            greenOnArrowUp: updated?.isDebtThreshold ? true : false,
-            isPriceRisk: asset.tokenType === 'Underlying',
-            isAssetRisk: asset.tokenType !== 'Underlying',
-          };
-        }
-      );
-    };
 
     const comparePortfolio = (prior: TokenBalance[], post: TokenBalance[]) => {
       return zipByKeyToArray(prior, post, (t) => t.tokenId)
@@ -948,7 +907,8 @@ export const TradeModel = types
             ? new VaultAccountRiskProfile(
                 self.vaultAddress,
                 [self.collateralBalance, self.debtBalance],
-                0
+                0,
+                account?.withdrawRequests?.[self.vaultAddress]
               )
             : priorVaultRisk?.simulate(
                 [self.collateralBalance, self.debtBalance].filter(
@@ -968,45 +928,16 @@ export const TradeModel = types
       return postVaultRisk?.getAllRiskFactors();
     };
 
-    const getVaultAPYBreakdown = () => {
-      const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
-      const priorBorrowRate = priorVaultRisk?.borrowAPY;
-      const newBorrowRate = self.debtOptions?.find(
-        (t) => t.token.id === self.debt?.id
-      )?.interestRate;
-      const postBorrowRate =
-        postVaultRisk?.maturity === undefined
-          ? newBorrowRate
-          : averageFixedRate(priorVaultRisk, postVaultRisk, newBorrowRate);
-      const vaultSharesAPY = self.collateral
-        ? root()
-            .getNetworkClient(self.selectedNetwork)
-            .getSpotAPY(self.collateral.id)
-        : undefined;
-      const borrowAPY = postBorrowRate || priorBorrowRate;
-      const leverageRatio =
-        postVaultRisk?.leverageRatio() ||
-        priorVaultRisk?.leverageRatio() ||
-        self.leverageRatio ||
-        0;
-      const leveragedAPY =
-        vaultSharesAPY && borrowAPY
-          ? createLeveragedAPYData(vaultSharesAPY, borrowAPY, leverageRatio)
-          : undefined;
-
-      return {
-        leveragedAPY,
-        assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
-        debts: postVaultRisk?.totalDebt() || priorVaultRisk?.totalDebt(),
-        netWorth: postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
-      };
-    };
-
     const getVaultRiskSummary = () => {
       const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const holdings = account?.vaultHoldings?.find(
+        ({ vaultAddress }) => vaultAddress === self.vaultAddress
+      );
 
-      const priorBorrowRate = priorVaultRisk?.borrowAPY;
-      const priorAPY = priorVaultRisk?.totalAPY;
+      const priorBorrowRate = holdings?.apyData?.debtAPY;
+      const priorAPY = holdings?.apyData;
+
       const newBorrowRate = self.debtOptions?.find(
         (t) => t.token.id === self.debtBalance?.tokenId
       )?.interestRate;
@@ -1014,67 +945,64 @@ export const TradeModel = types
         postVaultRisk?.maturity === undefined
           ? newBorrowRate
           : averageFixedRate(priorVaultRisk, postVaultRisk, newBorrowRate);
-      const vaultSharesAPY = postVaultRisk?.vaultShares?.tokenId
+      const postVaultSharesAPY = postVaultRisk?.vaultShares?.tokenId
         ? root()
             .getNetworkClient(self.selectedNetwork)
-            .getSpotAPY(postVaultRisk.vaultShares.tokenId)?.totalAPY
+            .getSpotAPY(postVaultRisk.vaultShares.tokenId)
         : undefined;
 
-      const postAPY = leveragedYield(
-        vaultSharesAPY,
-        postBorrowRate,
-        postVaultRisk?.leverageRatio() || 0
-      );
+      const postAPY =
+        postVaultSharesAPY && postBorrowRate
+          ? createLeveragedAPYData(
+              postVaultSharesAPY,
+              postBorrowRate,
+              postVaultRisk?.leverageRatio() || 0
+            )
+          : undefined;
 
       return {
-        onlyCurrent: !postVaultRisk,
-        tooRisky: postVaultRisk?.aboveMaxLeverageRatio() || false,
-        priorAccountNoRisk:
-          priorVaultRisk === undefined ||
-          priorVaultRisk?.leverageRatio() === null,
-        postAccountNoRisk:
-          postVaultRisk === undefined ||
-          postVaultRisk?.leverageRatio() === null,
-        healthFactor: {
-          current: priorVaultRisk?.healthFactor(),
-          updated: postVaultRisk?.healthFactor(),
-          changeType: getChangeType(
-            priorVaultRisk?.healthFactor(),
-            postVaultRisk?.healthFactor()
-          ),
-          greenOnArrowUp: true,
+        current: {
+          healthFactor: priorVaultRisk?.healthFactor(),
+          leverageRatio: priorVaultRisk?.leverageRatio(),
+          netWorth: priorVaultRisk?.netWorth(),
+          liquidationPrices: priorVaultRisk?.getAllLiquidationPrices() || [],
+          borrowAPY: formatNumberAsPercentWithUndefined(priorBorrowRate, '-'),
+          totalAPY: formatNumberAsPercentWithUndefined(priorAPY?.totalAPY, '-'),
+          priorBorrowRate,
+          priorAPY,
         },
-        liquidationPrice: mergeLiquidationPrices(
-          priorVaultRisk?.getAllLiquidationPrices() || [],
-          postVaultRisk?.getAllLiquidationPrices() || []
-        ),
-        netWorth: {
-          current:
-            priorVaultRisk
-              ?.netWorth()
-              .toDisplayStringWithSymbol(2, true, false) || '-',
-          updated:
-            postVaultRisk
-              ?.netWorth()
-              .toDisplayStringWithSymbol(2, true, false) || '-',
-          changeType: getChangeType(
-            priorVaultRisk?.netWorth().toFloat(),
-            postVaultRisk?.netWorth().toFloat()
-          ),
-          greenOnArrowUp: true,
-        },
-        borrowAPY: {
-          current: formatNumberAsPercentWithUndefined(priorBorrowRate, '-'),
-          updated: formatNumberAsPercentWithUndefined(postBorrowRate, '-'),
-          changeType: getChangeType(priorBorrowRate, postBorrowRate),
-          greenOnArrowUp: false,
-        },
-        totalAPY: {
-          current: formatNumberAsPercentWithUndefined(priorAPY, '-'),
-          updated: formatNumberAsPercentWithUndefined(postAPY, '-'),
-          changeType: getChangeType(priorAPY, postAPY),
-          greenOnArrowUp: true,
-        },
+        updated: postVaultRisk
+          ? {
+              healthFactor: postVaultRisk?.healthFactor(),
+              leverageRatio: postVaultRisk?.leverageRatio(),
+              netWorth: postVaultRisk?.netWorth(),
+              liquidationPrices: postVaultRisk?.getAllLiquidationPrices() || [],
+              borrowAPY: formatNumberAsPercentWithUndefined(
+                postBorrowRate,
+                '-'
+              ),
+              totalAPY: formatNumberAsPercentWithUndefined(
+                postAPY?.totalAPY,
+                '-'
+              ),
+              postBorrowRate,
+              postAPY,
+            }
+          : undefined,
+      };
+    };
+
+    const getVaultAPYBreakdown = () => {
+      const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
+      const { current, updated } = getVaultRiskSummary();
+
+      return {
+        leveragedAPY: (updated?.postAPY || current?.priorAPY || undefined) as
+          | APYData
+          | undefined,
+        assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
+        debts: postVaultRisk?.totalDebt() || priorVaultRisk?.totalDebt(),
+        netWorth: postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
       };
     };
 
@@ -1118,9 +1046,7 @@ export const TradeModel = types
 
       return {
         overPoolCapacityError:
-          self.tradeType === 'WithdrawVault'
-            ? undefined
-            : overPoolCapacityError,
+          self.tradeType === 'WithdrawVault' ? false : overPoolCapacityError,
         maxPoolShare,
         totalPoolCapacityRemaining,
         vaultTVL: vaultAdapter?.getVaultTVL(),
@@ -1132,14 +1058,16 @@ export const TradeModel = types
         const postAccountRisk = getPostVaultRiskProfile().postVaultRisk;
         const leverageRatio = postAccountRisk?.leverageRatio();
         const { overPoolCapacityError } = getVaultCapacity();
+        const hasPostAccountRisk = !!postAccountRisk;
+        const isLeverageRatioValid =
+          postAccountRisk?.maxLeverageRatio !== undefined &&
+          leverageRatio !== undefined &&
+          leverageRatio < postAccountRisk.maxLeverageRatio;
 
         return (
           self.calculationSuccess &&
-          !!postAccountRisk &&
-          (leverageRatio === null ||
-            (!!postAccountRisk.maxLeverageRatio &&
-              !!leverageRatio &&
-              leverageRatio < postAccountRisk.maxLeverageRatio)) &&
+          hasPostAccountRisk &&
+          isLeverageRatioValid &&
           overPoolCapacityError === false &&
           self.inputErrors === false
         );
@@ -1171,84 +1099,29 @@ export const TradeModel = types
       }
     };
 
-    const getLeverageOptions = () => {
-      const model = root().getNetworkClient(self.selectedNetwork);
-
-      if (!self.collateralOptions && !self.collateral)
-        return {
-          leverageOptions: [],
-          selectedLeverageOption: undefined,
-        };
-
-      const leverageOptions = self.debtOptions?.map((debt) => {
-        const isVariableRate =
-          debt.token.maturity === PRIME_CASH_VAULT_MATURITY ||
-          debt.token.maturity === undefined;
-
-        try {
-          const collateralBalance =
-            self.collateralOptions.find(
-              (c) => c.token.id === self.collateral?.id
-            )?.balance || TokenBalance.zero(self.collateral as TokenDefinition);
-
-          const debtBalance =
-            debt.balance || TokenBalance.zero(debt.token as TokenDefinition);
-
-          const leveragedAPY = model.getLeveragedAPY(
-            collateralBalance,
-            debtBalance,
-            self.leverageRatio || self.defaultLeverageRatio || 0,
-            self.vaultTradeMetadata
-          );
-
-          return {
-            ...leveragedAPY,
-            isVariableRate,
-            debt,
-            error: debt.error,
-          };
-        } catch (e) {
-          console.error(e);
-          return {
-            isVariableRate,
-            debt,
-            error: (e as Error).toString(),
-          };
-        }
-      });
-
-      return {
-        leverageOptions,
-        selectedLeverageOption: leverageOptions.find(
-          (o) => o.debt.token.id === self.debt?.id
-        ),
-      };
+    const getVaultMaxWithdraw = () => {
+      const { priorVaultRisk } = getPostVaultRiskProfile();
+      return priorVaultRisk?.maxWithdraw();
     };
 
-    const getNetBalances = () => {
-      const accountBalances = getPriorVaultBalances() || [];
-      const netChange = self.collateralBalance || self.debtBalance;
-      if (!netChange) return undefined;
-
-      const zero = netChange.copy(0);
-      const start =
-        accountBalances.find((b) => b.tokenId === netChange.tokenId) || zero;
-      const end = start.add(netChange);
-      if (start.eq(end) || (start.gte(zero) && end.gte(zero))) {
-        // Only asset changes
-        return { netAssetBalance: netChange, netDebtBalance: zero };
-      } else if (start.lte(zero) && end.lte(zero)) {
-        // Only debt changes
-        return { netAssetBalance: zero, netDebtBalance: netChange };
-      } else if (start.gte(zero) && end.lte(zero)) {
-        // Entire start balance has decreased to zero, entire negative balance is created
-        return { netAssetBalance: start.neg(), netDebtBalance: end };
-      } else if (start.lte(zero) && end.gte(zero)) {
-        // Entire start balance has been repaid, entire positive balance is created
-        return { netAssetBalance: end, netDebtBalance: start.neg() };
+    const getVaultInitiateWithdraw = () => {
+      if (!self.vaultAddress) return undefined;
+      const model = root().getNetworkClient(self.selectedNetwork);
+      const withdrawManagers = model.getWithdrawManagers(self.vaultAddress);
+      if (withdrawManagers.length === 1) {
+        return withdrawManagers.map((w) => {
+          return {
+            estimatedWithdrawTime: w.estimatedWithdrawTimeInSeconds,
+            // NOTE: this will not work with LP strategies
+            tokensRedeemed: self.netRealizedCollateralBalance,
+            tokensToReceive: self.netRealizedCollateralBalance?.toToken(
+              w.withdrawToken
+            ),
+          };
+        });
       }
 
-      throw Error('unknown balance change');
+      throw Error('Vault has multiple withdraw managers');
     };
 
     return {
@@ -1283,14 +1156,14 @@ export const TradeModel = types
           debt: self.debtOptions as TokenOption[] | undefined,
         };
       },
-      getNetBalances,
-      getLeverageOptions,
       getVaultRiskSummary,
       getPortfolioComparison,
       getPriorVaultBalances,
       getPostVaultFactors,
       getVaultCapacity,
       getVaultAPYBreakdown,
+      getVaultMaxWithdraw,
+      getVaultInitiateWithdraw,
       canSubmit,
     };
   });
@@ -1339,7 +1212,7 @@ function computeCollateralOptions(
         collateralFee: TokenBalance;
         collateralBalance: TokenBalance;
         netRealizedCollateralBalance: TokenBalance;
-        vaultTradeMetadata?: unknown;
+        vaultTradeMetadata?: VaultTradeMetadata[];
       };
 
       return {
@@ -1432,7 +1305,7 @@ function _getTradedInterestRate(
   tradeType: AllTradeTypes | NOTETradeType | undefined,
   vaultAdapter: VaultAdapter | undefined,
   model: NetworkClientModelType,
-  vaultTradeMetadata: unknown | undefined
+  vaultTradeMetadata: VaultTradeMetadata[] | undefined
 ): {
   interestRate: number | undefined;
   utilization: number | undefined;
@@ -1465,7 +1338,8 @@ function _getTradedInterestRate(
       // realized amount so that the interest rate does not include any exchange rate deviations
       // from the borrowed asset to the PT accounting asset.
       !(vaultAdapter as PendlePT).isBorrowSameAsAsset && vaultTradeMetadata
-        ? (vaultTradeMetadata as { tokensInSy: TokenBalance }).tokensInSy
+        ? vaultTradeMetadata.find((t) => t.dexId === DEX_ID.PENDLE)
+            ?.tokensSold || realized
         : realized;
     const impliedExchangeRate = amount.toFloat() / amountInSy.toFloat();
     const timeToMaturity = (vaultAdapter as PendlePT).timeToExpiry;

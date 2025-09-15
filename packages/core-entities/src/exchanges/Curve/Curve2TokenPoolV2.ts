@@ -1,6 +1,6 @@
 import { CurvePoolV2ABI } from '@notional-finance/contracts';
 import { AggregateCall } from '@notional-finance/multicall';
-import { Network } from '@notional-finance/util';
+import { DEX_ID, Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
@@ -81,6 +81,10 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
         key: 'virtualPrice',
       },
     ]);
+  }
+
+  public override get dexId() {
+    return DEX_ID.CURVE_V2;
   }
 
   private _calc_token_fee(amounts: TokenBalance[]) {

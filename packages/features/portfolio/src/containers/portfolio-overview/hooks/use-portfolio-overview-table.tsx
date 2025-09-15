@@ -22,12 +22,11 @@ import {
 import {
   formatMaturity,
   pointsMultiple,
-  PRIME_CASH_VAULT_MATURITY,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
-import { Body, H4, LinkText } from '@notional-finance/mui';
+import { Body, ButtonOptionsType, H4, LinkText } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../../../components/table-action-row/table-action-row';
 import { useState } from 'react';
@@ -65,10 +64,7 @@ export interface OverviewTableRow {
       label: React.ReactNode;
       value: React.ReactNode;
     }[];
-    buttonBarData: {
-      buttonText: React.ReactNode;
-      link: string;
-    }[];
+    buttonBarData: ButtonOptionsType[];
     txnHistory: string;
   };
 }
@@ -107,11 +103,31 @@ function getSpecificVaultInfo(
 ): {
   subRowInfo: { label: React.ReactNode; value: React.ReactNode }[];
   totalEarnings: MultiRowTableData;
-  buttonBarData: { buttonText: React.ReactNode; link: string }[];
+  buttonBarData: ButtonOptionsType[];
   warning: TableActionRowWarning | undefined;
   showRowWarning?: boolean;
 } {
   const totalEarnings = formatCryptoWithFiat(baseCurrency, v.totalEarnings);
+  if (v.hasFinalizedWithdraw) {
+    return {
+      subRowInfo: [],
+      totalEarnings,
+      buttonBarData: [],
+      warning: 'finalizedWithdraw',
+    };
+  } else if (v.hasPendingWithdraw) {
+    return {
+      subRowInfo: [
+        {
+          label: <FormattedMessage defaultMessage={'Estimated Finalization'} />,
+          value: 'TODO',
+        },
+      ],
+      totalEarnings,
+      buttonBarData: [],
+      warning: 'pendingWithdraw',
+    };
+  }
 
   // Point Farming Vaults
   if (v.vaultYield?.pointMultiples) {
@@ -284,6 +300,19 @@ function formatVaultHoldings(
     ...subRowInfo,
   ];
 
+  if (vaultHolding.hasFinalizedWithdraw) {
+    buttonBarData.push({
+      buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
+      link: `/vault/${network}/${vaultAddress}/finalize-withdraw`,
+    });
+  } else {
+    buttonBarData.push({
+      buttonText: <FormattedMessage defaultMessage={'Manage'} />,
+      disabled: vaultHolding.hasPendingWithdraw,
+      link: `/vault/${network}/${vaultAddress}/manage`,
+    });
+  }
+
   return {
     asset: {
       symbol: underlying,
@@ -304,19 +333,16 @@ function formatVaultHoldings(
     healthFactor: formatHealthFactorValues(healthFactor, theme),
     presentValue: formatCryptoWithFiat(baseCurrency, netWorth),
     totalEarnings,
-    marketApy: apyData?.totalAPY ? formatNumberAsPercent(apyData.totalAPY) : '',
+    marketApy:
+      apyData?.totalAPY !== undefined
+        ? formatNumberAsPercent(apyData.totalAPY)
+        : '-',
     amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
     actionRow: {
       warning,
       showRowWarning,
       subRowData,
-      buttonBarData: [
-        ...buttonBarData,
-        {
-          buttonText: <FormattedMessage defaultMessage={'Manage / Withdraw'} />,
-          link: `/vault/${network}/${vaultAddress}/manage`,
-        },
-      ],
+      buttonBarData,
       txnHistory: `/portfolio/${network}/transaction-history?${new URLSearchParams(
         {
           txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,

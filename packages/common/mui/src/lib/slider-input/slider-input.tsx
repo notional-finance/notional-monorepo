@@ -151,7 +151,7 @@ export const SliderInput = React.forwardRef<
       label: '',
       color:
         ((max - min) * i) / 9 + min <= value
-          ? theme.palette.primary.main
+          ? theme.palette.secondary.light
           : theme.palette.borders.paper,
     }));
 

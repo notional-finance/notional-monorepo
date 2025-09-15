@@ -1,4 +1,4 @@
-import { Network, SECONDS_IN_DAY } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import {
   AccountDefinition,
   FiatKeys,
@@ -8,6 +8,7 @@ import {
   BalanceStatement,
   AccountHistory,
   createLeveragedAPYData,
+  WithdrawRequest,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { Instance } from 'mobx-state-tree';
@@ -24,12 +25,14 @@ export function calculateVaultHoldings(
   balanceStatements: BalanceStatement[],
   accountHistory: AccountHistory[],
   vaultLastUpdateTime: Map<string, number>,
-  rewardClaims: Record<string, TokenBalance[]>
+  rewardClaims: Record<string, TokenBalance[]>,
+  withdrawRequests: Map<string, WithdrawRequest[]>
 ) {
   const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(model, {
     balances,
     accountHistory,
     vaultLastUpdateTime,
+    withdrawRequests,
   } as AccountDefinition);
 
   return vaultProfiles.map((v) => {
@@ -45,13 +48,14 @@ export function calculateVaultHoldings(
     } catch {
       // No-op, allow the statement to be undefined
     }
-
     const denom = v.denom(v.defaultSymbol);
     const zeroDenom = TokenBalance.zero(denom);
     const totalEarnings = (assetPnL?.totalProfitAndLoss || zeroDenom).sub(
       debtPnL?.totalProfitAndLoss || zeroDenom
     );
-    const vaultYield = model.getSpotAPY(v.vaultShares.tokenId);
+    const vaultYield = v.hasPendingWithdraw
+      ? { totalAPY: 0, feeAPY: 0 }
+      : model.getSpotAPY(v.vaultShares.tokenId);
     const debtAPY = model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
     const assetInterestAccrual = assetPnL?.totalInterestAccrual || zeroDenom;
 
@@ -86,8 +90,6 @@ export function calculateVaultHoldings(
     const vaultMetadata = {
       rewardClaims: rewardClaims[v.vaultAddress],
       strategyType,
-      reinvestmentCadence:
-        v.network === Network.arbitrum ? SECONDS_IN_DAY : 7 * SECONDS_IN_DAY,
       isExpired:
         strategyType === 'PendlePT'
           ? (v.vaultAdapter as PendlePT).timeToExpiry === 0
@@ -110,6 +112,8 @@ export function calculateVaultHoldings(
       apyData: createLeveragedAPYData(vaultYield, debtAPY, leverageRatio),
       impliedFixedRate: debtPnL?.impliedFixedRate,
       leverageRatio,
+      hasPendingWithdraw: v.hasPendingWithdraw,
+      hasFinalizedWithdraw: v.hasFinalizedWithdraw,
       amountPaid,
       totalEarnings,
       underlying: denom.symbol,

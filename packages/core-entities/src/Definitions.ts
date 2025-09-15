@@ -1,5 +1,10 @@
-import { Network, TokenAddress, VaultAddress } from '@notional-finance/util';
-import { BigNumber } from 'ethers';
+import {
+  DEX_ID,
+  Network,
+  TokenAddress,
+  VaultAddress,
+} from '@notional-finance/util';
+import { BigNumber, BytesLike } from 'ethers';
 import { PoolClasses } from './exchanges';
 import { TokenBalance } from './token-balance';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
@@ -150,6 +155,16 @@ export interface HistoricalBalance {
   balance: TokenBalance;
 }
 
+export interface WithdrawRequest {
+  withdrawManager: string;
+  requestId: BigNumber;
+  sharesAmount: TokenBalance;
+  yieldTokenAmount: TokenBalance;
+  finalized: boolean;
+  withdrawTokenAmount?: TokenBalance;
+  canFinalize?: boolean;
+}
+
 export interface AccountDefinition {
   /** Address of the account */
   address: string;
@@ -172,6 +187,7 @@ export interface AccountDefinition {
   historicalBalances?: HistoricalBalance[];
   rewardClaims?: Record<string, TokenBalance[]>;
   lendingRouterApprovals?: Record<string, boolean>;
+  withdrawRequests?: Map<string, WithdrawRequest[]>;
 }
 
 /** ERC20 allowances tracked for UI purposes */
@@ -263,3 +279,15 @@ export const PRICE_ORACLES = [
   'sNOTEToETHExchangeRate',
   'WithdrawTokenExchangeRate',
 ];
+
+export interface VaultTradeMetadata {
+  tokensSold: TokenBalance;
+  tokensBought: TokenBalance;
+  exchangeRate: number;
+  differenceFromSpot: number;
+  isEstimated: boolean;
+  dexId: DEX_ID;
+  minPurchaseAmount?: TokenBalance;
+  feesPaid?: TokenBalance;
+  exchangeData?: BytesLike;
+}

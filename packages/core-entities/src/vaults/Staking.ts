@@ -1,12 +1,12 @@
-import { BASIS_POINT, getNowSeconds, Network } from '@notional-finance/util';
+import { BASIS_POINT, Network } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import {
   APYData,
-  ExchangeRate,
   getNetworkModel,
   TokenBalance,
   TokenDefinition,
   VaultDefaultDexParameters,
+  VaultTradeMetadata,
 } from '..';
 import { BytesLike } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
@@ -16,16 +16,23 @@ export interface StakingVaultParams extends BaseVaultParams {
 }
 
 export class Staking extends VaultAdapter {
-  public yieldToken: TokenDefinition;
   public stakingToken: TokenDefinition;
 
   constructor(
     network: Network,
     vaultAddress: string,
     p: StakingVaultParams,
-    borrowedToken: TokenDefinition
+    borrowedToken: TokenDefinition,
+    yieldToken: TokenDefinition
   ) {
-    super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
+    super(
+      p.enabled,
+      p.strategyType,
+      network,
+      vaultAddress,
+      borrowedToken,
+      yieldToken
+    );
     const model = getNetworkModel(this.network);
     this.yieldToken = model.getTokenByID(p.yieldToken);
     const vaultConfig = model.getVaultConfig(this.vaultAddress);
@@ -42,23 +49,13 @@ export class Staking extends VaultAdapter {
     return [this.stakingToken.id].join(':');
   }
 
-  override getInitialVaultShareValuation(): ExchangeRate {
-    const oneStakingToken = TokenBalance.unit(this.stakingToken);
-
-    return {
-      rate: oneStakingToken.toToken(this.borrowedToken).scaleTo(18),
-      timestamp: getNowSeconds(),
-      blockNumber: 0,
-    };
-  }
-
   override getNetVaultSharesCost(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
-    const netUnderlyingForVaultShares = netVaultShares.toToken(
-      this.borrowedToken
-    );
+    const netUnderlyingForVaultShares = netVaultShares
+      .toToken(this.borrowedToken)
+      .neg();
     return {
       netUnderlyingForVaultShares: netUnderlyingForVaultShares,
       feesPaid: netUnderlyingForVaultShares.copy(0),
@@ -71,11 +68,38 @@ export class Staking extends VaultAdapter {
   ): {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
-    vaultTradeMetadata?: unknown;
+    vaultTradeMetadata?: VaultTradeMetadata[];
   } {
+    const netVaultSharesForUnderlying = netUnderlying.toToken(vaultShare);
+    const vaultTradeMetadata: VaultTradeMetadata[] = [];
+
+    if (netUnderlying.tokenId !== this.stakingToken.id) {
+      const defaultDex =
+        VaultDefaultDexParameters[this.network][this.vaultAddress];
+      vaultTradeMetadata.push(
+        this.getVaultTradeMetadata(
+          netUnderlying,
+          this.stakingToken,
+          netUnderlying.isPositive()
+            ? defaultDex.depositPoolAddress
+            : defaultDex.redeemPoolAddress
+        )
+      );
+    }
+
+    if (this.stakingToken.id !== this.yieldToken.id) {
+      vaultTradeMetadata.push(
+        this.getVaultTradeMetadata(
+          netUnderlying.toToken(this.stakingToken),
+          this.yieldToken
+        )
+      );
+    }
+
     return {
       feesPaid: netUnderlying.copy(0),
-      netVaultSharesForUnderlying: netUnderlying.toToken(vaultShare),
+      netVaultSharesForUnderlying,
+      vaultTradeMetadata,
     };
   }
 
@@ -108,6 +132,7 @@ export class Staking extends VaultAdapter {
     );
   }
 
+  // TODO: need to switch on if there is a pending withdraw
   override getRedeemParameters(
     _account: string,
     _maturity: number,

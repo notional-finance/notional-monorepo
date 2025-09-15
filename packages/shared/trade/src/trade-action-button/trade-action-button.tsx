@@ -15,7 +15,7 @@ import { observer } from 'mobx-react-lite';
 export interface TradeActionButtonProps {
   canSubmit: boolean;
   onSubmit?: () => void;
-  walletConnectedText?: MessageDescriptor; // This is used once for the cancel stake button
+  submitText?: MessageDescriptor;
   errorText?: MessageDescriptor;
   buttonVariant?: 'text' | 'outlined' | 'contained' | undefined;
   width?: string;
@@ -49,7 +49,7 @@ export const TradeActionButton = observer(
   ({
     canSubmit,
     onSubmit,
-    walletConnectedText,
+    submitText,
     errorText,
     buttonVariant = 'contained',
     width,
@@ -75,7 +75,7 @@ export const TradeActionButton = observer(
     };
 
     const buttonTextWalletConnected =
-      walletConnectedText ||
+      submitText ||
       defineMessage({
         defaultMessage: 'Continue to Review',
         description: 'call to action button',

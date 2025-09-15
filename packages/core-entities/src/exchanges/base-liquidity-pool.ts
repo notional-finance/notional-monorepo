@@ -6,6 +6,7 @@ import {
   RATE_PRECISION,
   ZERO_ADDRESS,
   doSecantSearch,
+  DEX_ID,
 } from '@notional-finance/util';
 import { utils } from 'ethers';
 
@@ -23,6 +24,10 @@ export default abstract class BaseLiquidityPool<
     this._balances = this._balances.map(
       (b) => new TokenBalance(b.n, b.tokenId.toLowerCase(), b.network)
     );
+  }
+
+  public get dexId() {
+    return DEX_ID.UNKNOWN;
   }
 
   public get balances() {

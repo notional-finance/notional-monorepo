@@ -1,5 +1,5 @@
 import { VaultAddress } from '@notional-finance/util';
-import { PendlePT, SingleSidedLP } from '../../vaults';
+import { PendlePT, SingleSidedLP, WithdrawManager } from '../../vaults';
 import { whitelistedVaults } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
 import { ChartType } from '../ModelTypes';
@@ -28,6 +28,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     );
     if (!v) throw Error(`Configuration not found for ${vaultAddress}`);
     const primaryToken = getTokenByID(v.depositToken.id);
+    const yieldToken = getTokenByID(v.yieldToken.id);
 
     switch (v.strategyType) {
       case 'CurveConvex2Token':
@@ -37,6 +38,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
           params as SingleSidedLPParams,
           getPoolInstance_(self, (params as SingleSidedLPParams).pool),
           primaryToken,
+          yieldToken,
           getTimeSeries(v.vaultAddress, ChartType.APY)?.data
         );
       case 'PendlePT':
@@ -44,14 +46,16 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
           self.network,
           vaultAddress,
           params as PendlePTVaultParams,
-          primaryToken
+          primaryToken,
+          yieldToken
         );
       case 'Staking':
         return new Staking(
           self.network,
           vaultAddress,
           params as StakingVaultParams,
-          primaryToken
+          primaryToken,
+          yieldToken
         );
       default:
         throw Error(`Unknown vault type: ${v.strategyType}`);
@@ -91,7 +95,20 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     return parseFloat(ethers.utils.formatUnits(v.feeRate, 18));
   };
 
+  const getWithdrawManagers = (vaultAddress: string) => {
+    const v = getVaultConfig(vaultAddress);
+    return v.withdrawRequestManagers.map((wrm) => {
+      return new WithdrawManager(
+        wrm.id,
+        getTokenByID(wrm.stakingToken.id),
+        getTokenByID(wrm.withdrawToken.id),
+        getTokenByID(wrm.yieldToken.id)
+      );
+    });
+  };
+
   return {
+    getWithdrawManagers,
     getAllListedVaults,
     isVaultEnabled,
     getVaultAdapter,

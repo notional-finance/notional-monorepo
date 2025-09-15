@@ -1,6 +1,6 @@
 import { CurvePoolNGABI } from '@notional-finance/contracts';
 import { AggregateCall, NO_OP } from '@notional-finance/multicall';
-import { Network } from '@notional-finance/util';
+import { DEX_ID, Network } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import { Contract } from 'ethers';
@@ -148,6 +148,10 @@ export class Curve2TokenPoolNG extends BaseLiquidityPool<Curve2TokenPoolNGParams
         },
       },
     ];
+  }
+
+  public override get dexId() {
+    return DEX_ID.CURVE_V2;
   }
 
   public calculateTokenTrade(

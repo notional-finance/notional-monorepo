@@ -1,6 +1,6 @@
 import * as React from 'react';
 import NumberFormat from 'react-number-format';
-import { Input, Box, useTheme, Divider, styled } from '@mui/material';
+import { Input, Box, useTheme, styled } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import CurrencySelect, { CurrencySelectProps } from './currency-select';
 import MiniButton from '../mini-button/mini-button';
@@ -121,7 +121,7 @@ export const CurrencyInput = React.forwardRef<
     if (errorMsg && !hasFocus) return theme.palette.error.main;
     if (warningMsg && !hasFocus) return theme.palette.warning.main;
     if (hasFocus) return theme.palette.info.main;
-    return theme.palette.borders.paper;
+    return theme.palette.background.default;
   };
 
   const currentErrorMessage = errorMsg || warningMsg;
@@ -135,7 +135,7 @@ export const CurrencyInput = React.forwardRef<
         theme={theme}
         borderColor={borderColor}
         sx={{
-          background: theme.palette.common.white,
+          background: theme.palette.background.default,
           width: '100%',
           borderColor: borderColor,
           borderTopWidth: '1px',
@@ -190,17 +190,6 @@ export const CurrencyInput = React.forwardRef<
           style={{
             backgroundColor: theme.palette.info.light,
             color: theme.palette.primary.main,
-          }}
-        />
-        <Divider
-          orientation="vertical"
-          flexItem
-          sx={{
-            marginTop: theme.spacing(-0.5),
-            marginBottom: theme.spacing(-0.5),
-            marginLeft: theme.spacing(0.5),
-            borderRightWidth: '1px',
-            borderColor: borderColor,
           }}
         />
         <CurrencySelect

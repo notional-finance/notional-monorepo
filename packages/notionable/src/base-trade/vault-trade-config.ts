@@ -4,9 +4,11 @@ import {
   AdjustLeverage,
   EnterVault,
   ExitVault,
+  InitiateWithdraw,
   RollVault,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
   calculateVaultRoll,
+  calculateWithdraw,
 } from '@notional-finance/transaction';
 import {
   PRIME_CASH_VAULT_MATURITY,
@@ -45,6 +47,8 @@ function sameVaultMaturity(
       (t.tokenType === 'VaultDebt' || t.tokenType === 'VaultShare') &&
       t.token.vaultAddress === vaultAddress
   )?.maturity;
+  if (maturity === undefined) return true;
+
   return maturity && maturity < getNowSeconds()
     ? t.maturity === PRIME_CASH_VAULT_MATURITY
     : t.maturity === maturity;
@@ -212,6 +216,25 @@ export const VaultTradeConfiguration = {
     depositFilter: (t, _, s) => isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: ExitVault,
     calculateDebtOptions: true,
+  } as TransactionConfig,
+  ManageVault: {
+    calculationFn: () => {
+      throw new Error('Not implemented');
+    },
+    requiredArgs: [],
+    transactionBuilder: () => Promise.reject(new Error('Not implemented')),
+  } as TransactionConfig,
+  InitiateWithdraw: {
+    calculationFn: calculateWithdraw,
+    requiredArgs: ['collateral', 'debt', 'vaultAdapter', 'balances'],
+    collateralFilter: (t, _, s) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
+    debtFilter: (t, a, s) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
+    transactionBuilder: InitiateWithdraw,
   } as TransactionConfig,
 };
 

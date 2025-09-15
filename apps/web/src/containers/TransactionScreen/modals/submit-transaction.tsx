@@ -32,7 +32,7 @@ export const SubmitTransaction = observer(
         submit();
         setDidTriggerSubmit(true);
       }
-    }, [transactionError, isOpen, submit]);
+    }, [transactionError, isOpen, submit, didTriggerSubmit]);
 
     // If the transaction is rejected, dismiss the modal
     useEffect(() => {

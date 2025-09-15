@@ -11,8 +11,10 @@ import {
   TableRow,
   Paper,
   styled,
+  Theme,
 } from '@mui/material';
 import {
+  CountUp,
   H5,
   Label,
   LabelValue,
@@ -24,9 +26,14 @@ import {
   formatHealthFactorValues,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
-import { formatNumber, RATE_PRECISION } from '@notional-finance/util';
+import {
+  formatNumber,
+  formatNumberAsPercent,
+  RATE_PRECISION,
+} from '@notional-finance/util';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
+import moment from 'moment';
 
 interface LabelValueSectionProps {
   sectionTitle?: ReactNode;
@@ -53,13 +60,14 @@ const LabelValueSection = ({
             flexDirection="row"
           >
             <Label light>{item.label}</Label>
-            <Box>
+            <LabelValue>{item.content}</LabelValue>
+            {/* <Box>
               {typeof item.content === 'string' ? (
                 <LabelValue>{item.content}</LabelValue>
               ) : (
                 item.content
               )}
-            </Box>
+            </Box> */}
           </Box>
         ))}
       </Box>
@@ -73,7 +81,9 @@ const DividedSections = ({
   children: ReactNode | ReactNode[];
 }) => {
   const theme = useTheme();
-  const c = Array.isArray(children) ? children.filter((c) => !!c) : children;
+  const c = Array.isArray(children)
+    ? children.flatMap((c) => c).filter((c) => !!c)
+    : children;
 
   return (
     <Box>
@@ -184,58 +194,98 @@ const TableSection = ({
   );
 };
 
-const useSummaryItems = () => {
-  const theme = useTheme();
-  const trade = useCurrentTradeContext();
-  const risk = trade?.getVaultRiskSummary();
-  const netWorth = risk?.netWorth.updated || risk?.netWorth.current || '-';
-  const healthFactor = formatHealthFactorValues(
-    risk?.healthFactor.updated || risk?.healthFactor.current,
-    theme
+const formatCountUp = (
+  value: TokenBalance | undefined | null,
+  suffix?: string
+) => {
+  return value ? (
+    <CountUp
+      value={value.toFloat()}
+      decimals={4}
+      suffix={suffix !== undefined ? suffix : ` ${value.symbol}`}
+    />
+  ) : (
+    '-'
   );
-  const liquidationPrices =
-    risk?.liquidationPrice.map((price) => {
-      return {
-        label: `${price.asset.symbol} Liquidation Price`,
-        content:
-          price.updated?.toDisplayStringWithSymbol(4, false, false) ||
-          price.current?.toDisplayStringWithSymbol(4, false, false) ||
-          '-',
-      };
-    }) || [];
+};
 
+const formatSummaryItems = (
+  summary: {
+    netWorth: TokenBalance | undefined;
+    healthFactor: number | null | undefined;
+    leverageRatio: number | undefined;
+    liquidationPrices: {
+      asset: TokenDefinition;
+      debt: TokenDefinition;
+      threshold: TokenBalance | null;
+      isDebtThreshold: boolean;
+    }[];
+  },
+  theme: Theme
+) => {
+  const healthFactor = formatHealthFactorValues(summary.healthFactor, theme);
   return [
     {
       label: <FormattedMessage defaultMessage={'Net Worth'} />,
-      content: netWorth,
+      content: formatCountUp(summary.netWorth),
     },
     {
       label: <FormattedMessage defaultMessage={'Health Factor'} />,
       content: <Box color={healthFactor.textColor}>{healthFactor.value}</Box>,
     },
-    ...liquidationPrices,
+    {
+      label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+      content: summary.leverageRatio ? (
+        <CountUp value={summary.leverageRatio} decimals={4} suffix="x" />
+      ) : (
+        '-'
+      ),
+    },
+    ...summary.liquidationPrices.map((price) => {
+      return {
+        label: `${price.asset.symbol} Liquidation Price`,
+        content: formatCountUp(price.threshold),
+      };
+    }),
   ];
+};
+
+const useSummaryItems = () => {
+  const theme = useTheme();
+  const trade = useCurrentTradeContext();
+  const r = trade?.getVaultRiskSummary();
+  const currentItems =
+    r?.current && r.current.netWorth !== undefined
+      ? formatSummaryItems(r.current, theme)
+      : undefined;
+  const updatedItems = r?.updated
+    ? formatSummaryItems(r.updated, theme)
+    : undefined;
+
+  return {
+    current: currentItems,
+    updated: updatedItems,
+  };
 };
 
 function formatAPYValues(
   apy: number | undefined,
   amount: TokenBalance | undefined,
-  positiveGreen: string
+  positiveGreen: string | undefined
 ) {
-  const earningsString =
-    amount && apy
+  const earnings =
+    amount && apy !== undefined
       ? amount
           .abs()
           .mulInRatePrecision(Math.floor((apy * RATE_PRECISION) / 100))
-          .toDisplayStringWithSymbol(2, false, false)
       : undefined;
 
   return [
     { value: formatNumberAsPercentWithUndefined(apy, '-', 4) },
     {
       value: (
-        <Box color={apy && apy > 0 ? positiveGreen : undefined}>
-          {earningsString}
+        <Box color={apy !== undefined && apy > 0 ? positiveGreen : undefined}>
+          {formatCountUp(earnings)}
         </Box>
       ),
     },
@@ -278,11 +328,7 @@ const useApyBreakdown = () => {
     },
     {
       label: 'Borrow APY',
-      values: formatAPYValues(
-        leveragedAPY?.debtAPY,
-        debts,
-        theme.palette.success.main
-      ),
+      values: formatAPYValues(leveragedAPY?.debtAPY, debts, undefined),
     },
     {
       label: 'Total APY',
@@ -297,11 +343,11 @@ const useApyBreakdown = () => {
   const assetsDebts = [
     {
       label: 'Asset Amount',
-      content: assets?.toDisplayStringWithSymbol(4, false, false) || '-',
+      content: formatCountUp(assets),
     },
     {
       label: 'Debt Amount',
-      content: debts?.toDisplayStringWithSymbol(4, false, false) || '-',
+      content: formatCountUp(debts),
     },
   ];
 
@@ -318,51 +364,155 @@ const useOrderDetails = () => {
 
   if (trade?.depositBalance) {
     orderDetails.push({
-      label: 'Amount Deposited',
-      content: trade.depositBalance.toDisplayStringWithSymbol(4, false, false),
+      label: trade.depositBalance.isNegative()
+        ? 'Amount Withdrawn'
+        : 'Amount Deposited',
+      content: formatCountUp(trade.depositBalance.abs()),
     });
   }
 
   if (trade?.debtBalance) {
+    const borrowed = trade.debtBalance.abs().toUnderlying();
     orderDetails.push({
-      label: 'Amount Borrowed',
-      content: trade.debtBalance
-        .abs()
-        .toUnderlying()
-        .toDisplayStringWithSymbol(4, false, false),
+      label: trade.debtBalance.isPositive()
+        ? 'Amount Repaid'
+        : 'Amount Borrowed',
+      content: formatCountUp(borrowed),
     });
   }
 
   if (trade?.collateralBalance) {
     orderDetails.push({
-      label: 'Vault Shares Minted',
-      content: trade.collateralBalance.toDisplayString(4, false, false),
+      label: trade.collateralBalance.isNegative()
+        ? 'Vault Shares Redeemed'
+        : 'Vault Shares Minted',
+      content: formatCountUp(trade.collateralBalance.abs(), ''),
     });
   }
 
   if (trade?.collateral) {
+    const price = TokenBalance.unit(
+      trade.collateral as TokenDefinition
+    ).toUnderlying();
     orderDetails.push({
       label: 'Vault Share Price',
-      content: TokenBalance.unit(trade.collateral as TokenDefinition)
-        .toUnderlying()
-        .toDisplayStringWithSymbol(4, false, false),
+      content: formatCountUp(price),
     });
   }
 
   return orderDetails;
 };
 
+const useWithdrawDetails = () => {
+  const trade = useCurrentTradeContext();
+  if (trade?.tradeType !== 'InitiateWithdraw') return undefined;
+  const withdraws = trade.getVaultInitiateWithdraw();
+  if (!withdraws) return undefined;
+  return withdraws.flatMap((withdraw) => {
+    const items: { label: string; content: ReactNode }[] = [];
+    if (withdraw.estimatedWithdrawTime) {
+      items.push({
+        label: 'Estimated Redemption Time',
+        content: moment
+          .duration(withdraw.estimatedWithdrawTime, 'seconds')
+          .humanize(),
+      });
+    }
+
+    items.push({
+      label: 'Tokens Redeemed',
+      content: formatCountUp(withdraw.tokensRedeemed),
+    });
+
+    items.push({
+      label: 'Tokens to Receive',
+      content: formatCountUp(withdraw.tokensToReceive),
+    });
+
+    return items;
+  });
+};
+
+const useTradeMetadata = () => {
+  const trade = useCurrentTradeContext();
+  if (trade?.tradeType === 'ManageVault') return undefined;
+  return trade?.vaultTradeMetadata?.map((metadata) => {
+    return (
+      <LabelValueSection
+        sectionTitle={`Trade: ${metadata.tokensSold.symbol} → ${metadata.tokensBought.symbol}`}
+        items={[
+          { label: 'Amount Sold', content: formatCountUp(metadata.tokensSold) },
+          {
+            label: 'Amount Bought',
+            content: formatCountUp(metadata.tokensBought),
+          },
+          {
+            label: 'Exchange Rate',
+            content: (
+              <Box>
+                {metadata.differenceFromSpot && (
+                  <LabelValue light inline>
+                    {`(${formatNumberAsPercent(
+                      metadata.differenceFromSpot,
+                      4
+                    )}) `}
+                  </LabelValue>
+                )}
+                <LabelValue inline>
+                  {formatNumber(metadata.exchangeRate, 4)}
+                </LabelValue>
+              </Box>
+            ),
+          },
+        ]}
+      />
+    );
+  });
+};
+
 export const useInfoBox = () => {
-  const summaryItems = useSummaryItems();
+  const { current, updated } = useSummaryItems();
+  const trade = useCurrentTradeContext();
   const apyBreakdown = useApyBreakdown();
   const orderDetails = useOrderDetails();
+  const withdrawDetails = useWithdrawDetails();
+  const tradeMetadata = useTradeMetadata();
 
   const tabs = [
     {
       tabTitle: 'Summary',
       tabContent: (
         <DividedSections>
-          <LabelValueSection items={summaryItems} />
+          {withdrawDetails ? (
+            [
+              <LabelValueSection
+                sectionTitle="Withdraw Details"
+                items={withdrawDetails}
+              />,
+              <LabelValueSection
+                sectionTitle="Current Position"
+                items={current || []}
+              />,
+            ]
+          ) : updated !== undefined && current === undefined ? (
+            // This happens when there is no existing position
+            <LabelValueSection items={updated || []} />
+          ) : updated === undefined ? (
+            <LabelValueSection items={current || []} />
+          ) : (
+            [
+              <LabelValueSection
+                sectionTitle="Updated Position"
+                items={updated}
+                key="updated"
+              />,
+              <LabelValueSection
+                sectionTitle="Current Position"
+                items={current || []}
+                key="current"
+              />,
+            ]
+          )}
         </DividedSections>
       ),
     },
@@ -392,23 +542,19 @@ export const useInfoBox = () => {
         </DividedSections>
       ),
     },
-    {
+  ];
+
+  if (trade?.tradeType !== 'ManageVault') {
+    tabs.push({
       tabTitle: 'Order Details',
       tabContent: (
         <DividedSections>
           <LabelValueSection items={orderDetails} />
-          <LabelValueSection
-            sectionTitle="Trade: USDC → USDT"
-            items={[
-              { label: 'Amount Sold', content: '-' },
-              { label: 'Amount Bought', content: '-' },
-              { label: 'Exchange Rate', content: '-' },
-            ]}
-          />
+          {tradeMetadata}
         </DividedSections>
       ),
-    },
-  ];
+    });
+  }
 
   return tabs;
 };

@@ -1,21 +1,20 @@
 import {
   BASIS_POINT,
+  DEX_ID,
   doSecantSearch,
-  getNowSeconds,
-  INTERNAL_TOKEN_DECIMALS,
+  lastValue,
   Network,
   NetworkId,
   RATE_PRECISION,
   SCALAR_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
-  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { TokenBalance } from '../token-balance';
 import { getNetworkModel } from '../Models';
 import { BigNumber, BytesLike } from 'ethers';
 import { PendleMarket } from '../exchanges';
-import { ExchangeRate, TokenDefinition } from '../Definitions';
+import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { defaultAbiCoder } from '@ethersproject/abi';
 import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
 import { APYData } from '../models/views/YieldViews';
@@ -38,9 +37,17 @@ export class PendlePT extends VaultAdapter {
     network: Network,
     vaultAddress: string,
     p: PendlePTVaultParams,
-    borrowedToken: TokenDefinition
+    borrowedToken: TokenDefinition,
+    yieldToken: TokenDefinition
   ) {
-    super(p.enabled, p.strategyType, network, vaultAddress, borrowedToken);
+    super(
+      p.enabled,
+      p.strategyType,
+      network,
+      vaultAddress,
+      borrowedToken,
+      yieldToken
+    );
     this.tokenInSy = p.tokenInSy.toLowerCase();
     this.tokenOutSy = p.tokenOutSy.toLowerCase();
     this.marketAddress = p.marketAddress.toLowerCase();
@@ -81,20 +88,6 @@ export class PendlePT extends VaultAdapter {
     return getNetworkModel(this.network).getTokenByID(this.market.assetTokenId);
   }
 
-  getInitialVaultShareValuation(): ExchangeRate {
-    const oneAssetUnit = new TokenBalance(
-      this.market.ptExchangeRate,
-      this.market.assetTokenId,
-      this.network
-    );
-
-    return {
-      rate: oneAssetUnit.toToken(this.borrowedToken).n,
-      timestamp: getNowSeconds(),
-      blockNumber: 0,
-    };
-  }
-
   unwrapToSyOutToken(token: TokenBalance) {
     if (token.tokenId === this.tokenInSy) {
       return token;
@@ -107,48 +100,34 @@ export class PendlePT extends VaultAdapter {
   calculateTradeToSy(
     underlyingIn: TokenBalance,
     defaultSlippage = 50 * BASIS_POINT
-  ): {
-    tokensInSy: TokenBalance;
-    tradingFeesPaid: TokenBalance;
-  } {
+  ): VaultTradeMetadata | undefined {
     // Short circuit if borrowed token is the tokenInSy
-    if (underlyingIn.tokenId === this.tokenInSy) {
-      return {
-        tokensInSy: underlyingIn,
-        tradingFeesPaid: underlyingIn.copy(0),
-      };
-    }
+    if (underlyingIn.tokenId === this.tokenInSy) return undefined;
 
     const { depositPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (depositPoolAddress) {
-      const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
-        depositPoolAddress
-      );
-      const tokenOutIndex = tokenSyPool.balances.findIndex(
-        (t) =>
-          t.token.id === this.tokenInSy ||
-          (this.tokenInSy === ZERO_ADDRESS && t.token.symbol === 'WETH')
-      );
-      const { tokensOut, feesPaid } = tokenSyPool.calculateTokenTrade(
+      return this.getVaultTradeMetadata(
         underlyingIn,
-        tokenOutIndex
+        this.assetToken,
+        depositPoolAddress,
+        defaultSlippage
       );
-
-      return {
-        tokensInSy: tokensOut,
-        tradingFeesPaid:
-          feesPaid.find((t) => t.tokenId === underlyingIn.tokenId) ||
-          underlyingIn.copy(0),
-      };
     } else {
       // If we don't have the pool address, then don't do the trade and just use the oracle
       // price given my the PT market.
+      const tokensBought = this.market
+        .convertAssetToSy(underlyingIn)
+        .mulInRatePrecision(RATE_PRECISION - defaultSlippage);
+
       return {
-        tokensInSy: this.market
-          .convertAssetToSy(underlyingIn)
-          .mulInRatePrecision(RATE_PRECISION - defaultSlippage),
-        tradingFeesPaid: underlyingIn.copy(0),
+        tokensSold: underlyingIn,
+        tokensBought,
+        exchangeRate: underlyingIn.toFloat() / tokensBought.toFloat(),
+        differenceFromSpot: defaultSlippage / RATE_PRECISION,
+        feesPaid: underlyingIn.copy(0),
+        isEstimated: true,
+        dexId: DEX_ID.UNKNOWN,
       };
     }
   }
@@ -156,17 +135,11 @@ export class PendlePT extends VaultAdapter {
   calculateTradeFromSy(
     tokenOutSy: TokenBalance,
     defaultSlippage = 50 * BASIS_POINT
-  ): {
-    underlyingOut: TokenBalance;
-    tradingFeesPaid: TokenBalance;
-  } {
+  ): VaultTradeMetadata[] | undefined {
     // Short circuit if borrowed token is the tokenInSy
-    if (tokenOutSy.tokenId === this.borrowedToken.id) {
-      return {
-        underlyingOut: tokenOutSy,
-        tradingFeesPaid: tokenOutSy.copy(0),
-      };
-    }
+    if (tokenOutSy.tokenId === this.borrowedToken.id) return undefined;
+
+    const vaultTradeMetadata: VaultTradeMetadata[] = [];
 
     const { redeemPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
@@ -176,48 +149,40 @@ export class PendlePT extends VaultAdapter {
       if (tokenOutSy.symbol === 'sUSDe') {
         // For sUSDe we need to trade to sDAI and then redeem the sDAI to DAI before
         // we execute the following trade.
-        const sDAIsUSDePool = getNetworkModel(this.network).getPoolInstance(
+        const sDAITrade = this.getVaultTradeMetadata(
+          tokenOutSy,
+          getNetworkModel(this.network).getTokenBySymbol('sDAI'),
           registerTokensMap[this.network]['sDAI/sUSDe']
         );
-        const { tokensOut: sDAI } = sDAIsUSDePool.calculateTokenTrade(
-          tokenOutSy,
-          sDAIsUSDePool.balances.findIndex((t) => t.token.symbol === 'sDAI')
-        );
+        vaultTradeMetadata.push(sDAITrade);
 
-        _tokenOutSy = sDAI.toToken(
-          getNetworkModel(this.network).getTokenBySymbol('DAI')
-        );
+        _tokenOutSy = sDAITrade.tokensBought;
       }
 
-      const tokenSyPool = getNetworkModel(this.network).getPoolInstance(
+      const trade = this.getVaultTradeMetadata(
+        _tokenOutSy,
+        this.borrowedToken,
         redeemPoolAddress
       );
-      const tokenOutIndex = tokenSyPool.balances.findIndex(
-        (t) =>
-          t.token.id === this.borrowedToken.id ||
-          (this.borrowedToken.symbol === 'ETH' && t.token.symbol === 'WETH')
-      );
-      const { tokensOut, feesPaid } = tokenSyPool.calculateTokenTrade(
-        _tokenOutSy,
-        tokenOutIndex
-      );
-
-      return {
-        underlyingOut: tokensOut,
-        tradingFeesPaid:
-          feesPaid.find((t) => t.tokenId === this.borrowedToken.id) ||
-          _tokenOutSy.copy(0),
-      };
+      vaultTradeMetadata.push(trade);
     } else {
       // If we don't have the pool address, then don't do the trade and just use the oracle
       // price given my the PT market.
-      return {
-        underlyingOut: this.market
-          .convertSyToAsset(tokenOutSy)
-          .mulInRatePrecision(RATE_PRECISION - defaultSlippage),
-        tradingFeesPaid: tokenOutSy.copy(0),
-      };
+      const tokensBought = this.market
+        .convertSyToAsset(tokenOutSy)
+        .mulInRatePrecision(RATE_PRECISION - defaultSlippage);
+      vaultTradeMetadata.push({
+        tokensSold: tokenOutSy,
+        tokensBought,
+        exchangeRate: tokenOutSy.toFloat() / tokensBought.toFloat(),
+        differenceFromSpot: defaultSlippage / RATE_PRECISION,
+        feesPaid: tokenOutSy.copy(0),
+        isEstimated: true,
+        dexId: DEX_ID.UNKNOWN,
+      });
     }
+
+    return vaultTradeMetadata;
   }
 
   getNetVaultSharesCost(netVaultShares: TokenBalance): {
@@ -242,12 +207,20 @@ export class PendlePT extends VaultAdapter {
         this.market.TOKEN_IN_INDEX
       );
 
-    const { underlyingOut, tradingFeesPaid } = this.calculateTradeFromSy(
+    const tradeMetadata = this.calculateTradeFromSy(
       this.unwrapToSyOutToken(tokensOutSy)
     );
 
+    const netUnderlyingForVaultShares = tradeMetadata
+      ? lastValue(tradeMetadata)?.tokensBought || tokensOutSy
+      : tokensOutSy;
+    const tradingFeesPaid = tradeMetadata
+      ? lastValue(tradeMetadata)?.feesPaid ||
+        netUnderlyingForVaultShares.copy(0)
+      : feesPaid[0].copy(0);
+
     return {
-      netUnderlyingForVaultShares: underlyingOut,
+      netUnderlyingForVaultShares,
       feesPaid: tradingFeesPaid.add(
         this.market.convertSyToAsset(feesPaid[0]).toToken(tradingFeesPaid.token)
       ),
@@ -260,36 +233,52 @@ export class PendlePT extends VaultAdapter {
   ): {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
-    vaultTradeMetadata?: unknown;
+    vaultTradeMetadata?: VaultTradeMetadata[];
   } {
+    const vaultTradeMetadata: VaultTradeMetadata[] = [];
+
     if (netUnderlying.isPositive()) {
       // On way in, netUnderlying is traded to tokenInSy
-      const { tokensInSy, tradingFeesPaid } =
-        this.calculateTradeToSy(netUnderlying);
+      const tradeMetadata = this.calculateTradeToSy(netUnderlying);
+
+      let tokensInSy: TokenBalance;
+      let tradingFeesPaid: TokenBalance;
+      if (tradeMetadata) {
+        vaultTradeMetadata.push(tradeMetadata);
+        tokensInSy = tradeMetadata.tokensBought;
+        tradingFeesPaid = tradeMetadata.feesPaid || netUnderlying.copy(0);
+      } else {
+        tokensInSy = netUnderlying;
+        tradingFeesPaid = netUnderlying.copy(0);
+      }
 
       // Calculate the amount received for selling the PT
       const { tokensOut: ptTokensOut, feesPaid } =
         this.market.calculateTokenTrade(tokensInSy, this.market.PT_TOKEN_INDEX);
+      const exchangeRate = tokensInSy.toFloat() / ptTokensOut.toFloat();
+      const differenceFromSpot = exchangeRate - this.market.ptExchangeRate;
+      const pendleFeesPaid = this.market
+        .convertSyToAsset(feesPaid[0])
+        // Ensure that this is converted to the underlying
+        .toToken(netUnderlying.token);
 
-      const slippageForSY = tokensInSy
-        .toToken(netUnderlying.token)
-        .sub(netUnderlying)
-        .add(tradingFeesPaid);
+      vaultTradeMetadata.push({
+        tokensSold: tokensInSy,
+        tokensBought: ptTokensOut,
+        exchangeRate,
+        differenceFromSpot,
+        feesPaid: pendleFeesPaid,
+        isEstimated: false,
+        dexId: DEX_ID.PENDLE,
+      });
 
       return {
         netVaultSharesForUnderlying: TokenBalance.from(
-          ptTokensOut.scaleTo(INTERNAL_TOKEN_DECIMALS),
+          ptTokensOut.scaleTo(vaultShare.decimals),
           vaultShare
         ),
-        feesPaid: this.market
-          .convertSyToAsset(feesPaid[0])
-          // Ensure that this is converted to the underlying
-          .toToken(netUnderlying.token)
-          .add(tradingFeesPaid),
-        vaultTradeMetadata: {
-          slippageForSY,
-          tokensInSy,
-        },
+        feesPaid: pendleFeesPaid.add(tradingFeesPaid),
+        vaultTradeMetadata,
       };
     } else {
       // On way out, tokenOutSy is traded to netUnderlying, need to figure out how many PTs to sell
@@ -302,57 +291,59 @@ export class PendlePT extends VaultAdapter {
         this.market.ptExchangeRate * RATE_PRECISION
       );
 
-      const { ptTokensIn, feesPaid, slippageForSY, tokenOutSy } =
-        doSecantSearch(
-          Math.floor(approxPTExchangeRate / 2),
-          approxPTExchangeRate,
-          (exRate: number) => {
-            const ptTokensIn = initialPtTokens.mulInRatePrecision(exRate);
+      const { ptTokensIn, tradeMetadata } = doSecantSearch(
+        Math.floor(approxPTExchangeRate / 2),
+        approxPTExchangeRate,
+        (exRate: number) => {
+          const tradeMetadata: VaultTradeMetadata[] = [];
+          const ptTokensIn = initialPtTokens.mulInRatePrecision(exRate);
 
-            const { tokensOut: _tokenOutSy, feesPaid } =
-              this.market.calculateTokenTrade(
-                ptTokensIn,
-                this.market.TOKEN_IN_INDEX
-              );
-            const tokenOutSy = this.unwrapToSyOutToken(_tokenOutSy);
-            const { underlyingOut, tradingFeesPaid } =
-              this.calculateTradeFromSy(tokenOutSy);
+          const { tokensOut: _tokenOutSy, feesPaid } =
+            this.market.calculateTokenTrade(
+              ptTokensIn,
+              this.market.TOKEN_IN_INDEX
+            );
+          vaultTradeMetadata.push({
+            tokensSold: ptTokensIn,
+            tokensBought: _tokenOutSy,
+            exchangeRate: ptTokensIn.toFloat() / _tokenOutSy.toFloat(),
+            differenceFromSpot:
+              ptTokensIn.toFloat() / _tokenOutSy.toFloat() -
+              this.market.ptExchangeRate,
+            feesPaid: this.market.convertSyToAsset(feesPaid[0]),
+            isEstimated: false,
+            dexId: DEX_ID.PENDLE,
+          });
 
-            const slippageForSY = netUnderlying
-              .add(tokenOutSy.toToken(netUnderlying.token))
-              .add(tradingFeesPaid);
+          const tokenOutSy = this.unwrapToSyOutToken(_tokenOutSy);
+          tradeMetadata.push(...(this.calculateTradeFromSy(tokenOutSy) || []));
 
-            return {
-              fx: underlyingOut.toFloat() - netUnderlying.neg().toFloat(),
-              value: {
-                ptTokensIn,
-                feesPaid: this.market
-                  .convertSyToAsset(feesPaid[0])
-                  .toToken(netUnderlying.token)
-                  .add(tradingFeesPaid),
-                slippageForSY,
-                tokenOutSy,
-              },
-            };
-          }
-        );
+          const underlyingOut = tradeMetadata
+            ? lastValue(tradeMetadata)?.tokensBought || tokenOutSy
+            : tokenOutSy;
+
+          return {
+            fx: underlyingOut.toFloat() - netUnderlying.neg().toFloat(),
+            value: {
+              ptTokensIn,
+              tradeMetadata,
+            },
+          };
+        }
+      );
 
       return {
         netVaultSharesForUnderlying: TokenBalance.from(
-          ptTokensIn.scaleTo(INTERNAL_TOKEN_DECIMALS),
+          ptTokensIn.scaleTo(vaultShare.decimals),
           vaultShare
         ).neg(),
-        feesPaid: feesPaid,
-        vaultTradeMetadata: {
-          slippageForSY,
-          tokenOutSy,
-        },
+        feesPaid: tradeMetadata.reduce(
+          (acc, trade) => (trade.feesPaid ? acc.add(trade.feesPaid) : acc),
+          TokenBalance.zero(this.borrowedToken)
+        ),
+        vaultTradeMetadata: tradeMetadata,
       };
     }
-  }
-
-  override getMaxCollateralSlippage(): number | null {
-    return 50 * BASIS_POINT;
   }
 
   override getSimulatedAPY(

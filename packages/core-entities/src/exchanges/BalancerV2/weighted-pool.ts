@@ -1,6 +1,6 @@
 import { BalancerPoolABI } from '@notional-finance/contracts';
 import { AggregateCall } from '@notional-finance/multicall';
-import { Network } from '@notional-finance/util';
+import { DEX_ID, Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../..';
 import BaseLiquidityPool from '../base-liquidity-pool';
@@ -52,6 +52,10 @@ export default class WeightedPool<
         transform: (r: BigNumber) => FixedPoint.from(r),
       }
     );
+  }
+
+  public override get dexId() {
+    return DEX_ID.BALANCER_V2;
   }
 
   public getLPTokensGivenTokens(tokensIn: TokenBalance[]) {

@@ -52,6 +52,8 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
       isDebtThreshold: types.boolean,
     })
   ),
+  hasPendingWithdraw: types.boolean,
+  hasFinalizedWithdraw: types.boolean,
   impliedFixedRate: types.maybe(types.number),
   healthFactor: types.maybeNull(types.number),
   netWorth: NotionalTypes.TokenBalance,
@@ -82,7 +84,6 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   vaultMetadata: types.model({
     rewardClaims: types.optional(types.array(NotionalTypes.TokenBalance), []),
     strategyType: types.string,
-    reinvestmentCadence: types.number,
     isExpired: types.maybe(types.boolean),
   }),
 });
@@ -161,7 +162,8 @@ const _AccountPortfolioModel = types
         return new VaultAccountRiskProfile(
           vaultAddress,
           self.balances,
-          self.vaultLastUpdateTime?.get(vaultAddress) || 0
+          self.vaultLastUpdateTime?.get(vaultAddress) || 0,
+          self.withdrawRequests?.[vaultAddress]
         ).maxWithdraw();
       } catch {
         // NOTE: this can happen after the vault is fully withdrawn
@@ -186,7 +188,8 @@ export const AccountPortfolioActions = (
       self.balanceStatement as BalanceStatement[],
       self.accountHistory as AccountHistory[],
       new Map(self.vaultLastUpdateTime.entries()),
-      Object.fromEntries(self.rewardClaims.entries())
+      Object.fromEntries(self.rewardClaims.entries()),
+      new Map(self.withdrawRequests.entries())
     );
 
     const baseCurrency = root().appStore.baseCurrency;

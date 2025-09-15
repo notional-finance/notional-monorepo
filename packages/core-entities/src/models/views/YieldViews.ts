@@ -1,7 +1,7 @@
 import { TokenBalance } from '../../token-balance';
 import { NetworkModel } from '../NetworkModel';
 import { firstValue, leveragedYield } from '@notional-finance/util';
-import { TokenDefinition } from '../../Definitions';
+import { TokenDefinition, VaultTradeMetadata } from '../../Definitions';
 import { Instance } from 'mobx-state-tree';
 import { TokenViews } from './TokenViews';
 import { VaultViews } from './VaultViews';
@@ -136,7 +136,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
 
   const getSimulatedAPY = (
     netAmount: TokenBalance,
-    vaultTradeMetadata?: unknown
+    vaultTradeMetadata?: VaultTradeMetadata[]
   ) => {
     const apyData: APYData = { totalAPY: 0 };
 
@@ -161,7 +161,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     collateralAmount: TokenBalance,
     debtAmount: TokenBalance,
     leverageRatio: number,
-    vaultTradeMetadata?: unknown
+    vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData => {
     const collateralAPY = collateralAmount.isZero()
       ? getSpotAPY(collateralAmount.tokenId)
