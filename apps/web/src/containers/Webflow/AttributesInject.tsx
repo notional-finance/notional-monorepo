@@ -270,8 +270,23 @@ export const LandingPageInject = () => {
 };
 
 export const PointsPageInject = () => {
+  const vaults = useAllVaults();
+  const { baseCurrency } = useAppStore();
   const onListStart = useListStart(() => {
-    console.log('Points page list rendered');
+    document.querySelectorAll('.vault-row').forEach((e) => {
+      const vaultAddress = e.getAttribute('n-vault-address')?.toLowerCase();
+      const vault = vaults.find(
+        (v) => v.vaultConfig.vaultAddress.toLowerCase() === vaultAddress
+      );
+      if (!vault) return;
+
+      const tvlEl = e.querySelector('.vault-tvl');
+      if (tvlEl)
+        tvlEl.textContent =
+          vault?.tvl
+            ?.toFiat(baseCurrency)
+            .toDisplayStringWithSymbol(2, true, false) || '-';
+    });
   });
   const containerRef = useStartInject(
     '68825e92f8fa9c449f985a6b',
@@ -299,13 +314,6 @@ export const VaultsPageInject = () => {
     // Only set this text data once after the list is rendered so that the sorting engine
     // can read it
     document.querySelectorAll('.vault-row').forEach((e) => {
-      const trigger = e.querySelector('.project-trigger');
-      if (trigger) {
-        trigger.addEventListener('click', (e) => {
-          e.preventDefault();
-        });
-      }
-
       const vaultAddress = e.getAttribute('n-vault-address')?.toLowerCase();
       const vault = vaults.find(
         (v) => v.vaultConfig.vaultAddress.toLowerCase() === vaultAddress
