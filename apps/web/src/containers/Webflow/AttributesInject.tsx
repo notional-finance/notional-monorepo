@@ -176,6 +176,14 @@ const useStartInject = (
     return () => {
       observer.disconnect();
       restoreQuery();
+      (window as any).FinsweetAttributes.push([
+        'inject',
+        (component: any[]) => {
+          // Clears the component since we are unmounting here. If we don't then Finsweet
+          // will still hold on to the reference and it will persist between page loads.
+          component.length = 0;
+        },
+      ]);
     };
   }, [containerRef, mountCallbacks]);
 

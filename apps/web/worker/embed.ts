@@ -185,6 +185,9 @@ export async function fetchWebflowPage(pathname: string, isEmbed: boolean) {
   console.log('fetching webflow page', targetPath);
   const url = `${WEBFLOW_ROOT}/${targetPath}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to load Webflow page: ${url}`);
+  if (!res.ok) {
+    // Just return the root page if the target page is not found
+    return await fetch(WEBFLOW_ROOT).then((res) => res.text());
+  }
   return await res.text();
 }
