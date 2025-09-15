@@ -204,6 +204,14 @@ function useListStart(afterListRendered: () => void) {
     (shadow: Element) => {
       (window as any).FinsweetAttributes =
         (window as any).FinsweetAttributes || [];
+
+      shadow.shadowRoot?.querySelectorAll('#clear-button').forEach((e) => {
+        e.addEventListener('click', (e) => {
+          delete e['href'];
+          e.preventDefault();
+        });
+      });
+
       (window as any).FinsweetAttributes.push([
         'list',
         ([l, _]: any[]) => {
@@ -212,7 +220,8 @@ function useListStart(afterListRendered: () => void) {
           // After the list is rendered we can update the href
           l.addHook('start', () => {
             shadow.shadowRoot?.querySelectorAll('.vault-row').forEach((e) => {
-              const vaultLink = `/vault/mainnet/${e.getAttribute(
+              const network = e.getAttribute('n-vault-network');
+              const vaultLink = `/vault/${network}/${e.getAttribute(
                 'n-vault-address'
               )}`.toLowerCase();
               e['href'] = vaultLink;
