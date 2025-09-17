@@ -104,6 +104,7 @@ export const TradeModel = types
       'WithdrawVault',
       'ManageVault',
       'InitiateWithdraw',
+      'FinalizeWithdraw',
     ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),
@@ -479,6 +480,10 @@ export const TradeModel = types
           acc['balances'] = root().getAccountDefinition(
             self.selectedNetwork
           )?.balances;
+        } else if (arg === 'withdrawRequests' && self.vaultAddress) {
+          acc['withdrawRequests'] = root()
+            .getAccountDefinition(self.selectedNetwork)
+            ?.withdrawRequests?.get(self.vaultAddress);
         } else if (arg === 'riskFactorLimit') {
           acc['riskFactorLimit'] = {
             riskFactor: 'leverageRatio',

@@ -221,6 +221,7 @@ function useListStart(afterListRendered: () => void) {
       (window as any).FinsweetAttributes.push([
         'list',
         ([l, _]: any[]) => {
+          if (!l) return;
           l.cache = false;
           l.showQuery = true;
           // After the list is rendered we can update the href

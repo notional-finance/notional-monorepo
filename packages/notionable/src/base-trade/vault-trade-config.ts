@@ -236,6 +236,29 @@ export const VaultTradeConfiguration = {
       sameVaultMaturity(t, a?.balances, s.vaultAddress),
     transactionBuilder: InitiateWithdraw,
   } as TransactionConfig,
+  FinalizeWithdraw: {
+    calculationFn: () => {
+      // TODO: what do I do in here?
+      throw new Error('Not implemented');
+    },
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'vaultAdapter',
+      'balances',
+      'depositBalance',
+      'withdrawRequests',
+    ],
+    collateralFilter: (t, _, s) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
+    debtFilter: (t, a, s) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
+    depositFilter: (t, _, s) => isPrimaryCurrency(t, s.vaultConfig),
+    transactionBuilder: ExitVault,
+  } as TransactionConfig,
 };
 
 export type VaultTradeType = keyof typeof VaultTradeConfiguration;

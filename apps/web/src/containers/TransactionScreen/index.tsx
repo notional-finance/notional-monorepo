@@ -27,7 +27,9 @@ export const VaultDefaultScreen = observer(() => {
   const isAccountReady = useAccountReady(selectedNetwork);
   // TODO: this is a little late from use account ready
   const vaultPosition = useVaultPosition(selectedNetwork, vaultAddress);
-  const manageScreen = vaultPosition?.hasPendingWithdraw ? (
+  const manageScreen = vaultPosition?.hasFinalizedWithdraw ? (
+    <VaultFinalizeWithdraw />
+  ) : vaultPosition?.hasPendingWithdraw ? (
     <VaultPendingWithdraw />
   ) : vaultPosition ? (
     <VaultManageScreen />

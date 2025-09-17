@@ -3,6 +3,7 @@ import {
   TokenBalance,
   TokenDefinition,
   VaultAdapter,
+  WithdrawRequest,
   getNetworkModel,
 } from '@notional-finance/core-entities';
 import {
@@ -259,6 +260,53 @@ export function calculateWithdraw({
     collateralFee: TokenBalance.zero(withdrawAmount.token),
     debtBalance: profile.vaultDebt,
     netRealizedCollateralBalance: withdrawAmount,
+    // These two are just used to satisfy the type system, not used in the UI
+    netRealizedDebtBalance: TokenBalance.zero(debt),
+    debtFee: TokenBalance.zero(debt),
+  };
+}
+
+export function calculateFinalizeWithdraw({
+  collateral,
+  debt,
+  balances,
+  vaultLastUpdateTime,
+  depositBalance,
+  withdrawRequests,
+}: {
+  collateral: TokenDefinition;
+  vaultAdapter: VaultAdapter;
+  debt: TokenDefinition;
+  balances: TokenBalance[];
+  vaultLastUpdateTime: number;
+  depositBalance: TokenBalance;
+  withdrawRequests: WithdrawRequest[];
+}) {
+  const vaultAddress = collateral.vaultAddress;
+  if (!vaultAddress) throw Error('Vault Address not defined');
+  const profile = new VaultAccountRiskProfile(
+    vaultAddress,
+    balances || [TokenBalance.zero(collateral), TokenBalance.zero(debt)],
+    vaultLastUpdateTime || 0,
+    withdrawRequests
+  );
+  const tokensWithdrawn = profile.withdrawRequests?.[0]?.withdrawTokenAmount;
+  if (!tokensWithdrawn) throw Error('Tokens withdrawn not found');
+
+  const yieldTokensBurned = depositBalance.toToken(tokensWithdrawn.token);
+  let sharesToRedeem = yieldTokensBurned.scale(
+    profile.vaultShares,
+    tokensWithdrawn
+  );
+  // Do not allow the shares to redeem to exceed the vault shares
+  if (sharesToRedeem.gt(profile.vaultShares))
+    sharesToRedeem = profile.vaultShares;
+
+  return {
+    collateralBalance: sharesToRedeem.neg(),
+    collateralFee: TokenBalance.zero(depositBalance.token),
+    debtBalance: profile.vaultDebt,
+    netRealizedCollateralBalance: depositBalance,
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: TokenBalance.zero(debt),
     debtFee: TokenBalance.zero(debt),

@@ -126,6 +126,8 @@ export async function fetchCurrentAccount(
                 // If the key includes .canFinalize, it should be last
                 if (a.includes('.canFinalize')) return 1;
                 if (b.includes('.canFinalize')) return -1;
+                if (a.includes('.tokensWithdrawn')) return 1;
+                if (b.includes('.tokensWithdrawn')) return -1;
                 return 0;
               })
               .reduce((agg, k) => {
@@ -135,6 +137,14 @@ export async function fetchCurrentAccount(
                   wr[parseInt(index)] = {
                     ...wr[parseInt(index)],
                     canFinalize: results[k] as boolean,
+                  };
+                } else if (
+                  k.includes('.tokensWithdrawn') &&
+                  parseInt(index) < wr.length
+                ) {
+                  wr[parseInt(index)] = {
+                    ...wr[parseInt(index)],
+                    withdrawTokenAmount: results[k] as TokenBalance,
                   };
                 } else if (results[k]) {
                   wr.push(results[k] as WithdrawRequest);
@@ -360,6 +370,31 @@ function getVaultBalanceCalls(
               },
               key: `${v}.withdrawRequest.${index}.canFinalize`,
               transform: (b: boolean | undefined) => b,
+            },
+            {
+              stage: 2,
+              target: (prevResults: Record<string, unknown>) => {
+                const wr = prevResults[
+                  `${v}.withdrawRequest.${index}`
+                ] as WithdrawRequest;
+                const canFinalize = prevResults[
+                  `${v}.withdrawRequest.${index}.canFinalize`
+                ] as boolean;
+
+                if (wr?.finalized === false && canFinalize === true) {
+                  return new Contract(
+                    w.address,
+                    WithdrawRequestManagerABI,
+                    provider
+                  );
+                }
+                return NO_OP;
+              },
+              method: 'finalizeRequestManual',
+              args: [v, account],
+              key: `${v}.withdrawRequest.${index}.tokensWithdrawn`,
+              transform: (b: BigNumber | undefined) =>
+                b ? TokenBalance.from(b, w.withdrawToken) : undefined,
             },
           ];
         }),

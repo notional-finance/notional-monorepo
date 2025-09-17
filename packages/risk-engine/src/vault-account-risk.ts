@@ -313,8 +313,11 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     let netUnderlyingForVaultShares: TokenBalance;
     let feesPaid: TokenBalance;
     if (this.hasFinalizedWithdraw) {
-      // TODO: this is not completely accurate if we have not previously finalized the withdraw
-      netUnderlyingForVaultShares = this.totalAssetsRiskAdjusted();
+      if (!this.withdrawRequests) throw Error('Withdraw requests not found');
+      netUnderlyingForVaultShares = this.withdrawRequests.reduce((acc, w) => {
+        if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
+        return acc.add(w.withdrawTokenAmount.toToken(costToRepay.token));
+      }, costToRepay.copy(0));
       feesPaid = TokenBalance.zero(this.denom(this.defaultSymbol));
     } else if (this.hasPendingWithdraw) {
       throw Error('Max withdraw not supported for pending withdraws');
