@@ -8,7 +8,7 @@ import {
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
 import { TokenBalance } from '../token-balance';
-import { defaultAbiCoder } from 'ethers/lib/utils';
+import { defaultAbiCoder, BytesLike } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { getVaultType, PointsMultipliers } from '../config/whitelisted-vaults';
@@ -358,6 +358,16 @@ export class SingleSidedLP extends VaultAdapter {
         },
       ]
     );
+  }
+
+  override getWithdrawParameters(
+    _account: string,
+    _maturity: number,
+    _vaultSharesToRedeem: TokenBalance,
+    _underlyingToRepayDebt: TokenBalance,
+    _slippageFactor = 10 * BASIS_POINT
+  ): Promise<BytesLike> {
+    throw new Error('Not implemented');
   }
 
   override async getRedeemParameters(

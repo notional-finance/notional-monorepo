@@ -1,4 +1,3 @@
-import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { RootStoreInterface } from './root-store';
 import {
   AccountHistory,
@@ -154,27 +153,7 @@ const PortfolioModel = types.model('PortfolioModel', {
   ),
 });
 
-const _AccountPortfolioModel = types
-  .compose(AccountModel, PortfolioModel)
-  .views((self) => {
-    const maxVaultWithdraw = (vaultAddress: string) => {
-      try {
-        return new VaultAccountRiskProfile(
-          vaultAddress,
-          self.balances,
-          self.vaultLastUpdateTime?.get(vaultAddress) || 0,
-          self.withdrawRequests?.[vaultAddress]
-        ).maxWithdraw();
-      } catch {
-        // NOTE: this can happen after the vault is fully withdrawn
-        return undefined;
-      }
-    };
-
-    return {
-      maxVaultWithdraw,
-    };
-  });
+const _AccountPortfolioModel = types.compose(AccountModel, PortfolioModel);
 
 export const AccountPortfolioActions = (
   self: Instance<typeof _AccountPortfolioModel>

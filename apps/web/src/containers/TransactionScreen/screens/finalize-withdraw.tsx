@@ -12,7 +12,6 @@ export const VaultFinalizeWithdraw = observer(() => {
   const { currencyInputRef, setCurrencyInput } = useCurrencyInputRef();
   useTradeContext('FinalizeWithdraw');
   const trade = useCurrentTradeContext();
-  // TODO: this is not correct, we need to get the max withdraw from the pending withdraw
   const maxWithdraw = trade?.getVaultMaxWithdraw();
 
   return (

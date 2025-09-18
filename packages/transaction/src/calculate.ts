@@ -269,6 +269,7 @@ export function calculateWithdraw({
 export function calculateFinalizeWithdraw({
   collateral,
   debt,
+  vaultAdapter,
   balances,
   vaultLastUpdateTime,
   depositBalance,
@@ -293,23 +294,29 @@ export function calculateFinalizeWithdraw({
   const tokensWithdrawn = profile.withdrawRequests?.[0]?.withdrawTokenAmount;
   if (!tokensWithdrawn) throw Error('Tokens withdrawn not found');
 
-  const yieldTokensBurned = depositBalance.toToken(tokensWithdrawn.token);
-  let sharesToRedeem = yieldTokensBurned.scale(
-    profile.vaultShares,
+  const withdrawTokensBurned = depositBalance
+    .neg()
+    .toToken(tokensWithdrawn.token);
+  let sharesToRedeem = profile.vaultShares.scale(
+    withdrawTokensBurned,
     tokensWithdrawn
   );
   // Do not allow the shares to redeem to exceed the vault shares
   if (sharesToRedeem.gt(profile.vaultShares))
     sharesToRedeem = profile.vaultShares;
 
+  const vaultTradeMetadata =
+    vaultAdapter.getWithdrawTradeMetadata(withdrawTokensBurned);
+
   return {
     collateralBalance: sharesToRedeem.neg(),
     collateralFee: TokenBalance.zero(depositBalance.token),
     debtBalance: profile.vaultDebt,
-    netRealizedCollateralBalance: depositBalance,
+    netRealizedCollateralBalance: depositBalance.neg(),
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: TokenBalance.zero(debt),
     debtFee: TokenBalance.zero(debt),
+    vaultTradeMetadata,
   };
 }
 

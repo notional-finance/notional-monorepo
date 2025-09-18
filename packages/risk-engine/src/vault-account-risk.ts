@@ -2,6 +2,8 @@ import {
   AccountDefinition,
   TokenBalance,
   TokenDefinition,
+  VaultAdapter,
+  VaultTradeMetadata,
   WithdrawRequest,
 } from '@notional-finance/core-entities';
 import {
@@ -121,7 +123,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get vaultAdapter() {
-    return this.model.getVaultAdapter(this.vaultAddress);
+    return this.model.getVaultAdapter(this.vaultAddress) as VaultAdapter;
   }
 
   get maxLeverageRatio() {
@@ -312,6 +314,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     // Returns the total underlying received when redeeming all of the vault shares
     let netUnderlyingForVaultShares: TokenBalance;
     let feesPaid: TokenBalance;
+    let vaultTradeMetadata: VaultTradeMetadata[];
     if (this.hasFinalizedWithdraw) {
       if (!this.withdrawRequests) throw Error('Withdraw requests not found');
       netUnderlyingForVaultShares = this.withdrawRequests.reduce((acc, w) => {
@@ -319,11 +322,22 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         return acc.add(w.withdrawTokenAmount.toToken(costToRepay.token));
       }, costToRepay.copy(0));
       feesPaid = TokenBalance.zero(this.denom(this.defaultSymbol));
+      vaultTradeMetadata = this.withdrawRequests.flatMap((w) => {
+        if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
+        return this.vaultAdapter.getWithdrawTradeMetadata(
+          w.withdrawTokenAmount
+        );
+      });
     } else if (this.hasPendingWithdraw) {
       throw Error('Max withdraw not supported for pending withdraws');
     } else {
       ({ netUnderlyingForVaultShares, feesPaid } =
         this.vaultAdapter.getNetVaultSharesCost(this.vaultShares.neg()));
+      const result = this.vaultAdapter.getNetVaultSharesMinted(
+        netUnderlyingForVaultShares,
+        this.vaultShares.token
+      );
+      vaultTradeMetadata = result.vaultTradeMetadata || [];
     }
 
     // Returns the net amount remaining after repaying all the debt
@@ -337,6 +351,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       collateralFee: feesPaid,
       debtFee: costToRepay.copy(0),
       netRealizedDebtBalance: costToRepay,
+      vaultTradeMetadata,
     };
   }
 }
