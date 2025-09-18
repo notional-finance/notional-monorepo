@@ -8,9 +8,8 @@ import {
   PageLoading,
 } from '@notional-finance/mui';
 import { MessageDescriptor } from 'react-intl';
-import { getDepositErrorMessage } from './get-deposit-error-messages';
 import { useDepositInput } from './use-deposit-input';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   useCurrentTradeContext,
   useWalletBalances,
@@ -65,7 +64,6 @@ export const DepositInput = observer(
       ref
     ) => {
       const navigate = useNavigate();
-      const { pathname } = useLocation();
       const theme = useTheme();
       const trade = useCurrentTradeContext();
 
@@ -73,7 +71,6 @@ export const DepositInput = observer(
         depositTokens || trade?.availableTokens.deposit;
       const deposit = depositOverride || trade?.selectedTokens.deposit;
       const selectedNetwork = trade?.selectedNetwork;
-      const calculateError = trade?.calculateError;
       const setDepositBalance = trade?.setDepositBalance;
       const setHasInputErrors = trade?.setHasInputErrors;
 
@@ -112,13 +109,6 @@ export const DepositInput = observer(
       const walletBalances = useWalletBalances(
         selectedNetwork,
         availableDepositTokens
-      );
-
-      const errorMessage = getDepositErrorMessage(
-        errorMsgOverride,
-        errorMsg,
-        calculateError,
-        pathname
       );
 
       if (!availableDepositTokens || !deposit) return <PageLoading />;
@@ -162,7 +152,6 @@ export const DepositInput = observer(
             maxValue={onMaxValue ? undefined : maxBalanceString}
             onMaxValue={onMaxValue}
             onInputChange={(input) => setInputString(input)}
-            errorMsg={errorMessage}
             warningMsg={warningMsg}
             showScrollPopper={showScrollPopper}
             options={

@@ -19,7 +19,6 @@ export interface TradeActionButtonProps {
   errorText?: MessageDescriptor;
   buttonVariant?: 'text' | 'outlined' | 'contained' | undefined;
   width?: string;
-  leverageDisabled?: boolean;
   margin?: string;
 }
 
@@ -54,7 +53,6 @@ export const TradeActionButton = observer(
     buttonVariant = 'contained',
     width,
     margin,
-    leverageDisabled,
   }: TradeActionButtonProps) => {
     const theme = useTheme();
     const isWalletConnected = useWalletConnected();
@@ -93,22 +91,18 @@ export const TradeActionButton = observer(
         width={width}
         margin={margin}
         variant={buttonVariant || 'contained'}
-        disabled={!isWalletConnected && !leverageDisabled ? false : !canSubmit}
-        canSubmit={!isWalletConnected && !leverageDisabled ? true : canSubmit}
+        disabled={!isWalletConnected ? false : !canSubmit}
+        canSubmit={!isWalletConnected ? true : canSubmit}
         onClick={isWalletConnected ? _onSubmit : () => handleConnectWallet()}
       >
-        {leverageDisabled ? (
-          <FormattedMessage
-            defaultMessage={'Not Available for US Persons or VPN Users'}
-          />
-        ) : errorText ? (
-          <FormattedMessage {...errorText} />
+        {isWalletConnected ? (
+          errorText ? (
+            <FormattedMessage {...errorText} />
+          ) : (
+            <FormattedMessage {...buttonTextWalletConnected} />
+          )
         ) : (
-          <FormattedMessage
-            {...(isWalletConnected
-              ? buttonTextWalletConnected
-              : buttonTextWalletNotConnected)}
-          />
+          <FormattedMessage {...buttonTextWalletNotConnected} />
         )}
       </StyledTradeActionButton>
     );

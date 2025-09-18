@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { useObserver } from 'mobx-react-lite';
 import { useRootStore } from './use-root-store';
 import { Instance } from 'mobx-state-tree';
+import { defineMessage } from 'react-intl';
 export interface ObservableContext {
   tradeModel?: Instance<typeof TradeModel>;
 }
@@ -64,4 +65,26 @@ export function useTradeContext(tradeType: AllTradeTypes) {
 export function useCurrentTradeContext() {
   const root = useRootStore();
   return useObserver(() => root.tradeModel);
+}
+
+export function useTradeErrorMessage() {
+  const context = useCurrentTradeContext();
+  const inputsSatisfied = context?.inputsSatisfied;
+  const calculationSuccess = context?.calculationSuccess;
+  const inputErrors = context?.inputErrors;
+  if (!inputsSatisfied) {
+    return defineMessage({
+      defaultMessage: 'Enter Amount',
+    });
+  } else if (inputErrors) {
+    return defineMessage({
+      defaultMessage: 'Insufficient Balance',
+    });
+  } else if (!calculationSuccess && inputsSatisfied) {
+    return defineMessage({
+      defaultMessage: 'Insufficient Borrow Liquidity',
+    });
+  }
+
+  return undefined;
 }
