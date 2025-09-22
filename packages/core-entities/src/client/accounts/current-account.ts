@@ -140,6 +140,7 @@ export async function fetchCurrentAccount(
                   };
                 } else if (
                   k.includes('.tokensWithdrawn') &&
+                  results[k] !== undefined &&
                   parseInt(index) < wr.length
                 ) {
                   wr[parseInt(index)] = {

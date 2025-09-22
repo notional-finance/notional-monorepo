@@ -104,7 +104,7 @@ function patchQueryAndRestart(
 
       if (ix2) {
         // Restarts the ix2 session so it can bind the proper event listeners
-        ix2.store.dispatch({ type: 'IX2_SESSION_STOPPED' });
+        ix2.destroy();
         ix2.init();
       }
 
