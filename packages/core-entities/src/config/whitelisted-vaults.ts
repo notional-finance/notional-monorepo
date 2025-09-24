@@ -114,6 +114,19 @@ export const VaultDefaultDexParameters: Record<
       ),
       withdrawPoolAddress: '0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72',
     },
+    ['0x7f723fee1e65a7d26be51a05af0b5efee4a7d5ae'.toLowerCase()]: {
+      dexId: DexIds.CURVE_V2,
+      depositExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0xDB74dfDD3BB46bE8Ce6C33dC9D82777BCFc3dEd5', 0, 1]
+      ),
+      depositPoolAddress: '0xDB74dfDD3BB46bE8Ce6C33dC9D82777BCFc3dEd5',
+      redeemExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0xDB74dfDD3BB46bE8Ce6C33dC9D82777BCFc3dEd5', 1, 0]
+      ),
+      redeemPoolAddress: '0xDB74dfDD3BB46bE8Ce6C33dC9D82777BCFc3dEd5',
+    },
   },
   [Network.all]: {},
 };

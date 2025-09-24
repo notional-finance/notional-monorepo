@@ -6,7 +6,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const DEBUG_MODE = false;
-const CACHE_KEY = '1';
 
 // These are initialized before any shadow dom is created
 const origQSA = Document.prototype.querySelectorAll;
@@ -265,7 +264,7 @@ export const LandingPageInject = () => {
       fs-inject-element="target"
       fs-inject-source="/embed/"
       fs-inject-instance="landing-page"
-      fs-inject-cachekey={CACHE_KEY}
+      fx-inject-cache={false}
     />
   );
 };
@@ -303,7 +302,7 @@ export const PointsPageInject = () => {
       fs-inject-element="target"
       fs-inject-source="/embed/points"
       fs-inject-instance="points-page"
-      fs-inject-cachekey={CACHE_KEY}
+      fs-inject-cache={false}
     />
   );
 };
@@ -358,7 +357,7 @@ export const VaultsPageInject = () => {
       fs-inject-element="target"
       fs-inject-source="/embed/vaults"
       fs-inject-instance="vaults-page"
-      fs-inject-cachekey={CACHE_KEY}
+      fs-inject-cache={false}
     />
   );
 };
