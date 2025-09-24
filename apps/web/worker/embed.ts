@@ -116,7 +116,7 @@ class ScriptInjector {
         const attrString = Object.entries(attributes)
           .map(([key, value]) => `${key}="${value}"`)
           .join(' ');
-        element.append(`<script ${attrString}>${content}</script>`, {
+        element.append(`<script defer ${attrString}>${content}</script>`, {
           html: true,
         });
       });

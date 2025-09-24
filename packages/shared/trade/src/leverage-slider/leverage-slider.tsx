@@ -16,9 +16,9 @@ interface LeverageSliderProps {
   cashBorrowed?: TokenBalance;
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
-  bottomCaption?: JSX.Element;
   isDeleverage?: boolean;
   showMinMax?: boolean;
+  allowDeleverage?: boolean;
   onChange?: (leverageRatio: number) => void;
 }
 
@@ -28,8 +28,8 @@ export const LeverageSlider = observer(
     errorMsg,
     infoMsg,
     cashBorrowed,
-    bottomCaption,
     isDeleverage,
+    allowDeleverage,
     showMinMax,
     onChange,
   }: LeverageSliderProps) => {
@@ -81,6 +81,26 @@ export const LeverageSlider = observer(
         setSliderInput(leverageRatio, false);
       }
     });
+
+    let bottomCaption: React.ReactNode | undefined = undefined;
+    const isAdjust = trade?.tradeType === 'AdjustVaultLeverage';
+    if (!allowDeleverage && isAdjust) {
+      bottomCaption = (
+        <FormattedMessage
+          defaultMessage={
+            'No instant withdrawal, you can only increase your leverage. Initiate smart withdraw or repay debt to deleverage.'
+          }
+        />
+      );
+    } else if (isDeleverage && isAdjust) {
+      bottomCaption = (
+        <FormattedMessage
+          defaultMessage={
+            'Transaction will sell your collateral to repay your borrow.'
+          }
+        />
+      );
+    }
 
     return maxLeverageRatio ? (
       <SliderInput

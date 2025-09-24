@@ -5,7 +5,6 @@ import { observer } from 'mobx-react-lite';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 
-import Chip from '@mui/material/Chip';
 import Header from './components/header';
 import InfoBox from './components/info-box';
 import DataSection from './components/data-section';
@@ -50,18 +49,7 @@ export const TransactionScreen = observer(
                 : vaultMetadata?.name || ''
             }
             tokenSymbol={vaultMetadata?.depositToken.symbol || ''}
-            secondaryTitle={vaultMetadata?.vaultFeatures.map((feature) => (
-              <Chip
-                key={feature}
-                label={feature}
-                color="info"
-                size="small"
-                sx={{
-                  backgroundColor: theme.palette.info.light,
-                  color: theme.palette.info.dark,
-                }}
-              />
-            ))}
+            features={vaultMetadata?.vaultFeatures}
             apyInfo={leveragedAPY}
           />
           <ContentContainer>
