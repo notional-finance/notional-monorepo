@@ -509,5 +509,4 @@ export abstract class BaseRiskProfile implements RiskFactors {
   abstract totalAssetsRiskAdjusted(denominated: string): TokenBalance;
   abstract totalDebtRiskAdjusted(denominated: string): TokenBalance;
   abstract netCollateralAvailable(denominated: string): TokenBalance;
-  //   getLiquidationPenalty() {}
 }

@@ -45,7 +45,9 @@ export async function fetchCurrentAccount(
     .getAllTokens()
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
 
-  const vaultAddresses = model.getAllListedVaults().map((v) => v.vaultAddress);
+  const vaultAddresses = model
+    .getAllListedVaults(false)
+    .map((v) => v.vaultAddress);
   const positions = await getAccountPositions(
     network,
     account,
@@ -91,7 +93,8 @@ export async function fetchCurrentAccount(
               .map((k) => results[k] as TokenBalance),
             vaultLastUpdateTime: Object.keys(results).reduce((agg, k) => {
               if (k.includes('lastEntryTime')) {
-                agg.set(k, results[k] as number);
+                const [vaultAddress, _] = k.split('.');
+                agg.set(vaultAddress, results[k] as number);
               }
               return agg;
             }, new Map() as Map<string, number>),
@@ -126,6 +129,8 @@ export async function fetchCurrentAccount(
                 // If the key includes .canFinalize, it should be last
                 if (a.includes('.canFinalize')) return 1;
                 if (b.includes('.canFinalize')) return -1;
+                if (a.includes('.tokensWithdrawn')) return 1;
+                if (b.includes('.tokensWithdrawn')) return -1;
                 return 0;
               })
               .reduce((agg, k) => {
@@ -135,6 +140,15 @@ export async function fetchCurrentAccount(
                   wr[parseInt(index)] = {
                     ...wr[parseInt(index)],
                     canFinalize: results[k] as boolean,
+                  };
+                } else if (
+                  k.includes('.tokensWithdrawn') &&
+                  results[k] !== undefined &&
+                  parseInt(index) < wr.length
+                ) {
+                  wr[parseInt(index)] = {
+                    ...wr[parseInt(index)],
+                    withdrawTokenAmount: results[k] as TokenBalance,
                   };
                 } else if (results[k]) {
                   wr.push(results[k] as WithdrawRequest);
@@ -292,7 +306,10 @@ function getVaultBalanceCalls(
           args: [account, v],
           key: `${v}.balance.vaultDebt`,
           transform: (b: BigNumber) => {
-            return TokenBalance.from(b, model.getVaultDebt(v, lendingRouter));
+            return TokenBalance.from(
+              b,
+              model.getVaultDebt(v, lendingRouter)
+            ).neg();
           },
         },
         ...withdrawManagers.flatMap((w, index) => {
@@ -360,6 +377,31 @@ function getVaultBalanceCalls(
               },
               key: `${v}.withdrawRequest.${index}.canFinalize`,
               transform: (b: boolean | undefined) => b,
+            },
+            {
+              stage: 2,
+              target: (prevResults: Record<string, unknown>) => {
+                const wr = prevResults[
+                  `${v}.withdrawRequest.${index}`
+                ] as WithdrawRequest;
+                const canFinalize = prevResults[
+                  `${v}.withdrawRequest.${index}.canFinalize`
+                ] as boolean;
+
+                if (wr?.finalized === false && canFinalize === true) {
+                  return new Contract(
+                    w.address,
+                    WithdrawRequestManagerABI,
+                    provider
+                  );
+                }
+                return NO_OP;
+              },
+              method: 'finalizeRequestManual',
+              args: [v, account],
+              key: `${v}.withdrawRequest.${index}.tokensWithdrawn`,
+              transform: (b: BigNumber | undefined) =>
+                b ? TokenBalance.from(b, w.withdrawToken) : undefined,
             },
           ];
         }),

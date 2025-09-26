@@ -4,8 +4,10 @@ import {
   AdjustLeverage,
   EnterVault,
   ExitVault,
+  ExitVaultFinalizeWithdraw,
   InitiateWithdraw,
   RollVault,
+  calculateFinalizeWithdraw,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
   calculateVaultRoll,
   calculateWithdraw,
@@ -235,6 +237,26 @@ export const VaultTradeConfiguration = {
       eligibleDebtToken(t, s.vaultConfig) &&
       sameVaultMaturity(t, a?.balances, s.vaultAddress),
     transactionBuilder: InitiateWithdraw,
+  } as TransactionConfig,
+  FinalizeWithdraw: {
+    calculationFn: calculateFinalizeWithdraw,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'vaultAdapter',
+      'balances',
+      'depositBalance',
+      'withdrawRequests',
+    ],
+    collateralFilter: (t, _, s) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
+    debtFilter: (t, a, s) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
+    depositFilter: (t, _, s) => isPrimaryCurrency(t, s.vaultConfig),
+    transactionBuilder: ExitVaultFinalizeWithdraw,
   } as TransactionConfig,
 };
 

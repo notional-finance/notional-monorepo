@@ -254,13 +254,29 @@ const useSummaryItems = () => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
   const r = trade?.getVaultRiskSummary();
-  const currentItems =
-    r?.current && r.current.netWorth !== undefined
-      ? formatSummaryItems(r.current, theme)
-      : undefined;
+  const noPositionItems = [
+    {
+      label: <FormattedMessage defaultMessage={'Net Worth'} />,
+      content: '-',
+    },
+    {
+      label: <FormattedMessage defaultMessage={'Health Factor'} />,
+      content: '-',
+    },
+    {
+      label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+      content: '-',
+    },
+  ];
   const updatedItems = r?.updated
     ? formatSummaryItems(r.updated, theme)
     : undefined;
+  const currentItems =
+    r?.current && r.current.netWorth !== undefined
+      ? formatSummaryItems(r.current, theme)
+      : updatedItems === undefined
+      ? noPositionItems
+      : undefined;
 
   return {
     current: currentItems,
@@ -436,9 +452,10 @@ const useWithdrawDetails = () => {
 const useTradeMetadata = () => {
   const trade = useCurrentTradeContext();
   if (trade?.tradeType === 'ManageVault') return undefined;
-  return trade?.vaultTradeMetadata?.map((metadata) => {
+  return trade?.vaultTradeMetadata?.map((metadata, index) => {
     return (
       <LabelValueSection
+        key={index}
         sectionTitle={`Trade: ${metadata.tokensSold.symbol} → ${metadata.tokensBought.symbol}`}
         items={[
           { label: 'Amount Sold', content: formatCountUp(metadata.tokensSold) },
@@ -486,19 +503,21 @@ export const useInfoBox = () => {
           {withdrawDetails ? (
             [
               <LabelValueSection
+                key="withdraw-details"
                 sectionTitle="Withdraw Details"
                 items={withdrawDetails}
               />,
               <LabelValueSection
+                key="current-position"
                 sectionTitle="Current Position"
                 items={current || []}
               />,
             ]
           ) : updated !== undefined && current === undefined ? (
             // This happens when there is no existing position
-            <LabelValueSection items={updated || []} />
+            <LabelValueSection items={updated || []} key="updated" />
           ) : updated === undefined ? (
-            <LabelValueSection items={current || []} />
+            <LabelValueSection items={current || []} key="current" />
           ) : (
             [
               <LabelValueSection
@@ -522,6 +541,7 @@ export const useInfoBox = () => {
         <DividedSections>
           {apyBreakdown.points && (
             <TableSection
+              key="points"
               headings={[
                 defineMessage({ defaultMessage: 'Points' }),
                 defineMessage({ defaultMessage: 'Multiplier' }),
@@ -530,6 +550,7 @@ export const useInfoBox = () => {
             />
           )}
           <TableSection
+            key="apy"
             highlightLastRow
             headings={[
               defineMessage({ defaultMessage: 'Source' }),
@@ -538,7 +559,10 @@ export const useInfoBox = () => {
             ]}
             contents={apyBreakdown.apy}
           />
-          <LabelValueSection items={apyBreakdown.assetsDebts} />
+          <LabelValueSection
+            key="assets-debts"
+            items={apyBreakdown.assetsDebts}
+          />
         </DividedSections>
       ),
     },
@@ -549,7 +573,7 @@ export const useInfoBox = () => {
       tabTitle: 'Order Details',
       tabContent: (
         <DividedSections>
-          <LabelValueSection items={orderDetails} />
+          <LabelValueSection key="order-details" items={orderDetails} />
           {tradeMetadata}
         </DividedSections>
       ),

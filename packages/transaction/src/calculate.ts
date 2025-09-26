@@ -3,6 +3,7 @@ import {
   TokenBalance,
   TokenDefinition,
   VaultAdapter,
+  WithdrawRequest,
   getNetworkModel,
 } from '@notional-finance/core-entities';
 import {
@@ -144,7 +145,9 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   const market = getNetworkModel(
     collateral.network
   ).getLendingMarketFromVaultDebt(debt);
-  market.getInterestRate(market.getUtilization(undefined, results.debtBalance));
+  market.getInterestRate(
+    market.getUtilization(undefined, results.debtBalance.neg())
+  );
 
   return {
     ...results,
@@ -262,6 +265,60 @@ export function calculateWithdraw({
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: TokenBalance.zero(debt),
     debtFee: TokenBalance.zero(debt),
+  };
+}
+
+export function calculateFinalizeWithdraw({
+  collateral,
+  debt,
+  vaultAdapter,
+  balances,
+  vaultLastUpdateTime,
+  depositBalance,
+  withdrawRequests,
+}: {
+  collateral: TokenDefinition;
+  vaultAdapter: VaultAdapter;
+  debt: TokenDefinition;
+  balances: TokenBalance[];
+  vaultLastUpdateTime: number;
+  depositBalance: TokenBalance;
+  withdrawRequests: WithdrawRequest[];
+}) {
+  const vaultAddress = collateral.vaultAddress;
+  if (!vaultAddress) throw Error('Vault Address not defined');
+  const profile = new VaultAccountRiskProfile(
+    vaultAddress,
+    balances || [TokenBalance.zero(collateral), TokenBalance.zero(debt)],
+    vaultLastUpdateTime || 0,
+    withdrawRequests
+  );
+  const tokensWithdrawn = profile.withdrawRequests?.[0]?.withdrawTokenAmount;
+  if (!tokensWithdrawn) throw Error('Tokens withdrawn not found');
+
+  const withdrawTokensBurned = depositBalance
+    .neg()
+    .toToken(tokensWithdrawn.token);
+  let sharesToRedeem = profile.vaultShares.scale(
+    withdrawTokensBurned,
+    tokensWithdrawn
+  );
+  // Do not allow the shares to redeem to exceed the vault shares
+  if (sharesToRedeem.gt(profile.vaultShares))
+    sharesToRedeem = profile.vaultShares;
+
+  const vaultTradeMetadata =
+    vaultAdapter.getWithdrawTradeMetadata(withdrawTokensBurned);
+
+  return {
+    collateralBalance: sharesToRedeem.neg(),
+    collateralFee: TokenBalance.zero(depositBalance.token),
+    debtBalance: profile.vaultDebt,
+    netRealizedCollateralBalance: depositBalance.neg(),
+    // These two are just used to satisfy the type system, not used in the UI
+    netRealizedDebtBalance: TokenBalance.zero(debt),
+    debtFee: TokenBalance.zero(debt),
+    vaultTradeMetadata,
   };
 }
 

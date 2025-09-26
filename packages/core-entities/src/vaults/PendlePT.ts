@@ -462,6 +462,16 @@ export class PendlePT extends VaultAdapter {
     );
   }
 
+  override async getWithdrawParameters(
+    _account: string,
+    _maturity: number,
+    _vaultSharesToRedeem: TokenBalance,
+    _underlyingToRepayDebt: TokenBalance,
+    _slippageFactor = 10 * BASIS_POINT
+  ): Promise<BytesLike> {
+    throw new Error('Not implemented');
+  }
+
   override async getRedeemParameters(
     _account: string,
     _maturity: number,

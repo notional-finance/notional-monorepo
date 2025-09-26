@@ -72,9 +72,54 @@ export async function ExitVault({
 
   const vaultAddress = collateralBalance.vaultAddress;
   const lendingRouter = debtBalance.token.address;
-  const assetToRepay = debtBalance.neg().toUnderlying();
+  const assetToRepay = debtBalance.toUnderlying();
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
   const vaultData = await vaultAdapter.getRedeemParameters(
+    address,
+    collateralBalance.maturity || 0,
+    collateralBalance.neg(),
+    assetToRepay
+  );
+
+  return populateLendingRouterTxnAndGas(
+    network,
+    address,
+    lendingRouter,
+    'exitPosition',
+    [
+      address,
+      vaultAddress,
+      address,
+      collateralBalance.neg().n,
+      maxWithdraw ? ethers.constants.MaxUint256 : assetToRepay.n,
+      vaultData,
+    ]
+  );
+}
+
+export async function ExitVaultFinalizeWithdraw({
+  address,
+  network,
+  collateralBalance,
+  debtBalance,
+  maxWithdraw,
+  vaultLastUpdateTime,
+}: PopulateTransactionInputs): Promise<PopulatedTransaction> {
+  if (
+    collateralBalance?.tokenType !== 'VaultShare' ||
+    debtBalance?.tokenType !== 'VaultDebt' ||
+    debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
+    collateralBalance.isPositive() ||
+    debtBalance.isNegative() ||
+    vaultLastUpdateTime === undefined
+  )
+    throw Error('Collateral balance, debt balance must be defined');
+
+  const vaultAddress = collateralBalance.vaultAddress;
+  const lendingRouter = debtBalance.token.address;
+  const assetToRepay = debtBalance.toUnderlying();
+  const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
+  const vaultData = await vaultAdapter.getWithdrawParameters(
     address,
     collateralBalance.maturity || 0,
     collateralBalance.neg(),

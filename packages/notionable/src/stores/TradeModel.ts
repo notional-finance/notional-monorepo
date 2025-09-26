@@ -1,4 +1,5 @@
 import {
+  AccountDefinition,
   APYData,
   createLeveragedAPYData,
   NotionalTypes,
@@ -104,6 +105,7 @@ export const TradeModel = types
       'WithdrawVault',
       'ManageVault',
       'InitiateWithdraw',
+      'FinalizeWithdraw',
     ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),
@@ -397,6 +399,12 @@ export const TradeModel = types
         self.availableDepositTokens.replace([self.deposit]);
         self.availableCollateralTokens.replace([config.vaultToken]);
         self.collateral = config.vaultToken;
+
+        if (self.tradeType === 'AdjustVaultLeverage') {
+          self.depositBalance = TokenBalance.zero(
+            config.depositToken as TokenDefinition
+          );
+        }
       } else if (isNOTEStake(self.tradeType)) {
         // Set deposit token
         self.deposit = self.selectedDepositToken
@@ -479,6 +487,10 @@ export const TradeModel = types
           acc['balances'] = root().getAccountDefinition(
             self.selectedNetwork
           )?.balances;
+        } else if (arg === 'withdrawRequests' && self.vaultAddress) {
+          acc['withdrawRequests'] = root()
+            .getAccountDefinition(self.selectedNetwork)
+            ?.withdrawRequests?.get(self.vaultAddress);
         } else if (arg === 'riskFactorLimit') {
           acc['riskFactorLimit'] = {
             riskFactor: 'leverageRatio',
@@ -761,25 +773,30 @@ export const TradeModel = types
     const setVaultMaxWithdraw = () => {
       if (!isAlive(self)) return;
       if (!self.vaultAddress) return;
-      const networkAccount = root().getNetworkAccount(self.selectedNetwork);
-      const vaultProfile = networkAccount?.vaultHoldings?.find(
-        ({ vaultAddress }) => vaultAddress === self.vaultAddress
-      );
-      const maxWithdrawValues = networkAccount?.maxVaultWithdraw(
-        self.vaultAddress
-      );
+      const account = root().getAccountDefinition(self.selectedNetwork);
+      const priorVaultRisk =
+        account && self.vaultAddress
+          ? VaultAccountRiskProfile.fromAccount(
+              self.vaultAddress,
+              account as AccountDefinition
+            )
+          : undefined;
+      const maxWithdrawValues = priorVaultRisk?.maxWithdraw();
 
       self.inputsSatisfied = true;
       self.maxWithdraw = true;
       self.calculationSuccess = true;
       self.depositBalance = maxWithdrawValues?.maxWithdrawUnderlying.neg();
-      self.collateralBalance = vaultProfile?.vaultShares.neg();
-      self.debtBalance = vaultProfile?.vaultDebt.neg();
+      self.collateralBalance = priorVaultRisk?.vaultShares.neg();
+      self.debtBalance = priorVaultRisk?.vaultDebt.neg();
       self.netRealizedCollateralBalance =
         maxWithdrawValues?.netRealizedCollateralBalance;
       self.netRealizedDebtBalance = maxWithdrawValues?.netRealizedDebtBalance;
       self.debtFee = maxWithdrawValues?.debtFee;
       self.collateralFee = maxWithdrawValues?.collateralFee;
+      self.vaultTradeMetadata.replace(
+        (maxWithdrawValues?.vaultTradeMetadata || []) as any
+      );
     };
 
     const setLeverageRatio = (leverageRatio: number) => {

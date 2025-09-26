@@ -95,7 +95,8 @@ class ScriptInjector {
 
   element(element: Element) {
     if (element.tagName === 'head') {
-      // // Inject head scripts and links
+      // We do not inject head scripts because they are already in the index.html and they
+      // are not dynamic.
       // this.headScripts.forEach(({ content, attributes }) => {
       //   const attrString = Object.entries(attributes)
       //     .map(([key, value]) => `${key}="${value}"`)
@@ -108,6 +109,17 @@ class ScriptInjector {
       //     element.append(`<script ${attrString}></script>`, { html: true });
       //   }
       // });
+
+      // Inject body scripts to the head, these are webflow scripts and we want to make
+      // sure they are ready before the rest of the page is loaded.
+      this.bodyScripts.forEach(({ content, attributes }) => {
+        const attrString = Object.entries(attributes)
+          .map(([key, value]) => `${key}="${value}"`)
+          .join(' ');
+        element.append(`<script defer ${attrString}>${content}</script>`, {
+          html: true,
+        });
+      });
       this.headLinks.forEach(({ href, rel }) => {
         element.append(`<link href="${href}" rel="${rel || 'stylesheet'}">`, {
           html: true,
@@ -118,16 +130,6 @@ class ScriptInjector {
           .map(([key, value]) => `${key}="${value}"`)
           .join(' ');
         element.append(`<style ${attrString}>${content}</style>`, {
-          html: true,
-        });
-      });
-    } else if (element.tagName === 'body') {
-      // Body scripts are injected on the client side
-      this.bodyScripts.forEach(({ content, attributes }) => {
-        const attrString = Object.entries(attributes)
-          .map(([key, value]) => `${key}="${value}"`)
-          .join(' ');
-        element.append(`<script ${attrString}>${content}</script>`, {
           html: true,
         });
       });

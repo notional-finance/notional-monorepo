@@ -1,5 +1,4 @@
-import { ReactNode } from 'react';
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, Chip, styled, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import { H2, LargeInputTextEmphasized } from '@notional-finance/mui';
 import { useAppStore } from '@notional-finance/notionable-hooks';
@@ -9,7 +8,7 @@ import { APYBeforePoints, APYBox } from './apy-header';
 interface HeaderProps {
   title: string;
   tokenSymbol?: string;
-  secondaryTitle?: ReactNode;
+  features?: string[];
   isPointsOnly?: boolean;
   apyInfo?: APYData;
 }
@@ -17,7 +16,7 @@ interface HeaderProps {
 // Header Component
 const Header = ({
   title,
-  secondaryTitle,
+  features,
   apyInfo,
   tokenSymbol,
   isPointsOnly,
@@ -40,7 +39,26 @@ const Header = ({
           ) : (
             <H2>{title}</H2>
           )}
-          {secondaryTitle}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: theme.spacing(1),
+            }}
+          >
+            {features?.map((feature) => (
+              <Chip
+                key={feature}
+                label={feature}
+                color="info"
+                size="small"
+                sx={{
+                  backgroundColor: theme.palette.info.light,
+                  color: theme.palette.info.dark,
+                }}
+              />
+            ))}
+          </Box>
         </Column>
       </LeftSection>
       <RightSection>

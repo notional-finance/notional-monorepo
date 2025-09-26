@@ -10,15 +10,13 @@ import {
 
 export const VaultFinalizeWithdraw = observer(() => {
   const { currencyInputRef, setCurrencyInput } = useCurrencyInputRef();
-  useTradeContext('ManageVault');
+  useTradeContext('FinalizeWithdraw');
   const trade = useCurrentTradeContext();
-  // TODO: this is not correct, we need to get the max withdraw from the pending withdraw
   const maxWithdraw = trade?.getVaultMaxWithdraw();
 
   return (
     <TransactionScreen
       actionPrefix="Finalize Withdraw"
-      hasBackButton
       inputs={[
         <DepositInput
           key="withdraw-input"

@@ -83,16 +83,6 @@ export function useVaultPosition(
   );
 }
 
-export function useVaultMaxWithdraw(
-  network: Network | undefined,
-  vaultAddress: string | undefined
-) {
-  const networkAccounts = useNetworkAccounts(network);
-  return networkAccounts && vaultAddress
-    ? networkAccounts.maxVaultWithdraw(vaultAddress)
-    : undefined;
-}
-
 export function useAccountCurrentFactors(network: Network | undefined) {
   return useNetworkAccounts(network)?.currentFactors;
 }

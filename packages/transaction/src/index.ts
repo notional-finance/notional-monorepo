@@ -6,6 +6,7 @@ import {
   calculateStake,
   calculateUnstake,
   calculateWithdraw,
+  calculateFinalizeWithdraw,
 } from './calculate';
 
 export * from './builders';
@@ -20,6 +21,7 @@ export type CalculationFn =
   | typeof calculateStake
   | typeof calculateUnstake
   | typeof calculateWithdraw
+  | typeof calculateFinalizeWithdraw
   | (() => void);
 
 type ParamKeys<F extends CalculationFn> = Parameters<F> extends (infer U)[]
@@ -31,7 +33,8 @@ export type CalculationFnParams =
   | ParamKeys<typeof calculateVaultRoll>
   | ParamKeys<typeof calculateStake>
   | ParamKeys<typeof calculateUnstake>
-  | ParamKeys<typeof calculateWithdraw>;
+  | ParamKeys<typeof calculateWithdraw>
+  | ParamKeys<typeof calculateFinalizeWithdraw>;
 
 export type TransactionBuilder = (
   t: PopulateTransactionInputs

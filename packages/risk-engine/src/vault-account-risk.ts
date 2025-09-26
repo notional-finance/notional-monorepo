@@ -2,6 +2,8 @@ import {
   AccountDefinition,
   TokenBalance,
   TokenDefinition,
+  VaultAdapter,
+  VaultTradeMetadata,
   WithdrawRequest,
 } from '@notional-finance/core-entities';
 import {
@@ -63,7 +65,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return (
       model
         // Include disabled vaults here in case the account still has a position
-        .getAllListedVaults(true)
+        .getAllListedVaults(false)
         ?.map(({ vaultAddress }) => {
           return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
         })
@@ -121,7 +123,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get vaultAdapter() {
-    return this.model.getVaultAdapter(this.vaultAddress);
+    return this.model.getVaultAdapter(this.vaultAddress) as VaultAdapter;
   }
 
   get maxLeverageRatio() {
@@ -146,6 +148,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   get hasFinalizedWithdraw() {
     return (
       !!this.withdrawRequests &&
+      this.withdrawRequests.length > 0 &&
       this.withdrawRequests.every((w) => w.finalized || w.canFinalize === true)
     );
   }
@@ -312,15 +315,30 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     // Returns the total underlying received when redeeming all of the vault shares
     let netUnderlyingForVaultShares: TokenBalance;
     let feesPaid: TokenBalance;
+    let vaultTradeMetadata: VaultTradeMetadata[];
     if (this.hasFinalizedWithdraw) {
-      // TODO: this is not completely accurate if we have not previously finalized the withdraw
-      netUnderlyingForVaultShares = this.totalAssetsRiskAdjusted();
+      if (!this.withdrawRequests) throw Error('Withdraw requests not found');
+      netUnderlyingForVaultShares = this.withdrawRequests.reduce((acc, w) => {
+        if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
+        return acc.add(w.withdrawTokenAmount.toToken(costToRepay.token));
+      }, costToRepay.copy(0));
       feesPaid = TokenBalance.zero(this.denom(this.defaultSymbol));
+      vaultTradeMetadata = this.withdrawRequests.flatMap((w) => {
+        if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
+        return this.vaultAdapter.getWithdrawTradeMetadata(
+          w.withdrawTokenAmount
+        );
+      });
     } else if (this.hasPendingWithdraw) {
       throw Error('Max withdraw not supported for pending withdraws');
     } else {
       ({ netUnderlyingForVaultShares, feesPaid } =
         this.vaultAdapter.getNetVaultSharesCost(this.vaultShares.neg()));
+      const result = this.vaultAdapter.getNetVaultSharesMinted(
+        netUnderlyingForVaultShares,
+        this.vaultShares.token
+      );
+      vaultTradeMetadata = result.vaultTradeMetadata || [];
     }
 
     // Returns the net amount remaining after repaying all the debt
@@ -334,6 +352,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       collateralFee: feesPaid,
       debtFee: costToRepay.copy(0),
       netRealizedDebtBalance: costToRepay,
+      vaultTradeMetadata,
     };
   }
 }

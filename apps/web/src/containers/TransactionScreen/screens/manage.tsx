@@ -31,21 +31,25 @@ export const VaultManageScreen = observer(() => {
 
   const adjustLeverage = [
     {
-      label: <FormattedMessage defaultMessage="Deposit" />,
-      to: `${path}/deposit`,
+      label: <FormattedMessage defaultMessage="Adjust Leverage" />,
+      to: `${path}/adjust-leverage`,
     },
-    {
-      label: <FormattedMessage defaultMessage="Borrow" />,
-      to: `${path}/borrow`,
-    },
-    {
-      label: <FormattedMessage defaultMessage="Repay" />,
-      to: `${path}/repay`,
-    },
-    {
-      label: <FormattedMessage defaultMessage="Sell Assets" />,
-      to: `${path}/sell-assets`,
-    },
+    // {
+    //   label: <FormattedMessage defaultMessage="Deposit" />,
+    //   to: `${path}/deposit`,
+    // },
+    // {
+    //   label: <FormattedMessage defaultMessage="Borrow" />,
+    //   to: `${path}/borrow`,
+    // },
+    // {
+    //   label: <FormattedMessage defaultMessage="Repay" />,
+    //   to: `${path}/repay`,
+    // },
+    // {
+    //   label: <FormattedMessage defaultMessage="Sell Assets" />,
+    //   to: `${path}/sell-assets`,
+    // },
   ];
 
   return (

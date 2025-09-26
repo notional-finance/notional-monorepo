@@ -8,7 +8,6 @@ import {
   VaultDefaultDexParameters,
   VaultTradeMetadata,
 } from '..';
-import { BytesLike } from 'ethers';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 
 export interface StakingVaultParams extends BaseVaultParams {
@@ -17,6 +16,7 @@ export interface StakingVaultParams extends BaseVaultParams {
 
 export class Staking extends VaultAdapter {
   public stakingToken: TokenDefinition;
+  public withdrawToken?: TokenDefinition;
 
   constructor(
     network: Network,
@@ -39,6 +39,9 @@ export class Staking extends VaultAdapter {
     if (vaultConfig.withdrawRequestManagers.length === 1) {
       this.stakingToken = model.getTokenByID(
         vaultConfig.withdrawRequestManagers[0].stakingToken.id
+      );
+      this.withdrawToken = model.getTokenByID(
+        vaultConfig.withdrawRequestManagers[0].withdrawToken.id
       );
     } else {
       this.stakingToken = this.yieldToken;
@@ -132,15 +135,66 @@ export class Staking extends VaultAdapter {
     );
   }
 
-  // TODO: need to switch on if there is a pending withdraw
-  override getRedeemParameters(
+  override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance) {
+    const { withdrawPoolAddress } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    return [
+      this.getVaultTradeMetadata(
+        withdrawTokensBurned,
+        this.borrowedToken,
+        withdrawPoolAddress
+      ),
+    ];
+  }
+
+  override async getWithdrawParameters(
     _account: string,
     _maturity: number,
-    _vaultSharesToRedeem: TokenBalance,
+    vaultSharesToRedeem: TokenBalance,
     _underlyingToRepayDebt: TokenBalance,
-    _slippageFactor?: number
-  ): Promise<BytesLike> {
-    throw new Error('Method not implemented.');
+    slippageFactor?: number
+  ) {
+    const { dexId, withdrawExchangeData: exchangeData } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    const minPurchaseAmount = vaultSharesToRedeem
+      .toToken(this.borrowedToken)
+      .mulInRatePrecision(slippageFactor || 0).n;
+
+    return defaultAbiCoder.encode(
+      ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
+      [
+        {
+          dexId,
+          minPurchaseAmount,
+          exchangeData,
+        },
+      ]
+    );
+  }
+
+  override async getRedeemParameters(
+    _account: string,
+    _maturity: number,
+    vaultSharesToRedeem: TokenBalance,
+    _underlyingToRepayDebt: TokenBalance,
+    slippageFactor?: number
+  ) {
+    const { dexId, redeemExchangeData: exchangeData } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    const minPurchaseAmount = vaultSharesToRedeem
+      .toToken(this.borrowedToken)
+      .mulInRatePrecision(slippageFactor || 0).n;
+
+    return defaultAbiCoder.encode(
+      ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
+      [
+        {
+          minPurchaseAmount,
+          exchangeData,
+          dexId,
+        },
+      ]
+    );
   }
 
   override getVaultAPY(_factors?: {
