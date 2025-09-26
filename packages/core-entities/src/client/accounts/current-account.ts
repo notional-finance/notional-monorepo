@@ -45,7 +45,9 @@ export async function fetchCurrentAccount(
     .getAllTokens()
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
 
-  const vaultAddresses = model.getAllListedVaults().map((v) => v.vaultAddress);
+  const vaultAddresses = model
+    .getAllListedVaults(false)
+    .map((v) => v.vaultAddress);
   const positions = await getAccountPositions(
     network,
     account,
@@ -91,7 +93,8 @@ export async function fetchCurrentAccount(
               .map((k) => results[k] as TokenBalance),
             vaultLastUpdateTime: Object.keys(results).reduce((agg, k) => {
               if (k.includes('lastEntryTime')) {
-                agg.set(k, results[k] as number);
+                const [vaultAddress, _] = k.split('.');
+                agg.set(vaultAddress, results[k] as number);
               }
               return agg;
             }, new Map() as Map<string, number>),
@@ -303,7 +306,10 @@ function getVaultBalanceCalls(
           args: [account, v],
           key: `${v}.balance.vaultDebt`,
           transform: (b: BigNumber) => {
-            return TokenBalance.from(b, model.getVaultDebt(v, lendingRouter));
+            return TokenBalance.from(
+              b,
+              model.getVaultDebt(v, lendingRouter)
+            ).neg();
           },
         },
         ...withdrawManagers.flatMap((w, index) => {

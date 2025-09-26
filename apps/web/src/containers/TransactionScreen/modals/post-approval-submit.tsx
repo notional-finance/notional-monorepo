@@ -36,7 +36,7 @@ export const PostApprovalSubmit = observer(
           )
         }
       >
-        {!!transactionError && onSubmit && (
+        {!transactionError && onSubmit && (
           <Button sx={{ width: '100%' }} size="large" onClick={onSubmit}>
             <FormattedMessage defaultMessage="Submit Transaction" />
           </Button>

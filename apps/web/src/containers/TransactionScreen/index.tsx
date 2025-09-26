@@ -17,6 +17,7 @@ import {
   VaultPendingWithdraw,
   VaultFinalizeWithdraw,
 } from './screens';
+import { VaultAdjustLeverage } from './screens/adjust-leverage';
 
 export const VaultDefaultScreen = observer(() => {
   const selectedNetwork = useSelectedNetwork();
@@ -51,6 +52,7 @@ export const VaultDefaultScreen = observer(() => {
         <Route path="smart-withdraw" element={<VaultSmartWithdraw />} />
         <Route path="pending-withdraw" element={<VaultPendingWithdraw />} />
         <Route path="finalize-withdraw" element={<VaultFinalizeWithdraw />} />
+        <Route path="adjust-leverage" element={<VaultAdjustLeverage />} />
       </Routes>
     </FeatureLoader>
   );

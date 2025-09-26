@@ -65,7 +65,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return (
       model
         // Include disabled vaults here in case the account still has a position
-        .getAllListedVaults(true)
+        .getAllListedVaults(false)
         ?.map(({ vaultAddress }) => {
           return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
         })
@@ -148,6 +148,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   get hasFinalizedWithdraw() {
     return (
       !!this.withdrawRequests &&
+      this.withdrawRequests.length > 0 &&
       this.withdrawRequests.every((w) => w.finalized || w.canFinalize === true)
     );
   }

@@ -399,6 +399,12 @@ export const TradeModel = types
         self.availableDepositTokens.replace([self.deposit]);
         self.availableCollateralTokens.replace([config.vaultToken]);
         self.collateral = config.vaultToken;
+
+        if (self.tradeType === 'AdjustVaultLeverage') {
+          self.depositBalance = TokenBalance.zero(
+            config.depositToken as TokenDefinition
+          );
+        }
       } else if (isNOTEStake(self.tradeType)) {
         // Set deposit token
         self.deposit = self.selectedDepositToken
