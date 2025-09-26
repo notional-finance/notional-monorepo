@@ -72,7 +72,7 @@ export async function ExitVault({
 
   const vaultAddress = collateralBalance.vaultAddress;
   const lendingRouter = debtBalance.token.address;
-  const assetToRepay = debtBalance.neg().toUnderlying();
+  const assetToRepay = debtBalance.toUnderlying();
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
   const vaultData = await vaultAdapter.getRedeemParameters(
     address,
@@ -117,7 +117,7 @@ export async function ExitVaultFinalizeWithdraw({
 
   const vaultAddress = collateralBalance.vaultAddress;
   const lendingRouter = debtBalance.token.address;
-  const assetToRepay = debtBalance.neg().toUnderlying();
+  const assetToRepay = debtBalance.toUnderlying();
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
   const vaultData = await vaultAdapter.getWithdrawParameters(
     address,

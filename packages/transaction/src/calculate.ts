@@ -145,7 +145,9 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   const market = getNetworkModel(
     collateral.network
   ).getLendingMarketFromVaultDebt(debt);
-  market.getInterestRate(market.getUtilization(undefined, results.debtBalance));
+  market.getInterestRate(
+    market.getUtilization(undefined, results.debtBalance.neg())
+  );
 
   return {
     ...results,

@@ -16,7 +16,6 @@ interface LeverageSliderProps {
   cashBorrowed?: TokenBalance;
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
-  isDeleverage?: boolean;
   showMinMax?: boolean;
   allowDeleverage?: boolean;
   onChange?: (leverageRatio: number) => void;
@@ -28,7 +27,6 @@ export const LeverageSlider = observer(
     errorMsg,
     infoMsg,
     cashBorrowed,
-    isDeleverage,
     allowDeleverage,
     showMinMax,
     onChange,
@@ -39,6 +37,7 @@ export const LeverageSlider = observer(
     const minLeverageRatio = trade?.minLeverageRatio;
     const leverageRatio = trade?.leverageRatio;
     const { sliderInputRef, setSliderInput } = useSliderInputRef();
+    const isDeleverage = debtBalance?.isPositive();
 
     const borrowOrRepayAmount = cashBorrowed
       ? cashBorrowed.toUnderlying().abs()
@@ -96,7 +95,7 @@ export const LeverageSlider = observer(
       bottomCaption = (
         <FormattedMessage
           defaultMessage={
-            'Transaction will sell your collateral to repay your borrow.'
+            'Reducing leverage: transaction will sell your collateral to repay your borrow.'
           }
         />
       );

@@ -20,7 +20,8 @@ const useTriggerSubmit = (readyToBuild: boolean) => {
   const trade = useCurrentTradeContext();
   const submitTxn = useSubmitTxn();
   const tradeType = trade?.tradeType;
-  const { setTransactionStatus, clearTransaction } = useWalletStore();
+  const { setTransactionStatus, clearTransaction, userWallet } =
+    useWalletStore();
   const [transactionError, setTransactionError] = useState<
     string | undefined
   >();
@@ -53,8 +54,19 @@ const useTriggerSubmit = (readyToBuild: boolean) => {
     tradeType && populatedTransaction
       ? () => submitTxn(tradeType, populatedTransaction)
       : undefined;
+  const clearTransactionStatus = () => {
+    setPopulatedTransaction(undefined);
+    setTransactionError(undefined);
+    clearTransaction();
+  };
+  const isSignerConnected = userWallet && !userWallet.isReadOnlyAddress;
 
-  return { submitTransaction, transactionError };
+  return {
+    submitTransaction,
+    transactionError,
+    clearTransactionStatus,
+    isSignerConnected,
+  };
 };
 
 enum ApprovalState {
@@ -66,8 +78,6 @@ enum ApprovalState {
 export const SubmitModal = observer(() => {
   const trade = useCurrentTradeContext();
   const lendingRouter = trade?.debt?.address;
-  const { userWallet, clearTransaction } = useWalletStore();
-  const isSignerConnected = userWallet && !userWallet.isReadOnlyAddress;
 
   const { enableToken, tokenApprovalRequired, allowanceIncreaseRequired } =
     useTransactionApprovals(lendingRouter, trade?.depositBalance);
@@ -76,14 +86,19 @@ export const SubmitModal = observer(() => {
   const [initialApprovalState, setInitialApprovalState] =
     useState<ApprovalState | null>(null);
   const isOpen = trade?.confirm ?? false;
-  const onDismiss = () => {
-    setInitialApprovalState(null);
-    clearTransaction();
-    trade?.setConfirm(false);
-  };
-  const { submitTransaction, transactionError } = useTriggerSubmit(
+  const {
+    submitTransaction,
+    transactionError,
+    clearTransactionStatus,
+    isSignerConnected,
+  } = useTriggerSubmit(
     !routerApprovalRequired && !tokenApprovalRequired && isOpen
   );
+  const onDismiss = () => {
+    setInitialApprovalState(null);
+    clearTransactionStatus();
+    trade?.setConfirm(false);
+  };
 
   // This marks the initial state of the approval process so we go back to the correct
   // screen when the pending approval modal completes.

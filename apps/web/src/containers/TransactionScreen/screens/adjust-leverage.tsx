@@ -18,6 +18,7 @@ export const VaultAdjustLeverage = observer(() => {
   return (
     <TransactionScreen
       actionPrefix="Adjust Leverage"
+      hasBackButton
       inputs={[
         <LeverageSlider
           key="leverage-slider"

@@ -73,9 +73,15 @@ export function useTradeErrorMessage() {
   const calculationSuccess = context?.calculationSuccess;
   const inputErrors = context?.inputErrors;
   if (!inputsSatisfied) {
-    return defineMessage({
-      defaultMessage: 'Enter Amount',
-    });
+    if (context?.tradeType === 'AdjustVaultLeverage') {
+      return defineMessage({
+        defaultMessage: 'Adjust Leverage to Continue',
+      });
+    } else {
+      return defineMessage({
+        defaultMessage: 'Enter Amount',
+      });
+    }
   } else if (inputErrors) {
     return defineMessage({
       defaultMessage: 'Insufficient Balance',
