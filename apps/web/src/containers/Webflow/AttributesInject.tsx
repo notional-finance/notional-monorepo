@@ -253,7 +253,7 @@ export const LandingPageInject = () => {
     '6807f00cedf01dce8388f197',
     'landing-page',
     () => {
-      console.log('Landing page inject mounted');
+      // TODO: update tvl and apy data
     }
   );
 
@@ -264,7 +264,7 @@ export const LandingPageInject = () => {
       fs-inject-element="target"
       fs-inject-source="/embed/"
       fs-inject-instance="landing-page"
-      fx-inject-cache={false}
+      fx-inject-cache={'false'}
     />
   );
 };
@@ -302,7 +302,7 @@ export const PointsPageInject = () => {
       fs-inject-element="target"
       fs-inject-source="/embed/points"
       fs-inject-instance="points-page"
-      fs-inject-cache={false}
+      fs-inject-cache={'false'}
     />
   );
 };
@@ -313,26 +313,46 @@ export const VaultsPageInject = () => {
   const onContentLoaded = useCallback(() => {
     // Only set this text data once after the list is rendered so that the sorting engine
     // can read it
-    document.querySelectorAll('.vault-row').forEach((e) => {
-      const vaultAddress = e.getAttribute('n-vault-address')?.toLowerCase();
+    document.querySelectorAll('.vault-row').forEach((vaultRowEl) => {
+      const vaultAddress = vaultRowEl
+        .getAttribute('n-vault-address')
+        ?.toLowerCase();
       const vault = vaults.find(
         (v) => v.vaultConfig.vaultAddress.toLowerCase() === vaultAddress
       );
+      const projectTrigger = vaultRowEl.querySelector('.project-trigger');
+      projectTrigger?.addEventListener('click', (e) => {
+        const projectPopUp =
+          vaultRowEl.parentElement?.querySelector('.project-pop-up');
+        if (projectPopUp) {
+          (projectPopUp as HTMLElement).style.display = 'block';
+        }
+        e.preventDefault();
+      });
+      const vaultPoints = vaultRowEl.querySelector('.vault-points-trigger');
+      vaultPoints?.addEventListener('click', (e) => {
+        const pointPopUp =
+          vaultRowEl.parentElement?.querySelector('.points-pop-up');
+        if (pointPopUp) {
+          (pointPopUp as HTMLElement).style.display = 'block';
+        }
+        e.preventDefault();
+      });
       if (!vault) return;
 
-      const maxApyEl = e.querySelector('.vault-max-apy');
+      const maxApyEl = vaultRowEl.querySelector('.vault-max-apy');
       if (maxApyEl)
         maxApyEl.textContent = formatNumberAsPercentWithUndefined(
           vault?.apy?.totalAPY,
           '-'
         );
-      const liquidityEl = e.querySelector('.vault-liquidity');
+      const liquidityEl = vaultRowEl.querySelector('.vault-liquidity');
       if (liquidityEl)
         liquidityEl.textContent =
           vault?.liquidity
             ?.toFiat(baseCurrency)
             .toDisplayStringWithSymbol(2, true, false) || '-';
-      const tvlEl = e.querySelector('.vault-tvl');
+      const tvlEl = vaultRowEl.querySelector('.vault-tvl');
       if (tvlEl)
         tvlEl.textContent =
           vault?.tvl
@@ -357,7 +377,7 @@ export const VaultsPageInject = () => {
       fs-inject-element="target"
       fs-inject-source="/embed/vaults"
       fs-inject-instance="vaults-page"
-      fs-inject-cache={false}
+      fs-inject-cache={'false'}
     />
   );
 };
