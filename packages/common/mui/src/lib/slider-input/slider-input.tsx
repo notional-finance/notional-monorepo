@@ -1,5 +1,13 @@
 import NumberFormat from 'react-number-format';
-import { Box, Divider, Input, Slider, styled, useTheme } from '@mui/material';
+import {
+  alpha,
+  Box,
+  Divider,
+  Input,
+  Slider,
+  styled,
+  useTheme,
+} from '@mui/material';
 import { InputLabel } from '../input-label/input-label';
 import { useCallback, useRef, useState } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
@@ -9,6 +17,7 @@ import { InfoTooltip } from '../info-tooltip/info-tooltip';
 import React from 'react';
 import CountUp from '../count-up/count-up';
 import { colors } from '@notional-finance/styles';
+import { Mark } from '@mui/base';
 
 export interface SliderInputProps {
   min: number;
@@ -123,6 +132,7 @@ const RangeSlider = ({
   baseValue,
   currentValue,
   onChange,
+  onChangeCommitted,
 }: RangeSliderProps) => {
   const theme = useTheme();
   const marks = Array.from({ length: 10 }, (_, i) => {
@@ -130,8 +140,12 @@ const RangeSlider = ({
     const color =
       disableBelowBaseValue && value < baseValue
         ? colors.darkGrey
-        : value <= currentValue
-        ? theme.palette.secondary.light
+        : // Leverage range
+        baseValue <= value && value <= currentValue
+        ? theme.palette.primary.light
+        : // Deleveraging range
+        currentValue <= value && value <= baseValue
+        ? theme.palette.primary.dark
         : theme.palette.borders.paper;
     return {
       value,
@@ -139,41 +153,105 @@ const RangeSlider = ({
       color,
     };
   });
-  // const railGradients = disableBelowValue
-  //   ? [
-  //       {
-  //         color: [143, 155, 179] as [number, number, number],
-  //         value: min,
-  //       },
-  //       {
-  //         color: [143, 155, 179] as [number, number, number],
-  //         value: Math.floor((disableBelowValue / value) * 100),
-  //       },
-  //       // {
-  //       //   color: [19, 187, 194] as [number, number, number],
-  //       //   value: Math.floor((disableBelowValue / max) * 100) + 1,
-  //       // },
-  //       // {
-  //       //   color: [19, 187, 194] as [number, number, number],
-  //       //   value: 100,
-  //       // },
-  //     ]
-  //   : undefined;
+  const railBackground = disableBelowBaseValue
+    ? `linear-gradient(90deg, ${[
+        `rgb(143,155,179) 0%`,
+        `rgb(143,155,179) ${Math.floor((baseValue / max) * 100)}%`,
+        `rgba(230,234,235, 0.5) ${Math.floor((baseValue / max) * 100)}%`,
+        `rgba(230,234,235, 0.5) 100%`,
+      ].join(',')})`
+    : alpha(theme.palette.borders.default, 0.5);
+  console.log(marks);
 
   return (
-    <Slider
-      min={min}
-      max={max}
-      step={0.1}
-      marks={marks}
-      // The base value is always the first value in the array, and we hide the thumb,
-      // this allows us to get a relative range for the track color
-      value={[baseValue, currentValue]}
-      onChange={(_, value) => onChange(value[1])}
-      onChangeCommitted={(_, value) => onChange(value[1])}
-    />
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        marginBottom: theme.spacing(2),
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+      }}
+    >
+      <StyledSlider
+        sx={{
+          '& .MuiSlider-track': {
+            border: 'none',
+            height: '4px',
+            background:
+              currentValue <= baseValue
+                ? theme.palette.primary.dark
+                : theme.palette.primary.light,
+          },
+          '& .MuiSlider-rail': {
+            opacity: 1,
+            height: '4px',
+            border: 'none',
+            background: railBackground,
+            boxShadow: 'inset 0px 0px 4px -2px #000',
+          },
+          '& .MuiSlider-thumb': {
+            height: theme.spacing(2),
+            width: theme.spacing(2),
+            background: theme.palette.borders.paper,
+            visibility: 'visible',
+            border: `3px solid ${
+              currentValue < baseValue
+                ? theme.palette.primary.dark
+                : theme.palette.primary.light
+            }`,
+            boxShadow: theme.shape.shadowStandard,
+          },
+          [`& .MuiSlider-thumb[data-index="${
+            baseValue < currentValue ? 0 : 1
+          }"]`]: {
+            visibility: 'hidden',
+          },
+          '& .MuiSlider-mark': {
+            height: theme.spacing(1.5),
+            width: theme.spacing(0.5),
+            borderRadius: theme.spacing(0.5),
+          },
+        }}
+        min={min}
+        max={max}
+        step={0.1}
+        marks={marks}
+        // The base value is always the first value in the array, and we hide the thumb,
+        // this allows us to get a relative range for the track color
+        value={[baseValue, currentValue]}
+        onChange={(_, value) =>
+          onChange(value[0] === baseValue ? value[1] : value[0])
+        }
+        onChangeCommitted={(_, value) =>
+          onChangeCommitted(value[0] === baseValue ? value[1] : value[0])
+        }
+      />
+    </Box>
   );
 };
+
+const StyledSlider = styled(Slider)(
+  ({ marks }) => `
+  ${
+    Array.isArray(marks) &&
+    (marks as (Mark & { color: string })[])
+      .map(
+        (mark, i) => `
+      .MuiSlider-mark[data-index='${i}'] {
+        height: 12px;
+        width: 4px;
+        border-radius: 5px;
+        color: ${mark.color};
+        background-color: ${mark.color};
+      }`
+      )
+      .join(' ')
+  }
+  `
+);
 
 export const SliderInput = React.forwardRef<
   SliderInputHandle,
@@ -307,6 +385,7 @@ export const SliderInput = React.forwardRef<
             <RangeSlider
               min={min}
               max={max}
+              disableBelowBaseValue={disableBelowBaseValue}
               baseValue={baseValue}
               currentValue={value}
               onChange={(v) => {
