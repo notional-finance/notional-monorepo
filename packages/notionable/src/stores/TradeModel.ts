@@ -353,6 +353,7 @@ export const TradeModel = types
       if (riskProfile) {
         // If there is an existing risk profile, use the leverage ratio from the risk profile
         self.leverageRatio = riskProfile.leverageRatio();
+        self.defaultLeverageRatio = self.leverageRatio;
       }
     };
 

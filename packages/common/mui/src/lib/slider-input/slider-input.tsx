@@ -1,14 +1,14 @@
 import NumberFormat from 'react-number-format';
-import { Box, Divider, Input, styled, useTheme } from '@mui/material';
+import { Box, Divider, Input, Slider, styled, useTheme } from '@mui/material';
 import { InputLabel } from '../input-label/input-label';
 import { useCallback, useRef, useState } from 'react';
-import SliderBasic from '../slider-basic/slider-basic';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { Caption } from '../typography/typography';
 import ErrorMessage from '../error-message/error-message';
 import { InfoTooltip } from '../info-tooltip/info-tooltip';
 import React from 'react';
 import CountUp from '../count-up/count-up';
+import { colors } from '@notional-finance/styles';
 
 export interface SliderInputProps {
   min: number;
@@ -19,9 +19,10 @@ export interface SliderInputProps {
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   inputLabel?: MessageDescriptor;
+  disableBelowBaseValue?: boolean;
+  baseValue: number | undefined;
   topRightCaption?: JSX.Element;
   bottomCaption?: JSX.Element;
-  showMinMax?: boolean;
   sliderLeverageInfo?: {
     caption: React.ReactNode;
     value: number | React.ReactNode;
@@ -105,6 +106,75 @@ export const useSliderInputRef = () => {
   return { setSliderInput, sliderInputRef };
 };
 
+interface RangeSliderProps {
+  min: number;
+  max: number;
+  disableBelowBaseValue?: boolean;
+  baseValue: number;
+  currentValue: number;
+  onChange: (value: number) => void;
+  onChangeCommitted: (value: number) => void;
+}
+
+const RangeSlider = ({
+  min,
+  max,
+  disableBelowBaseValue,
+  baseValue,
+  currentValue,
+  onChange,
+}: RangeSliderProps) => {
+  const theme = useTheme();
+  const marks = Array.from({ length: 10 }, (_, i) => {
+    const value = ((max - min) * i) / 9 + min;
+    const color =
+      disableBelowBaseValue && value < baseValue
+        ? colors.darkGrey
+        : value <= currentValue
+        ? theme.palette.secondary.light
+        : theme.palette.borders.paper;
+    return {
+      value,
+      label: '',
+      color,
+    };
+  });
+  // const railGradients = disableBelowValue
+  //   ? [
+  //       {
+  //         color: [143, 155, 179] as [number, number, number],
+  //         value: min,
+  //       },
+  //       {
+  //         color: [143, 155, 179] as [number, number, number],
+  //         value: Math.floor((disableBelowValue / value) * 100),
+  //       },
+  //       // {
+  //       //   color: [19, 187, 194] as [number, number, number],
+  //       //   value: Math.floor((disableBelowValue / max) * 100) + 1,
+  //       // },
+  //       // {
+  //       //   color: [19, 187, 194] as [number, number, number],
+  //       //   value: 100,
+  //       // },
+  //     ]
+  //   : undefined;
+
+  return (
+    <Slider
+      min={min}
+      max={max}
+      step={0.1}
+      marks={marks}
+      // The base value is always the first value in the array, and we hide the thumb,
+      // this allows us to get a relative range for the track color
+      value={[baseValue, currentValue]}
+      onChange={(_, value) => onChange(value[1])}
+      onChangeCommitted={(_, value) => onChange(value[1])}
+    />
+  );
+};
+
 export const SliderInput = React.forwardRef<
   SliderInputHandle,
   SliderInputProps
@@ -114,45 +184,47 @@ export const SliderInput = React.forwardRef<
       min,
       max,
       onChangeCommitted,
-      sliderStep = 0.1,
       displayStep = 0.01,
       errorMsg,
       infoMsg,
       inputLabel,
+      disableBelowBaseValue,
+      baseValue = min,
       topRightCaption,
       bottomCaption,
       sliderLeverageInfo,
-      showMinMax,
     },
     ref
   ) => {
     const theme = useTheme();
-    const [value, setValue] = useState(min);
+    const [value, _setValue] = useState(min);
     const [hasFocusOnValueInput, setHasFocusOnValueInput] = useState(false);
     const captionMsg = errorMsg || infoMsg;
     const isError = !!errorMsg;
+    const setValue = useCallback(
+      (input: number) => {
+        if (disableBelowBaseValue && input < baseValue) {
+          _setValue(baseValue);
+          return baseValue;
+        }
+        _setValue(input);
+        return input;
+      },
+      [disableBelowBaseValue, baseValue]
+    );
 
     React.useImperativeHandle(ref, () => ({
       setInputOverride: (input: number, emitChange = true) => {
         // Only execute change commits greater than the step size
         // otherwise rounding errors will trigger changes
         if (Math.abs(input - value) > displayStep) {
-          setValue(input);
-          if (emitChange) onChangeCommitted(input);
+          const newValue = setValue(input);
+          if (emitChange) onChangeCommitted(newValue);
         }
       },
       getInputValue: () => {
         return value;
       },
-    }));
-
-    const marks = Array.from({ length: 10 }, (_, i) => ({
-      value: ((max - min) * i) / 9 + min,
-      label: '',
-      color:
-        ((max - min) * i) / 9 + min <= value
-          ? theme.palette.secondary.light
-          : theme.palette.borders.paper,
     }));
 
     return (
@@ -198,8 +270,8 @@ export const SliderInput = React.forwardRef<
               onBlur={(event) => {
                 try {
                   const value = Number(event.target.value);
-                  setValue(value);
-                  onChangeCommitted(value);
+                  const newValue = setValue(value);
+                  onChangeCommitted(newValue);
                 } catch {
                   // On parsing error nothing changes
                 }
@@ -232,25 +304,21 @@ export const SliderInput = React.forwardRef<
             }}
           />
           <SliderContainer>
-            <SliderBasic
+            <RangeSlider
               min={min}
               max={max}
-              step={sliderStep}
-              value={value}
-              showMinMax={showMinMax}
-              showThumb
-              marks={marks}
-              disabled={false}
+              baseValue={baseValue}
+              currentValue={value}
               onChange={(v) => {
                 setValue(v);
               }}
               onChangeCommitted={(v) => {
-                setValue(v);
+                const newValue = setValue(v);
                 // Use a setTimeout here before triggering onChangeCommit to ensure
                 // that the slider animation completes before we trigger otherwise
                 // it will look "jumpy" to the user
                 setTimeout(() => {
-                  onChangeCommitted(value);
+                  onChangeCommitted(newValue);
                 }, 100);
               }}
             />
