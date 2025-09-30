@@ -101,7 +101,7 @@ const StyledTab = styled(Tab)(
   transition-duration: 0.3s;
   transition-property: all;
   min-height: unset;
-  padding: ${theme.spacing(1)};
+  padding: ${theme.spacing(1, 2)};
 
   svg {
     fill: ${theme.palette.typography.light};

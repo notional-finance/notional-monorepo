@@ -354,10 +354,11 @@ export const VaultsPageInject = () => {
             .toDisplayStringWithSymbol(2, true, false) || '-';
       const tvlEl = vaultRowEl.querySelector('.vault-tvl');
       if (tvlEl)
-        tvlEl.textContent =
+        tvlEl.textContent = `${
           vault?.tvl
             ?.toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(2, true, false) || '-';
+            .toDisplayStringWithSymbol(2, true, false) || '-'
+        } TVL`;
     });
   }, [vaults, baseCurrency]);
 

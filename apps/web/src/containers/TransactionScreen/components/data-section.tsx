@@ -124,8 +124,7 @@ const TotalBoxesContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
+  align-self: center;
   gap: ${theme.spacing(3)};
 
   ${theme.breakpoints.down('sm')} {

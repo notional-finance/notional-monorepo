@@ -90,14 +90,6 @@ export const PerformanceChart = observer(
             yAxisTickFormat="percent"
           />
         ),
-        chartHeaderData: {
-          messageBox:
-            collateral?.tokenType === 'VaultShare' ? (
-              <FormattedMessage
-                defaultMessage={'Incentives are automatically reinvested'}
-              />
-            ) : undefined,
-        },
       },
     ];
 

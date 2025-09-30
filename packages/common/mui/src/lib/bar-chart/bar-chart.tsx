@@ -102,7 +102,7 @@ export const BarChart = ({
           <RechartsBarChart
             barSize={isStackedBar ? 4 : 8}
             data={barChartData}
-            margin={{ top: 30, right: 10, left: 10, bottom: 0 }}
+            margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
           >
             <CartesianGrid
               vertical={false}
@@ -149,6 +149,12 @@ export const BarChart = ({
                 fill: theme.palette.typography.light,
                 fontSize: '12px',
               }}
+              padding={{ top: 8 }}
+              tickCount={5}
+              tickMargin={20}
+              width={60}
+              scale={'linear'}
+              tickSize={0}
               tickFormatter={(v: number) => yAxisTickHandler(v)}
             />
             <Tooltip

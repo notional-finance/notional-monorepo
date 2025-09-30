@@ -9,7 +9,7 @@ import { SubmitModal } from '../modals/submit-modal';
 import { ArrowIcon } from '@notional-finance/icons';
 import { LabelValue } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
-import { MessageDescriptor } from 'react-intl';
+import { FormattedMessage, MessageDescriptor } from 'react-intl';
 
 interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
@@ -58,10 +58,13 @@ const InputContainer = observer(
                     transform: 'rotate(-90deg)',
                     fontSize: theme.spacing(2),
                     marginRight: theme.spacing(1),
-                    fill: theme.palette.text.primary,
+                    fill: theme.palette.typography.main,
+                    color: theme.palette.typography.main,
                   }}
                 />
-                <LabelValue fontWeight="regular">Manage</LabelValue>
+                <LabelValue fontWeight="regular">
+                  <FormattedMessage defaultMessage="Manage" />
+                </LabelValue>
               </Box>
             </Link>
           )}

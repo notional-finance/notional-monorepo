@@ -58,7 +58,14 @@ export const MultiDisplayChart = observer(
 
     return (
       <TradeSummaryBox
-        sx={{ width: '100%', padding: theme.spacing(3), position: 'relative' }}
+        sx={{
+          width: '100%',
+          padding: theme.spacing(3),
+          position: 'relative',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
       >
         {chartComponents.length > 1 ? (
           <>
