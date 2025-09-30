@@ -18,11 +18,13 @@ import React from 'react';
 import CountUp from '../count-up/count-up';
 import { colors } from '@notional-finance/styles';
 import { Mark } from '@mui/base';
+import SliderBasic from '../slider-basic/slider-basic';
 
 export interface SliderInputProps {
   min: number;
   max: number;
   onChangeCommitted: (value: number) => void;
+  isRangeSlider?: boolean;
   sliderStep?: number;
   displayStep?: number;
   errorMsg?: MessageDescriptor;
@@ -45,6 +47,8 @@ export interface SliderInputHandle {
   setInputOverride: (input: number, emitChange?: boolean) => void;
   getInputValue: () => number;
 }
+
+export const SLIDER_STEP_SIZE = 0.1;
 
 const Container = styled(Box)(
   ({ theme }) => `
@@ -161,7 +165,6 @@ const RangeSlider = ({
         `rgba(230,234,235, 0.5) 100%`,
       ].join(',')})`
     : alpha(theme.palette.borders.default, 0.5);
-  console.log(marks);
 
   return (
     <Box
@@ -217,7 +220,7 @@ const RangeSlider = ({
         }}
         min={min}
         max={max}
-        step={0.1}
+        step={SLIDER_STEP_SIZE}
         marks={marks}
         // The base value is always the first value in the array, and we hide the thumb,
         // this allows us to get a relative range for the track color
@@ -264,6 +267,7 @@ export const SliderInput = React.forwardRef<
       onChangeCommitted,
       displayStep = 0.01,
       errorMsg,
+      isRangeSlider,
       infoMsg,
       inputLabel,
       disableBelowBaseValue,
@@ -304,6 +308,20 @@ export const SliderInput = React.forwardRef<
         return value;
       },
     }));
+    const onSliderChange = (v: number) => {
+      setValue(v);
+      if (!hasFocusOnValueInput) setHasFocusOnValueInput(true);
+    };
+    const onSliderChangeCommitted = (v: number) => {
+      const newValue = setValue(v);
+      setHasFocusOnValueInput(false);
+      // Use a setTimeout here before triggering onChangeCommit to ensure
+      // that the slider animation completes before we trigger otherwise
+      // it will look "jumpy" to the user
+      setTimeout(() => {
+        onChangeCommitted(newValue);
+      }, 100);
+    };
 
     return (
       <Box sx={{ width: '100%' }}>
@@ -382,25 +400,37 @@ export const SliderInput = React.forwardRef<
             }}
           />
           <SliderContainer>
-            <RangeSlider
-              min={min}
-              max={max}
-              disableBelowBaseValue={disableBelowBaseValue}
-              baseValue={baseValue}
-              currentValue={value}
-              onChange={(v) => {
-                setValue(v);
-              }}
-              onChangeCommitted={(v) => {
-                const newValue = setValue(v);
-                // Use a setTimeout here before triggering onChangeCommit to ensure
-                // that the slider animation completes before we trigger otherwise
-                // it will look "jumpy" to the user
-                setTimeout(() => {
-                  onChangeCommitted(newValue);
-                }, 100);
-              }}
-            />
+            {isRangeSlider ? (
+              <RangeSlider
+                min={min}
+                max={max}
+                disableBelowBaseValue={disableBelowBaseValue}
+                baseValue={baseValue}
+                currentValue={value}
+                onChange={onSliderChange}
+                onChangeCommitted={onSliderChangeCommitted}
+              />
+            ) : (
+              <SliderBasic
+                min={min}
+                max={max}
+                step={SLIDER_STEP_SIZE}
+                value={value}
+                marks={Array.from({ length: 10 }, (_, i) => ({
+                  value: ((max - min) * i) / 9 + min,
+                  label: '',
+                  color:
+                    ((max - min) * i) / 9 + min <= value
+                      ? theme.palette.secondary.light
+                      : theme.palette.borders.paper,
+                }))}
+                showMinMax={false}
+                showThumb
+                disabled={false}
+                onChange={onSliderChange}
+                onChangeCommitted={onSliderChangeCommitted}
+              />
+            )}
           </SliderContainer>
         </Container>
         {sliderLeverageInfo && (
