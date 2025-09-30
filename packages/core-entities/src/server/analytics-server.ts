@@ -378,7 +378,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       await this.fetchGraphDocument<HistoricalOracleValuesQuery>(
         network,
         'HistoricalOracleValuesDocument',
-        { minTimestamp },
+        { minTimestamp: minTimestamp.toString() },
         'oracles'
       );
 
