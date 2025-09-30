@@ -70,7 +70,9 @@ export const whitelistedVaults = (
     case Network.all:
       return [];
     case Network.mainnet:
-      return [vaults.mainnet.Staking_sUSDe].map(toLowercase);
+      return [vaults.mainnet.Staking_sUSDe, vaults.mainnet.Staking_weETH].map(
+        toLowercase
+      );
     case Network.arbitrum:
       return [].map(toLowercase);
   }

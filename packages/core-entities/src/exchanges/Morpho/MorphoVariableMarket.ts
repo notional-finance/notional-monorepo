@@ -149,6 +149,10 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
 
   public abstract getInterestRate(utilization: BigNumber): number;
 
+  public getLiquidity() {
+    return this.poolParams.marketState.totalSupplyAssets;
+  }
+
   public override calculateTokenTrade(
     _tokensIn: TokenBalance,
     _tokenIndexOut: number,

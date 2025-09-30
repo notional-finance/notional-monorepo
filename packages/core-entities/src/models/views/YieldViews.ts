@@ -94,8 +94,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getLiquidity = (token: TokenDefinition) => {
-    // TODO: this refers to the total liquidity available to borrow
-    return getTVL(token);
+    const market = getLendingMarketFromVaultDebt(token);
+    return market.getLiquidity();
   };
 
   const getSpotAPY = (tokenId: string) => {
@@ -195,7 +195,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
               maxLeverageRatio
             ),
             tvl: getTVL(share as TokenDefinition),
-            liquidity: getLiquidity(share as TokenDefinition),
+            liquidity: getLiquidity(debt as TokenDefinition),
             debtToken: debt,
             vaultShare: share,
           };

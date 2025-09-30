@@ -55,7 +55,8 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
           vaultAddress,
           params as StakingVaultParams,
           primaryToken,
-          yieldToken
+          yieldToken,
+          getTimeSeries(v.vaultAddress, ChartType.APY)?.data
         );
       default:
         throw Error(`Unknown vault type: ${v.strategyType}`);
