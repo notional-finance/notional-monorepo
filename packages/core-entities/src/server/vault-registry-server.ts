@@ -33,7 +33,7 @@ const PendleMarketABI = new ethers.utils.Interface([
 const CurveConvex2Token = new ethers.utils.Interface([
   'function CURVE_POOL_TOKEN() view external returns (address)',
   'function PRIMARY_INDEX() view external returns (uint8)',
-  'function maxPoolShare() view external returns (uint256)',
+  'function MAX_POOL_SHARE() view external returns (uint256)',
   'function totalSupply() view external returns (uint256)',
   // TODO: get this from the abi
   'function getRewardSettings() view external returns (uint256[])',
@@ -206,7 +206,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
       {
         stage: 0,
         target: vaultContract,
-        method: 'maxPoolShare',
+        method: 'MAX_POOL_SHARE',
         key: `${vaultAddress}.maxPoolShares`,
       },
       {

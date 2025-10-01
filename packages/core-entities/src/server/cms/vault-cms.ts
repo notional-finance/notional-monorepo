@@ -193,12 +193,12 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
         (feature) => feature.name
       ),
       launchedOn: new Date(v.fieldData['launched-on']).getTime(),
-      strategyType: v.fieldData['strategy-type-2'].name,
+      strategyClass: v.fieldData['strategy-type-2'].name,
       vaultDescription: v.fieldData['vault-description'] || '',
       projects: v.fieldData['projects'].map((p) => ({
         id: p.slug,
         name: p.name,
-        logoURL: p['project-logo'].url,
+        logoURL: p['project-logo']?.url,
         description: '',
       })),
       rewards:

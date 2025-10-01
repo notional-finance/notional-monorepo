@@ -206,6 +206,7 @@ nwbtc
 nwst
 nwsteth
 ocrv
+OETH
 Offchain
 offpeg
 ohmv

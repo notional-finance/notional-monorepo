@@ -90,7 +90,7 @@ export interface VaultCMSData {
   depositToken: string;
   vaultFeatures: string[];
   launchedOn: number;
-  strategyType: string;
+  strategyClass: string;
   vaultDescription: string;
   projects: ProjectDefinition[];
   rewards: RewardDefinition[];

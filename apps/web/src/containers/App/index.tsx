@@ -43,6 +43,42 @@ if (
   });
 }
 
+let IS_ATTRIBUTES_CACHE_CLEARED = false;
+const ATTRIBUTES_CACHE_DATABASE_NAME = '6807f00bedf01dce8388f0e2';
+
+export function clearAttributesCache() {
+  if (IS_ATTRIBUTES_CACHE_CLEARED) {
+    return Promise.resolve();
+  }
+
+  IS_ATTRIBUTES_CACHE_CLEARED = true;
+
+  return new Promise<void>((resolve, reject) => {
+    const deleteRequest = indexedDB.deleteDatabase(
+      ATTRIBUTES_CACHE_DATABASE_NAME
+    );
+
+    deleteRequest.onsuccess = () => {
+      resolve();
+    };
+
+    deleteRequest.onerror = () => {
+      console.error(
+        `Error deleting database '${ATTRIBUTES_CACHE_DATABASE_NAME}':`,
+        deleteRequest.error
+      );
+      reject(deleteRequest.error);
+    };
+
+    deleteRequest.onblocked = () => {
+      console.warn(
+        `Database '${ATTRIBUTES_CACHE_DATABASE_NAME}' deletion blocked`
+      );
+      reject(new Error('Database deletion blocked'));
+    };
+  });
+}
+
 // eslint-disable-next-line @cspell/spellchecker
 const growthbook = new GrowthBook({
   apiHost: 'https://cdn.growthbook.io',
@@ -59,6 +95,7 @@ const growthbook = new GrowthBook({
 export const AppShell = () => {
   useEffect(() => {
     // Load features asynchronously when the app renders
+    clearAttributesCache();
     growthbook.init({ streaming: true });
   }, []);
 

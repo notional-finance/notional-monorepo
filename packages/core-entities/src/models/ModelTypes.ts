@@ -168,7 +168,7 @@ const ProjectModel = types.model('ProjectModel', {
   id: types.identifier,
   name: types.string,
   description: types.string,
-  logoURL: types.string,
+  logoURL: types.maybe(types.string),
 });
 
 const RewardModel = types.model('RewardModel', {
@@ -183,7 +183,7 @@ export const VaultModel = types.model('VaultModel', {
   network: NotionalTypes.Network,
   vaultFeatures: types.array(types.string),
   launchedOn: types.Date,
-  strategyType: types.string,
+  strategyClass: types.string,
   vaultDescription: types.string,
   rewards: types.optional(types.array(RewardModel), []),
   projects: types.optional(types.array(ProjectModel), []),
