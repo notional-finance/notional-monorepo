@@ -50,7 +50,7 @@ export function calculateVaultHoldings(
     }
     const denom = v.denom(v.defaultSymbol);
     const zeroDenom = TokenBalance.zero(denom);
-    const totalEarnings = (assetPnL?.totalProfitAndLoss || zeroDenom).sub(
+    const totalEarnings = (assetPnL?.totalProfitAndLoss || zeroDenom).add(
       debtPnL?.totalProfitAndLoss || zeroDenom
     );
     const vaultYield = v.hasPendingWithdraw
@@ -59,11 +59,10 @@ export function calculateVaultHoldings(
     const debtAPY = model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
     const assetInterestAccrual = assetPnL?.totalInterestAccrual || zeroDenom;
 
-    const debtInterestAccrual =
-      debtPnL?.totalInterestAccrual.neg() || zeroDenom;
+    const debtInterestAccrual = debtPnL?.totalInterestAccrual || zeroDenom;
 
     const assetEarnings = assetPnL?.totalProfitAndLoss || zeroDenom;
-    const debtEarnings = debtPnL?.totalProfitAndLoss.neg() || zeroDenom;
+    const debtEarnings = debtPnL?.totalProfitAndLoss || zeroDenom;
     const assetFeesPaid = assetPnL?.totalVaultFees || zeroDenom;
     const debtFeesPaid = zeroDenom;
     const assetMarketPnL = assetEarnings?.sub(
@@ -82,7 +81,7 @@ export function calculateVaultHoldings(
     const totalInterestAccrual = assetInterestAccrual.add(debtInterestAccrual);
 
     const totalILAndFees = assetFeesPaid.add(debtFeesPaid);
-    const debtMarketPnL = debtEarnings?.add(debtInterestAccrual || zeroDenom);
+    const debtMarketPnL = debtEarnings?.sub(debtInterestAccrual || zeroDenom);
 
     const marketProfitLoss = totalEarnings.sub(totalInterestAccrual);
     const strategyType = v.vaultConfig.strategyType;

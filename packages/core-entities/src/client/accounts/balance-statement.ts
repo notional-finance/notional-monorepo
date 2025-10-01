@@ -162,9 +162,10 @@ export function parseCurrentBalanceStatement(
   let totalInterestAccrual: TokenBalance = currentProfitAndLoss;
 
   if (token.tokenType === 'VaultShare') {
-    const a = model.getInterestAccrualRate(token);
     // This interest accumulator is always in 18 decimals
-    const currentInterestAccumulator = a?.rate;
+    const currentInterestAccumulator = model
+      .getVaultAdapter(token.id)
+      .getInterestAccrualRate();
     if (currentInterestAccumulator) {
       const additionalAccruedInterest = TokenBalance.unit(underlying)
         .scale(

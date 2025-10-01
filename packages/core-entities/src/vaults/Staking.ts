@@ -15,6 +15,7 @@ import {
   VaultTradeMetadata,
 } from '..';
 import { defaultAbiCoder } from 'ethers/lib/utils';
+import { BigNumber } from 'ethers';
 
 export interface StakingVaultParams extends BaseVaultParams {
   yieldToken: string;
@@ -224,6 +225,14 @@ export class Staking extends VaultAdapter {
 
   override getLiquidationPriceTokens(): TokenDefinition[] {
     return [this.stakingToken];
+  }
+
+  override getInterestAccrualRate(): BigNumber {
+    const model = getNetworkModel(this.network);
+    const oracle = model.oracles.get(
+      `${this.stakingToken.id}:${this.yieldToken.id}:WithdrawTokenExchangeRate`
+    );
+    return oracle?.latestRate.rate || BigNumber.from(0);
   }
 
   override getSimulatedAPY(
