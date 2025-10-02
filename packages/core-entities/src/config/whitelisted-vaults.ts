@@ -57,6 +57,7 @@ export const whitelistedVaults = (
         vaults.mainnet.Staking_sUSDe,
         vaults.mainnet.Staking_weETH,
         vaults.mainnet.Pendle_sUSDe_27NOV2025,
+        vaults.mainnet.Convex_OETH_WETH,
       ].map(toLowercase);
     case Network.arbitrum:
       return [].map(toLowercase);
@@ -129,14 +130,3 @@ export const VAULT_TYPES = [
 ] as const;
 
 export type VaultType = (typeof VAULT_TYPES)[number];
-
-export function getVaultType(
-  vaultAddress: string,
-  network: Network
-): VaultType {
-  if (PendlePTVaults[network].includes(vaultAddress.toLowerCase())) {
-    return 'PendlePT';
-  } else {
-    return 'Staking';
-  }
-}

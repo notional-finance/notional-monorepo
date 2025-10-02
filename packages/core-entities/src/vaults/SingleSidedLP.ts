@@ -4,14 +4,15 @@ import {
   Network,
   getNowSeconds,
   SECONDS_IN_DAY,
+  SCALAR_PRECISION,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
 import { TokenBalance } from '../token-balance';
-import { defaultAbiCoder, BytesLike } from 'ethers/lib/utils';
+import { defaultAbiCoder, BytesLike, formatUnits } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
-import { getVaultType, PointsMultipliers } from '../config/whitelisted-vaults';
+import { PointsMultipliers } from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
@@ -60,8 +61,6 @@ export interface DepositParams {
 }
 
 export class SingleSidedLP extends VaultAdapter {
-  POOL_CAPACITY_PRECISION = 10_000;
-
   // We should make a method that just returns all of these...
   public pool: BaseLiquidityPool<unknown>; // hardcoded probably?
   public singleSidedTokenIndex: number;
@@ -149,7 +148,7 @@ export class SingleSidedLP extends VaultAdapter {
       );
       const maxLPTokens = this.totalPoolSupply.scale(
         this.maxPoolShares,
-        this.POOL_CAPACITY_PRECISION
+        SCALAR_PRECISION
       );
       const remainingLPTokens = maxLPTokens.sub(this.totalLPTokens);
 
@@ -171,25 +170,18 @@ export class SingleSidedLP extends VaultAdapter {
     return this.totalPoolSupply
       ? this.totalLPTokens
           .add(additionalLPTokens)
-          .ratioWith(this.totalPoolSupply)
-          .toNumber()
-      : 0;
+          .scale(this.totalPoolSupply, SCALAR_PRECISION)
+          .scaleTo(18)
+      : BigNumber.from(0);
   }
 
   public getMaxPoolShare() {
-    return (
-      (this.maxPoolShares.toNumber() * RATE_PRECISION) /
-      this.POOL_CAPACITY_PRECISION
-    );
+    return parseFloat(formatUnits(this.maxPoolShares, 18));
   }
 
   public isOverMaxPoolShare(vaultShares?: TokenBalance) {
     const poolShare = this.getPoolShare(vaultShares);
-    return (
-      poolShare >
-      (this.maxPoolShares.toNumber() * RATE_PRECISION) /
-        this.POOL_CAPACITY_PRECISION
-    );
+    return poolShare.gt(this.maxPoolShares);
   }
 
   private getVaultSharesToLPTokens(vaultShares: TokenBalance) {
@@ -242,18 +234,12 @@ export class SingleSidedLP extends VaultAdapter {
     const last7Days = this.apyHistory?.data?.filter(
       ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
     );
-    const vaultType = getVaultType(this.vaultAddress, this.network);
 
     const incentiveAPYs =
       last7Days
         ?.map((r) =>
           Object.keys(r)
-            .filter((r) =>
-              // Direct claim vaults have a reward APY based on incentives
-              vaultType === 'CurveConvex2Token'
-                ? r.toLowerCase().includes('incentive')
-                : false
-            )
+            .filter((r) => r.toLowerCase().includes('incentive'))
             .reduce((t, key) => t + (r[key] || 0), 0)
         )
         .filter((apy) => apy !== null) || ([] as number[]);

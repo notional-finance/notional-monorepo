@@ -1055,7 +1055,7 @@ export const TradeModel = types
           ).getRemainingPoolCapacity();
           maxPoolShare = (vaultAdapter as SingleSidedLP).maxPoolShares
             ? formatNumberAsPercent(
-                (vaultAdapter as SingleSidedLP).maxPoolShares.toNumber() / 100,
+                (vaultAdapter as SingleSidedLP).getMaxPoolShare(),
                 0
               )
             : undefined;

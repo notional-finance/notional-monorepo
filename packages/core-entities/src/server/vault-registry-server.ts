@@ -212,6 +212,13 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         key: `${vaultAddress}.maxPoolShares`,
       },
       {
+        stage: 0,
+        target: vaultContract,
+        method: 'totalSupply',
+        key: `${vaultAddress}.totalVaultShares`,
+        transform: (r: BigNumber) => r,
+      },
+      {
         stage: 1,
         target: (r: Record<string, unknown>) =>
           new Contract(
@@ -242,7 +249,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         transform: (r: BigNumber, prevResults: Record<string, unknown>) =>
           TokenBalance.toJSON(
             r,
-            prevResults[`${vaultAddress}.yieldToken`] as string,
+            prevResults[`${vaultAddress}.pool`] as string,
             network
           ),
       },

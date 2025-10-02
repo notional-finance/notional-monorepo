@@ -285,6 +285,7 @@ const SingleSidedLPVaultModel = BaseVaultDefinitionModel.props({
   pool: types.string,
   singleSidedTokenIndex: types.number,
   totalLPTokens: NotionalTypes.TokenBalance,
+  totalVaultShares: NotionalTypes.BigNumber,
   maxPoolShares: NotionalTypes.BigNumber,
   totalPoolSupply: types.maybe(NotionalTypes.TokenBalance),
   rewardState: types.maybe(
