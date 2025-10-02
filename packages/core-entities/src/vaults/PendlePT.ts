@@ -26,6 +26,29 @@ export interface PendlePTVaultParams extends BaseVaultParams {
   tokenOutSy: string;
 }
 
+const APPROX_PARAMS_TYPE =
+  'tuple(uint256 guessMin, uint256 guessMax, uint256 guessOffchain, uint256 maxIteration, uint256 eps)';
+const ORDER_TYPE =
+  'tuple(uint256 salt, uint256 expiry, uint256 nonce, uint8 orderType, address token, address YT, address maker, address receiver, uint256 makingAmount, uint256 lnImpliedRate, uint256 failSafeRate, bytes permit)';
+const FILL_ORDER_PARAMS_TYPE = `tuple(${ORDER_TYPE} order, bytes signature, uint256 makingAmount)`;
+const LIMIT_ORDER_TYPE = `tuple(address limitRouter, uint256 epsSkipMarket, ${FILL_ORDER_PARAMS_TYPE}[] normalFills, ${FILL_ORDER_PARAMS_TYPE}[] flashFills, bytes optData)`;
+const PENDLE_DATA_TYPE = `tuple(uint256 minPtOut, ${APPROX_PARAMS_TYPE} approxParams, ${LIMIT_ORDER_TYPE} limitOrderData)`;
+
+interface OrderType {
+  salt: string;
+  expiry: string;
+  nonce: string;
+  orderType: string;
+  token: string;
+  YT: string;
+  maker: string;
+  receiver: string;
+  makingAmount: string;
+  lnImpliedRate: string;
+  failSafeRate: string;
+  permit: string;
+}
+
 export class PendlePT extends VaultAdapter {
   protected apiUrl = 'https://api-v2.pendle.finance/core/v1/sdk';
   public tokenInSy: string;
@@ -399,7 +422,8 @@ export class PendlePT extends VaultAdapter {
       .convertAssetToSy(totalDeposit)
       .mulInRatePrecision(RATE_PRECISION - slippageFactor);
     let minPtOut: BigNumber;
-    let approxParams: BigNumber[];
+    let approxParams: object;
+    let limitOrderData: object;
 
     // Floor these values at zero if they are too small can happen
     // during rolling the vault position and the Pendle API will fail
@@ -408,14 +432,21 @@ export class PendlePT extends VaultAdapter {
       minPtOut = BigNumber.from(0);
       minSYPurchaseAmount = minSYPurchaseAmount.copy(0);
 
-      approxParams = [
-        BigNumber.from(0),
+      approxParams = {
+        guessMin: BigNumber.from(0),
         // Increase the max guess to ensure that the search will converge
-        BigNumber.from(SCALAR_PRECISION).mul(10),
-        BigNumber.from(0),
-        BigNumber.from(256),
-        BigNumber.from(0.0001e18),
-      ];
+        guessMax: BigNumber.from(SCALAR_PRECISION).mul(10),
+        guessOffchain: BigNumber.from(0),
+        maxIteration: BigNumber.from(256),
+        eps: BigNumber.from(0.0001e18),
+      };
+      limitOrderData = {
+        limitRouter: '0x0000000000000000000000000000000000000000',
+        epsSkipMarket: BigNumber.from(0),
+        normalFills: [],
+        flashFills: [],
+        optData: '0x',
+      };
     } else {
       const response = await fetch(
         `${this.apiUrl}/${NetworkId[this.network]}/markets/${
@@ -437,7 +468,23 @@ export class PendlePT extends VaultAdapter {
             guessMin: string;
             guessOffchain: string;
             maxIteration: string;
-          }
+          }, // approxParams
+          object, // swapData
+          {
+            epsSkipMarket: string;
+            flashFills: {
+              order: OrderType;
+              signature: string;
+              makingAmount: string;
+            }[];
+            normalFills: {
+              order: OrderType;
+              signature: string;
+              makingAmount: string;
+            }[];
+            optData: string;
+            limitRouter: string;
+          } // limitOrderData
         ];
         data: {
           amountOut: string;
@@ -445,20 +492,20 @@ export class PendlePT extends VaultAdapter {
         };
       } = await response.json();
       minPtOut = BigNumber.from(data.contractCallParams[2] as string);
-      approxParams = [
-        BigNumber.from(data.contractCallParams[3].guessMin),
-        BigNumber.from(data.contractCallParams[3].guessMax),
-        BigNumber.from(data.contractCallParams[3].guessOffchain),
-        BigNumber.from(data.contractCallParams[3].maxIteration),
-        BigNumber.from(data.contractCallParams[3].eps),
-      ];
+      approxParams = data.contractCallParams[3];
+      limitOrderData = data.contractCallParams[5];
     }
+
+    const pendleData = defaultAbiCoder.encode(
+      [PENDLE_DATA_TYPE],
+      [{ minPtOut, approxParams, limitOrderData }]
+    );
 
     return defaultAbiCoder.encode(
       [
-        'tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, uint256 minPtOut, tuple(uint256 guessMin, uint256 guessMax, uint256 guessOffchain, uint256 maxIteration, uint256 eps)) r',
+        'tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes pendleData) r',
       ],
-      [[dexId, minSYPurchaseAmount.n, exchangeData, minPtOut, approxParams]]
+      [[dexId, minSYPurchaseAmount.n, exchangeData, pendleData]]
     );
   }
 
@@ -479,12 +526,17 @@ export class PendlePT extends VaultAdapter {
     _underlyingToRepayDebt: TokenBalance,
     slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
+    let dexId: number;
+    let exchangeData: BytesLike;
+    let minPurchaseAmount: BigNumber;
     if (this.tokenOutSy === this.borrowedToken.id) {
-      return '0x';
+      dexId = 0;
+      exchangeData = '0x';
+      minPurchaseAmount = BigNumber.from(0);
     } else {
       // In the other case, we need to determine the default exit trade.
-      const { dexId, redeemExchangeData: exchangeData } =
-        VaultDefaultDexParameters[this.network][this.vaultAddress];
+      ({ dexId, redeemExchangeData: exchangeData } =
+        VaultDefaultDexParameters[this.network][this.vaultAddress]);
 
       const minTradedPurchaseAmount = this.getNetVaultSharesCost(
         vaultSharesToRedeem.neg()
@@ -496,30 +548,87 @@ export class PendlePT extends VaultAdapter {
         .toUnderlying()
         .mulInRatePrecision(RATE_PRECISION - slippageFactor);
 
-      console.log(
-        'minTradedPurchaseAmount',
-        minTradedPurchaseAmount.toExactString()
-      );
-      console.log(
-        'minOraclePurchaseAmount',
-        minOraclePurchaseAmount.toExactString()
-      );
-
-      return defaultAbiCoder.encode(
-        ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData) r'],
-        [
-          {
-            dexId,
-            // Choose the minimum of the two amounts to ensure that the trade is successful
-            minPurchaseAmount: minTradedPurchaseAmount.lt(
-              minOraclePurchaseAmount
-            )
-              ? minTradedPurchaseAmount.n
-              : minOraclePurchaseAmount.n,
-            exchangeData,
-          },
-        ]
-      );
+      // Choose the minimum of the two amounts to ensure that the trade is successful
+      minPurchaseAmount = minTradedPurchaseAmount.lt(minOraclePurchaseAmount)
+        ? minTradedPurchaseAmount.n
+        : minOraclePurchaseAmount.n;
     }
+
+    const response = await fetch(
+      `${this.apiUrl}/${NetworkId[this.network]}/markets/${
+        this.marketAddress
+      }/swap?receiver=${this.vaultAddress}&slippage=${
+        slippageFactor / RATE_PRECISION
+      }&enableAggregator=false&tokenIn=${
+        this.market.ptToken.address
+      }&tokenOut=${this.tokenOutSy}&amountIn=${vaultSharesToRedeem
+        .toToken(this.market.ptToken)
+        .n.toString()}`
+    );
+
+    let pendleData: BytesLike = '0x';
+    try {
+      const data: {
+        contractCallParams: [
+          string,
+          string,
+          string,
+          {
+            eps: string;
+            guessMax: string;
+            guessMin: string;
+            guessOffchain: string;
+            maxIteration: string;
+          }, // approxParams
+          object, // swapData
+          {
+            epsSkipMarket: string;
+            flashFills: {
+              order: OrderType;
+              signature: string;
+              makingAmount: string;
+            }[];
+            normalFills: {
+              order: OrderType;
+              signature: string;
+              makingAmount: string;
+            }[];
+            optData: string;
+            limitRouter: string;
+          } // limitOrderData
+        ];
+        data: {
+          amountOut: string;
+          priceImpact: number;
+        };
+      } = await response.json();
+
+      if (
+        data.contractCallParams[5].normalFills.length > 0 ||
+        data.contractCallParams[5].flashFills.length > 0
+      ) {
+        // Only encode the limit order data if there are normal or flash fills
+        pendleData = defaultAbiCoder.encode(
+          [LIMIT_ORDER_TYPE],
+          [data.contractCallParams[5]]
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    return defaultAbiCoder.encode(
+      [
+        'tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes pendleData) r',
+      ],
+      [
+        {
+          dexId,
+          minPurchaseAmount,
+          exchangeData,
+          pendleData,
+        },
+      ]
+    );
   }
 }
