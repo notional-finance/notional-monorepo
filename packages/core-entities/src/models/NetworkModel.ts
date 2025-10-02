@@ -110,8 +110,6 @@ export const NetworkServerModel = NetworkModelWithViews.named(
     const oracles = yield oracleRegistry.fetchForModel(self.network);
 
     self.exchanges.replace(exchanges);
-
-    // TODO: add note oracle definition inside the server
     self.oracles.replace(oracles);
     self.vaults.replace(vaults);
 

@@ -211,6 +211,8 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
         )
       : this.poolParams.marketState.totalBorrowAssets;
 
+    if (totalSupplyAssets.isZero()) return BigNumber.from(0);
+
     // Utilization is in 1e18 precision
     const utilization = totalBorrowAssets
       .scaleTo(SCALAR_DECIMALS)
