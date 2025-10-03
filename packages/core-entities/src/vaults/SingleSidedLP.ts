@@ -5,6 +5,7 @@ import {
   getNowSeconds,
   SECONDS_IN_DAY,
   SCALAR_PRECISION,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
@@ -170,7 +171,7 @@ export class SingleSidedLP extends VaultAdapter {
     return this.totalPoolSupply
       ? this.totalLPTokens
           .add(additionalLPTokens)
-          .scale(this.totalPoolSupply, SCALAR_PRECISION)
+          .scale(SCALAR_PRECISION, this.totalPoolSupply)
           .scaleTo(18)
       : BigNumber.from(0);
   }
@@ -200,7 +201,10 @@ export class SingleSidedLP extends VaultAdapter {
     vaultShare: TokenDefinition
   ) {
     if (this.totalLPTokens.isZero())
-      return TokenBalance.from(lpTokens.scaleTo(8), vaultShare);
+      return TokenBalance.from(
+        lpTokens.scaleTo(vaultShare.decimals),
+        vaultShare
+      );
 
     return TokenBalance.from(
       this.totalVaultShares.mul(lpTokens.n).div(this.totalLPTokens.n),
@@ -312,7 +316,12 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   private _sumFeesPaid(feesPaid: TokenBalance[]) {
-    const primaryToken = feesPaid[this.singleSidedTokenIndex].token;
+    let primaryToken = feesPaid[this.singleSidedTokenIndex].token;
+    // If the primary token is the zero address, then use the borrowed token
+    // which will be WETH in this case.
+    if (primaryToken.address === ZERO_ADDRESS) {
+      primaryToken = this.borrowedToken;
+    }
     return feesPaid.reduce(
       (s, f) => s.add(f.toToken(primaryToken)),
       TokenBalance.zero(primaryToken)
