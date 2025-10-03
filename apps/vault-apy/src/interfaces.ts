@@ -89,7 +89,7 @@ export const v4SingleSidedLPVault = new ethers.utils.Interface([
   'function convertToAssets(uint256 shares) view public returns (uint256)',
   // AbstractRewardManager
   'function claimRewardTokens() external',
-  'function getRewardSettings() external view returns ((address rewardToken, uint32, uint32, uint128, uint128 accumulatedRewardPerVaultShare)[])',
+  'function getRewardSettings() external view returns ((address rewardToken, uint32, uint32, uint128, uint128 accumulatedRewardPerVaultShare)[] rewardStates, (address, uint32, uint32) rewardPool)',
 ]);
 
 export const TradingModuleInterface = new ethers.utils.Interface([

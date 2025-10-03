@@ -99,6 +99,13 @@ const config: ConfigPerNetwork = {
         rewardPoolType: RewardPoolType.ConvexMainnet,
         version: 'v3',
       },
+      {
+        address: '0x2716561755154Eef59Bc48Eb13712510b27F167F',
+        gauge: '0xAc15ffFdCA77fc86770bEAbA20cbC1bc2D00494c',
+        primaryBorrowCurrency: tokens.mainnet.WETH,
+        rewardPoolType: RewardPoolType.ConvexMainnet,
+        version: 'v4',
+      },
     ],
   },
   [Network.arbitrum]: {
