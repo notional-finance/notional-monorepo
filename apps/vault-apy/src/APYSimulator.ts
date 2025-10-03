@@ -4,6 +4,7 @@ import { ethers, BigNumber, Contract, ContractTransaction } from 'ethers';
 import {
   TradingModuleInterface,
   SingleSidedLPVault,
+  v4SingleSidedLPVault,
   TransferInterface,
   ERC20Interface,
   AuraGaugeInterface,
@@ -22,6 +23,7 @@ import {
   Provider,
   RewardPoolType,
   VaultData,
+  VaultDataBase,
   JsonRpcProvider,
   TransferLog,
 } from './types';
@@ -85,6 +87,48 @@ export default class APYSimulator {
     this.#alchemyProvider = new ethers.providers.JsonRpcProvider(
       this.#config.alchemyUrl
     );
+  }
+
+  #createVaultContract(vaultData: VaultDataBase, provider: Provider): Contract {
+    const vaultInterface =
+      vaultData.version === 'v4' ? v4SingleSidedLPVault : SingleSidedLPVault;
+    return new Contract(vaultData.address, vaultInterface, provider);
+  }
+
+  async #getPoolAddress(
+    vault: Contract,
+    vaultData: VaultDataBase
+  ): Promise<string> {
+    if (vaultData.version === 'v4') {
+      return await vault.CURVE_POOL_TOKEN();
+    } else {
+      return (await vault.getStrategyVaultInfo())[0];
+    }
+  }
+
+  async #getTotalVaultShares(
+    vault: Contract,
+    vaultData: VaultDataBase
+  ): Promise<BigNumber> {
+    if (vaultData.version === 'v4') {
+      return await vault.totalSupply();
+    } else {
+      return (await vault.callStatic.getStrategyVaultInfo()).totalVaultShares;
+    }
+  }
+
+  async #getVaultPrice(
+    vault: Contract,
+    vaultData: VaultDataBase
+  ): Promise<BigNumber> {
+    if (vaultData.version === 'v4') {
+      // V4: convertToAssets(1e24) returns value in primaryBorrowDecimals precision
+      const oneVaultShare = BigNumber.from(10).pow(24); // 1e24
+      return await vault.convertToAssets(oneVaultShare);
+    } else {
+      // V3: getExchangeRate returns value in primaryBorrowDecimals precision
+      return await vault.getExchangeRate(0);
+    }
   }
 
   async runHistorical(numOfDays: number, startingDate: Date = new Date()) {
@@ -212,9 +256,10 @@ export default class APYSimulator {
     // we need to create new checkpoint since it is deleted after revert
     const checkpoint = await provider.send('evm_snapshot', []);
 
-    const vault = new Contract(vaultData.address, SingleSidedLPVault, provider);
+    const vault = this.#createVaultContract(vaultData, provider);
     // attach additional data
-    vaultData.pool = vaultData.pool || (await vault.getStrategyVaultInfo())[0];
+    vaultData.pool =
+      vaultData.pool || (await this.#getPoolAddress(vault, vaultData));
 
     try {
       const results = await this.#calculateFutureAPY(
@@ -270,10 +315,12 @@ export default class APYSimulator {
     ]);
     const tx = await this.#claimRewardFromGauge(account, vaultData, provider);
 
-    const vault = new Contract(vaultData.address, SingleSidedLPVault, provider);
-    const priceOfVaultShare = await vault.getExchangeRate(0).catch(() => {
-      return BigNumber.from(0);
-    });
+    const vault = this.#createVaultContract(vaultData, provider);
+    const priceOfVaultShare = await this.#getVaultPrice(vault, vaultData).catch(
+      () => {
+        return BigNumber.from(0);
+      }
+    );
 
     const block = await provider.getBlock('latest');
     // used to query defiLlama api
@@ -337,7 +384,7 @@ export default class APYSimulator {
       .div(e(poolData.decimals));
 
     const lpTokenValuePrimaryBorrowAlt = isAccountVault
-      ? await this.#getVaultValueInPrimary(vaultData.address, provider)
+      ? await this.#getVaultValueInPrimary(vaultData, provider)
       : null;
 
     const lpTokenValuePrimaryBorrow = totalLpTokens
@@ -379,7 +426,7 @@ export default class APYSimulator {
       totalLpTokens: totalLpTokens.toString(),
       lpTokenValuePrimaryBorrow: lpTokenValuePrimaryBorrow.toString(),
       lpTokenValuePrimaryBorrowAlt: isAccountVault
-        ? lpTokenValuePrimaryBorrowAlt.toString()
+        ? lpTokenValuePrimaryBorrowAlt?.toString() || null
         : null,
       noVaultShares: !isAccountVault,
     };
@@ -633,13 +680,21 @@ export default class APYSimulator {
     return rewardTokens;
   }
 
-  async #getVaultValueInPrimary(vaultAddress: string, provider: Provider) {
-    const vault = new Contract(vaultAddress, SingleSidedLPVault, provider);
-    const totalVaultShares = await vault.callStatic
-      .getStrategyVaultInfo()
-      .then((r) => r.totalVaultShares);
-    const pricePerShare = await vault.callStatic.getExchangeRate(0);
-    return totalVaultShares.mul(pricePerShare).div(1e8);
+  async #getVaultValueInPrimary(vaultData: VaultData, provider: Provider) {
+    const vault = this.#createVaultContract(vaultData, provider);
+    const totalVaultShares = await this.#getTotalVaultShares(vault, vaultData);
+    const pricePerShare = await this.#getVaultPrice(vault, vaultData);
+
+    if (vaultData.version === 'v4') {
+      // V4: pricePerShare is already in primaryBorrowDecimals precision for 1e24 shares
+      // So we need to scale totalVaultShares to 1e24 precision
+      return totalVaultShares
+        .mul(pricePerShare)
+        .div(BigNumber.from(10).pow(24));
+    } else {
+      // V3: pricePerShare is in 1e8 precision
+      return totalVaultShares.mul(pricePerShare).div(1e8);
+    }
   }
 
   async #getTotalLpTokensForAccount(
@@ -952,19 +1007,25 @@ export default class APYSimulator {
 
       let lpTokenPerVaultShare = '0';
       if (vaultData.address.toLowerCase() === account.toLowerCase()) {
-        const vault = new Contract(
-          vaultData.address,
-          SingleSidedLPVault,
-          provider
+        const vault = this.#createVaultContract(vaultData, provider);
+        const totalVaultShares = await this.#getTotalVaultShares(
+          vault,
+          vaultData
         );
-        const totalVaultShares = await vault.callStatic
-          .getStrategyVaultInfo()
-          .then((r) => r.totalVaultShares);
 
-        lpTokenPerVaultShare = redeemData.lpBalance
-          .mul(1e8)
-          .div(totalVaultShares)
-          .toString();
+        if (vaultData.version === 'v4') {
+          // V4: Use 1e24 precision for vault shares
+          lpTokenPerVaultShare = redeemData.lpBalance
+            .mul(BigNumber.from(10).pow(24))
+            .div(totalVaultShares)
+            .toString();
+        } else {
+          // V3: Use 1e8 precision for vault shares
+          lpTokenPerVaultShare = redeemData.lpBalance
+            .mul(1e8)
+            .div(totalVaultShares)
+            .toString();
+        }
       }
 
       return {
