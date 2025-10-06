@@ -461,13 +461,14 @@ export class SingleSidedLP extends VaultAdapter {
     _vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData {
     const { incentiveAPY, incentives } = this.getRewardAPY();
-    const totalAPY = this.getVaultAPY();
+    const assetAPY = this.getVaultAPY();
 
     return {
       incentiveAPY: incentiveAPY,
-      organicAPY: totalAPY - incentiveAPY,
+      organicAPY: assetAPY - incentiveAPY,
       incentives: incentives,
-      totalAPY,
+      totalAPY: assetAPY,
+      assetAPY: assetAPY,
       pointMultiples: this.getPointMultiples(),
     };
   }

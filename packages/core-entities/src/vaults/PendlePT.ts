@@ -379,9 +379,11 @@ export class PendlePT extends VaultAdapter {
     )?.tokensSold;
 
     if (netAmount.isNegative() || netAmount.isZero() || !amountInSy) {
+      const assetAPY = this.getVaultAPY();
       return {
-        totalAPY: this.getVaultAPY(),
-        organicAPY: this.getVaultAPY(),
+        totalAPY: assetAPY,
+        organicAPY: assetAPY,
+        assetAPY: assetAPY,
         incentiveAPY: undefined,
         pointMultiples: undefined,
       };
@@ -397,6 +399,7 @@ export class PendlePT extends VaultAdapter {
     return {
       totalAPY,
       organicAPY: totalAPY,
+      assetAPY: totalAPY,
       incentiveAPY: undefined,
       pointMultiples: undefined,
     };

@@ -289,9 +289,7 @@ function formatAPYValues(
 ) {
   const earnings =
     amount && apy !== undefined
-      ? amount
-          .abs()
-          .mulInRatePrecision(Math.floor((apy * RATE_PRECISION) / 100))
+      ? amount.mulInRatePrecision(Math.floor((apy * RATE_PRECISION) / 100))
       : undefined;
 
   return [
@@ -311,33 +309,63 @@ const useApyBreakdown = () => {
   const trade = useCurrentTradeContext();
   const { leveragedAPY, assets, debts, netWorth } =
     trade?.getVaultAPYBreakdown() || {};
-  const leverageRatio = leveragedAPY?.leverageRatio || 0;
+  const unleveragedAssetAPY = leveragedAPY?.unleveragedAssetAPY;
+  const strategyType = trade?.strategyType;
   let points: { label: string; values: { value: string }[] }[] | undefined;
+  let incentives:
+    | { label: string; values: { value: ReactNode }[] }[]
+    | undefined;
 
   if (leveragedAPY?.pointMultiples) {
+    // These are leveraged point multiples
     points = Object.entries(leveragedAPY.pointMultiples).map(([key, value]) => {
       return {
         label: key,
-        values: [{ value: `${formatNumber(value * leverageRatio)}x` }],
+        values: [{ value: `${formatNumber(value)}x` }],
       };
     });
   }
 
+  if (unleveragedAssetAPY?.incentives) {
+    incentives = unleveragedAssetAPY.incentives.map(
+      ({ symbol, incentiveAPY }) => {
+        return {
+          label: symbol,
+          values: formatAPYValues(
+            incentiveAPY,
+            assets,
+            theme.palette.success.main
+          ),
+        };
+      }
+    );
+  }
+
+  const organicAPYLabel =
+    strategyType === 'Staking'
+      ? 'Staking APY'
+      : strategyType === 'PendlePT'
+      ? 'PT APY'
+      : strategyType === 'CurveConvex2Token'
+      ? 'LP Fee APY'
+      : 'Organic APY';
+
   const apy = [
     {
-      label: 'Staking APY',
+      label: organicAPYLabel,
       values: formatAPYValues(
-        leveragedAPY?.assetAPY,
+        unleveragedAssetAPY?.organicAPY,
         assets,
         theme.palette.success.main
       ),
     },
+    ...(incentives || []),
     {
       label: 'Vault Fee APY',
       values: formatAPYValues(
-        leveragedAPY?.feeAPY,
-        assets,
-        theme.palette.success.main
+        unleveragedAssetAPY?.feeAPY,
+        assets?.neg(),
+        undefined
       ),
     },
     {

@@ -240,10 +240,9 @@ export class Staking extends VaultAdapter {
     _vaultTradeMetadata?: unknown
   ): APYData {
     const organicAPY = this.getVaultAPY();
-    const totalAPY = organicAPY;
 
     return {
-      totalAPY: totalAPY,
+      totalAPY: organicAPY,
       organicAPY: organicAPY,
       assetAPY: organicAPY,
     };

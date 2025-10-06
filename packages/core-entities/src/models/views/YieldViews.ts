@@ -23,6 +23,7 @@ export interface APYData {
   pointMultiples?: Record<string, number>;
   leverageRatio?: number;
   debtAPY?: number;
+  unleveragedAssetAPY?: APYData;
 }
 
 export interface ProductAPY {
@@ -47,14 +48,10 @@ export function createLeveragedAPYData(
       assetData.totalAPY !== undefined && debtAPY !== undefined
         ? assetData.totalAPY - debtAPY
         : undefined,
-    assetAPY: assetData.totalAPY,
+    assetAPY: assetData.assetAPY,
     leverageRatio,
     debtAPY,
-    organicAPY: leveragedYield(
-      (assetData?.organicAPY || 0) + (assetData?.feeAPY || 0),
-      debtAPY,
-      leverageRatio
-    ),
+    organicAPY: leveragedYield(assetData?.organicAPY || 0, 0, leverageRatio),
     feeAPY: leveragedYield(assetData?.feeAPY, 0, leverageRatio),
     incentiveAPY: leveragedYield(assetData?.incentiveAPY, 0, leverageRatio),
     incentives: assetData?.incentives?.map(({ symbol, incentiveAPY }) => ({
@@ -74,6 +71,7 @@ export function createLeveragedAPYData(
           return acc;
         }, {} as Record<string, number>)
       : undefined,
+    unleveragedAssetAPY: assetData,
   };
 }
 
@@ -115,7 +113,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.totalAPY = simulatedAPY.totalAPY;
       apyData.organicAPY = simulatedAPY.organicAPY;
       apyData.pointMultiples = simulatedAPY.pointMultiples;
-      apyData.feeAPY = -1 * getVaultFee(token.vaultAddress);
+      apyData.feeAPY = getVaultFee(token.vaultAddress);
     }
 
     return apyData;
@@ -153,7 +151,9 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.tokenType === 'VaultShare' && netAmount.vaultAddress) {
       const adapter = getVaultAdapter(netAmount.vaultAddress);
-      return adapter.getSimulatedAPY(netAmount, vaultTradeMetadata);
+      const apyData = adapter.getSimulatedAPY(netAmount, vaultTradeMetadata);
+      apyData.feeAPY = getVaultFee(netAmount.vaultAddress);
+      return apyData;
     }
 
     return apyData;
