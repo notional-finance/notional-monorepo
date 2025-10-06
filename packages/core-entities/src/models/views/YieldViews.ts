@@ -109,10 +109,12 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.totalAPY = apyData.organicAPY;
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = getVaultAdapter(token.vaultAddress);
-      apyData.incentiveAPY = adapter.getRewardAPY();
-      apyData.totalAPY = adapter.getVaultAPY();
-      apyData.organicAPY = apyData.totalAPY - apyData.incentiveAPY;
-      apyData.pointMultiples = adapter.getPointMultiples();
+      const simulatedAPY = adapter.getSimulatedAPY(TokenBalance.zero(token));
+      apyData.incentiveAPY = simulatedAPY.incentiveAPY;
+      apyData.incentives = simulatedAPY.incentives;
+      apyData.totalAPY = simulatedAPY.totalAPY;
+      apyData.organicAPY = simulatedAPY.organicAPY;
+      apyData.pointMultiples = simulatedAPY.pointMultiples;
       apyData.feeAPY = -1 * getVaultFee(token.vaultAddress);
     }
 

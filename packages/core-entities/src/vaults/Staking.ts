@@ -239,17 +239,13 @@ export class Staking extends VaultAdapter {
     _netAmount: TokenBalance,
     _vaultTradeMetadata?: unknown
   ): APYData {
+    const organicAPY = this.getVaultAPY();
+    const totalAPY = organicAPY;
+
     return {
-      totalAPY: 0,
-      organicAPY: 0,
-      assetAPY: 0,
-      feeAPY: 0,
-      apySpread: 0,
-      incentiveAPY: 0,
-      incentives: [],
-      utilization: 0,
-      pointMultiples: {},
-      leverageRatio: 0,
+      totalAPY: totalAPY,
+      organicAPY: organicAPY,
+      assetAPY: organicAPY,
     };
   }
 }

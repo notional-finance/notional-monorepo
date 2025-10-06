@@ -88,10 +88,6 @@ export abstract class VaultAdapter {
     maturity: number;
   }): number;
 
-  getRewardAPY(): number {
-    return 0;
-  }
-
   getVaultTVL(): TokenBalance {
     const vaultShares = getNetworkModel(this.network)
       .getTokensByType('VaultShare', false)

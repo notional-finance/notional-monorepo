@@ -234,23 +234,66 @@ export class SingleSidedLP extends VaultAdapter {
       : 0;
   }
 
-  override getRewardAPY() {
+  getRewardAPY(): {
+    incentiveAPY: number;
+    incentives: { symbol: string; incentiveAPY: number }[];
+  } {
+    const incentiveAverages = this.getIncentiveAPYRecord();
+
+    // Calculate total incentive APY for backward compatibility
+    const totalIncentiveAPY = Object.values(incentiveAverages).reduce(
+      (sum, value) => sum + value,
+      0
+    );
+
+    // Convert to the expected format
+    const incentives = Object.entries(incentiveAverages).map(
+      ([key, value]) => ({
+        symbol: key,
+        incentiveAPY: value,
+      })
+    );
+
+    return {
+      incentiveAPY: totalIncentiveAPY,
+      incentives,
+    };
+  }
+
+  getIncentiveAPYRecord(): Record<string, number> {
     const last7Days = this.apyHistory?.data?.filter(
       ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
     );
 
-    const incentiveAPYs =
-      last7Days
-        ?.map((r) =>
-          Object.keys(r)
-            .filter((r) => r.toLowerCase().includes('incentive'))
-            .reduce((t, key) => t + (r[key] || 0), 0)
-        )
-        .filter((apy) => apy !== null) || ([] as number[]);
+    if (!last7Days || last7Days.length === 0) {
+      return {};
+    }
 
-    return incentiveAPYs.length > 0
-      ? incentiveAPYs.reduce((t, a) => t + a, 0) / incentiveAPYs.length
-      : 0;
+    // Get all incentive keys from all data points
+    const incentiveKeys = new Set<string>();
+    last7Days.forEach((dataPoint) => {
+      Object.keys(dataPoint).forEach((key) => {
+        if (key.toLowerCase().includes('incentive')) {
+          incentiveKeys.add(key);
+        }
+      });
+    });
+
+    // Calculate average for each incentive key over the last 7 days
+    const incentiveAverages: Record<string, number> = {};
+
+    for (const key of incentiveKeys) {
+      const values = last7Days
+        .map((r) => r[key] || 0)
+        .filter((value) => value !== null && value !== undefined);
+
+      if (values.length > 0) {
+        incentiveAverages[key] =
+          values.reduce((sum, value) => sum + value, 0) / values.length;
+      }
+    }
+
+    return incentiveAverages;
   }
 
   getNetVaultSharesMinted(
@@ -417,11 +460,13 @@ export class SingleSidedLP extends VaultAdapter {
     _netAmount: TokenBalance,
     _vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData {
-    const rewardAPY = this.getRewardAPY();
+    const { incentiveAPY, incentives } = this.getRewardAPY();
     const totalAPY = this.getVaultAPY();
+
     return {
-      incentiveAPY: rewardAPY,
-      organicAPY: totalAPY - rewardAPY,
+      incentiveAPY: incentiveAPY,
+      organicAPY: totalAPY - incentiveAPY,
+      incentives: incentives,
       totalAPY,
       pointMultiples: this.getPointMultiples(),
     };
