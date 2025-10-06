@@ -371,14 +371,14 @@ export class PendlePT extends VaultAdapter {
 
   override getSimulatedAPY(
     netAmount: TokenBalance,
-    vaultTradeMetadata?: unknown
+    vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData {
-    if (
-      netAmount.isNegative() ||
-      netAmount.isZero() ||
-      !vaultTradeMetadata ||
-      !!vaultTradeMetadata['tokenOutSy']
-    ) {
+    // If we don't know the amount is sy, then we can't calculate the realized APY
+    const amountInSy = vaultTradeMetadata?.find(
+      (t) => t.dexId === DEX_ID.PENDLE
+    )?.tokensSold;
+
+    if (netAmount.isNegative() || netAmount.isZero() || !amountInSy) {
       return {
         totalAPY: this.getVaultAPY(),
         organicAPY: this.getVaultAPY(),
@@ -386,12 +386,6 @@ export class PendlePT extends VaultAdapter {
         pointMultiples: undefined,
       };
     }
-
-    // Use the tokens in sy to mark the realized amount so that the interest rate
-    // does not include any exchange rate deviations from the borrowed asset to
-    // the PT accounting asset.
-    const amountInSy = (vaultTradeMetadata as { tokensInSy: TokenBalance })
-      .tokensInSy;
 
     const impliedExchangeRate = netAmount.toFloat() / amountInSy.toFloat();
     const timeToMaturity = this.timeToExpiry;

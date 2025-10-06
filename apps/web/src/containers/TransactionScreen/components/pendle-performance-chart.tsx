@@ -9,7 +9,6 @@ import {
 } from '@notional-finance/mui';
 import {
   calculateDepositValue,
-  useSpotMaturityData,
   useVaultAdapter,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -18,7 +17,6 @@ import {
   getDateString,
   getNowSeconds,
   leveragedYield,
-  PRIME_CASH_VAULT_MATURITY,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -26,26 +24,13 @@ import {
   useAssetPriceHistory,
   useCurrentTradeContext,
 } from '@notional-finance/notionable-hooks';
-import { useParams } from 'react-router-dom';
-import { useVaultExistingFactors } from '../hooks/use-vault-existing-factors';
 
 const usePendlePerformanceChart = () => {
   const trade = useCurrentTradeContext();
-  const { debt } = trade?.selectedTokens ?? {};
-  const { debt: debtOptions, collateral: collateralOptions } =
-    trade?.computedOptions ?? {};
   const vaultAddress = trade?.vaultAddress;
-  const selectedLeverageRatio = trade?.leverageRatio;
-  const { action } = useParams<{ action: string }>();
+  const { leveragedAPY } = trade?.getVaultAPYBreakdown() ?? {};
 
-  const {
-    priorBorrowRate,
-    leverageRatio: priorLeverageRatio,
-    debt: priorDebt,
-  } = useVaultExistingFactors();
   const adapter = useVaultAdapter(vaultAddress) as PendlePT | undefined;
-  const spotData = useSpotMaturityData(debt ? [debt] : undefined);
-  const primeDebtSpotRate = undefined;
 
   const nowMidnight = floorToMidnight(getNowSeconds());
   const ptExpires = adapter?.expiry;
@@ -53,48 +38,21 @@ const usePendlePerformanceChart = () => {
     ? Math.max(0, Math.ceil((ptExpires - nowMidnight) / SECONDS_IN_DAY) + 1)
     : 90;
 
-  const leverageRatio = (selectedLeverageRatio || priorLeverageRatio) as
-    | number
-    | undefined;
-  const fixedBorrowMaturity =
-    debt && debt.maturity !== PRIME_CASH_VAULT_MATURITY
-      ? debt.maturity
-      : priorDebt?.maturity && priorDebt?.maturity !== PRIME_CASH_VAULT_MATURITY
-      ? priorDebt.maturity
-      : undefined;
-
-  const primeBorrowRate =
-    debtOptions &&
-    fixedBorrowMaturity === undefined &&
-    debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
-      ? debtOptions.find((t) => t.token.maturity === PRIME_CASH_VAULT_MATURITY)
-          ?.interestRate
-      : priorDebt?.maturity === PRIME_CASH_VAULT_MATURITY
-      ? primeDebtSpotRate // Use the spot rate when the fixed borrow maturity is defined
-      : undefined;
-
-  const ptAPY =
-    collateralOptions?.find((t) => t.token.maturity === debt?.maturity)
-      ?.interestRate ||
-    adapter?.getVaultAPY() ||
-    0;
-
-  const currentBorrowRate =
-    debtOptions?.find(
-      // On the manage screen use the prior borrow rate instead
-      (t) => t.token.id === debt?.id && action !== 'Manage'
-      // Allow the historical vault borrow rate to be applied here
-    )?.interestRate ||
-    priorBorrowRate ||
-    spotData.find((_) => true)?.tradeRate;
+  // NOTE: fill these in if we ever use fixed borrow APY
+  const fixedBorrowMaturity = undefined;
+  const fixedBorrowRate = undefined;
+  const currentBorrowRate = leveragedAPY?.debtAPY;
+  // If the asset APY is not set then use the default PT APY
+  const ptAPY = leveragedAPY?.assetAPY || adapter?.getVaultAPY() || 0;
+  const leverageRatio = leveragedAPY?.leverageRatio || 0;
 
   const data = new Array(dataPoints).fill(0).map((_, i) => {
     const timestamp = nowMidnight + i * SECONDS_IN_DAY;
     const strategyReturn = ptExpires && timestamp <= ptExpires ? ptAPY : 0;
     const borrowRate =
       fixedBorrowMaturity && timestamp <= fixedBorrowMaturity
-        ? currentBorrowRate
-        : primeBorrowRate;
+        ? fixedBorrowRate
+        : currentBorrowRate;
 
     return {
       timestamp,
