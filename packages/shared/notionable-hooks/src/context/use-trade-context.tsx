@@ -71,6 +71,7 @@ export function useTradeErrorMessage() {
   const context = useCurrentTradeContext();
   const inputsSatisfied = context?.inputsSatisfied;
   const calculationSuccess = context?.calculationSuccess;
+  const { overPoolCapacityError } = context?.getVaultCapacity() || {};
   const inputErrors = context?.inputErrors;
   if (!inputsSatisfied) {
     if (context?.tradeType === 'AdjustVaultLeverage') {
@@ -82,6 +83,10 @@ export function useTradeErrorMessage() {
         defaultMessage: 'Enter Amount',
       });
     }
+  } else if (overPoolCapacityError) {
+    return defineMessage({
+      defaultMessage: 'Over Max Liquidity Pool Share',
+    });
   } else if (inputErrors) {
     return defineMessage({
       defaultMessage: 'Insufficient Balance',

@@ -95,7 +95,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
 
   const getVaultFee = (vaultAddress: string) => {
     const v = getVaultConfig(vaultAddress);
-    return parseFloat(ethers.utils.formatUnits(v.feeRate, 18));
+    return parseFloat(ethers.utils.formatUnits(v.feeRate, 18)) * 100;
   };
 
   const getWithdrawManagers = (vaultAddress: string) => {

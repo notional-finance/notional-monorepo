@@ -47,7 +47,7 @@ export const VaultDefaultScreen = observer(() => {
       <Routes>
         <Route path="" element={manageScreen} />
         <Route path="manage" element={manageScreen} />
-        <Route path="increase" element={<VaultIncreaseScreen />} />
+        <Route path="deposit" element={<VaultIncreaseScreen />} />
         <Route path="instant-withdraw" element={<VaultInstantWithdraw />} />
         <Route path="smart-withdraw" element={<VaultSmartWithdraw />} />
         <Route path="pending-withdraw" element={<VaultPendingWithdraw />} />

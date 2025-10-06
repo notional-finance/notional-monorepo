@@ -114,9 +114,10 @@ const CustomTabs = styled(Tabs)(
   ({ theme }) => `
   min-height: 0;
   & .MuiTabs-flexContainer {
+    display: grid;
+    grid-template-columns: auto auto auto;
     gap: ${theme.spacing(3)};
     margin-bottom: ${theme.spacing(1)};
-    justify-content: space-around;
   }
   & .MuiTabs-indicator {
     background-color: ${theme.palette.primary.light};
@@ -140,6 +141,9 @@ const CustomTab = styled(Tab)(
   &.Mui-selected {
     color: ${theme.palette.typography.main};
     font-weight: 600;
+  }
+  :hover {
+    cursor: pointer;
   }
 `
 );

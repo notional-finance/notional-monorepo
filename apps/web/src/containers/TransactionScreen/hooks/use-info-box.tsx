@@ -61,13 +61,6 @@ const LabelValueSection = ({
           >
             <Label light>{item.label}</Label>
             <LabelValue>{item.content}</LabelValue>
-            {/* <Box>
-              {typeof item.content === 'string' ? (
-                <LabelValue>{item.content}</LabelValue>
-              ) : (
-                item.content
-              )}
-            </Box> */}
           </Box>
         ))}
       </Box>
@@ -92,7 +85,12 @@ const DividedSections = ({
             <Box key={index}>
               {child}
               {index !== c.length - 1 && (
-                <Divider sx={{ margin: theme.spacing(3, 0) }} />
+                <Divider
+                  sx={{
+                    margin: theme.spacing(3, 0),
+                    backgroundColor: theme.palette.borders.default,
+                  }}
+                />
               )}
             </Box>
           ))

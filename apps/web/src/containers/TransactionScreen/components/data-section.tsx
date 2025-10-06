@@ -18,11 +18,9 @@ const DataSection = () => {
   const theme = useTheme();
   const context = useCurrentTradeContext();
   const network = useCurrentNetworkStore();
-  const { isMobileView, baseCurrency } = useAppStore();
+  const { isMobileView } = useAppStore();
   const vault = useDefaultVaultAPY(context?.vaultAddress);
   const feeRate = useVaultFeeRate(context?.vaultAddress);
-  const tvlFiat = vault?.tvl?.toFiat(baseCurrency);
-  const liquidityFiat = vault?.liquidity?.toFiat(baseCurrency);
   const marketId = network.getMorphoMarketId(context?.debt as TokenDefinition);
   let networkName: string = network.network as string;
   if (networkName === 'mainnet') networkName = 'ethereum';
@@ -45,7 +43,7 @@ const DataSection = () => {
             startIcon={<ChartIcon sx={{ fontSize: theme.spacing(2) }} />}
             href={`https://app.morpho.org/${networkName}/market/${marketId}`}
           >
-            <FormattedMessage defaultMessage={'View Analytics'} />
+            <FormattedMessage defaultMessage={'Morpho Borrow Market'} />
           </Button>
         )}
       </HeaderContainer>
@@ -54,16 +52,16 @@ const DataSection = () => {
           <TotalBox
             key={'vault-tvl'}
             title={'Vault TVL'}
-            value={tvlFiat?.toFloat()}
-            decimals={0}
-            prefix={tvlFiat?.fiatSymbol || '$'}
+            value={vault?.tvl?.toFloat()}
+            decimals={2}
+            suffix={` ${vault?.tvl?.token.symbol}`}
           />
           <TotalBox
             key={'borrow-liquidity'}
             title={'Borrow Liquidity'}
-            value={liquidityFiat?.toFloat()}
-            decimals={0}
-            prefix={liquidityFiat?.fiatSymbol || '$'}
+            value={vault?.liquidity?.toFloat()}
+            decimals={2}
+            suffix={` ${vault?.liquidity?.token.symbol}`}
           />
           <TotalBox
             key={'fee-rate'}

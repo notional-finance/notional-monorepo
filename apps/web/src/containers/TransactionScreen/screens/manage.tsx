@@ -16,8 +16,8 @@ export const VaultManageScreen = observer(() => {
 
   const maintainLeverage = [
     {
-      label: <FormattedMessage defaultMessage="Increase" />,
-      to: `${path}/increase`,
+      label: <FormattedMessage defaultMessage="Deposit" />,
+      to: `${path}/deposit`,
     },
     {
       label: <FormattedMessage defaultMessage="Instant Withdraw" />,
@@ -58,10 +58,12 @@ export const VaultManageScreen = observer(() => {
       hideSubmitButton
       inputs={[
         <ManageButtonSection
-          heading={<FormattedMessage defaultMessage="Maintain Leverage" />}
+          key="maintain-leverage"
+          heading={<FormattedMessage defaultMessage="Deposit / Withdraw" />}
           links={maintainLeverage}
         />,
         <ManageButtonSection
+          key="adjust-leverage"
           heading={<FormattedMessage defaultMessage="Adjust Leverage" />}
           links={adjustLeverage}
         />,
@@ -96,7 +98,7 @@ const ManageButtonSection = ({
 
 const ManageButtonGrid = styled(Box)(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(calc(33.33% - 8px), 1fr))',
+  gridTemplateColumns: 'repeat(3, 1fr)',
   gap: theme.spacing(1),
   width: '100%',
   marginTop: theme.spacing(1),
