@@ -199,7 +199,7 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
         id: p.slug,
         name: p.name,
         logoURL: p['project-logo']?.url,
-        description: '',
+        description: p['project-description']?.value,
       })),
       rewards:
         v.fieldData['rewards']?.map((r) => ({

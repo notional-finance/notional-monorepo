@@ -359,6 +359,16 @@ export const VaultsPageInject = () => {
             ?.toFiat(baseCurrency)
             .toDisplayStringWithSymbol(2, true, false) || '-'
         } TVL`;
+      const rewardsApy = vaultRowEl.querySelectorAll('.rewards-apy');
+      if (rewardsApy)
+        rewardsApy.forEach((e) => {
+          e.textContent = formatNumberAsPercentWithUndefined(
+            vault?.apy?.incentives?.find(
+              (i) => i.symbol === e.getAttribute('n-rewards-token')
+            )?.incentiveAPY,
+            '-'
+          );
+        });
     });
   }, [vaults, baseCurrency]);
 

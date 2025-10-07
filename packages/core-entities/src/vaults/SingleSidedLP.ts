@@ -247,12 +247,13 @@ export class SingleSidedLP extends VaultAdapter {
     );
 
     // Convert to the expected format
-    const incentives = Object.entries(incentiveAverages).map(
-      ([key, value]) => ({
-        symbol: key,
+    const incentives = Object.entries(incentiveAverages).map(([key, value]) => {
+      const symbol = key.split(' ')[0];
+      return {
+        symbol: symbol,
         incentiveAPY: value,
-      })
-    );
+      };
+    });
 
     return {
       incentiveAPY: totalIncentiveAPY,
