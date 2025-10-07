@@ -112,6 +112,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.incentives = simulatedAPY.incentives;
       apyData.totalAPY = simulatedAPY.totalAPY;
       apyData.organicAPY = simulatedAPY.organicAPY;
+      apyData.assetAPY = simulatedAPY.assetAPY;
       apyData.pointMultiples = simulatedAPY.pointMultiples;
       apyData.feeAPY = getVaultFee(token.vaultAddress);
     }
