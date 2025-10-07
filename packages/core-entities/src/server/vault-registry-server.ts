@@ -35,6 +35,7 @@ const CurveConvex2Token = new ethers.utils.Interface([
   'function PRIMARY_INDEX() view external returns (uint8)',
   'function MAX_POOL_SHARE() view external returns (uint256)',
   'function totalSupply() view external returns (uint256)',
+  'function claimRewardTokens() external',
   `function getRewardSettings() view external returns (
     (address rewardToken, uint32 lastAccumulatedTime, uint32 endTime, uint128 emissionRatePerYear, uint128 accumulatedRewardPerVaultShare)[] rewardState,
     (address rewardPool, uint32 lastClaimTimestamp, uint32 forceClaimAfter) rewardPoolState
@@ -252,6 +253,12 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             prevResults[`${vaultAddress}.pool`] as string,
             network
           ),
+      },
+      {
+        target: vaultContract,
+        stage: 0,
+        method: 'claimRewardTokens',
+        key: `${vaultAddress}.claimRewardTokens`,
       },
       {
         target: vaultContract,

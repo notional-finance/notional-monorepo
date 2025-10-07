@@ -14,7 +14,7 @@ import {
   ZERO_ADDRESS,
   getNowSeconds,
 } from '@notional-finance/util';
-import { BigNumber, Contract, providers } from 'ethers';
+import { BigNumber, Contract, ethers, providers } from 'ethers';
 import {
   AggregateCall,
   NO_OP,
@@ -32,6 +32,11 @@ import { fetchUsingMulticall } from '../../server/server-registry';
 import { SNOTEWeightedPool } from '../../exchanges';
 import { getNetworkModel } from '../../Models';
 import { DEPOSIT_TOKENS } from '../../config/whitelisted-tokens';
+import { SingleSidedLP } from '../../vaults';
+
+const RewardManagerABI = new ethers.utils.Interface([
+  'function getRewardDebt(address rewardToken, address account) view returns (uint256)',
+]);
 
 export async function fetchCurrentAccount(
   network: Network,
@@ -44,10 +49,13 @@ export async function fetchCurrentAccount(
   const depositTokens = model
     .getAllTokens()
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
+  const allVaults = model.getAllListedVaults(false);
 
-  const vaultAddresses = model
-    .getAllListedVaults(false)
+  const vaultAddresses = allVaults.map((v) => v.vaultAddress);
+  const rewardVaults = allVaults
+    .filter((v) => v.rewards.length > 0)
     .map((v) => v.vaultAddress);
+
   const positions = await getAccountPositions(
     network,
     account,
@@ -75,8 +83,10 @@ export async function fetchCurrentAccount(
     .concat(getStakedNOTECalls(network, account, provider))
     .concat(
       getLendingRouterApprovalCalls(network, account, lendingRouters, provider)
+    )
+    .concat(
+      getRewardClaimsCalls(network, account, positions, rewardVaults, provider)
     );
-  // TODO: get reward claims
 
   return fetchUsingMulticall<AccountDefinition>(
     network,
@@ -109,11 +119,18 @@ export async function fetchCurrentAccount(
               }),
             stakeNOTEStatus: results['stakeNOTEStatus'] as StakeNoteStatus,
             rewardClaims: Object.keys(results)
-              .filter((k) => k.includes('.rewardClaim'))
+              .filter(
+                (k) => k.includes('.rewardClaim') && results[k] !== undefined
+              )
               .reduce((agg, k) => {
-                return Object.assign(agg, {
-                  [k.split('.')[0]]: results[k],
-                });
+                const vaultAddress = k.split('.')[0];
+                if (agg[vaultAddress]) {
+                  agg[vaultAddress].push(results[k] as TokenBalance);
+                } else {
+                  agg[vaultAddress] = [results[k] as TokenBalance];
+                }
+
+                return agg;
               }, {} as Record<string, TokenBalance[]>),
             lendingRouterApprovals: Object.keys(results)
               .filter((k) => k.includes('.lendingRouterApproval'))
@@ -462,5 +479,52 @@ function getLendingRouterApprovalCalls(
         key: `${l.id}.lendingRouterApproval`,
         transform: (b: boolean) => b,
       };
+    });
+}
+
+function getRewardClaimsCalls(
+  network: Network,
+  account: string,
+  positions: Record<string, { lendingRouter: string; lastEntryTime: number }>,
+  rewardVaults: string[],
+  provider: providers.Provider
+): AggregateCall[] {
+  const model = getNetworkModel(network);
+
+  return Object.entries(positions)
+    .filter(([v, _]) => rewardVaults.includes(v))
+    .flatMap(([v]) => {
+      const adapter = model.getVaultAdapter(v) as SingleSidedLP;
+      const rewardTokens = adapter.rewardTokens.map((t) =>
+        model.getTokenByID(t)
+      );
+
+      return rewardTokens.map((t) => ({
+        stage: 1,
+        target: new Contract(v, RewardManagerABI, provider),
+        method: 'getRewardDebt',
+        args: [t.id, account],
+        key: `${v}.rewardClaim.${t.id}`,
+        transform: (
+          rewardDebt: BigNumber,
+          prevResults: Record<string, unknown>
+        ) => {
+          const accountSharesBefore = prevResults[
+            `${v}.balance.vaultShares`
+          ] as TokenBalance;
+          const rewardsPerVaultShare = adapter.rewardState?.find(
+            (r) => r.rewardToken.toLowerCase() === t.id.toLowerCase()
+          )?.accumulatedRewardPerVaultShare;
+          if (!accountSharesBefore || !rewardsPerVaultShare) return undefined;
+
+          return TokenBalance.from(
+            accountSharesBefore.n
+              .mul(rewardsPerVaultShare)
+              .div(accountSharesBefore.precision)
+              .sub(rewardDebt),
+            t
+          );
+        },
+      }));
     });
 }
