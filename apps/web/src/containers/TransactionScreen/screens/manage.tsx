@@ -5,14 +5,17 @@ import { useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { alpha, Box, styled } from '@mui/material';
 import { Button, H5 } from '@notional-finance/mui';
+import { Network } from '@notional-finance/util';
+import { useClaimRewards } from './claim-rewards';
 
 export const VaultManageScreen = observer(() => {
   useTradeContext('ManageVault');
   const { vaultAddress, selectedNetwork } = useParams<{
     vaultAddress: string;
-    selectedNetwork: string;
+    selectedNetwork: Network;
   }>();
   const path = `/vault/${selectedNetwork}/${vaultAddress}`;
+  const claimRewards = useClaimRewards();
 
   const maintainLeverage = [
     {
@@ -52,23 +55,37 @@ export const VaultManageScreen = observer(() => {
     // },
   ];
 
+  const inputs = [
+    <ManageButtonSection
+      key="deposit-withdraw"
+      heading={<FormattedMessage defaultMessage="Deposit / Withdraw" />}
+      links={maintainLeverage}
+    />,
+    <ManageButtonSection
+      key="adjust-leverage"
+      heading={<FormattedMessage defaultMessage="Adjust Leverage" />}
+      links={adjustLeverage}
+    />,
+  ];
+
+  if (claimRewards) {
+    inputs.push(
+      <ManageButtonSection
+        key="claim-rewards"
+        heading={<FormattedMessage defaultMessage="Claim Rewards" />}
+        links={[
+          {
+            label: <FormattedMessage defaultMessage="Claim Rewards" />,
+            to: `${path}/manage`,
+            onClick: claimRewards,
+          },
+        ]}
+      />
+    );
+  }
+
   return (
-    <TransactionScreen
-      actionPrefix="Manage"
-      hideSubmitButton
-      inputs={[
-        <ManageButtonSection
-          key="maintain-leverage"
-          heading={<FormattedMessage defaultMessage="Deposit / Withdraw" />}
-          links={maintainLeverage}
-        />,
-        <ManageButtonSection
-          key="adjust-leverage"
-          heading={<FormattedMessage defaultMessage="Adjust Leverage" />}
-          links={adjustLeverage}
-        />,
-      ]}
-    />
+    <TransactionScreen actionPrefix="Manage" hideSubmitButton inputs={inputs} />
   );
 });
 
@@ -79,7 +96,8 @@ const ManageButtonSection = ({
   heading: React.ReactNode;
   links: {
     label: React.ReactNode;
-    to: string;
+    to?: string;
+    onClick?: () => void;
   }[];
 }) => {
   return (
@@ -87,7 +105,7 @@ const ManageButtonSection = ({
       <H5>{heading}</H5>
       <ManageButtonGrid>
         {links.map((link) => (
-          <ManageButton to={link.to} key={link.to}>
+          <ManageButton to={link.to} key={link.to} onClick={link.onClick}>
             {link.label}
           </ManageButton>
         ))}

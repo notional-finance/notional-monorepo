@@ -16,6 +16,7 @@ import {
   VaultSmartWithdraw,
   VaultPendingWithdraw,
   VaultFinalizeWithdraw,
+  VaultClaimRewards,
 } from './screens';
 import { VaultAdjustLeverage } from './screens/adjust-leverage';
 
@@ -53,6 +54,7 @@ export const VaultDefaultScreen = observer(() => {
         <Route path="pending-withdraw" element={<VaultPendingWithdraw />} />
         <Route path="finalize-withdraw" element={<VaultFinalizeWithdraw />} />
         <Route path="adjust-leverage" element={<VaultAdjustLeverage />} />
+        <Route path="claim-rewards" element={<VaultClaimRewards />} />
       </Routes>
     </FeatureLoader>
   );
