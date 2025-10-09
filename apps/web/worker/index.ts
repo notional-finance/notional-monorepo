@@ -1,7 +1,6 @@
 import { WorkerEntrypoint } from 'cloudflare:workers';
 import { fetchWebflowPage, extractWebflowHtml } from './embed';
-
-const WEBFLOW_PAGES = ['/', '/vaults', '/points'];
+import { calculateKPI } from './kpi';
 
 export default class extends WorkerEntrypoint<{
   ASSETS: Fetcher;
@@ -9,6 +8,15 @@ export default class extends WorkerEntrypoint<{
   VIEW_CACHE_R2: R2Bucket;
 }> {
   override async fetch(request: Request) {
+    if (request.url.includes('/kpi')) {
+      const kpi = await calculateKPI();
+      return new Response(JSON.stringify(kpi), {
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+      });
+    }
+
     // Check if the pathname ends with a file extension (e.g. .js, .css, .png, etc)
     if (/\.[a-zA-Z0-9]+$/.test(request.url)) {
       return this.env.ASSETS.fetch(request);

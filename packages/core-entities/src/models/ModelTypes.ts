@@ -167,7 +167,7 @@ export const WithdrawRequestManagerModel = types.model(
 const ProjectModel = types.model('ProjectModel', {
   id: types.identifier,
   name: types.string,
-  description: types.string,
+  description: types.maybe(types.string),
   logoURL: types.maybe(types.string),
 });
 

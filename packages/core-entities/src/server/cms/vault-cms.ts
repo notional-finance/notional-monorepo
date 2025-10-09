@@ -1,10 +1,11 @@
 import { Network } from '@notional-finance/util';
 import { ApiVaultData, VaultCMSData } from './cms-definition';
+import { getEnvVar } from '../../utils/env';
 
 const VAULT_COLLECTION_ID = '68433b8d92fb37321a415b8b';
 const WEBFLOW_ROOT = 'https://api-cdn.webflow.com/v2/collections';
 const COLLECTION_LIMIT = 100;
-const API_TOKEN = process.env['WEBFLOW_API_TOKEN'] as string;
+const API_TOKEN = getEnvVar('WEBFLOW_API_TOKEN') as string;
 
 interface CollectionDefinition {
   id: string;

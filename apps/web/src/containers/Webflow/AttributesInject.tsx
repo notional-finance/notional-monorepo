@@ -1,6 +1,10 @@
 import { Box } from '@mui/material';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
-import { useAllVaults, useAppStore } from '@notional-finance/notionable-hooks';
+import {
+  useAllVaults,
+  useAppStore,
+  useLandingPageStats,
+} from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -249,13 +253,34 @@ function useListStart(afterListRendered: () => void) {
 }
 
 export const LandingPageInject = () => {
+  const shadowEl = useRef<Element>();
+  const [isInitialized, setIsInitialized] = useState(false);
+  const kpiData = useLandingPageStats();
+
   const containerRef = useStartInject(
     '6807f00cedf01dce8388f197',
     'landing-page',
-    () => {
-      // TODO: update tvl and apy data
+    (shadow) => {
+      shadowEl.current = shadow;
+      setIsInitialized(true);
     }
   );
+
+  useEffect(() => {
+    if (kpiData && isInitialized && shadowEl.current) {
+      const tvlElement = shadowEl.current.shadowRoot?.querySelector('#tvl');
+      const maxUsdcApyElement =
+        shadowEl.current.shadowRoot?.querySelector('#max-usdc-apy');
+      const maxEthApyElement =
+        shadowEl.current.shadowRoot?.querySelector('#max-eth-apy');
+
+      if (tvlElement) tvlElement.textContent = `${kpiData.totalTVL}`;
+      if (maxUsdcApyElement)
+        maxUsdcApyElement.textContent = `${kpiData.highestUSDC}`;
+      if (maxEthApyElement)
+        maxEthApyElement.textContent = `${kpiData.highestETH}`;
+    }
+  }, [kpiData, shadowEl, isInitialized]);
 
   return (
     <Box

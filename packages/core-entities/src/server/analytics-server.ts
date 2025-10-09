@@ -1,6 +1,7 @@
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AnalyticsData, CacheSchema } from '../Definitions';
 import crossFetch from 'cross-fetch';
+import { getEnvVar } from '../utils/env';
 import {
   fetchGraphPaginate,
   loadGraphClientDeferred,
@@ -42,7 +43,7 @@ export type GraphDocument = keyof Omit<
 >;
 
 const USE_CROSS_FETCH =
-  process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
+  getEnvVar('NX_USE_CROSS_FETCH') || getEnvVar('NODE_ENV') == 'test';
 
 export type ActiveAccounts = Record<string, number>;
 

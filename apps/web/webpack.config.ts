@@ -54,6 +54,10 @@ function getWebpackConfig(config: webpack.Configuration) {
     new webpack.ProvidePlugin({
       process: 'process/browser',
       Buffer: ['buffer', 'Buffer'],
+    }),
+    new webpack.DefinePlugin({
+      'process.env': '{}',
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'local'),
     })
   );
 
