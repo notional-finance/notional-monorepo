@@ -53,6 +53,7 @@ const DataSection = () => {
             key={'vault-tvl'}
             title={'Vault TVL'}
             value={vault?.tvl?.toFloat()}
+            usdValue={vault?.tvl?.toFiat('USD').toFloat()}
             decimals={2}
             suffix={` ${vault?.tvl?.token.symbol}`}
           />
@@ -60,6 +61,7 @@ const DataSection = () => {
             key={'borrow-liquidity'}
             title={'Borrow Liquidity'}
             value={vault?.liquidity?.toFloat()}
+            usdValue={vault?.liquidity?.toFiat('USD').toFloat()}
             decimals={2}
             suffix={` ${vault?.liquidity?.token.symbol}`}
           />
