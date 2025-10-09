@@ -1,7 +1,6 @@
 import {
   AccountDefinition,
   APYData,
-  createLeveragedAPYData,
   NotionalTypes,
   PendlePT,
   SingleSidedLP,
@@ -25,6 +24,7 @@ import {
   flow,
   getParent,
   getRoot,
+  getSnapshot,
   getType,
   Instance,
   isAlive,
@@ -34,19 +34,13 @@ import { NetworkClientModelType, RootStoreInterface } from './root-store';
 import {
   DEX_ID,
   formatNumberAsPercent,
-  getChangeType,
   getNowSeconds,
   Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
-  zipByKeyToArray,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
-import {
-  formatNumberAsPercentWithUndefined,
-  formatTokenType,
-} from '@notional-finance/helpers';
 import {
   CalculationFn,
   CalculationFnParams,
@@ -353,6 +347,7 @@ export const TradeModel = types
       if (riskProfile) {
         // If there is an existing risk profile, use the leverage ratio from the risk profile
         self.leverageRatio = riskProfile.leverageRatio();
+        self.defaultLeverageRatio = self.leverageRatio;
       }
     };
 
@@ -857,47 +852,6 @@ export const TradeModel = types
   .views((self) => {
     const root = () => getRoot<RootStoreInterface>(self);
 
-    const comparePortfolio = (prior: TokenBalance[], post: TokenBalance[]) => {
-      return zipByKeyToArray(prior, post, (t) => t.tokenId)
-        .map(([_current, _updated]) => {
-          const updated = (_updated || _current?.copy(0)) as TokenBalance;
-          const current = (_current || _updated?.copy(0)) as TokenBalance;
-          const { titleWithMaturity } = formatTokenType(current.token);
-
-          return {
-            label: titleWithMaturity,
-            current: current,
-            isCurrentNegative: current.isNegative(),
-            updated: updated,
-            isUpdatedNegative: updated.isNegative(),
-            sortOrder: updated.sub(current).abs().toFloat(),
-            changeType: getChangeType(current.toFloat(), updated.toFloat()),
-          };
-        })
-        .filter(
-          ({ current, updated }) => !current.isZero() || !updated.isZero()
-        )
-        .sort((a, b) => b.sortOrder - a.sortOrder);
-    };
-
-    const getPortfolioComparison = () => {
-      let postBalances: TokenBalance[] | undefined;
-      let priorBalances: TokenBalance[] | undefined;
-      if (self.vaultAddress) {
-        const { postVaultRisk, priorVaultRisk } = getPostVaultRiskProfile();
-        priorBalances = priorVaultRisk?.balances;
-        postBalances = postVaultRisk?.balances;
-      } else if (isNOTEStake(self.tradeType)) {
-        return [];
-      } else {
-        throw Error('Not implemented');
-      }
-
-      return priorBalances && postBalances
-        ? comparePortfolio(priorBalances, postBalances)
-        : [];
-    };
-
     const getPriorVaultBalances = () => {
       const account = root().getAccountDefinition(self.selectedNetwork);
       return account && self.vaultAddress
@@ -947,35 +901,6 @@ export const TradeModel = types
 
     const getVaultRiskSummary = () => {
       const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
-      const account = root().getNetworkAccount(self.selectedNetwork);
-      const holdings = account?.vaultHoldings?.find(
-        ({ vaultAddress }) => vaultAddress === self.vaultAddress
-      );
-
-      const priorBorrowRate = holdings?.apyData?.debtAPY;
-      const priorAPY = holdings?.apyData;
-
-      const newBorrowRate = self.debtOptions?.find(
-        (t) => t.token.id === self.debtBalance?.tokenId
-      )?.interestRate;
-      const postBorrowRate =
-        postVaultRisk?.maturity === undefined
-          ? newBorrowRate
-          : averageFixedRate(priorVaultRisk, postVaultRisk, newBorrowRate);
-      const postVaultSharesAPY = postVaultRisk?.vaultShares?.tokenId
-        ? root()
-            .getNetworkClient(self.selectedNetwork)
-            .getSpotAPY(postVaultRisk.vaultShares.tokenId)
-        : undefined;
-
-      const postAPY =
-        postVaultSharesAPY && postBorrowRate
-          ? createLeveragedAPYData(
-              postVaultSharesAPY,
-              postBorrowRate,
-              postVaultRisk?.leverageRatio() || 0
-            )
-          : undefined;
 
       return {
         current: {
@@ -983,10 +908,6 @@ export const TradeModel = types
           leverageRatio: priorVaultRisk?.leverageRatio(),
           netWorth: priorVaultRisk?.netWorth(),
           liquidationPrices: priorVaultRisk?.getAllLiquidationPrices() || [],
-          borrowAPY: formatNumberAsPercentWithUndefined(priorBorrowRate, '-'),
-          totalAPY: formatNumberAsPercentWithUndefined(priorAPY?.totalAPY, '-'),
-          priorBorrowRate,
-          priorAPY,
         },
         updated: postVaultRisk
           ? {
@@ -994,16 +915,6 @@ export const TradeModel = types
               leverageRatio: postVaultRisk?.leverageRatio(),
               netWorth: postVaultRisk?.netWorth(),
               liquidationPrices: postVaultRisk?.getAllLiquidationPrices() || [],
-              borrowAPY: formatNumberAsPercentWithUndefined(
-                postBorrowRate,
-                '-'
-              ),
-              totalAPY: formatNumberAsPercentWithUndefined(
-                postAPY?.totalAPY,
-                '-'
-              ),
-              postBorrowRate,
-              postAPY,
             }
           : undefined,
       };
@@ -1011,10 +922,25 @@ export const TradeModel = types
 
     const getVaultAPYBreakdown = () => {
       const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
-      const { current, updated } = getVaultRiskSummary();
+      const account = root().getNetworkAccount(self.selectedNetwork);
+      const model = root().getNetworkClient(self.selectedNetwork);
+      const holdings = account?.vaultHoldings?.find(
+        ({ vaultAddress }) => vaultAddress === self.vaultAddress
+      );
+      const currentAPY = holdings?.apyData
+        ? getSnapshot(holdings?.apyData)
+        : undefined;
+      const updatedAPY = postVaultRisk
+        ? model.getLeveragedAPY(
+            postVaultRisk.vaultShares,
+            postVaultRisk.vaultDebt,
+            postVaultRisk.leverageRatio() || 0,
+            self.vaultTradeMetadata
+          )
+        : undefined;
 
       return {
-        leveragedAPY: (updated?.postAPY || current?.priorAPY || undefined) as
+        leveragedAPY: (currentAPY || updatedAPY || undefined) as
           | APYData
           | undefined,
         assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
@@ -1054,7 +980,7 @@ export const TradeModel = types
           ).getRemainingPoolCapacity();
           maxPoolShare = (vaultAdapter as SingleSidedLP).maxPoolShares
             ? formatNumberAsPercent(
-                (vaultAdapter as SingleSidedLP).maxPoolShares.toNumber() / 100,
+                (vaultAdapter as SingleSidedLP).getMaxPoolShare(),
                 0
               )
             : undefined;
@@ -1174,7 +1100,6 @@ export const TradeModel = types
         };
       },
       getVaultRiskSummary,
-      getPortfolioComparison,
       getPriorVaultBalances,
       getPostVaultFactors,
       getVaultCapacity,
@@ -1185,27 +1110,27 @@ export const TradeModel = types
     };
   });
 
-function averageFixedRate(
-  prior: VaultAccountRiskProfile | undefined,
-  post: VaultAccountRiskProfile | undefined,
-  newBorrowRate: number | undefined
-) {
-  if (
-    prior?.maturity === post?.maturity &&
-    newBorrowRate !== undefined &&
-    prior?.lastImpliedFixedRate !== undefined &&
-    post?.vaultDebt !== undefined
-  ) {
-    return (
-      (prior.lastImpliedFixedRate * prior.vaultDebt.toFloat() +
-        (newBorrowRate - prior.lastImpliedFixedRate) *
-          post.vaultDebt.toFloat()) /
-      prior.vaultDebt.toFloat()
-    );
-  } else {
-    return newBorrowRate;
-  }
-}
+// function averageFixedRate(
+//   prior: VaultAccountRiskProfile | undefined,
+//   post: VaultAccountRiskProfile | undefined,
+//   newBorrowRate: number | undefined
+// ) {
+//   if (
+//     prior?.maturity === post?.maturity &&
+//     newBorrowRate !== undefined &&
+//     prior?.lastImpliedFixedRate !== undefined &&
+//     post?.vaultDebt !== undefined
+//   ) {
+//     return (
+//       (prior.lastImpliedFixedRate * prior.vaultDebt.toFloat() +
+//         (newBorrowRate - prior.lastImpliedFixedRate) *
+//           post.vaultDebt.toFloat()) /
+//       prior.vaultDebt.toFloat()
+//     );
+//   } else {
+//     return newBorrowRate;
+//   }
+// }
 
 function computeCollateralOptions(
   inputs: Record<CalculationFnParams, unknown>,

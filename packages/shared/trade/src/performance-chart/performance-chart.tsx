@@ -5,7 +5,6 @@ import {
   BarChart,
 } from '@notional-finance/mui';
 import { usePerformanceChart } from './use-performance-chart';
-import { TokenDefinition } from '@notional-finance/core-entities';
 import { FormattedMessage } from 'react-intl';
 import useApyChart from './use-apy-chart';
 import {
@@ -14,112 +13,88 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 
-export const PerformanceChart = observer(
-  ({
-    currentPositionFactors,
-  }: {
-    currentPositionFactors?: {
-      collateralToken?: TokenDefinition;
-      isPrimeBorrow: boolean;
-      borrowRate?: number;
-      leverageRatio?: number;
-    };
-  }) => {
-    const trade = useCurrentTradeContext();
-    const {
-      collateral: _collateral,
-      deposit,
-      debt: _debt,
-    } = trade?.selectedTokens || {};
-    const collateral = currentPositionFactors?.collateralToken || _collateral;
+export const PerformanceChart = observer(() => {
+  const trade = useCurrentTradeContext();
+  const { collateral, deposit } = trade?.selectedTokens || {};
 
-    const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
-      usePerformanceChart(currentPositionFactors);
-    const { barConfig, barChartData } = useApyChart(collateral);
-    const priceData = useAssetPriceHistory(collateral);
+  const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
+    usePerformanceChart();
+  const { barConfig, barChartData } = useApyChart(collateral);
+  const priceData = useAssetPriceHistory(collateral);
 
-    const chartComponents: ChartComponentsProps[] = [
-      {
-        id: 'area-chart',
-        title: 'Performance',
-        hideTopGridLine: true,
-        Component: (
-          <AreaChart
-            showEmptyState={isEmptyState}
-            emptyStateMessage={
-              <FormattedMessage
-                defaultMessage={'Fill in inputs to see leveraged returns'}
-              />
-            }
-            showCartesianGrid
-            xAxisTickFormat="date"
-            yAxisTickFormat="number"
-            yAxisDomain={['dataMin', 'dataMax']}
-            xAxisDateTickInterval={Math.floor(areaChartData.length / 5)}
-            areaChartData={areaChartData}
-            areaLineType="linear"
-            chartToolTipData={chartToolTipData}
-            areaChartStyles={areaChartStyles}
-          />
-        ),
-        chartHeaderData: {
-          messageBox: (
+  const chartComponents: ChartComponentsProps[] = [
+    {
+      id: 'area-chart',
+      title: 'Performance',
+      hideTopGridLine: true,
+      Component: (
+        <AreaChart
+          showEmptyState={isEmptyState}
+          emptyStateMessage={
             <FormattedMessage
-              defaultMessage={'Value of 100 {symbol} over {days} days'}
-              values={{
-                symbol: deposit?.symbol,
-                days: areaChartData.length,
-              }}
+              defaultMessage={'Fill in inputs to see leveraged returns'}
             />
-          ),
-        },
-      },
-      {
-        id: 'bar-chart',
-        title:
-          collateral?.tokenType === 'VaultShare'
-            ? 'Vault APY'
-            : `n${deposit?.symbol} APY`,
-        hideTopGridLine: true,
-        Component: (
-          <BarChart
-            xAxisTickFormat="date"
-            isStackedBar
-            barConfig={barConfig}
-            barChartData={barChartData || []}
-            yAxisTickFormat="percent"
+          }
+          showCartesianGrid
+          xAxisTickFormat="date"
+          yAxisTickFormat="number"
+          yAxisDomain={['dataMin', 'dataMax']}
+          xAxisDateTickInterval={Math.floor(areaChartData.length / 5)}
+          areaChartData={areaChartData}
+          areaLineType="linear"
+          chartToolTipData={chartToolTipData}
+          areaChartStyles={areaChartStyles}
+        />
+      ),
+      chartHeaderData: {
+        messageBox: (
+          <FormattedMessage
+            defaultMessage={'Value of 100 {symbol} over {days} days'}
+            values={{
+              symbol: deposit?.symbol,
+              days: areaChartData.length,
+            }}
           />
         ),
-        chartHeaderData: {
-          messageBox:
-            collateral?.tokenType === 'VaultShare' ? (
-              <FormattedMessage
-                defaultMessage={'Incentives are automatically reinvested'}
-              />
-            ) : undefined,
-        },
       },
-    ];
+    },
+    {
+      id: 'bar-chart',
+      title:
+        collateral?.tokenType === 'VaultShare'
+          ? 'Vault APY'
+          : `n${deposit?.symbol} APY`,
+      hideTopGridLine: true,
+      Component: (
+        <BarChart
+          xAxisTickFormat="date"
+          isStackedBar
+          barConfig={barConfig}
+          barChartData={barChartData || []}
+          yAxisTickFormat="percent"
+        />
+      ),
+    },
+  ];
 
-    if (collateral?.tokenType === 'VaultShare') {
-      chartComponents.push({
-        id: 'price-area-chart',
-        title: `Vault Share Price`,
-        hideTopGridLine: true,
-        Component: (
-          <AreaChart
-            title={`Vault Share Price`}
-            showCartesianGrid
-            xAxisTickFormat="date"
-            yAxisTickFormat="double"
-            yAxisDomain={['dataMin * 0.95', 'dataMax * 1.05']}
-            areaDataKey={'assetPrice'}
-            areaChartData={priceData}
-          />
-        ),
-      });
-    }
-
-    return <MultiDisplayChart chartComponents={chartComponents} />;
+  if (collateral?.tokenType === 'VaultShare') {
+    chartComponents.push({
+      id: 'price-area-chart',
+      title: `Vault Share Price`,
+      hideTopGridLine: true,
+      Component: (
+        <AreaChart
+          title={`Vault Share Price`}
+          showCartesianGrid
+          xAxisTickFormat="date"
+          yAxisTickFormat="double"
+          yAxisDomain={['dataMin * 0.95', 'dataMax * 1.05']}
+          areaDataKey={'assetPrice'}
+          areaChartData={priceData}
+        />
+      ),
+    });
   }
-);
+
+  return <MultiDisplayChart chartComponents={chartComponents} />;
+});

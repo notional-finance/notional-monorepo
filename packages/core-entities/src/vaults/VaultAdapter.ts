@@ -1,7 +1,6 @@
-import { BytesLike } from 'ethers';
+import { BigNumber, BytesLike } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import {
-  BASIS_POINT,
   DEX_ID,
   Network,
   RATE_PRECISION,
@@ -89,10 +88,6 @@ export abstract class VaultAdapter {
     maturity: number;
   }): number;
 
-  getRewardAPY(): number {
-    return 0;
-  }
-
   getVaultTVL(): TokenBalance {
     const vaultShares = getNetworkModel(this.network)
       .getTokensByType('VaultShare', false)
@@ -114,6 +109,10 @@ export abstract class VaultAdapter {
     netAmount: TokenBalance,
     vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData;
+
+  getInterestAccrualRate(): BigNumber {
+    return BigNumber.from(0);
+  }
 
   protected getVaultTradeMetadata(
     tokenSold: TokenBalance,

@@ -12,7 +12,6 @@ import {
 import {
   StatusHeading,
   TransactionButtons,
-  PortfolioCompare,
   OrderDetails,
   PendingTransaction,
 } from './components';
@@ -163,11 +162,7 @@ export const TransactionConfirmation = observer(
           />
         </Box>
       )} */}
-        {(transactionStatus === TransactionStatus.NONE ||
-          transactionStatus === TransactionStatus.WAIT_USER_CONFIRM) &&
-          p.transactionError === undefined && (
-            <PortfolioCompare populatedTransaction={p.populatedTransaction} />
-          )}
+
         {trade?.redeemToWETH && (
           <Box sx={{ marginBottom: theme.spacing(6) }}>
             <ErrorMessage

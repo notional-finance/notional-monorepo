@@ -30,7 +30,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     const primaryToken = getTokenByID(v.depositToken.id);
     const yieldToken = getTokenByID(v.yieldToken.id);
 
-    switch (v.strategyType) {
+    switch (params.strategyType) {
       case 'CurveConvex2Token':
         return new SingleSidedLP(
           self.network,
@@ -55,10 +55,11 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
           vaultAddress,
           params as StakingVaultParams,
           primaryToken,
-          yieldToken
+          yieldToken,
+          getTimeSeries(v.vaultAddress, ChartType.APY)?.data
         );
       default:
-        throw Error(`Unknown vault type: ${v.strategyType}`);
+        throw Error(`Unknown vault type: ${params.strategyType}`);
     }
   };
 
@@ -86,13 +87,15 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     const v = self.configuration?.vaults.find(
       (v) => v.vaultAddress === vaultAddress
     );
-    if (!v) throw Error(`No vault params found: ${vaultAddress}`);
-    return v;
+    const vaultParams = self.vaults.get(vaultAddress);
+    if (!v || !vaultParams)
+      throw Error(`No vault params found: ${vaultAddress}`);
+    return { ...v, strategyType: vaultParams.strategyType };
   };
 
   const getVaultFee = (vaultAddress: string) => {
     const v = getVaultConfig(vaultAddress);
-    return parseFloat(ethers.utils.formatUnits(v.feeRate, 18));
+    return parseFloat(ethers.utils.formatUnits(v.feeRate, 18)) * 100;
   };
 
   const getWithdrawManagers = (vaultAddress: string) => {

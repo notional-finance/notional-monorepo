@@ -23,6 +23,7 @@ export interface APYData {
   pointMultiples?: Record<string, number>;
   leverageRatio?: number;
   debtAPY?: number;
+  unleveragedAssetAPY?: APYData;
 }
 
 export interface ProductAPY {
@@ -47,14 +48,10 @@ export function createLeveragedAPYData(
       assetData.totalAPY !== undefined && debtAPY !== undefined
         ? assetData.totalAPY - debtAPY
         : undefined,
-    assetAPY: assetData.totalAPY,
+    assetAPY: assetData.assetAPY,
     leverageRatio,
     debtAPY,
-    organicAPY: leveragedYield(
-      (assetData?.organicAPY || 0) + (assetData?.feeAPY || 0),
-      debtAPY,
-      leverageRatio
-    ),
+    organicAPY: leveragedYield(assetData?.organicAPY || 0, 0, leverageRatio),
     feeAPY: leveragedYield(assetData?.feeAPY, 0, leverageRatio),
     incentiveAPY: leveragedYield(assetData?.incentiveAPY, 0, leverageRatio),
     incentives: assetData?.incentives?.map(({ symbol, incentiveAPY }) => ({
@@ -74,6 +71,7 @@ export function createLeveragedAPYData(
           return acc;
         }, {} as Record<string, number>)
       : undefined,
+    unleveragedAssetAPY: assetData,
   };
 }
 
@@ -94,8 +92,8 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getLiquidity = (token: TokenDefinition) => {
-    // TODO: this refers to the total liquidity available to borrow
-    return getTVL(token);
+    const market = getLendingMarketFromVaultDebt(token);
+    return market.getLiquidity();
   };
 
   const getSpotAPY = (tokenId: string) => {
@@ -109,11 +107,14 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.totalAPY = apyData.organicAPY;
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = getVaultAdapter(token.vaultAddress);
-      apyData.incentiveAPY = adapter.getRewardAPY();
-      apyData.totalAPY = adapter.getVaultAPY();
-      apyData.organicAPY = apyData.totalAPY - apyData.incentiveAPY;
-      apyData.pointMultiples = adapter.getPointMultiples();
-      apyData.feeAPY = -1 * getVaultFee(token.vaultAddress);
+      const simulatedAPY = adapter.getSimulatedAPY(TokenBalance.zero(token));
+      apyData.incentiveAPY = simulatedAPY.incentiveAPY;
+      apyData.incentives = simulatedAPY.incentives;
+      apyData.totalAPY = simulatedAPY.totalAPY;
+      apyData.organicAPY = simulatedAPY.organicAPY;
+      apyData.assetAPY = simulatedAPY.assetAPY;
+      apyData.pointMultiples = simulatedAPY.pointMultiples;
+      apyData.feeAPY = getVaultFee(token.vaultAddress);
     }
 
     return apyData;
@@ -151,7 +152,9 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.totalAPY = apyData.organicAPY;
     } else if (netAmount.tokenType === 'VaultShare' && netAmount.vaultAddress) {
       const adapter = getVaultAdapter(netAmount.vaultAddress);
-      return adapter.getSimulatedAPY(netAmount, vaultTradeMetadata);
+      const apyData = adapter.getSimulatedAPY(netAmount, vaultTradeMetadata);
+      apyData.feeAPY = getVaultFee(netAmount.vaultAddress);
+      return apyData;
     }
 
     return apyData;
@@ -195,7 +198,7 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
               maxLeverageRatio
             ),
             tvl: getTVL(share as TokenDefinition),
-            liquidity: getLiquidity(share as TokenDefinition),
+            liquidity: getLiquidity(debt as TokenDefinition),
             debtToken: debt,
             vaultShare: share,
           };

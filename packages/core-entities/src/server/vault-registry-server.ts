@@ -33,10 +33,13 @@ const PendleMarketABI = new ethers.utils.Interface([
 const CurveConvex2Token = new ethers.utils.Interface([
   'function CURVE_POOL_TOKEN() view external returns (address)',
   'function PRIMARY_INDEX() view external returns (uint8)',
-  'function maxPoolShare() view external returns (uint256)',
+  'function MAX_POOL_SHARE() view external returns (uint256)',
   'function totalSupply() view external returns (uint256)',
-  // TODO: get this from the abi
-  'function getRewardSettings() view external returns (uint256[])',
+  'function claimRewardTokens() external',
+  `function getRewardSettings() view external returns (
+    (address rewardToken, uint32 lastAccumulatedTime, uint32 endTime, uint128 emissionRatePerYear, uint128 accumulatedRewardPerVaultShare)[] rewardState,
+    (address rewardPool, uint32 lastClaimTimestamp, uint32 forceClaimAfter) rewardPoolState
+  )`,
 ]);
 
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
@@ -206,14 +209,15 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
       {
         stage: 0,
         target: vaultContract,
-        method: 'maxPoolShare',
+        method: 'MAX_POOL_SHARE',
         key: `${vaultAddress}.maxPoolShares`,
       },
       {
-        target: vaultContract,
         stage: 0,
+        target: vaultContract,
         method: 'totalSupply',
         key: `${vaultAddress}.totalVaultShares`,
+        transform: (r: BigNumber) => r,
       },
       {
         stage: 1,
@@ -246,24 +250,37 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         transform: (r: BigNumber, prevResults: Record<string, unknown>) =>
           TokenBalance.toJSON(
             r,
-            prevResults[`${vaultAddress}.yieldToken`] as string,
+            prevResults[`${vaultAddress}.pool`] as string,
             network
           ),
       },
       {
         target: vaultContract,
         stage: 0,
+        method: 'claimRewardTokens',
+        key: `${vaultAddress}.claimRewardTokens`,
+      },
+      {
+        target: vaultContract,
+        stage: 0,
         method: 'getRewardSettings',
         key: `${vaultAddress}.rewardState`,
-        // TODO: fix this
-        // transform: (r: BigNumber[]) =>
-        //   r[0].map((v) => ({
-        //     lastAccumulatedTime: v.lastAccumulatedTime,
-        //     endTime: v.endTime,
-        //     rewardToken: v.rewardToken,
-        //     emissionRatePerYear: v.emissionRatePerYear,
-        //     accumulatedRewardPerVaultShare: v.accumulatedRewardPerVaultShare,
-        //   })),
+        transform: (r: {
+          rewardState: {
+            lastAccumulatedTime: number;
+            endTime: number;
+            rewardToken: string;
+            emissionRatePerYear: BigNumber;
+            accumulatedRewardPerVaultShare: BigNumber;
+          }[];
+        }) =>
+          r.rewardState.map((v) => ({
+            lastAccumulatedTime: v.lastAccumulatedTime,
+            endTime: v.endTime,
+            rewardToken: v.rewardToken,
+            emissionRatePerYear: v.emissionRatePerYear,
+            accumulatedRewardPerVaultShare: v.accumulatedRewardPerVaultShare,
+          })),
       },
     ];
 

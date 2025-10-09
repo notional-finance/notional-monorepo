@@ -60,7 +60,6 @@ const Container = styled(Box)(
   ({ theme }) => `
   display: flex;
   height: 100%;
-  background: ${theme.palette.background.paper};
   border-radius: ${theme.shape.borderRadius()};
 `
 );
@@ -73,6 +72,7 @@ const StyledTabs = styled(Tabs)(
   padding: 2px;
   transition: background 0.3s ease;
   min-height: ${theme.spacing(4.75)};
+  background: ${theme.palette.background.paper};
 
   .MuiButtonBase-root {
     min-width: 0px;
@@ -101,7 +101,7 @@ const StyledTab = styled(Tab)(
   transition-duration: 0.3s;
   transition-property: all;
   min-height: unset;
-  padding: ${theme.spacing(1)};
+  padding: ${theme.spacing(1, 2)};
 
   svg {
     fill: ${theme.palette.typography.light};

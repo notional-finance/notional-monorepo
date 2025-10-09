@@ -4,14 +4,16 @@ import {
   Network,
   getNowSeconds,
   SECONDS_IN_DAY,
+  SCALAR_PRECISION,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
 import { TokenBalance } from '../token-balance';
-import { defaultAbiCoder, BytesLike } from 'ethers/lib/utils';
+import { defaultAbiCoder, BytesLike, formatUnits } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
-import { getVaultType, PointsMultipliers } from '../config/whitelisted-vaults';
+import { PointsMultipliers } from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
@@ -60,8 +62,6 @@ export interface DepositParams {
 }
 
 export class SingleSidedLP extends VaultAdapter {
-  POOL_CAPACITY_PRECISION = 10_000;
-
   // We should make a method that just returns all of these...
   public pool: BaseLiquidityPool<unknown>; // hardcoded probably?
   public singleSidedTokenIndex: number;
@@ -149,7 +149,7 @@ export class SingleSidedLP extends VaultAdapter {
       );
       const maxLPTokens = this.totalPoolSupply.scale(
         this.maxPoolShares,
-        this.POOL_CAPACITY_PRECISION
+        SCALAR_PRECISION
       );
       const remainingLPTokens = maxLPTokens.sub(this.totalLPTokens);
 
@@ -171,25 +171,18 @@ export class SingleSidedLP extends VaultAdapter {
     return this.totalPoolSupply
       ? this.totalLPTokens
           .add(additionalLPTokens)
-          .ratioWith(this.totalPoolSupply)
-          .toNumber()
-      : 0;
+          .scale(SCALAR_PRECISION, this.totalPoolSupply)
+          .scaleTo(18)
+      : BigNumber.from(0);
   }
 
   public getMaxPoolShare() {
-    return (
-      (this.maxPoolShares.toNumber() * RATE_PRECISION) /
-      this.POOL_CAPACITY_PRECISION
-    );
+    return parseFloat(formatUnits(this.maxPoolShares, 18));
   }
 
   public isOverMaxPoolShare(vaultShares?: TokenBalance) {
     const poolShare = this.getPoolShare(vaultShares);
-    return (
-      poolShare >
-      (this.maxPoolShares.toNumber() * RATE_PRECISION) /
-        this.POOL_CAPACITY_PRECISION
-    );
+    return poolShare.gt(this.maxPoolShares);
   }
 
   private getVaultSharesToLPTokens(vaultShares: TokenBalance) {
@@ -208,7 +201,10 @@ export class SingleSidedLP extends VaultAdapter {
     vaultShare: TokenDefinition
   ) {
     if (this.totalLPTokens.isZero())
-      return TokenBalance.from(lpTokens.scaleTo(8), vaultShare);
+      return TokenBalance.from(
+        lpTokens.scaleTo(vaultShare.decimals),
+        vaultShare
+      );
 
     return TokenBalance.from(
       this.totalVaultShares.mul(lpTokens.n).div(this.totalLPTokens.n),
@@ -238,29 +234,67 @@ export class SingleSidedLP extends VaultAdapter {
       : 0;
   }
 
-  override getRewardAPY() {
+  getRewardAPY(): {
+    incentiveAPY: number;
+    incentives: { symbol: string; incentiveAPY: number }[];
+  } {
+    const incentiveAverages = this.getIncentiveAPYRecord();
+
+    // Calculate total incentive APY for backward compatibility
+    const totalIncentiveAPY = Object.values(incentiveAverages).reduce(
+      (sum, value) => sum + value,
+      0
+    );
+
+    // Convert to the expected format
+    const incentives = Object.entries(incentiveAverages).map(([key, value]) => {
+      const symbol = key.split(' ')[0];
+      return {
+        symbol: symbol,
+        incentiveAPY: value,
+      };
+    });
+
+    return {
+      incentiveAPY: totalIncentiveAPY,
+      incentives,
+    };
+  }
+
+  getIncentiveAPYRecord(): Record<string, number> {
     const last7Days = this.apyHistory?.data?.filter(
       ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
     );
-    const vaultType = getVaultType(this.vaultAddress, this.network);
 
-    const incentiveAPYs =
-      last7Days
-        ?.map((r) =>
-          Object.keys(r)
-            .filter((r) =>
-              // Direct claim vaults have a reward APY based on incentives
-              vaultType === 'CurveConvex2Token'
-                ? r.toLowerCase().includes('incentive')
-                : false
-            )
-            .reduce((t, key) => t + (r[key] || 0), 0)
-        )
-        .filter((apy) => apy !== null) || ([] as number[]);
+    if (!last7Days || last7Days.length === 0) {
+      return {};
+    }
 
-    return incentiveAPYs.length > 0
-      ? incentiveAPYs.reduce((t, a) => t + a, 0) / incentiveAPYs.length
-      : 0;
+    // Get all incentive keys from all data points
+    const incentiveKeys = new Set<string>();
+    last7Days.forEach((dataPoint) => {
+      Object.keys(dataPoint).forEach((key) => {
+        if (key.toLowerCase().includes('incentive')) {
+          incentiveKeys.add(key);
+        }
+      });
+    });
+
+    // Calculate average for each incentive key over the last 7 days
+    const incentiveAverages: Record<string, number> = {};
+
+    for (const key of incentiveKeys) {
+      const values = last7Days
+        .map((r) => r[key] || 0)
+        .filter((value) => value !== null && value !== undefined);
+
+      if (values.length > 0) {
+        incentiveAverages[key] =
+          values.reduce((sum, value) => sum + value, 0) / values.length;
+      }
+    }
+
+    return incentiveAverages;
   }
 
   getNetVaultSharesMinted(
@@ -326,7 +360,12 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   private _sumFeesPaid(feesPaid: TokenBalance[]) {
-    const primaryToken = feesPaid[this.singleSidedTokenIndex].token;
+    let primaryToken = feesPaid[this.singleSidedTokenIndex].token;
+    // If the primary token is the zero address, then use the borrowed token
+    // which will be WETH in this case.
+    if (primaryToken.address === ZERO_ADDRESS) {
+      primaryToken = this.borrowedToken;
+    }
     return feesPaid.reduce(
       (s, f) => s.add(f.toToken(primaryToken)),
       TokenBalance.zero(primaryToken)
@@ -422,12 +461,15 @@ export class SingleSidedLP extends VaultAdapter {
     _netAmount: TokenBalance,
     _vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData {
-    const rewardAPY = this.getRewardAPY();
-    const totalAPY = this.getVaultAPY();
+    const { incentiveAPY, incentives } = this.getRewardAPY();
+    const assetAPY = this.getVaultAPY();
+
     return {
-      incentiveAPY: rewardAPY,
-      organicAPY: totalAPY - rewardAPY,
-      totalAPY,
+      incentiveAPY: incentiveAPY,
+      organicAPY: assetAPY - incentiveAPY,
+      incentives: incentives,
+      totalAPY: assetAPY,
+      assetAPY: assetAPY,
       pointMultiples: this.getPointMultiples(),
     };
   }

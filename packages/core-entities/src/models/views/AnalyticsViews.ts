@@ -4,11 +4,12 @@ import { ChartType, TimeSeriesResponse } from '../ModelTypes';
 import { Network } from '@notional-finance/util';
 import { TokenBalance } from '../../token-balance';
 import { TokenDefinition } from '../../Definitions';
+import { getEnvVarWithFallback } from '../../utils/env';
 
-const REGISTRY_HOSTNAME =
-  (process.env['NX_REGISTRY_URL'] as string) ||
-  (process.env['REGISTRY_URL'] as string) ||
-  'https://registry.notional.finance';
+const REGISTRY_HOSTNAME = getEnvVarWithFallback(
+  'NX_REGISTRY_URL',
+  getEnvVarWithFallback('REGISTRY_URL', 'https://registry-v4.notional.finance')
+);
 
 export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
   const fetchTimeSeriesData = flow(function* (

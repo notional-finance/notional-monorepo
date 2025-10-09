@@ -93,28 +93,22 @@ function fillChartDaily<T extends { timestamp: number }>(
 }
 
 export function useLeveragedPerformance(
-  token: TokenDefinition | undefined,
-  isPrimeBorrow: boolean,
+  collateral: TokenDefinition | undefined,
+  debt: TokenDefinition | undefined,
   currentBorrowRate: number | undefined,
   leverageRatio: number | null | undefined
 ) {
-  // TODO: need to get the selecting lending router debt here
-  // const currentNetworkStore = useCurrentNetworkStore();
-  // const primeDebt = token
-  //   ? currentNetworkStore.getPrimeDebt(token.currencyId)
-  //   : undefined;
-  const primeDebt = undefined;
-  const { data: tokenAPY } = useChartData(token, ChartType.APY);
-  const { data: primeBorrowAPY } = useChartData(primeDebt, ChartType.APY);
+  const { data: tokenAPY } = useChartData(collateral, ChartType.APY);
+  const { data: borrowAPY } = useChartData(debt, ChartType.APY);
 
-  if (!token) return [];
+  if (!collateral) return [];
   return fillChartDaily(
     tokenAPY?.data?.map((d) => {
       const totalAPY = d['totalAPY'] || 0;
-      const borrowRate = isPrimeBorrow
-        ? primeBorrowAPY?.data?.find(
-            ({ timestamp }) => d.timestamp === timestamp
-          )?.['totalAPY'] || undefined
+      const borrowRate = borrowAPY
+        ? borrowAPY?.data?.find(({ timestamp }) => d.timestamp === timestamp)?.[
+            'totalAPY'
+          ] || undefined
         : currentBorrowRate;
 
       return {

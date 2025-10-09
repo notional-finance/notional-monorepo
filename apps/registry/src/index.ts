@@ -71,7 +71,7 @@ export default {
   },
   async scheduled(event: ScheduledController, env: BaseDOEnv): Promise<void> {
     const currentMinute = new Date(event.scheduledTime).getMinutes();
-    await execute(env, Network.mainnet, currentMinute === 10);
-    await execute(env, Network.all, currentMinute === 10);
+    await execute(env, Network.mainnet, currentMinute === 0);
+    await execute(env, Network.all, currentMinute === 0);
   },
 };

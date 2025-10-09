@@ -87,7 +87,6 @@ export const AreaChart = ({
   chartToolTipData,
   showCartesianGrid,
   areaLineType = 'monotone',
-  isMultiChart,
   emptyStateMessage,
   showEmptyState,
   title,
@@ -117,8 +116,6 @@ export const AreaChart = ({
     <Box
       sx={{
         width: '100%',
-        padding: isMultiChart ? 'unset' : theme.spacing(3, 0),
-        border: isMultiChart ? 'none' : '',
       }}
     >
       <ResponsiveContainer
@@ -128,7 +125,7 @@ export const AreaChart = ({
       >
         <ComposedChart
           data={areaChartData}
-          margin={{ right: 10, left: 30, bottom: 30 }}
+          margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
         >
           {showCartesianGrid && (
             <CartesianGrid
@@ -154,7 +151,7 @@ export const AreaChart = ({
             type={xAxisTickFormat === 'date' ? 'category' : 'number'}
             tickCount={xAxisTickCount}
             tickSize={0}
-            tickMargin={38}
+            tickMargin={20}
             axisLine={{ stroke: theme.palette.borders.paper }}
             domain={
               xAxisTickFormat === 'date'
@@ -180,6 +177,9 @@ export const AreaChart = ({
             tickLine={false}
           />
           <YAxis
+            tickLine={false}
+            axisLine={false}
+            style={{ fill: theme.palette.typography.light, fontSize: '12px' }}
             type="number"
             orientation="left"
             yAxisId={0}
@@ -190,9 +190,6 @@ export const AreaChart = ({
             width={60}
             scale={'linear'}
             tickSize={0}
-            tickLine={false}
-            axisLine={false}
-            style={{ fill: theme.palette.typography.light, fontSize: '12px' }}
             tickFormatter={(v: number) => yAxisTickHandler(yAxisTickFormat, v)}
           />
           <Line

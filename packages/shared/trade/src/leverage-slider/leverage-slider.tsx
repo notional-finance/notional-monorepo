@@ -7,16 +7,13 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { useCallback, useEffect } from 'react';
 import { MessageDescriptor } from 'react-intl';
-import { TokenBalance } from '@notional-finance/core-entities';
 import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 
 interface LeverageSliderProps {
   inputLabel: MessageDescriptor;
-  cashBorrowed?: TokenBalance;
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
-  showMinMax?: boolean;
   allowDeleverage?: boolean;
   onChange?: (leverageRatio: number) => void;
 }
@@ -26,25 +23,21 @@ export const LeverageSlider = observer(
     inputLabel,
     errorMsg,
     infoMsg,
-    cashBorrowed,
     allowDeleverage,
-    showMinMax,
     onChange,
   }: LeverageSliderProps) => {
     const trade = useCurrentTradeContext();
     const debtBalance = trade?.debtBalance;
     const maxLeverageRatio = trade?.maxLeverageRatio;
     const minLeverageRatio = trade?.minLeverageRatio;
+    const defaultLeverageRatio = trade?.defaultLeverageRatio;
     const leverageRatio = trade?.leverageRatio;
     const { sliderInputRef, setSliderInput } = useSliderInputRef();
     const isDeleverage = debtBalance?.isPositive();
-
-    const borrowOrRepayAmount = cashBorrowed
-      ? cashBorrowed.toUnderlying().abs()
-      : debtBalance?.toUnderlying().abs();
+    const debtBalanceUnderlying = debtBalance?.toUnderlying();
 
     const topRightCaption =
-      borrowOrRepayAmount !== undefined ? (
+      debtBalanceUnderlying !== undefined ? (
         <>
           {isDeleverage ? (
             <FormattedMessage defaultMessage={'Repay Amount:'} />
@@ -53,8 +46,8 @@ export const LeverageSlider = observer(
           )}
           &nbsp;
           <CountUp
-            value={borrowOrRepayAmount.abs().toFloat()}
-            suffix={` ${borrowOrRepayAmount.symbol || ''}`}
+            value={debtBalanceUnderlying.abs().toFloat()}
+            suffix={` ${debtBalanceUnderlying.symbol || ''}`}
             decimals={2}
           />
         </>
@@ -106,10 +99,12 @@ export const LeverageSlider = observer(
         ref={sliderInputRef}
         min={minLeverageRatio || 0}
         max={maxLeverageRatio}
+        isRangeSlider={trade?.tradeType === 'AdjustVaultLeverage'}
         onChangeCommitted={onChange || onChangeCommitted}
         infoMsg={infoMsg}
         errorMsg={errorMsg}
-        showMinMax={showMinMax}
+        disableBelowBaseValue={allowDeleverage === false}
+        baseValue={defaultLeverageRatio}
         topRightCaption={topRightCaption}
         bottomCaption={bottomCaption}
         inputLabel={inputLabel}

@@ -1,5 +1,4 @@
 import { useTheme } from '@mui/material';
-import { TokenDefinition } from '@notional-finance/core-entities';
 import { formatNumber } from '@notional-finance/helpers';
 import { getDateString } from '@notional-finance/util';
 import {
@@ -7,62 +6,30 @@ import {
   AreaChartStylesProps,
   LEGEND_LINE_TYPES,
 } from '@notional-finance/mui';
-import { isVaultTrade } from '@notional-finance/notionable';
 import {
   calculateDepositValue,
   useCurrentTradeContext,
   useLeveragedPerformance,
-  useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
-import { useParams } from 'react-router-dom';
 
-export function usePerformanceChart(currentPositionFactors?: {
-  collateralToken?: TokenDefinition;
-  isPrimeBorrow: boolean;
-  borrowRate?: number;
-  leverageRatio?: number;
-}) {
+export function usePerformanceChart() {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
-  const {
-    collateral: _collateral,
-    debt,
-    deposit,
-  } = trade?.selectedTokens || {};
-  const selectedLeverageRatio = trade?.leverageRatio;
-  const { action } = useParams<{ action: string }>();
+  const { collateral, debt, deposit } = trade?.selectedTokens || {};
+  const { leveragedAPY } = trade?.getVaultAPYBreakdown() ?? {};
 
-  // Allow the vault collateral to override the set collateral for the unset state
-  const collateral = currentPositionFactors?.collateralToken || _collateral;
-  const tradeType = trade?.tradeType;
-  const { debt: debtOptions } = trade?.computedOptions || {};
-
-  const spotData = useSpotMaturityData(debt ? [debt] : undefined);
-  const isVault = isVaultTrade(tradeType);
-
-  const currentBorrowRate =
-    debtOptions?.find((t) => t.token.id === debt?.id && action !== 'Manage')
-      ?.interestRate ||
-    // Allow the historical vault borrow rate to be applied here
-    currentPositionFactors?.borrowRate ||
-    spotData.find((_) => true)?.tradeRate;
-
+  const currentBorrowRate = leveragedAPY?.debtAPY;
   // Always use the specified leverage ratio so that this figure matches
   // the header
-  const leverageRatio = (selectedLeverageRatio ||
-    currentPositionFactors?.leverageRatio) as number | undefined;
+  const leverageRatio = leveragedAPY?.leverageRatio || 0;
   const data = useLeveragedPerformance(
     collateral,
-    false,
+    debt,
     currentBorrowRate,
     leverageRatio
   );
-  const areaChartData = calculateDepositValue(
-    leverageRatio,
-    data,
-    isVault ? 30 : 90
-  );
+  const areaChartData = calculateDepositValue(leverageRatio, data, 30);
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {

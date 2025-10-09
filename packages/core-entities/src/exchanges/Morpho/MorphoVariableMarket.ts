@@ -149,6 +149,10 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
 
   public abstract getInterestRate(utilization: BigNumber): number;
 
+  public getLiquidity() {
+    return this.poolParams.marketState.totalSupplyAssets;
+  }
+
   public override calculateTokenTrade(
     _tokensIn: TokenBalance,
     _tokenIndexOut: number,
@@ -206,6 +210,8 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
           netBorrow.toUnderlying()
         )
       : this.poolParams.marketState.totalBorrowAssets;
+
+    if (totalSupplyAssets.isZero()) return BigNumber.from(0);
 
     // Utilization is in 1e18 precision
     const utilization = totalBorrowAssets

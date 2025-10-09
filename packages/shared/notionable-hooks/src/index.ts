@@ -15,5 +15,4 @@ export * from './use-network';
 export * from './use-note-data';
 export * from './summary/use-liquidation-risk';
 export * from './summary/use-order-details';
-export * from './summary/use-portfolio-comparison';
 export * from './use-side-drawer-manager';

@@ -1,14 +1,21 @@
-import { BASIS_POINT, Network } from '@notional-finance/util';
+import {
+  BASIS_POINT,
+  getNowSeconds,
+  Network,
+  SECONDS_IN_DAY,
+} from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import {
   APYData,
   getNetworkModel,
+  TimeSeriesResponse,
   TokenBalance,
   TokenDefinition,
   VaultDefaultDexParameters,
   VaultTradeMetadata,
 } from '..';
 import { defaultAbiCoder } from 'ethers/lib/utils';
+import { BigNumber } from 'ethers';
 
 export interface StakingVaultParams extends BaseVaultParams {
   yieldToken: string;
@@ -23,7 +30,8 @@ export class Staking extends VaultAdapter {
     vaultAddress: string,
     p: StakingVaultParams,
     borrowedToken: TokenDefinition,
-    yieldToken: TokenDefinition
+    yieldToken: TokenDefinition,
+    public apyHistory?: TimeSeriesResponse
   ) {
     super(
       p.enabled,
@@ -202,28 +210,41 @@ export class Staking extends VaultAdapter {
     vaultShares: TokenBalance;
     maturity: number;
   }): number {
-    return 5.3;
+    const vaultAPYs =
+      this.apyHistory?.data
+        ?.filter(
+          ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+        )
+        .map(({ totalAPY }) => totalAPY)
+        .filter((apy) => apy !== null) || [];
+
+    return vaultAPYs.length > 0
+      ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
+      : 0;
   }
 
   override getLiquidationPriceTokens(): TokenDefinition[] {
     return [this.stakingToken];
   }
 
+  override getInterestAccrualRate(): BigNumber {
+    const model = getNetworkModel(this.network);
+    const oracle = model.oracles.get(
+      `${this.stakingToken.id}:${this.yieldToken.id}:WithdrawTokenExchangeRate`
+    );
+    return oracle?.latestRate.rate || BigNumber.from(0);
+  }
+
   override getSimulatedAPY(
     _netAmount: TokenBalance,
     _vaultTradeMetadata?: unknown
   ): APYData {
+    const organicAPY = this.getVaultAPY();
+
     return {
-      totalAPY: 0,
-      organicAPY: 0,
-      assetAPY: 0,
-      feeAPY: 0,
-      apySpread: 0,
-      incentiveAPY: 0,
-      incentives: [],
-      utilization: 0,
-      pointMultiples: {},
-      leverageRatio: 0,
+      totalAPY: organicAPY,
+      organicAPY: organicAPY,
+      assetAPY: organicAPY,
     };
   }
 }

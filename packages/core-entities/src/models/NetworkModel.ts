@@ -34,11 +34,12 @@ import defaultPools from '../exchanges/default-pools';
 import { buildOracleGraph, OracleViews } from './views/OracleViews';
 import { YieldViews } from './views/YieldViews';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
+import { getEnvVarWithFallback } from '../utils/env';
 
-const REGISTRY_URL =
-  process.env['NX_REGISTRY_URL'] ||
-  process.env['REGISTRY_URL'] ||
-  'https://registry.notional.finance';
+const REGISTRY_URL = getEnvVarWithFallback(
+  'NX_REGISTRY_URL',
+  getEnvVarWithFallback('REGISTRY_URL', 'https://registry-v4.notional.finance')
+);
 
 export const NetworkModel = types.model('Network', {
   network: NotionalTypes.Network,
@@ -110,8 +111,6 @@ export const NetworkServerModel = NetworkModelWithViews.named(
     const oracles = yield oracleRegistry.fetchForModel(self.network);
 
     self.exchanges.replace(exchanges);
-
-    // TODO: add note oracle definition inside the server
     self.oracles.replace(oracles);
     self.vaults.replace(vaults);
 

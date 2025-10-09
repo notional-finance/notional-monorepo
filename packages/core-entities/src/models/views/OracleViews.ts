@@ -9,7 +9,7 @@ import {
 import { PRICE_ORACLES } from '../../Definitions';
 import { Instance } from 'mobx-state-tree';
 import { OracleDefinitionModel } from '../ModelTypes';
-import { ExchangeRate, TokenDefinition } from '../../Definitions';
+import { ExchangeRate } from '../../Definitions';
 import { BigNumber } from 'ethers';
 import { NetworkModel } from '../NetworkModel';
 
@@ -174,22 +174,8 @@ export const OracleViews = (self: Instance<typeof NetworkModel>) => {
     );
   };
 
-  const getInterestAccrualRate = (token: TokenDefinition) => {
-    const oracle = self.oracles.get(
-      `${token.underlying}:${token.id}:${
-        token.tokenType === 'VaultShare'
-          ? 'VaultShareInterestAccrued'
-          : 'nTokenInterestAccrued'
-      }`
-    );
-    // TODO: PendlePT vaults don't have interest accrual rates
-    if (!oracle || !oracle.latestRate.rate) return undefined;
-    return oracle.latestRate;
-  };
-
   return {
     getExchangeRateBetweenTokens,
-    getInterestAccrualRate,
   };
 };
 

@@ -2,13 +2,14 @@ import { BigNumber } from 'ethers';
 import FixedPoint from '../exchanges/BalancerV2/fixed-point';
 import { TokenBalance } from '../token-balance';
 import crossFetch from 'cross-fetch';
+import { getEnvVar, getEnvVarWithFallback } from '../utils/env';
 
-const REGISTRY_HOSTNAME =
-  (process.env['NX_REGISTRY_URL'] as string) ||
-  (process.env['REGISTRY_URL'] as string) ||
-  'https://registry.notional.finance';
+const REGISTRY_HOSTNAME = getEnvVarWithFallback(
+  'NX_REGISTRY_URL',
+  getEnvVarWithFallback('REGISTRY_URL', 'https://registry-v4.notional.finance')
+);
 const USE_CROSS_FETCH =
-  process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
+  getEnvVar('NX_USE_CROSS_FETCH') || getEnvVar('NODE_ENV') == 'test';
 
 export * from './accounts';
 

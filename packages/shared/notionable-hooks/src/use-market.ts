@@ -2,7 +2,7 @@ import {
   getNetworkModel,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { firstValue, Network } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { useEffect } from 'react';
 import { useCurrentNetworkStore } from './context/use-root-store';
 import { useObserver } from 'mobx-react-lite';
@@ -34,29 +34,6 @@ export const useSNOTEPool = () => {
       return undefined;
     }
   });
-};
-
-export const useSpotMaturityData = (
-  tokens: TokenDefinition[] | undefined
-): MaturityData[] => {
-  const currentNetworkStore = useCurrentNetworkStore();
-  // NOTE: This is a hack to prevent the maturity data from being fetched for tokens
-  // on a different network
-  if (currentNetworkStore.network !== firstValue(tokens || [])?.network) {
-    return [];
-  }
-
-  return (
-    tokens?.map((t) => {
-      const spotRate = currentNetworkStore.getSpotAPY(t.id).totalAPY || 0;
-      return {
-        token: t,
-        tokenId: t.id,
-        tradeRate: spotRate,
-        maturity: t.maturity || 0,
-      };
-    }) || []
-  );
 };
 
 export function useFetchAnalyticsData(

@@ -1,27 +1,39 @@
 import NumberFormat from 'react-number-format';
-import { Box, Divider, Input, styled, useTheme } from '@mui/material';
+import {
+  alpha,
+  Box,
+  Divider,
+  Input,
+  Slider,
+  styled,
+  useTheme,
+} from '@mui/material';
 import { InputLabel } from '../input-label/input-label';
 import { useCallback, useRef, useState } from 'react';
-import SliderBasic from '../slider-basic/slider-basic';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { Caption } from '../typography/typography';
 import ErrorMessage from '../error-message/error-message';
 import { InfoTooltip } from '../info-tooltip/info-tooltip';
 import React from 'react';
 import CountUp from '../count-up/count-up';
+import { colors } from '@notional-finance/styles';
+import { Mark } from '@mui/base';
+import SliderBasic from '../slider-basic/slider-basic';
 
 export interface SliderInputProps {
   min: number;
   max: number;
   onChangeCommitted: (value: number) => void;
+  isRangeSlider?: boolean;
   sliderStep?: number;
   displayStep?: number;
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   inputLabel?: MessageDescriptor;
+  disableBelowBaseValue?: boolean;
+  baseValue: number | undefined;
   topRightCaption?: JSX.Element;
   bottomCaption?: JSX.Element;
-  showMinMax?: boolean;
   sliderLeverageInfo?: {
     caption: React.ReactNode;
     value: number | React.ReactNode;
@@ -35,6 +47,8 @@ export interface SliderInputHandle {
   setInputOverride: (input: number, emitChange?: boolean) => void;
   getInputValue: () => number;
 }
+
+export const SLIDER_STEP_SIZE = 0.1;
 
 const Container = styled(Box)(
   ({ theme }) => `
@@ -105,6 +119,143 @@ export const useSliderInputRef = () => {
   return { setSliderInput, sliderInputRef };
 };
 
+interface RangeSliderProps {
+  min: number;
+  max: number;
+  disableBelowBaseValue?: boolean;
+  baseValue: number;
+  currentValue: number;
+  onChange: (value: number) => void;
+  onChangeCommitted: (value: number) => void;
+}
+
+const RangeSlider = ({
+  min,
+  max,
+  disableBelowBaseValue,
+  baseValue,
+  currentValue,
+  onChange,
+  onChangeCommitted,
+}: RangeSliderProps) => {
+  const theme = useTheme();
+  const marks = Array.from({ length: 10 }, (_, i) => {
+    const value = ((max - min) * i) / 9 + min;
+    const color =
+      disableBelowBaseValue && value < baseValue
+        ? colors.darkGrey
+        : // Leverage range
+        baseValue <= value && value <= currentValue
+        ? theme.palette.primary.light
+        : // Deleveraging range
+        currentValue <= value && value <= baseValue
+        ? theme.palette.primary.dark
+        : theme.palette.borders.paper;
+    return {
+      value,
+      label: '',
+      color,
+    };
+  });
+  const railBackground = disableBelowBaseValue
+    ? `linear-gradient(90deg, ${[
+        `rgb(143,155,179) 0%`,
+        `rgb(143,155,179) ${Math.floor((baseValue / max) * 100)}%`,
+        `rgba(230,234,235, 0.5) ${Math.floor((baseValue / max) * 100)}%`,
+        `rgba(230,234,235, 0.5) 100%`,
+      ].join(',')})`
+    : alpha(theme.palette.borders.default, 0.5);
+
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        marginBottom: theme.spacing(2),
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-evenly',
+      }}
+    >
+      <StyledSlider
+        sx={{
+          '& .MuiSlider-track': {
+            border: 'none',
+            height: '4px',
+            background:
+              currentValue <= baseValue
+                ? theme.palette.primary.dark
+                : theme.palette.primary.light,
+          },
+          '& .MuiSlider-rail': {
+            opacity: 1,
+            height: '4px',
+            border: 'none',
+            background: railBackground,
+            boxShadow: 'inset 0px 0px 4px -2px #000',
+          },
+          '& .MuiSlider-thumb': {
+            height: theme.spacing(2),
+            width: theme.spacing(2),
+            background: theme.palette.borders.paper,
+            visibility: 'visible',
+            border: `3px solid ${
+              currentValue < baseValue
+                ? theme.palette.primary.dark
+                : theme.palette.primary.light
+            }`,
+            boxShadow: theme.shape.shadowStandard,
+          },
+          [`& .MuiSlider-thumb[data-index="${
+            baseValue < currentValue ? 0 : 1
+          }"]`]: {
+            visibility: 'hidden',
+          },
+          '& .MuiSlider-mark': {
+            height: theme.spacing(1.5),
+            width: theme.spacing(0.5),
+            borderRadius: theme.spacing(0.5),
+          },
+        }}
+        min={min}
+        max={max}
+        step={SLIDER_STEP_SIZE}
+        marks={marks}
+        // The base value is always the first value in the array, and we hide the thumb,
+        // this allows us to get a relative range for the track color
+        value={[baseValue, currentValue]}
+        onChange={(_, value) =>
+          onChange(value[0] === baseValue ? value[1] : value[0])
+        }
+        onChangeCommitted={(_, value) =>
+          onChangeCommitted(value[0] === baseValue ? value[1] : value[0])
+        }
+      />
+    </Box>
+  );
+};
+
+const StyledSlider = styled(Slider)(
+  ({ marks }) => `
+  ${
+    Array.isArray(marks) &&
+    (marks as (Mark & { color: string })[])
+      .map(
+        (mark, i) => `
+      .MuiSlider-mark[data-index='${i}'] {
+        height: 12px;
+        width: 4px;
+        border-radius: 5px;
+        color: ${mark.color};
+        background-color: ${mark.color};
+      }`
+      )
+      .join(' ')
+  }
+  `
+);
+
 export const SliderInput = React.forwardRef<
   SliderInputHandle,
   SliderInputProps
@@ -114,46 +265,63 @@ export const SliderInput = React.forwardRef<
       min,
       max,
       onChangeCommitted,
-      sliderStep = 0.1,
       displayStep = 0.01,
       errorMsg,
+      isRangeSlider,
       infoMsg,
       inputLabel,
+      disableBelowBaseValue,
+      baseValue = min,
       topRightCaption,
       bottomCaption,
       sliderLeverageInfo,
-      showMinMax,
     },
     ref
   ) => {
     const theme = useTheme();
-    const [value, setValue] = useState(min);
+    const [value, _setValue] = useState(min);
     const [hasFocusOnValueInput, setHasFocusOnValueInput] = useState(false);
     const captionMsg = errorMsg || infoMsg;
     const isError = !!errorMsg;
+    const setValue = useCallback(
+      (input: number) => {
+        if (disableBelowBaseValue && input < baseValue) {
+          _setValue(baseValue);
+          return baseValue;
+        }
+        _setValue(input);
+        return input;
+      },
+      [disableBelowBaseValue, baseValue]
+    );
 
     React.useImperativeHandle(ref, () => ({
       setInputOverride: (input: number, emitChange = true) => {
         // Only execute change commits greater than the step size
         // otherwise rounding errors will trigger changes
         if (Math.abs(input - value) > displayStep) {
-          setValue(input);
-          if (emitChange) onChangeCommitted(input);
+          const newValue = setValue(input);
+          if (emitChange) onChangeCommitted(newValue);
         }
       },
       getInputValue: () => {
         return value;
       },
     }));
-
-    const marks = Array.from({ length: 10 }, (_, i) => ({
-      value: ((max - min) * i) / 9 + min,
-      label: '',
-      color:
-        ((max - min) * i) / 9 + min <= value
-          ? theme.palette.secondary.light
-          : theme.palette.borders.paper,
-    }));
+    const onSliderChange = (v: number) => {
+      setValue(v);
+      if (!hasFocusOnValueInput) setHasFocusOnValueInput(true);
+    };
+    const onSliderChangeCommitted = (v: number) => {
+      const newValue = setValue(v);
+      setHasFocusOnValueInput(false);
+      // Use a setTimeout here before triggering onChangeCommit to ensure
+      // that the slider animation completes before we trigger otherwise
+      // it will look "jumpy" to the user
+      setTimeout(() => {
+        onChangeCommitted(newValue);
+      }, 100);
+    };
 
     return (
       <Box sx={{ width: '100%' }}>
@@ -198,8 +366,8 @@ export const SliderInput = React.forwardRef<
               onBlur={(event) => {
                 try {
                   const value = Number(event.target.value);
-                  setValue(value);
-                  onChangeCommitted(value);
+                  const newValue = setValue(value);
+                  onChangeCommitted(newValue);
                 } catch {
                   // On parsing error nothing changes
                 }
@@ -232,28 +400,37 @@ export const SliderInput = React.forwardRef<
             }}
           />
           <SliderContainer>
-            <SliderBasic
-              min={min}
-              max={max}
-              step={sliderStep}
-              value={value}
-              showMinMax={showMinMax}
-              showThumb
-              marks={marks}
-              disabled={false}
-              onChange={(v) => {
-                setValue(v);
-              }}
-              onChangeCommitted={(v) => {
-                setValue(v);
-                // Use a setTimeout here before triggering onChangeCommit to ensure
-                // that the slider animation completes before we trigger otherwise
-                // it will look "jumpy" to the user
-                setTimeout(() => {
-                  onChangeCommitted(value);
-                }, 100);
-              }}
-            />
+            {isRangeSlider ? (
+              <RangeSlider
+                min={min}
+                max={max}
+                disableBelowBaseValue={disableBelowBaseValue}
+                baseValue={baseValue}
+                currentValue={value}
+                onChange={onSliderChange}
+                onChangeCommitted={onSliderChangeCommitted}
+              />
+            ) : (
+              <SliderBasic
+                min={min}
+                max={max}
+                step={SLIDER_STEP_SIZE}
+                value={value}
+                marks={Array.from({ length: 10 }, (_, i) => ({
+                  value: ((max - min) * i) / 9 + min,
+                  label: '',
+                  color:
+                    ((max - min) * i) / 9 + min <= value
+                      ? theme.palette.secondary.light
+                      : theme.palette.borders.paper,
+                }))}
+                showMinMax={false}
+                showThumb
+                disabled={false}
+                onChange={onSliderChange}
+                onChangeCommitted={onSliderChangeCommitted}
+              />
+            )}
           </SliderContainer>
         </Container>
         {sliderLeverageInfo && (

@@ -217,7 +217,7 @@ function getSpecificVaultInfo(
       buttonBarData: [
         {
           buttonText: <FormattedMessage defaultMessage={'Claim Rewards'} />,
-          link: `/vaults/${v.network}/${v.vaultAddress}/ClaimVaultRewards`,
+          link: `/vault/${v.network}/${v.vaultAddress}/claim-rewards`,
         },
       ],
       warning: undefined,

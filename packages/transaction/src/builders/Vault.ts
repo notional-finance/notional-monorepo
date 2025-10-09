@@ -8,6 +8,7 @@ import {
   getNetworkModel,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
+import { Network } from '@notional-finance/util';
 
 export async function EnterVault({
   address,
@@ -195,5 +196,25 @@ export async function InitiateWithdraw({
     lendingRouter,
     'initiateWithdraw',
     [address, vaultAddress, vaultData]
+  );
+}
+
+export async function ClaimRewards({
+  address,
+  network,
+  lendingRouter,
+  vaultAddress,
+}: {
+  address: string;
+  network: Network;
+  lendingRouter: string;
+  vaultAddress: string;
+}): Promise<PopulatedTransaction> {
+  return populateLendingRouterTxnAndGas(
+    network,
+    address,
+    lendingRouter,
+    'claimRewards',
+    [address, vaultAddress]
   );
 }
