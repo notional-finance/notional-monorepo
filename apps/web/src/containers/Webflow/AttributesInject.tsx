@@ -4,8 +4,11 @@ import {
   useAllVaults,
   useAppStore,
   useLandingPageStats,
+  useLatestBlogPosts,
 } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
+import { getDateString } from '@notional-finance/util';
+import { PostOrPage } from '@tryghost/content-api';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -256,6 +259,7 @@ export const LandingPageInject = () => {
   const shadowEl = useRef<Element>();
   const [isInitialized, setIsInitialized] = useState(false);
   const kpiData = useLandingPageStats();
+  const blogPosts = useLatestBlogPosts();
 
   const containerRef = useStartInject(
     '6807f00cedf01dce8388f197',
@@ -281,6 +285,67 @@ export const LandingPageInject = () => {
         maxEthApyElement.textContent = `${kpiData.highestETH}`;
     }
   }, [kpiData, shadowEl, isInitialized]);
+
+  useEffect(() => {
+    const fillInBlogPost = (suffix: string, post: PostOrPage) => {
+      const blogPostImageElement = shadowEl.current?.shadowRoot?.querySelector(
+        `#blog-image-${suffix}`
+      );
+      if (blogPostImageElement && post.feature_image) {
+        (blogPostImageElement as HTMLImageElement).src = post.feature_image;
+        (blogPostImageElement as HTMLImageElement).srcset = post.feature_image;
+      }
+      const blogPostTitleElement = shadowEl.current?.shadowRoot?.querySelector(
+        `#blog-title-${suffix}`
+      );
+      if (blogPostTitleElement) {
+        blogPostTitleElement.textContent = post.title || '';
+      }
+      const blogDescriptionElement =
+        shadowEl.current?.shadowRoot?.querySelector(
+          `#blog-description-${suffix}`
+        );
+      if (blogDescriptionElement) {
+        blogDescriptionElement.innerHTML = `${
+          post.html?.slice(0, 150) || ''
+        }...`;
+      }
+
+      const blogPostAuthorElement = shadowEl.current?.shadowRoot?.querySelector(
+        `#blog-author-${suffix}`
+      );
+      if (blogPostAuthorElement) {
+        (blogPostAuthorElement as HTMLImageElement).src =
+          post.primary_author?.profile_image || '';
+      }
+
+      const blogPostAuthorNameElement =
+        shadowEl.current?.shadowRoot?.querySelector(
+          `#blog-author-name-${suffix}`
+        );
+      if (blogPostAuthorNameElement) {
+        blogPostAuthorNameElement.textContent = post.primary_author?.name || '';
+      }
+
+      const blogPostDateElement = shadowEl.current?.shadowRoot?.querySelector(
+        `#blog-date-${suffix}`
+      );
+      if (blogPostDateElement) {
+        blogPostDateElement.textContent =
+          getDateString(new Date(post.published_at || '').getTime() / 1000) ||
+          '';
+      }
+    };
+    if (
+      blogPosts &&
+      blogPosts.length === 2 &&
+      isInitialized &&
+      shadowEl.current
+    ) {
+      fillInBlogPost('left', blogPosts[0] as PostOrPage);
+      fillInBlogPost('right', blogPosts[1] as PostOrPage);
+    }
+  }, [blogPosts, shadowEl, isInitialized]);
 
   return (
     <Box

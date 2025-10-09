@@ -3,9 +3,27 @@ import {
   initializeTokenBalanceRegistry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { formatNumberAsPercent, Network } from '@notional-finance/util';
+import {
+  formatNumberAsPercent,
+  getNowSeconds,
+  Network,
+  SECONDS_IN_HOUR,
+} from '@notional-finance/util';
 
-export async function calculateKPI() {
+export async function calculateKPI(viewCacheR2: R2Bucket) {
+  const kpiCache = await viewCacheR2.get(`${Network.mainnet}/v4/kpi`);
+  if (kpiCache) {
+    const cache = (await kpiCache.json()) as {
+      lastUpdated: number;
+      highestUSDC: string;
+      highestETH: string;
+      totalTVL: string;
+    };
+    if (cache.lastUpdated > getNowSeconds() - SECONDS_IN_HOUR) {
+      return cache;
+    }
+  }
+
   const models = initializeTokenBalanceRegistry();
   await Promise.all(models.map((m) => m.triggerRefresh(true)));
   const mainnet = models.find((m) => m.network === Network.mainnet);
@@ -42,19 +60,13 @@ export async function calculateKPI() {
       0
     );
 
-  return {
-    totalTVL: totalTVL.toDisplayStringWithSymbol(2, true, false),
+  const result = {
+    lastUpdated: getNowSeconds(),
     highestUSDC: formatNumberAsPercent(highestUSDC, 2),
     highestETH: formatNumberAsPercent(highestETH, 2),
+    totalTVL: totalTVL.toDisplayStringWithSymbol(2, true, false),
   };
+  await viewCacheR2.put(`${Network.mainnet}/v4/kpi`, JSON.stringify(result));
 
-  // await putStorageKey(
-  //   env,
-  //   `${mainnet.network}/kpi`,
-  //   JSON.stringify({
-  //     totalTVL: totalTVL.toDisplayStringWithSymbol(2, true, false),
-  //     highestUSDCAPY: formatNumberAsPercent(highestUSDCAPY, 2),
-  //     highestETHAPY: formatNumberAsPercent(highestETHAPY, 2),
-  //   })
-  // );
+  return result;
 }

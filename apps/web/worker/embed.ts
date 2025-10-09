@@ -182,9 +182,6 @@ export async function fetchWebflowPage(pathname: string, isEmbed: boolean) {
   // If pathname starts with /embed, we need to remove the /embed prefix otherwise just default to the
   // root path
   const targetPath = isEmbed ? pathname.replace(/^\/embed\//, '') : pathname;
-  console.log('isEmbed', isEmbed);
-  console.log('pathname', pathname);
-  console.log('fetching webflow page', targetPath);
   const url = `${WEBFLOW_ROOT}/${targetPath}`;
   const res = await fetch(url);
   if (!res.ok) {

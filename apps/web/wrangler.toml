@@ -2,6 +2,7 @@ name = "notional-web-v4"
 compatibility_date = "2025-06-09"
 main = "./worker/index.ts"
 workers_dev = true
+compatibility_flags = ["nodejs_compat"]
 
 [assets]
 directory = "../../dist/apps/web"
