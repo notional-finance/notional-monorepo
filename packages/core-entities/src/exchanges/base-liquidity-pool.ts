@@ -4,9 +4,9 @@ import {
   Network,
   RATE_DECIMALS,
   RATE_PRECISION,
-  ZERO_ADDRESS,
   doSecantSearch,
   DEX_ID,
+  WETHAddress,
 } from '@notional-finance/util';
 import { utils } from 'ethers';
 
@@ -31,9 +31,11 @@ export default abstract class BaseLiquidityPool<
   }
 
   public get balances() {
-    // Remap WETH to ETH
+    // Remap ETH to WETH
     return this._balances.map((b) =>
-      b.symbol === 'WETH' ? new TokenBalance(b.n, ZERO_ADDRESS, b.network) : b
+      b.symbol === 'ETH'
+        ? new TokenBalance(b.n, WETHAddress[this._network], b.network)
+        : b
     );
   }
 
