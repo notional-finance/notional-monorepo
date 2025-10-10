@@ -360,12 +360,7 @@ export class SingleSidedLP extends VaultAdapter {
   }
 
   private _sumFeesPaid(feesPaid: TokenBalance[]) {
-    let primaryToken = feesPaid[this.singleSidedTokenIndex].token;
-    // If the primary token is the zero address, then use the borrowed token
-    // which will be WETH in this case.
-    if (primaryToken.address === ZERO_ADDRESS) {
-      primaryToken = this.borrowedToken;
-    }
+    const primaryToken = feesPaid[this.singleSidedTokenIndex].token;
     return feesPaid.reduce(
       (s, f) => s.add(f.toToken(primaryToken)),
       TokenBalance.zero(primaryToken)

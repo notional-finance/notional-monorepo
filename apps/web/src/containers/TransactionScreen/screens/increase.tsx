@@ -11,7 +11,7 @@ export const VaultIncreaseScreen = observer(() => {
 
   return (
     <TransactionScreen
-      actionPrefix="Increase"
+      actionPrefix="Deposit"
       hasBackButton
       inputs={[
         <DepositInput

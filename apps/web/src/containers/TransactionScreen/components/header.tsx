@@ -1,28 +1,31 @@
 import { Box, Chip, styled, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import { H2, LargeInputTextEmphasized } from '@notional-finance/mui';
-import { useAppStore } from '@notional-finance/notionable-hooks';
-import { APYData } from '@notional-finance/core-entities';
+import {
+  useAppStore,
+  useCurrentTradeContext,
+  useVaultMetadata,
+} from '@notional-finance/notionable-hooks';
 import { APYBeforePoints, APYBox } from './apy-header';
 
 interface HeaderProps {
-  title: string;
-  tokenSymbol?: string;
-  features?: string[];
+  actionPrefix?: string;
   isPointsOnly?: boolean;
-  apyInfo?: APYData;
 }
 
 // Header Component
-const Header = ({
-  title,
-  features,
-  apyInfo,
-  tokenSymbol,
-  isPointsOnly,
-}: HeaderProps) => {
+const Header = ({ actionPrefix, isPointsOnly }: HeaderProps) => {
   const { isMobileView } = useAppStore();
   const theme = useTheme();
+  const trade = useCurrentTradeContext();
+  const tradeType = trade?.tradeType;
+  const vaultMetadata = useVaultMetadata(trade?.vaultAddress);
+  const title = actionPrefix
+    ? `${actionPrefix}: ${vaultMetadata?.name || ''}`
+    : vaultMetadata?.name || '';
+  const tokenSymbol = vaultMetadata?.depositToken.symbol || '';
+  const features: string[] = vaultMetadata?.vaultFeatures || [];
+  const { leveragedAPY } = trade?.getVaultAPYBreakdown() || {};
 
   return (
     <HeaderContainer>
@@ -46,23 +49,25 @@ const Header = ({
               gap: theme.spacing(1),
             }}
           >
-            {features?.map((feature) => (
-              <Chip
-                key={feature}
-                label={feature}
-                color="info"
-                size="small"
-                sx={{
-                  backgroundColor: theme.palette.info.light,
-                  color: theme.palette.info.dark,
-                }}
-              />
-            ))}
+            {tradeType === 'ManageVault'
+              ? features?.map((feature) => (
+                  <Chip
+                    key={feature}
+                    label={feature}
+                    color="info"
+                    size="small"
+                    sx={{
+                      backgroundColor: theme.palette.info.light,
+                      color: theme.palette.info.dark,
+                    }}
+                  />
+                ))
+              : actionPrefix}
           </Box>
         </Column>
       </LeftSection>
       <RightSection>
-        {apyInfo && (
+        {leveragedAPY && (
           <Column
             sx={{
               alignItems: 'flex-end',
@@ -73,9 +78,9 @@ const Header = ({
             }}
           >
             {isPointsOnly ? (
-              <APYBeforePoints apyInfo={apyInfo} />
+              <APYBeforePoints apyInfo={leveragedAPY} />
             ) : (
-              <APYBox apyInfo={apyInfo} />
+              <APYBox apyInfo={leveragedAPY} />
             )}
           </Column>
         )}

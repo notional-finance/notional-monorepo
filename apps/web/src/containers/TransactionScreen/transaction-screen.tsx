@@ -35,23 +35,12 @@ export const TransactionScreen = observer(
     const trade = useCurrentTradeContext();
     const vaultMetadata = useVaultMetadata(trade?.vaultAddress);
     const isReady = vaultMetadata !== undefined;
-    const { leveragedAPY } = trade?.getVaultAPYBreakdown() || {};
-
     const tabs = useInfoBox();
 
     return (
       <FeatureLoader featureLoaded={isReady === true}>
         <ScreenContainer>
-          <Header
-            title={
-              actionPrefix
-                ? `${actionPrefix}: ${vaultMetadata?.name || ''}`
-                : vaultMetadata?.name || ''
-            }
-            tokenSymbol={vaultMetadata?.depositToken.symbol || ''}
-            features={vaultMetadata?.vaultFeatures}
-            apyInfo={leveragedAPY}
-          />
+          <Header actionPrefix={actionPrefix} />
           <ContentContainer>
             <TopSection>
               <InputContainer

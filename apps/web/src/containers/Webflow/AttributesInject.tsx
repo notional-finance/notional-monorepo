@@ -230,6 +230,10 @@ function useListStart(afterListRendered: () => void) {
           if (!l) return;
           l.cache = false;
           l.showQuery = true;
+          l.addHook('render', (items: any[]) => {
+            // Ensures that sorting works with the injected data.
+            items.forEach((item) => item.collectFields());
+          });
           // After the list is rendered we can update the href
           l.addHook('start', () => {
             shadow.shadowRoot?.querySelectorAll('.vault-row').forEach((e) => {
@@ -334,6 +338,15 @@ export const LandingPageInject = () => {
         blogPostDateElement.textContent =
           getDateString(new Date(post.published_at || '').getTime() / 1000) ||
           '';
+      }
+
+      const blogLinkElement = shadowEl.current?.shadowRoot?.querySelector(
+        `#blog-link-${suffix}`
+      );
+      if (blogLinkElement) {
+        (blogLinkElement as HTMLAnchorElement).href = post.url || '';
+        (blogLinkElement as HTMLAnchorElement).target = '_blank';
+        (blogLinkElement as HTMLAnchorElement).rel = 'noreferrer';
       }
     };
     if (

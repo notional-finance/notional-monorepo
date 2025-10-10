@@ -7,6 +7,7 @@ import { UpwardIcon } from '@notional-finance/icons';
 export interface TotalBoxProps {
   title: string;
   value?: string | number | React.ReactNode;
+  usdValue?: number;
   prefix?: string;
   suffix?: string;
   decimals?: number;
@@ -23,6 +24,7 @@ export function TotalBox({
   suffix,
   prefix,
   decimals,
+  usdValue,
   trend,
 }: TotalBoxProps) {
   const theme = useTheme();
@@ -32,7 +34,7 @@ export function TotalBox({
         background: theme.palette.background.paper,
         width: '100%',
         borderRadius: theme.shape.borderRadius(),
-        padding: theme.spacing(3, 4),
+        padding: theme.spacing(2, 3),
         border: theme.shape.borderStandard,
         whiteSpace: 'nowrap',
       }}
@@ -52,6 +54,11 @@ export function TotalBox({
             value
           )}
         </LargeNumber>
+        {usdValue && (
+          <Caption>
+            <CountUp value={usdValue} decimals={2} prefix="$" />
+          </Caption>
+        )}
         {trend && (
           <TrendContainer>
             {trend?.direction === 'up' ? (

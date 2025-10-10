@@ -102,9 +102,15 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     const token = getTokenByID(tokenId);
 
     if (token.tokenType === 'VaultDebt') {
-      const market = getLendingMarketFromVaultDebt(token);
-      apyData.organicAPY = market.getSpotInterestRate();
-      apyData.totalAPY = apyData.organicAPY;
+      try {
+        const market = getLendingMarketFromVaultDebt(token);
+        apyData.organicAPY = market.getSpotInterestRate();
+        apyData.totalAPY = apyData.organicAPY;
+      } catch (e) {
+        // This can fail due to utilization being too high
+        apyData.organicAPY = undefined;
+        apyData.totalAPY = undefined;
+      }
     } else if (token.tokenType === 'VaultShare' && token.vaultAddress) {
       const adapter = getVaultAdapter(token.vaultAddress);
       const simulatedAPY = adapter.getSimulatedAPY(TokenBalance.zero(token));
@@ -142,14 +148,20 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
     const apyData: APYData = { totalAPY: 0 };
 
     if (netAmount.tokenType === 'VaultDebt') {
-      // Get the market from the vault debt token
-      const market = getLendingMarketFromVaultDebt(netAmount.token);
-      apyData.utilization = market.getUtilizationPercent(
-        undefined,
-        netAmount.neg()
-      );
-      apyData.organicAPY = market.getSpotInterestRate();
-      apyData.totalAPY = apyData.organicAPY;
+      try {
+        // Get the market from the vault debt token
+        const market = getLendingMarketFromVaultDebt(netAmount.token);
+        apyData.utilization = market.getUtilizationPercent(
+          undefined,
+          netAmount.neg()
+        );
+        apyData.organicAPY = market.getSpotInterestRate();
+        apyData.totalAPY = apyData.organicAPY;
+      } catch (e) {
+        console.error(e);
+        apyData.organicAPY = undefined;
+        apyData.totalAPY = undefined;
+      }
     } else if (netAmount.tokenType === 'VaultShare' && netAmount.vaultAddress) {
       const adapter = getVaultAdapter(netAmount.vaultAddress);
       const apyData = adapter.getSimulatedAPY(netAmount, vaultTradeMetadata);
