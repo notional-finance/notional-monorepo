@@ -339,6 +339,15 @@ export const LandingPageInject = () => {
           getDateString(new Date(post.published_at || '').getTime() / 1000) ||
           '';
       }
+
+      const blogLinkElement = shadowEl.current?.shadowRoot?.querySelector(
+        `#blog-link-${suffix}`
+      );
+      if (blogLinkElement) {
+        (blogLinkElement as HTMLAnchorElement).href = post.url || '';
+        (blogLinkElement as HTMLAnchorElement).target = '_blank';
+        (blogLinkElement as HTMLAnchorElement).rel = 'noreferrer';
+      }
     };
     if (
       blogPosts &&
