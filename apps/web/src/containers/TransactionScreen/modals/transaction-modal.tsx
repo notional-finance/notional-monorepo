@@ -142,7 +142,7 @@ export const TransactionModal = ({
           {topIcon}
           <CloseX
             sx={{ fontSize: theme.spacing(2), cursor: 'pointer' }}
-            stroke={theme.palette.text.primary}
+            stroke={theme.palette.typography.main}
             onClick={onDismiss}
           />
         </Box>

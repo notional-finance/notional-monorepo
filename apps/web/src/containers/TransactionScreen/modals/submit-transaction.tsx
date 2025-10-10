@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTheme } from '@mui/material';
 import { TransactionModal } from './transaction-modal';
 import { Button } from '@notional-finance/mui';
 import { TransactionStatus } from '@notional-finance/util';
@@ -22,6 +23,7 @@ export const SubmitTransaction = observer(
     submit: (() => void) | undefined;
     transactionError: string | undefined;
   }) => {
+    const theme = useTheme();
     const selectedNetwork = useSelectedNetwork();
     const { transactionStatus, transactionHash } = useWalletStore();
     const [didTriggerSubmit, setDidTriggerSubmit] = useState(false);
@@ -57,10 +59,16 @@ export const SubmitTransaction = observer(
         )}
         {!transactionError && (
           <Button
-            sx={{ width: '100%' }}
+            sx={{
+              width: '100%',
+              background: theme.palette.background.paper,
+            }}
             size="large"
-            to={`/portfolio/${selectedNetwork}`}
-            disabled={transactionStatus !== TransactionStatus.CONFIRMED}
+            to={
+              transactionStatus === TransactionStatus.CONFIRMED
+                ? `/portfolio/${selectedNetwork}`
+                : undefined
+            }
           >
             <FormattedMessage defaultMessage="View Portfolio" />
           </Button>

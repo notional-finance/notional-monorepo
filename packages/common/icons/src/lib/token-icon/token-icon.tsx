@@ -49,7 +49,7 @@ import BAL from '../../assets/icons/currencies/BAL.svg';
 import CRV from '../../assets/icons/currencies/CRV.svg';
 import CVX from '../../assets/icons/currencies/CVX.svg';
 import AURA from '../../assets/icons/currencies/AURA.svg';
-import MORPHO from '../../assets/icons/currencies/MORPHO.svg';
+import MORPHO from '../../assets/icons/currencies/morpho.svg';
 import { VaultIcon } from '../vault-icon/vault-icon';
 import { Network, getNetworkSymbol } from '@notional-finance/util';
 import { Box } from '@mui/material';
