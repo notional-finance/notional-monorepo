@@ -230,6 +230,10 @@ function useListStart(afterListRendered: () => void) {
           if (!l) return;
           l.cache = false;
           l.showQuery = true;
+          l.addHook('render', (items: any[]) => {
+            // Ensures that sorting works with the injected data.
+            items.forEach((item) => item.collectFields());
+          });
           // After the list is rendered we can update the href
           l.addHook('start', () => {
             shadow.shadowRoot?.querySelectorAll('.vault-row').forEach((e) => {
