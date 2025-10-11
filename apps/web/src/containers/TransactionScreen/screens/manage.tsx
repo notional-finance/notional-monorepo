@@ -106,8 +106,7 @@ export const VaultManageScreen = observer(() => {
         links={[
           {
             label: <FormattedMessage defaultMessage="Claim Rewards" />,
-            to: `${path}/manage`,
-            onClick: claimRewards,
+            to: `${path}/claim-rewards`,
           },
         ]}
       />

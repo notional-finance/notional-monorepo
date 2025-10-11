@@ -23,11 +23,15 @@ export const TransactionScreen = observer(
     hasBackButton,
     submitText,
     hideSubmitButton,
+    canSubmitOverride,
+    onSubmitOverride,
   }: {
     actionPrefix?: string;
     hasBackButton?: boolean;
     submitText?: MessageDescriptor;
     hideSubmitButton?: boolean;
+    canSubmitOverride?: boolean;
+    onSubmitOverride?: () => void;
     inputs: ReactNode[];
   }) => {
     const theme = useTheme();
@@ -47,6 +51,8 @@ export const TransactionScreen = observer(
                 hasBackButton={hasBackButton}
                 submitText={submitText}
                 hideSubmitButton={hideSubmitButton}
+                canSubmitOverride={canSubmitOverride}
+                onSubmitOverride={onSubmitOverride}
               >
                 {inputs}
               </InputContainer>

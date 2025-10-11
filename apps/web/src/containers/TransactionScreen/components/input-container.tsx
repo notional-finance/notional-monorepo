@@ -16,6 +16,8 @@ interface InputContainerProps {
   hideSubmitButton?: boolean;
   submitText?: MessageDescriptor;
   hasBackButton?: boolean;
+  canSubmitOverride?: boolean;
+  onSubmitOverride?: () => void;
 }
 
 const InputContainer = observer(
@@ -24,6 +26,8 @@ const InputContainer = observer(
     hasBackButton,
     submitText,
     hideSubmitButton = false,
+    canSubmitOverride,
+    onSubmitOverride,
   }: InputContainerProps) => {
     const theme = useTheme();
     const context = useCurrentTradeContext();
@@ -75,13 +79,17 @@ const InputContainer = observer(
             sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}
           >
             <TradeActionButton
-              canSubmit={context?.canSubmit() ?? false}
+              canSubmit={canSubmitOverride ?? context?.canSubmit() ?? false}
               submitText={submitText}
               errorText={errorText}
-              onSubmit={() => {
-                // This triggers all of the approval and transaction logic
-                context?.setConfirm(true);
-              }}
+              onSubmit={
+                onSubmitOverride
+                  ? onSubmitOverride
+                  : () => {
+                      // This triggers all of the approval and transaction logic
+                      context?.setConfirm(true);
+                    }
+              }
             />
           </Box>
         )}
