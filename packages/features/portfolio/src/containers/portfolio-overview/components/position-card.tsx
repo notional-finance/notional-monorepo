@@ -10,7 +10,7 @@ interface IProps {
   header: {
     tokenSymbol: string;
     tokenName: string;
-    description?: string;
+    description?: React.ReactNode | null;
   };
   data: {
     [key: string]: {

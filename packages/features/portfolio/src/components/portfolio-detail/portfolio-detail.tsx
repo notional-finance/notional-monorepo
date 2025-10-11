@@ -16,7 +16,7 @@ interface PortfolioDetailProps {
   token: {
     symbol: string;
     label: string;
-    caption?: string;
+    caption?: React.ReactNode | null;
   };
   header: {
     label?: string | React.ReactNode;
