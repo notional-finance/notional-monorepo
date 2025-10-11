@@ -25,6 +25,7 @@ import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import {
   formatHealthFactorValues,
   useCurrentTradeContext,
+  useVaultPosition,
 } from '@notional-finance/notionable-hooks';
 import {
   formatNumber,
@@ -34,6 +35,7 @@ import {
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import moment from 'moment';
+import { TokenIcon } from '@notional-finance/icons';
 
 interface LabelValueSectionProps {
   sectionTitle?: ReactNode;
@@ -248,6 +250,32 @@ const formatSummaryItems = (
   ];
 };
 
+const useRewardClaims = (isBeingClaimed: boolean) => {
+  const theme = useTheme();
+  const trade = useCurrentTradeContext();
+  const position = useVaultPosition(
+    trade?.selectedNetwork,
+    trade?.vaultAddress
+  );
+  const rewardClaims = position?.vaultMetadata.rewardClaims.map((claim) => {
+    return {
+      label: (
+        <Box
+          sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing(1) }}
+        >
+          <TokenIcon symbol={claim.symbol} size="small" />
+          <Label light>
+            {claim.symbol} Rewards{isBeingClaimed ? ' Claimed' : ''}
+          </Label>
+        </Box>
+      ),
+      content: formatCountUp(claim),
+    };
+  });
+
+  return rewardClaims || [];
+};
+
 const useSummaryItems = () => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
@@ -451,7 +479,7 @@ const useWithdrawDetails = () => {
   const withdraws = trade.getVaultInitiateWithdraw();
   if (!withdraws) return undefined;
   return withdraws.flatMap((withdraw) => {
-    const items: { label: string; content: ReactNode }[] = [];
+    const items: { label: ReactNode; content: ReactNode }[] = [];
     if (withdraw.estimatedWithdrawTime) {
       items.push({
         label: 'Estimated Redemption Time',
@@ -520,6 +548,9 @@ export const useInfoBox = () => {
   const orderDetails = useOrderDetails();
   const withdrawDetails = useWithdrawDetails();
   const tradeMetadata = useTradeMetadata();
+  const rewardClaims = useRewardClaims(
+    withdrawDetails !== undefined || updated !== undefined
+  );
 
   const tabs = [
     {
@@ -531,7 +562,8 @@ export const useInfoBox = () => {
               <LabelValueSection
                 key="withdraw-details"
                 sectionTitle="Withdraw Details"
-                items={withdrawDetails}
+                // Rewards will be claimed during withdraw
+                items={withdrawDetails.concat(rewardClaims)}
               />,
               <LabelValueSection
                 key="current-position"
@@ -543,12 +575,22 @@ export const useInfoBox = () => {
             // This happens when there is no existing position
             <LabelValueSection items={updated || []} key="updated" />
           ) : updated === undefined ? (
-            <LabelValueSection items={current || []} key="current" />
+            [
+              <LabelValueSection items={current || []} key="current" />,
+              // If there are reward claims show them in a separate section
+              rewardClaims.length > 0 ? (
+                <LabelValueSection
+                  key="reward-claims"
+                  sectionTitle="Claimable Rewards"
+                  items={rewardClaims}
+                />
+              ) : undefined,
+            ]
           ) : (
             [
               <LabelValueSection
                 sectionTitle="Updated Position"
-                items={updated}
+                items={updated.concat(rewardClaims)}
                 key="updated"
               />,
               <LabelValueSection
