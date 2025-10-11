@@ -47,6 +47,9 @@ export function Button(props: ButtonProps) {
       ':hover': {
         textDecoration: 'none',
       },
+      '&.Mui-disabled': {
+        color: theme.palette.typography.light,
+      },
 
       // Allow sx properties passed in to override defaults
       ...sx,

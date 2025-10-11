@@ -90,7 +90,11 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     const vaultParams = self.vaults.get(vaultAddress);
     if (!v || !vaultParams)
       throw Error(`No vault params found: ${vaultAddress}`);
-    return { ...v, strategyType: vaultParams.strategyType };
+    return {
+      ...v,
+      strategyType: vaultParams.strategyType,
+      enabled: vaultParams.enabled,
+    };
   };
 
   const getVaultFee = (vaultAddress: string) => {
