@@ -133,7 +133,7 @@ export interface AccountHistory {
   transactionHash: string;
   lineItemType: string;
   lineItemLabel: string;
-  properties: Record<string, string>;
+  properties: [string, string][];
 }
 
 export interface StakeNoteStatus {

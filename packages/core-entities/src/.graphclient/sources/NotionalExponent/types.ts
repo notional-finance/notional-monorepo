@@ -778,6 +778,8 @@ export type IncentiveSnapshot = {
   totalClaimed: Scalars['BigInt'];
   /** Reward earnings adjusted for balance changes */
   adjustedClaimed: Scalars['BigInt'];
+  /** Claimed amount in the current transaction */
+  amountClaimed: Scalars['BigInt'];
 };
 
 export type IncentiveSnapshot_filter = {
@@ -894,6 +896,14 @@ export type IncentiveSnapshot_filter = {
   adjustedClaimed_lte?: InputMaybe<Scalars['BigInt']>;
   adjustedClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adjustedClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amountClaimed?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_not?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_gt?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_lt?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_gte?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_lte?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amountClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<IncentiveSnapshot_filter>>>;
@@ -949,7 +959,8 @@ export type IncentiveSnapshot_orderBy =
   | 'rewardToken__vaultAddress'
   | 'rewardToken__tokenAddress'
   | 'totalClaimed'
-  | 'adjustedClaimed';
+  | 'adjustedClaimed'
+  | 'amountClaimed';
 
 export type LendingRouter = {
   id: Scalars['ID'];
@@ -1564,6 +1575,8 @@ export type ProfitLossLineItem = {
   tokenAmount: Scalars['BigInt'];
   underlyingAmountRealized: Scalars['BigInt'];
   underlyingAmountSpot: Scalars['BigInt'];
+  /** Amount of yield tokens if token amount is a vault share */
+  yieldTokenAmount?: Maybe<Scalars['BigInt']>;
   realizedPrice: Scalars['BigInt'];
   spotPrice: Scalars['BigInt'];
   impliedFixedRate?: Maybe<Scalars['BigInt']>;
@@ -1716,6 +1729,14 @@ export type ProfitLossLineItem_filter = {
   underlyingAmountSpot_lte?: InputMaybe<Scalars['BigInt']>;
   underlyingAmountSpot_in?: InputMaybe<Array<Scalars['BigInt']>>;
   underlyingAmountSpot_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  yieldTokenAmount?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_not?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  yieldTokenAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   realizedPrice?: InputMaybe<Scalars['BigInt']>;
   realizedPrice_not?: InputMaybe<Scalars['BigInt']>;
   realizedPrice_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1816,6 +1837,7 @@ export type ProfitLossLineItem_orderBy =
   | 'tokenAmount'
   | 'underlyingAmountRealized'
   | 'underlyingAmountSpot'
+  | 'yieldTokenAmount'
   | 'realizedPrice'
   | 'spotPrice'
   | 'impliedFixedRate';

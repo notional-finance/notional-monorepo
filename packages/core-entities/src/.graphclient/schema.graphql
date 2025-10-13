@@ -724,6 +724,8 @@ type IncentiveSnapshot {
   totalClaimed: BigInt!
   """Reward earnings adjusted for balance changes"""
   adjustedClaimed: BigInt!
+  """Claimed amount in the current transaction"""
+  amountClaimed: BigInt!
 }
 
 input IncentiveSnapshot_filter {
@@ -840,6 +842,14 @@ input IncentiveSnapshot_filter {
   adjustedClaimed_lte: BigInt
   adjustedClaimed_in: [BigInt!]
   adjustedClaimed_not_in: [BigInt!]
+  amountClaimed: BigInt
+  amountClaimed_not: BigInt
+  amountClaimed_gt: BigInt
+  amountClaimed_lt: BigInt
+  amountClaimed_gte: BigInt
+  amountClaimed_lte: BigInt
+  amountClaimed_in: [BigInt!]
+  amountClaimed_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [IncentiveSnapshot_filter]
@@ -896,6 +906,7 @@ enum IncentiveSnapshot_orderBy {
   rewardToken__tokenAddress
   totalClaimed
   adjustedClaimed
+  amountClaimed
 }
 
 """8 bytes signed integer"""
@@ -1494,6 +1505,8 @@ type ProfitLossLineItem {
   tokenAmount: BigInt!
   underlyingAmountRealized: BigInt!
   underlyingAmountSpot: BigInt!
+  """Amount of yield tokens if token amount is a vault share"""
+  yieldTokenAmount: BigInt
   realizedPrice: BigInt!
   spotPrice: BigInt!
   impliedFixedRate: BigInt
@@ -1646,6 +1659,14 @@ input ProfitLossLineItem_filter {
   underlyingAmountSpot_lte: BigInt
   underlyingAmountSpot_in: [BigInt!]
   underlyingAmountSpot_not_in: [BigInt!]
+  yieldTokenAmount: BigInt
+  yieldTokenAmount_not: BigInt
+  yieldTokenAmount_gt: BigInt
+  yieldTokenAmount_lt: BigInt
+  yieldTokenAmount_gte: BigInt
+  yieldTokenAmount_lte: BigInt
+  yieldTokenAmount_in: [BigInt!]
+  yieldTokenAmount_not_in: [BigInt!]
   realizedPrice: BigInt
   realizedPrice_not: BigInt
   realizedPrice_gt: BigInt
@@ -1746,6 +1767,7 @@ enum ProfitLossLineItem_orderBy {
   tokenAmount
   underlyingAmountRealized
   underlyingAmountSpot
+  yieldTokenAmount
   realizedPrice
   spotPrice
   impliedFixedRate

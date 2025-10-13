@@ -12,7 +12,6 @@ query AccountIncentiveSnapshots($accountId: String!, $skip: Int!) {
     rewardToken {
       id
     }
-    totalClaimed
-    adjustedClaimed
+    amountClaimed
   }
 }

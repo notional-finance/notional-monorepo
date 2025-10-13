@@ -56,7 +56,7 @@ export function parseIncentiveSnapshot(
   const model = getNetworkModel(network);
   const rewardToken = model.getTokenByID(i.rewardToken.id);
   const amountClaimed = parseGraphBalanceToTokenBalance(
-    i.totalClaimed,
+    i.amountClaimed,
     rewardToken.id,
     network
   );
@@ -67,13 +67,12 @@ export function parseIncentiveSnapshot(
     transactionHash: i.transactionHash,
     lineItemType: 'Rewards Claimed',
     lineItemLabel: `Rewards Claimed: ${rewardToken.symbol}`,
-    properties: {
-      [`${rewardToken.symbol} Claimed`]: amountClaimed.toDisplayString(
-        4,
-        true,
-        false
-      ),
-    },
+    properties: [
+      [
+        `${rewardToken.symbol} Claimed`,
+        amountClaimed.toDisplayString(4, true, false),
+      ],
+    ],
   };
 }
 
@@ -101,7 +100,7 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
   );
 
   let lineItemLabel = 'Unknown';
-  let properties: Record<string, string> = {};
+  let properties: [string, string][] = [];
 
   if (
     p.lineItemType === 'EnterPosition' ||
@@ -119,16 +118,29 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
           ? 'Liquidate Vault Shares'
           : 'Migrate Vault Shares';
 
-      properties = {
-        Value: underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
-        'Entry Price': underlyingAmountRealized.toDisplayStringWithSymbol(
-          4,
-          true,
-          false
-        ),
-        'Vault Shares': tokenAmount.toDisplayString(4, true, false),
-        // TODO: how do we get the yield token amount?
-      };
+      properties = [
+        [
+          'Value',
+          underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
+        ],
+        [
+          'Entry Price',
+          underlyingAmountRealized.toDisplayStringWithSymbol(4, true, false),
+        ],
+        ['Vault Shares', tokenAmount.toDisplayString(4, true, false)],
+      ];
+      if (p.yieldTokenAmount && token.vaultAddress) {
+        const yieldToken = model.getYieldToken(token.vaultAddress);
+        const yieldTokenAmount = parseGraphBalanceToTokenBalance(
+          p.yieldTokenAmount,
+          yieldToken.id,
+          network
+        );
+        properties.push([
+          `${yieldTokenAmount.symbol} Amount`,
+          yieldTokenAmount.toDisplayString(4, true, false),
+        ]);
+      }
     } else if (token.tokenType === 'VaultDebt') {
       lineItemLabel =
         p.lineItemType === 'EnterPosition'
@@ -138,35 +150,38 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
           : p.lineItemType === 'LiquidatePosition'
           ? 'Repay Vault Debt'
           : 'Migrate Vault Debt';
-      properties = {
-        Value: underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
-        'Entry Price': underlyingAmountRealized.toDisplayStringWithSymbol(
-          4,
-          true,
-          false
-        ),
-        'Vault Debt Shares': tokenAmount.toDisplayString(4, true, false),
-      };
+      properties = [
+        [
+          'Value',
+          underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
+        ],
+        [
+          'Entry Price',
+          underlyingAmountRealized.toDisplayStringWithSymbol(4, true, false),
+        ],
+        ['Vault Debt Shares', tokenAmount.toDisplayString(4, true, false)],
+      ];
     }
   } else if (p.lineItemType === 'WithdrawRequest') {
     // Token is vault share, underlying is yield token
     lineItemLabel = 'Withdraw Request';
-    properties = {
-      [`Vault Shares Burned`]: tokenAmount.toDisplayString(4, true, false),
-      [`${token.symbol} Withdrawn`]: underlyingAmountRealized.toDisplayString(
-        4,
-        true,
-        false
-      ),
-    };
+    properties = [
+      ['Vault Shares Burned', tokenAmount.toDisplayString(4, true, false)],
+      [
+        `${token.symbol} Withdrawn`,
+        underlyingAmountRealized.toDisplayString(4, true, false),
+      ],
+    ];
   } else if (p.lineItemType === 'WithdrawRequestFinalized') {
     // Token is yield token, underlying is withdraw token
     lineItemLabel = 'Withdraw Request Finalized';
-    properties = {
-      [`${token.symbol} Burned`]: tokenAmount.toDisplayString(4, true, false),
-      [`${underlying.symbol} Received`]:
+    properties = [
+      [`${token.symbol} Burned`, tokenAmount.toDisplayString(4, true, false)],
+      [
+        `${underlying.symbol} Received`,
         underlyingAmountRealized.toDisplayString(4, true, false),
-    };
+      ],
+    ];
   } else if (p.lineItemType === 'TradeExecution') {
     lineItemLabel = `Trade: ${p.token.symbol} → ${p.underlyingToken.symbol}`;
     const realizedPrice = parseGraphBalanceToTokenBalance(
@@ -175,12 +190,14 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
       network
     );
 
-    properties = {
-      [`${p.token.symbol} Sold`]: tokenAmount.toDisplayString(4, true, false),
-      [`${p.underlyingToken.symbol} Bought`]:
+    properties = [
+      [`${p.token.symbol} Sold`, tokenAmount.toDisplayString(4, true, false)],
+      [
+        `${p.underlyingToken.symbol} Bought`,
         underlyingAmountRealized.toDisplayString(4, true, false),
-      Price: realizedPrice.toDisplayStringWithSymbol(4, true, false),
-    };
+      ],
+      ['Price', realizedPrice.toDisplayStringWithSymbol(4, true, false)],
+    ];
   }
 
   return {

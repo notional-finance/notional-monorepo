@@ -20,6 +20,14 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     return self.vaults.get(vaultAddress)?.enabled || false;
   };
 
+  const getYieldToken = (vaultAddress: string) => {
+    const v = self.configuration?.vaults.find(
+      (v) => v.vaultAddress === vaultAddress
+    );
+    if (!v) throw Error(`No vault params found: ${vaultAddress}`);
+    return getTokenByID(v.yieldToken.id);
+  };
+
   const getVaultAdapter = (vaultAddress: string) => {
     const params = self.vaults.get(vaultAddress);
     if (!params) throw Error(`No vault params found: ${vaultAddress}`);
@@ -118,6 +126,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     getWithdrawManagers,
     getAllListedVaults,
     isVaultEnabled,
+    getYieldToken,
     getVaultAdapter,
     getVaultName,
     getVaultConfig,
