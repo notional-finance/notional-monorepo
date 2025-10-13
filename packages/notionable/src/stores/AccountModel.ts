@@ -106,19 +106,13 @@ const WithdrawRequestModel = types.model('WithdrawRequest', {
 
 const AccountHistoryModel = types.model('AccountHistory', {
   lineItemType: types.string,
-  txnLabel: types.optional(types.maybe(types.string), undefined),
   timestamp: types.number,
   blockNumber: types.number,
-  token: TokenDefinitionReference,
-  underlying: TokenDefinitionReference,
-  tokenAmount: NotionalTypes.TokenBalance,
   transactionHash: types.string,
-  underlyingAmountRealized: NotionalTypes.TokenBalance,
-  underlyingAmountSpot: NotionalTypes.TokenBalance,
-  realizedPrice: NotionalTypes.TokenBalance,
-  spotPrice: NotionalTypes.TokenBalance,
-  impliedFixedRate: types.maybe(types.number),
-  account: types.maybe(types.string),
+  vaultAddress: types.string,
+  properties: types.array(
+    types.model({ key: types.string, value: types.string })
+  ),
 });
 
 export const HistoricalBalanceModel = types.model('HistoricalBalance', {

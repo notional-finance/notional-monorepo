@@ -65,18 +65,22 @@ export function parseIncentiveSnapshot(
     timestamp: i.timestamp,
     blockNumber: i.blockNumber,
     transactionHash: i.transactionHash,
+    vaultAddress: i.balanceSnapshot.balance.token.vaultAddress as string,
     lineItemType: 'Rewards Claimed',
     lineItemLabel: `Rewards Claimed: ${rewardToken.symbol}`,
     properties: [
-      [
-        `${rewardToken.symbol} Claimed`,
-        amountClaimed.toDisplayString(4, true, false),
-      ],
+      {
+        key: `${rewardToken.symbol} Claimed`,
+        value: amountClaimed.toDisplayString(4, true, false),
+      },
     ],
   };
 }
 
-export function parseLineItem(p: ProfitLossLineItem, network: Network) {
+export function parseLineItem(
+  p: ProfitLossLineItem,
+  network: Network
+): AccountHistory {
   const tokenId = p.token.id;
   const underlyingId = p.underlyingToken.id;
   const model = getNetworkModel(network);
@@ -100,7 +104,7 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
   );
 
   let lineItemLabel = 'Unknown';
-  let properties: [string, string][] = [];
+  let properties: { key: string; value: string }[] = [];
 
   if (
     p.lineItemType === 'EnterPosition' ||
@@ -119,15 +123,22 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
           : 'Migrate Vault Shares';
 
       properties = [
-        [
-          'Value',
-          underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
-        ],
-        [
-          'Entry Price',
-          underlyingAmountRealized.toDisplayStringWithSymbol(4, true, false),
-        ],
-        ['Vault Shares', tokenAmount.toDisplayString(4, true, false)],
+        {
+          key: 'Value',
+          value: underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
+        },
+        {
+          key: 'Entry Price',
+          value: underlyingAmountRealized.toDisplayStringWithSymbol(
+            4,
+            true,
+            false
+          ),
+        },
+        {
+          key: 'Vault Shares',
+          value: tokenAmount.toDisplayString(4, true, false),
+        },
       ];
       if (p.yieldTokenAmount && token.vaultAddress) {
         const yieldToken = model.getYieldToken(token.vaultAddress);
@@ -136,10 +147,10 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
           yieldToken.id,
           network
         );
-        properties.push([
-          `${yieldTokenAmount.symbol} Amount`,
-          yieldTokenAmount.toDisplayString(4, true, false),
-        ]);
+        properties.push({
+          key: `${yieldTokenAmount.symbol} Amount`,
+          value: yieldTokenAmount.toDisplayString(4, true, false),
+        });
       }
     } else if (token.tokenType === 'VaultDebt') {
       lineItemLabel =
@@ -151,36 +162,49 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
           ? 'Repay Vault Debt'
           : 'Migrate Vault Debt';
       properties = [
-        [
-          'Value',
-          underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
-        ],
-        [
-          'Entry Price',
-          underlyingAmountRealized.toDisplayStringWithSymbol(4, true, false),
-        ],
-        ['Vault Debt Shares', tokenAmount.toDisplayString(4, true, false)],
+        {
+          key: 'Value',
+          value: underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
+        },
+        {
+          key: 'Entry Price',
+          value: underlyingAmountRealized.toDisplayStringWithSymbol(
+            4,
+            true,
+            false
+          ),
+        },
+        {
+          key: 'Vault Debt Shares',
+          value: tokenAmount.toDisplayString(4, true, false),
+        },
       ];
     }
   } else if (p.lineItemType === 'WithdrawRequest') {
     // Token is vault share, underlying is yield token
     lineItemLabel = 'Withdraw Request';
     properties = [
-      ['Vault Shares Burned', tokenAmount.toDisplayString(4, true, false)],
-      [
-        `${token.symbol} Withdrawn`,
-        underlyingAmountRealized.toDisplayString(4, true, false),
-      ],
+      {
+        key: 'Vault Shares Burned',
+        value: tokenAmount.toDisplayString(4, true, false),
+      },
+      {
+        key: `${token.symbol} Withdrawn`,
+        value: underlyingAmountRealized.toDisplayString(4, true, false),
+      },
     ];
   } else if (p.lineItemType === 'WithdrawRequestFinalized') {
     // Token is yield token, underlying is withdraw token
     lineItemLabel = 'Withdraw Request Finalized';
     properties = [
-      [`${token.symbol} Burned`, tokenAmount.toDisplayString(4, true, false)],
-      [
-        `${underlying.symbol} Received`,
-        underlyingAmountRealized.toDisplayString(4, true, false),
-      ],
+      {
+        key: `${token.symbol} Burned`,
+        value: tokenAmount.toDisplayString(4, true, false),
+      },
+      {
+        key: `${underlying.symbol} Received`,
+        value: underlyingAmountRealized.toDisplayString(4, true, false),
+      },
     ];
   } else if (p.lineItemType === 'TradeExecution') {
     lineItemLabel = `Trade: ${p.token.symbol} → ${p.underlyingToken.symbol}`;
@@ -191,17 +215,24 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
     );
 
     properties = [
-      [`${p.token.symbol} Sold`, tokenAmount.toDisplayString(4, true, false)],
-      [
-        `${p.underlyingToken.symbol} Bought`,
-        underlyingAmountRealized.toDisplayString(4, true, false),
-      ],
-      ['Price', realizedPrice.toDisplayStringWithSymbol(4, true, false)],
+      {
+        key: `${p.token.symbol} Sold`,
+        value: tokenAmount.toDisplayString(4, true, false),
+      },
+      {
+        key: `${p.underlyingToken.symbol} Bought`,
+        value: underlyingAmountRealized.toDisplayString(4, true, false),
+      },
+      {
+        key: 'Price',
+        value: realizedPrice.toDisplayStringWithSymbol(4, true, false),
+      },
     ];
   }
 
   return {
     timestamp: p.timestamp,
+    vaultAddress: p.balanceSnapshot.balance.token.vaultAddress as string,
     blockNumber: p.blockNumber,
     transactionHash: p.transactionHash,
     lineItemType: p.lineItemType,

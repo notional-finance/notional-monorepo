@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { Network } from '@notional-finance/util';
-import { formatTxnTableData } from '@notional-finance/helpers';
 import { useAllTransactionsTable } from './hooks';
 import { InfiniteScrollDataTable } from '@notional-finance/mui';
 
@@ -25,10 +24,8 @@ export const AllTransactions = ({
     return Promise.resolve([]);
   }, []);
 
-  const handleDataFormatting = (data) => {
-    return data.finalResults[selectedNetwork].map((allTxnData) =>
-      formatTxnTableData(allTxnData, selectedNetwork)
-    );
+  const handleDataFormatting = (data: any) => {
+    return data.finalResults[selectedNetwork];
   };
 
   return (

@@ -4528,7 +4528,7 @@ export type AccountIncentiveSnapshotsQueryVariables = Exact<{
 
 export type AccountIncentiveSnapshotsQuery = { incentiveSnapshots: Array<(
     Pick<IncentiveSnapshot, 'timestamp' | 'blockNumber' | 'transactionHash' | 'amountClaimed'>
-    & { rewardToken: Pick<Token, 'id'> }
+    & { rewardToken: Pick<Token, 'id'>, balanceSnapshot: { balance: { token: Pick<Token, 'vaultAddress'> } } }
   )> };
 
 export type AccountPositionsQueryVariables = Exact<{
@@ -4550,10 +4550,7 @@ export type AccountTransactionHistoryQueryVariables = Exact<{
 
 export type AccountTransactionHistoryQuery = { profitLossLineItems: Array<(
     Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'transactionHash' | 'lineItemType' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'yieldTokenAmount'>
-    & { account: Pick<Account, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'> }
-  )>, incentiveSnapshots: Array<(
-    Pick<IncentiveSnapshot, 'timestamp' | 'blockNumber' | 'transactionHash' | 'totalClaimed' | 'adjustedClaimed'>
-    & { rewardToken: Pick<Token, 'id'> }
+    & { account: Pick<Account, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, balanceSnapshot: { balance: { token: Pick<Token, 'vaultAddress'> } } }
   )> };
 
 export type AllAccountsQueryVariables = Exact<{
@@ -4773,6 +4770,13 @@ export const AccountIncentiveSnapshotsDocument = gql`
       id
     }
     amountClaimed
+    balanceSnapshot {
+      balance {
+        token {
+          vaultAddress
+        }
+      }
+    }
   }
 }
     ` as unknown as DocumentNode<AccountIncentiveSnapshotsQuery, AccountIncentiveSnapshotsQueryVariables>;
@@ -4822,21 +4826,13 @@ export const AccountTransactionHistoryDocument = gql`
     spotPrice
     impliedFixedRate
     yieldTokenAmount
-  }
-  incentiveSnapshots(
-    where: {account: $accountId}
-    orderBy: timestamp
-    orderDirection: desc
-    first: 1000
-  ) {
-    timestamp
-    blockNumber
-    transactionHash
-    rewardToken {
-      id
+    balanceSnapshot {
+      balance {
+        token {
+          vaultAddress
+        }
+      }
     }
-    totalClaimed
-    adjustedClaimed
   }
 }
     ` as unknown as DocumentNode<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>;

@@ -133,7 +133,8 @@ export interface AccountHistory {
   transactionHash: string;
   lineItemType: string;
   lineItemLabel: string;
-  properties: [string, string][];
+  vaultAddress: string;
+  properties: { key: string; value: string }[];
 }
 
 export interface StakeNoteStatus {

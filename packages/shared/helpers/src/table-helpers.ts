@@ -1,16 +1,10 @@
 import {
-  AccountHistory,
   FiatKeys,
   TokenBalance,
   TokenDefinition,
   TokenType,
 } from '@notional-finance/core-entities';
-import {
-  Network,
-  formatNumberAsPercent,
-  getEtherscanTransactionLink,
-} from '@notional-finance/util';
-import { formatTokenType, truncateAddress } from './text-helpers';
+import { formatNumberAsPercent } from '@notional-finance/util';
 import { MessageDescriptor } from 'react-intl';
 
 export type MultiRowTableData =
@@ -119,59 +113,4 @@ export const formatTokenAmount = (
           },
         ],
       };
-};
-
-export const formatTxnTableData = (
-  data: AccountHistory,
-  network: Network | undefined
-) => {
-  const {
-    underlyingAmountRealized,
-    token,
-    realizedPrice,
-    timestamp,
-    transactionHash,
-    underlying,
-    impliedFixedRate,
-    account,
-    lineItemType,
-  } = data;
-
-  const assetData = formatTokenType(token);
-  const isIncentive = lineItemType === 'Transfer Incentive';
-  const result = {
-    transactionType: {
-      label: lineItemType,
-      caption: '', // TODO: vault name
-      showSentIcon: underlyingAmountRealized.isNegative(),
-    },
-    vaultName: '', // TODO: vault name
-    address: {
-      text: account ? truncateAddress(account) : '-',
-      fullAddress: `${account}`,
-      network: network,
-    },
-    underlyingAmount: formatTokenAmount(
-      underlyingAmountRealized,
-      impliedFixedRate,
-      true,
-      false,
-      underlyingAmountRealized.isPositive(),
-      4
-    ),
-    asset: {
-      label: assetData.title,
-      symbol: assetData.icon.toLowerCase(),
-      caption: assetData.caption ? assetData.caption : '',
-    },
-    price: isIncentive ? '-' : realizedPrice.toDisplayStringWithSymbol(4, true),
-    time: timestamp,
-    txLink: {
-      hash: transactionHash,
-      href: getEtherscanTransactionLink(transactionHash, network),
-    },
-    currency: underlying.symbol,
-    token: token,
-  };
-  return result;
 };
