@@ -73,6 +73,8 @@ export function useTradeErrorMessage() {
   const calculationSuccess = context?.calculationSuccess;
   const { overPoolCapacityError } = context?.getVaultCapacity() || {};
   const inputErrors = context?.inputErrors;
+  if (context?.tradeType === 'ManageVault') return undefined;
+
   if (!inputsSatisfied) {
     if (context?.tradeType === 'AdjustVaultLeverage') {
       return defineMessage({

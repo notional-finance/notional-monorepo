@@ -26,10 +26,16 @@ import {
 } from '@notional-finance/util';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
-import { Body, ButtonOptionsType, H4, LinkText } from '@notional-finance/mui';
+import {
+  Body,
+  ButtonOptionsType,
+  Caption,
+  H4,
+  LinkText,
+} from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../../../components/table-action-row/table-action-row';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 export interface OverviewTableRow {
   isTotalRow?: boolean;
@@ -41,7 +47,7 @@ export interface OverviewTableRow {
     symbol: string;
     symbolBottom: string;
     label: string;
-    caption: string;
+    caption?: ReactNode | null;
   };
   marketApy: MultiRowTableData;
   amountPaid: MultiRowTableData;
@@ -243,6 +249,46 @@ function getSpecificVaultInfo(
   };
 }
 
+function getRewardClaimIcon(rewardClaims: TokenBalance[], theme: Theme) {
+  if (rewardClaims.filter((c) => c !== undefined).length === 0)
+    return undefined;
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        gap: theme.spacing(1),
+        alignItems: 'center',
+        marginTop: theme.spacing(0.5),
+        backgroundColor: theme.palette.info.light,
+        padding: theme.spacing(0.25, 1, 0.25, 0.25),
+        borderRadius: theme.shape.borderRadiusLarge,
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          width: `${8 + rewardClaims.length * 8}px`, // 8px base + 8px per icon (overlapping)
+        }}
+      >
+        {rewardClaims.map((claim, index) => (
+          <Box
+            key={claim.symbol}
+            sx={{
+              marginLeft: index > 0 ? '-8px' : 0, // Overlap by 8px for each subsequent icon
+              zIndex: rewardClaims.length - index, // Stack icons properly
+              position: 'relative',
+            }}
+          >
+            <TokenIcon symbol={claim.symbol} size={'small'} />
+          </Box>
+        ))}
+      </Box>
+      <Caption main>Claim Rewards</Caption>
+    </Box>
+  );
+}
+
 function formatVaultHoldings(
   vaultHolding: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
   pendingTokens: TokenDefinition[] | undefined,
@@ -252,7 +298,6 @@ function formatVaultHoldings(
   const {
     vaultAddress,
     name,
-    maturity,
     underlying,
     amountPaid,
     apyData,
@@ -265,9 +310,14 @@ function formatVaultHoldings(
     vaultShares,
     vaultDebt,
     network,
+    vaultMetadata,
   } = vaultHolding;
   const { subRowInfo, totalEarnings, buttonBarData, warning, showRowWarning } =
     getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
+  const rewardClaimIcons = getRewardClaimIcon(
+    vaultMetadata.rewardClaims,
+    theme
+  );
 
   const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
     {
@@ -318,7 +368,7 @@ function formatVaultHoldings(
       symbol: underlying,
       symbolBottom: '',
       label: name,
-      caption: maturity ? `Maturity: ${formatMaturity(maturity)}` : 'Open Term',
+      caption: rewardClaimIcons,
     },
     vaultAddress,
     tokenId: vaultShares.tokenId,
