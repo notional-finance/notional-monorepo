@@ -104,15 +104,20 @@ const WithdrawRequestModel = types.model('WithdrawRequest', {
   canFinalize: types.maybe(types.boolean),
 });
 
-const AccountHistoryModel = types.model('AccountHistory', {
+const LineItemModel = types.model('LineItem', {
   lineItemType: types.string,
-  timestamp: types.number,
-  blockNumber: types.number,
-  transactionHash: types.string,
-  vaultAddress: types.string,
   properties: types.array(
     types.model({ key: types.string, value: types.string })
   ),
+});
+
+const AccountHistoryModel = types.model('AccountHistory', {
+  timestamp: types.number,
+  blockNumber: types.number,
+  transactionHash: types.model({ hash: types.string, href: types.string }),
+  transactionType: types.string,
+  vaultAddress: types.string,
+  lineItems: types.array(LineItemModel),
 });
 
 export const HistoricalBalanceModel = types.model('HistoricalBalance', {
@@ -250,10 +255,10 @@ export const AccountModel = types
       )) as Awaited<ReturnType<typeof fetchTransactionHistory>>;
 
       self.accountHistory.replace(
-        history.finalResults[self.address].map((v) => ({
+        history[self.address].map((v) => ({
           ...v,
           blockNumber: Number(v.blockNumber),
-        })) as Instance<typeof AccountHistoryModel>[]
+        })) as unknown as Instance<typeof AccountHistoryModel>[]
       );
     });
 

@@ -1,8 +1,8 @@
 import {
+  ChevronCell,
   DataTable,
   DataTableColumn,
   DateTimeCell,
-  MultiValueCell,
   MultiValueIconCell,
   TxnHashCell,
 } from '@notional-finance/mui';
@@ -12,10 +12,13 @@ import { Box } from '@mui/material';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { PortfolioPageHeader } from '../../components';
 import { observer } from 'mobx-react-lite';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { ExpandedState } from '@tanstack/react-table';
+import { TxnHistoryRow } from './TxnHistoryRow';
 
 export const PortfolioTransactionHistory = observer(() => {
   const { accountHistory, filterData, pendingTokenData } = useTxnHistoryData();
+  const [expandedRows, setExpandedRows] = useState<ExpandedState>({});
 
   const txnHistoryColumns = useMemo<DataTableColumn[]>(
     () => [
@@ -27,50 +30,18 @@ export const PortfolioTransactionHistory = observer(() => {
           />
         ),
         accessorKey: 'transactionType',
-        showSentAndReceivedIcons: true,
         cell: MultiValueIconCell,
         textAlign: 'left',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Asset"
-            description={'Asset header'}
-          />
-        ),
-        cell: MultiValueIconCell,
-        accessorKey: 'asset',
-        textAlign: 'left',
-      },
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Underlying Amount"
-            description={'Underlying Amount header'}
-          />
-        ),
-        cell: MultiValueCell,
-        accessorKey: 'underlyingAmount',
-        textAlign: 'right',
-      },
-
-      {
-        header: (
-          <FormattedMessage
-            defaultMessage="Price"
-            description={'Price header'}
-          />
-        ),
-        accessorKey: 'price',
-        textAlign: 'right',
+        expandableTable: true,
       },
       {
         header: (
           <FormattedMessage defaultMessage="Time" description={'Time header'} />
         ),
         cell: DateTimeCell,
-        accessorKey: 'time',
+        accessorKey: 'timestamp',
         textAlign: 'right',
+        expandableTable: true,
       },
       {
         header: (
@@ -79,14 +50,49 @@ export const PortfolioTransactionHistory = observer(() => {
             description={'TX LINK header'}
           />
         ),
-        accessorKey: 'txLink',
+        accessorKey: 'transactionHash',
         cell: TxnHashCell,
         textAlign: 'right',
         showLinkIcon: true,
+        expandableTable: true,
+      },
+      {
+        header: (
+          <FormattedMessage
+            defaultMessage="Amount To/From Wallet"
+            description={'Amount To/From Wallet header'}
+          />
+        ),
+        accessorKey: 'amountToFromWallet',
+        textAlign: 'right',
+        expandableTable: true,
+      },
+      {
+        header: '',
+        cell: ChevronCell,
+        accessorKey: 'chevron',
+        textAlign: 'left',
+        expandableTable: true,
       },
     ],
     []
   );
+
+  useEffect(() => {
+    const formattedExpandedRows = txnHistoryColumns.reduce(
+      (accumulator, _value, index) => {
+        return { ...accumulator, [index]: index === 0 ? true : false };
+      },
+      {}
+    );
+
+    if (
+      expandedRows === null &&
+      JSON.stringify(formattedExpandedRows) !== '{}'
+    ) {
+      setExpandedRows(formattedExpandedRows);
+    }
+  }, [expandedRows, setExpandedRows, txnHistoryColumns]);
 
   return (
     <Box>
@@ -101,6 +107,9 @@ export const PortfolioTransactionHistory = observer(() => {
           <FormattedMessage defaultMessage={'Calculating transaction'} />
         }
         pendingTokenData={pendingTokenData}
+        expandableTable={true}
+        CustomRowComponent={TxnHistoryRow}
+        setExpandedRows={setExpandedRows}
         // csvDataFormatter={marketDataCSVFormatter}
       />
     </Box>

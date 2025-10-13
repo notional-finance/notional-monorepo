@@ -127,6 +127,17 @@ export interface BalanceStatement {
   impliedFixedRate?: number;
 }
 
+export interface AccountTransactions {
+  timestamp: number;
+  vaultAddress: string;
+  blockNumber: number;
+  transactionHash: {
+    hash: string;
+    href: string;
+  };
+  transactionType: string;
+  lineItems: AccountHistory[];
+}
 export interface AccountHistory {
   timestamp: number;
   blockNumber: number;

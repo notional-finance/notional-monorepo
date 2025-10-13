@@ -1,7 +1,11 @@
-import { Network } from '@notional-finance/util';
+import {
+  getEtherscanTransactionLink,
+  groupArrayByKey,
+  Network,
+} from '@notional-finance/util';
 import { getNetworkModel } from '../../Models';
 import { parseGraphBalanceToTokenBalance } from './balance-statement';
-import { AccountHistory } from '../../Definitions';
+import { AccountHistory, AccountTransactions } from '../../Definitions';
 import {
   fetchGraphPaginate,
   loadGraphClientDeferred,
@@ -14,7 +18,7 @@ export async function fetchTransactionHistory(
   network: Network,
   account: string,
   subgraphApiKey: string
-) {
+): Promise<Record<string, AccountTransactions[]>> {
   const {
     AccountTransactionHistoryDocument,
     AccountIncentiveSnapshotsDocument,
@@ -46,10 +50,44 @@ export async function fetchTransactionHistory(
       (i: IncentiveSnapshot) => parseIncentiveSnapshot(i, network)
     ) || [];
 
-  return incentiveSnapshots.concat(profitLossLineItems);
+  const allLineItems = incentiveSnapshots.concat(profitLossLineItems);
+
+  return {
+    [account.toLowerCase()]: groupIntoTransactions(allLineItems, network),
+  };
 }
 
-export function parseIncentiveSnapshot(
+function groupIntoTransactions(
+  lineItems: AccountHistory[],
+  network: Network
+): AccountTransactions[] {
+  const grouped = groupArrayByKey(lineItems, (i) => i.transactionHash)
+    .map((g) => {
+      const transactionType =
+        g.find(
+          (i) =>
+            i.lineItemType !== 'Rewards Claimed' &&
+            i.lineItemType !== 'Trade Execution'
+        )?.lineItemType || 'Rewards Claimed';
+
+      return {
+        timestamp: g[0].timestamp,
+        vaultAddress: g[0].vaultAddress,
+        blockNumber: g[0].blockNumber,
+        transactionHash: {
+          hash: g[0].transactionHash,
+          href: getEtherscanTransactionLink(g[0].transactionHash, network),
+        },
+        transactionType,
+        lineItems: g,
+      };
+    })
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  return grouped;
+}
+
+function parseIncentiveSnapshot(
   i: IncentiveSnapshot,
   network: Network
 ): AccountHistory {
@@ -77,7 +115,7 @@ export function parseIncentiveSnapshot(
   };
 }
 
-export function parseLineItem(
+function parseLineItem(
   p: ProfitLossLineItem,
   network: Network
 ): AccountHistory {
