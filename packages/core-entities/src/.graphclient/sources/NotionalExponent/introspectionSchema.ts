@@ -10127,6 +10127,30 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "description": {
             "kind": "StringValue",
+            "value": "Address of the account that holds this balance",
+            "block": true
+          },
+          "name": {
+            "kind": "Name",
+            "value": "account"
+          },
+          "arguments": [],
+          "type": {
+            "kind": "NonNullType",
+            "type": {
+              "kind": "NamedType",
+              "name": {
+                "kind": "Name",
+                "value": "Account"
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "description": {
+            "kind": "StringValue",
             "value": "Link back to the balance snapshot for this secondary incentive",
             "block": true
           },
@@ -10784,6 +10808,333 @@ const schemaAST = {
             "name": {
               "kind": "Name",
               "value": "Bytes"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_not"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_gt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_lt"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_gte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_lte"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_not_in"
+          },
+          "type": {
+            "kind": "ListType",
+            "type": {
+              "kind": "NonNullType",
+              "type": {
+                "kind": "NamedType",
+                "name": {
+                  "kind": "Name",
+                  "value": "String"
+                }
+              }
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_contains"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_contains_nocase"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_not_contains"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_not_contains_nocase"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_starts_with"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_starts_with_nocase"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_not_starts_with"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_not_starts_with_nocase"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_ends_with"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_ends_with_nocase"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_not_ends_with"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_not_ends_with_nocase"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "String"
+            }
+          },
+          "directives": []
+        },
+        {
+          "kind": "InputValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account_"
+          },
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Account_filter"
             }
           },
           "directives": []
@@ -11808,6 +12159,78 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
+            "value": "account"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account__id"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account__firstUpdateBlockNumber"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account__firstUpdateTimestamp"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account__firstUpdateTransactionHash"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account__lastUpdateBlockNumber"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account__lastUpdateTimestamp"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account__lastUpdateTransactionHash"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "account__systemAccountType"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
             "value": "balanceSnapshot"
           },
           "directives": []
@@ -12099,7 +12522,7 @@ const schemaAST = {
       "kind": "ScalarTypeDefinition",
       "description": {
         "kind": "StringValue",
-        "value": "8 bytes signed integer\n",
+        "value": "8 bytes signed integer",
         "block": true
       },
       "name": {
@@ -28022,7 +28445,7 @@ const schemaAST = {
       "kind": "ScalarTypeDefinition",
       "description": {
         "kind": "StringValue",
-        "value": "A string representation of microseconds UNIX timestamp (16 digits)\n",
+        "value": "A string representation of microseconds UNIX timestamp (16 digits)",
         "block": true
       },
       "name": {
@@ -28042,7 +28465,7 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "description": {
             "kind": "StringValue",
-            "value": "ID space varies by token type:\n- ERC20: token address\n- ERC1155: `emitter address:tokenId`\n",
+            "value": "ID space varies by token type:\n- ERC20: token address\n- ERC1155: `emitter address:tokenId`",
             "block": true
           },
           "name": {
@@ -34655,7 +35078,7 @@ const schemaAST = {
               "kind": "NamedType",
               "name": {
                 "kind": "Name",
-                "value": "Account"
+                "value": "Bytes"
               }
             }
           },
@@ -35382,7 +35805,7 @@ const schemaAST = {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "String"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -35397,7 +35820,7 @@ const schemaAST = {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "String"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -35412,7 +35835,7 @@ const schemaAST = {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "String"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -35427,7 +35850,7 @@ const schemaAST = {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "String"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -35442,7 +35865,7 @@ const schemaAST = {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "String"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -35457,7 +35880,7 @@ const schemaAST = {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "String"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -35476,7 +35899,7 @@ const schemaAST = {
                 "kind": "NamedType",
                 "name": {
                   "kind": "Name",
-                  "value": "String"
+                  "value": "Bytes"
                 }
               }
             }
@@ -35497,7 +35920,7 @@ const schemaAST = {
                 "kind": "NamedType",
                 "name": {
                   "kind": "Name",
-                  "value": "String"
+                  "value": "Bytes"
                 }
               }
             }
@@ -35514,22 +35937,7 @@ const schemaAST = {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_contains_nocase"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -35544,157 +35952,7 @@ const schemaAST = {
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_not_contains_nocase"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_starts_with"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_starts_with_nocase"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_not_starts_with"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_not_starts_with_nocase"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_ends_with"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_ends_with_nocase"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_not_ends_with"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_not_ends_with_nocase"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "String"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "InputValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender_"
-          },
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "Account_filter"
+              "value": "Bytes"
             }
           },
           "directives": []
@@ -37239,70 +37497,6 @@ const schemaAST = {
           "name": {
             "kind": "Name",
             "value": "sender"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender__id"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender__firstUpdateBlockNumber"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender__firstUpdateTimestamp"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender__firstUpdateTransactionHash"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender__lastUpdateBlockNumber"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender__lastUpdateTimestamp"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender__lastUpdateTransactionHash"
-          },
-          "directives": []
-        },
-        {
-          "kind": "EnumValueDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "sender__systemAccountType"
           },
           "directives": []
         },
@@ -47983,7 +48177,7 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "description": {
             "kind": "StringValue",
-            "value": "Information about a specific subgraph block. The hash of the block\nwill be null if the _meta field has a block constraint that asks for\na block number. It will be filled if the _meta field has no block constraint\nand therefore asks for the latest  block\n",
+            "value": "Information about a specific subgraph block. The hash of the block\nwill be null if the _meta field has a block constraint that asks for\na block number. It will be filled if the _meta field has no block constraint\nand therefore asks for the latest  block",
             "block": true
           },
           "name": {

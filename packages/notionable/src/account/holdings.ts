@@ -6,7 +6,6 @@ import {
   TokenBalance,
   NetworkClientModel,
   BalanceStatement,
-  AccountHistory,
   createLeveragedAPYData,
   WithdrawRequest,
 } from '@notional-finance/core-entities';
@@ -23,14 +22,12 @@ export function calculateVaultHoldings(
   model: Instance<typeof NetworkClientModel>,
   balances: TokenBalance[],
   balanceStatements: BalanceStatement[],
-  accountHistory: AccountHistory[],
   vaultLastUpdateTime: Map<string, number>,
   rewardClaims: Record<string, TokenBalance[]>,
   withdrawRequests: Map<string, WithdrawRequest[]>
 ) {
   const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(model, {
     balances,
-    accountHistory,
     vaultLastUpdateTime,
     withdrawRequests,
   } as AccountDefinition);

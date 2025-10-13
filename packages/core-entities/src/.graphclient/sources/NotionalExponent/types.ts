@@ -768,6 +768,8 @@ export type IncentiveSnapshot = {
   blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transactionHash: Scalars['Bytes'];
+  /** Address of the account that holds this balance */
+  account: Account;
   /** Link back to the balance snapshot for this secondary incentive */
   balanceSnapshot: BalanceSnapshot;
   /** Reward token associated with this snapshot */
@@ -813,6 +815,27 @@ export type IncentiveSnapshot_filter = {
   transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  account?: InputMaybe<Scalars['String']>;
+  account_not?: InputMaybe<Scalars['String']>;
+  account_gt?: InputMaybe<Scalars['String']>;
+  account_lt?: InputMaybe<Scalars['String']>;
+  account_gte?: InputMaybe<Scalars['String']>;
+  account_lte?: InputMaybe<Scalars['String']>;
+  account_in?: InputMaybe<Array<Scalars['String']>>;
+  account_not_in?: InputMaybe<Array<Scalars['String']>>;
+  account_contains?: InputMaybe<Scalars['String']>;
+  account_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_not_contains?: InputMaybe<Scalars['String']>;
+  account_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_starts_with?: InputMaybe<Scalars['String']>;
+  account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_starts_with?: InputMaybe<Scalars['String']>;
+  account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_ends_with?: InputMaybe<Scalars['String']>;
+  account_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_ends_with?: InputMaybe<Scalars['String']>;
+  account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_?: InputMaybe<Account_filter>;
   balanceSnapshot?: InputMaybe<Scalars['String']>;
   balanceSnapshot_not?: InputMaybe<Scalars['String']>;
   balanceSnapshot_gt?: InputMaybe<Scalars['String']>;
@@ -882,6 +905,15 @@ export type IncentiveSnapshot_orderBy =
   | 'blockNumber'
   | 'timestamp'
   | 'transactionHash'
+  | 'account'
+  | 'account__id'
+  | 'account__firstUpdateBlockNumber'
+  | 'account__firstUpdateTimestamp'
+  | 'account__firstUpdateTransactionHash'
+  | 'account__lastUpdateBlockNumber'
+  | 'account__lastUpdateTimestamp'
+  | 'account__lastUpdateTransactionHash'
+  | 'account__systemAccountType'
   | 'balanceSnapshot'
   | 'balanceSnapshot__id'
   | 'balanceSnapshot__blockNumber'
@@ -2130,7 +2162,6 @@ export type Token = {
    * ID space varies by token type:
    * - ERC20: token address
    * - ERC1155: `emitter address:tokenId`
-   *
    */
   id: Scalars['ID'];
   firstUpdateBlockNumber: Scalars['BigInt'];
@@ -2607,7 +2638,7 @@ export type TradingModulePermission = {
   lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
-  sender: Account;
+  sender: Scalars['Bytes'];
   token?: Maybe<Token>;
   tokenAddress: Scalars['Bytes'];
   name: Scalars['String'];
@@ -2652,27 +2683,16 @@ export type TradingModulePermission_filter = {
   lastUpdateTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   lastUpdateTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   lastUpdateTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  sender?: InputMaybe<Scalars['String']>;
-  sender_not?: InputMaybe<Scalars['String']>;
-  sender_gt?: InputMaybe<Scalars['String']>;
-  sender_lt?: InputMaybe<Scalars['String']>;
-  sender_gte?: InputMaybe<Scalars['String']>;
-  sender_lte?: InputMaybe<Scalars['String']>;
-  sender_in?: InputMaybe<Array<Scalars['String']>>;
-  sender_not_in?: InputMaybe<Array<Scalars['String']>>;
-  sender_contains?: InputMaybe<Scalars['String']>;
-  sender_contains_nocase?: InputMaybe<Scalars['String']>;
-  sender_not_contains?: InputMaybe<Scalars['String']>;
-  sender_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  sender_starts_with?: InputMaybe<Scalars['String']>;
-  sender_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  sender_not_starts_with?: InputMaybe<Scalars['String']>;
-  sender_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  sender_ends_with?: InputMaybe<Scalars['String']>;
-  sender_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  sender_not_ends_with?: InputMaybe<Scalars['String']>;
-  sender_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  sender_?: InputMaybe<Account_filter>;
+  sender?: InputMaybe<Scalars['Bytes']>;
+  sender_not?: InputMaybe<Scalars['Bytes']>;
+  sender_gt?: InputMaybe<Scalars['Bytes']>;
+  sender_lt?: InputMaybe<Scalars['Bytes']>;
+  sender_gte?: InputMaybe<Scalars['Bytes']>;
+  sender_lte?: InputMaybe<Scalars['Bytes']>;
+  sender_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  sender_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  sender_contains?: InputMaybe<Scalars['Bytes']>;
+  sender_not_contains?: InputMaybe<Scalars['Bytes']>;
   token?: InputMaybe<Scalars['String']>;
   token_not?: InputMaybe<Scalars['String']>;
   token_gt?: InputMaybe<Scalars['String']>;
@@ -2772,14 +2792,6 @@ export type TradingModulePermission_orderBy =
   | 'lastUpdateTimestamp'
   | 'lastUpdateTransactionHash'
   | 'sender'
-  | 'sender__id'
-  | 'sender__firstUpdateBlockNumber'
-  | 'sender__firstUpdateTimestamp'
-  | 'sender__firstUpdateTransactionHash'
-  | 'sender__lastUpdateBlockNumber'
-  | 'sender__lastUpdateTimestamp'
-  | 'sender__lastUpdateTransactionHash'
-  | 'sender__systemAccountType'
   | 'token'
   | 'token__id'
   | 'token__firstUpdateBlockNumber'
@@ -3607,7 +3619,6 @@ export type _Meta_ = {
    * will be null if the _meta field has a block constraint that asks for
    * a block number. It will be filled if the _meta field has no block constraint
    * and therefore asks for the latest  block
-   *
    */
   block: _Block_;
   /** The deployment ID */

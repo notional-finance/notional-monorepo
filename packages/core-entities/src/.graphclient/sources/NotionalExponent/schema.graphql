@@ -714,6 +714,8 @@ type IncentiveSnapshot {
   blockNumber: BigInt!
   timestamp: Int!
   transactionHash: Bytes!
+  """Address of the account that holds this balance"""
+  account: Account!
   """Link back to the balance snapshot for this secondary incentive"""
   balanceSnapshot: BalanceSnapshot!
   """Reward token associated with this snapshot"""
@@ -759,6 +761,27 @@ input IncentiveSnapshot_filter {
   transactionHash_not_in: [Bytes!]
   transactionHash_contains: Bytes
   transactionHash_not_contains: Bytes
+  account: String
+  account_not: String
+  account_gt: String
+  account_lt: String
+  account_gte: String
+  account_lte: String
+  account_in: [String!]
+  account_not_in: [String!]
+  account_contains: String
+  account_contains_nocase: String
+  account_not_contains: String
+  account_not_contains_nocase: String
+  account_starts_with: String
+  account_starts_with_nocase: String
+  account_not_starts_with: String
+  account_not_starts_with_nocase: String
+  account_ends_with: String
+  account_ends_with_nocase: String
+  account_not_ends_with: String
+  account_not_ends_with_nocase: String
+  account_: Account_filter
   balanceSnapshot: String
   balanceSnapshot_not: String
   balanceSnapshot_gt: String
@@ -828,6 +851,15 @@ enum IncentiveSnapshot_orderBy {
   blockNumber
   timestamp
   transactionHash
+  account
+  account__id
+  account__firstUpdateBlockNumber
+  account__firstUpdateTimestamp
+  account__firstUpdateTransactionHash
+  account__lastUpdateBlockNumber
+  account__lastUpdateTimestamp
+  account__lastUpdateTransactionHash
+  account__systemAccountType
   balanceSnapshot
   balanceSnapshot__id
   balanceSnapshot__blockNumber
@@ -866,10 +898,7 @@ enum IncentiveSnapshot_orderBy {
   adjustedClaimed
 }
 
-"""
-8 bytes signed integer
-
-"""
+"""8 bytes signed integer"""
 scalar Int8
 
 type LendingRouter {
@@ -2151,10 +2180,7 @@ enum SystemAccount {
   NOTE
 }
 
-"""
-A string representation of microseconds UNIX timestamp (16 digits)
-
-"""
+"""A string representation of microseconds UNIX timestamp (16 digits)"""
 scalar Timestamp
 
 type Token {
@@ -2162,7 +2188,6 @@ type Token {
   ID space varies by token type:
   - ERC20: token address
   - ERC1155: `emitter address:tokenId`
-  
   """
   id: ID!
   firstUpdateBlockNumber: BigInt!
@@ -2608,7 +2633,7 @@ type TradingModulePermission {
   lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
-  sender: Account!
+  sender: Bytes!
   token: Token
   tokenAddress: Bytes!
   name: String!
@@ -2653,27 +2678,16 @@ input TradingModulePermission_filter {
   lastUpdateTransactionHash_not_in: [Bytes!]
   lastUpdateTransactionHash_contains: Bytes
   lastUpdateTransactionHash_not_contains: Bytes
-  sender: String
-  sender_not: String
-  sender_gt: String
-  sender_lt: String
-  sender_gte: String
-  sender_lte: String
-  sender_in: [String!]
-  sender_not_in: [String!]
-  sender_contains: String
-  sender_contains_nocase: String
-  sender_not_contains: String
-  sender_not_contains_nocase: String
-  sender_starts_with: String
-  sender_starts_with_nocase: String
-  sender_not_starts_with: String
-  sender_not_starts_with_nocase: String
-  sender_ends_with: String
-  sender_ends_with_nocase: String
-  sender_not_ends_with: String
-  sender_not_ends_with_nocase: String
-  sender_: Account_filter
+  sender: Bytes
+  sender_not: Bytes
+  sender_gt: Bytes
+  sender_lt: Bytes
+  sender_gte: Bytes
+  sender_lte: Bytes
+  sender_in: [Bytes!]
+  sender_not_in: [Bytes!]
+  sender_contains: Bytes
+  sender_not_contains: Bytes
   token: String
   token_not: String
   token_gt: String
@@ -2773,14 +2787,6 @@ enum TradingModulePermission_orderBy {
   lastUpdateTimestamp
   lastUpdateTransactionHash
   sender
-  sender__id
-  sender__firstUpdateBlockNumber
-  sender__firstUpdateTimestamp
-  sender__firstUpdateTransactionHash
-  sender__lastUpdateBlockNumber
-  sender__lastUpdateTimestamp
-  sender__lastUpdateTransactionHash
-  sender__systemAccountType
   token
   token__id
   token__firstUpdateBlockNumber
@@ -3558,7 +3564,6 @@ type _Meta_ {
   will be null if the _meta field has a block constraint that asks for
   a block number. It will be filled if the _meta field has no block constraint
   and therefore asks for the latest  block
-  
   """
   block: _Block_!
   """The deployment ID"""

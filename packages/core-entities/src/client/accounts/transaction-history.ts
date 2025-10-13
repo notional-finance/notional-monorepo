@@ -1,51 +1,80 @@
-import { Network, groupArrayByKey } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { getNetworkModel } from '../../Models';
 import { parseGraphBalanceToTokenBalance } from './balance-statement';
 import { AccountHistory } from '../../Definitions';
 import {
-  fetchGraph,
+  fetchGraphPaginate,
   loadGraphClientDeferred,
 } from '../../server/server-registry';
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ProfitLossLineItem } from '../../.graphclient';
+import { IncentiveSnapshot, ProfitLossLineItem } from '../../.graphclient';
 
 export async function fetchTransactionHistory(
   network: Network,
   account: string,
   subgraphApiKey: string
 ) {
-  const { AccountTransactionHistoryDocument } = await loadGraphClientDeferred();
-  return await fetchGraph(
+  const {
+    AccountTransactionHistoryDocument,
+    AccountIncentiveSnapshotsDocument,
+  } = await loadGraphClientDeferred();
+  const profitLossResult = await fetchGraphPaginate(
     network,
     AccountTransactionHistoryDocument,
-    (r): Record<string, AccountHistory[]> => {
-      return {
-        [account]: groupArrayByKey(
-          r.profitLossLineItems,
-          (t) => t.transactionHash
-        )
-          // This is already sorted by timestamp?
-          .map((t) => {
-            return parseTransaction(t as ProfitLossLineItem[], network);
-          })
-          .flatMap((_) => _),
-      };
-    },
+    'profitLossLineItems',
     subgraphApiKey,
     {
       accountId: account.toLowerCase(),
       skip: 0,
-    },
-    'profitLossLineItems'
+    }
   );
+  const profitLossLineItems =
+    profitLossResult.data?.profitLossLineItems.map((p: ProfitLossLineItem) =>
+      parseLineItem(p, network)
+    ) || [];
+
+  const incentiveSnapshotsResult = await fetchGraphPaginate(
+    network,
+    AccountIncentiveSnapshotsDocument,
+    'incentiveSnapshots',
+    subgraphApiKey,
+    { accountId: account.toLowerCase(), skip: 0 }
+  );
+  const incentiveSnapshots =
+    incentiveSnapshotsResult.data?.incentiveSnapshots.map(
+      (i: IncentiveSnapshot) => parseIncentiveSnapshot(i, network)
+    ) || [];
+
+  return incentiveSnapshots.concat(profitLossLineItems);
 }
 
-export function parseTransaction(
-  t: ProfitLossLineItem[],
+export function parseIncentiveSnapshot(
+  i: IncentiveSnapshot,
   network: Network
-): AccountHistory[] {
-  return t.map((p) => parseLineItem(p, network)) || [];
+): AccountHistory {
+  const model = getNetworkModel(network);
+  const rewardToken = model.getTokenByID(i.rewardToken.id);
+  const amountClaimed = parseGraphBalanceToTokenBalance(
+    i.totalClaimed,
+    rewardToken.id,
+    network
+  );
+
+  return {
+    timestamp: i.timestamp,
+    blockNumber: i.blockNumber,
+    transactionHash: i.transactionHash,
+    lineItemType: 'Rewards Claimed',
+    lineItemLabel: `Rewards Claimed: ${rewardToken.symbol}`,
+    properties: {
+      [`${rewardToken.symbol} Claimed`]: amountClaimed.toDisplayString(
+        4,
+        true,
+        false
+      ),
+    },
+  };
 }
 
 export function parseLineItem(p: ProfitLossLineItem, network: Network) {
@@ -71,26 +100,95 @@ export function parseLineItem(p: ProfitLossLineItem, network: Network) {
     network
   );
 
-  return {
-    timestamp: p.timestamp,
-    blockNumber: p.blockNumber,
-    lineItemType: p.lineItemType,
-    token,
-    underlying,
-    transactionHash: p.transactionHash,
-    tokenAmount,
-    underlyingAmountRealized,
-    underlyingAmountSpot,
-    realizedPrice: parseGraphBalanceToTokenBalance(
+  let lineItemLabel = 'Unknown';
+  let properties: Record<string, string> = {};
+
+  if (
+    p.lineItemType === 'EnterPosition' ||
+    p.lineItemType === 'ExitPosition' ||
+    p.lineItemType === 'LiquidatePosition' ||
+    p.lineItemType === 'MigratePosition'
+  ) {
+    if (token.tokenType === 'VaultShare') {
+      lineItemLabel =
+        p.lineItemType === 'EnterPosition'
+          ? 'Mint Vault Shares'
+          : p.lineItemType === 'ExitPosition'
+          ? 'Burn Vault Shares'
+          : p.lineItemType === 'LiquidatePosition'
+          ? 'Liquidate Vault Shares'
+          : 'Migrate Vault Shares';
+
+      properties = {
+        Value: underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
+        'Entry Price': underlyingAmountRealized.toDisplayStringWithSymbol(
+          4,
+          true,
+          false
+        ),
+        'Vault Shares': tokenAmount.toDisplayString(4, true, false),
+        // TODO: how do we get the yield token amount?
+      };
+    } else if (token.tokenType === 'VaultDebt') {
+      lineItemLabel =
+        p.lineItemType === 'EnterPosition'
+          ? 'Borrow Vault Debt'
+          : p.lineItemType === 'ExitPosition'
+          ? 'Repay Vault Debt'
+          : p.lineItemType === 'LiquidatePosition'
+          ? 'Repay Vault Debt'
+          : 'Migrate Vault Debt';
+      properties = {
+        Value: underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
+        'Entry Price': underlyingAmountRealized.toDisplayStringWithSymbol(
+          4,
+          true,
+          false
+        ),
+        'Vault Debt Shares': tokenAmount.toDisplayString(4, true, false),
+      };
+    }
+  } else if (p.lineItemType === 'WithdrawRequest') {
+    // Token is vault share, underlying is yield token
+    lineItemLabel = 'Withdraw Request';
+    properties = {
+      [`Vault Shares Burned`]: tokenAmount.toDisplayString(4, true, false),
+      [`${token.symbol} Withdrawn`]: underlyingAmountRealized.toDisplayString(
+        4,
+        true,
+        false
+      ),
+    };
+  } else if (p.lineItemType === 'WithdrawRequestFinalized') {
+    // Token is yield token, underlying is withdraw token
+    lineItemLabel = 'Withdraw Request Finalized';
+    properties = {
+      [`${token.symbol} Burned`]: tokenAmount.toDisplayString(4, true, false),
+      [`${underlying.symbol} Received`]:
+        underlyingAmountRealized.toDisplayString(4, true, false),
+    };
+  } else if (p.lineItemType === 'TradeExecution') {
+    lineItemLabel = `Trade: ${p.token.symbol} → ${p.underlyingToken.symbol}`;
+    const realizedPrice = parseGraphBalanceToTokenBalance(
       p.realizedPrice,
       underlyingId,
       network
-    ),
-    spotPrice: parseGraphBalanceToTokenBalance(
-      p.spotPrice,
-      underlyingId,
-      network
-    ),
-    account: p.account.id,
+    );
+
+    properties = {
+      [`${p.token.symbol} Sold`]: tokenAmount.toDisplayString(4, true, false),
+      [`${p.underlyingToken.symbol} Bought`]:
+        underlyingAmountRealized.toDisplayString(4, true, false),
+      Price: realizedPrice.toDisplayStringWithSymbol(4, true, false),
+    };
+  }
+
+  return {
+    timestamp: p.timestamp,
+    blockNumber: p.blockNumber,
+    transactionHash: p.transactionHash,
+    lineItemType: p.lineItemType,
+    lineItemLabel,
+    properties,
   };
 }

@@ -1,6 +1,5 @@
 import { RootStoreInterface } from './root-store';
 import {
-  AccountHistory,
   BalanceStatement,
   NotionalTypes,
   TokenBalance,
@@ -165,7 +164,6 @@ export const AccountPortfolioActions = (
       root().getNetworkClient(self.network),
       self.balances,
       self.balanceStatement as BalanceStatement[],
-      self.accountHistory as AccountHistory[],
       new Map(self.vaultLastUpdateTime.entries()),
       Object.fromEntries(self.rewardClaims.entries()),
       new Map(self.withdrawRequests.entries())

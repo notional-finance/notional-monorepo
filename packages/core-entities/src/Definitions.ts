@@ -128,19 +128,12 @@ export interface BalanceStatement {
 }
 
 export interface AccountHistory {
-  lineItemType: string;
   timestamp: number;
   blockNumber: number;
-  token: TokenDefinition;
-  underlying: TokenDefinition;
-  tokenAmount: TokenBalance;
   transactionHash: string;
-  underlyingAmountRealized: TokenBalance;
-  underlyingAmountSpot: TokenBalance;
-  realizedPrice: TokenBalance;
-  spotPrice: TokenBalance;
-  impliedFixedRate?: number;
-  account?: string;
+  lineItemType: string;
+  lineItemLabel: string;
+  properties: Record<string, string>;
 }
 
 export interface StakeNoteStatus {
