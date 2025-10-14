@@ -63,3 +63,9 @@ export function formatNumberAsPercent(num: number | string, decimals = 2) {
 export function camelCaseToReadable(text: string): string {
   return text.replace(/([A-Z])/g, ' $1').trim();
 }
+
+export function shortenTokenSymbol(symbol: string): string {
+  if (symbol.startsWith('PT-')) return 'PT';
+  if (symbol.toLowerCase() === 'unknown') return 'LP Token';
+  return symbol;
+}

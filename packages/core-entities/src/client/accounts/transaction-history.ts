@@ -3,6 +3,7 @@ import {
   getEtherscanTransactionLink,
   groupArrayByKey,
   Network,
+  shortenTokenSymbol,
 } from '@notional-finance/util';
 import { getNetworkModel } from '../../Models';
 import { parseGraphBalanceToTokenBalance } from './balance-statement';
@@ -218,7 +219,7 @@ function parseLineItem(
           network
         );
         properties.push({
-          key: `${yieldTokenAmount.symbol} Amount`,
+          key: `${shortenTokenSymbol(yieldToken.symbol)} Amount`,
           value: yieldTokenAmount.toDisplayString(4, true, false),
         });
       }
@@ -245,7 +246,7 @@ function parseLineItem(
           value: realizedPrice.toDisplayStringWithSymbol(4, true, false),
         },
         {
-          key: 'Vault Debt Shares',
+          key: 'Debt Shares',
           value: tokenAmount.toDisplayString(4, true, false),
         },
       ];
@@ -259,7 +260,7 @@ function parseLineItem(
         value: tokenAmount.toDisplayString(4, true, false),
       },
       {
-        key: `${token.symbol} Withdrawn`,
+        key: `${shortenTokenSymbol(underlying.symbol)} Withdrawn`,
         value: underlyingAmountRealized.toDisplayString(4, true, false),
       },
     ];
@@ -268,23 +269,25 @@ function parseLineItem(
     lineItemLabel = 'Withdraw Request Finalized';
     properties = [
       {
-        key: `${token.symbol} Burned`,
+        key: `${shortenTokenSymbol(token.symbol)} Burned`,
         value: tokenAmount.toDisplayString(4, true, false),
       },
       {
-        key: `${underlying.symbol} Received`,
+        key: `${shortenTokenSymbol(underlying.symbol)} Received`,
         value: underlyingAmountRealized.toDisplayString(4, true, false),
       },
     ];
   } else if (p.lineItemType === 'TradeExecution') {
-    lineItemLabel = `Trade: ${p.token.symbol} → ${p.underlyingToken.symbol}`;
+    lineItemLabel = `Trade: ${shortenTokenSymbol(
+      p.underlyingToken.symbol
+    )} → ${shortenTokenSymbol(p.token.symbol)}`;
     properties = [
       {
-        key: `${p.token.symbol} Sold`,
+        key: `${shortenTokenSymbol(p.underlyingToken.symbol)} Sold`,
         value: tokenAmount.toDisplayString(4, true, false),
       },
       {
-        key: `${p.underlyingToken.symbol} Bought`,
+        key: `${shortenTokenSymbol(p.token.symbol)} Bought`,
         value: underlyingAmountRealized.toDisplayString(4, true, false),
       },
       {
