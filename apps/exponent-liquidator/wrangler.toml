@@ -1,0 +1,26 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+logpush = true
+minify = true
+
+[triggers]
+crons = ["0/2 * * * *"]
+
+[env.mainnet]
+name = "exponent-liquidator-mainnet"
+
+[env.mainnet.vars]
+DATA_SERVICE_URL = 'https://example.com/api/accounts'
+MORPHO_LENDING_ROUTER_ADDRESS = '0x0000000000000000000000000000000000000000'
+NETWORK = 'mainnet'
+
+[env.arbitrum] 
+name = "exponent-liquidator-arbitrum"
+
+[env.arbitrum.vars]
+DATA_SERVICE_URL = 'https://example.com/api/accounts'
+MORPHO_LENDING_ROUTER_ADDRESS = '0x0000000000000000000000000000000000000000'
+NETWORK = 'arbitrum'
