@@ -15,9 +15,11 @@ query AccountTransactionHistory($accountId: String!, $skip: Int!) {
     }
     token {
       id
+      symbol
     }
     underlyingToken {
       id
+      symbol
     }
     tokenAmount
     underlyingAmountRealized

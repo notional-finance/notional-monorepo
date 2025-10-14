@@ -4550,7 +4550,7 @@ export type AccountTransactionHistoryQueryVariables = Exact<{
 
 export type AccountTransactionHistoryQuery = { profitLossLineItems: Array<(
     Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'transactionHash' | 'lineItemType' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'yieldTokenAmount'>
-    & { account: Pick<Account, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, balanceSnapshot: { balance: { token: Pick<Token, 'vaultAddress'> } } }
+    & { account: Pick<Account, 'id'>, token: Pick<Token, 'id' | 'symbol'>, underlyingToken: Pick<Token, 'id' | 'symbol'>, balanceSnapshot: { balance: { token: Pick<Token, 'vaultAddress'> } } }
   )> };
 
 export type AllAccountsQueryVariables = Exact<{
@@ -4815,9 +4815,11 @@ export const AccountTransactionHistoryDocument = gql`
     }
     token {
       id
+      symbol
     }
     underlyingToken {
       id
+      symbol
     }
     tokenAmount
     underlyingAmountRealized

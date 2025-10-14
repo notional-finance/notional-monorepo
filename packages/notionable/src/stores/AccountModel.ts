@@ -105,7 +105,7 @@ const WithdrawRequestModel = types.model('WithdrawRequest', {
 });
 
 const LineItemModel = types.model('LineItem', {
-  lineItemType: types.string,
+  lineItemLabel: types.string,
   properties: types.array(
     types.model({ key: types.string, value: types.string })
   ),
