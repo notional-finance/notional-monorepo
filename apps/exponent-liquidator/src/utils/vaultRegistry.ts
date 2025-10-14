@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { aggregate, AggregateCall } from '@notional-finance/multicall';
+// import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { 
   VaultConfig, 
@@ -8,10 +8,10 @@ import {
   VaultType 
 } from '../types';
 import { 
-  whitelistedVaults, 
+  // whitelistedVaults, 
   VaultDefaultDexParameters, 
   PendlePTVaults,
-  PointsMultipliers,
+  // PointsMultipliers,
   PointsLinks 
 } from '@notional-finance/core-entities';
 
@@ -72,7 +72,7 @@ export class VaultRegistry {
     // TODO: This will be replaced with actual contract calls
     // For now, create placeholder implementations based on vault types
     
-    const calls: AggregateCall[] = [];
+    // const calls: AggregateCall[] = [];
     
     // Add calls for each vault to get:
     // - vaultType (will need contract interface)
@@ -117,7 +117,7 @@ export class VaultRegistry {
     const isPendlePT = PendlePTVaults[this.network]?.includes(lowerAddress) || false;
     
     // Get points data
-    const pointsMultipliersFn = PointsMultipliers[this.network]?.[lowerAddress];
+    // const pointsMultipliersFn = PointsMultipliers[this.network]?.[lowerAddress];
     const pointsLinks = PointsLinks[this.network]?.[lowerAddress];
     
     return {
@@ -129,7 +129,7 @@ export class VaultRegistry {
       redeemPoolAddress: dexParams?.redeemPoolAddress,
       withdrawPoolAddress: dexParams?.withdrawPoolAddress,
       isPendlePT,
-      pointsMultipliers: pointsMultipliersFn ? pointsMultipliersFn({} as any) : undefined,
+      pointsMultipliers: undefined, // TODO: Fix when VaultAdapter type is available
       pointsLinks,
     };
   }

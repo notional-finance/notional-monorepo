@@ -67,9 +67,9 @@ export async function batchWithdrawRequestStatus(
 
 // Vault-type-specific implementations (placeholders)
 async function getStakingWithdrawRequestStatus(
-  position: RiskyPosition,
-  vaultConfig: any,
-  provider: ethers.providers.Provider
+  _position: RiskyPosition,
+  _vaultConfig: unknown,
+  _provider: ethers.providers.Provider
 ): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }> {
   // TODO: Implement staking vault withdraw request logic
   return {
@@ -79,9 +79,9 @@ async function getStakingWithdrawRequestStatus(
 }
 
 async function getPendlePTWithdrawRequestStatus(
-  position: RiskyPosition,
-  vaultConfig: any,
-  provider: ethers.providers.Provider
+  _position: RiskyPosition,
+  _vaultConfig: unknown,
+  _provider: ethers.providers.Provider
 ): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }> {
   // TODO: Implement Pendle PT vault withdraw request logic
   return {
@@ -91,9 +91,9 @@ async function getPendlePTWithdrawRequestStatus(
 }
 
 async function getCurveConvexWithdrawRequestStatus(
-  position: RiskyPosition,
-  vaultConfig: any,
-  provider: ethers.providers.Provider
+  _position: RiskyPosition,
+  _vaultConfig: unknown,
+  _provider: ethers.providers.Provider
 ): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }> {
   // TODO: Implement Curve Convex vault withdraw request logic
   return {
