@@ -135,7 +135,12 @@ export interface AccountTransactions {
     hash: string;
     href: string;
   };
-  transactionType: string;
+  transactionType: {
+    symbol: string;
+    label: string;
+    caption: string;
+  };
+  amountToFromWallet?: TokenBalance;
   lineItems: AccountHistory[];
 }
 export interface AccountHistory {

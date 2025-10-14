@@ -115,9 +115,14 @@ const AccountHistoryModel = types.model('AccountHistory', {
   timestamp: types.number,
   blockNumber: types.number,
   transactionHash: types.model({ hash: types.string, href: types.string }),
-  transactionType: types.string,
+  transactionType: types.model({
+    symbol: types.string,
+    label: types.string,
+    caption: types.string,
+  }),
   vaultAddress: types.string,
   lineItems: types.array(LineItemModel),
+  amountToFromWallet: types.maybe(NotionalTypes.TokenBalance),
 });
 
 export const HistoricalBalanceModel = types.model('HistoricalBalance', {

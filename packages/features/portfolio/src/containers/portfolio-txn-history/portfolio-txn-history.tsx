@@ -3,6 +3,7 @@ import {
   DataTable,
   DataTableColumn,
   DateTimeCell,
+  MultiValueCell,
   MultiValueIconCell,
   TxnHashCell,
 } from '@notional-finance/mui';
@@ -14,7 +15,7 @@ import { PortfolioPageHeader } from '../../components';
 import { observer } from 'mobx-react-lite';
 import { useEffect, useMemo, useState } from 'react';
 import { ExpandedState } from '@tanstack/react-table';
-import { TxnHistoryRow } from './TxnHistoryRow';
+import { TxnHistoryRow } from './txn-history-row';
 
 export const PortfolioTransactionHistory = observer(() => {
   const { accountHistory, filterData, pendingTokenData } = useTxnHistoryData();
@@ -63,6 +64,8 @@ export const PortfolioTransactionHistory = observer(() => {
             description={'Amount To/From Wallet header'}
           />
         ),
+        cell: MultiValueCell,
+        showGreenText: true,
         accessorKey: 'amountToFromWallet',
         textAlign: 'right',
         expandableTable: true,
@@ -110,6 +113,10 @@ export const PortfolioTransactionHistory = observer(() => {
         expandableTable={true}
         CustomRowComponent={TxnHistoryRow}
         setExpandedRows={setExpandedRows}
+        initialState={{
+          expanded: expandedRows,
+          clickDisabled: false,
+        }}
         // csvDataFormatter={marketDataCSVFormatter}
       />
     </Box>

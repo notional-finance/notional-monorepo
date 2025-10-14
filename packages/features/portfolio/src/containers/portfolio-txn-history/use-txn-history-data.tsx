@@ -52,9 +52,18 @@ export const useTxnHistoryData = () => {
   ];
 
   return {
-    accountHistory: accountHistory?.filter(({ vaultAddress }) =>
-      selectedVaultFilter.some(({ id }) => id === vaultAddress)
-    ),
+    accountHistory: accountHistory
+      ?.filter(({ vaultAddress }) =>
+        selectedVaultFilter.some(({ id }) => id === vaultAddress)
+      )
+      .map(({ amountToFromWallet, ...rest }) => ({
+        ...rest,
+        isDebt: amountToFromWallet?.isNegative(),
+        amountToFromWallet:
+          amountToFromWallet
+            ?.abs()
+            ?.toDisplayStringWithSymbol(4, true, false) || '-',
+      })),
     filterData,
     pendingTokenData,
   };

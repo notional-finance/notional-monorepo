@@ -1,11 +1,16 @@
 import {
+  camelCaseToReadable,
   getEtherscanTransactionLink,
   groupArrayByKey,
   Network,
 } from '@notional-finance/util';
 import { getNetworkModel } from '../../Models';
 import { parseGraphBalanceToTokenBalance } from './balance-statement';
-import { AccountHistory, AccountTransactions } from '../../Definitions';
+import {
+  AccountHistory,
+  AccountTransactions,
+  TokenDefinition,
+} from '../../Definitions';
 import {
   fetchGraphPaginate,
   loadGraphClientDeferred,
@@ -13,6 +18,7 @@ import {
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { IncentiveSnapshot, ProfitLossLineItem } from '../../.graphclient';
+import { TokenBalance } from '../../token-balance';
 
 export async function fetchTransactionHistory(
   network: Network,
@@ -58,9 +64,10 @@ export async function fetchTransactionHistory(
 }
 
 function groupIntoTransactions(
-  lineItems: AccountHistory[],
+  lineItems: (AccountHistory & { underlyingAmountRealized: TokenBalance })[],
   network: Network
 ): AccountTransactions[] {
+  const model = getNetworkModel(network);
   const grouped = groupArrayByKey(lineItems, (i) => i.transactionHash)
     .map((g) => {
       const transactionType =
@@ -69,6 +76,26 @@ function groupIntoTransactions(
             i.lineItemType !== 'Rewards Claimed' &&
             i.lineItemType !== 'Trade Execution'
         )?.lineItemType || 'Rewards Claimed';
+      const config = model.getVaultConfig(g[0].vaultAddress);
+      let amountToFromWallet: TokenBalance | undefined;
+      const zero = TokenBalance.zero(config.depositToken as TokenDefinition);
+      if (transactionType === 'EnterPosition') {
+        const sharesValue =
+          g.find((i) => i.lineItemLabel === 'Mint Vault Shares')
+            ?.underlyingAmountRealized || zero;
+        const borrowValue =
+          g.find((i) => i.lineItemLabel === 'Borrow Vault Debt')
+            ?.underlyingAmountRealized || zero;
+        amountToFromWallet = sharesValue.sub(borrowValue);
+      } else if (transactionType === 'ExitPosition') {
+        const sharesValue =
+          g.find((i) => i.lineItemLabel === 'Burn Vault Shares')
+            ?.underlyingAmountRealized || zero;
+        const borrowValue =
+          g.find((i) => i.lineItemLabel === 'Repay Vault Debt')
+            ?.underlyingAmountRealized || zero;
+        amountToFromWallet = sharesValue.sub(borrowValue);
+      }
 
       return {
         timestamp: g[0].timestamp,
@@ -78,8 +105,13 @@ function groupIntoTransactions(
           hash: g[0].transactionHash,
           href: getEtherscanTransactionLink(g[0].transactionHash, network),
         },
-        transactionType,
+        transactionType: {
+          symbol: config.depositToken.symbol,
+          label: camelCaseToReadable(transactionType),
+          caption: config.name,
+        },
         lineItems: g,
+        amountToFromWallet,
       };
     })
     .sort((a, b) => b.timestamp - a.timestamp);
@@ -118,7 +150,7 @@ function parseIncentiveSnapshot(
 function parseLineItem(
   p: ProfitLossLineItem,
   network: Network
-): AccountHistory {
+): AccountHistory & { underlyingAmountRealized: TokenBalance } {
   const tokenId = p.token.id;
   const underlyingId = p.underlyingToken.id;
   const model = getNetworkModel(network);
@@ -135,8 +167,8 @@ function parseLineItem(
     underlyingId,
     network
   );
-  const underlyingAmountSpot = parseGraphBalanceToTokenBalance(
-    p.underlyingAmountSpot,
+  const realizedPrice = parseGraphBalanceToTokenBalance(
+    p.realizedPrice,
     underlyingId,
     network
   );
@@ -163,15 +195,15 @@ function parseLineItem(
       properties = [
         {
           key: 'Value',
-          value: underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
-        },
-        {
-          key: 'Entry Price',
           value: underlyingAmountRealized.toDisplayStringWithSymbol(
             4,
             true,
             false
           ),
+        },
+        {
+          key: 'Entry Price',
+          value: realizedPrice.toDisplayStringWithSymbol(4, true, false),
         },
         {
           key: 'Vault Shares',
@@ -202,15 +234,15 @@ function parseLineItem(
       properties = [
         {
           key: 'Value',
-          value: underlyingAmountSpot.toDisplayStringWithSymbol(4, true, false),
-        },
-        {
-          key: 'Entry Price',
           value: underlyingAmountRealized.toDisplayStringWithSymbol(
             4,
             true,
             false
           ),
+        },
+        {
+          key: 'Entry Price',
+          value: realizedPrice.toDisplayStringWithSymbol(4, true, false),
         },
         {
           key: 'Vault Debt Shares',
@@ -246,12 +278,6 @@ function parseLineItem(
     ];
   } else if (p.lineItemType === 'TradeExecution') {
     lineItemLabel = `Trade: ${p.token.symbol} → ${p.underlyingToken.symbol}`;
-    const realizedPrice = parseGraphBalanceToTokenBalance(
-      p.realizedPrice,
-      underlyingId,
-      network
-    );
-
     properties = [
       {
         key: `${p.token.symbol} Sold`,
@@ -274,6 +300,7 @@ function parseLineItem(
     blockNumber: p.blockNumber,
     transactionHash: p.transactionHash,
     lineItemType: p.lineItemType,
+    underlyingAmountRealized,
     lineItemLabel,
     properties,
   };
