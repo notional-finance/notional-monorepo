@@ -4,7 +4,7 @@ import { Position, RiskyPosition, HealthFactorData } from '../types';
 
 // TODO: Replace with actual Morpho ABI when provided
 const MORPHO_LENDING_ROUTER_ABI = [
-  'function healthFactor(address account, address vault) external view returns (uint256 borrowed, uint256 collateralValue, uint256 maxBorrow)',
+  'function healthFactor(address account, address vault) external view returns (uint256 borrowed, uint256 collateralShares, uint256 maxBorrow)',
   'function balanceOfCollateral(address account, address vault) external view returns (uint256 shares)'
 ];
 
@@ -38,13 +38,13 @@ export class MorphoRouterIntegration {
     for (let i = 0; i < pairs.length; i++) {
       const [account, vault] = pairs[i];
       const healthData = results[`health_${i}`] as [BigNumber, BigNumber, BigNumber];
-      const [borrowed, collateralValue, maxBorrow] = healthData;
+      const [borrowed, collateralShares, maxBorrow] = healthData;
 
       healthFactorData.push({
         account,
         vault,
         borrowed,
-        collateralValue,
+        collateralShares,
         maxBorrow,
       });
     }

@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, Contract } from 'ethers';
 import { Logger, DDSeries, MetricType, getNowSeconds, getProviderFromNetwork } from '@notional-finance/util';
 import { RiskyPosition, EnrichedPosition, Env, MetricNames, Position, HealthFactorData } from './types';
 import { fetchPositions } from './utils/dataService';
@@ -6,11 +6,16 @@ import { MorphoRouterIntegration } from './utils/morphoRouter';
 import { batchWithdrawRequestStatus } from './utils/withdrawRequestData';
 import { VaultRegistry } from './utils/vaultRegistry';
 
+const FLASH_LIQUIDATOR_ABI = [
+  'function flashLiquidate(address vaultAddress, address[] memory liquidateAccounts, uint256[] memory sharesToLiquidate, uint256 assetsToBorrow, bytes memory redeemData) external'
+];
+
 export default class ExponentLiquidator {
   private provider: ethers.providers.Provider;
   private morphoRouterIntegration: MorphoRouterIntegration;
   private logger: Logger;
   private vaultRegistry?: VaultRegistry;
+  private flashLiquidator: Contract;
 
   constructor(private env: Env) {
     this.provider = getProviderFromNetwork(env.NETWORK, true);
@@ -24,6 +29,11 @@ export default class ExponentLiquidator {
       env: env.NETWORK,
       service: 'exponent-liquidator',
     });
+    this.flashLiquidator = new ethers.Contract(
+      env.FLASH_LIQUIDATOR_ADDRESS,
+      FLASH_LIQUIDATOR_ABI,
+      this.provider
+    );
   }
 
   async fetchPositions(): Promise<Position[]> {
@@ -66,7 +76,7 @@ export default class ExponentLiquidator {
           account: data.account,
           vault: data.vault,
           borrowed: data.borrowed,
-          collateralValue: data.collateralValue,
+          collateralShares: data.collateralShares,
           maxBorrow: data.maxBorrow,
           healthFactor,
         });
@@ -141,17 +151,78 @@ export default class ExponentLiquidator {
     return batches;
   }
 
-  private async generateLiquidationCallData(positions: EnrichedPosition[]): Promise<string> {
-    // TODO: Implement liquidation call data generation
-    // This will be replaced with actual flash liquidator call data generation
-    console.log(`Generating liquidation call data for ${positions.length} positions`);
-    return '0x'; // Placeholder
+  private async generateLiquidationCallData(positions: EnrichedPosition[]): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string }> {
+    if (positions.length === 0) {
+      throw new Error('No positions provided for liquidation');
+    }
+
+    // All positions in a batch should be from the same vault
+    const vaultAddress = positions[0].vault;
+    const liquidateAccounts = positions.map(p => p.account);
+    const sharesToLiquidate = positions.map(p => p.collateralShares.toString());
+    
+    // Calculate total assets to borrow (sum of all borrowed amounts + 10% buffer)
+    const totalBorrowed = positions.reduce((sum, position) => {
+      return sum.add(position.borrowed);
+    }, ethers.BigNumber.from(0));
+    
+    // Add 10% buffer to total borrowed amount
+    const totalBorrowedWithBuffer = totalBorrowed.mul(110).div(100);
+    
+    const assetsToBorrow = totalBorrowedWithBuffer.toString();
+    
+    // Get vault config to determine redeem data
+    if (!this.vaultRegistry) {
+      throw new Error('Vault registry not initialized');
+    }
+    
+    const vaultConfig = this.vaultRegistry.getVaultConfig(vaultAddress);
+    if (!vaultConfig) {
+      throw new Error(`Vault config not found for vault: ${vaultAddress}`);
+    }
+    
+    // Use appropriate redeem data based on withdraw request status
+    let redeemData: string;
+    if (positions[0].isWithdrawRequestPending) {
+      // For positions with withdraw requests, use withdraw exchange data
+      redeemData = vaultConfig.withdrawExchangeData || '0x';
+    } else {
+      // For positions without withdraw requests, use redeem exchange data  
+      redeemData = vaultConfig.redeemExchangeData || '0x';
+    }
+    
+    return {
+      vaultAddress,
+      liquidateAccounts,
+      sharesToLiquidate,
+      assetsToBorrow,
+      redeemData
+    };
   }
 
-  private async executeFlashLiquidation(callData: string): Promise<void> {
-    // TODO: Implement flash liquidator contract call
-    // This will be replaced with actual FLASH_LIQUIDATOR.flashLiquidate call
-    console.log(`Executing flash liquidation with call data: ${callData}`);
+  private async executeFlashLiquidation(liquidationParams: { vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string }): Promise<void> {
+    try {
+      console.log(`Executing flash liquidation for vault: ${liquidationParams.vaultAddress} with ${liquidationParams.liquidateAccounts.length} accounts`);
+      
+      // Call the flash liquidator contract
+      const tx = await this.flashLiquidator.flashLiquidate(
+        liquidationParams.vaultAddress,
+        liquidationParams.liquidateAccounts,
+        liquidationParams.sharesToLiquidate,
+        liquidationParams.assetsToBorrow,
+        liquidationParams.redeemData
+      );
+      
+      console.log(`Flash liquidation transaction sent: ${tx.hash}`);
+      
+      // Wait for transaction confirmation
+      const receipt = await tx.wait();
+      console.log(`Flash liquidation confirmed in block: ${receipt.blockNumber}`);
+      
+    } catch (error) {
+      console.error('Flash liquidation failed:', error);
+      throw error;
+    }
   }
 
   async liquidatePositions(positionsToLiquidate: EnrichedPosition[]): Promise<void> {
@@ -167,15 +238,15 @@ export default class ExponentLiquidator {
       
       for (const batch of batchesWithoutWithdrawRequest) {
         console.log(`Liquidating batch of ${batch.length} positions without withdraw requests`);
-        const callData = await this.generateLiquidationCallData(batch);
-        await this.executeFlashLiquidation(callData);
+        const liquidationParams = await this.generateLiquidationCallData(batch);
+        await this.executeFlashLiquidation(liquidationParams);
       }
 
       // Step 4: Liquidate positions with withdraw requests (one by one)
       for (const position of vaultPositions.withWithdrawRequest) {
         console.log(`Liquidating position with withdraw request: ${position.account}`);
-        const callData = await this.generateLiquidationCallData([position]);
-        await this.executeFlashLiquidation(callData);
+        const liquidationParams = await this.generateLiquidationCallData([position]);
+        await this.executeFlashLiquidation(liquidationParams);
       }
 
       console.log(`Completed liquidations for vault: ${vaultAddress}`);
@@ -274,7 +345,7 @@ account: ${position.account}
 vault: ${position.vault}
 healthFactor: ${position.healthFactor}
 borrowed: ${position.borrowed.toString()}
-collateralValue: ${position.collateralValue.toString()}
+collateralShares: ${position.collateralShares.toString()}
 maxBorrow: ${position.maxBorrow.toString()}
         `,
       });

@@ -7,7 +7,7 @@ export type HealthFactorData = {
   account: string;
   vault: string;
   borrowed: BigNumber;
-  collateralValue: BigNumber;
+  collateralShares: BigNumber;
   maxBorrow: BigNumber;
 };
 
@@ -15,7 +15,7 @@ export type RiskyPosition = {
   account: string;
   vault: string;
   borrowed: BigNumber;
-  collateralValue: BigNumber;
+  collateralShares: BigNumber;
   maxBorrow: BigNumber;
   healthFactor: number;
 };
@@ -30,6 +30,7 @@ export interface Env {
   DATA_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   MORPHO_LENDING_ROUTER_ADDRESS: string;
+  FLASH_LIQUIDATOR_ADDRESS: string;
   NETWORK: Network;
   ALCHEMY_KEY: string;
   DD_API_KEY: string;

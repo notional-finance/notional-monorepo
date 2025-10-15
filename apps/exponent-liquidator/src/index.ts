@@ -19,7 +19,7 @@ export default {
             vault: position.vault,
             healthFactor: position.healthFactor,
             borrowed: position.borrowed.toString(),
-            collateralValue: position.collateralValue.toString(),
+            collateralShares: position.collateralShares.toString(),
             maxBorrow: position.maxBorrow.toString(),
             totalVaultShares: position.totalVaultShares.toString(),
             isWithdrawRequestPending: position.isWithdrawRequestPending,
