@@ -3,6 +3,14 @@ import { Network } from '@notional-finance/util';
 
 export type Position = [string, string]; // [accountAddress, vaultAddress]
 
+export type HealthFactorData = {
+  account: string;
+  vault: string;
+  borrowed: BigNumber;
+  collateralValue: BigNumber;
+  maxBorrow: BigNumber;
+};
+
 export type RiskyPosition = {
   account: string;
   vault: string;

@@ -9,11 +9,7 @@ export default {
   ): Promise<Response> {
     try {
       const liquidator = new ExponentLiquidator(env);
-      const riskyPositions = await liquidator.getRiskyPositions();
-      const enrichedPositions = await liquidator.enrichPositionData(riskyPositions);
-      
-      // Log risky position events for monitoring
-      await liquidator.logRiskyPositionEvents(riskyPositions);
+      const enrichedPositions = await liquidator.run();
 
       return new Response(
         JSON.stringify({
@@ -47,11 +43,7 @@ export default {
   ): Promise<void> {
     try {
       const liquidator = new ExponentLiquidator(env);
-      const riskyPositions = await liquidator.getRiskyPositions();
-      const enrichedPositions = await liquidator.enrichPositionData(riskyPositions);
-      
-      // Log risky position events for monitoring
-      await liquidator.logRiskyPositionEvents(riskyPositions);
+      const enrichedPositions = await liquidator.run();
 
       console.log(`Processed ${enrichedPositions.length} risky positions`);
       

@@ -1,6 +1,6 @@
 import { ethers, BigNumber, Contract } from 'ethers';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
-import { Position, RiskyPosition } from '../types';
+import { Position, RiskyPosition, HealthFactorData } from '../types';
 
 // TODO: Replace with actual Morpho ABI when provided
 const MORPHO_LENDING_ROUTER_ABI = [
@@ -22,7 +22,7 @@ export class MorphoRouterIntegration {
     );
   }
 
-  async batchHealthFactors(pairs: Position[]): Promise<RiskyPosition[]> {
+  async batchHealthFactors(pairs: Position[]): Promise<HealthFactorData[]> {
     const calls: AggregateCall[] = pairs.map(([account, vault], index) => ({
       stage: 0,
       target: this.morphoRouterContract,
@@ -33,35 +33,23 @@ export class MorphoRouterIntegration {
 
     const { results } = await aggregate(calls, this.provider);
 
-    const riskyPositions: RiskyPosition[] = [];
+    const healthFactorData: HealthFactorData[] = [];
 
     for (let i = 0; i < pairs.length; i++) {
       const [account, vault] = pairs[i];
       const healthData = results[`health_${i}`] as [BigNumber, BigNumber, BigNumber];
       const [borrowed, collateralValue, maxBorrow] = healthData;
 
-      // Calculate health factor: maxBorrow / borrowed
-      let healthFactor: number;
-      if (borrowed.isZero()) {
-        healthFactor = Number.MAX_SAFE_INTEGER; // No debt = healthy
-      } else {
-        healthFactor = maxBorrow.mul(1e18).div(borrowed).toNumber() / 1e18;
-      }
-
-      // Only include risky positions (healthFactor < 1)
-      if (healthFactor < 1) {
-        riskyPositions.push({
-          account,
-          vault,
-          borrowed,
-          collateralValue,
-          maxBorrow,
-          healthFactor,
-        });
-      }
+      healthFactorData.push({
+        account,
+        vault,
+        borrowed,
+        collateralValue,
+        maxBorrow,
+      });
     }
 
-    return riskyPositions;
+    return healthFactorData;
   }
 
   async batchCollateralBalances(positions: RiskyPosition[]): Promise<BigNumber[]> {

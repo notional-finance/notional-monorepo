@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { Logger, DDSeries, MetricType, getNowSeconds, getProviderFromNetwork } from '@notional-finance/util';
-import { RiskyPosition, EnrichedPosition, Env, MetricNames } from './types';
+import { RiskyPosition, EnrichedPosition, Env, MetricNames, Position, HealthFactorData } from './types';
 import { fetchPositions } from './utils/dataService';
 import { MorphoRouterIntegration } from './utils/morphoRouter';
 import { batchWithdrawRequestStatus } from './utils/withdrawRequestData';
@@ -26,23 +26,52 @@ export default class ExponentLiquidator {
     });
   }
 
-  async getRiskyPositions(): Promise<RiskyPosition[]> {
-    // Step 2: Get account/vault pairs from data service
-    const positions = await fetchPositions(
+  async fetchPositions(): Promise<Position[]> {
+    // Step 1: Get account/vault pairs from data service
+    return await fetchPositions(
       this.env.DATA_SERVICE_URL,
       this.env.DATA_SERVICE_AUTH_TOKEN
     );
+  }
 
-    // Initialize vault registry with unique vault addresses
+  async initializeVaultRegistry(positions: Position[]): Promise<void> {
+    // Initialize vault registry with unique vault addresses from positions
     const uniqueVaultAddresses = [...new Set(positions.map(([_, vault]) => vault))];
     this.vaultRegistry = await VaultRegistry.initialize(
       uniqueVaultAddresses,
       this.provider,
       this.env.NETWORK
     );
+  }
 
-    // Step 3-5: Batch healthFactor calls and filter risky positions
-    const riskyPositions = await this.morphoRouterIntegration.batchHealthFactors(positions);
+  async getRiskyPositions(positions: Position[]): Promise<RiskyPosition[]> {
+    // Step 2: Batch healthFactor calls to get raw health factor data
+    const healthFactorData = await this.morphoRouterIntegration.batchHealthFactors(positions);
+
+    // Step 3: Process results, calculate health factors, and filter risky positions
+    const riskyPositions: RiskyPosition[] = [];
+
+    for (const data of healthFactorData) {
+      // Calculate health factor: maxBorrow / borrowed
+      let healthFactor: number;
+      if (data.borrowed.isZero()) {
+        healthFactor = Number.MAX_SAFE_INTEGER; // No debt = healthy
+      } else {
+        healthFactor = data.maxBorrow.mul(1e18).div(data.borrowed).toNumber() / 1e18;
+      }
+
+      // Only include risky positions (healthFactor < 1)
+      if (healthFactor < 1) {
+        riskyPositions.push({
+          account: data.account,
+          vault: data.vault,
+          borrowed: data.borrowed,
+          collateralValue: data.collateralValue,
+          maxBorrow: data.maxBorrow,
+          healthFactor,
+        });
+      }
+    }
 
     // Log metrics
     await this.logMetrics(positions.length, riskyPositions.length);
@@ -50,9 +79,28 @@ export default class ExponentLiquidator {
     return riskyPositions;
   }
 
+  async run(): Promise<EnrichedPosition[]> {
+    // Step 1: Fetch positions from data service
+    const positions = await this.fetchPositions();
+    
+    // Step 2: Initialize vault registry with unique vault addresses
+    await this.initializeVaultRegistry(positions);
+    
+    // Step 3: Get risky positions
+    const riskyPositions = await this.getRiskyPositions(positions);
+    
+    // Step 4: Enrich position data
+    const enrichedPositions = await this.enrichPositionData(riskyPositions);
+    
+    // Step 5: Log risky position events for monitoring
+    await this.logRiskyPositionEvents(riskyPositions);
+
+    return enrichedPositions;
+  }
+
   async enrichPositionData(positions: RiskyPosition[]): Promise<EnrichedPosition[]> {
     if (!this.vaultRegistry) {
-      throw new Error('Vault registry not initialized. Call getRiskyPositions() first.');
+      throw new Error('Vault registry not initialized. Call run() or initializeVaultRegistry() first.');
     }
 
     // Step 6: Batch additional blockchain calls for position information
