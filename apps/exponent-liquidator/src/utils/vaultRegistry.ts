@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-// import { aggregate, AggregateCall } from '@notional-finance/multicall';
+import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { 
   VaultConfig, 
@@ -14,6 +14,31 @@ import {
   // PointsMultipliers,
   PointsLinks 
 } from '@notional-finance/core-entities';
+
+const VAULT_ABI = [
+  'function strategy() external view returns (string memory)',
+  'function asset() external view returns (address)',
+  'function yieldToken() external view returns (address)'
+];
+
+const ADDRESS_REGISTRY_ABI = [
+  'function withdrawRequestManagers(address) external view returns (address)'
+];
+
+const WITHDRAW_REQUEST_MANAGER_ABI = [
+  'function WITHDRAW_TOKEN() external view returns (address)'
+];
+
+const PENDLE_PT_ABI = [
+  'function TOKEN_OUT_SY() external view returns (address)'
+];
+
+const CURVE_CONVEX_2TOKEN_ABI = [
+  'function TOKENS() external view returns (address[2] memory)'
+];
+
+const ADDRESS_REGISTRY_ADDRESS = '0xe335d314BD4eF7DD44F103dC124FEFb7Ce63eC95';
+const WETH_MAINNET = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 
 export class VaultRegistry {
   private vaultConfigs: Map<string, VaultConfig> = new Map();
@@ -69,42 +94,208 @@ export class VaultRegistry {
   }
 
   private async batchFetchOnChainData(vaultAddresses: string[]): Promise<OnChainVaultConfig[]> {
-    // TODO: This will be replaced with actual contract calls
-    // For now, create placeholder implementations based on vault types
+    const vaultInterface = new ethers.utils.Interface(VAULT_ABI);
+    const addressRegistryInterface = new ethers.utils.Interface(ADDRESS_REGISTRY_ABI);
+    const wrmInterface = new ethers.utils.Interface(WITHDRAW_REQUEST_MANAGER_ABI);
+    const pendlePtInterface = new ethers.utils.Interface(PENDLE_PT_ABI);
+    const curveConvexInterface = new ethers.utils.Interface(CURVE_CONVEX_2TOKEN_ABI);
     
-    // const calls: AggregateCall[] = [];
+    const calls: AggregateCall[] = [];
     
-    // Add calls for each vault to get:
-    // - vaultType (will need contract interface)
-    // - asset
-    // - yieldToken
-    // - primaryWrm
-    // - primaryWithdrawToken
-    // - secondaryWrm (optional)
-    // - secondaryWithdrawToken
+    // Add base vault calls for each vault
+    for (const vaultAddress of vaultAddresses) {
+      calls.push({
+        target: new ethers.Contract(vaultAddress, vaultInterface, this.provider),
+        stage: 0,
+        method: 'strategy',
+        key: `${vaultAddress}.strategy`
+      });
+      calls.push({
+        target: new ethers.Contract(vaultAddress, vaultInterface, this.provider),
+        stage: 0,
+        method: 'asset',
+        key: `${vaultAddress}.asset`
+      });
+      calls.push({
+        target: new ethers.Contract(vaultAddress, vaultInterface, this.provider),
+        stage: 0,
+        method: 'yieldToken',
+        key: `${vaultAddress}.yieldToken`
+      });
+    }
     
-    // Placeholder implementation - will be replaced with actual contract calls
-    return vaultAddresses.map(address => {
-      // Determine vault type based on whitelisted vaults patterns
-      let vaultType: VaultType;
-      if (PendlePTVaults[this.network]?.includes(address)) {
-        vaultType = VaultType.PendlePT;
-      } else if (address.includes('staking')) {
-        vaultType = VaultType.Staking;
-      } else {
-        vaultType = VaultType.CurveConvex2Token;
-      }
+    // Execute first stage to get basic vault data
+    const { results } = await aggregate(calls, this.provider);
+    
+    // Prepare additional calls based on vault types
+    const additionalCalls: AggregateCall[] = [];
+    const vaultConfigs: Partial<OnChainVaultConfig>[] = [];
+    
+    for (const vaultAddress of vaultAddresses) {
+      const vaultType = results[`${vaultAddress}.strategy`] as VaultType;
+      const asset = results[`${vaultAddress}.asset`] as string;
+      const yieldToken = results[`${vaultAddress}.yieldToken`] as string;
       
-      return {
+      vaultConfigs.push({
         vaultType,
-        asset: '0x0000000000000000000000000000000000000000', // TODO: fetch from contract
-        yieldToken: '0x0000000000000000000000000000000000000000', // TODO: fetch from contract
-        primaryWrm: '0x0000000000000000000000000000000000000000', // TODO: fetch from contract
-        primaryWithdrawToken: '0x0000000000000000000000000000000000000000', // TODO: fetch from contract
-        secondaryWrm: undefined, // TODO: fetch from contract if exists
-        secondaryWithdrawToken: '0x0000000000000000000000000000000000000000', // TODO: fetch from contract
-      };
-    });
+        asset,
+        yieldToken
+      });
+      
+      // Add calls based on vault type
+      if (vaultType === VaultType.Staking) {
+        // For Staking vaults: primaryWrm = AddressRegistry.withdrawRequestManagers[yieldToken]
+        additionalCalls.push({
+          target: new ethers.Contract(ADDRESS_REGISTRY_ADDRESS, addressRegistryInterface, this.provider),
+          stage: 1,
+          method: 'withdrawRequestManagers',
+          args: [yieldToken],
+          key: `${vaultAddress}.primaryWrm`
+        });
+      } else if (vaultType === VaultType.PendlePT) {
+        // For PendlePT vaults: get TOKEN_OUT_SY first
+        additionalCalls.push({
+          target: new ethers.Contract(vaultAddress, pendlePtInterface, this.provider),
+          stage: 1,
+          method: 'TOKEN_OUT_SY',
+          key: `${vaultAddress}.tokenOutSy`
+        });
+      } else if (vaultType === VaultType.CurveConvex2Token) {
+        // For CurveConvex2Token vaults: get TOKENS first
+        additionalCalls.push({
+          target: new ethers.Contract(vaultAddress, curveConvexInterface, this.provider),
+          stage: 1,
+          method: 'TOKENS',
+          key: `${vaultAddress}.tokens`
+        });
+      }
+    }
+    
+    // Add additional calls to the existing calls array
+    calls.push(...additionalCalls);
+    
+    // Execute again to get vault-specific data
+    const { results: results2 } = await aggregate(calls, this.provider);
+    
+    // Prepare final calls for WRM addresses and withdraw tokens
+    const finalCalls: AggregateCall[] = [];
+    
+    for (let i = 0; i < vaultAddresses.length; i++) {
+      const vaultAddress = vaultAddresses[i];
+      const config = vaultConfigs[i];
+      
+      if (config.vaultType === VaultType.Staking) {
+        const primaryWrm = results2[`${vaultAddress}.primaryWrm`] as string;
+        vaultConfigs[i].primaryWrm = primaryWrm;
+        
+        // Add call to get withdraw token
+        finalCalls.push({
+          target: new ethers.Contract(primaryWrm, wrmInterface, this.provider),
+          stage: 2,
+          method: 'WITHDRAW_TOKEN',
+          key: `${vaultAddress}.primaryWithdrawToken`
+        });
+      } else if (config.vaultType === VaultType.PendlePT) {
+        const tokenOutSy = results2[`${vaultAddress}.tokenOutSy`] as string;
+        
+        // Get primaryWrm from AddressRegistry
+        finalCalls.push({
+          target: new ethers.Contract(ADDRESS_REGISTRY_ADDRESS, addressRegistryInterface, this.provider),
+          stage: 2,
+          method: 'withdrawRequestManagers',
+          args: [tokenOutSy],
+          key: `${vaultAddress}.primaryWrm`
+        });
+      } else if (config.vaultType === VaultType.CurveConvex2Token) {
+        const tokens = results2[`${vaultAddress}.tokens`] as [string, string];
+        const token0 = tokens[0] === ethers.constants.AddressZero ? WETH_MAINNET : tokens[0];
+        const token1 = tokens[1] === ethers.constants.AddressZero ? WETH_MAINNET : tokens[1];
+        
+        // Get both WRMs from AddressRegistry
+        finalCalls.push({
+          target: new ethers.Contract(ADDRESS_REGISTRY_ADDRESS, addressRegistryInterface, this.provider),
+          stage: 2,
+          method: 'withdrawRequestManagers',
+          args: [token0],
+          key: `${vaultAddress}.primaryWrm`
+        });
+        finalCalls.push({
+          target: new ethers.Contract(ADDRESS_REGISTRY_ADDRESS, addressRegistryInterface, this.provider),
+          stage: 2,
+          method: 'withdrawRequestManagers',
+          args: [token1],
+          key: `${vaultAddress}.secondaryWrm`
+        });
+      }
+    }
+    
+    // Add final calls and execute to get WRM addresses
+    calls.push(...finalCalls);
+    const { results: results3 } = await aggregate(calls, this.provider);
+    
+    // Prepare calls to get withdraw tokens
+    const withdrawTokenCalls: AggregateCall[] = [];
+    
+    for (let i = 0; i < vaultAddresses.length; i++) {
+      const vaultAddress = vaultAddresses[i];
+      const config = vaultConfigs[i];
+      
+      if (config.vaultType === VaultType.Staking) {
+        config.primaryWithdrawToken = results3[`${vaultAddress}.primaryWithdrawToken`] as string;
+      } else if (config.vaultType === VaultType.PendlePT) {
+        const primaryWrm = results3[`${vaultAddress}.primaryWrm`] as string;
+        vaultConfigs[i].primaryWrm = primaryWrm;
+        
+        // Add call to get withdraw token
+        withdrawTokenCalls.push({
+          target: new ethers.Contract(primaryWrm, wrmInterface, this.provider),
+          stage: 3,
+          method: 'WITHDRAW_TOKEN',
+          key: `${vaultAddress}.primaryWithdrawToken`
+        });
+      } else if (config.vaultType === VaultType.CurveConvex2Token) {
+        const primaryWrm = results3[`${vaultAddress}.primaryWrm`] as string;
+        const secondaryWrm = results3[`${vaultAddress}.secondaryWrm`] as string;
+        
+        vaultConfigs[i].primaryWrm = primaryWrm;
+        vaultConfigs[i].secondaryWrm = secondaryWrm;
+        
+        // Add calls to get both withdraw tokens
+        withdrawTokenCalls.push({
+          target: new ethers.Contract(primaryWrm, wrmInterface, this.provider),
+          stage: 3,
+          method: 'WITHDRAW_TOKEN',
+          key: `${vaultAddress}.primaryWithdrawToken`
+        });
+        withdrawTokenCalls.push({
+          target: new ethers.Contract(secondaryWrm, wrmInterface, this.provider),
+          stage: 3,
+          method: 'WITHDRAW_TOKEN',
+          key: `${vaultAddress}.secondaryWithdrawToken`
+        });
+      }
+    }
+    
+    // Execute final calls to get withdraw tokens if needed
+    if (withdrawTokenCalls.length > 0) {
+      calls.push(...withdrawTokenCalls);
+      const { results: finalResults } = await aggregate(calls, this.provider);
+      
+      // Parse withdraw token results
+      for (let i = 0; i < vaultAddresses.length; i++) {
+        const vaultAddress = vaultAddresses[i];
+        const config = vaultConfigs[i];
+        
+        if (config.vaultType === VaultType.PendlePT) {
+          config.primaryWithdrawToken = finalResults[`${vaultAddress}.primaryWithdrawToken`] as string;
+        } else if (config.vaultType === VaultType.CurveConvex2Token) {
+          config.primaryWithdrawToken = finalResults[`${vaultAddress}.primaryWithdrawToken`] as string;
+          config.secondaryWithdrawToken = finalResults[`${vaultAddress}.secondaryWithdrawToken`] as string;
+        }
+      }
+    }
+    
+    return vaultConfigs as OnChainVaultConfig[];
   }
 
   private getOffChainConfig(vaultAddress: string): OffChainVaultConfig {
