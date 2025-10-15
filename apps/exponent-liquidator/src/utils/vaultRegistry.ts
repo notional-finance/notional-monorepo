@@ -12,7 +12,8 @@ import {
   VaultDefaultDexParameters, 
   PendlePTVaults,
   // PointsMultipliers,
-  PointsLinks 
+  PointsLinks,
+  VaultLiquidationSettings 
 } from '@notional-finance/core-entities';
 
 const VAULT_ABI = [
@@ -311,6 +312,9 @@ export class VaultRegistry {
     // const pointsMultipliersFn = PointsMultipliers[this.network]?.[lowerAddress];
     const pointsLinks = PointsLinks[this.network]?.[lowerAddress];
     
+    // Get liquidation settings
+    const liquidationSettings = VaultLiquidationSettings[this.network]?.[lowerAddress];
+    
     return {
       dexId: dexParams?.dexId,
       depositExchangeData: dexParams?.depositExchangeData?.toString(),
@@ -322,6 +326,7 @@ export class VaultRegistry {
       isPendlePT,
       pointsMultipliers: undefined, // TODO: Fix when VaultAdapter type is available
       pointsLinks,
+      liquidateYieldTokens: liquidationSettings?.liquidateYieldTokens,
     };
   }
 }

@@ -79,6 +79,111 @@ export default class ExponentLiquidator {
     return riskyPositions;
   }
 
+  filterPositionsForLiquidation(enrichedPositions: EnrichedPosition[]): EnrichedPosition[] {
+    if (!this.vaultRegistry) {
+      throw new Error('Vault registry not initialized. Call run() or initializeVaultRegistry() first.');
+    }
+
+    const positionsToLiquidate: EnrichedPosition[] = [];
+
+    for (const position of enrichedPositions) {
+      const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
+      
+      if (!vaultConfig) {
+        console.warn(`Vault config not found for vault: ${position.vault}, skipping liquidation check`);
+        continue;
+      }
+
+      // Check liquidation criteria
+      if (!position.isWithdrawRequestPending && vaultConfig.liquidateYieldTokens === true) {
+        // No withdraw request pending and vault allows yield token liquidation
+        positionsToLiquidate.push(position);
+      } else if (position.isWithdrawRequestPending && position.canWithdrawRequestFinalize) {
+        // Withdraw request is pending and can be finalized
+        positionsToLiquidate.push(position);
+      }
+    }
+
+    return positionsToLiquidate;
+  }
+
+  private sortPositionsForLiquidation(positions: EnrichedPosition[]): Map<string, { withoutWithdrawRequest: EnrichedPosition[], withWithdrawRequest: EnrichedPosition[] }> {
+    const sortedByVault = new Map<string, { withoutWithdrawRequest: EnrichedPosition[], withWithdrawRequest: EnrichedPosition[] }>();
+
+    // Group positions by vault
+    for (const position of positions) {
+      if (!sortedByVault.has(position.vault)) {
+        sortedByVault.set(position.vault, {
+          withoutWithdrawRequest: [],
+          withWithdrawRequest: []
+        });
+      }
+
+      const vaultPositions = sortedByVault.get(position.vault)!;
+      
+      if (position.isWithdrawRequestPending) {
+        vaultPositions.withWithdrawRequest.push(position);
+      } else {
+        vaultPositions.withoutWithdrawRequest.push(position);
+      }
+    }
+
+    return sortedByVault;
+  }
+
+  private batchPositions<T>(positions: T[], batchSize: number = 5): T[][] {
+    const batches: T[][] = [];
+    
+    for (let i = 0; i < positions.length; i += batchSize) {
+      batches.push(positions.slice(i, i + batchSize));
+    }
+    
+    return batches;
+  }
+
+  private async generateLiquidationCallData(positions: EnrichedPosition[]): Promise<string> {
+    // TODO: Implement liquidation call data generation
+    // This will be replaced with actual flash liquidator call data generation
+    console.log(`Generating liquidation call data for ${positions.length} positions`);
+    return '0x'; // Placeholder
+  }
+
+  private async executeFlashLiquidation(callData: string): Promise<void> {
+    // TODO: Implement flash liquidator contract call
+    // This will be replaced with actual FLASH_LIQUIDATOR.flashLiquidate call
+    console.log(`Executing flash liquidation with call data: ${callData}`);
+  }
+
+  async liquidatePositions(positionsToLiquidate: EnrichedPosition[]): Promise<void> {
+    // Step 1: Sort positions by vault and withdraw request status
+    const sortedPositions = this.sortPositionsForLiquidation(positionsToLiquidate);
+
+    // Step 2: Process each vault
+    for (const [vaultAddress, vaultPositions] of sortedPositions) {
+      console.log(`Processing liquidations for vault: ${vaultAddress}`);
+
+      // Step 3: Liquidate positions without withdraw requests (in batches)
+      const batchesWithoutWithdrawRequest = this.batchPositions(vaultPositions.withoutWithdrawRequest, 5);
+      
+      for (const batch of batchesWithoutWithdrawRequest) {
+        console.log(`Liquidating batch of ${batch.length} positions without withdraw requests`);
+        const callData = await this.generateLiquidationCallData(batch);
+        await this.executeFlashLiquidation(callData);
+      }
+
+      // Step 4: Liquidate positions with withdraw requests (one by one)
+      for (const position of vaultPositions.withWithdrawRequest) {
+        console.log(`Liquidating position with withdraw request: ${position.account}`);
+        const callData = await this.generateLiquidationCallData([position]);
+        await this.executeFlashLiquidation(callData);
+      }
+
+      console.log(`Completed liquidations for vault: ${vaultAddress}`);
+    }
+
+    console.log(`Completed liquidation of ${positionsToLiquidate.length} positions across ${sortedPositions.size} vaults`);
+  }
+
   async run(): Promise<EnrichedPosition[]> {
     // Step 1: Fetch positions from data service
     const positions = await this.fetchPositions();

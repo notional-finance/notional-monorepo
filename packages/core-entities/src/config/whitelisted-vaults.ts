@@ -123,6 +123,17 @@ export const VaultDefaultDexParameters: Record<
   [Network.all]: {},
 };
 
+export const VaultLiquidationSettings: Record<Network, Record<string, { liquidateYieldTokens: boolean }>> = {
+  [Network.mainnet]: {
+    [vaults.mainnet.Staking_sUSDe.toLowerCase()]: { liquidateYieldTokens: true },
+    [vaults.mainnet.Staking_weETH.toLowerCase()]: { liquidateYieldTokens: false },
+    [vaults.mainnet.Pendle_sUSDe_27NOV2025.toLowerCase()]: { liquidateYieldTokens: true },
+    [vaults.mainnet.Convex_OETH_WETH.toLowerCase()]: { liquidateYieldTokens: true },
+  },
+  [Network.arbitrum]: {},
+  [Network.all]: {},
+};
+
 export const VAULT_TYPES = [
   'Staking',
   'CurveConvex2Token',

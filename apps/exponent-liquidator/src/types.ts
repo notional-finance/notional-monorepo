@@ -69,8 +69,26 @@ export interface OffChainVaultConfig {
   isPendlePT?: boolean;
   pointsMultipliers?: Record<string, number>;
   pointsLinks?: string;
+  liquidateYieldTokens?: boolean;
 }
 
 export interface VaultConfig extends OnChainVaultConfig, OffChainVaultConfig {
   address: string;
+}
+
+export interface WithdrawRequest {
+  requestId: BigNumber;
+  yieldTokenAmount: BigNumber;
+  sharesAmount: BigNumber;
+}
+
+export interface TokenizedWithdrawRequest {
+  totalYieldTokenAmount: BigNumber;
+  totalWithdraw: BigNumber;
+  finalized: boolean;
+}
+
+export interface WithdrawRequestData {
+  withdrawRequest: WithdrawRequest;
+  tokenizedWithdrawRequest: TokenizedWithdrawRequest;
 }

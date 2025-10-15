@@ -1,6 +1,12 @@
 import { ethers } from 'ethers';
+import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { RiskyPosition, VaultType } from '../types';
 import { VaultRegistry } from './vaultRegistry';
+
+const WRM_ABI = [
+  'function getWithdrawRequest(address vault, address account) external view returns ((uint256 requestId, uint120 yieldTokenAmount, uint120 sharesAmount), (uint120 totalYieldTokenAmount, uint120 totalWithdraw, bool finalized))',
+  'function canFinalizeWithdrawRequest(uint256 requestId) external view returns (bool)'
+];
 
 // Placeholder functions for vault-specific withdraw request data
 // TODO: Implement vault-specific logic for each vault
@@ -13,11 +19,7 @@ export async function getWithdrawRequestStatus(
   const vaultConfig = vaultRegistry.getVaultConfig(position.vault);
   
   if (!vaultConfig) {
-    // If no vault config found, assume no withdraw request
-    return {
-      isWithdrawRequestPending: false,
-      canWithdrawRequestFinalize: false,
-    };
+    throw new Error(`Vault config not found for vault: ${position.vault}`);
   }
 
   // TODO: Implement vault-type-specific logic based on vaultConfig
@@ -32,10 +34,7 @@ export async function getWithdrawRequestStatus(
       return await getCurveConvexWithdrawRequestStatus(position, vaultConfig, provider);
     
     default:
-      return {
-        isWithdrawRequestPending: false,
-        canWithdrawRequestFinalize: false,
-      };
+      throw new Error(`Unsupported vault type: ${vaultConfig.vaultType}`);
   }
 }
 
@@ -44,25 +43,134 @@ export async function batchWithdrawRequestStatus(
   provider: ethers.providers.Provider,
   vaultRegistry: VaultRegistry
 ): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }[]> {
-  // Group positions by vault type for optimized batching
-  const positionsByVaultType = new Map<VaultType, RiskyPosition[]>();
+  const calls: AggregateCall[] = [];
+  const wrmInterface = new ethers.utils.Interface(WRM_ABI);
   
-  for (const position of positions) {
+  // Build calls for getting withdraw requests
+  for (let i = 0; i < positions.length; i++) {
+    const position = positions[i];
     const vaultConfig = vaultRegistry.getVaultConfig(position.vault);
-    if (vaultConfig) {
-      const positions = positionsByVaultType.get(vaultConfig.vaultType) || [];
-      positions.push(position);
-      positionsByVaultType.set(vaultConfig.vaultType, positions);
+    
+    if (!vaultConfig) {
+      throw new Error(`Vault config not found for vault: ${position.vault}`);
+    }
+    
+    // Add primary WRM call
+    calls.push({
+      target: new ethers.Contract(vaultConfig.primaryWrm, wrmInterface, provider),
+      stage: 0,
+      method: 'getWithdrawRequest',
+      args: [position.vault, position.account],
+      key: `primary_${i}`
+    });
+    
+    // Add secondary WRM call for CurveConvex2Token
+    if (vaultConfig.vaultType === VaultType.CurveConvex2Token && vaultConfig.secondaryWrm) {
+      calls.push({
+        target: new ethers.Contract(vaultConfig.secondaryWrm, wrmInterface, provider),
+        stage: 0,
+        method: 'getWithdrawRequest',
+        args: [position.vault, position.account],
+        key: `secondary_${i}`
+      });
     }
   }
-
-  // TODO: Implement batched calls per vault type
-  // For now, process each position individually
-  const results = await Promise.all(
-    positions.map(position => getWithdrawRequestStatus(position, provider, vaultRegistry))
-  );
   
-  return results;
+  // Execute first batch to get withdraw request data
+  const { results } = await aggregate(calls, provider);
+  
+  // Build calls for canFinalizeWithdrawRequest
+  const finalizeCalls: AggregateCall[] = [];
+  
+  for (let i = 0; i < positions.length; i++) {
+    const position = positions[i];
+    const vaultConfig = vaultRegistry.getVaultConfig(position.vault)!;
+    
+    const primaryResult = results[`primary_${i}`] as [any, any];
+    const primaryRequestId = primaryResult[0].requestId;
+    
+    if (!primaryRequestId.isZero()) {
+      finalizeCalls.push({
+        target: new ethers.Contract(vaultConfig.primaryWrm, wrmInterface, provider),
+        stage: 1,
+        method: 'canFinalizeWithdrawRequest',
+        args: [primaryRequestId],
+        key: `primary_finalize_${i}`
+      });
+    }
+    
+    // Handle secondary for CurveConvex2Token
+    if (vaultConfig.vaultType === VaultType.CurveConvex2Token && vaultConfig.secondaryWrm) {
+      const secondaryResult = results[`secondary_${i}`] as [any, any];
+      const secondaryRequestId = secondaryResult[0].requestId;
+      
+      if (!secondaryRequestId.isZero()) {
+        finalizeCalls.push({
+          target: new ethers.Contract(vaultConfig.secondaryWrm, wrmInterface, provider),
+          stage: 1,
+          method: 'canFinalizeWithdrawRequest',
+          args: [secondaryRequestId],
+          key: `secondary_finalize_${i}`
+        });
+      }
+    }
+  }
+  
+  // Execute finalize calls if any
+  const finalizeResults = finalizeCalls.length > 0 ? 
+    await aggregate([...calls, ...finalizeCalls], provider) :
+    { results };
+  
+  // Process results
+  const processedResults: { isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }[] = [];
+  
+  for (let i = 0; i < positions.length; i++) {
+    const position = positions[i];
+    const vaultConfig = vaultRegistry.getVaultConfig(position.vault)!;
+    
+    const primaryResult = finalizeResults.results[`primary_${i}`] as [any, any];
+    const primaryRequestId = primaryResult[0].requestId;
+    
+    if (vaultConfig.vaultType === VaultType.CurveConvex2Token && vaultConfig.secondaryWrm) {
+      const secondaryResult = finalizeResults.results[`secondary_${i}`] as [any, any];
+      const secondaryRequestId = secondaryResult[0].requestId;
+      
+      // For CurveConvex2Token: pending if either request ID is non-zero
+      const isWithdrawRequestPending = !primaryRequestId.isZero() || !secondaryRequestId.isZero();
+      
+      let canWithdrawRequestFinalize = false;
+      if (isWithdrawRequestPending) {
+        let canFinalizePrimary = true;
+        let canFinalizeSecondary = true;
+        
+        if (!primaryRequestId.isZero()) {
+          canFinalizePrimary = finalizeResults.results[`primary_finalize_${i}`] as boolean;
+        }
+        if (!secondaryRequestId.isZero()) {
+          canFinalizeSecondary = finalizeResults.results[`secondary_finalize_${i}`] as boolean;
+        }
+        
+        canWithdrawRequestFinalize = canFinalizePrimary && canFinalizeSecondary;
+      }
+      
+      processedResults.push({
+        isWithdrawRequestPending,
+        canWithdrawRequestFinalize
+      });
+    } else {
+      // For Staking and PendlePT: only primary request
+      const isWithdrawRequestPending = !primaryRequestId.isZero();
+      const canWithdrawRequestFinalize = isWithdrawRequestPending ? 
+        (finalizeResults.results[`primary_finalize_${i}`] as boolean || false) : false;
+      
+      processedResults.push({
+        isWithdrawRequestPending,
+        canWithdrawRequestFinalize
+      });
+    }
+  }
+  
+  return processedResults;
 }
 
 // Vault-type-specific implementations (placeholders)
