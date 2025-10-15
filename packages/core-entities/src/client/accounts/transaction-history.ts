@@ -208,7 +208,7 @@ function parseLineItem(
         },
         {
           key: 'Vault Shares',
-          value: tokenAmount.toDisplayString(4, true, false),
+          value: tokenAmount.abs().toDisplayString(4, true, false),
         },
       ];
       if (p.yieldTokenAmount && token.vaultAddress) {
@@ -220,7 +220,7 @@ function parseLineItem(
         );
         properties.push({
           key: `${shortenTokenSymbol(yieldToken.symbol)} Amount`,
-          value: yieldTokenAmount.toDisplayString(4, true, false),
+          value: yieldTokenAmount.abs().toDisplayString(4, true, false),
         });
       }
     } else if (token.tokenType === 'VaultDebt') {
@@ -247,7 +247,7 @@ function parseLineItem(
         },
         {
           key: 'Debt Shares',
-          value: tokenAmount.toDisplayString(4, true, false),
+          value: tokenAmount.abs().toDisplayString(4, true, false),
         },
       ];
     }
@@ -257,7 +257,7 @@ function parseLineItem(
     properties = [
       {
         key: 'Vault Shares Burned',
-        value: tokenAmount.toDisplayString(4, true, false),
+        value: tokenAmount.abs().toDisplayString(4, true, false),
       },
       {
         key: `${shortenTokenSymbol(underlying.symbol)} Withdrawn`,
@@ -270,7 +270,7 @@ function parseLineItem(
     properties = [
       {
         key: `${shortenTokenSymbol(token.symbol)} Burned`,
-        value: tokenAmount.toDisplayString(4, true, false),
+        value: tokenAmount.abs().toDisplayString(4, true, false),
       },
       {
         key: `${shortenTokenSymbol(underlying.symbol)} Received`,
@@ -284,7 +284,7 @@ function parseLineItem(
     properties = [
       {
         key: `${shortenTokenSymbol(p.underlyingToken.symbol)} Sold`,
-        value: tokenAmount.toDisplayString(4, true, false),
+        value: tokenAmount.abs().toDisplayString(4, true, false),
       },
       {
         key: `${shortenTokenSymbol(p.token.symbol)} Bought`,
