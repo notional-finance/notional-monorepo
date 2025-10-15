@@ -198,6 +198,7 @@ export class VaultRegistry {
         });
       } else if (config.vaultType === VaultType.PendlePT) {
         const tokenOutSy = results2[`${vaultAddress}.tokenOutSy`] as string;
+        vaultConfigs[i].tokenOutSy = tokenOutSy;
         
         // Get primaryWrm from AddressRegistry
         finalCalls.push({
@@ -211,6 +212,9 @@ export class VaultRegistry {
         const tokens = results2[`${vaultAddress}.tokens`] as [string, string];
         const token0 = tokens[0] === ethers.constants.AddressZero ? WETH_MAINNET : tokens[0];
         const token1 = tokens[1] === ethers.constants.AddressZero ? WETH_MAINNET : tokens[1];
+        
+        vaultConfigs[i].token0 = token0;
+        vaultConfigs[i].token1 = token1;
         
         // Get both WRMs from AddressRegistry
         finalCalls.push({
@@ -327,6 +331,7 @@ export class VaultRegistry {
       pointsMultipliers: undefined, // TODO: Fix when VaultAdapter type is available
       pointsLinks,
       liquidateYieldTokens: liquidationSettings?.liquidateYieldTokens,
+      slippageLimit: liquidationSettings?.slippageLimit,
     };
   }
 }

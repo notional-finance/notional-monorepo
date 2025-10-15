@@ -31,6 +31,7 @@ export interface Env {
   DATA_SERVICE_AUTH_TOKEN: string;
   MORPHO_LENDING_ROUTER_ADDRESS: string;
   FLASH_LIQUIDATOR_ADDRESS: string;
+  TRADING_MODULE_ADDRESS: string;
   NETWORK: Network;
   ALCHEMY_KEY: string;
   DD_API_KEY: string;
@@ -57,6 +58,11 @@ export interface OnChainVaultConfig {
   primaryWithdrawToken: string;
   secondaryWrm?: string;
   secondaryWithdrawToken?: string;
+  // PendlePT specific tokens
+  tokenOutSy?: string;
+  // CurveConvex2Token specific tokens  
+  token0?: string;
+  token1?: string;
 }
 
 export interface OffChainVaultConfig {
@@ -71,6 +77,7 @@ export interface OffChainVaultConfig {
   pointsMultipliers?: Record<string, number>;
   pointsLinks?: string;
   liquidateYieldTokens?: boolean;
+  slippageLimit?: number;
 }
 
 export interface VaultConfig extends OnChainVaultConfig, OffChainVaultConfig {
@@ -92,4 +99,9 @@ export interface TokenizedWithdrawRequest {
 export interface WithdrawRequestData {
   withdrawRequest: WithdrawRequest;
   tokenizedWithdrawRequest: TokenizedWithdrawRequest;
+}
+
+export interface TokenPrice {
+  token: string;
+  price: BigNumber; // Price in base units (e.g., USD with 8 decimals)
 }

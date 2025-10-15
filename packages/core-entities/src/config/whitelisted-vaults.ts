@@ -123,12 +123,14 @@ export const VaultDefaultDexParameters: Record<
   [Network.all]: {},
 };
 
-export const VaultLiquidationSettings: Record<Network, Record<string, { liquidateYieldTokens: boolean }>> = {
+const DEFAULT_SLIPPAGE_LIMIT = 0.01;
+
+export const VaultLiquidationSettings: Record<Network, Record<string, { liquidateYieldTokens: boolean; slippageLimit: number }>> = {
   [Network.mainnet]: {
-    [vaults.mainnet.Staking_sUSDe.toLowerCase()]: { liquidateYieldTokens: true },
-    [vaults.mainnet.Staking_weETH.toLowerCase()]: { liquidateYieldTokens: false },
-    [vaults.mainnet.Pendle_sUSDe_27NOV2025.toLowerCase()]: { liquidateYieldTokens: true },
-    [vaults.mainnet.Convex_OETH_WETH.toLowerCase()]: { liquidateYieldTokens: true },
+    [vaults.mainnet.Staking_sUSDe.toLowerCase()]: { liquidateYieldTokens: true, slippageLimit: DEFAULT_SLIPPAGE_LIMIT },
+    [vaults.mainnet.Staking_weETH.toLowerCase()]: { liquidateYieldTokens: false, slippageLimit: DEFAULT_SLIPPAGE_LIMIT },
+    [vaults.mainnet.Pendle_sUSDe_27NOV2025.toLowerCase()]: { liquidateYieldTokens: true, slippageLimit: DEFAULT_SLIPPAGE_LIMIT },
+    [vaults.mainnet.Convex_OETH_WETH.toLowerCase()]: { liquidateYieldTokens: true, slippageLimit: DEFAULT_SLIPPAGE_LIMIT },
   },
   [Network.arbitrum]: {},
   [Network.all]: {},

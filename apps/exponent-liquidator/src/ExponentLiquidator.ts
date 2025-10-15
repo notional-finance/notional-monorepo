@@ -1,6 +1,7 @@
 import { ethers, Contract } from 'ethers';
 import { Logger, DDSeries, MetricType, getNowSeconds, getProviderFromNetwork } from '@notional-finance/util';
-import { RiskyPosition, EnrichedPosition, Env, MetricNames, Position, HealthFactorData } from './types';
+import { aggregate, AggregateCall } from '@notional-finance/multicall';
+import { RiskyPosition, EnrichedPosition, Env, MetricNames, Position, HealthFactorData, VaultConfig, VaultType, TokenPrice } from './types';
 import { fetchPositions } from './utils/dataService';
 import { MorphoRouterIntegration } from './utils/morphoRouter';
 import { batchWithdrawRequestStatus } from './utils/withdrawRequestData';
@@ -10,12 +11,19 @@ const FLASH_LIQUIDATOR_ABI = [
   'function flashLiquidate(address vaultAddress, address[] memory liquidateAccounts, uint256[] memory sharesToLiquidate, uint256 assetsToBorrow, bytes memory redeemData) external'
 ];
 
+const TRADING_MODULE_ABI = [
+  'function getOraclePrice(address tokenAddress, address quoteTokenAddress) external view returns (int256 price, int256 decimals)'
+];
+
+const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+
 export default class ExponentLiquidator {
   private provider: ethers.providers.Provider;
   private morphoRouterIntegration: MorphoRouterIntegration;
   private logger: Logger;
   private vaultRegistry?: VaultRegistry;
   private flashLiquidator: Contract;
+  private tradingModule: Contract;
 
   constructor(private env: Env) {
     this.provider = getProviderFromNetwork(env.NETWORK, true);
@@ -32,6 +40,11 @@ export default class ExponentLiquidator {
     this.flashLiquidator = new ethers.Contract(
       env.FLASH_LIQUIDATOR_ADDRESS,
       FLASH_LIQUIDATOR_ABI,
+      this.provider
+    );
+    this.tradingModule = new ethers.Contract(
+      env.TRADING_MODULE_ADDRESS,
+      TRADING_MODULE_ABI,
       this.provider
     );
   }
@@ -151,7 +164,167 @@ export default class ExponentLiquidator {
     return batches;
   }
 
-  private async generateLiquidationCallData(positions: EnrichedPosition[]): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string }> {
+  private getRequiredTokensForPricing(riskyPositions: RiskyPosition[]): Set<string> {
+    if (!this.vaultRegistry) {
+      throw new Error('Vault registry not initialized');
+    }
+
+    const requiredTokens = new Set<string>();
+    
+    // Get unique vaults from risky positions
+    const uniqueVaults = [...new Set(riskyPositions.map(p => p.vault))];
+    
+    for (const vaultAddress of uniqueVaults) {
+      const vaultConfig = this.vaultRegistry.getVaultConfig(vaultAddress);
+      if (!vaultConfig) {
+        console.warn(`Vault config not found for vault: ${vaultAddress}`);
+        continue;
+      }
+
+      // Add common tokens for all vault types
+      requiredTokens.add(vaultConfig.asset);
+      requiredTokens.add(vaultConfig.yieldToken);
+      requiredTokens.add(vaultConfig.primaryWithdrawToken);
+
+      // Add vault-type specific tokens
+      switch (vaultConfig.vaultType) {
+        case VaultType.Staking:
+          // For staking vaults: asset, yieldToken, primaryWithdrawToken (already added above)
+          break;
+          
+        case VaultType.PendlePT:
+          // For PT vaults: asset, yieldToken, tokenOutSy, primaryWithdrawToken
+          if (vaultConfig.tokenOutSy) {
+            requiredTokens.add(vaultConfig.tokenOutSy);
+          }
+          break;
+          
+        case VaultType.CurveConvex2Token:
+          // For CurveConvex2Token vaults: asset, token0, token1, primaryWithdrawToken, secondaryWithdrawToken
+          if (vaultConfig.token0) {
+            requiredTokens.add(vaultConfig.token0);
+          }
+          if (vaultConfig.token1) {
+            requiredTokens.add(vaultConfig.token1);
+          }
+          if (vaultConfig.secondaryWithdrawToken) {
+            requiredTokens.add(vaultConfig.secondaryWithdrawToken);
+          }
+          break;
+      }
+    }
+
+    return requiredTokens;
+  }
+
+  private async batchFetchTokenPrices(tokens: Set<string>): Promise<Map<string, TokenPrice>> {
+    const tokenArray = Array.from(tokens);
+    console.log(`Fetching prices for ${tokenArray.length} tokens:`, tokenArray);
+    
+    // Build multicall calls for trading module
+    const calls: AggregateCall[] = tokenArray.map((token, index) => ({
+      stage: 0,
+      target: this.tradingModule,
+      method: 'getOraclePrice',
+      args: [token, USDC_ADDRESS],
+      key: `price_${index}`
+    }));
+    
+    try {
+      // Execute batch price fetch
+      const { results } = await aggregate(calls, this.provider);
+      
+      const priceMap = new Map<string, TokenPrice>();
+      
+      for (let i = 0; i < tokenArray.length; i++) {
+        const token = tokenArray[i];
+        const priceData = results[`price_${i}`] as [ethers.BigNumber, ethers.BigNumber];
+        const [price, decimals] = priceData;
+        
+        priceMap.set(token, {
+          token,
+          price: price
+        });
+        
+        console.log(`Token ${token}: price=${price.toString()}, decimals=${decimals.toString()}`);
+      }
+      
+      return priceMap;
+    } catch (error) {
+      console.error('Error fetching token prices:', error);
+      throw new Error(`Failed to fetch token prices: ${error}`);
+    }
+  }
+
+  private generateRedeemData(vaultConfig: VaultConfig, isWithdrawRequestPending: boolean, tokenPrices: Map<string, TokenPrice>): string {
+    const { vaultType } = vaultConfig;
+    
+    if (isWithdrawRequestPending) {
+      // For positions with withdraw requests pending
+      switch (vaultType) {
+        case VaultType.Staking:
+          return this.generateStakingRedeemData(vaultConfig, true, tokenPrices);
+        
+        case VaultType.PendlePT:
+          // TODO: Implement PendlePT vault redeem data for withdraw requests
+          return vaultConfig.withdrawExchangeData || '0x';
+        
+        case VaultType.CurveConvex2Token:
+          // TODO: Implement CurveConvex2Token vault redeem data for withdraw requests
+          return vaultConfig.withdrawExchangeData || '0x';
+        
+        default:
+          throw new Error(`Unsupported vault type for withdraw requests: ${vaultType}`);
+      }
+    } else {
+      // For positions without withdraw requests
+      switch (vaultType) {
+        case VaultType.Staking:
+          return this.generateStakingRedeemData(vaultConfig, false, tokenPrices);
+        
+        case VaultType.PendlePT:
+          // TODO: Implement PendlePT vault redeem data for direct liquidation
+          return vaultConfig.redeemExchangeData || '0x';
+        
+        case VaultType.CurveConvex2Token:
+          // TODO: Implement CurveConvex2Token vault redeem data for direct liquidation
+          return vaultConfig.redeemExchangeData || '0x';
+        
+        default:
+          throw new Error(`Unsupported vault type for direct liquidation: ${vaultType}`);
+      }
+    }
+  }
+
+  private generateStakingRedeemData(vaultConfig: VaultConfig, isWithdrawRequestPending: boolean, tokenPrices: Map<string, TokenPrice>): string {
+    // Get dexId from vault config
+    const dexId = vaultConfig.dexId;
+    if (dexId === undefined) {
+      throw new Error(`DexId not found for vault: ${vaultConfig.address}`);
+    }
+    
+    // Get exchangeData based on withdraw request status
+    const exchangeData = isWithdrawRequestPending 
+      ? vaultConfig.withdrawExchangeData 
+      : vaultConfig.redeemExchangeData;
+    
+    if (!exchangeData) {
+      throw new Error(`Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${isWithdrawRequestPending}`);
+    }
+    
+    // TODO: Calculate minPurchaseAmount - placeholder for now
+    const minPurchaseAmount = 0;
+    
+    // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
+    const redeemParams = ethers.utils.defaultAbiCoder.encode(
+      ['uint8', 'uint256', 'bytes'],
+      [dexId, minPurchaseAmount, exchangeData]
+    );
+    
+    return redeemParams;
+  }
+
+  private async generateLiquidationCallData(positions: EnrichedPosition[], tokenPrices: Map<string, TokenPrice>): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string }> {
     if (positions.length === 0) {
       throw new Error('No positions provided for liquidation');
     }
@@ -181,15 +354,8 @@ export default class ExponentLiquidator {
       throw new Error(`Vault config not found for vault: ${vaultAddress}`);
     }
     
-    // Use appropriate redeem data based on withdraw request status
-    let redeemData: string;
-    if (positions[0].isWithdrawRequestPending) {
-      // For positions with withdraw requests, use withdraw exchange data
-      redeemData = vaultConfig.withdrawExchangeData || '0x';
-    } else {
-      // For positions without withdraw requests, use redeem exchange data  
-      redeemData = vaultConfig.redeemExchangeData || '0x';
-    }
+    // Generate appropriate redeem data based on vault type and withdraw request status
+    const redeemData = this.generateRedeemData(vaultConfig, positions[0].isWithdrawRequestPending, tokenPrices);
     
     return {
       vaultAddress,
@@ -226,10 +392,16 @@ export default class ExponentLiquidator {
   }
 
   async liquidatePositions(positionsToLiquidate: EnrichedPosition[]): Promise<void> {
-    // Step 1: Sort positions by vault and withdraw request status
+    // Step 1: Determine required tokens and fetch prices
+    const requiredTokens = this.getRequiredTokensForPricing(positionsToLiquidate);
+    const tokenPrices = await this.batchFetchTokenPrices(requiredTokens);
+    
+    console.log(`Fetched prices for ${tokenPrices.size} tokens`);
+
+    // Step 2: Sort positions by vault and withdraw request status
     const sortedPositions = this.sortPositionsForLiquidation(positionsToLiquidate);
 
-    // Step 2: Process each vault
+    // Step 3: Process each vault
     for (const [vaultAddress, vaultPositions] of sortedPositions) {
       console.log(`Processing liquidations for vault: ${vaultAddress}`);
 
@@ -238,14 +410,14 @@ export default class ExponentLiquidator {
       
       for (const batch of batchesWithoutWithdrawRequest) {
         console.log(`Liquidating batch of ${batch.length} positions without withdraw requests`);
-        const liquidationParams = await this.generateLiquidationCallData(batch);
+        const liquidationParams = await this.generateLiquidationCallData(batch, tokenPrices);
         await this.executeFlashLiquidation(liquidationParams);
       }
 
       // Step 4: Liquidate positions with withdraw requests (one by one)
       for (const position of vaultPositions.withWithdrawRequest) {
         console.log(`Liquidating position with withdraw request: ${position.account}`);
-        const liquidationParams = await this.generateLiquidationCallData([position]);
+        const liquidationParams = await this.generateLiquidationCallData([position], tokenPrices);
         await this.executeFlashLiquidation(liquidationParams);
       }
 
