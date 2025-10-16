@@ -66,6 +66,7 @@ export interface OnChainVaultConfig {
   // CurveConvex2Token specific tokens  
   token0?: string;
   token1?: string;
+  primaryIndex?: number;
   // Exchange rate for converting shares to yield tokens
   shareToYieldTokenExchangeRate: BigNumber;
 }

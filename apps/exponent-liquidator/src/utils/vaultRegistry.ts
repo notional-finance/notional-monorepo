@@ -36,7 +36,8 @@ const PENDLE_PT_ABI = [
 ];
 
 const CURVE_CONVEX_2TOKEN_ABI = [
-  'function TOKENS() external view returns (address[2] memory)'
+  'function TOKENS() external view returns (address[2] memory)',
+  'function PRIMARY_INDEX() external view returns (uint256)'
 ];
 
 const ADDRESS_REGISTRY_ADDRESS = '0xe335d314BD4eF7DD44F103dC124FEFb7Ce63eC95';
@@ -172,12 +173,18 @@ export class VaultRegistry {
           key: `${vaultAddress}.tokenOutSy`
         });
       } else if (vaultType === VaultType.CurveConvex2Token) {
-        // For CurveConvex2Token vaults: get TOKENS first
+        // For CurveConvex2Token vaults: get TOKENS and PRIMARY_INDEX
         additionalCalls.push({
           target: new ethers.Contract(vaultAddress, curveConvexInterface, this.provider),
           stage: 1,
           method: 'TOKENS',
           key: `${vaultAddress}.tokens`
+        });
+        additionalCalls.push({
+          target: new ethers.Contract(vaultAddress, curveConvexInterface, this.provider),
+          stage: 1,
+          method: 'PRIMARY_INDEX',
+          key: `${vaultAddress}.primaryIndex`
         });
       }
     }
@@ -220,11 +227,13 @@ export class VaultRegistry {
         });
       } else if (config.vaultType === VaultType.CurveConvex2Token) {
         const tokens = results2[`${vaultAddress}.tokens`] as [string, string];
+        const primaryIndex = results2[`${vaultAddress}.primaryIndex`] as ethers.BigNumber;
         const token0 = tokens[0] === ethers.constants.AddressZero ? WETH_MAINNET : tokens[0];
         const token1 = tokens[1] === ethers.constants.AddressZero ? WETH_MAINNET : tokens[1];
         
         vaultConfigs[i].token0 = token0;
         vaultConfigs[i].token1 = token1;
+        vaultConfigs[i].primaryIndex = primaryIndex.toNumber();
         
         // Get both WRMs from AddressRegistry
         finalCalls.push({

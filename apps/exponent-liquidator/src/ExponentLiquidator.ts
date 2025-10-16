@@ -278,22 +278,20 @@ export default class ExponentLiquidator {
     }
   }
 
-  private generateRedeemData(vaultConfig: VaultConfig, isWithdrawRequestPending: boolean, tokenPrices: Map<string, TokenPrice>): string {
+  private generateRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
     const { vaultType } = vaultConfig;
     
-    if (isWithdrawRequestPending) {
+    if (position.isWithdrawRequestPending) {
       // For positions with withdraw requests pending
       switch (vaultType) {
         case VaultType.Staking:
-          return this.generateStakingRedeemData(vaultConfig, true, tokenPrices);
+          return this.generateStakingRedeemData(vaultConfig, position, tokenPrices);
         
         case VaultType.PendlePT:
-          // TODO: Implement PendlePT vault redeem data for withdraw requests
-          return vaultConfig.withdrawExchangeData || '0x';
+          return this.generatePendlePTRedeemData(vaultConfig, position, tokenPrices);
         
         case VaultType.CurveConvex2Token:
-          // TODO: Implement CurveConvex2Token vault redeem data for withdraw requests
-          return vaultConfig.withdrawExchangeData || '0x';
+          return this.generateCurveConvex2TokenRedeemData(vaultConfig, position, tokenPrices);
         
         default:
           throw new Error(`Unsupported vault type for withdraw requests: ${vaultType}`);
@@ -302,15 +300,13 @@ export default class ExponentLiquidator {
       // For positions without withdraw requests
       switch (vaultType) {
         case VaultType.Staking:
-          return this.generateStakingRedeemData(vaultConfig, false, tokenPrices);
+          return this.generateStakingRedeemData(vaultConfig, position, tokenPrices);
         
         case VaultType.PendlePT:
-          // TODO: Implement PendlePT vault redeem data for direct liquidation
-          return vaultConfig.redeemExchangeData || '0x';
+          return this.generatePendlePTRedeemData(vaultConfig, position, tokenPrices);
         
         case VaultType.CurveConvex2Token:
-          // TODO: Implement CurveConvex2Token vault redeem data for direct liquidation
-          return vaultConfig.redeemExchangeData || '0x';
+          return this.generateCurveConvex2TokenRedeemData(vaultConfig, position, tokenPrices);
         
         default:
           throw new Error(`Unsupported vault type for direct liquidation: ${vaultType}`);
@@ -318,7 +314,7 @@ export default class ExponentLiquidator {
     }
   }
 
-  private generateStakingRedeemData(vaultConfig: VaultConfig, isWithdrawRequestPending: boolean, tokenPrices: Map<string, TokenPrice>): string {
+  private generateStakingRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
     // Get dexId from vault config
     const dexId = vaultConfig.dexId;
     if (dexId === undefined) {
@@ -326,16 +322,69 @@ export default class ExponentLiquidator {
     }
     
     // Get exchangeData based on withdraw request status
-    const exchangeData = isWithdrawRequestPending 
+    const exchangeData = position.isWithdrawRequestPending 
       ? vaultConfig.withdrawExchangeData 
       : vaultConfig.redeemExchangeData;
     
     if (!exchangeData) {
-      throw new Error(`Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${isWithdrawRequestPending}`);
+      throw new Error(`Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${position.isWithdrawRequestPending}`);
     }
     
-    // TODO: Calculate minPurchaseAmount - placeholder for now
-    const minPurchaseAmount = 0;
+    // Calculate minPurchaseAmount
+    let minPurchaseAmount: ethers.BigNumber;
+    
+    if (!position.isWithdrawRequestPending) {
+      // Get required token prices and decimals
+      const yieldTokenPrice = tokenPrices.get(vaultConfig.yieldToken);
+      const assetPrice = tokenPrices.get(vaultConfig.asset);
+      
+      if (!yieldTokenPrice || !assetPrice) {
+        throw new Error(`Token prices not found for vault: ${vaultConfig.address}`);
+      }
+      
+      // pairPrice = yieldTokenPrice * assetPrice / 1e18
+      const pairPrice = yieldTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountYieldTokenPrecision = totalYieldTokenAmount * pairPrice / 1e18
+      const assetAmountYieldTokenPrecision = position.totalYieldTokens.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountNativePrecision = assetAmountYieldTokenPrecision * 1e(assetDecimals) / 1e(yieldTokenDecimals)
+      const assetAmountNativePrecision = assetAmountYieldTokenPrecision
+        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
+        .div(ethers.utils.parseUnits('1', yieldTokenPrice.decimals));
+      
+      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
+      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
+        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
+      );
+      minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
+      
+    } else {
+      // Get required token prices and decimals
+      const primaryWithdrawTokenPrice = tokenPrices.get(vaultConfig.primaryWithdrawToken);
+      const assetPrice = tokenPrices.get(vaultConfig.asset);
+      
+      if (!primaryWithdrawTokenPrice || !assetPrice || !position.primaryWithdrawTokenAmount) {
+        throw new Error(`Token prices or withdraw amount not found for vault: ${vaultConfig.address}`);
+      }
+      
+      // pairPrice = primaryWithdrawTokenPrice * assetPrice / 1e18
+      const pairPrice = primaryWithdrawTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountWithdrawTokenPrecision = primaryWithdrawTokenAmount * pairPrice / 1e18
+      const assetAmountWithdrawTokenPrecision = position.primaryWithdrawTokenAmount.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountNativePrecision = assetAmountWithdrawTokenPrecision * 1e(assetDecimals) / 1e(withdrawTokenDecimals)
+      const assetAmountNativePrecision = assetAmountWithdrawTokenPrecision
+        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
+        .div(ethers.utils.parseUnits('1', primaryWithdrawTokenPrice.decimals));
+      
+      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
+      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
+        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
+      );
+      minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
+    }
     
     // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
@@ -344,6 +393,141 @@ export default class ExponentLiquidator {
     );
     
     return redeemParams;
+  }
+
+  private generatePendlePTRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
+    // Get dexId from vault config
+    const dexId = vaultConfig.dexId;
+    if (dexId === undefined) {
+      throw new Error(`DexId not found for vault: ${vaultConfig.address}`);
+    }
+    
+    // Calculate minPurchaseAmount using the same logic as Staking
+    let minPurchaseAmount: ethers.BigNumber;
+    
+    if (!position.isWithdrawRequestPending) {
+      // Get exchangeData from redeemExchangeData
+      const exchangeData = vaultConfig.redeemExchangeData;
+      if (!exchangeData) {
+        throw new Error(`Redeem exchange data not found for vault: ${vaultConfig.address}`);
+      }
+      
+      // Get required token prices and decimals - sell token is yieldToken
+      const yieldTokenPrice = tokenPrices.get(vaultConfig.yieldToken);
+      const assetPrice = tokenPrices.get(vaultConfig.asset);
+      
+      if (!yieldTokenPrice || !assetPrice) {
+        throw new Error(`Token prices not found for vault: ${vaultConfig.address}`);
+      }
+      
+      // Calculate minPurchaseAmount same as Staking
+      // pairPrice = yieldTokenPrice * assetPrice / 1e18
+      const pairPrice = yieldTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountYieldTokenPrecision = totalYieldTokenAmount * pairPrice / 1e18
+      const assetAmountYieldTokenPrecision = position.totalYieldTokens.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountNativePrecision = assetAmountYieldTokenPrecision * 1e(assetDecimals) / 1e(yieldTokenDecimals)
+      const assetAmountNativePrecision = assetAmountYieldTokenPrecision
+        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
+        .div(ethers.utils.parseUnits('1', yieldTokenPrice.decimals));
+      
+      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
+      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
+        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
+      );
+      minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
+      
+      // Encode PendleRedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes limitOrderData)
+      const limitOrderData = '0x'; // Always empty bytes
+      const redeemParams = ethers.utils.defaultAbiCoder.encode(
+        ['uint8', 'uint256', 'bytes', 'bytes'],
+        [dexId, minPurchaseAmount, exchangeData, limitOrderData]
+      );
+      
+      return redeemParams;
+      
+    } else {
+      // Get exchangeData from withdrawExchangeData
+      const exchangeData = vaultConfig.withdrawExchangeData;
+      if (!exchangeData) {
+        throw new Error(`Withdraw exchange data not found for vault: ${vaultConfig.address}`);
+      }
+      
+      // Get required token prices and decimals - sell token is primaryWithdrawToken
+      const primaryWithdrawTokenPrice = tokenPrices.get(vaultConfig.primaryWithdrawToken);
+      const assetPrice = tokenPrices.get(vaultConfig.asset);
+      
+      if (!primaryWithdrawTokenPrice || !assetPrice || !position.primaryWithdrawTokenAmount) {
+        throw new Error(`Token prices or withdraw amount not found for vault: ${vaultConfig.address}`);
+      }
+      
+      // Calculate minPurchaseAmount same as Staking withdraw request case
+      // pairPrice = primaryWithdrawTokenPrice * assetPrice / 1e18
+      const pairPrice = primaryWithdrawTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountWithdrawTokenPrecision = primaryWithdrawTokenAmount * pairPrice / 1e18
+      const assetAmountWithdrawTokenPrecision = position.primaryWithdrawTokenAmount.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountNativePrecision = assetAmountWithdrawTokenPrecision * 1e(assetDecimals) / 1e(withdrawTokenDecimals)
+      const assetAmountNativePrecision = assetAmountWithdrawTokenPrecision
+        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
+        .div(ethers.utils.parseUnits('1', primaryWithdrawTokenPrice.decimals));
+      
+      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
+      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
+        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
+      );
+      minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
+      
+      // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
+      const redeemParams = ethers.utils.defaultAbiCoder.encode(
+        ['uint8', 'uint256', 'bytes'],
+        [dexId, minPurchaseAmount, exchangeData]
+      );
+      
+      return redeemParams;
+    }
+  }
+
+  private generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
+    // TradeType enum values
+    const TradeType = {
+      EXACT_IN_SINGLE: 1,
+      EXACT_OUT_SINGLE: 2,
+      EXACT_IN_BATCH: 4,
+      EXACT_OUT_BATCH: 8
+    };
+
+    if (!position.isWithdrawRequestPending) {
+      // For direct liquidation: empty redemptionTrades array
+      const minAmounts: ethers.BigNumber[] = []; // TODO: Calculate minAmounts
+      const redemptionTrades: any[] = []; // Empty array as specified
+      
+      // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
+      const redeemParams = ethers.utils.defaultAbiCoder.encode(
+        ['uint256[]', 'tuple(uint256,uint16,uint8,uint256,bytes)[]'],
+        [minAmounts, redemptionTrades]
+      );
+      
+      return redeemParams;
+      
+    } else {
+      // For withdraw requests: need to implement redemptionTrades logic
+      const minAmounts: ethers.BigNumber[] = []; // TODO: Calculate minAmounts
+      const redemptionTrades: any[] = []; // TODO: Implement redemptionTrades logic
+      
+      // TradeParams struct: (uint256 tradeAmount, uint16 dexId, uint8 tradeType, uint256 minPurchaseAmount, bytes exchangeData)
+      // TODO: Populate redemptionTrades based on withdraw request logic
+      
+      // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
+      const redeemParams = ethers.utils.defaultAbiCoder.encode(
+        ['uint256[]', 'tuple(uint256,uint16,uint8,uint256,bytes)[]'],
+        [minAmounts, redemptionTrades]
+      );
+      
+      return redeemParams;
+    }
   }
 
   private async generateLiquidationCallData(positions: EnrichedPosition[], tokenPrices: Map<string, TokenPrice>): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string }> {
@@ -377,7 +561,7 @@ export default class ExponentLiquidator {
     }
     
     // Generate appropriate redeem data based on vault type and withdraw request status
-    const redeemData = this.generateRedeemData(vaultConfig, positions[0].isWithdrawRequestPending, tokenPrices);
+    const redeemData = this.generateRedeemData(vaultConfig, positions[0], tokenPrices);
     
     return {
       vaultAddress,
