@@ -495,3 +495,15 @@ export const VaultsPageInject = () => {
     />
   );
 };
+
+export const BetaPageInject = () => {
+  const containerRef = useStartInject(
+    '68c076de04c61ce1e06fb0c5',
+    'exponent-beta',
+    () => {
+      // TODO: add button click to verify email
+    }
+  );
+
+  return <Box ref={containerRef} className="body-beta" />;
+};
