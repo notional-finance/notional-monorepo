@@ -376,7 +376,7 @@ export const PortfolioOverview = observer(() => {
           }
           expandableTable={true}
           setExpandedRows={setExpandedRows}
-          tableVariant={TABLE_VARIANTS.TOTAL_ROW}
+          tableVariant={TABLE_VARIANTS.DEFAULT}
           initialState={initialState}
         />
       </Box>

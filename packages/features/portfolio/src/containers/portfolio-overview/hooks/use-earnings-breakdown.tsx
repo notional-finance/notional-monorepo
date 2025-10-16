@@ -37,6 +37,28 @@ interface EarningsBreakdownRow {
   };
 }
 
+function dividerRow(label: string): EarningsBreakdownRow {
+  return {
+    asset: {
+      symbol: '',
+      symbolBottom: '',
+      label,
+      caption: '',
+    },
+    incentivesEarnings: '',
+    accruedInterest: '',
+    marketPNL: '',
+    feesPaid: '',
+    totalEarnings: '',
+    toolTipData: undefined,
+    tokenId: ' ',
+    // This keeps the style of the row thin
+    isTotalRow: true,
+    isPending: false,
+    isDividerRow: true,
+  };
+}
+
 function formatGroupedVaultEarnings(
   {
     underlying,
@@ -47,6 +69,7 @@ function formatGroupedVaultEarnings(
     marketProfitLoss,
     totalEarnings,
     vaultShares,
+    incentiveEarnings,
   }: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
   pendingTokens: TokenDefinition[] | undefined,
   baseCurrency: FiatKeys
@@ -65,6 +88,19 @@ function formatGroupedVaultEarnings(
     marketPNL: formatCryptoWithFiat(baseCurrency, marketProfitLoss),
     feesPaid: formatCryptoWithFiat(baseCurrency, totalILAndFees),
     totalEarnings: formatCryptoWithFiat(baseCurrency, totalEarnings),
+    toolTipData:
+      incentiveEarnings && incentiveEarnings.length > 0
+        ? {
+            perAssetEarnings: incentiveEarnings.map(({ adjustedClaimed }) => ({
+              underlying: adjustedClaimed.toDisplayStringWithSymbol(
+                4,
+                true,
+                false
+              ),
+              baseCurrency: undefined,
+            })),
+          }
+        : undefined,
   };
 }
 
@@ -83,6 +119,7 @@ function formatDetailedVaultEarnings(
     debtInterestAccrual,
     debtFeesPaid,
     debtEarnings,
+    incentiveEarnings,
   }: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
   pendingTokens: TokenDefinition[] | undefined,
   baseCurrency: FiatKeys
@@ -106,6 +143,19 @@ function formatDetailedVaultEarnings(
     marketPNL: formatCryptoWithFiat(baseCurrency, assetMarketPnL),
     feesPaid: formatCryptoWithFiat(baseCurrency, assetFeesPaid),
     totalEarnings: formatCryptoWithFiat(baseCurrency, assetEarnings),
+    toolTipData:
+      incentiveEarnings && incentiveEarnings.length > 0
+        ? {
+            perAssetEarnings: incentiveEarnings.map(({ adjustedClaimed }) => ({
+              underlying: adjustedClaimed.toDisplayStringWithSymbol(
+                4,
+                true,
+                false
+              ),
+              baseCurrency: undefined,
+            })),
+          }
+        : undefined,
   };
 
   // Short circuit if there are no debts
@@ -127,7 +177,7 @@ function formatDetailedVaultEarnings(
     totalEarnings: formatCryptoWithFiat(baseCurrency, debtEarnings),
   };
 
-  return [shares, debt];
+  return [dividerRow(name), shares, debt];
 }
 
 export function useEarningsBreakdown(

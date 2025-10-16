@@ -96,6 +96,7 @@ function dividerRow(label: string) {
       txnHistory: '',
     },
     tokenId: ' ',
+    // This keeps the style of the row thin
     isTotalRow: true,
     isPending: false,
     isDividerRow: true,
@@ -221,20 +222,21 @@ function getSpecificVaultInfo(
           },
         ],
       },
-      toolTipData: v.incentiveEarnings
-        ? {
-            perAssetEarnings: v.incentiveEarnings.map(
-              ({ adjustedClaimed }) => ({
-                underlying: adjustedClaimed.toDisplayStringWithSymbol(
-                  4,
-                  true,
-                  false
-                ),
-                baseCurrency: undefined,
-              })
-            ),
-          }
-        : undefined,
+      toolTipData:
+        v.incentiveEarnings && v.incentiveEarnings.length > 0
+          ? {
+              perAssetEarnings: v.incentiveEarnings.map(
+                ({ adjustedClaimed }) => ({
+                  underlying: adjustedClaimed.toDisplayStringWithSymbol(
+                    4,
+                    true,
+                    false
+                  ),
+                  baseCurrency: undefined,
+                })
+              ),
+            }
+          : undefined,
       buttonBarData: [
         {
           buttonText: <FormattedMessage defaultMessage={'Claim Rewards'} />,
