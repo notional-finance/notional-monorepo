@@ -84,6 +84,15 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
     strategyType: types.string,
     isExpired: types.maybe(types.boolean),
   }),
+  incentiveEarnings: types.optional(
+    types.array(
+      types.model({
+        totalClaimed: NotionalTypes.TokenBalance,
+        adjustedClaimed: NotionalTypes.TokenBalance,
+      })
+    ),
+    []
+  ),
 });
 
 const PortfolioModel = types.model('PortfolioModel', {
@@ -249,6 +258,12 @@ export const AccountPortfolioActions = (
             h.vaultMetadata.rewardClaims?.map((r) => r.toJSON())
           ),
         },
+        incentiveEarnings: cast(
+          h.incentiveEarnings?.map((i) => ({
+            adjustedClaimed: i.adjustedClaimed.toJSON(),
+            totalClaimed: i.totalClaimed.toJSON(),
+          }))
+        ),
       }))
     );
 

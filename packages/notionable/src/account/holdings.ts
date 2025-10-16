@@ -130,6 +130,7 @@ export function calculateVaultHoldings(
       debtAmountPaid,
       assetEntryPrice,
       debtEntryPrice,
+      incentiveEarnings: assetPnL?.incentives,
     };
   });
 }

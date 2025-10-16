@@ -136,7 +136,7 @@ function parseIncentiveSnapshot(
     timestamp: i.timestamp,
     blockNumber: i.blockNumber,
     transactionHash: i.transactionHash,
-    vaultAddress: i.balanceSnapshot.balance.token.vaultAddress as string,
+    vaultAddress: i.balance.token.vaultAddress as string,
     lineItemType: 'Rewards Claimed',
     lineItemLabel: `Rewards Claimed: ${rewardToken.symbol}`,
     properties: [

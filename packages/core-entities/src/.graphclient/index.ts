@@ -181,9 +181,11 @@ export type Balance = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   current: BalanceSnapshot;
+  _lastIncentiveSnapshotBlockNumber?: Maybe<Scalars['BigInt']>;
   /** Link to the withdraw requests that this balance is associated with */
   withdrawRequest?: Maybe<Array<WithdrawRequest>>;
   snapshots?: Maybe<Array<BalanceSnapshot>>;
+  incentives?: Maybe<Array<IncentiveSnapshot>>;
 };
 
 
@@ -202,6 +204,15 @@ export type BalancesnapshotsArgs = {
   orderBy?: InputMaybe<BalanceSnapshot_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<BalanceSnapshot_filter>;
+};
+
+
+export type BalanceincentivesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<IncentiveSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<IncentiveSnapshot_filter>;
 };
 
 export type BalanceSnapshot = {
@@ -237,8 +248,6 @@ export type BalanceSnapshot = {
   /** Internal vault fee accumulator */
   _lastVaultFeeAccumulator: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
-  /** Snapshots of the secondary incentives */
-  incentives?: Maybe<Array<IncentiveSnapshot>>;
 };
 
 
@@ -248,15 +257,6 @@ export type BalanceSnapshotprofitLossLineItemsArgs = {
   orderBy?: InputMaybe<ProfitLossLineItem_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<ProfitLossLineItem_filter>;
-};
-
-
-export type BalanceSnapshotincentivesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<IncentiveSnapshot_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<IncentiveSnapshot_filter>;
 };
 
 export type BalanceSnapshot_filter = {
@@ -425,7 +425,6 @@ export type BalanceSnapshot_filter = {
   _lastVaultFeeAccumulator_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _lastVaultFeeAccumulator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
-  incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<BalanceSnapshot_filter>>>;
@@ -461,6 +460,7 @@ export type BalanceSnapshot_orderBy =
   | 'balance__lastUpdateBlockNumber'
   | 'balance__lastUpdateTimestamp'
   | 'balance__lastUpdateTransactionHash'
+  | 'balance___lastIncentiveSnapshotBlockNumber'
   | 'currentBalance'
   | 'previousBalance'
   | 'adjustedCostBasis'
@@ -472,8 +472,7 @@ export type BalanceSnapshot_orderBy =
   | '_accumulatedCostRealized'
   | '_lastInterestAccumulator'
   | '_lastVaultFeeAccumulator'
-  | 'profitLossLineItems'
-  | 'incentives';
+  | 'profitLossLineItems';
 
 export type Balance_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -599,6 +598,14 @@ export type Balance_filter = {
   current_not_ends_with?: InputMaybe<Scalars['String']>;
   current_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   current_?: InputMaybe<BalanceSnapshot_filter>;
+  _lastIncentiveSnapshotBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _lastIncentiveSnapshotBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   withdrawRequest?: InputMaybe<Array<Scalars['String']>>;
   withdrawRequest_not?: InputMaybe<Array<Scalars['String']>>;
   withdrawRequest_contains?: InputMaybe<Array<Scalars['String']>>;
@@ -607,6 +614,7 @@ export type Balance_filter = {
   withdrawRequest_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   withdrawRequest_?: InputMaybe<WithdrawRequest_filter>;
   snapshots_?: InputMaybe<BalanceSnapshot_filter>;
+  incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Balance_filter>>>;
@@ -664,8 +672,10 @@ export type Balance_orderBy =
   | 'current___accumulatedCostRealized'
   | 'current___lastInterestAccumulator'
   | 'current___lastVaultFeeAccumulator'
+  | '_lastIncentiveSnapshotBlockNumber'
   | 'withdrawRequest'
-  | 'snapshots';
+  | 'snapshots'
+  | 'incentives';
 
 export type BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -792,8 +802,10 @@ export type IncentiveSnapshot = {
   transactionHash: Scalars['Bytes'];
   /** Address of the account that holds this balance */
   account: Account;
-  /** Link back to the balance snapshot for this secondary incentive */
-  balanceSnapshot: BalanceSnapshot;
+  /** Link back to the balance for this secondary incentive */
+  balance: Balance;
+  /** Link back to the previous incentive snapshot */
+  previousIncentiveSnapshot?: Maybe<IncentiveSnapshot>;
   /** Reward token associated with this snapshot */
   rewardToken: Token;
   /** Total reward accrued over the lifetime of this balance */
@@ -860,27 +872,48 @@ export type IncentiveSnapshot_filter = {
   account_not_ends_with?: InputMaybe<Scalars['String']>;
   account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   account_?: InputMaybe<Account_filter>;
-  balanceSnapshot?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_gt?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_lt?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_gte?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_lte?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_in?: InputMaybe<Array<Scalars['String']>>;
-  balanceSnapshot_not_in?: InputMaybe<Array<Scalars['String']>>;
-  balanceSnapshot_contains?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_contains_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_contains?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_starts_with?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_starts_with?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_ends_with?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_ends_with?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_?: InputMaybe<BalanceSnapshot_filter>;
+  balance?: InputMaybe<Scalars['String']>;
+  balance_not?: InputMaybe<Scalars['String']>;
+  balance_gt?: InputMaybe<Scalars['String']>;
+  balance_lt?: InputMaybe<Scalars['String']>;
+  balance_gte?: InputMaybe<Scalars['String']>;
+  balance_lte?: InputMaybe<Scalars['String']>;
+  balance_in?: InputMaybe<Array<Scalars['String']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['String']>>;
+  balance_contains?: InputMaybe<Scalars['String']>;
+  balance_contains_nocase?: InputMaybe<Scalars['String']>;
+  balance_not_contains?: InputMaybe<Scalars['String']>;
+  balance_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  balance_starts_with?: InputMaybe<Scalars['String']>;
+  balance_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_not_starts_with?: InputMaybe<Scalars['String']>;
+  balance_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_ends_with?: InputMaybe<Scalars['String']>;
+  balance_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_not_ends_with?: InputMaybe<Scalars['String']>;
+  balance_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_?: InputMaybe<Balance_filter>;
+  previousIncentiveSnapshot?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_gt?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_lt?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_gte?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_lte?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_in?: InputMaybe<Array<Scalars['String']>>;
+  previousIncentiveSnapshot_not_in?: InputMaybe<Array<Scalars['String']>>;
+  previousIncentiveSnapshot_contains?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_contains_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_contains?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_starts_with?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_starts_with?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_ends_with?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_ends_with?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_?: InputMaybe<IncentiveSnapshot_filter>;
   rewardToken?: InputMaybe<Scalars['String']>;
   rewardToken_not?: InputMaybe<Scalars['String']>;
   rewardToken_gt?: InputMaybe<Scalars['String']>;
@@ -946,22 +979,23 @@ export type IncentiveSnapshot_orderBy =
   | 'account__lastUpdateTimestamp'
   | 'account__lastUpdateTransactionHash'
   | 'account__systemAccountType'
-  | 'balanceSnapshot'
-  | 'balanceSnapshot__id'
-  | 'balanceSnapshot__blockNumber'
-  | 'balanceSnapshot__timestamp'
-  | 'balanceSnapshot__transactionHash'
-  | 'balanceSnapshot__currentBalance'
-  | 'balanceSnapshot__previousBalance'
-  | 'balanceSnapshot__adjustedCostBasis'
-  | 'balanceSnapshot__currentProfitAndLossAtSnapshot'
-  | 'balanceSnapshot__totalInterestAccrualAtSnapshot'
-  | 'balanceSnapshot__totalVaultFeesAtSnapshot'
-  | 'balanceSnapshot__impliedFixedRate'
-  | 'balanceSnapshot___accumulatedBalance'
-  | 'balanceSnapshot___accumulatedCostRealized'
-  | 'balanceSnapshot___lastInterestAccumulator'
-  | 'balanceSnapshot___lastVaultFeeAccumulator'
+  | 'balance'
+  | 'balance__id'
+  | 'balance__firstUpdateBlockNumber'
+  | 'balance__firstUpdateTimestamp'
+  | 'balance__firstUpdateTransactionHash'
+  | 'balance__lastUpdateBlockNumber'
+  | 'balance__lastUpdateTimestamp'
+  | 'balance__lastUpdateTransactionHash'
+  | 'balance___lastIncentiveSnapshotBlockNumber'
+  | 'previousIncentiveSnapshot'
+  | 'previousIncentiveSnapshot__id'
+  | 'previousIncentiveSnapshot__blockNumber'
+  | 'previousIncentiveSnapshot__timestamp'
+  | 'previousIncentiveSnapshot__transactionHash'
+  | 'previousIncentiveSnapshot__totalClaimed'
+  | 'previousIncentiveSnapshot__adjustedClaimed'
+  | 'previousIncentiveSnapshot__amountClaimed'
   | 'rewardToken'
   | 'rewardToken__id'
   | 'rewardToken__firstUpdateBlockNumber'
@@ -3630,6 +3664,7 @@ export type WithdrawRequest_orderBy =
   | 'balance__lastUpdateBlockNumber'
   | 'balance__lastUpdateTimestamp'
   | 'balance__lastUpdateTransactionHash'
+  | 'balance___lastIncentiveSnapshotBlockNumber'
   | 'requestId'
   | 'yieldTokenAmount'
   | 'sharesAmount'
@@ -3930,8 +3965,10 @@ export type BalanceResolvers<ContextType = MeshContext & { apiKey: string, subgr
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   current?: Resolver<ResolversTypes['BalanceSnapshot'], ParentType, ContextType>;
+  _lastIncentiveSnapshotBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   withdrawRequest?: Resolver<Maybe<Array<ResolversTypes['WithdrawRequest']>>, ParentType, ContextType, RequireFields<BalancewithdrawRequestArgs, 'skip' | 'first'>>;
   snapshots?: Resolver<Maybe<Array<ResolversTypes['BalanceSnapshot']>>, ParentType, ContextType, RequireFields<BalancesnapshotsArgs, 'skip' | 'first'>>;
+  incentives?: Resolver<Maybe<Array<ResolversTypes['IncentiveSnapshot']>>, ParentType, ContextType, RequireFields<BalanceincentivesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -3954,7 +3991,6 @@ export type BalanceSnapshotResolvers<ContextType = MeshContext & { apiKey: strin
   _lastInterestAccumulator?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _lastVaultFeeAccumulator?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   profitLossLineItems?: Resolver<Maybe<Array<ResolversTypes['ProfitLossLineItem']>>, ParentType, ContextType, RequireFields<BalanceSnapshotprofitLossLineItemsArgs, 'skip' | 'first'>>;
-  incentives?: Resolver<Maybe<Array<ResolversTypes['IncentiveSnapshot']>>, ParentType, ContextType, RequireFields<BalanceSnapshotincentivesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -3986,7 +4022,8 @@ export type IncentiveSnapshotResolvers<ContextType = MeshContext & { apiKey: str
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   account?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
-  balanceSnapshot?: Resolver<ResolversTypes['BalanceSnapshot'], ParentType, ContextType>;
+  balance?: Resolver<ResolversTypes['Balance'], ParentType, ContextType>;
+  previousIncentiveSnapshot?: Resolver<Maybe<ResolversTypes['IncentiveSnapshot']>, ParentType, ContextType>;
   rewardToken?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   totalClaimed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   adjustedClaimed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -4503,13 +4540,10 @@ export type AccountBalanceStatementQuery = { account?: Maybe<(
       ), withdrawRequest?: Maybe<Array<(
         Pick<WithdrawRequest, 'id' | 'requestId' | 'yieldTokenAmount' | 'sharesAmount'>
         & { tokenizedWithdrawRequest?: Maybe<Pick<TokenizedWithdrawRequest, 'totalYieldTokenAmount' | 'totalWithdraw' | 'finalized'>> }
-      )>>, current: (
-        Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalVaultFeesAtSnapshot' | 'totalInterestAccrualAtSnapshot' | '_lastInterestAccumulator' | '_lastVaultFeeAccumulator' | 'impliedFixedRate'>
-        & { incentives?: Maybe<Array<(
-          Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed'>
-          & { rewardToken: Pick<Token, 'id' | 'symbol'> }
-        )>> }
-      ) }>> }
+      )>>, current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalVaultFeesAtSnapshot' | 'totalInterestAccrualAtSnapshot' | '_lastInterestAccumulator' | '_lastVaultFeeAccumulator' | 'impliedFixedRate'>, incentives?: Maybe<Array<(
+        Pick<IncentiveSnapshot, 'totalClaimed' | 'adjustedClaimed'>
+        & { rewardToken: Pick<Token, 'id' | 'symbol'> }
+      )>> }>> }
   )> };
 
 export type AccountHoldingsHistoricalQueryVariables = Exact<{
@@ -4528,7 +4562,7 @@ export type AccountIncentiveSnapshotsQueryVariables = Exact<{
 
 export type AccountIncentiveSnapshotsQuery = { incentiveSnapshots: Array<(
     Pick<IncentiveSnapshot, 'timestamp' | 'blockNumber' | 'transactionHash' | 'amountClaimed'>
-    & { rewardToken: Pick<Token, 'id'>, balanceSnapshot: { balance: { token: Pick<Token, 'vaultAddress'> } } }
+    & { rewardToken: Pick<Token, 'id'>, balance: { token: Pick<Token, 'vaultAddress'> } }
   )> };
 
 export type AccountPositionsQueryVariables = Exact<{
@@ -4717,14 +4751,14 @@ export const AccountBalanceStatementDocument = gql`
         _lastInterestAccumulator
         _lastVaultFeeAccumulator
         impliedFixedRate
-        incentives {
-          rewardToken {
-            id
-            symbol
-          }
-          totalClaimed
-          adjustedClaimed
+      }
+      incentives {
+        rewardToken {
+          id
+          symbol
         }
+        totalClaimed
+        adjustedClaimed
       }
     }
   }
@@ -4770,11 +4804,9 @@ export const AccountIncentiveSnapshotsDocument = gql`
       id
     }
     amountClaimed
-    balanceSnapshot {
-      balance {
-        token {
-          vaultAddress
-        }
+    balance {
+      token {
+        vaultAddress
       }
     }
   }
