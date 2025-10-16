@@ -104,21 +104,25 @@ const WithdrawRequestModel = types.model('WithdrawRequest', {
   canFinalize: types.maybe(types.boolean),
 });
 
+const LineItemModel = types.model('LineItem', {
+  lineItemLabel: types.string,
+  properties: types.array(
+    types.model({ key: types.string, value: types.string })
+  ),
+});
+
 const AccountHistoryModel = types.model('AccountHistory', {
-  lineItemType: types.string,
-  txnLabel: types.optional(types.maybe(types.string), undefined),
   timestamp: types.number,
   blockNumber: types.number,
-  token: TokenDefinitionReference,
-  underlying: TokenDefinitionReference,
-  tokenAmount: NotionalTypes.TokenBalance,
-  transactionHash: types.string,
-  underlyingAmountRealized: NotionalTypes.TokenBalance,
-  underlyingAmountSpot: NotionalTypes.TokenBalance,
-  realizedPrice: NotionalTypes.TokenBalance,
-  spotPrice: NotionalTypes.TokenBalance,
-  impliedFixedRate: types.maybe(types.number),
-  account: types.maybe(types.string),
+  transactionHash: types.model({ hash: types.string, href: types.string }),
+  transactionType: types.model({
+    symbol: types.string,
+    label: types.string,
+    caption: types.string,
+  }),
+  vaultAddress: types.string,
+  lineItems: types.array(LineItemModel),
+  amountToFromWallet: types.maybe(NotionalTypes.TokenBalance),
 });
 
 export const HistoricalBalanceModel = types.model('HistoricalBalance', {
@@ -256,10 +260,10 @@ export const AccountModel = types
       )) as Awaited<ReturnType<typeof fetchTransactionHistory>>;
 
       self.accountHistory.replace(
-        history.finalResults[self.address].map((v) => ({
+        history[self.address].map((v) => ({
           ...v,
           blockNumber: Number(v.blockNumber),
-        })) as Instance<typeof AccountHistoryModel>[]
+        })) as unknown as Instance<typeof AccountHistoryModel>[]
       );
     });
 

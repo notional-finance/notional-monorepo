@@ -135,7 +135,7 @@ const useTableTabState = () => {
     {
       header: <FormattedMessage defaultMessage="Incentives Earnings" />,
       cell: MultiValueCell,
-      // ToolTip: TotalEarningsTooltip,
+      ToolTip: TotalEarningsTooltip,
       accessorKey: 'incentivesEarnings',
       fontWeightBold: true,
       textAlign: 'right',
@@ -376,7 +376,7 @@ export const PortfolioOverview = observer(() => {
           }
           expandableTable={true}
           setExpandedRows={setExpandedRows}
-          tableVariant={TABLE_VARIANTS.TOTAL_ROW}
+          tableVariant={TABLE_VARIANTS.DEFAULT}
           initialState={initialState}
         />
       </Box>

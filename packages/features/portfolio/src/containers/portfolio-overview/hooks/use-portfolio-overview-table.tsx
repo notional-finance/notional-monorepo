@@ -96,6 +96,7 @@ function dividerRow(label: string) {
       txnHistory: '',
     },
     tokenId: ' ',
+    // This keeps the style of the row thin
     isTotalRow: true,
     isPending: false,
     isDividerRow: true,
@@ -111,6 +112,12 @@ function getSpecificVaultInfo(
   totalEarnings: MultiRowTableData;
   buttonBarData: ButtonOptionsType[];
   warning: TableActionRowWarning | undefined;
+  toolTipData?: {
+    perAssetEarnings: {
+      underlying: string | undefined;
+      baseCurrency: string | undefined;
+    }[];
+  };
   showRowWarning?: boolean;
 } {
   const totalEarnings = formatCryptoWithFiat(baseCurrency, v.totalEarnings);
@@ -209,17 +216,27 @@ function getSpecificVaultInfo(
           {
             displayValue: 'N/A',
             textColor: theme.palette.typography.main,
-            toolTipContent: defineMessage({
-              defaultMessage:
-                'This vault requires claiming reward tokens directly. We are unable to calculate the dollar value at this time. Claim rewards in the drawer below.',
-              description: 'reward token tooltip',
-            }),
           },
           {
             displayValue: '',
           },
         ],
       },
+      toolTipData:
+        v.incentiveEarnings && v.incentiveEarnings.length > 0
+          ? {
+              perAssetEarnings: v.incentiveEarnings.map(
+                ({ adjustedClaimed }) => ({
+                  underlying: adjustedClaimed.toDisplayStringWithSymbol(
+                    4,
+                    true,
+                    false
+                  ),
+                  baseCurrency: undefined,
+                })
+              ),
+            }
+          : undefined,
       buttonBarData: [
         {
           buttonText: <FormattedMessage defaultMessage={'Claim Rewards'} />,
@@ -312,8 +329,14 @@ function formatVaultHoldings(
     network,
     vaultMetadata,
   } = vaultHolding;
-  const { subRowInfo, totalEarnings, buttonBarData, warning, showRowWarning } =
-    getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
+  const {
+    subRowInfo,
+    totalEarnings,
+    buttonBarData,
+    warning,
+    showRowWarning,
+    toolTipData,
+  } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
   const rewardClaimIcons = getRewardClaimIcon(
     vaultMetadata.rewardClaims,
     theme
@@ -388,6 +411,7 @@ function formatVaultHoldings(
         ? formatNumberAsPercent(apyData.totalAPY)
         : '-',
     amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
+    toolTipData,
     actionRow: {
       warning,
       showRowWarning,

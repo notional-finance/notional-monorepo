@@ -84,14 +84,27 @@ export async function fetchBalanceStatements(
         [account]:
           r.account?.balances
             ?.filter(({ token }) => !!token.underlying)
-            .map(({ current, token }) => {
+            .map(({ current, token, incentives }) => {
               if (!token.underlying) throw Error('Unknown underlying');
+              const model = getNetworkModel(network);
+
               return {
                 ...parseCurrentBalanceStatement(
                   current as BalanceSnapshot,
                   token as Token,
                   network
                 ),
+                incentives:
+                  incentives?.map((i) => ({
+                    totalClaimed: model.getTokenBalanceFromSymbol(
+                      i.totalClaimed,
+                      i.rewardToken.symbol
+                    ),
+                    adjustedClaimed: model.getTokenBalanceFromSymbol(
+                      i.adjustedClaimed,
+                      i.rewardToken.symbol
+                    ),
+                  })) || [],
               };
             }) || [],
       };
@@ -146,19 +159,6 @@ export function parseCurrentBalanceStatement(
       )
     );
 
-  const incentives =
-    current.incentives?.map((i) => ({
-      // PartOf: Incentive Earnings
-      adjustedClaimed: model.getTokenBalanceFromSymbol(
-        i.adjustedClaimed,
-        i.rewardToken.symbol
-      ),
-      totalClaimed: model.getTokenBalanceFromSymbol(
-        i.totalClaimed,
-        i.rewardToken.symbol
-      ),
-    })) || [];
-
   let totalInterestAccrual: TokenBalance = currentProfitAndLoss;
 
   if (token.tokenType === 'VaultShare') {
@@ -201,7 +201,6 @@ export function parseCurrentBalanceStatement(
     totalInterestAccrual,
     // Amount Paid
     accumulatedCostRealized: currentStatement.accumulatedCostRealized,
-    incentives,
     totalVaultFees: currentStatement.totalVaultFeesAtSnapshot,
   };
 }

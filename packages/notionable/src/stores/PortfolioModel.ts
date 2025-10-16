@@ -1,6 +1,5 @@
 import { RootStoreInterface } from './root-store';
 import {
-  AccountHistory,
   BalanceStatement,
   NotionalTypes,
   TokenBalance,
@@ -85,6 +84,15 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
     strategyType: types.string,
     isExpired: types.maybe(types.boolean),
   }),
+  incentiveEarnings: types.optional(
+    types.array(
+      types.model({
+        totalClaimed: NotionalTypes.TokenBalance,
+        adjustedClaimed: NotionalTypes.TokenBalance,
+      })
+    ),
+    []
+  ),
 });
 
 const PortfolioModel = types.model('PortfolioModel', {
@@ -165,7 +173,6 @@ export const AccountPortfolioActions = (
       root().getNetworkClient(self.network),
       self.balances,
       self.balanceStatement as BalanceStatement[],
-      self.accountHistory as AccountHistory[],
       new Map(self.vaultLastUpdateTime.entries()),
       Object.fromEntries(self.rewardClaims.entries()),
       new Map(self.withdrawRequests.entries())
@@ -251,6 +258,12 @@ export const AccountPortfolioActions = (
             h.vaultMetadata.rewardClaims?.map((r) => r.toJSON())
           ),
         },
+        incentiveEarnings: cast(
+          h.incentiveEarnings?.map((i) => ({
+            adjustedClaimed: i.adjustedClaimed.toJSON(),
+            totalClaimed: i.totalClaimed.toJSON(),
+          }))
+        ),
       }))
     );
 

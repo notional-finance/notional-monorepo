@@ -33,6 +33,7 @@ import {
   LandingPageInject,
   PointsPageInject,
   VaultsPageInject,
+  BetaPageInject,
 } from '../Webflow/AttributesInject';
 
 const RedirectToDefaultNetwork = () => {
@@ -214,6 +215,10 @@ const AllRoutes = observer(() => {
           element={<LandingLayoutRoute component={AboutUsView} />}
         />
         <Route path="/:basePath" element={<RedirectToDefaultNetwork />} />
+        <Route
+          path="/exponent-beta"
+          element={<LandingLayoutRoute component={BetaPageInject} />}
+        />
         <Route
           path="/"
           element={<LandingLayoutRoute component={LandingPageInject} />}

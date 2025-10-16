@@ -8,6 +8,7 @@ import {
   RATE_PRECISION,
   SCALAR_PRECISION,
   ZERO_ADDRESS,
+  shortenTokenSymbol,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
@@ -465,7 +466,7 @@ export class TokenBalance {
         abbr,
         useThousandsAbbr,
         locale
-      )} ${this.token.symbol}`;
+      )} ${shortenTokenSymbol(this.token.symbol)}`;
     }
   }
 

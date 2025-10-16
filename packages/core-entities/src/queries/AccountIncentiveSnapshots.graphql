@@ -1,0 +1,22 @@
+query AccountIncentiveSnapshots($accountId: String!, $skip: Int!) {
+  incentiveSnapshots(
+    where: { account: $accountId }
+    orderBy: timestamp
+    orderDirection: desc
+    skip: $skip
+    first: 1000
+  ) {
+    timestamp
+    blockNumber
+    transactionHash
+    rewardToken {
+      id
+    }
+    amountClaimed
+    balance {
+      token {
+        vaultAddress
+      }
+    }
+  }
+}

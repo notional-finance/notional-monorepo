@@ -271,6 +271,43 @@ export const LandingPageInject = () => {
     (shadow) => {
       shadowEl.current = shadow;
       setIsInitialized(true);
+
+      const newsletterInput: HTMLInputElement | undefined | null =
+        shadow.shadowRoot?.querySelector('#newsletter-email-input');
+      const successMessage: HTMLElement | undefined | null =
+        shadow.shadowRoot?.querySelector('.success-message');
+      const subscribeButton: HTMLButtonElement | undefined | null =
+        shadow.shadowRoot?.querySelector('#newsletter-subscribe');
+      subscribeButton?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const email = newsletterInput?.value;
+        if (email) {
+          try {
+            fetch(`${window.location.origin}/subscribe-email`, {
+              method: 'POST',
+              body: JSON.stringify({ email }),
+            })
+              .then((resp) => {
+                if (resp.ok) {
+                  console.log('newsletter subscribed');
+                  successMessage?.style?.setProperty('display', 'block');
+                  newsletterInput?.style?.setProperty('display', 'none');
+                  subscribeButton?.style?.setProperty('display', 'none');
+                } else {
+                  console.error(
+                    'failed to subscribe to newsletter',
+                    resp.statusText
+                  );
+                }
+              })
+              .catch((err) => {
+                console.error('failed to subscribe to newsletter', err);
+              });
+          } catch (err) {
+            console.error('failed to subscribe to newsletter', err);
+          }
+        }
+      });
     }
   );
 
@@ -491,6 +528,27 @@ export const VaultsPageInject = () => {
       fs-inject-element="target"
       fs-inject-source="/embed/vaults"
       fs-inject-instance="vaults-page"
+      fs-inject-cache={'false'}
+    />
+  );
+};
+
+export const BetaPageInject = () => {
+  const containerRef = useStartInject(
+    '68c076de04c61ce1e06fb0c5',
+    'exponent-beta',
+    () => {
+      // TODO: add button click to verify email
+    }
+  );
+
+  return (
+    <Box
+      ref={containerRef}
+      className="body-beta"
+      fs-inject-element="target"
+      fs-inject-source="/embed/vaults"
+      fs-inject-instance="exponent-beta"
       fs-inject-cache={'false'}
     />
   );

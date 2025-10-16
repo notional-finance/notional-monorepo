@@ -56,6 +56,7 @@ export const DataTableBody = ({
         display: isScrollable ? 'grid' : '',
         height: isScrollable ? `${rowVirtualizer.getTotalSize()}px` : '', //tells scrollbar how big the table is
         position: isScrollable ? 'relative' : '', //needed for absolute positioning of rows
+        backgroundColor: 'inherit',
       }}
     >
       {tableRows.map((row, i) => {
