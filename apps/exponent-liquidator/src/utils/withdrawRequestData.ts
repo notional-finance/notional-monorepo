@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { RiskyPosition, VaultType } from '../types';
 import { VaultRegistry } from './vaultRegistry';
@@ -42,7 +42,7 @@ export async function batchWithdrawRequestStatus(
   positions: RiskyPosition[],
   provider: ethers.providers.Provider,
   vaultRegistry: VaultRegistry
-): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }[]> {
+): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean; primaryWithdrawTokenAmount?: BigNumber; secondaryWithdrawTokenAmount?: BigNumber }[]> {
   const calls: AggregateCall[] = [];
   const wrmInterface = new ethers.utils.Interface(WRM_ABI);
   
@@ -121,8 +121,8 @@ export async function batchWithdrawRequestStatus(
     await aggregate([...calls, ...finalizeCalls], provider) :
     { results };
   
-  // Process results
-  const processedResults: { isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }[] = [];
+  // Process results and calculate withdraw token amounts
+  const processedResults: { isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean; primaryWithdrawTokenAmount?: BigNumber; secondaryWithdrawTokenAmount?: BigNumber }[] = [];
   
   for (let i = 0; i < positions.length; i++) {
     const position = positions[i];
@@ -130,13 +130,36 @@ export async function batchWithdrawRequestStatus(
     
     const primaryResult = finalizeResults.results[`primary_${i}`] as [any, any];
     const primaryRequestId = primaryResult[0].requestId;
+    const primaryWithdrawRequest = primaryResult[0];
+    const primaryTokenizedWithdrawRequest = primaryResult[1];
     
     if (vaultConfig.vaultType === VaultType.CurveConvex2Token && vaultConfig.secondaryWrm) {
       const secondaryResult = finalizeResults.results[`secondary_${i}`] as [any, any];
       const secondaryRequestId = secondaryResult[0].requestId;
+      const secondaryWithdrawRequest = secondaryResult[0];
+      const secondaryTokenizedWithdrawRequest = secondaryResult[1];
       
       // For CurveConvex2Token: pending if either request ID is non-zero
       const isWithdrawRequestPending = !primaryRequestId.isZero() || !secondaryRequestId.isZero();
+      
+      // Calculate withdraw token amounts
+      let primaryWithdrawTokenAmount: BigNumber | undefined;
+      let secondaryWithdrawTokenAmount: BigNumber | undefined;
+      
+      if (isWithdrawRequestPending) {
+        if (!primaryRequestId.isZero()) {
+          // primaryWithdrawTokenAmount = tokenizedWithdrawRequest.totalWithdraw * withdrawRequest.yieldTokenAmount / tokenizedWithdrawRequest.totalYieldTokenAmount
+          primaryWithdrawTokenAmount = primaryTokenizedWithdrawRequest.totalWithdraw
+            .mul(primaryWithdrawRequest.yieldTokenAmount)
+            .div(primaryTokenizedWithdrawRequest.totalYieldTokenAmount);
+        }
+        
+        if (!secondaryRequestId.isZero()) {
+          secondaryWithdrawTokenAmount = secondaryTokenizedWithdrawRequest.totalWithdraw
+            .mul(secondaryWithdrawRequest.yieldTokenAmount)
+            .div(secondaryTokenizedWithdrawRequest.totalYieldTokenAmount);
+        }
+      }
       
       let canWithdrawRequestFinalize = false;
       if (isWithdrawRequestPending) {
@@ -155,17 +178,31 @@ export async function batchWithdrawRequestStatus(
       
       processedResults.push({
         isWithdrawRequestPending,
-        canWithdrawRequestFinalize
+        canWithdrawRequestFinalize,
+        primaryWithdrawTokenAmount,
+        secondaryWithdrawTokenAmount
       });
     } else {
       // For Staking and PendlePT: only primary request
       const isWithdrawRequestPending = !primaryRequestId.isZero();
+      
+      // Calculate withdraw token amount for primary request
+      let primaryWithdrawTokenAmount: BigNumber | undefined;
+      
+      if (isWithdrawRequestPending) {
+        primaryWithdrawTokenAmount = primaryTokenizedWithdrawRequest.totalWithdraw
+          .mul(primaryWithdrawRequest.yieldTokenAmount)
+          .div(primaryTokenizedWithdrawRequest.totalYieldTokenAmount);
+      }
+      
       const canWithdrawRequestFinalize = isWithdrawRequestPending ? 
         (finalizeResults.results[`primary_finalize_${i}`] as boolean || false) : false;
       
       processedResults.push({
         isWithdrawRequestPending,
-        canWithdrawRequestFinalize
+        canWithdrawRequestFinalize,
+        primaryWithdrawTokenAmount,
+        secondaryWithdrawTokenAmount: undefined
       });
     }
   }

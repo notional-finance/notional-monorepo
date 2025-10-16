@@ -19,7 +19,8 @@ import {
 const VAULT_ABI = [
   'function strategy() external view returns (string memory)',
   'function asset() external view returns (address)',
-  'function yieldToken() external view returns (address)'
+  'function yieldToken() external view returns (address)',
+  'function convertSharesToYieldToken(uint256 shares) external view returns (uint256)'
 ];
 
 const ADDRESS_REGISTRY_ABI = [
@@ -123,6 +124,13 @@ export class VaultRegistry {
         method: 'yieldToken',
         key: `${vaultAddress}.yieldToken`
       });
+      calls.push({
+        target: new ethers.Contract(vaultAddress, vaultInterface, this.provider),
+        stage: 0,
+        method: 'convertSharesToYieldToken',
+        args: [ethers.utils.parseUnits('1', 24)], // 1e24
+        key: `${vaultAddress}.shareToYieldTokenExchangeRate`
+      });
     }
     
     // Execute first stage to get basic vault data
@@ -136,11 +144,13 @@ export class VaultRegistry {
       const vaultType = results[`${vaultAddress}.strategy`] as VaultType;
       const asset = results[`${vaultAddress}.asset`] as string;
       const yieldToken = results[`${vaultAddress}.yieldToken`] as string;
+      const shareToYieldTokenExchangeRate = results[`${vaultAddress}.shareToYieldTokenExchangeRate`] as ethers.BigNumber;
       
       vaultConfigs.push({
         vaultType,
         asset,
-        yieldToken
+        yieldToken,
+        shareToYieldTokenExchangeRate
       });
       
       // Add calls based on vault type

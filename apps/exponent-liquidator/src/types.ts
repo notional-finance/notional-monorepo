@@ -24,6 +24,9 @@ export type EnrichedPosition = RiskyPosition & {
   isWithdrawRequestPending: boolean;
   canWithdrawRequestFinalize: boolean;
   totalVaultShares: BigNumber;
+  totalYieldTokens: BigNumber;
+  primaryWithdrawTokenAmount?: BigNumber;
+  secondaryWithdrawTokenAmount?: BigNumber;
 };
 
 export interface Env {
@@ -63,6 +66,8 @@ export interface OnChainVaultConfig {
   // CurveConvex2Token specific tokens  
   token0?: string;
   token1?: string;
+  // Exchange rate for converting shares to yield tokens
+  shareToYieldTokenExchangeRate: BigNumber;
 }
 
 export interface OffChainVaultConfig {
@@ -104,4 +109,5 @@ export interface WithdrawRequestData {
 export interface TokenPrice {
   token: string;
   price: BigNumber; // Price in base units (e.g., USD with 8 decimals)
+  decimals: number;
 }

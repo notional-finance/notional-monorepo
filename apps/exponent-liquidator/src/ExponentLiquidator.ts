@@ -219,40 +219,62 @@ export default class ExponentLiquidator {
 
   private async batchFetchTokenPrices(tokens: Set<string>): Promise<Map<string, TokenPrice>> {
     const tokenArray = Array.from(tokens);
-    console.log(`Fetching prices for ${tokenArray.length} tokens:`, tokenArray);
+    console.log(`Fetching prices and decimals for ${tokenArray.length} tokens:`, tokenArray);
     
-    // Build multicall calls for trading module
-    const calls: AggregateCall[] = tokenArray.map((token, index) => ({
-      stage: 0,
-      target: this.tradingModule,
-      method: 'getOraclePrice',
-      args: [token, USDC_ADDRESS],
-      key: `price_${index}`
-    }));
+    // Build multicall calls for both prices and decimals
+    const calls: AggregateCall[] = [];
+    
+    // Add price calls
+    tokenArray.forEach((token, index) => {
+      calls.push({
+        stage: 0,
+        target: this.tradingModule,
+        method: 'getOraclePrice',
+        args: [token, USDC_ADDRESS],
+        key: `price_${index}`
+      });
+    });
+    
+    // Add decimals calls
+    tokenArray.forEach((token, index) => {
+      calls.push({
+        stage: 0,
+        target: new ethers.Contract(token, ['function decimals() external view returns (uint256)'], this.provider),
+        method: 'decimals',
+        args: [],
+        key: `decimals_${index}`
+      });
+    });
     
     try {
-      // Execute batch price fetch
+      // Execute batch fetch for prices and decimals
       const { results } = await aggregate(calls, this.provider);
       
       const priceMap = new Map<string, TokenPrice>();
       
       for (let i = 0; i < tokenArray.length; i++) {
         const token = tokenArray[i];
-        const priceData = results[`price_${i}`] as [ethers.BigNumber, ethers.BigNumber];
-        const [price, decimals] = priceData;
+        const priceData = results[`price_${i}`] as [ethers.BigNumber];
+        const decimalsData = results[`decimals_${i}`] as [ethers.BigNumber];
         
-        priceMap.set(token, {
-          token,
-          price: price
-        });
-        
-        console.log(`Token ${token}: price=${price.toString()}, decimals=${decimals.toString()}`);
+        if (priceData && decimalsData) {
+          const price = priceData[0];
+          const decimals = decimalsData[0].toNumber();
+          
+          priceMap.set(token, {
+            token,
+            price: price,
+            decimals: decimals
+          });
+          
+          console.log(`Token ${token}: price=${price.toString()}, decimals=${decimals}`);
+        }
       }
       
       return priceMap;
     } catch (error) {
-      console.error('Error fetching token prices:', error);
-      throw new Error(`Failed to fetch token prices: ${error}`);
+      console.error('Error fetching token prices and decimals:', error);
+      throw new Error(`Failed to fetch token prices and decimals: ${error}`);
     }
   }
 
@@ -464,12 +486,30 @@ export default class ExponentLiquidator {
     );
     
     // Combine all data into enriched positions
-    return positions.map((position, index) => ({
-      ...position,
-      totalVaultShares: totalVaultSharesArray[index],
-      isWithdrawRequestPending: withdrawRequestStatuses[index].isWithdrawRequestPending,
-      canWithdrawRequestFinalize: withdrawRequestStatuses[index].canWithdrawRequestFinalize,
-    }));
+    return positions.map((position, index) => {
+      const isWithdrawRequestPending = withdrawRequestStatuses[index].isWithdrawRequestPending;
+      const totalVaultShares = totalVaultSharesArray[index];
+      const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
+      
+      // Calculate totalYieldTokens based on withdraw request status
+      let totalYieldTokens: ethers.BigNumber;
+      if (isWithdrawRequestPending) {
+        totalYieldTokens = ethers.BigNumber.from(0);
+      } else {
+        // totalYieldTokens = totalVaultShares * vaultConfig.shareToYieldTokenExchangeRate
+        totalYieldTokens = totalVaultShares.mul(vaultConfig!.shareToYieldTokenExchangeRate).div(ethers.utils.parseUnits('1', 24));
+      }
+      
+      return {
+        ...position,
+        totalVaultShares,
+        totalYieldTokens,
+        isWithdrawRequestPending,
+        canWithdrawRequestFinalize: withdrawRequestStatuses[index].canWithdrawRequestFinalize,
+        primaryWithdrawTokenAmount: withdrawRequestStatuses[index].primaryWithdrawTokenAmount,
+        secondaryWithdrawTokenAmount: withdrawRequestStatuses[index].secondaryWithdrawTokenAmount,
+      };
+    });
   }
 
   private async logMetrics(totalPositions: number, riskyPositionCount: number): Promise<void> {
