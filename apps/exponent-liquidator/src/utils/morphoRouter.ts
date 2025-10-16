@@ -1,12 +1,7 @@
 import { ethers, BigNumber, Contract } from 'ethers';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { Position, RiskyPosition, HealthFactorData } from '../types';
-
-// TODO: Replace with actual Morpho ABI when provided
-const MORPHO_LENDING_ROUTER_ABI = [
-  'function healthFactor(address account, address vault) external view returns (uint256 borrowed, uint256 collateralShares, uint256 maxBorrow)',
-  'function balanceOfCollateral(address account, address vault) external view returns (uint256 shares)'
-];
+import { MORPHO_LENDING_ROUTER_ABI } from '../abis';
 
 export class MorphoRouterIntegration {
   private morphoRouterContract: Contract;

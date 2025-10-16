@@ -2,49 +2,15 @@ import { ethers, BigNumber } from 'ethers';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { RiskyPosition, VaultType } from '../types';
 import { VaultRegistry } from './vaultRegistry';
+import { WITHDRAW_REQUEST_MANAGER_ABI } from '../abis';
 
-const WRM_ABI = [
-  'function getWithdrawRequest(address vault, address account) external view returns ((uint256 requestId, uint120 yieldTokenAmount, uint120 sharesAmount), (uint120 totalYieldTokenAmount, uint120 totalWithdraw, bool finalized))',
-  'function canFinalizeWithdrawRequest(uint256 requestId) external view returns (bool)'
-];
-
-// Placeholder functions for vault-specific withdraw request data
-// TODO: Implement vault-specific logic for each vault
-
-export async function getWithdrawRequestStatus(
-  position: RiskyPosition,
-  provider: ethers.providers.Provider,
-  vaultRegistry: VaultRegistry
-): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }> {
-  const vaultConfig = vaultRegistry.getVaultConfig(position.vault);
-  
-  if (!vaultConfig) {
-    throw new Error(`Vault config not found for vault: ${position.vault}`);
-  }
-
-  // TODO: Implement vault-type-specific logic based on vaultConfig
-  switch (vaultConfig.vaultType) {
-    case VaultType.Staking:
-      return await getStakingWithdrawRequestStatus(position, vaultConfig, provider);
-    
-    case VaultType.PendlePT:
-      return await getPendlePTWithdrawRequestStatus(position, vaultConfig, provider);
-    
-    case VaultType.CurveConvex2Token:
-      return await getCurveConvexWithdrawRequestStatus(position, vaultConfig, provider);
-    
-    default:
-      throw new Error(`Unsupported vault type: ${vaultConfig.vaultType}`);
-  }
-}
-
-export async function batchWithdrawRequestStatus(
+export async function getWithdrawRequestData(
   positions: RiskyPosition[],
   provider: ethers.providers.Provider,
   vaultRegistry: VaultRegistry
 ): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean; primaryWithdrawTokenAmount?: BigNumber; secondaryWithdrawTokenAmount?: BigNumber }[]> {
   const calls: AggregateCall[] = [];
-  const wrmInterface = new ethers.utils.Interface(WRM_ABI);
+  const wrmInterface = new ethers.utils.Interface(WITHDRAW_REQUEST_MANAGER_ABI);
   
   // Build calls for getting withdraw requests
   for (let i = 0; i < positions.length; i++) {
@@ -208,41 +174,4 @@ export async function batchWithdrawRequestStatus(
   }
   
   return processedResults;
-}
-
-// Vault-type-specific implementations (placeholders)
-async function getStakingWithdrawRequestStatus(
-  _position: RiskyPosition,
-  _vaultConfig: unknown,
-  _provider: ethers.providers.Provider
-): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }> {
-  // TODO: Implement staking vault withdraw request logic
-  return {
-    isWithdrawRequestPending: false,
-    canWithdrawRequestFinalize: false,
-  };
-}
-
-async function getPendlePTWithdrawRequestStatus(
-  _position: RiskyPosition,
-  _vaultConfig: unknown,
-  _provider: ethers.providers.Provider
-): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }> {
-  // TODO: Implement Pendle PT vault withdraw request logic
-  return {
-    isWithdrawRequestPending: false,
-    canWithdrawRequestFinalize: false,
-  };
-}
-
-async function getCurveConvexWithdrawRequestStatus(
-  _position: RiskyPosition,
-  _vaultConfig: unknown,
-  _provider: ethers.providers.Provider
-): Promise<{ isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean }> {
-  // TODO: Implement Curve Convex vault withdraw request logic
-  return {
-    isWithdrawRequestPending: false,
-    canWithdrawRequestFinalize: false,
-  };
 }

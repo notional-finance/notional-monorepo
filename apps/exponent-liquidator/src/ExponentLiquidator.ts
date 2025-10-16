@@ -1,42 +1,32 @@
 import { ethers, Contract } from 'ethers';
-import { Logger, DDSeries, MetricType, getNowSeconds, getProviderFromNetwork } from '@notional-finance/util';
-import { aggregate, AggregateCall } from '@notional-finance/multicall';
-import { RiskyPosition, EnrichedPosition, Env, MetricNames, Position, HealthFactorData, VaultConfig, VaultType, TokenPrice } from './types';
+import { getProviderFromNetwork, Network } from '@notional-finance/util';
+import { RiskyPosition, EnrichedPosition, Env, Position, TokenPrice } from './types';
 import { fetchPositions } from './utils/dataService';
 import { MorphoRouterIntegration } from './utils/morphoRouter';
-import { batchWithdrawRequestStatus } from './utils/withdrawRequestData';
+import { getWithdrawRequestData } from './utils/withdrawRequestData';
 import { VaultRegistry } from './utils/vaultRegistry';
-
-const FLASH_LIQUIDATOR_ABI = [
-  'function flashLiquidate(address vaultAddress, address[] memory liquidateAccounts, uint256[] memory sharesToLiquidate, uint256 assetsToBorrow, bytes memory redeemData) external'
-];
-
-const TRADING_MODULE_ABI = [
-  'function getOraclePrice(address tokenAddress, address quoteTokenAddress) external view returns (int256 price, int256 decimals)'
-];
-
-const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+import { FLASH_LIQUIDATOR_ABI, TRADING_MODULE_ABI } from './abis';
+import { generateRedeemData } from './utils/redeemDataGenerator';
+import { getTokenPrices } from './utils/tokenPricing';
+import { LiquidatorLogger } from './utils/logging';
 
 export default class ExponentLiquidator {
   private provider: ethers.providers.Provider;
   private morphoRouterIntegration: MorphoRouterIntegration;
-  private logger: Logger;
+  private logger: LiquidatorLogger;
   private vaultRegistry?: VaultRegistry;
   private flashLiquidator: Contract;
   private tradingModule: Contract;
+  private network: Network;
 
   constructor(private env: Env) {
+    this.network = env.NETWORK;
     this.provider = getProviderFromNetwork(env.NETWORK, true);
     this.morphoRouterIntegration = new MorphoRouterIntegration(
       this.provider,
       env.MORPHO_LENDING_ROUTER_ADDRESS
     );
-    this.logger = new Logger({
-      apiKey: env.DD_API_KEY,
-      version: '1',
-      env: env.NETWORK,
-      service: 'exponent-liquidator',
-    });
+    this.logger = new LiquidatorLogger(env);
     this.flashLiquidator = new ethers.Contract(
       env.FLASH_LIQUIDATOR_ADDRESS,
       FLASH_LIQUIDATOR_ABI,
@@ -97,7 +87,7 @@ export default class ExponentLiquidator {
     }
 
     // Log metrics
-    await this.logMetrics(positions.length, riskyPositions.length);
+    await this.logger.logMetrics(positions.length, riskyPositions.length, this.env.NETWORK);
 
     return riskyPositions;
   }
@@ -130,7 +120,12 @@ export default class ExponentLiquidator {
     return positionsToLiquidate;
   }
 
-  private sortPositionsForLiquidation(positions: EnrichedPosition[]): Map<string, { withoutWithdrawRequest: EnrichedPosition[], withWithdrawRequest: EnrichedPosition[] }> {
+  private sortPositionsForLiquidation(
+    positions: EnrichedPosition[]
+  ): Map<string, {
+    withoutWithdrawRequest: EnrichedPosition[];
+    withWithdrawRequest: EnrichedPosition[];
+  }> {
     const sortedByVault = new Map<string, { withoutWithdrawRequest: EnrichedPosition[], withWithdrawRequest: EnrichedPosition[] }>();
 
     // Group positions by vault
@@ -164,405 +159,6 @@ export default class ExponentLiquidator {
     return batches;
   }
 
-  private getRequiredTokensForPricing(riskyPositions: RiskyPosition[]): Set<string> {
-    if (!this.vaultRegistry) {
-      throw new Error('Vault registry not initialized');
-    }
-
-    const requiredTokens = new Set<string>();
-    
-    // Get unique vaults from risky positions
-    const uniqueVaults = [...new Set(riskyPositions.map(p => p.vault))];
-    
-    for (const vaultAddress of uniqueVaults) {
-      const vaultConfig = this.vaultRegistry.getVaultConfig(vaultAddress);
-      if (!vaultConfig) {
-        console.warn(`Vault config not found for vault: ${vaultAddress}`);
-        continue;
-      }
-
-      // Add common tokens for all vault types
-      requiredTokens.add(vaultConfig.asset);
-      requiredTokens.add(vaultConfig.yieldToken);
-      requiredTokens.add(vaultConfig.primaryWithdrawToken);
-
-      // Add vault-type specific tokens
-      switch (vaultConfig.vaultType) {
-        case VaultType.Staking:
-          // For staking vaults: asset, yieldToken, primaryWithdrawToken (already added above)
-          break;
-          
-        case VaultType.PendlePT:
-          // For PT vaults: asset, yieldToken, tokenOutSy, primaryWithdrawToken
-          if (vaultConfig.tokenOutSy) {
-            requiredTokens.add(vaultConfig.tokenOutSy);
-          }
-          break;
-          
-        case VaultType.CurveConvex2Token:
-          // For CurveConvex2Token vaults: asset, token0, token1, primaryWithdrawToken, secondaryWithdrawToken
-          if (vaultConfig.token0) {
-            requiredTokens.add(vaultConfig.token0);
-          }
-          if (vaultConfig.token1) {
-            requiredTokens.add(vaultConfig.token1);
-          }
-          if (vaultConfig.secondaryWithdrawToken) {
-            requiredTokens.add(vaultConfig.secondaryWithdrawToken);
-          }
-          break;
-      }
-    }
-
-    return requiredTokens;
-  }
-
-  private async batchFetchTokenPrices(tokens: Set<string>): Promise<Map<string, TokenPrice>> {
-    const tokenArray = Array.from(tokens);
-    console.log(`Fetching prices and decimals for ${tokenArray.length} tokens:`, tokenArray);
-    
-    // Build multicall calls for both prices and decimals
-    const calls: AggregateCall[] = [];
-    
-    // Add price calls
-    tokenArray.forEach((token, index) => {
-      calls.push({
-        stage: 0,
-        target: this.tradingModule,
-        method: 'getOraclePrice',
-        args: [token, USDC_ADDRESS],
-        key: `price_${index}`
-      });
-    });
-    
-    // Add decimals calls
-    tokenArray.forEach((token, index) => {
-      calls.push({
-        stage: 0,
-        target: new ethers.Contract(token, ['function decimals() external view returns (uint256)'], this.provider),
-        method: 'decimals',
-        args: [],
-        key: `decimals_${index}`
-      });
-    });
-    
-    try {
-      // Execute batch fetch for prices and decimals
-      const { results } = await aggregate(calls, this.provider);
-      
-      const priceMap = new Map<string, TokenPrice>();
-      
-      for (let i = 0; i < tokenArray.length; i++) {
-        const token = tokenArray[i];
-        const priceData = results[`price_${i}`] as [ethers.BigNumber];
-        const decimalsData = results[`decimals_${i}`] as [ethers.BigNumber];
-        
-        if (priceData && decimalsData) {
-          const price = priceData[0];
-          const decimals = decimalsData[0].toNumber();
-          
-          priceMap.set(token, {
-            token,
-            price: price,
-            decimals: decimals
-          });
-          
-          console.log(`Token ${token}: price=${price.toString()}, decimals=${decimals}`);
-        }
-      }
-      
-      return priceMap;
-    } catch (error) {
-      console.error('Error fetching token prices and decimals:', error);
-      throw new Error(`Failed to fetch token prices and decimals: ${error}`);
-    }
-  }
-
-  private generateRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
-    const { vaultType } = vaultConfig;
-    
-    if (position.isWithdrawRequestPending) {
-      // For positions with withdraw requests pending
-      switch (vaultType) {
-        case VaultType.Staking:
-          return this.generateStakingRedeemData(vaultConfig, position, tokenPrices);
-        
-        case VaultType.PendlePT:
-          return this.generatePendlePTRedeemData(vaultConfig, position, tokenPrices);
-        
-        case VaultType.CurveConvex2Token:
-          return this.generateCurveConvex2TokenRedeemData(vaultConfig, position, tokenPrices);
-        
-        default:
-          throw new Error(`Unsupported vault type for withdraw requests: ${vaultType}`);
-      }
-    } else {
-      // For positions without withdraw requests
-      switch (vaultType) {
-        case VaultType.Staking:
-          return this.generateStakingRedeemData(vaultConfig, position, tokenPrices);
-        
-        case VaultType.PendlePT:
-          return this.generatePendlePTRedeemData(vaultConfig, position, tokenPrices);
-        
-        case VaultType.CurveConvex2Token:
-          return this.generateCurveConvex2TokenRedeemData(vaultConfig, position, tokenPrices);
-        
-        default:
-          throw new Error(`Unsupported vault type for direct liquidation: ${vaultType}`);
-      }
-    }
-  }
-
-  private generateStakingRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
-    // Get dexId from vault config
-    const dexId = vaultConfig.dexId;
-    if (dexId === undefined) {
-      throw new Error(`DexId not found for vault: ${vaultConfig.address}`);
-    }
-    
-    // Get exchangeData based on withdraw request status
-    const exchangeData = position.isWithdrawRequestPending 
-      ? vaultConfig.withdrawExchangeData 
-      : vaultConfig.redeemExchangeData;
-    
-    if (!exchangeData) {
-      throw new Error(`Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${position.isWithdrawRequestPending}`);
-    }
-    
-    // Calculate minPurchaseAmount
-    let minPurchaseAmount: ethers.BigNumber;
-    
-    if (!position.isWithdrawRequestPending) {
-      // Get required token prices and decimals
-      const yieldTokenPrice = tokenPrices.get(vaultConfig.yieldToken);
-      const assetPrice = tokenPrices.get(vaultConfig.asset);
-      
-      if (!yieldTokenPrice || !assetPrice) {
-        throw new Error(`Token prices not found for vault: ${vaultConfig.address}`);
-      }
-      
-      // pairPrice = yieldTokenPrice * assetPrice / 1e18
-      const pairPrice = yieldTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountYieldTokenPrecision = totalYieldTokenAmount * pairPrice / 1e18
-      const assetAmountYieldTokenPrecision = position.totalYieldTokens.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountNativePrecision = assetAmountYieldTokenPrecision * 1e(assetDecimals) / 1e(yieldTokenDecimals)
-      const assetAmountNativePrecision = assetAmountYieldTokenPrecision
-        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
-        .div(ethers.utils.parseUnits('1', yieldTokenPrice.decimals));
-      
-      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
-      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
-        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
-      );
-      minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
-      
-    } else {
-      // Get required token prices and decimals
-      const primaryWithdrawTokenPrice = tokenPrices.get(vaultConfig.primaryWithdrawToken);
-      const assetPrice = tokenPrices.get(vaultConfig.asset);
-      
-      if (!primaryWithdrawTokenPrice || !assetPrice || !position.primaryWithdrawTokenAmount) {
-        throw new Error(`Token prices or withdraw amount not found for vault: ${vaultConfig.address}`);
-      }
-      
-      // pairPrice = primaryWithdrawTokenPrice * assetPrice / 1e18
-      const pairPrice = primaryWithdrawTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountWithdrawTokenPrecision = primaryWithdrawTokenAmount * pairPrice / 1e18
-      const assetAmountWithdrawTokenPrecision = position.primaryWithdrawTokenAmount.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountNativePrecision = assetAmountWithdrawTokenPrecision * 1e(assetDecimals) / 1e(withdrawTokenDecimals)
-      const assetAmountNativePrecision = assetAmountWithdrawTokenPrecision
-        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
-        .div(ethers.utils.parseUnits('1', primaryWithdrawTokenPrice.decimals));
-      
-      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
-      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
-        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
-      );
-      minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
-    }
-    
-    // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
-    const redeemParams = ethers.utils.defaultAbiCoder.encode(
-      ['uint8', 'uint256', 'bytes'],
-      [dexId, minPurchaseAmount, exchangeData]
-    );
-    
-    return redeemParams;
-  }
-
-  private generatePendlePTRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
-    // Get dexId from vault config
-    const dexId = vaultConfig.dexId;
-    if (dexId === undefined) {
-      throw new Error(`DexId not found for vault: ${vaultConfig.address}`);
-    }
-    
-    // Calculate minPurchaseAmount using the same logic as Staking
-    let minPurchaseAmount: ethers.BigNumber;
-    
-    if (!position.isWithdrawRequestPending) {
-      // Get exchangeData from redeemExchangeData
-      const exchangeData = vaultConfig.redeemExchangeData;
-      if (!exchangeData) {
-        throw new Error(`Redeem exchange data not found for vault: ${vaultConfig.address}`);
-      }
-      
-      // Get required token prices and decimals - sell token is yieldToken
-      const yieldTokenPrice = tokenPrices.get(vaultConfig.yieldToken);
-      const assetPrice = tokenPrices.get(vaultConfig.asset);
-      
-      if (!yieldTokenPrice || !assetPrice) {
-        throw new Error(`Token prices not found for vault: ${vaultConfig.address}`);
-      }
-      
-      // Calculate minPurchaseAmount same as Staking
-      // pairPrice = yieldTokenPrice * assetPrice / 1e18
-      const pairPrice = yieldTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountYieldTokenPrecision = totalYieldTokenAmount * pairPrice / 1e18
-      const assetAmountYieldTokenPrecision = position.totalYieldTokens.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountNativePrecision = assetAmountYieldTokenPrecision * 1e(assetDecimals) / 1e(yieldTokenDecimals)
-      const assetAmountNativePrecision = assetAmountYieldTokenPrecision
-        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
-        .div(ethers.utils.parseUnits('1', yieldTokenPrice.decimals));
-      
-      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
-      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
-        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
-      );
-      minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
-      
-      // Encode PendleRedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes limitOrderData)
-      const limitOrderData = '0x'; // Always empty bytes
-      const redeemParams = ethers.utils.defaultAbiCoder.encode(
-        ['uint8', 'uint256', 'bytes', 'bytes'],
-        [dexId, minPurchaseAmount, exchangeData, limitOrderData]
-      );
-      
-      return redeemParams;
-      
-    } else {
-      // Get exchangeData from withdrawExchangeData
-      const exchangeData = vaultConfig.withdrawExchangeData;
-      if (!exchangeData) {
-        throw new Error(`Withdraw exchange data not found for vault: ${vaultConfig.address}`);
-      }
-      
-      // Get required token prices and decimals - sell token is primaryWithdrawToken
-      const primaryWithdrawTokenPrice = tokenPrices.get(vaultConfig.primaryWithdrawToken);
-      const assetPrice = tokenPrices.get(vaultConfig.asset);
-      
-      if (!primaryWithdrawTokenPrice || !assetPrice || !position.primaryWithdrawTokenAmount) {
-        throw new Error(`Token prices or withdraw amount not found for vault: ${vaultConfig.address}`);
-      }
-      
-      // Calculate minPurchaseAmount same as Staking withdraw request case
-      // pairPrice = primaryWithdrawTokenPrice * assetPrice / 1e18
-      const pairPrice = primaryWithdrawTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountWithdrawTokenPrecision = primaryWithdrawTokenAmount * pairPrice / 1e18
-      const assetAmountWithdrawTokenPrecision = position.primaryWithdrawTokenAmount.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountNativePrecision = assetAmountWithdrawTokenPrecision * 1e(assetDecimals) / 1e(withdrawTokenDecimals)
-      const assetAmountNativePrecision = assetAmountWithdrawTokenPrecision
-        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
-        .div(ethers.utils.parseUnits('1', primaryWithdrawTokenPrice.decimals));
-      
-      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
-      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
-        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
-      );
-      minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
-      
-      // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
-      const redeemParams = ethers.utils.defaultAbiCoder.encode(
-        ['uint8', 'uint256', 'bytes'],
-        [dexId, minPurchaseAmount, exchangeData]
-      );
-      
-      return redeemParams;
-    }
-  }
-
-  private generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
-    // TradeType enum values
-    const TradeType = {
-      EXACT_IN_SINGLE: 1,
-      EXACT_OUT_SINGLE: 2,
-      EXACT_IN_BATCH: 4,
-      EXACT_OUT_BATCH: 8
-    };
-
-    if (!position.isWithdrawRequestPending) {
-      // For direct liquidation: empty redemptionTrades array
-      if (vaultConfig.primaryIndex === undefined) {
-        throw new Error(`Primary index not found for vault: ${vaultConfig.address}`);
-      }
-      
-      // Get required token prices and decimals - calculate same as Staking
-      const yieldTokenPrice = tokenPrices.get(vaultConfig.yieldToken);
-      const assetPrice = tokenPrices.get(vaultConfig.asset);
-      
-      if (!yieldTokenPrice || !assetPrice) {
-        throw new Error(`Token prices not found for vault: ${vaultConfig.address}`);
-      }
-      
-      // Calculate minPurchaseAmount same as Staking
-      // pairPrice = yieldTokenPrice * assetPrice / 1e18
-      const pairPrice = yieldTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountYieldTokenPrecision = totalYieldTokenAmount * pairPrice / 1e18
-      const assetAmountYieldTokenPrecision = position.totalYieldTokens.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
-      
-      // assetAmountNativePrecision = assetAmountYieldTokenPrecision * 1e(assetDecimals) / 1e(yieldTokenDecimals)
-      const assetAmountNativePrecision = assetAmountYieldTokenPrecision
-        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
-        .div(ethers.utils.parseUnits('1', yieldTokenPrice.decimals));
-      
-      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
-      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
-        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
-      );
-      const minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
-      
-      // Initialize minAmounts array with zeros for both tokens
-      const minAmounts: ethers.BigNumber[] = [ethers.BigNumber.from(0), ethers.BigNumber.from(0)];
-      // Set minAmounts[primaryIndex] equal to minPurchaseAmount
-      minAmounts[vaultConfig.primaryIndex] = minPurchaseAmount;
-      
-      const redemptionTrades: any[] = []; // Empty array as specified
-      
-      // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
-      const redeemParams = ethers.utils.defaultAbiCoder.encode(
-        ['uint256[]', 'tuple(uint256,uint16,uint8,uint256,bytes)[]'],
-        [minAmounts, redemptionTrades]
-      );
-      
-      return redeemParams;
-      
-    } else {
-      // For withdraw requests: need to implement redemptionTrades logic
-      const minAmounts: ethers.BigNumber[] = []; // TODO: Calculate minAmounts
-      const redemptionTrades: any[] = []; // TODO: Implement redemptionTrades logic
-      
-      // TradeParams struct: (uint256 tradeAmount, uint16 dexId, uint8 tradeType, uint256 minPurchaseAmount, bytes exchangeData)
-      // TODO: Populate redemptionTrades based on withdraw request logic
-      
-      // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
-      const redeemParams = ethers.utils.defaultAbiCoder.encode(
-        ['uint256[]', 'tuple(uint256,uint16,uint8,uint256,bytes)[]'],
-        [minAmounts, redemptionTrades]
-      );
-      
-      return redeemParams;
-    }
-  }
 
   private async generateLiquidationCallData(positions: EnrichedPosition[], tokenPrices: Map<string, TokenPrice>): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string }> {
     if (positions.length === 0) {
@@ -595,7 +191,7 @@ export default class ExponentLiquidator {
     }
     
     // Generate appropriate redeem data based on vault type and withdraw request status
-    const redeemData = this.generateRedeemData(vaultConfig, positions[0], tokenPrices);
+    const redeemData = generateRedeemData(vaultConfig, positions[0], tokenPrices);
     
     return {
       vaultAddress,
@@ -632,11 +228,18 @@ export default class ExponentLiquidator {
   }
 
   async liquidatePositions(positionsToLiquidate: EnrichedPosition[]): Promise<void> {
-    // Step 1: Determine required tokens and fetch prices
-    const requiredTokens = this.getRequiredTokensForPricing(positionsToLiquidate);
-    const tokenPrices = await this.batchFetchTokenPrices(requiredTokens);
+    // Step 1: Fetch token prices
+    if (!this.vaultRegistry) {
+      throw new Error('Vault registry not initialized');
+    }
     
-    console.log(`Fetched prices for ${tokenPrices.size} tokens`);
+    const tokenPrices = await getTokenPrices(
+      positionsToLiquidate,
+      this.vaultRegistry,
+      this.provider,
+      this.tradingModule,
+      this.network
+    );
 
     // Step 2: Sort positions by vault and withdraw request status
     const sortedPositions = this.sortPositionsForLiquidation(positionsToLiquidate);
@@ -681,7 +284,7 @@ export default class ExponentLiquidator {
     const enrichedPositions = await this.enrichPositionData(riskyPositions);
     
     // Step 5: Log risky position events for monitoring
-    await this.logRiskyPositionEvents(riskyPositions);
+    await this.logger.logRiskyPositionEvents(riskyPositions, this.env.NETWORK);
 
     return enrichedPositions;
   }
@@ -697,7 +300,7 @@ export default class ExponentLiquidator {
     const totalVaultSharesArray = await this.morphoRouterIntegration.batchCollateralBalances(positions);
     
     // Get withdraw request status for each position (now with vault config)
-    const withdrawRequestStatuses = await batchWithdrawRequestStatus(
+    const withdrawRequestStatuses = await getWithdrawRequestData(
       positions, 
       this.provider, 
       this.vaultRegistry
@@ -730,55 +333,4 @@ export default class ExponentLiquidator {
     });
   }
 
-  private async logMetrics(totalPositions: number, riskyPositionCount: number): Promise<void> {
-    const ddSeries: DDSeries = {
-      series: [
-        {
-          metric: MetricNames.NUM_RISKY_ACCOUNTS,
-          points: [
-            {
-              value: riskyPositionCount,
-              timestamp: getNowSeconds(),
-            },
-          ],
-          type: MetricType.Gauge,
-          tags: [`network:${this.env.NETWORK}`],
-        },
-        {
-          metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
-          points: [
-            {
-              value: totalPositions,
-              timestamp: getNowSeconds(),
-            },
-          ],
-          type: MetricType.Gauge,
-          tags: [`network:${this.env.NETWORK}`],
-        },
-      ],
-    };
-
-    await this.logger.submitMetrics(ddSeries);
-  }
-
-  async logRiskyPositionEvents(positions: RiskyPosition[]): Promise<void> {
-    for (const position of positions) {
-      await this.logger.submitEvent({
-        aggregation_key: 'RiskyPosition',
-        alert_type: 'info',
-        host: 'cloudflare',
-        network: this.env.NETWORK,
-        title: `Risky Position Detected: ${position.account} in Vault: ${position.vault}`,
-        tags: [`event:risky_position_detected`, `account:${position.account}`],
-        text: `
-account: ${position.account}
-vault: ${position.vault}
-healthFactor: ${position.healthFactor}
-borrowed: ${position.borrowed.toString()}
-collateralShares: ${position.collateralShares.toString()}
-maxBorrow: ${position.maxBorrow.toString()}
-        `,
-      });
-    }
-  }
 }

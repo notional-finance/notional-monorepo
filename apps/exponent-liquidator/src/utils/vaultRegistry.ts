@@ -7,41 +7,18 @@ import {
   OffChainVaultConfig, 
   VaultType 
 } from '../types';
-import { 
-  // whitelistedVaults, 
-  VaultDefaultDexParameters, 
-  PendlePTVaults,
-  // PointsMultipliers,
-  PointsLinks,
-  VaultLiquidationSettings 
-} from '@notional-finance/core-entities';
-
-const VAULT_ABI = [
-  'function strategy() external view returns (string memory)',
-  'function asset() external view returns (address)',
-  'function yieldToken() external view returns (address)',
-  'function convertSharesToYieldToken(uint256 shares) external view returns (uint256)'
-];
-
-const ADDRESS_REGISTRY_ABI = [
-  'function withdrawRequestManagers(address) external view returns (address)'
-];
-
-const WITHDRAW_REQUEST_MANAGER_ABI = [
-  'function WITHDRAW_TOKEN() external view returns (address)'
-];
-
-const PENDLE_PT_ABI = [
-  'function TOKEN_OUT_SY() external view returns (address)'
-];
-
-const CURVE_CONVEX_2TOKEN_ABI = [
-  'function TOKENS() external view returns (address[2] memory)',
-  'function PRIMARY_INDEX() external view returns (uint256)'
-];
-
-const ADDRESS_REGISTRY_ADDRESS = '0xe335d314BD4eF7DD44F103dC124FEFb7Ce63eC95';
-const WETH_MAINNET = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
+import {
+  VaultDefaultDexParameters,
+  VaultLiquidationSettings
+} from '../configs';
+import {
+  VAULT_ABI,
+  ADDRESS_REGISTRY_ABI,
+  WITHDRAW_REQUEST_MANAGER_ABI,
+  PENDLE_PT_ABI,
+  CURVE_CONVEX_2TOKEN_ABI
+} from '../abis';
+import { getContractAddress, getTokenAddress } from '../constants';
 
 export class VaultRegistry {
   private vaultConfigs: Map<string, VaultConfig> = new Map();
@@ -63,14 +40,6 @@ export class VaultRegistry {
 
   getVaultConfig(vaultAddress: string): VaultConfig | undefined {
     return this.vaultConfigs.get(vaultAddress.toLowerCase());
-  }
-
-  getAllVaultConfigs(): VaultConfig[] {
-    return Array.from(this.vaultConfigs.values());
-  }
-
-  getVaultsByType(vaultType: VaultType): VaultConfig[] {
-    return this.getAllVaultConfigs().filter(config => config.vaultType === vaultType);
   }
 
   private async loadVaultConfigs(vaultAddresses: string[]): Promise<void> {
@@ -158,7 +127,7 @@ export class VaultRegistry {
       if (vaultType === VaultType.Staking) {
         // For Staking vaults: primaryWrm = AddressRegistry.withdrawRequestManagers[yieldToken]
         additionalCalls.push({
-          target: new ethers.Contract(ADDRESS_REGISTRY_ADDRESS, addressRegistryInterface, this.provider),
+          target: new ethers.Contract(getContractAddress(this.network, 'ADDRESS_REGISTRY')!, addressRegistryInterface, this.provider),
           stage: 1,
           method: 'withdrawRequestManagers',
           args: [yieldToken],
@@ -219,7 +188,7 @@ export class VaultRegistry {
         
         // Get primaryWrm from AddressRegistry
         finalCalls.push({
-          target: new ethers.Contract(ADDRESS_REGISTRY_ADDRESS, addressRegistryInterface, this.provider),
+          target: new ethers.Contract(getContractAddress(this.network, 'ADDRESS_REGISTRY')!, addressRegistryInterface, this.provider),
           stage: 2,
           method: 'withdrawRequestManagers',
           args: [tokenOutSy],
@@ -228,8 +197,8 @@ export class VaultRegistry {
       } else if (config.vaultType === VaultType.CurveConvex2Token) {
         const tokens = results2[`${vaultAddress}.tokens`] as [string, string];
         const primaryIndex = results2[`${vaultAddress}.primaryIndex`] as ethers.BigNumber;
-        const token0 = tokens[0] === ethers.constants.AddressZero ? WETH_MAINNET : tokens[0];
-        const token1 = tokens[1] === ethers.constants.AddressZero ? WETH_MAINNET : tokens[1];
+        const token0 = tokens[0] === ethers.constants.AddressZero ? getTokenAddress(this.network, 'WETH')! : tokens[0];
+        const token1 = tokens[1] === ethers.constants.AddressZero ? getTokenAddress(this.network, 'WETH')! : tokens[1];
         
         vaultConfigs[i].token0 = token0;
         vaultConfigs[i].token1 = token1;
@@ -237,14 +206,14 @@ export class VaultRegistry {
         
         // Get both WRMs from AddressRegistry
         finalCalls.push({
-          target: new ethers.Contract(ADDRESS_REGISTRY_ADDRESS, addressRegistryInterface, this.provider),
+          target: new ethers.Contract(getContractAddress(this.network, 'ADDRESS_REGISTRY')!, addressRegistryInterface, this.provider),
           stage: 2,
           method: 'withdrawRequestManagers',
           args: [token0],
           key: `${vaultAddress}.primaryWrm`
         });
         finalCalls.push({
-          target: new ethers.Contract(ADDRESS_REGISTRY_ADDRESS, addressRegistryInterface, this.provider),
+          target: new ethers.Contract(getContractAddress(this.network, 'ADDRESS_REGISTRY')!, addressRegistryInterface, this.provider),
           stage: 2,
           method: 'withdrawRequestManagers',
           args: [token1],
@@ -328,13 +297,6 @@ export class VaultRegistry {
     // Get DEX parameters
     const dexParams = VaultDefaultDexParameters[this.network]?.[lowerAddress];
     
-    // Check if it's a Pendle PT vault
-    const isPendlePT = PendlePTVaults[this.network]?.includes(lowerAddress) || false;
-    
-    // Get points data
-    // const pointsMultipliersFn = PointsMultipliers[this.network]?.[lowerAddress];
-    const pointsLinks = PointsLinks[this.network]?.[lowerAddress];
-    
     // Get liquidation settings
     const liquidationSettings = VaultLiquidationSettings[this.network]?.[lowerAddress];
     
@@ -346,9 +308,6 @@ export class VaultRegistry {
       depositPoolAddress: dexParams?.depositPoolAddress,
       redeemPoolAddress: dexParams?.redeemPoolAddress,
       withdrawPoolAddress: dexParams?.withdrawPoolAddress,
-      isPendlePT,
-      pointsMultipliers: undefined, // TODO: Fix when VaultAdapter type is available
-      pointsLinks,
       liquidateYieldTokens: liquidationSettings?.liquidateYieldTokens,
       slippageLimit: liquidationSettings?.slippageLimit,
     };

@@ -79,9 +79,6 @@ export interface OffChainVaultConfig {
   depositPoolAddress?: string;
   redeemPoolAddress?: string;
   withdrawPoolAddress?: string;
-  isPendlePT?: boolean;
-  pointsMultipliers?: Record<string, number>;
-  pointsLinks?: string;
   liquidateYieldTokens?: boolean;
   slippageLimit?: number;
 }
