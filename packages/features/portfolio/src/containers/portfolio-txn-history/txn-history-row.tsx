@@ -25,7 +25,9 @@ export const TxnHistoryRow = ({ row }: { row: Row<AccountTransactions> }) => {
             paddingTop: theme.spacing(1),
             paddingBottom: theme.spacing(1),
             borderTop:
-              index === 0 ? 'none' : `1px solid ${theme.palette.common.light}`,
+              index === 0
+                ? 'none'
+                : `1px solid ${theme.palette.common['light']}`,
           }}
         >
           <Box sx={{ alignSelf: 'center' }}>
