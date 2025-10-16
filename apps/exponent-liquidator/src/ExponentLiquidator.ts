@@ -501,7 +501,41 @@ export default class ExponentLiquidator {
 
     if (!position.isWithdrawRequestPending) {
       // For direct liquidation: empty redemptionTrades array
-      const minAmounts: ethers.BigNumber[] = []; // TODO: Calculate minAmounts
+      if (vaultConfig.primaryIndex === undefined) {
+        throw new Error(`Primary index not found for vault: ${vaultConfig.address}`);
+      }
+      
+      // Get required token prices and decimals - calculate same as Staking
+      const yieldTokenPrice = tokenPrices.get(vaultConfig.yieldToken);
+      const assetPrice = tokenPrices.get(vaultConfig.asset);
+      
+      if (!yieldTokenPrice || !assetPrice) {
+        throw new Error(`Token prices not found for vault: ${vaultConfig.address}`);
+      }
+      
+      // Calculate minPurchaseAmount same as Staking
+      // pairPrice = yieldTokenPrice * assetPrice / 1e18
+      const pairPrice = yieldTokenPrice.price.mul(assetPrice.price).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountYieldTokenPrecision = totalYieldTokenAmount * pairPrice / 1e18
+      const assetAmountYieldTokenPrecision = position.totalYieldTokens.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
+      
+      // assetAmountNativePrecision = assetAmountYieldTokenPrecision * 1e(assetDecimals) / 1e(yieldTokenDecimals)
+      const assetAmountNativePrecision = assetAmountYieldTokenPrecision
+        .mul(ethers.utils.parseUnits('1', assetPrice.decimals))
+        .div(ethers.utils.parseUnits('1', yieldTokenPrice.decimals));
+      
+      // minPurchaseAmount = assetAmountNativePrecision * (1 - vaultConfig.slippageLimit)
+      const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
+        ethers.utils.parseUnits((vaultConfig.slippageLimit || 0).toString(), 18)
+      );
+      const minPurchaseAmount = assetAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
+      
+      // Initialize minAmounts array with zeros for both tokens
+      const minAmounts: ethers.BigNumber[] = [ethers.BigNumber.from(0), ethers.BigNumber.from(0)];
+      // Set minAmounts[primaryIndex] equal to minPurchaseAmount
+      minAmounts[vaultConfig.primaryIndex] = minPurchaseAmount;
+      
       const redemptionTrades: any[] = []; // Empty array as specified
       
       // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
