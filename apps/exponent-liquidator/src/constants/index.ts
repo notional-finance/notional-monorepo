@@ -45,3 +45,11 @@ export const ORDER_TYPE =
   'tuple(uint256 salt, uint256 expiry, uint256 nonce, uint8 orderType, address token, address YT, address maker, address receiver, uint256 makingAmount, uint256 lnImpliedRate, uint256 failSafeRate, bytes permit)';
 export const FILL_ORDER_PARAMS_TYPE = `tuple(${ORDER_TYPE} order, bytes signature, uint256 makingAmount)`;
 export const LIMIT_ORDER_TYPE = `tuple(address limitRouter, uint256 epsSkipMarket, ${FILL_ORDER_PARAMS_TYPE}[] normalFills, ${FILL_ORDER_PARAMS_TYPE}[] flashFills, bytes optData)`;
+
+// TradeType enum values for CurveConvex2Token
+export const TRADE_TYPE = {
+  EXACT_IN_SINGLE: 1,
+  EXACT_OUT_SINGLE: 2,
+  EXACT_IN_BATCH: 4,
+  EXACT_OUT_BATCH: 8
+} as const;

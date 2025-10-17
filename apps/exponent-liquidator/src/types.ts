@@ -75,15 +75,17 @@ export interface OnChainVaultConfig {
 
 export interface OffChainVaultConfig {
   dexId?: number;
-  depositExchangeData?: string;
   redeemExchangeData?: string;
   withdrawExchangeData?: string;
-  depositPoolAddress?: string;
   redeemPoolAddress?: string;
   withdrawPoolAddress?: string;
   liquidateYieldTokens?: boolean;
   slippageLimit?: number;
   ptSlippageLimit?: number;
+  primaryWithdrawDexId?: number;
+  primaryWithdrawExchangeData?: string;
+  secondaryWithdrawDexId?: number;
+  secondaryWithdrawExchangeData?: string;
 }
 
 export interface VaultConfig extends OnChainVaultConfig, OffChainVaultConfig {

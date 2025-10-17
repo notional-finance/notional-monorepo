@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { Network } from '@notional-finance/util';
 import { VaultConfig, VaultType, EnrichedPosition, TokenPrice, PendleApiResponse } from '../types';
-import { PENDLE_API_URL, NETWORK_IDS, LIMIT_ORDER_TYPE } from '../constants';
+import { PENDLE_API_URL, NETWORK_IDS, LIMIT_ORDER_TYPE, TRADE_TYPE } from '../constants';
 
 /**
  * Calculate minPurchaseAmount based on token prices and slippage
@@ -239,13 +239,6 @@ async function fetchPendleLimitOrderData(
 }
 
 export function generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
-  // TradeType enum values
-  const TradeType = {
-    EXACT_IN_SINGLE: 1,
-    EXACT_OUT_SINGLE: 2,
-    EXACT_IN_BATCH: 4,
-    EXACT_OUT_BATCH: 8
-  };
 
   if (!position.isWithdrawRequestPending) {
     // For direct liquidation: empty redemptionTrades array
@@ -277,14 +270,78 @@ export function generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, po
     return redeemParams;
     
   } else {
-    // For withdraw requests: need to implement redemptionTrades logic
-    const minAmounts: ethers.BigNumber[] = []; // TODO: Calculate minAmounts
-    const redemptionTrades: any[] = []; // TODO: Implement redemptionTrades logic
+    // For withdraw requests: leave minAmounts empty, use redemptionTrades
+    const minAmounts: ethers.BigNumber[] = [];
+    const redemptionTrades: any[] = [];
     
-    // TradeParams struct: (uint256 tradeAmount, uint16 dexId, uint8 tradeType, uint256 minPurchaseAmount, bytes exchangeData)
-    // TODO: Populate redemptionTrades based on withdraw request logic
+    // Handle primaryWithdrawToken
+    if (vaultConfig.primaryWithdrawToken === vaultConfig.asset) {
+      // If primaryWithdrawToken == asset, add empty trade params
+      redemptionTrades.push({
+        tradeAmount: ethers.BigNumber.from(0),
+        dexId: 0,
+        tradeType: 0,
+        minPurchaseAmount: ethers.BigNumber.from(0),
+        exchangeData: '0x'
+      });
+    } else {
+      // Construct actual trade params for primaryWithdrawToken
+      if (!position.primaryWithdrawTokenAmount) {
+        throw new Error(`Primary withdraw token amount not found for vault: ${vaultConfig.address}`);
+      }
+      
+      const primaryMinPurchaseAmount = calculateMinPurchaseAmount(
+        vaultConfig.primaryWithdrawToken,
+        vaultConfig.asset,
+        vaultConfig.slippageLimit || 0,
+        position.primaryWithdrawTokenAmount,
+        tokenPrices
+      );
+      
+      redemptionTrades.push({
+        tradeAmount: position.primaryWithdrawTokenAmount,
+        dexId: vaultConfig.primaryWithdrawDexId || 0,
+        tradeType: TRADE_TYPE.EXACT_IN_SINGLE,
+        minPurchaseAmount: primaryMinPurchaseAmount,
+        exchangeData: vaultConfig.primaryWithdrawExchangeData || '0x'
+      });
+    }
+    
+    // Handle secondaryWithdrawToken
+    if (vaultConfig.secondaryWithdrawToken === vaultConfig.asset) {
+      // If secondaryWithdrawToken == asset, add empty trade params
+      redemptionTrades.push({
+        tradeAmount: ethers.BigNumber.from(0),
+        dexId: 0,
+        tradeType: 0,
+        minPurchaseAmount: ethers.BigNumber.from(0),
+        exchangeData: '0x'
+      });
+    } else {
+      // Construct actual trade params for secondaryWithdrawToken
+      if (!position.secondaryWithdrawTokenAmount) {
+        throw new Error(`Secondary withdraw token amount not found for vault: ${vaultConfig.address}`);
+      }
+      
+      const secondaryMinPurchaseAmount = calculateMinPurchaseAmount(
+        vaultConfig.secondaryWithdrawToken!,
+        vaultConfig.asset,
+        vaultConfig.slippageLimit || 0,
+        position.secondaryWithdrawTokenAmount,
+        tokenPrices
+      );
+      
+      redemptionTrades.push({
+        tradeAmount: position.secondaryWithdrawTokenAmount,
+        dexId: vaultConfig.secondaryWithdrawDexId || 0,
+        tradeType: TRADE_TYPE.EXACT_IN_SINGLE,
+        minPurchaseAmount: secondaryMinPurchaseAmount,
+        exchangeData: vaultConfig.secondaryWithdrawExchangeData || '0x'
+      });
+    }
     
     // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
+    // TradeParams struct: (uint256 tradeAmount, uint16 dexId, uint8 tradeType, uint256 minPurchaseAmount, bytes exchangeData)
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
       ['uint256[]', 'tuple(uint256,uint16,uint8,uint256,bytes)[]'],
       [minAmounts, redemptionTrades]

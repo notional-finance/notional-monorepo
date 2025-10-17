@@ -319,10 +319,8 @@ export class VaultRegistry {
     
     return {
       dexId: dexParams?.dexId,
-      depositExchangeData: dexParams?.depositExchangeData?.toString(),
       redeemExchangeData: dexParams?.redeemExchangeData?.toString(),
       withdrawExchangeData: dexParams?.withdrawExchangeData?.toString(),
-      depositPoolAddress: dexParams?.depositPoolAddress,
       redeemPoolAddress: dexParams?.redeemPoolAddress,
       withdrawPoolAddress: dexParams?.withdrawPoolAddress,
       liquidateYieldTokens: liquidationSettings?.liquidateYieldTokens,

@@ -12,10 +12,8 @@ export const VaultDefaultDexParameters = {
     // Example vault configurations - replace with actual vault addresses and parameters
     // '0x...vaultAddress': {
     //   dexId: 1,
-    //   depositExchangeData: '0x...',
     //   redeemExchangeData: '0x...',
     //   withdrawExchangeData: '0x...',
-    //   depositPoolAddress: '0x...',
     //   redeemPoolAddress: '0x...',
     //   withdrawPoolAddress: '0x...',
     // },
