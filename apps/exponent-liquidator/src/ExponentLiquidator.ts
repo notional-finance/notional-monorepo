@@ -92,6 +92,50 @@ export default class ExponentLiquidator {
     return riskyPositions;
   }
 
+  async enrichPositionData(positions: RiskyPosition[]): Promise<EnrichedPosition[]> {
+    if (!this.vaultRegistry) {
+      throw new Error('Vault registry not initialized. Call run() or initializeVaultRegistry() first.');
+    }
+
+    // Step 6: Batch additional blockchain calls for position information
+    
+    // Get total vault shares for each position
+    const totalVaultSharesArray = await this.morphoRouterIntegration.batchCollateralBalances(positions);
+    
+    // Get withdraw request status for each position (now with vault config)
+    const withdrawRequestStatuses = await getWithdrawRequestData(
+      positions, 
+      this.provider, 
+      this.vaultRegistry
+    );
+    
+    // Combine all data into enriched positions
+    return positions.map((position, index) => {
+      const isWithdrawRequestPending = withdrawRequestStatuses[index].isWithdrawRequestPending;
+      const totalVaultShares = totalVaultSharesArray[index];
+      const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
+      
+      // Calculate totalYieldTokens based on withdraw request status
+      let totalYieldTokens: ethers.BigNumber;
+      if (isWithdrawRequestPending) {
+        totalYieldTokens = ethers.BigNumber.from(0);
+      } else {
+        // totalYieldTokens = totalVaultShares * vaultConfig.shareToYieldTokenExchangeRate
+        totalYieldTokens = totalVaultShares.mul(vaultConfig!.shareToYieldTokenExchangeRate).div(ethers.utils.parseUnits('1', 24));
+      }
+      
+      return {
+        ...position,
+        totalVaultShares,
+        totalYieldTokens,
+        isWithdrawRequestPending,
+        canWithdrawRequestFinalize: withdrawRequestStatuses[index].canWithdrawRequestFinalize,
+        primaryWithdrawTokenAmount: withdrawRequestStatuses[index].primaryWithdrawTokenAmount,
+        secondaryWithdrawTokenAmount: withdrawRequestStatuses[index].secondaryWithdrawTokenAmount,
+      };
+    });
+  }
+
   filterPositionsForLiquidation(enrichedPositions: EnrichedPosition[]): EnrichedPosition[] {
     if (!this.vaultRegistry) {
       throw new Error('Vault registry not initialized. Call run() or initializeVaultRegistry() first.');
@@ -147,6 +191,25 @@ export default class ExponentLiquidator {
     }
 
     return sortedByVault;
+  }
+
+  private batchPositionsForLiquidation(
+    sortedPositions: Map<string, { withoutWithdrawRequest: EnrichedPosition[], withWithdrawRequest: EnrichedPosition[] }>
+  ): Map<string, { withoutWithdrawRequest: EnrichedPosition[][], withWithdrawRequest: EnrichedPosition[] }> {
+    const batchedAndSortedPositions = new Map<string, { withoutWithdrawRequest: EnrichedPosition[][], withWithdrawRequest: EnrichedPosition[] }>();
+    
+    for (const [vaultAddress, vaultPositions] of sortedPositions) {
+      // Batch the withoutWithdrawRequest positions
+      const batchedWithoutWithdrawRequest = this.batchPositions(vaultPositions.withoutWithdrawRequest, 5);
+      
+      // Keep withWithdrawRequest positions as-is (unbatched)
+      batchedAndSortedPositions.set(vaultAddress, {
+        withoutWithdrawRequest: batchedWithoutWithdrawRequest,
+        withWithdrawRequest: vaultPositions.withWithdrawRequest
+      });
+    }
+    
+    return batchedAndSortedPositions;
   }
 
   private batchPositions<T>(positions: T[], batchSize: number = 5): T[][] {
@@ -282,55 +345,23 @@ export default class ExponentLiquidator {
     
     // Step 4: Enrich position data
     const enrichedPositions = await this.enrichPositionData(riskyPositions);
+
+    // Step 5: Filter positions for liquidation
+    const positionsToLiquidate = this.filterPositionsForLiquidation(enrichedPositions);
+
+    // Step 6: Sort positions for liquidation
+    const sortedPositions = this.sortPositionsForLiquidation(positionsToLiquidate);
+
+    // Step 7: Batch positions for liquidation
+    const batchedAndSortedPositions = this.batchPositionsForLiquidation(sortedPositions);
+
+    // Step 7: Liquidate positions
+    await this.liquidatePositions(positionsToLiquidate);
     
     // Step 5: Log risky position events for monitoring
     await this.logger.logRiskyPositionEvents(riskyPositions, this.env.NETWORK);
 
     return enrichedPositions;
-  }
-
-  async enrichPositionData(positions: RiskyPosition[]): Promise<EnrichedPosition[]> {
-    if (!this.vaultRegistry) {
-      throw new Error('Vault registry not initialized. Call run() or initializeVaultRegistry() first.');
-    }
-
-    // Step 6: Batch additional blockchain calls for position information
-    
-    // Get total vault shares for each position
-    const totalVaultSharesArray = await this.morphoRouterIntegration.batchCollateralBalances(positions);
-    
-    // Get withdraw request status for each position (now with vault config)
-    const withdrawRequestStatuses = await getWithdrawRequestData(
-      positions, 
-      this.provider, 
-      this.vaultRegistry
-    );
-    
-    // Combine all data into enriched positions
-    return positions.map((position, index) => {
-      const isWithdrawRequestPending = withdrawRequestStatuses[index].isWithdrawRequestPending;
-      const totalVaultShares = totalVaultSharesArray[index];
-      const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
-      
-      // Calculate totalYieldTokens based on withdraw request status
-      let totalYieldTokens: ethers.BigNumber;
-      if (isWithdrawRequestPending) {
-        totalYieldTokens = ethers.BigNumber.from(0);
-      } else {
-        // totalYieldTokens = totalVaultShares * vaultConfig.shareToYieldTokenExchangeRate
-        totalYieldTokens = totalVaultShares.mul(vaultConfig!.shareToYieldTokenExchangeRate).div(ethers.utils.parseUnits('1', 24));
-      }
-      
-      return {
-        ...position,
-        totalVaultShares,
-        totalYieldTokens,
-        isWithdrawRequestPending,
-        canWithdrawRequestFinalize: withdrawRequestStatuses[index].canWithdrawRequestFinalize,
-        primaryWithdrawTokenAmount: withdrawRequestStatuses[index].primaryWithdrawTokenAmount,
-        secondaryWithdrawTokenAmount: withdrawRequestStatuses[index].secondaryWithdrawTokenAmount,
-      };
-    });
   }
 
 }
