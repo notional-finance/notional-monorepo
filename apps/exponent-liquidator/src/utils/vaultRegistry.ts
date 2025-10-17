@@ -9,7 +9,8 @@ import {
 } from '../types';
 import {
   VaultDefaultDexParameters,
-  VaultLiquidationSettings
+  VaultLiquidationSettings,
+  DEFAULT_PT_SLIPPAGE_LIMIT
 } from '../configs';
 import {
   VAULT_ABI,
@@ -134,12 +135,24 @@ export class VaultRegistry {
           key: `${vaultAddress}.primaryWrm`
         });
       } else if (vaultType === VaultType.PendlePT) {
-        // For PendlePT vaults: get TOKEN_OUT_SY first
+        // For PendlePT vaults: get TOKEN_OUT_SY, MARKET, and PT
         additionalCalls.push({
           target: new ethers.Contract(vaultAddress, pendlePtInterface, this.provider),
           stage: 1,
           method: 'TOKEN_OUT_SY',
           key: `${vaultAddress}.tokenOutSy`
+        });
+        additionalCalls.push({
+          target: new ethers.Contract(vaultAddress, pendlePtInterface, this.provider),
+          stage: 1,
+          method: 'MARKET',
+          key: `${vaultAddress}.marketAddress`
+        });
+        additionalCalls.push({
+          target: new ethers.Contract(vaultAddress, pendlePtInterface, this.provider),
+          stage: 1,
+          method: 'PT',
+          key: `${vaultAddress}.ptAddress`
         });
       } else if (vaultType === VaultType.CurveConvex2Token) {
         // For CurveConvex2Token vaults: get TOKENS and PRIMARY_INDEX
@@ -184,7 +197,11 @@ export class VaultRegistry {
         });
       } else if (config.vaultType === VaultType.PendlePT) {
         const tokenOutSy = results2[`${vaultAddress}.tokenOutSy`] as string;
+        const marketAddress = results2[`${vaultAddress}.marketAddress`] as string;
+        const ptAddress = results2[`${vaultAddress}.ptAddress`] as string;
         vaultConfigs[i].tokenOutSy = tokenOutSy;
+        vaultConfigs[i].marketAddress = marketAddress;
+        vaultConfigs[i].ptAddress = ptAddress;
         
         // Get primaryWrm from AddressRegistry
         finalCalls.push({
@@ -310,6 +327,7 @@ export class VaultRegistry {
       withdrawPoolAddress: dexParams?.withdrawPoolAddress,
       liquidateYieldTokens: liquidationSettings?.liquidateYieldTokens,
       slippageLimit: liquidationSettings?.slippageLimit,
+      ptSlippageLimit: liquidationSettings?.ptSlippageLimit || DEFAULT_PT_SLIPPAGE_LIMIT,
     };
   }
 }

@@ -3,6 +3,9 @@ import { Network } from '@notional-finance/util';
 // Default slippage limit for all vaults
 export const DEFAULT_SLIPPAGE_LIMIT = 0.01; // 1%
 
+// Default PT slippage limit for PendlePT vaults
+export const DEFAULT_PT_SLIPPAGE_LIMIT = 0.001; // 0.1%
+
 // Vault DEX parameters by network and vault address
 export const VaultDefaultDexParameters = {
   [Network.mainnet]: {

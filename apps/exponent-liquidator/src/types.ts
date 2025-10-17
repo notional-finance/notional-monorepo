@@ -63,6 +63,8 @@ export interface OnChainVaultConfig {
   secondaryWithdrawToken?: string;
   // PendlePT specific tokens
   tokenOutSy?: string;
+  marketAddress?: string;
+  ptAddress?: string;
   // CurveConvex2Token specific tokens  
   token0?: string;
   token1?: string;
@@ -81,6 +83,7 @@ export interface OffChainVaultConfig {
   withdrawPoolAddress?: string;
   liquidateYieldTokens?: boolean;
   slippageLimit?: number;
+  ptSlippageLimit?: number;
 }
 
 export interface VaultConfig extends OnChainVaultConfig, OffChainVaultConfig {
@@ -108,4 +111,55 @@ export interface TokenPrice {
   token: string;
   price: BigNumber; // Price in base units (e.g., USD with 8 decimals)
   decimals: number;
+}
+
+// Pendle API types
+export interface OrderType {
+  salt: string;
+  expiry: string;
+  nonce: string;
+  orderType: string;
+  token: string;
+  YT: string;
+  maker: string;
+  receiver: string;
+  makingAmount: string;
+  lnImpliedRate: string;
+  failSafeRate: string;
+  permit: string;
+}
+
+export interface PendleApiResponse {
+  contractCallParams: [
+    string, // router
+    string, // tokenIn
+    string, // netTokenIn
+    {
+      eps: string;
+      guessMax: string;
+      guessMin: string;
+      guessOffchain: string;
+      maxIteration: string;
+    }, // approxParams
+    object, // swapData
+    {
+      epsSkipMarket: string;
+      flashFills: {
+        order: OrderType;
+        signature: string;
+        makingAmount: string;
+      }[];
+      normalFills: {
+        order: OrderType;
+        signature: string;
+        makingAmount: string;
+      }[];
+      optData: string;
+      limitRouter: string;
+    } // limitOrderData
+  ];
+  data: {
+    amountOut: string;
+    priceImpact: number;
+  };
 }

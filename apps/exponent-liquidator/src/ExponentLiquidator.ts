@@ -191,7 +191,7 @@ export default class ExponentLiquidator {
     }
     
     // Generate appropriate redeem data based on vault type and withdraw request status
-    const redeemData = generateRedeemData(vaultConfig, positions[0], tokenPrices);
+    const redeemData = await generateRedeemData(vaultConfig, positions[0], tokenPrices, this.network);
     
     return {
       vaultAddress,
