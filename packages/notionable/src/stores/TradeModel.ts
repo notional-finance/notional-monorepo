@@ -940,7 +940,7 @@ export const TradeModel = types
         : undefined;
 
       return {
-        leveragedAPY: (currentAPY || updatedAPY || undefined) as
+        leveragedAPY: (updatedAPY || currentAPY || undefined) as
           | APYData
           | undefined,
         assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),

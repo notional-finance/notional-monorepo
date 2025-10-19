@@ -54,7 +54,7 @@ export function TotalBox({
             value
           )}
         </LargeNumber>
-        {usdValue && (
+        {usdValue !== undefined && usdValue !== null && (
           <Caption>
             <CountUp value={usdValue} decimals={2} prefix="$" />
           </Caption>

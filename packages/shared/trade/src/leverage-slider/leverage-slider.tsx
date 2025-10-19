@@ -15,17 +15,10 @@ interface LeverageSliderProps {
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   allowDeleverage?: boolean;
-  onChange?: (leverageRatio: number) => void;
 }
 
 export const LeverageSlider = observer(
-  ({
-    inputLabel,
-    errorMsg,
-    infoMsg,
-    allowDeleverage,
-    onChange,
-  }: LeverageSliderProps) => {
+  ({ inputLabel, errorMsg, infoMsg, allowDeleverage }: LeverageSliderProps) => {
     const trade = useCurrentTradeContext();
     const debtBalance = trade?.debtBalance;
     const maxLeverageRatio = trade?.maxLeverageRatio;
@@ -35,6 +28,7 @@ export const LeverageSlider = observer(
     const { sliderInputRef, setSliderInput } = useSliderInputRef();
     const isDeleverage = debtBalance?.isPositive();
     const debtBalanceUnderlying = debtBalance?.toUnderlying();
+    const canSubmit = trade?.canSubmit();
 
     const topRightCaption =
       debtBalanceUnderlying !== undefined ? (
@@ -84,7 +78,7 @@ export const LeverageSlider = observer(
           }
         />
       );
-    } else if (isDeleverage && isAdjust) {
+    } else if (isDeleverage && isAdjust && canSubmit) {
       bottomCaption = (
         <FormattedMessage
           defaultMessage={
@@ -98,9 +92,9 @@ export const LeverageSlider = observer(
       <SliderInput
         ref={sliderInputRef}
         min={minLeverageRatio || 0}
-        max={maxLeverageRatio}
+        max={maxLeverageRatio * 0.99}
         isRangeSlider={trade?.tradeType === 'AdjustVaultLeverage'}
-        onChangeCommitted={onChange || onChangeCommitted}
+        onChangeCommitted={onChangeCommitted}
         infoMsg={infoMsg}
         errorMsg={errorMsg}
         disableBelowBaseValue={allowDeleverage === false}

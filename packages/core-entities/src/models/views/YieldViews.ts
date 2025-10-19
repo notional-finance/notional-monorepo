@@ -158,7 +158,6 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         apyData.organicAPY = market.getSpotInterestRate();
         apyData.totalAPY = apyData.organicAPY;
       } catch (e) {
-        console.error(e);
         apyData.organicAPY = undefined;
         apyData.totalAPY = undefined;
       }

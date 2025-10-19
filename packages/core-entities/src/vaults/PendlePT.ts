@@ -523,14 +523,10 @@ export class PendlePT extends VaultAdapter {
     _underlyingToRepayDebt: TokenBalance,
     slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
-    let dexId: number;
-    let exchangeData: BytesLike;
-    let minPurchaseAmount: BigNumber;
-    if (this.tokenOutSy === this.borrowedToken.id) {
-      dexId = 0;
-      exchangeData = '0x';
-      minPurchaseAmount = BigNumber.from(0);
-    } else {
+    let dexId = 0;
+    let exchangeData: BytesLike = '0x';
+    let minPurchaseAmount: BigNumber | undefined;
+    if (this.tokenOutSy !== this.borrowedToken.id) {
       // In the other case, we need to determine the default exit trade.
       ({ dexId, redeemExchangeData: exchangeData } =
         VaultDefaultDexParameters[this.network][this.vaultAddress]);
@@ -610,8 +606,19 @@ export class PendlePT extends VaultAdapter {
           [data.contractCallParams[5]]
         );
       }
+
+      if (this.tokenOutSy === this.borrowedToken.id) {
+        minPurchaseAmount = BigNumber.from(data.data.amountOut)
+          .mul(RATE_PRECISION - slippageFactor)
+          .div(RATE_PRECISION);
+      }
     } catch (error) {
       console.error(error);
+      throw error;
+    }
+
+    if (minPurchaseAmount === undefined) {
+      throw new Error('Min purchase amount is undefined');
     }
 
     return defaultAbiCoder.encode(

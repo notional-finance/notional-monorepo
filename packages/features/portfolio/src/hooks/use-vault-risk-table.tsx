@@ -7,7 +7,6 @@ import {
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import { NotionalTheme } from '@notional-finance/styles';
-import { formatMaturity } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 const vaultRiskTableColumns = (theme: NotionalTheme) => [
@@ -111,12 +110,9 @@ export const useVaultRiskTable = () => {
               vault: {
                 symbol: vaultHolding.underlying,
                 label: vaultHolding.name,
-                caption: vaultHolding.maturity
-                  ? `Maturity: ${formatMaturity(vaultHolding.maturity)}`
-                  : 'Open Term',
               },
               healthFactor: vaultHolding.healthFactor,
-              manageLink: `/vaults/${network}/${l.vaultAddress}/manage`,
+              manageLink: `/vault/${network}/${l.vaultAddress}/manage`,
               ...p,
             };
           })

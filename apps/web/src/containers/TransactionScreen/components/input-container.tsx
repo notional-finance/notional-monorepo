@@ -50,11 +50,11 @@ const InputContainer = observer(
             >
               <Box
                 sx={{
-                  width: '100%',
                   display: 'flex',
                   justifyContent: 'flex-start',
                   alignItems: 'center',
                   marginBottom: theme.spacing(-3),
+                  width: 'fit-content',
                 }}
               >
                 <ArrowIcon

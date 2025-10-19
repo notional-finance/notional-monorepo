@@ -7,6 +7,7 @@ import {
   useVaultMetadata,
 } from '@notional-finance/notionable-hooks';
 import { APYBeforePoints, APYBox } from './apy-header';
+import { observer } from 'mobx-react-lite';
 
 interface HeaderProps {
   actionPrefix?: string;
@@ -14,7 +15,7 @@ interface HeaderProps {
 }
 
 // Header Component
-const Header = ({ actionPrefix, isPointsOnly }: HeaderProps) => {
+const Header = observer(({ actionPrefix, isPointsOnly }: HeaderProps) => {
   const { isMobileView } = useAppStore();
   const theme = useTheme();
   const trade = useCurrentTradeContext();
@@ -87,7 +88,7 @@ const Header = ({ actionPrefix, isPointsOnly }: HeaderProps) => {
       </RightSection>
     </HeaderContainer>
   );
-};
+});
 
 const HeaderContainer = styled(Box)(
   ({ theme }) => `

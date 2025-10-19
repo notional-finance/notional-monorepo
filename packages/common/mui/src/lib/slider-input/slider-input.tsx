@@ -225,12 +225,28 @@ const RangeSlider = ({
         // The base value is always the first value in the array, and we hide the thumb,
         // this allows us to get a relative range for the track color
         value={[baseValue, currentValue]}
-        onChange={(_, value) =>
-          onChange(value[0] === baseValue ? value[1] : value[0])
-        }
-        onChangeCommitted={(_, value) =>
-          onChangeCommitted(value[0] === baseValue ? value[1] : value[0])
-        }
+        onChange={(_, value) => {
+          if (value[0] === baseValue) {
+            onChange(value[1]);
+          } else if (value[1] === baseValue) {
+            onChange(value[0]);
+          } else if (value[0] === currentValue) {
+            onChange(value[1]);
+          } else if (value[1] === currentValue) {
+            onChange(value[0]);
+          }
+        }}
+        onChangeCommitted={(_, value) => {
+          if (value[0] === baseValue) {
+            onChangeCommitted(value[1]);
+          } else if (value[1] === baseValue) {
+            onChangeCommitted(value[0]);
+          } else if (value[0] === currentValue) {
+            onChangeCommitted(value[1]);
+          } else if (value[1] === currentValue) {
+            onChangeCommitted(value[0]);
+          }
+        }}
       />
     </Box>
   );
