@@ -33,6 +33,7 @@ const APYDataModel = types.model('APYDataModel', {
   ),
   utilization: types.maybe(types.number),
   pointMultiples: types.maybe(types.map(types.number)),
+  unleveragedAssetAPY: types.maybe(types.late(() => APYDataModel)),
 });
 
 const VaultHoldingModel = types.model('VaultHoldingModel', {

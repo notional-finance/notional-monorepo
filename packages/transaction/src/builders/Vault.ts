@@ -173,7 +173,6 @@ export async function InitiateWithdraw({
     debtBalance?.tokenType !== 'VaultDebt' ||
     debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
     collateralBalance.isPositive() ||
-    debtBalance.isNegative() ||
     vaultLastUpdateTime === undefined
   )
     throw Error('Collateral balance, debt balance must be defined');

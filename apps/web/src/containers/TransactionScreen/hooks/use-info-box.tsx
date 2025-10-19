@@ -324,7 +324,13 @@ function formatAPYValues(
     { value: formatNumberAsPercentWithUndefined(apy, '-', 4) },
     {
       value: (
-        <Box color={apy !== undefined && apy > 0 ? positiveGreen : undefined}>
+        <Box
+          color={
+            apy !== undefined && apy > 0 && earnings?.isPositive()
+              ? positiveGreen
+              : undefined
+          }
+        >
           {formatCountUp(earnings)}
         </Box>
       ),
@@ -467,6 +473,16 @@ const useOrderDetails = () => {
     orderDetails.push({
       label: 'Vault Share Price',
       content: formatCountUp(price),
+    });
+  }
+
+  if (trade?.tradeType === 'InitiateWithdraw') {
+    const withdraws = trade.getVaultInitiateWithdraw();
+    withdraws?.forEach((withdraw) => {
+      orderDetails.push({
+        label: 'Tokens Received',
+        content: formatCountUp(withdraw.tokensToReceive),
+      });
     });
   }
 
