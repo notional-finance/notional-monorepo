@@ -249,7 +249,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         return {
           asset,
           debt: borrowedToken,
-          threshold: this.assetLiquidationThreshold(asset),
+          threshold:
+            this.assetLiquidationThreshold(asset)?.toToken(borrowedToken) ||
+            null,
           isDebtThreshold: false,
         };
       })

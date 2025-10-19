@@ -31,6 +31,7 @@ import {
   formatNumber,
   formatNumberAsPercent,
   RATE_PRECISION,
+  shortenTokenSymbol,
 } from '@notional-finance/util';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
@@ -202,7 +203,9 @@ const formatCountUp = (
     <CountUp
       value={value.toFloat()}
       decimals={4}
-      suffix={suffix !== undefined ? suffix : ` ${value.symbol}`}
+      suffix={
+        suffix !== undefined ? suffix : ` ${shortenTokenSymbol(value.symbol)}`
+      }
     />
   ) : (
     '-'
@@ -243,7 +246,7 @@ const formatSummaryItems = (
     },
     ...summary.liquidationPrices.map((price) => {
       return {
-        label: `${price.asset.symbol} Liquidation Price`,
+        label: `${shortenTokenSymbol(price.asset.symbol)} Liquidation Price`,
         content: formatCountUp(price.threshold),
       };
     }),
