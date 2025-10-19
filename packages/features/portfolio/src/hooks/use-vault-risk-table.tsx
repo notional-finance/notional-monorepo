@@ -116,7 +116,7 @@ export const useVaultRiskTable = () => {
                   : 'Open Term',
               },
               healthFactor: vaultHolding.healthFactor,
-              manageLink: `/vaults/${network}/${l.vaultAddress}/manage`,
+              manageLink: `/vault/${network}/${l.vaultAddress}/manage`,
               ...p,
             };
           })

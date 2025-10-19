@@ -75,7 +75,7 @@ export const TradeActionButton = observer(
     const buttonTextWalletConnected =
       submitText ||
       defineMessage({
-        defaultMessage: 'Continue to Review',
+        defaultMessage: 'Submit',
         description: 'call to action button',
       });
 

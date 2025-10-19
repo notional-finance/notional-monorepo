@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useState, ReactNode, useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { SimpleToggle, TradeSummaryBox, Body } from '@notional-finance/mui';
 import { observer } from 'mobx-react-lite';
@@ -40,6 +40,9 @@ export const TransactionScreen = observer(
     const vaultMetadata = useVaultMetadata(trade?.vaultAddress);
     const isReady = vaultMetadata !== undefined;
     const tabs = useInfoBox();
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, []);
 
     return (
       <FeatureLoader featureLoaded={isReady === true}>
