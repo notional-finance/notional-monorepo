@@ -1,13 +1,16 @@
 import { Box } from '@mui/material';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import {
+  useAccountHasPositions,
   useAllVaults,
   useAppStore,
   useLandingPageStats,
   useLatestBlogPosts,
+  useSideDrawerManager,
+  useWalletAddress,
 } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
-import { getDateString } from '@notional-finance/util';
+import { getDateString, SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import { PostOrPage } from '@tryghost/content-api';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -534,20 +537,42 @@ export const VaultsPageInject = () => {
 };
 
 export const BetaPageInject = () => {
+  const { setWalletSideDrawer } = useSideDrawerManager();
+  const navigate = useNavigate();
+  const hasPositions = useAccountHasPositions();
+  const walletAddress = useWalletAddress();
+  // TODO: add the list of valid wallets here.
+
+  useEffect(() => {
+    if (hasPositions.length > 0 || walletAddress) {
+      // Redirect to the landing page
+      navigate('/');
+    }
+  }, [hasPositions, walletAddress]);
+
   const containerRef = useStartInject(
     '68c076de04c61ce1e06fb0c5',
     'exponent-beta',
-    () => {
-      // TODO: add button click to verify email
+    (shadow) => {
+      const connectButton = shadow.shadowRoot?.querySelector('#connect-wallet');
+      if (connectButton) {
+        connectButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          // This component is included in the LandingLayoutRoute, so we need to set the wallet side drawer
+          // to show it here.
+          setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET);
+        });
+      }
     }
   );
 
   return (
     <Box
       ref={containerRef}
-      className="body-beta"
+      sx={{ height: '100vh' }}
+      className="body-3"
       fs-inject-element="target"
-      fs-inject-source="/embed/vaults"
+      fs-inject-source="/embed/exponent-beta"
       fs-inject-instance="exponent-beta"
       fs-inject-cache={'false'}
     />
