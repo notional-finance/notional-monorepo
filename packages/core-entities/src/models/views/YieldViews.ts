@@ -116,11 +116,13 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       const simulatedAPY = adapter.getSimulatedAPY(TokenBalance.zero(token));
       apyData.incentiveAPY = simulatedAPY.incentiveAPY;
       apyData.incentives = simulatedAPY.incentives;
-      apyData.totalAPY = simulatedAPY.totalAPY;
       apyData.organicAPY = simulatedAPY.organicAPY;
       apyData.assetAPY = simulatedAPY.assetAPY;
       apyData.pointMultiples = simulatedAPY.pointMultiples;
       apyData.feeAPY = getVaultFee(token.vaultAddress);
+      apyData.totalAPY = simulatedAPY.totalAPY
+        ? simulatedAPY.totalAPY - (apyData.feeAPY || 0)
+        : undefined;
     }
 
     return apyData;
@@ -165,6 +167,9 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       const adapter = getVaultAdapter(netAmount.vaultAddress);
       const apyData = adapter.getSimulatedAPY(netAmount, vaultTradeMetadata);
       apyData.feeAPY = getVaultFee(netAmount.vaultAddress);
+      apyData.totalAPY = apyData.totalAPY
+        ? apyData.totalAPY - (apyData.feeAPY || 0)
+        : undefined;
       return apyData;
     }
 
