@@ -132,9 +132,10 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
       ? results.collateralBalance.add(netVaultSharesForWithdraw)
       : results.collateralBalance
   )
-    // Buffer the collateral balance to account for slippage or precision loss
+    // Buffer the collateral balance to account for slippage or precision loss, this is
+    // especially important when adjusting leverage downwards.
     .mulInRatePrecision(
-      RATE_PRECISION + (maxCollateralSlippage || BASIS_POINT)
+      RATE_PRECISION + (maxCollateralSlippage || 10 * BASIS_POINT)
     );
 
   // Do not allow the collateral balance withdrawn to exceed the actual account balance
