@@ -24,7 +24,11 @@ import {
   pointsMultiple,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import {
+  defineMessage,
+  FormattedMessage,
+  FormattedRelativeTime,
+} from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
 import {
   Body,
@@ -130,12 +134,21 @@ function getSpecificVaultInfo(
     };
   } else if (v.hasPendingWithdraw) {
     return {
-      subRowInfo: [
-        {
-          label: <FormattedMessage defaultMessage={'Estimated Finalization'} />,
-          value: 'TODO',
-        },
-      ],
+      subRowInfo: v.estimatedWithdrawTimeInSeconds
+        ? [
+            {
+              label: (
+                <FormattedMessage defaultMessage={'Estimated Finalization'} />
+              ),
+              value: (
+                <FormattedRelativeTime
+                  value={v.estimatedWithdrawTimeInSeconds}
+                  unit="second"
+                />
+              ),
+            },
+          ]
+        : [],
       totalEarnings,
       buttonBarData: [],
       warning: 'pendingWithdraw',
