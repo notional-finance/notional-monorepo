@@ -208,6 +208,15 @@ export const TradeModel = types
     netRealizedCollateralBalance: types.maybe(NotionalTypes.TokenBalance),
     /** Net cost of debts in underlying terms*/
     netRealizedDebtBalance: types.maybe(NotionalTypes.TokenBalance),
+    simulatedWithdraws: types.maybe(
+      types.array(
+        types.model({
+          estimatedWithdrawTime: types.maybe(types.number),
+          yieldTokensRedeemed: NotionalTypes.TokenBalance,
+          withdrawTokensToReceive: NotionalTypes.TokenBalance,
+        })
+      )
+    ),
 
     /** Calculated updates to the account balances post trade */
     postTradeBalances: types.optional(
@@ -1048,23 +1057,7 @@ export const TradeModel = types
     };
 
     const getVaultInitiateWithdraw = () => {
-      if (!self.vaultAddress) return undefined;
-      const model = root().getNetworkClient(self.selectedNetwork);
-      const withdrawManagers = model.getWithdrawManagers(self.vaultAddress);
-      if (withdrawManagers.length === 1) {
-        return withdrawManagers.map((w) => {
-          return {
-            estimatedWithdrawTime: w.estimatedWithdrawTimeInSeconds,
-            // NOTE: this will not work with LP strategies
-            tokensRedeemed: self.netRealizedCollateralBalance,
-            tokensToReceive: self.netRealizedCollateralBalance?.toToken(
-              w.withdrawToken
-            ),
-          };
-        });
-      }
-
-      throw Error('Vault has multiple withdraw managers');
+      return self.simulatedWithdraws;
     };
 
     return {

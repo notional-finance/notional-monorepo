@@ -24,11 +24,7 @@ import {
   pointsMultiple,
   TXN_HISTORY_TYPE,
 } from '@notional-finance/util';
-import {
-  defineMessage,
-  FormattedMessage,
-  FormattedRelativeTime,
-} from 'react-intl';
+import { defineMessage, FormattedMessage } from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
 import {
   Body,
@@ -40,6 +36,7 @@ import {
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../../../components/table-action-row/table-action-row';
 import { ReactNode, useState } from 'react';
+import moment from 'moment';
 
 export interface OverviewTableRow {
   isTotalRow?: boolean;
@@ -140,12 +137,9 @@ function getSpecificVaultInfo(
               label: (
                 <FormattedMessage defaultMessage={'Estimated Finalization'} />
               ),
-              value: (
-                <FormattedRelativeTime
-                  value={v.estimatedWithdrawTimeInSeconds}
-                  unit="second"
-                />
-              ),
+              value: moment
+                .duration(v.estimatedWithdrawTimeInSeconds, 'seconds')
+                .humanize(),
             },
           ]
         : [],

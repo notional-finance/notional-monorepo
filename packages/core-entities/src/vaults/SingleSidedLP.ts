@@ -5,7 +5,6 @@ import {
   getNowSeconds,
   SECONDS_IN_DAY,
   SCALAR_PRECISION,
-  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
@@ -364,6 +363,61 @@ export class SingleSidedLP extends VaultAdapter {
     return feesPaid.reduce(
       (s, f) => s.add(f.toToken(primaryToken)),
       TokenBalance.zero(primaryToken)
+    );
+  }
+
+  override simulateWithdraw(vaultSharesToRedeem: TokenBalance) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length === 0)
+      throw Error('Withdraw manager not found');
+    const { tokensOut } = this.pool.getTokensOutGivenLPTokens(
+      this.getVaultSharesToLPTokens(vaultSharesToRedeem)
+    );
+
+    return withdrawManager.map((w) => {
+      const yieldTokensRedeemed = tokensOut.find(
+        (t) => t.tokenId === w.yieldToken.id
+      );
+      if (!yieldTokensRedeemed) throw Error('Yield token not found');
+
+      const withdrawTokensToReceive = yieldTokensRedeemed.toToken(
+        w.withdrawToken
+      );
+      return {
+        estimatedWithdrawTime: w.estimatedWithdrawTimeInSeconds,
+        yieldTokensRedeemed: yieldTokensRedeemed,
+        withdrawTokensToReceive: withdrawTokensToReceive,
+      };
+    });
+  }
+
+  override async getInitiateWithdrawParameters(
+    account: string,
+    vaultSharesToRedeem: TokenBalance
+  ) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length === 0)
+      throw Error('Withdraw manager not found');
+    const { tokensOut } = this.pool.getTokensOutGivenLPTokens(
+      this.getVaultSharesToLPTokens(vaultSharesToRedeem)
+    );
+
+    const minAmounts = tokensOut.map(
+      (t) => t.mulInRatePrecision(RATE_PRECISION - 10 * BASIS_POINT).n
+    );
+
+    const withdrawData = withdrawManager.map((w, i) => {
+      if (tokensOut[i].tokenId !== w.yieldToken.id)
+        throw Error('Yield token not found');
+
+      return w.getWithdrawParameters(account, vaultSharesToRedeem);
+    });
+
+    return defaultAbiCoder.encode(
+      ['tuple(uint256[] minAmounts, bytes[] withdrawData) d'],
+      [minAmounts, withdrawData]
     );
   }
 

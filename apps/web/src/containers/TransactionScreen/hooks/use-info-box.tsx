@@ -483,8 +483,8 @@ const useOrderDetails = () => {
     const withdraws = trade.getVaultInitiateWithdraw();
     withdraws?.forEach((withdraw) => {
       orderDetails.push({
-        label: 'Tokens Received',
-        content: formatCountUp(withdraw.tokensToReceive),
+        label: 'Tokens in Redeem Queue',
+        content: formatCountUp(withdraw.yieldTokensRedeemed),
       });
     });
   }
@@ -510,12 +510,12 @@ const useWithdrawDetails = () => {
 
     items.push({
       label: 'Tokens Redeemed',
-      content: formatCountUp(withdraw.tokensRedeemed),
+      content: formatCountUp(withdraw.yieldTokensRedeemed),
     });
 
     items.push({
       label: 'Tokens to Receive',
-      content: formatCountUp(withdraw.tokensToReceive),
+      content: formatCountUp(withdraw.withdrawTokensToReceive),
     });
 
     return items;

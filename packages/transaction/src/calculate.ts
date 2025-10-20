@@ -255,13 +255,17 @@ export function calculateWithdraw({
   );
 
   // This is the amount of yield tokens that will be put into the withdraw queue
-  const withdrawAmount = profile.vaultShares.toToken(vaultAdapter.yieldToken);
+  const yieldTokensToRedeem = profile.vaultShares.toToken(
+    vaultAdapter.yieldToken
+  );
+  const simulatedWithdraws = vaultAdapter.simulateWithdraw(profile.vaultShares);
 
   return {
     collateralBalance: profile.vaultShares.neg(),
-    collateralFee: TokenBalance.zero(withdrawAmount.token),
+    collateralFee: TokenBalance.zero(yieldTokensToRedeem.token),
     debtBalance: profile.vaultDebt,
-    netRealizedCollateralBalance: withdrawAmount,
+    netRealizedCollateralBalance: yieldTokensToRedeem,
+    simulatedWithdraws,
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: TokenBalance.zero(debt),
     debtFee: TokenBalance.zero(debt),

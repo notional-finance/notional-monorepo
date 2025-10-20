@@ -179,12 +179,8 @@ export async function InitiateWithdraw({
   const vaultAddress = collateralBalance.vaultAddress;
   const lendingRouter = debtBalance.token.address;
   const model = getNetworkModel(network);
-  const withdrawManagers = model.getWithdrawManagers(vaultAddress);
-  if (withdrawManagers.length !== 1) {
-    throw Error('Vault has multiple withdraw managers');
-  }
-
-  const vaultData = await withdrawManagers[0].getWithdrawParameters(
+  const vaultAdapter = model.getVaultAdapter(vaultAddress);
+  const vaultData = await vaultAdapter.getInitiateWithdrawParameters(
     address,
     collateralBalance.neg()
   );

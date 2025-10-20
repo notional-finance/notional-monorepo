@@ -405,6 +405,43 @@ export class PendlePT extends VaultAdapter {
     };
   }
 
+  override simulateWithdraw(vaultSharesToRedeem: TokenBalance) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length !== 1)
+      throw Error('Withdraw manager not found');
+    const tokenOutSy = model.getTokenBySymbol(this.tokenOutSy);
+
+    const yieldTokensRedeemed = vaultSharesToRedeem
+      .toToken(this.market.ptToken)
+      .toToken(tokenOutSy);
+    const withdrawTokensToReceive = yieldTokensRedeemed.toToken(
+      withdrawManager[0].withdrawToken
+    );
+    return [
+      {
+        estimatedWithdrawTime:
+          withdrawManager[0].estimatedWithdrawTimeInSeconds,
+        yieldTokensRedeemed,
+        withdrawTokensToReceive,
+      },
+    ];
+  }
+
+  override async getInitiateWithdrawParameters(
+    account: string,
+    vaultSharesToRedeem: TokenBalance
+  ) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length !== 1)
+      throw Error('Withdraw manager not found');
+    return withdrawManager[0].getWithdrawParameters(
+      account,
+      vaultSharesToRedeem
+    );
+  }
+
   override async getDepositParameters(
     _account: string,
     _maturity: number,
