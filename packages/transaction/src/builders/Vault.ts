@@ -105,6 +105,7 @@ export async function ExitVaultFinalizeWithdraw({
   debtBalance,
   maxWithdraw,
   vaultLastUpdateTime,
+  withdrawTokensBurned,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
     collateralBalance?.tokenType !== 'VaultShare' ||
@@ -112,7 +113,8 @@ export async function ExitVaultFinalizeWithdraw({
     debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
     collateralBalance.isPositive() ||
     debtBalance.isNegative() ||
-    vaultLastUpdateTime === undefined
+    vaultLastUpdateTime === undefined ||
+    withdrawTokensBurned === undefined
   )
     throw Error('Collateral balance, debt balance must be defined');
 
@@ -122,9 +124,8 @@ export async function ExitVaultFinalizeWithdraw({
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
   const vaultData = await vaultAdapter.getWithdrawParameters(
     address,
-    collateralBalance.maturity || 0,
     collateralBalance.neg(),
-    assetToRepay
+    withdrawTokensBurned
   );
 
   return populateLendingRouterTxnAndGas(

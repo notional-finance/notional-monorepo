@@ -217,6 +217,7 @@ export const TradeModel = types
         })
       )
     ),
+    withdrawTokensBurned: types.maybe(types.array(NotionalTypes.TokenBalance)),
 
     /** Calculated updates to the account balances post trade */
     postTradeBalances: types.optional(

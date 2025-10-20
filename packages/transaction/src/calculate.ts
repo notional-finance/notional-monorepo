@@ -297,19 +297,22 @@ export function calculateFinalizeWithdraw({
     vaultLastUpdateTime || 0,
     withdrawRequests
   );
-  const tokensWithdrawn = profile.withdrawRequests?.[0]?.withdrawTokenAmount;
-  if (!tokensWithdrawn) throw Error('Tokens withdrawn not found');
+  if (!profile.withdrawRequests || profile.withdrawRequests.length === 0)
+    throw Error('Withdraw requests not found');
 
-  const withdrawTokensBurned = depositBalance
-    .neg()
-    .toToken(tokensWithdrawn.token);
+  const totalShareValue = profile.vaultShares.toUnderlying();
   let sharesToRedeem = profile.vaultShares.scale(
-    withdrawTokensBurned,
-    tokensWithdrawn
+    depositBalance,
+    totalShareValue
   );
   // Do not allow the shares to redeem to exceed the vault shares
   if (sharesToRedeem.gt(profile.vaultShares))
     sharesToRedeem = profile.vaultShares;
+
+  const withdrawTokensBurned = profile.withdrawRequests.map((w) => {
+    if (!w.withdrawTokenAmount) throw Error('Withdraw token amount not found');
+    return w.withdrawTokenAmount.scale(sharesToRedeem, profile.vaultShares);
+  });
 
   const vaultTradeMetadata =
     vaultAdapter.getWithdrawTradeMetadata(withdrawTokensBurned);
@@ -322,6 +325,7 @@ export function calculateFinalizeWithdraw({
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: TokenBalance.zero(debt),
     debtFee: TokenBalance.zero(debt),
+    withdrawTokensBurned,
     vaultTradeMetadata,
   };
 }

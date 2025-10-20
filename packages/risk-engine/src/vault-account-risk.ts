@@ -341,12 +341,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         return acc.add(w.withdrawTokenAmount.toToken(costToRepay.token));
       }, costToRepay.copy(0));
       feesPaid = TokenBalance.zero(this.denom(this.defaultSymbol));
-      vaultTradeMetadata = this.withdrawRequests.flatMap((w) => {
-        if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
-        return this.vaultAdapter.getWithdrawTradeMetadata(
-          w.withdrawTokenAmount
-        );
-      });
+      vaultTradeMetadata = this.vaultAdapter.getWithdrawTradeMetadata(
+        this.withdrawRequests.map((w) => {
+          if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
+          return w.withdrawTokenAmount;
+        })
+      );
     } else if (this.hasPendingWithdraw) {
       throw Error('Max withdraw not supported for pending withdraws');
     } else {

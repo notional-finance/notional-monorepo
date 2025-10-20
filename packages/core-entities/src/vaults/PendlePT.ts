@@ -441,6 +441,20 @@ export class PendlePT extends VaultAdapter {
       vaultSharesToRedeem
     );
   }
+  override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
+    if (withdrawTokensBurned.length !== 1)
+      throw Error('PendlePT vault only supports one withdraw token');
+
+    const { withdrawPoolAddress } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    return [
+      this.getVaultTradeMetadata(
+        withdrawTokensBurned[0],
+        this.borrowedToken,
+        withdrawPoolAddress
+      ),
+    ];
+  }
 
   override async getDepositParameters(
     _account: string,
@@ -545,12 +559,28 @@ export class PendlePT extends VaultAdapter {
 
   override async getWithdrawParameters(
     _account: string,
-    _maturity: number,
     _vaultSharesToRedeem: TokenBalance,
-    _underlyingToRepayDebt: TokenBalance,
-    _slippageFactor = 10 * BASIS_POINT
+    withdrawTokensBurned: TokenBalance[],
+    slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
-    throw new Error('Not implemented');
+    const { dexId, withdrawExchangeData: exchangeData } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (withdrawTokensBurned.length !== 1)
+      throw Error('PendlePT vault only supports one withdraw token');
+    const minPurchaseAmount = withdrawTokensBurned[0]
+      .toToken(this.borrowedToken)
+      .mulInRatePrecision(slippageFactor || 0).n;
+
+    return defaultAbiCoder.encode(
+      ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
+      [
+        {
+          dexId,
+          minPurchaseAmount,
+          exchangeData,
+        },
+      ]
+    );
   }
 
   override async getRedeemParameters(
