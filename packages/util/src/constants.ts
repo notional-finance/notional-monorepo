@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { getDateString } from './time';
 
+export const UTILIZATION_ERROR = 'Utilization is out of bounds';
 export const UNLIMITED_APPROVAL = BigNumber.from(2).pow(96);
 export const INTERNAL_TOKEN_PRECISION = 1e8;
 export const INTERNAL_TOKEN_DECIMALS = 8;

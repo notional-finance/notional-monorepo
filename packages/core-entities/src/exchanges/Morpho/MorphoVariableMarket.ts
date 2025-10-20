@@ -9,6 +9,7 @@ import {
   SCALAR_DECIMALS,
   SCALAR_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
+  UTILIZATION_ERROR,
 } from '@notional-finance/util';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { formatUnits, parseUnits } from 'ethers/lib/utils';
@@ -222,7 +223,7 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
       .div(totalSupplyAssets.scaleTo(SCALAR_DECIMALS));
 
     if (utilization.lt(0) || utilization.gt(SCALAR_PRECISION)) {
-      throw new Error('Utilization is out of bounds');
+      throw new Error(UTILIZATION_ERROR);
     } else {
       return utilization;
     }

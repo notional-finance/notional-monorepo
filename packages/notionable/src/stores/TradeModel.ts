@@ -542,7 +542,7 @@ export const TradeModel = types
         } catch (e) {
           console.error('trade model calculate error', e);
           self.calculationSuccess = false;
-          self.calculateError = (e as Error).toString();
+          self.calculateError = (e as Error).message.toString();
           // Clear any calculated inputs that are not required for the trade type
           requiredArgs.forEach((arg) => {
             if (arg === 'deposit') {
