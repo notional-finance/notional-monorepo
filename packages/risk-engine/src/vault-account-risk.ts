@@ -216,7 +216,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   collateralRatio(): number | null {
     const totalDebt = this.totalDebtRiskAdjusted().neg();
     const totalAssets = this.totalAssetsRiskAdjusted();
-    return totalDebt.isZero()
+    // The total debt here is assumed to be positive for the calculation but if for some reason it
+    // is negative then we would get an underflow somewhere else.
+    return totalDebt.isZero() || totalDebt.isNegative()
       ? null
       : totalAssets.sub(totalDebt).ratioWith(totalDebt).toNumber() /
           RATE_PRECISION;
@@ -328,7 +330,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   maxWithdraw(_token: TokenDefinition = this.vaultShares.token) {
-    const costToRepay = this.vaultDebt.toUnderlying();
+    const costToRepay = this.vaultDebt.neg().toUnderlying();
 
     // Returns the total underlying received when redeeming all of the vault shares
     let netUnderlyingForVaultShares: TokenBalance;

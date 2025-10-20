@@ -298,7 +298,9 @@ const useSummaryItems = () => {
     },
   ];
   const updatedItems = r?.updated
-    ? formatSummaryItems(r.updated, theme)
+    ? r.updated.isCleared
+      ? noPositionItems
+      : formatSummaryItems(r.updated, theme)
     : undefined;
   const currentItems =
     r?.current && r.current.netWorth !== undefined

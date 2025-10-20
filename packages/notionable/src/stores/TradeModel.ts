@@ -921,6 +921,7 @@ export const TradeModel = types
         },
         updated: postVaultRisk
           ? {
+              isCleared: postVaultRisk?.totalAssets().isZero(),
               healthFactor: postVaultRisk?.healthFactor(),
               leverageRatio: postVaultRisk?.leverageRatio(),
               netWorth: postVaultRisk?.netWorth(),

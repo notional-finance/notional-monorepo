@@ -25,7 +25,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   collateral,
   debt,
   vaultAdapter,
-  depositBalance,
+  depositBalance: _depositBalance,
   balances,
   riskFactorLimit,
   vaultLastUpdateTime,
@@ -53,6 +53,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
 
   let initialDebtUnitsEstimateInRP = RATE_PRECISION;
   let netVaultSharesForWithdraw: TokenBalance | undefined;
+  let depositBalance = _depositBalance;
   if (depositBalance?.isPositive()) {
     // Initial estimate if deposit is positive is the deposit * leverageRatio
     const limitInRP = profile.getRiskFactorInRP(
@@ -103,6 +104,9 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } =
       vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral));
     profile = profile.simulate([netVaultSharesForWithdraw]);
+    // Clear the deposit balance for the debt and collateral calculations to avoid
+    // double counting the withdraw value
+    depositBalance = depositBalance.copy(0);
   } else if (!profile.vaultDebt.isZero()) {
     initialDebtUnitsEstimateInRP = Math.floor(
       (profile.vaultDebt.toFloat() * RATE_PRECISION) / 2
@@ -138,16 +142,19 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     collateralBalance.isNegative() &&
     collateralBalance.abs().gt(profile.vaultShares)
   ) {
-    collateralBalance = profile.vaultShares;
+    collateralBalance = profile.vaultShares.neg();
   }
 
   // NOTE: this will throw if the market cannot support the utilization
   const market = getNetworkModel(
     collateral.network
   ).getLendingMarketFromVaultDebt(debt);
-  market.getInterestRate(
-    market.getUtilization(undefined, results.debtBalance.neg())
-  );
+  // Only do this when borrowing more
+  if (results.debtBalance.isNegative()) {
+    market.getInterestRate(
+      market.getUtilization(undefined, results.debtBalance.neg())
+    );
+  }
 
   return {
     ...results,
