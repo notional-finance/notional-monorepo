@@ -29,6 +29,27 @@ export type EnrichedPosition = RiskyPosition & {
   secondaryWithdrawTokenAmount?: BigNumber;
 };
 
+export interface TransactionResult {
+  success: boolean;
+  hash?: string;
+  error?: string;
+  gasLimit?: number;
+  to?: string;
+}
+
+export interface LiquidationReport {
+  totalTransactions: number;
+  successfulTransactions: number;
+  failedTransactions: number;
+  transactionResults: TransactionResult[];
+}
+
+export interface LiquidationRunResult {
+  positionsToLiquidate: EnrichedPosition[];
+  liquidationReport: LiquidationReport;
+  enrichedPositions: EnrichedPosition[];
+}
+
 export interface Env {
   DATA_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
@@ -42,15 +63,17 @@ export interface Env {
 }
 
 export class MetricNames {
-  public static readonly NUM_RISKY_ACCOUNTS = 'exponent_liquidator.num_risky_accounts';
-  public static readonly TOTAL_ACCOUNTS_PROCESSED = 'exponent_liquidator.total_accounts_processed';
+  public static readonly NUM_RISKY_ACCOUNTS =
+    'exponent_liquidator.num_risky_accounts';
+  public static readonly TOTAL_ACCOUNTS_PROCESSED =
+    'exponent_liquidator.total_accounts_processed';
 }
 
 // Vault configuration types
 export enum VaultType {
   Staking = 'Staking',
-  PendlePT = 'PendlePT', 
-  CurveConvex2Token = 'CurveConvex2Token'
+  PendlePT = 'PendlePT',
+  CurveConvex2Token = 'CurveConvex2Token',
 }
 
 export interface OnChainVaultConfig {
@@ -65,7 +88,7 @@ export interface OnChainVaultConfig {
   tokenOutSy?: string;
   marketAddress?: string;
   ptAddress?: string;
-  // CurveConvex2Token specific tokens  
+  // CurveConvex2Token specific tokens
   token0?: string;
   token1?: string;
   primaryIndex?: number;

@@ -1,10 +1,29 @@
 import { ethers, PopulatedTransaction } from 'ethers';
-import { getProviderFromNetwork, Network, sendTxThroughRelayer } from '@notional-finance/util';
-import { RiskyPosition, EnrichedPosition, Env, Position, TokenPrice, VaultType } from './types';
+import {
+  getProviderFromNetwork,
+  Network,
+  sendTxThroughRelayer,
+} from '@notional-finance/util';
+import {
+  RiskyPosition,
+  EnrichedPosition,
+  Env,
+  Position,
+  TokenPrice,
+  VaultType,
+  TransactionResult,
+  LiquidationReport,
+  LiquidationRunResult,
+} from './types';
 import { MorphoRouterIntegration } from './utils/morphoRouter';
 import { getWithdrawRequestData } from './utils/withdrawRequestData';
 import { VaultRegistry } from './utils/vaultRegistry';
-import { ExponentFlashLiquidator, ExponentFlashLiquidatorABI, TradingModule, TradingModuleABI } from '@notional-finance/contracts';
+import {
+  ExponentFlashLiquidator,
+  ExponentFlashLiquidatorABI,
+  TradingModule,
+  TradingModuleABI,
+} from '@notional-finance/contracts';
 import { generateRedeemData } from './utils/redeemDataGenerator';
 import { getTokenPrices } from './utils/tokenPricing';
 import { LiquidatorLogger } from './utils/logging';
@@ -19,7 +38,11 @@ export default class ExponentLiquidator {
   private tradingModule: TradingModule;
   private network: Network;
 
-  constructor(private env: Env, positions: Position[], vaultRegistry: VaultRegistry) {
+  constructor(
+    private env: Env,
+    positions: Position[],
+    vaultRegistry: VaultRegistry
+  ) {
     this.network = env.NETWORK;
     this.provider = getProviderFromNetwork(env.NETWORK, true);
     this.positions = positions;
@@ -41,10 +64,10 @@ export default class ExponentLiquidator {
     ) as TradingModule;
   }
 
-
   async getRiskyPositions(): Promise<RiskyPosition[]> {
     // Step 1: Batch healthFactor calls to get raw health factor data
-    const healthFactorData = await this.morphoRouterIntegration.batchHealthFactors(this.positions);
+    const healthFactorData =
+      await this.morphoRouterIntegration.batchHealthFactors(this.positions);
 
     // Step 3: Process results, calculate health factors, and filter risky positions
     const riskyPositions: RiskyPosition[] = [];
@@ -55,7 +78,8 @@ export default class ExponentLiquidator {
       if (data.borrowed.isZero()) {
         healthFactor = Number.MAX_SAFE_INTEGER; // No debt = healthy
       } else {
-        healthFactor = data.maxBorrow.mul(1e18).div(data.borrowed).toNumber() / 1e18;
+        healthFactor =
+          data.maxBorrow.mul(1e18).div(data.borrowed).toNumber() / 1e18;
       }
 
       // Only include risky positions (healthFactor < 1)
@@ -71,68 +95,84 @@ export default class ExponentLiquidator {
       }
     }
 
-    // Log metrics
-    await this.logger.logMetrics(this.positions.length, riskyPositions.length, this.env.NETWORK);
-
     return riskyPositions;
   }
 
-  async enrichPositionData(positions: RiskyPosition[]): Promise<EnrichedPosition[]> {
+  async enrichPositionData(
+    positions: RiskyPosition[]
+  ): Promise<EnrichedPosition[]> {
     // Step 2: Batch additional blockchain calls for position information
-    
+
     // Get total vault shares for each position
-    const totalVaultSharesArray = await this.morphoRouterIntegration.batchCollateralBalances(positions);
-    
+    const totalVaultSharesArray =
+      await this.morphoRouterIntegration.batchCollateralBalances(positions);
+
     // Get withdraw request status for each position (now with vault config)
     const withdrawRequestStatuses = await getWithdrawRequestData(
-      positions, 
-      this.provider, 
+      positions,
+      this.provider,
       this.vaultRegistry
     );
-    
+
     // Combine all data into enriched positions
     return positions.map((position, index) => {
-      const isWithdrawRequestPending = withdrawRequestStatuses[index].isWithdrawRequestPending;
+      const isWithdrawRequestPending =
+        withdrawRequestStatuses[index].isWithdrawRequestPending;
       const totalVaultShares = totalVaultSharesArray[index];
       const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
-      
+
       // Calculate totalYieldTokens based on withdraw request status
       let totalYieldTokens: ethers.BigNumber;
       if (isWithdrawRequestPending) {
         totalYieldTokens = ethers.BigNumber.from(0);
       } else {
         // totalYieldTokens = totalVaultShares * vaultConfig.shareToYieldTokenExchangeRate
-        totalYieldTokens = totalVaultShares.mul(vaultConfig!.shareToYieldTokenExchangeRate).div(ethers.utils.parseUnits('1', 24));
+        totalYieldTokens = totalVaultShares
+          .mul(vaultConfig!.shareToYieldTokenExchangeRate)
+          .div(ethers.utils.parseUnits('1', 24));
       }
-      
+
       return {
         ...position,
         totalVaultShares,
         totalYieldTokens,
         isWithdrawRequestPending,
-        canWithdrawRequestFinalize: withdrawRequestStatuses[index].canWithdrawRequestFinalize,
-        primaryWithdrawTokenAmount: withdrawRequestStatuses[index].primaryWithdrawTokenAmount,
-        secondaryWithdrawTokenAmount: withdrawRequestStatuses[index].secondaryWithdrawTokenAmount,
+        canWithdrawRequestFinalize:
+          withdrawRequestStatuses[index].canWithdrawRequestFinalize,
+        primaryWithdrawTokenAmount:
+          withdrawRequestStatuses[index].primaryWithdrawTokenAmount,
+        secondaryWithdrawTokenAmount:
+          withdrawRequestStatuses[index].secondaryWithdrawTokenAmount,
       };
     });
   }
 
-  filterPositionsForLiquidation(enrichedPositions: EnrichedPosition[]): EnrichedPosition[] {
+  filterPositionsForLiquidation(
+    enrichedPositions: EnrichedPosition[]
+  ): EnrichedPosition[] {
     const positionsToLiquidate: EnrichedPosition[] = [];
 
     for (const position of enrichedPositions) {
       const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
-      
+
       if (!vaultConfig) {
-        console.warn(`Vault config not found for vault: ${position.vault}, skipping liquidation check`);
+        console.warn(
+          `Vault config not found for vault: ${position.vault}, skipping liquidation check`
+        );
         continue;
       }
 
       // Check liquidation criteria
-      if (!position.isWithdrawRequestPending && vaultConfig.liquidateYieldTokens === true) {
+      if (
+        !position.isWithdrawRequestPending &&
+        vaultConfig.liquidateYieldTokens === true
+      ) {
         // No withdraw request pending and vault allows yield token liquidation
         positionsToLiquidate.push(position);
-      } else if (position.isWithdrawRequestPending && position.canWithdrawRequestFinalize) {
+      } else if (
+        position.isWithdrawRequestPending &&
+        position.canWithdrawRequestFinalize
+      ) {
         // Withdraw request is pending and can be finalized
         positionsToLiquidate.push(position);
       }
@@ -141,25 +181,32 @@ export default class ExponentLiquidator {
     return positionsToLiquidate;
   }
 
-  private sortPositionsForLiquidation(
-    positions: EnrichedPosition[]
-  ): Map<string, {
-    withoutWithdrawRequest: EnrichedPosition[];
-    withWithdrawRequest: EnrichedPosition[];
-  }> {
-    const sortedByVault = new Map<string, { withoutWithdrawRequest: EnrichedPosition[], withWithdrawRequest: EnrichedPosition[] }>();
+  private sortPositionsForLiquidation(positions: EnrichedPosition[]): Map<
+    string,
+    {
+      withoutWithdrawRequest: EnrichedPosition[];
+      withWithdrawRequest: EnrichedPosition[];
+    }
+  > {
+    const sortedByVault = new Map<
+      string,
+      {
+        withoutWithdrawRequest: EnrichedPosition[];
+        withWithdrawRequest: EnrichedPosition[];
+      }
+    >();
 
     // Group positions by vault
     for (const position of positions) {
       if (!sortedByVault.has(position.vault)) {
         sortedByVault.set(position.vault, {
           withoutWithdrawRequest: [],
-          withWithdrawRequest: []
+          withWithdrawRequest: [],
         });
       }
 
       const vaultPositions = sortedByVault.get(position.vault)!;
-      
+
       if (position.isWithdrawRequestPending) {
         vaultPositions.withWithdrawRequest.push(position);
       } else {
@@ -171,52 +218,102 @@ export default class ExponentLiquidator {
   }
 
   private batchPositionsForLiquidation(
-    sortedPositions: Map<string, { withoutWithdrawRequest: EnrichedPosition[], withWithdrawRequest: EnrichedPosition[] }>
-  ): Map<string, { withoutWithdrawRequest: EnrichedPosition[][], withWithdrawRequest: EnrichedPosition[] }> {
-    const batchedAndSortedPositions = new Map<string, { withoutWithdrawRequest: EnrichedPosition[][], withWithdrawRequest: EnrichedPosition[] }>();
-    
+    sortedPositions: Map<
+      string,
+      {
+        withoutWithdrawRequest: EnrichedPosition[];
+        withWithdrawRequest: EnrichedPosition[];
+      }
+    >
+  ): Map<
+    string,
+    {
+      withoutWithdrawRequest: EnrichedPosition[][];
+      withWithdrawRequest: EnrichedPosition[];
+    }
+  > {
+    const batchedAndSortedPositions = new Map<
+      string,
+      {
+        withoutWithdrawRequest: EnrichedPosition[][];
+        withWithdrawRequest: EnrichedPosition[];
+      }
+    >();
+
     for (const [vaultAddress, vaultPositions] of sortedPositions) {
       // Batch the withoutWithdrawRequest positions
-      const batchedWithoutWithdrawRequest = this.batchPositions(vaultPositions.withoutWithdrawRequest, 5);
-      
+      const batchedWithoutWithdrawRequest = this.batchPositions(
+        vaultPositions.withoutWithdrawRequest,
+        5
+      );
+
       // Keep withWithdrawRequest positions as-is (not batched)
       batchedAndSortedPositions.set(vaultAddress, {
         withoutWithdrawRequest: batchedWithoutWithdrawRequest,
-        withWithdrawRequest: vaultPositions.withWithdrawRequest
+        withWithdrawRequest: vaultPositions.withWithdrawRequest,
       });
     }
-    
+
     return batchedAndSortedPositions;
   }
 
   private batchPositions<T>(positions: T[], batchSize = 5): T[][] {
     const batches: T[][] = [];
-    
+
     for (let i = 0; i < positions.length; i += batchSize) {
       batches.push(positions.slice(i, i + batchSize));
     }
-    
+
     return batches;
   }
 
-
   private async generateLiquidationCallData(
-    batchedAndSortedPositions: Map<string, { withoutWithdrawRequest: EnrichedPosition[][], withWithdrawRequest: EnrichedPosition[] }>,
+    batchedAndSortedPositions: Map<
+      string,
+      {
+        withoutWithdrawRequest: EnrichedPosition[][];
+        withWithdrawRequest: EnrichedPosition[];
+      }
+    >,
     tokenPrices: Map<string, TokenPrice>
-  ): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: ethers.BigNumber[]; assetsToBorrow: ethers.BigNumber; redeemData: string; totalSharesLiquidated: ethers.BigNumber }[]> {
-    const liquidationParams: { vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: ethers.BigNumber[]; assetsToBorrow: ethers.BigNumber; redeemData: string; totalSharesLiquidated: ethers.BigNumber }[] = [];
+  ): Promise<
+    {
+      vaultAddress: string;
+      liquidateAccounts: string[];
+      sharesToLiquidate: ethers.BigNumber[];
+      assetsToBorrow: ethers.BigNumber;
+      redeemData: string;
+      totalSharesLiquidated: ethers.BigNumber;
+    }[]
+  > {
+    const liquidationParams: {
+      vaultAddress: string;
+      liquidateAccounts: string[];
+      sharesToLiquidate: ethers.BigNumber[];
+      assetsToBorrow: ethers.BigNumber;
+      redeemData: string;
+      totalSharesLiquidated: ethers.BigNumber;
+    }[] = [];
 
     // Iterate through each vault
     for (const [, vaultPositions] of batchedAndSortedPositions) {
       // Process isWithdrawRequestPending False batches first
       for (const batch of vaultPositions.withoutWithdrawRequest) {
-        const liquidationData = await this.generateSingleLiquidationCallData(batch, false, tokenPrices);
+        const liquidationData = await this.generateSingleLiquidationCallData(
+          batch,
+          false,
+          tokenPrices
+        );
         liquidationParams.push(liquidationData);
       }
 
       // Then process isWithdrawRequestPending True positions one by one
       for (const position of vaultPositions.withWithdrawRequest) {
-        const liquidationData = await this.generateSingleLiquidationCallData([position], true, tokenPrices);
+        const liquidationData = await this.generateSingleLiquidationCallData(
+          [position],
+          true,
+          tokenPrices
+        );
         liquidationParams.push(liquidationData);
       }
     }
@@ -224,37 +321,48 @@ export default class ExponentLiquidator {
     return liquidationParams;
   }
 
-  private async generateSingleLiquidationCallData(positions: EnrichedPosition[], isWithdrawRequestPending: boolean, tokenPrices: Map<string, TokenPrice>): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: ethers.BigNumber[]; assetsToBorrow: ethers.BigNumber; redeemData: string; totalSharesLiquidated: ethers.BigNumber }> {
+  private async generateSingleLiquidationCallData(
+    positions: EnrichedPosition[],
+    isWithdrawRequestPending: boolean,
+    tokenPrices: Map<string, TokenPrice>
+  ): Promise<{
+    vaultAddress: string;
+    liquidateAccounts: string[];
+    sharesToLiquidate: ethers.BigNumber[];
+    assetsToBorrow: ethers.BigNumber;
+    redeemData: string;
+    totalSharesLiquidated: ethers.BigNumber;
+  }> {
     if (positions.length === 0) {
       throw new Error('No positions provided for liquidation');
     }
 
     // All positions in a batch should be from the same vault
     const vaultAddress = positions[0].vault;
-    const liquidateAccounts = positions.map(p => p.account);
-    const sharesToLiquidate = positions.map(p => p.collateralShares);
-    
+    const liquidateAccounts = positions.map((p) => p.account);
+    const sharesToLiquidate = positions.map((p) => p.collateralShares);
+
     // Calculate total assets to borrow (sum of all borrowed amounts + 10% buffer)
     const totalBorrowed = positions.reduce((sum, position) => {
       return sum.add(position.borrowed);
     }, ethers.BigNumber.from(0));
-    
+
     // Add 10% buffer to total borrowed amount
     const totalBorrowedWithBuffer = totalBorrowed.mul(110).div(100);
-    
+
     const assetsToBorrow = totalBorrowedWithBuffer;
 
     // Calculate total shares liquidated by summing up sharesToLiquidate for all accounts in the batch
     const totalSharesLiquidated = positions.reduce((sum, position) => {
       return sum.add(position.collateralShares);
     }, ethers.BigNumber.from(0));
-    
+
     // Get vault config to determine redeem data
     const vaultConfig = this.vaultRegistry.getVaultConfig(vaultAddress);
     if (!vaultConfig) {
       throw new Error(`Vault config not found for vault: ${vaultAddress}`);
     }
-    
+
     // Calculate parameters for redeem data generation based on withdraw request status
     let yieldTokenAmount: ethers.BigNumber | undefined;
     let primaryWithdrawTokenAmount: ethers.BigNumber | undefined;
@@ -262,17 +370,20 @@ export default class ExponentLiquidator {
 
     if (!isWithdrawRequestPending) {
       // yieldTokenAmount = totalSharesLiquidated * vaultConfig.shareToYieldTokenExchangeRate
-      yieldTokenAmount = totalSharesLiquidated.mul(vaultConfig.shareToYieldTokenExchangeRate).div(ethers.utils.parseUnits('1', 24));
+      yieldTokenAmount = totalSharesLiquidated
+        .mul(vaultConfig.shareToYieldTokenExchangeRate)
+        .div(ethers.utils.parseUnits('1', 24));
     } else {
       // primaryWithdrawTokenAmount = position.primaryWithdrawTokenAmount
       primaryWithdrawTokenAmount = positions[0].primaryWithdrawTokenAmount;
-      
+
       // If vaultConfig.vaultType = CurveConvex2Token: secondaryWithdrawTokenAmount = position.secondaryWithdrawTokenAmount
       if (vaultConfig.vaultType === VaultType.CurveConvex2Token) {
-        secondaryWithdrawTokenAmount = positions[0].secondaryWithdrawTokenAmount;
+        secondaryWithdrawTokenAmount =
+          positions[0].secondaryWithdrawTokenAmount;
       }
     }
-    
+
     // Generate appropriate redeem data based on vault type and withdraw request status
     const redeemData = await generateRedeemData(
       vaultConfig,
@@ -283,37 +394,47 @@ export default class ExponentLiquidator {
       primaryWithdrawTokenAmount,
       secondaryWithdrawTokenAmount
     );
-    
+
     return {
       vaultAddress,
       liquidateAccounts,
       sharesToLiquidate,
       assetsToBorrow,
       redeemData,
-      totalSharesLiquidated
+      totalSharesLiquidated,
     };
   }
 
   private async generateTransactions(
-    liquidationParams: { vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: ethers.BigNumber[]; assetsToBorrow: ethers.BigNumber; redeemData: string; totalSharesLiquidated: ethers.BigNumber }[]
+    liquidationParams: {
+      vaultAddress: string;
+      liquidateAccounts: string[];
+      sharesToLiquidate: ethers.BigNumber[];
+      assetsToBorrow: ethers.BigNumber;
+      redeemData: string;
+      totalSharesLiquidated: ethers.BigNumber;
+    }[]
   ): Promise<PopulatedTransaction[]> {
     const populatedTxs: PopulatedTransaction[] = [];
 
     for (const params of liquidationParams) {
-      const populatedTx = await this.flashLiquidator.populateTransaction.flashLiquidate(
-        params.vaultAddress,
-        params.liquidateAccounts,
-        params.sharesToLiquidate,
-        params.assetsToBorrow,
-        params.redeemData
-      );
+      const populatedTx =
+        await this.flashLiquidator.populateTransaction.flashLiquidate(
+          params.vaultAddress,
+          params.liquidateAccounts,
+          params.sharesToLiquidate,
+          params.assetsToBorrow,
+          params.redeemData
+        );
       populatedTxs.push(populatedTx);
     }
 
     return populatedTxs;
   }
 
-  private async pruneFailingTransactions(populatedTxs: PopulatedTransaction[]): Promise<PopulatedTransaction[]> {
+  private async pruneFailingTransactions(
+    populatedTxs: PopulatedTransaction[]
+  ): Promise<PopulatedTransaction[]> {
     const failingTxns: PopulatedTransaction[] = [];
 
     const batch = (
@@ -331,19 +452,24 @@ export default class ExponentLiquidator {
       )
     )
       // Exclude any failing txns in here
-      .filter((tx) => !failingTxns.find((failingTx) => failingTx.data === tx?.data));
+      .filter(
+        (tx) => !failingTxns.find((failingTx) => failingTx.data === tx?.data)
+      );
 
     return batch.filter((tx): tx is PopulatedTransaction => tx !== null);
   }
 
+  private async executeTransactionsViaRelay(
+    validTxs: PopulatedTransaction[]
+  ): Promise<LiquidationReport> {
+    const transactionResults: TransactionResult[] = [];
 
-  private async executeTransactionsViaRelay(validTxs: PopulatedTransaction[]): Promise<void> {
     for (const tx of validTxs) {
       try {
         console.log(`Executing transaction to: ${tx.to}`);
-        
+
         const gasLimit = await this.provider.estimateGas(tx);
-        
+
         let resp: ethers.providers.TransactionResponse | undefined = undefined;
         if (tx.data && tx.to) {
           resp = await sendTxThroughRelayer({
@@ -351,66 +477,218 @@ export default class ExponentLiquidator {
               NETWORK: this.env.NETWORK,
               TX_RELAY_AUTH_TOKEN: this.env.TX_RELAY_AUTH_TOKEN,
             },
-            to: tx.to,
-            data: tx.data,
+            to: tx.to as string,
+            data: tx.data as string,
             gasLimit: gasLimit.mul(200).div(100).toNumber(),
           });
+
+          transactionResults.push({
+            success: true,
+            hash: resp?.hash,
+            gasLimit: gasLimit.toNumber(),
+            to: tx.to as string,
+          });
+
+          if (resp) {
+            console.log(`Transaction sent via relay: ${resp.hash}`);
+          }
         }
-        
-        if (resp) {
-          console.log(`Transaction sent via relay: ${resp.hash}`);
-        }
-        
       } catch (error) {
         console.error('Transaction execution failed:', error);
-        throw error;
+        transactionResults.push({
+          success: false,
+          error: (error as Error).message,
+          to: tx.to as string,
+        });
       }
     }
 
-    console.log(`Completed liquidation of ${validTxs.length} transactions`);
-  }
+    const report: LiquidationReport = {
+      totalTransactions: validTxs.length,
+      successfulTransactions: transactionResults.filter((r) => r.success)
+        .length,
+      failedTransactions: transactionResults.filter((r) => !r.success).length,
+      transactionResults,
+    };
 
-  async run(): Promise<EnrichedPosition[]> {
-    // Step 1: Get risky positions
-    const riskyPositions = await this.getRiskyPositions();
-    
-    // Step 2: Enrich position data
-    const enrichedPositions = await this.enrichPositionData(riskyPositions);
-
-    // Step 3: Filter positions for liquidation
-    const positionsToLiquidate = this.filterPositionsForLiquidation(enrichedPositions);
-
-    // Step 4: Sort positions for liquidation
-    const sortedPositions = this.sortPositionsForLiquidation(positionsToLiquidate);
-
-    // Step 5: Batch positions for liquidation
-    const batchedAndSortedPositions = this.batchPositionsForLiquidation(sortedPositions);
-
-    // Step 6: Fetch token prices
-    const tokenPrices = await getTokenPrices(
-      positionsToLiquidate,
-      this.vaultRegistry,
-      this.provider,
-      this.tradingModule,
-      this.network
+    console.log(
+      `Completed liquidation: ${report.successfulTransactions}/${report.totalTransactions} transactions successful`
     );
 
-    // Step 7: Generate liquidation call data
-    const liquidationParams = await this.generateLiquidationCallData(batchedAndSortedPositions, tokenPrices);
-
-    // Step 8: Generate populated transactions
-    const populatedTxs = await this.generateTransactions(liquidationParams);
-
-    // Step 9: Prune failing transactions
-    const validTxs = await this.pruneFailingTransactions(populatedTxs);
-
-    // Step 10: Execute the valid transactions via relay
-    await this.executeTransactionsViaRelay(validTxs);
-    
-    // Step 11: Log risky position events for monitoring
-    await this.logger.logRiskyPositionEvents(riskyPositions, this.env.NETWORK);
-
-    return enrichedPositions;
+    return report;
   }
 
+  async run(): Promise<LiquidationRunResult> {
+    let riskyPositions: RiskyPosition[] = [];
+    let enrichedPositions: EnrichedPosition[] = [];
+    let positionsToLiquidate: EnrichedPosition[] = [];
+    let liquidationReport: LiquidationReport = {
+      totalTransactions: 0,
+      successfulTransactions: 0,
+      failedTransactions: 0,
+      transactionResults: [],
+    };
+
+    try {
+      // Step 1: Get risky positions
+      riskyPositions = await this.getRiskyPositions();
+    } catch (error) {
+      await this.logger.logError(
+        'Getting risky positions',
+        (error as Error).message,
+        { type: 'positions', data: this.positions }
+      );
+      throw error;
+    }
+
+    try {
+      // Step 2: Enrich position data
+      enrichedPositions = await this.enrichPositionData(riskyPositions);
+    } catch (error) {
+      await this.logger.logError(
+        'Enriching position data',
+        (error as Error).message,
+        { type: 'riskyPositions', data: riskyPositions }
+      );
+      throw error;
+    }
+
+    try {
+      // Step 3: Filter positions for liquidation
+      positionsToLiquidate =
+        this.filterPositionsForLiquidation(enrichedPositions);
+    } catch (error) {
+      await this.logger.logError(
+        'Filtering positions for liquidation',
+        (error as Error).message,
+        { type: 'enrichedPositions', data: enrichedPositions }
+      );
+      throw error;
+    }
+
+    let sortedPositions: Map<
+      string,
+      {
+        withoutWithdrawRequest: EnrichedPosition[];
+        withWithdrawRequest: EnrichedPosition[];
+      }
+    >;
+    try {
+      // Step 4: Sort positions for liquidation
+      sortedPositions = this.sortPositionsForLiquidation(positionsToLiquidate);
+    } catch (error) {
+      await this.logger.logError(
+        'Sorting positions for liquidation',
+        (error as Error).message,
+        { type: 'enrichedPositions', data: positionsToLiquidate }
+      );
+      throw error;
+    }
+
+    let batchedAndSortedPositions: Map<
+      string,
+      {
+        withoutWithdrawRequest: EnrichedPosition[][];
+        withWithdrawRequest: EnrichedPosition[];
+      }
+    >;
+    try {
+      // Step 5: Batch positions for liquidation
+      batchedAndSortedPositions =
+        this.batchPositionsForLiquidation(sortedPositions);
+    } catch (error) {
+      await this.logger.logError(
+        'Batching positions for liquidation',
+        (error as Error).message,
+        { type: 'enrichedPositions', data: positionsToLiquidate }
+      );
+      throw error;
+    }
+
+    let tokenPrices: Map<string, TokenPrice>;
+    try {
+      // Step 6: Fetch token prices
+      tokenPrices = await getTokenPrices(
+        positionsToLiquidate,
+        this.vaultRegistry,
+        this.provider,
+        this.tradingModule,
+        this.network
+      );
+    } catch (error) {
+      await this.logger.logError(
+        'Fetching token prices',
+        (error as Error).message,
+        { type: 'enrichedPositions', data: positionsToLiquidate }
+      );
+      throw error;
+    }
+
+    let liquidationParams: {
+      vaultAddress: string;
+      liquidateAccounts: string[];
+      sharesToLiquidate: ethers.BigNumber[];
+      assetsToBorrow: ethers.BigNumber;
+      redeemData: string;
+      totalSharesLiquidated: ethers.BigNumber;
+    }[];
+    try {
+      // Step 7: Generate liquidation call data
+      liquidationParams = await this.generateLiquidationCallData(
+        batchedAndSortedPositions,
+        tokenPrices
+      );
+    } catch (error) {
+      await this.logger.logError(
+        'Generating liquidation call data',
+        (error as Error).message,
+        { type: 'enrichedPositions', data: positionsToLiquidate }
+      );
+      throw error;
+    }
+
+    let populatedTxs: PopulatedTransaction[];
+    try {
+      // Step 8: Generate populated transactions
+      populatedTxs = await this.generateTransactions(liquidationParams);
+    } catch (error) {
+      await this.logger.logError(
+        'Generating populated transactions',
+        (error as Error).message,
+        { type: 'enrichedPositions', data: positionsToLiquidate }
+      );
+      throw error;
+    }
+
+    let validTxs: PopulatedTransaction[];
+    try {
+      // Step 9: Prune failing transactions
+      validTxs = await this.pruneFailingTransactions(populatedTxs);
+    } catch (error) {
+      await this.logger.logError(
+        'Pruning failing transactions',
+        (error as Error).message,
+        { type: 'enrichedPositions', data: positionsToLiquidate }
+      );
+      throw error;
+    }
+
+    try {
+      // Step 10: Execute the valid transactions via relay
+      liquidationReport = await this.executeTransactionsViaRelay(validTxs);
+    } catch (error) {
+      await this.logger.logError(
+        'Executing transactions via relay',
+        (error as Error).message,
+        { type: 'enrichedPositions', data: positionsToLiquidate }
+      );
+      throw error;
+    }
+
+    return {
+      positionsToLiquidate,
+      liquidationReport,
+      enrichedPositions,
+    };
+  }
 }
