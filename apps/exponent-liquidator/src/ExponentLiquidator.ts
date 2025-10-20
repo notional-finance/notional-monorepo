@@ -1,6 +1,6 @@
 import { ethers, Contract } from 'ethers';
 import { getProviderFromNetwork, Network, sendTxThroughRelayer } from '@notional-finance/util';
-import { RiskyPosition, EnrichedPosition, Env, Position, TokenPrice } from './types';
+import { RiskyPosition, EnrichedPosition, Env, Position, TokenPrice, VaultType } from './types';
 import { fetchPositions } from './utils/dataService';
 import { MorphoRouterIntegration } from './utils/morphoRouter';
 import { getWithdrawRequestData } from './utils/withdrawRequestData';
@@ -233,13 +233,13 @@ export default class ExponentLiquidator {
     for (const [vaultAddress, vaultPositions] of batchedAndSortedPositions) {
       // Process isWithdrawRequestPending False batches first
       for (const batch of vaultPositions.withoutWithdrawRequest) {
-        const liquidationData = await this.generateSingleLiquidationCallData(batch, tokenPrices);
+        const liquidationData = await this.generateSingleLiquidationCallData(batch, false, tokenPrices);
         liquidationParams.push(liquidationData);
       }
 
       // Then process isWithdrawRequestPending True positions one by one
       for (const position of vaultPositions.withWithdrawRequest) {
-        const liquidationData = await this.generateSingleLiquidationCallData([position], tokenPrices);
+        const liquidationData = await this.generateSingleLiquidationCallData([position], true, tokenPrices);
         liquidationParams.push(liquidationData);
       }
     }
@@ -247,7 +247,7 @@ export default class ExponentLiquidator {
     return liquidationParams;
   }
 
-  private async generateSingleLiquidationCallData(positions: EnrichedPosition[], tokenPrices: Map<string, TokenPrice>): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string; totalSharesLiquidated: ethers.BigNumber }> {
+  private async generateSingleLiquidationCallData(positions: EnrichedPosition[], isWithdrawRequestPending: boolean, tokenPrices: Map<string, TokenPrice>): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string; totalSharesLiquidated: ethers.BigNumber }> {
     if (positions.length === 0) {
       throw new Error('No positions provided for liquidation');
     }
@@ -282,8 +282,34 @@ export default class ExponentLiquidator {
       throw new Error(`Vault config not found for vault: ${vaultAddress}`);
     }
     
+    // Calculate parameters for redeem data generation based on withdraw request status
+    let yieldTokenAmount: ethers.BigNumber | undefined;
+    let primaryWithdrawTokenAmount: ethers.BigNumber | undefined;
+    let secondaryWithdrawTokenAmount: ethers.BigNumber | undefined;
+
+    if (!isWithdrawRequestPending) {
+      // yieldTokenAmount = totalSharesLiquidated * vaultConfig.shareToYieldTokenExchangeRate
+      yieldTokenAmount = totalSharesLiquidated.mul(vaultConfig.shareToYieldTokenExchangeRate).div(ethers.utils.parseUnits('1', 24));
+    } else {
+      // primaryWithdrawTokenAmount = position.primaryWithdrawTokenAmount
+      primaryWithdrawTokenAmount = positions[0].primaryWithdrawTokenAmount;
+      
+      // If vaultConfig.vaultType = CurveConvex2Token: secondaryWithdrawTokenAmount = position.secondaryWithdrawTokenAmount
+      if (vaultConfig.vaultType === VaultType.CurveConvex2Token) {
+        secondaryWithdrawTokenAmount = positions[0].secondaryWithdrawTokenAmount;
+      }
+    }
+    
     // Generate appropriate redeem data based on vault type and withdraw request status
-    const redeemData = await generateRedeemData(vaultConfig, positions[0], tokenPrices, this.network);
+    const redeemData = await generateRedeemData(
+      vaultConfig,
+      isWithdrawRequestPending,
+      yieldTokenAmount,
+      primaryWithdrawTokenAmount,
+      secondaryWithdrawTokenAmount,
+      tokenPrices,
+      this.network
+    );
     
     return {
       vaultAddress,

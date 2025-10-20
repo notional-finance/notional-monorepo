@@ -43,7 +43,10 @@ function calculateMinPurchaseAmount(
 
 export async function generateRedeemData(
   vaultConfig: VaultConfig,
-  position: EnrichedPosition,
+  isWithdrawRequestPending: boolean,
+  yieldTokenAmount?: ethers.BigNumber,
+  primaryWithdrawTokenAmount?: ethers.BigNumber,
+  secondaryWithdrawTokenAmount?: ethers.BigNumber,
   tokenPrices: Map<string, TokenPrice>,
   network: Network
 ): Promise<string> {
@@ -51,20 +54,46 @@ export async function generateRedeemData(
 
   switch (vaultType) {
     case VaultType.Staking:
-      return generateStakingRedeemData(vaultConfig, position, tokenPrices);
+      return generateStakingRedeemData(
+        vaultConfig,
+        isWithdrawRequestPending,
+        yieldTokenAmount,
+        primaryWithdrawTokenAmount,
+        tokenPrices
+      );
     
     case VaultType.PendlePT:
-      return await generatePendlePTRedeemData(vaultConfig, position, tokenPrices, network);
+      return await generatePendlePTRedeemData(
+        vaultConfig,
+        isWithdrawRequestPending,
+        yieldTokenAmount,
+        primaryWithdrawTokenAmount,
+        tokenPrices,
+        network
+      );
     
     case VaultType.CurveConvex2Token:
-      return generateCurveConvex2TokenRedeemData(vaultConfig, position, tokenPrices);
+      return generateCurveConvex2TokenRedeemData(
+        vaultConfig,
+        isWithdrawRequestPending,
+        yieldTokenAmount,
+        primaryWithdrawTokenAmount,
+        secondaryWithdrawTokenAmount,
+        tokenPrices
+      );
     
     default:
       throw new Error(`Unsupported vault type for withdraw requests: ${vaultType}`);
   }
 }
 
-export function generateStakingRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
+export function generateStakingRedeemData(
+  vaultConfig: VaultConfig,
+  isWithdrawRequestPending: boolean,
+  yieldTokenAmount: ethers.BigNumber | undefined,
+  primaryWithdrawTokenAmount: ethers.BigNumber | undefined,
+  tokenPrices: Map<string, TokenPrice>
+): string {
   // Get dexId from vault config
   const dexId = vaultConfig.dexId;
   if (dexId === undefined) {
@@ -72,27 +101,31 @@ export function generateStakingRedeemData(vaultConfig: VaultConfig, position: En
   }
   
   // Get exchangeData based on withdraw request status
-  const exchangeData = position.isWithdrawRequestPending 
+  const exchangeData = isWithdrawRequestPending 
     ? vaultConfig.withdrawExchangeData 
     : vaultConfig.redeemExchangeData;
   
   if (!exchangeData) {
-    throw new Error(`Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${position.isWithdrawRequestPending}`);
+    throw new Error(`Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${isWithdrawRequestPending}`);
   }
   
   // Calculate minPurchaseAmount
   let minPurchaseAmount: ethers.BigNumber;
   
-  if (!position.isWithdrawRequestPending) {
+  if (!isWithdrawRequestPending) {
+    if (!yieldTokenAmount) {
+      throw new Error(`Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`);
+    }
+    
     minPurchaseAmount = calculateMinPurchaseAmount(
       vaultConfig.yieldToken,
       vaultConfig.asset,
       vaultConfig.slippageLimit || 0,
-      position.totalYieldTokens,
+      yieldTokenAmount,
       tokenPrices
     );
   } else {
-    if (!position.primaryWithdrawTokenAmount) {
+    if (!primaryWithdrawTokenAmount) {
       throw new Error(`Primary withdraw token amount not found for vault: ${vaultConfig.address}`);
     }
     
@@ -100,7 +133,7 @@ export function generateStakingRedeemData(vaultConfig: VaultConfig, position: En
       vaultConfig.primaryWithdrawToken,
       vaultConfig.asset,
       vaultConfig.slippageLimit || 0,
-      position.primaryWithdrawTokenAmount,
+      primaryWithdrawTokenAmount,
       tokenPrices
     );
   }
@@ -116,7 +149,9 @@ export function generateStakingRedeemData(vaultConfig: VaultConfig, position: En
 
 export async function generatePendlePTRedeemData(
   vaultConfig: VaultConfig,
-  position: EnrichedPosition,
+  isWithdrawRequestPending: boolean,
+  yieldTokenAmount: ethers.BigNumber | undefined,
+  primaryWithdrawTokenAmount: ethers.BigNumber | undefined,
   tokenPrices: Map<string, TokenPrice>,
   network: Network
 ): Promise<string> {
@@ -127,7 +162,11 @@ export async function generatePendlePTRedeemData(
   let exchangeData: string;
   let limitOrderData: string = '0x';
   
-  if (!position.isWithdrawRequestPending) {
+  if (!isWithdrawRequestPending) {
+    if (!yieldTokenAmount) {
+      throw new Error(`Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`);
+    }
+    
     // Get exchangeData from redeemExchangeData
     exchangeData = vaultConfig.redeemExchangeData || '0x';
     
@@ -135,7 +174,7 @@ export async function generatePendlePTRedeemData(
       vaultConfig.yieldToken,
       vaultConfig.asset,
       vaultConfig.slippageLimit || 0.01,
-      position.totalYieldTokens,
+      yieldTokenAmount,
       tokenPrices
     );
     
@@ -147,7 +186,7 @@ export async function generatePendlePTRedeemData(
         vaultConfig.ptAddress,
         vaultConfig.yieldToken, // tokenOutSy
         vaultConfig.address, // vault address as receiver
-        position.totalYieldTokens,
+        yieldTokenAmount,
         vaultConfig.ptSlippageLimit || 0.001
       );
     }
@@ -164,7 +203,7 @@ export async function generatePendlePTRedeemData(
     // Get exchangeData from withdrawExchangeData
     exchangeData = vaultConfig.withdrawExchangeData || '0x';
     
-    if (!position.primaryWithdrawTokenAmount) {
+    if (!primaryWithdrawTokenAmount) {
       throw new Error(`Primary withdraw token amount not found for vault: ${vaultConfig.address}`);
     }
     
@@ -172,7 +211,7 @@ export async function generatePendlePTRedeemData(
       vaultConfig.primaryWithdrawToken,
       vaultConfig.asset,
       vaultConfig.slippageLimit || 0,
-      position.primaryWithdrawTokenAmount,
+      primaryWithdrawTokenAmount,
       tokenPrices
     );
     
@@ -238,9 +277,20 @@ async function fetchPendleLimitOrderData(
   }
 }
 
-export function generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, position: EnrichedPosition, tokenPrices: Map<string, TokenPrice>): string {
+export function generateCurveConvex2TokenRedeemData(
+  vaultConfig: VaultConfig,
+  isWithdrawRequestPending: boolean,
+  yieldTokenAmount: ethers.BigNumber | undefined,
+  primaryWithdrawTokenAmount: ethers.BigNumber | undefined,
+  secondaryWithdrawTokenAmount: ethers.BigNumber | undefined,
+  tokenPrices: Map<string, TokenPrice>
+): string {
 
-  if (!position.isWithdrawRequestPending) {
+  if (!isWithdrawRequestPending) {
+    if (!yieldTokenAmount) {
+      throw new Error(`Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`);
+    }
+    
     // For direct liquidation: empty redemptionTrades array
     if (vaultConfig.primaryIndex === undefined) {
       throw new Error(`Primary index not found for vault: ${vaultConfig.address}`);
@@ -250,7 +300,7 @@ export function generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, po
       vaultConfig.yieldToken,
       vaultConfig.asset,
       vaultConfig.slippageLimit || 0,
-      position.totalYieldTokens,
+      yieldTokenAmount,
       tokenPrices
     );
     
@@ -286,7 +336,7 @@ export function generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, po
       });
     } else {
       // Construct actual trade params for primaryWithdrawToken
-      if (!position.primaryWithdrawTokenAmount) {
+      if (!primaryWithdrawTokenAmount) {
         throw new Error(`Primary withdraw token amount not found for vault: ${vaultConfig.address}`);
       }
       
@@ -294,12 +344,12 @@ export function generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, po
         vaultConfig.primaryWithdrawToken,
         vaultConfig.asset,
         vaultConfig.slippageLimit || 0,
-        position.primaryWithdrawTokenAmount,
+        primaryWithdrawTokenAmount,
         tokenPrices
       );
       
       redemptionTrades.push({
-        tradeAmount: position.primaryWithdrawTokenAmount,
+        tradeAmount: primaryWithdrawTokenAmount,
         dexId: vaultConfig.primaryWithdrawDexId || 0,
         tradeType: TRADE_TYPE.EXACT_IN_SINGLE,
         minPurchaseAmount: primaryMinPurchaseAmount,
@@ -319,7 +369,7 @@ export function generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, po
       });
     } else {
       // Construct actual trade params for secondaryWithdrawToken
-      if (!position.secondaryWithdrawTokenAmount) {
+      if (!secondaryWithdrawTokenAmount) {
         throw new Error(`Secondary withdraw token amount not found for vault: ${vaultConfig.address}`);
       }
       
@@ -327,12 +377,12 @@ export function generateCurveConvex2TokenRedeemData(vaultConfig: VaultConfig, po
         vaultConfig.secondaryWithdrawToken!,
         vaultConfig.asset,
         vaultConfig.slippageLimit || 0,
-        position.secondaryWithdrawTokenAmount,
+        secondaryWithdrawTokenAmount,
         tokenPrices
       );
       
       redemptionTrades.push({
-        tradeAmount: position.secondaryWithdrawTokenAmount,
+        tradeAmount: secondaryWithdrawTokenAmount,
         dexId: vaultConfig.secondaryWithdrawDexId || 0,
         tradeType: TRADE_TYPE.EXACT_IN_SINGLE,
         minPurchaseAmount: secondaryMinPurchaseAmount,
