@@ -407,16 +407,18 @@ export class SingleSidedLP extends VaultAdapter {
       (t) => t.mulInRatePrecision(RATE_PRECISION - 10 * BASIS_POINT).n
     );
 
-    const withdrawData = withdrawManager.map((w, i) => {
-      if (tokensOut[i].tokenId !== w.yieldToken.id)
-        throw Error('Yield token not found');
+    const withdrawData = await Promise.all(
+      withdrawManager.map(async (w, i) => {
+        if (tokensOut[i].tokenId !== w.yieldToken.id)
+          throw Error('Yield token not found');
 
-      return w.getWithdrawParameters(account, vaultSharesToRedeem);
-    });
+        return w.getWithdrawParameters(account, vaultSharesToRedeem);
+      })
+    );
 
     return defaultAbiCoder.encode(
       ['tuple(uint256[] minAmounts, bytes[] withdrawData) d'],
-      [minAmounts, withdrawData]
+      [[minAmounts, withdrawData]]
     );
   }
 
