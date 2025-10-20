@@ -1,5 +1,5 @@
 import { ethers, Contract } from 'ethers';
-import { getProviderFromNetwork, Network } from '@notional-finance/util';
+import { getProviderFromNetwork, Network, sendTxThroughRelayer } from '@notional-finance/util';
 import { RiskyPosition, EnrichedPosition, Env, Position, TokenPrice } from './types';
 import { fetchPositions } from './utils/dataService';
 import { MorphoRouterIntegration } from './utils/morphoRouter';
@@ -223,7 +223,31 @@ export default class ExponentLiquidator {
   }
 
 
-  private async generateLiquidationCallData(positions: EnrichedPosition[], tokenPrices: Map<string, TokenPrice>): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string }> {
+  private async generateLiquidationCallData(
+    batchedAndSortedPositions: Map<string, { withoutWithdrawRequest: EnrichedPosition[][], withWithdrawRequest: EnrichedPosition[] }>,
+    tokenPrices: Map<string, TokenPrice>
+  ): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string; totalSharesLiquidated: ethers.BigNumber }[]> {
+    const liquidationParams: { vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string; totalSharesLiquidated: ethers.BigNumber }[] = [];
+
+    // Iterate through each vault
+    for (const [vaultAddress, vaultPositions] of batchedAndSortedPositions) {
+      // Process isWithdrawRequestPending False batches first
+      for (const batch of vaultPositions.withoutWithdrawRequest) {
+        const liquidationData = await this.generateSingleLiquidationCallData(batch, tokenPrices);
+        liquidationParams.push(liquidationData);
+      }
+
+      // Then process isWithdrawRequestPending True positions one by one
+      for (const position of vaultPositions.withWithdrawRequest) {
+        const liquidationData = await this.generateSingleLiquidationCallData([position], tokenPrices);
+        liquidationParams.push(liquidationData);
+      }
+    }
+
+    return liquidationParams;
+  }
+
+  private async generateSingleLiquidationCallData(positions: EnrichedPosition[], tokenPrices: Map<string, TokenPrice>): Promise<{ vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string; totalSharesLiquidated: ethers.BigNumber }> {
     if (positions.length === 0) {
       throw new Error('No positions provided for liquidation');
     }
@@ -242,6 +266,11 @@ export default class ExponentLiquidator {
     const totalBorrowedWithBuffer = totalBorrowed.mul(110).div(100);
     
     const assetsToBorrow = totalBorrowedWithBuffer.toString();
+
+    // Calculate total shares liquidated by summing up sharesToLiquidate for all accounts in the batch
+    const totalSharesLiquidated = positions.reduce((sum, position) => {
+      return sum.add(position.collateralShares);
+    }, ethers.BigNumber.from(0));
     
     // Get vault config to determine redeem data
     if (!this.vaultRegistry) {
@@ -261,76 +290,85 @@ export default class ExponentLiquidator {
       liquidateAccounts,
       sharesToLiquidate,
       assetsToBorrow,
-      redeemData
+      redeemData,
+      totalSharesLiquidated
     };
   }
 
-  private async executeFlashLiquidation(liquidationParams: { vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string }): Promise<void> {
-    try {
-      console.log(`Executing flash liquidation for vault: ${liquidationParams.vaultAddress} with ${liquidationParams.liquidateAccounts.length} accounts`);
-      
-      // Call the flash liquidator contract
-      const tx = await this.flashLiquidator.flashLiquidate(
-        liquidationParams.vaultAddress,
-        liquidationParams.liquidateAccounts,
-        liquidationParams.sharesToLiquidate,
-        liquidationParams.assetsToBorrow,
-        liquidationParams.redeemData
+  private async generateTransactions(
+    liquidationParams: { vaultAddress: string; liquidateAccounts: string[]; sharesToLiquidate: string[]; assetsToBorrow: string; redeemData: string; totalSharesLiquidated: ethers.BigNumber }[]
+  ): Promise<ethers.UnsignedTransaction[]> {
+    const unsignedTxs: ethers.UnsignedTransaction[] = [];
+
+    for (const params of liquidationParams) {
+      const unsignedTx = await this.flashLiquidator.populateTransaction.flashLiquidate(
+        params.vaultAddress,
+        params.liquidateAccounts,
+        params.sharesToLiquidate,
+        params.assetsToBorrow,
+        params.redeemData
       );
-      
-      console.log(`Flash liquidation transaction sent: ${tx.hash}`);
-      
-      // Wait for transaction confirmation
-      const receipt = await tx.wait();
-      console.log(`Flash liquidation confirmed in block: ${receipt.blockNumber}`);
-      
-    } catch (error) {
-      console.error('Flash liquidation failed:', error);
-      throw error;
+      unsignedTxs.push(unsignedTx);
     }
+
+    return unsignedTxs;
   }
 
-  async liquidatePositions(positionsToLiquidate: EnrichedPosition[]): Promise<void> {
-    // Step 1: Fetch token prices
-    if (!this.vaultRegistry) {
-      throw new Error('Vault registry not initialized');
-    }
-    
-    const tokenPrices = await getTokenPrices(
-      positionsToLiquidate,
-      this.vaultRegistry,
-      this.provider,
-      this.tradingModule,
-      this.network
-    );
+  private async pruneFailingTransactions(unsignedTxs: ethers.UnsignedTransaction[]): Promise<ethers.UnsignedTransaction[]> {
+    const failingTxns: ethers.UnsignedTransaction[] = [];
 
-    // Step 2: Sort positions by vault and withdraw request status
-    const sortedPositions = this.sortPositionsForLiquidation(positionsToLiquidate);
+    const batch = (
+      await Promise.all(
+        unsignedTxs.map((tx) =>
+          this.provider
+            .estimateGas(tx)
+            .catch((e) => {
+              console.log('FAILED ESTIMATE GAS ', e);
+              failingTxns.push(tx);
+              return null;
+            })
+            .then(() => tx)
+        )
+      )
+    )
+      // Exclude any failing txns in here
+      .filter((tx) => !failingTxns.find((failingTx) => failingTx.data === tx?.data));
 
-    // Step 3: Process each vault
-    for (const [vaultAddress, vaultPositions] of sortedPositions) {
-      console.log(`Processing liquidations for vault: ${vaultAddress}`);
+    return batch.filter((tx): tx is ethers.UnsignedTransaction => tx !== null);
+  }
 
-      // Step 3: Liquidate positions without withdraw requests (in batches)
-      const batchesWithoutWithdrawRequest = this.batchPositions(vaultPositions.withoutWithdrawRequest, 5);
-      
-      for (const batch of batchesWithoutWithdrawRequest) {
-        console.log(`Liquidating batch of ${batch.length} positions without withdraw requests`);
-        const liquidationParams = await this.generateLiquidationCallData(batch, tokenPrices);
-        await this.executeFlashLiquidation(liquidationParams);
+
+  private async executeTransactionsViaRelay(validTxs: ethers.UnsignedTransaction[]): Promise<void> {
+    for (const tx of validTxs) {
+      try {
+        console.log(`Executing transaction to: ${tx.to}`);
+        
+        const gasLimit = await this.provider.estimateGas(tx);
+        
+        let resp: ethers.providers.TransactionResponse | undefined = undefined;
+        if (tx.data && tx.to) {
+          resp = await sendTxThroughRelayer({
+            env: {
+              NETWORK: this.env.NETWORK,
+              TX_RELAY_AUTH_TOKEN: this.env.TX_RELAY_AUTH_TOKEN,
+            },
+            to: tx.to,
+            data: tx.data,
+            gasLimit: gasLimit.mul(200).div(100).toNumber(),
+          });
+        }
+        
+        if (resp) {
+          console.log(`Transaction sent via relay: ${resp.hash}`);
+        }
+        
+      } catch (error) {
+        console.error('Transaction execution failed:', error);
+        throw error;
       }
-
-      // Step 4: Liquidate positions with withdraw requests (one by one)
-      for (const position of vaultPositions.withWithdrawRequest) {
-        console.log(`Liquidating position with withdraw request: ${position.account}`);
-        const liquidationParams = await this.generateLiquidationCallData([position], tokenPrices);
-        await this.executeFlashLiquidation(liquidationParams);
-      }
-
-      console.log(`Completed liquidations for vault: ${vaultAddress}`);
     }
 
-    console.log(`Completed liquidation of ${positionsToLiquidate.length} positions across ${sortedPositions.size} vaults`);
+    console.log(`Completed liquidation of ${validTxs.length} transactions`);
   }
 
   async run(): Promise<EnrichedPosition[]> {
@@ -355,10 +393,28 @@ export default class ExponentLiquidator {
     // Step 7: Batch positions for liquidation
     const batchedAndSortedPositions = this.batchPositionsForLiquidation(sortedPositions);
 
-    // Step 7: Liquidate positions
-    await this.liquidatePositions(positionsToLiquidate);
+    // Step 8: Fetch token prices
+    const tokenPrices = await getTokenPrices(
+      positionsToLiquidate,
+      this.vaultRegistry,
+      this.provider,
+      this.tradingModule,
+      this.network
+    );
+
+    // Step 9: Generate liquidation call data
+    const liquidationParams = await this.generateLiquidationCallData(batchedAndSortedPositions, tokenPrices);
+
+    // Step 10: Generate unsigned transactions
+    const unsignedTxs = await this.generateTransactions(liquidationParams);
+
+    // Step 11: Prune failing transactions
+    const validTxs = await this.pruneFailingTransactions(unsignedTxs);
+
+    // Step 12: Execute the valid transactions via relay
+    await this.executeTransactionsViaRelay(validTxs);
     
-    // Step 5: Log risky position events for monitoring
+    // Step 13: Log risky position events for monitoring
     await this.logger.logRiskyPositionEvents(riskyPositions, this.env.NETWORK);
 
     return enrichedPositions;
