@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { Network } from '@notional-finance/util';
-import { VaultConfig, VaultType, EnrichedPosition, TokenPrice, PendleApiResponse } from '../types';
+import { VaultConfig, VaultType, TokenPrice, PendleApiResponse } from '../types';
 import { PENDLE_API_URL, NETWORK_IDS, LIMIT_ORDER_TYPE, TRADE_TYPE } from '../constants';
 
 /**
@@ -44,11 +44,11 @@ function calculateMinPurchaseAmount(
 export async function generateRedeemData(
   vaultConfig: VaultConfig,
   isWithdrawRequestPending: boolean,
+  tokenPrices: Map<string, TokenPrice>,
+  network: Network,
   yieldTokenAmount?: ethers.BigNumber,
   primaryWithdrawTokenAmount?: ethers.BigNumber,
   secondaryWithdrawTokenAmount?: ethers.BigNumber,
-  tokenPrices: Map<string, TokenPrice>,
-  network: Network
 ): Promise<string> {
   const { vaultType } = vaultConfig;
 
@@ -160,7 +160,7 @@ export async function generatePendlePTRedeemData(
   // Calculate minPurchaseAmount using the same logic as Staking
   let minPurchaseAmount: ethers.BigNumber;
   let exchangeData: string;
-  let limitOrderData: string = '0x';
+  let limitOrderData = '0x';
   
   if (!isWithdrawRequestPending) {
     if (!yieldTokenAmount) {

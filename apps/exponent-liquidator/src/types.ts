@@ -38,7 +38,7 @@ export interface Env {
   NETWORK: Network;
   ALCHEMY_KEY: string;
   DD_API_KEY: string;
-  DD_APP_KEY: string;
+  TX_RELAY_AUTH_TOKEN: string;
 }
 
 export class MetricNames {

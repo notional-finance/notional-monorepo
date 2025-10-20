@@ -1,5 +1,28 @@
 import ExponentLiquidator from './ExponentLiquidator';
 import { Env } from './types';
+import { fetchPositions } from './utils/dataService';
+import { VaultRegistry } from './utils/vaultRegistry';
+import { getProviderFromNetwork } from '@notional-finance/util';
+
+async function createLiquidator(env: Env): Promise<ExponentLiquidator> {
+  // Step 1: Fetch positions from data service
+  const positions = await fetchPositions(
+    env.DATA_SERVICE_URL,
+    env.DATA_SERVICE_AUTH_TOKEN
+  );
+  
+  // Step 2: Initialize vault registry with unique vault addresses
+  const uniqueVaultAddresses = [...new Set(positions.map(([_, vault]) => vault))];
+  const provider = getProviderFromNetwork(env.NETWORK, true);
+  const vaultRegistry = await VaultRegistry.initialize(
+    uniqueVaultAddresses,
+    provider,
+    env.NETWORK
+  );
+  
+  // Step 3: Create liquidator with initialized dependencies
+  return new ExponentLiquidator(env, positions, vaultRegistry);
+}
 
 export default {
   async fetch(
@@ -8,7 +31,7 @@ export default {
     _: ExecutionContext
   ): Promise<Response> {
     try {
-      const liquidator = new ExponentLiquidator(env);
+      const liquidator = await createLiquidator(env);
       const enrichedPositions = await liquidator.run();
 
       return new Response(
@@ -42,7 +65,7 @@ export default {
     _: ExecutionContext
   ): Promise<void> {
     try {
-      const liquidator = new ExponentLiquidator(env);
+      const liquidator = await createLiquidator(env);
       const enrichedPositions = await liquidator.run();
 
       console.log(`Processed ${enrichedPositions.length} risky positions`);
