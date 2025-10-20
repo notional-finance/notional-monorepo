@@ -9,12 +9,7 @@ import {
 } from '@mui/material';
 import { AppBar, AppBarProps, Body, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
-import {
-  THEME_VARIANTS,
-  getFromLocalStorage,
-  setInLocalStorage,
-} from '@notional-finance/util';
-import { useNotionalTheme } from '@notional-finance/styles';
+import { getFromLocalStorage, setInLocalStorage } from '@notional-finance/util';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import { MobileNavigation } from './mobile-navigation/mobile-navigation';
@@ -34,19 +29,10 @@ import { update } from '@intercom/messenger-js-sdk';
 export interface HeaderProps extends AppBarProps {}
 
 export function Header({ children }: HeaderProps) {
-  const appTheme = useTheme();
+  const theme = useTheme();
   const { pathname } = useLocation();
-  const contestTheme = useNotionalTheme(THEME_VARIANTS.DARK, 'product');
-  const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
   const selectedNetwork = useSelectedNetwork();
   const hideSubGraphError = getFromLocalStorage('hideSubGraphError');
-
-  const theme =
-    pathname === '/' || pathname === '/note'
-      ? landingTheme
-      : pathname.includes('contest') || pathname.includes('points-dashboard')
-      ? contestTheme
-      : appTheme;
 
   const [isTop, setIsTop] = useState(true);
 
