@@ -578,3 +578,27 @@ export const BetaPageInject = () => {
     />
   );
 };
+
+export const BetaPageLeaderboardInject = () => {
+  // const walletAddress = useWalletAddress();
+
+  const containerRef = useStartInject(
+    '68c35869655d936c6aa482b7',
+    'exponent-leaderboard',
+    () => {
+      // TODO: fetch the leaderboard data and inject it here
+    }
+  );
+
+  return (
+    <Box
+      ref={containerRef}
+      sx={{ height: '100vh' }}
+      className="beta-leaderboard-body"
+      fs-inject-element="target"
+      fs-inject-source="/embed/exponent-leaderboard"
+      fs-inject-instance="exponent-leaderboard"
+      fs-inject-cache={'false'}
+    />
+  );
+};

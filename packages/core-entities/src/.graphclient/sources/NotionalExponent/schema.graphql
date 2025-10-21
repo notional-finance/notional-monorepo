@@ -131,6 +131,7 @@ type Balance {
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   current: BalanceSnapshot!
+  lendingRouter: LendingRouter
   _lastIncentiveSnapshotBlockNumber: BigInt
   """Link to the withdraw requests that this balance is associated with"""
   withdrawRequest(skip: Int = 0, first: Int = 100, orderBy: WithdrawRequest_orderBy, orderDirection: OrderDirection, where: WithdrawRequest_filter): [WithdrawRequest!]
@@ -513,6 +514,27 @@ input Balance_filter {
   current_not_ends_with: String
   current_not_ends_with_nocase: String
   current_: BalanceSnapshot_filter
+  lendingRouter: String
+  lendingRouter_not: String
+  lendingRouter_gt: String
+  lendingRouter_lt: String
+  lendingRouter_gte: String
+  lendingRouter_lte: String
+  lendingRouter_in: [String!]
+  lendingRouter_not_in: [String!]
+  lendingRouter_contains: String
+  lendingRouter_contains_nocase: String
+  lendingRouter_not_contains: String
+  lendingRouter_not_contains_nocase: String
+  lendingRouter_starts_with: String
+  lendingRouter_starts_with_nocase: String
+  lendingRouter_not_starts_with: String
+  lendingRouter_not_starts_with_nocase: String
+  lendingRouter_ends_with: String
+  lendingRouter_ends_with_nocase: String
+  lendingRouter_not_ends_with: String
+  lendingRouter_not_ends_with_nocase: String
+  lendingRouter_: LendingRouter_filter
   _lastIncentiveSnapshotBlockNumber: BigInt
   _lastIncentiveSnapshotBlockNumber_not: BigInt
   _lastIncentiveSnapshotBlockNumber_gt: BigInt
@@ -587,6 +609,15 @@ enum Balance_orderBy {
   current___accumulatedCostRealized
   current___lastInterestAccumulator
   current___lastVaultFeeAccumulator
+  lendingRouter
+  lendingRouter__id
+  lendingRouter__firstUpdateBlockNumber
+  lendingRouter__firstUpdateTimestamp
+  lendingRouter__firstUpdateTransactionHash
+  lendingRouter__lastUpdateBlockNumber
+  lendingRouter__lastUpdateTimestamp
+  lendingRouter__lastUpdateTransactionHash
+  lendingRouter__name
   _lastIncentiveSnapshotBlockNumber
   withdrawRequest
   snapshots

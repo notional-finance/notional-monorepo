@@ -10,4 +10,5 @@ export interface INavLink {
   refresh?: boolean;
   noBottomBorder?: boolean;
   CustomComponent?: any;
+  isRight?: boolean;
 }

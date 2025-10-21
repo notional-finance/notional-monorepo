@@ -28,8 +28,8 @@ export function Navigation({ navLinks, isLandingPage }: NavigationProps) {
   useEffect(() => {
     setSelectedTab(currentTab);
   }, [currentTab]);
-  const leftNavLinks = navLinks.filter((navLink) => navLink.key !== 'note');
-  const rightNavLinks = navLinks.filter((navLink) => navLink.key === 'note');
+  const leftNavLinks = navLinks.filter((navLink) => !navLink.isRight);
+  const rightNavLinks = navLinks.filter((navLink) => navLink.isRight);
 
   return (
     <Box
@@ -138,6 +138,7 @@ export function Navigation({ navLinks, isLandingPage }: NavigationProps) {
                   fontWeight: 400,
                   fontSize: '1rem',
                   padding: '6px 15px',
+                  height: '100%',
                 },
                 'svg.color-stroke': {
                   stroke: theme.palette.common.black,

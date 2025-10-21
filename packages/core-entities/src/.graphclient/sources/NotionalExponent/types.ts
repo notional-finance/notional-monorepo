@@ -159,6 +159,7 @@ export type Balance = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   current: BalanceSnapshot;
+  lendingRouter?: Maybe<LendingRouter>;
   _lastIncentiveSnapshotBlockNumber?: Maybe<Scalars['BigInt']>;
   /** Link to the withdraw requests that this balance is associated with */
   withdrawRequest?: Maybe<Array<WithdrawRequest>>;
@@ -576,6 +577,27 @@ export type Balance_filter = {
   current_not_ends_with?: InputMaybe<Scalars['String']>;
   current_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   current_?: InputMaybe<BalanceSnapshot_filter>;
+  lendingRouter?: InputMaybe<Scalars['String']>;
+  lendingRouter_not?: InputMaybe<Scalars['String']>;
+  lendingRouter_gt?: InputMaybe<Scalars['String']>;
+  lendingRouter_lt?: InputMaybe<Scalars['String']>;
+  lendingRouter_gte?: InputMaybe<Scalars['String']>;
+  lendingRouter_lte?: InputMaybe<Scalars['String']>;
+  lendingRouter_in?: InputMaybe<Array<Scalars['String']>>;
+  lendingRouter_not_in?: InputMaybe<Array<Scalars['String']>>;
+  lendingRouter_contains?: InputMaybe<Scalars['String']>;
+  lendingRouter_contains_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_contains?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_starts_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_starts_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_ends_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_ends_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_?: InputMaybe<LendingRouter_filter>;
   _lastIncentiveSnapshotBlockNumber?: InputMaybe<Scalars['BigInt']>;
   _lastIncentiveSnapshotBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
   _lastIncentiveSnapshotBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -650,6 +672,15 @@ export type Balance_orderBy =
   | 'current___accumulatedCostRealized'
   | 'current___lastInterestAccumulator'
   | 'current___lastVaultFeeAccumulator'
+  | 'lendingRouter'
+  | 'lendingRouter__id'
+  | 'lendingRouter__firstUpdateBlockNumber'
+  | 'lendingRouter__firstUpdateTimestamp'
+  | 'lendingRouter__firstUpdateTransactionHash'
+  | 'lendingRouter__lastUpdateBlockNumber'
+  | 'lendingRouter__lastUpdateTimestamp'
+  | 'lendingRouter__lastUpdateTransactionHash'
+  | 'lendingRouter__name'
   | '_lastIncentiveSnapshotBlockNumber'
   | 'withdrawRequest'
   | 'snapshots'

@@ -181,6 +181,7 @@ export type Balance = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   current: BalanceSnapshot;
+  lendingRouter?: Maybe<LendingRouter>;
   _lastIncentiveSnapshotBlockNumber?: Maybe<Scalars['BigInt']>;
   /** Link to the withdraw requests that this balance is associated with */
   withdrawRequest?: Maybe<Array<WithdrawRequest>>;
@@ -598,6 +599,27 @@ export type Balance_filter = {
   current_not_ends_with?: InputMaybe<Scalars['String']>;
   current_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   current_?: InputMaybe<BalanceSnapshot_filter>;
+  lendingRouter?: InputMaybe<Scalars['String']>;
+  lendingRouter_not?: InputMaybe<Scalars['String']>;
+  lendingRouter_gt?: InputMaybe<Scalars['String']>;
+  lendingRouter_lt?: InputMaybe<Scalars['String']>;
+  lendingRouter_gte?: InputMaybe<Scalars['String']>;
+  lendingRouter_lte?: InputMaybe<Scalars['String']>;
+  lendingRouter_in?: InputMaybe<Array<Scalars['String']>>;
+  lendingRouter_not_in?: InputMaybe<Array<Scalars['String']>>;
+  lendingRouter_contains?: InputMaybe<Scalars['String']>;
+  lendingRouter_contains_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_contains?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_starts_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_starts_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_ends_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_ends_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_?: InputMaybe<LendingRouter_filter>;
   _lastIncentiveSnapshotBlockNumber?: InputMaybe<Scalars['BigInt']>;
   _lastIncentiveSnapshotBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
   _lastIncentiveSnapshotBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
@@ -672,6 +694,15 @@ export type Balance_orderBy =
   | 'current___accumulatedCostRealized'
   | 'current___lastInterestAccumulator'
   | 'current___lastVaultFeeAccumulator'
+  | 'lendingRouter'
+  | 'lendingRouter__id'
+  | 'lendingRouter__firstUpdateBlockNumber'
+  | 'lendingRouter__firstUpdateTimestamp'
+  | 'lendingRouter__firstUpdateTransactionHash'
+  | 'lendingRouter__lastUpdateBlockNumber'
+  | 'lendingRouter__lastUpdateTimestamp'
+  | 'lendingRouter__lastUpdateTransactionHash'
+  | 'lendingRouter__name'
   | '_lastIncentiveSnapshotBlockNumber'
   | 'withdrawRequest'
   | 'snapshots'
@@ -3965,6 +3996,7 @@ export type BalanceResolvers<ContextType = MeshContext & { apiKey: string, subgr
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   current?: Resolver<ResolversTypes['BalanceSnapshot'], ParentType, ContextType>;
+  lendingRouter?: Resolver<Maybe<ResolversTypes['LendingRouter']>, ParentType, ContextType>;
   _lastIncentiveSnapshotBlockNumber?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   withdrawRequest?: Resolver<Maybe<Array<ResolversTypes['WithdrawRequest']>>, ParentType, ContextType, RequireFields<BalancewithdrawRequestArgs, 'skip' | 'first'>>;
   snapshots?: Resolver<Maybe<Array<ResolversTypes['BalanceSnapshot']>>, ParentType, ContextType, RequireFields<BalancesnapshotsArgs, 'skip' | 'first'>>;
@@ -4644,16 +4676,11 @@ export type AllTokensQuery = { tokens: Array<(
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllVaultAccountsQueryVariables = Exact<{
-  blockNumber: Scalars['Int'];
-  vaultAddress: Scalars['Bytes'];
   skip?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type AllVaultAccountsQuery = { balances: Array<(
-    Pick<Balance, 'id'>
-    & { account: Pick<Account, 'id'>, current: Pick<BalanceSnapshot, 'currentBalance'> }
-  )> };
+export type AllVaultAccountsQuery = { balances: Array<{ account: Pick<Account, 'id'>, token: Pick<Token, 'id'>, current: Pick<BalanceSnapshot, 'currentBalance'> }> };
 
 export type AllVaultsQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']>;
@@ -4993,15 +5020,16 @@ export const AllTokensDocument = gql`
 }
     ` as unknown as DocumentNode<AllTokensQuery, AllTokensQueryVariables>;
 export const AllVaultAccountsDocument = gql`
-    query AllVaultAccounts($blockNumber: Int!, $vaultAddress: Bytes!, $skip: Int) {
+    query AllVaultAccounts($skip: Int) {
   balances(
-    where: {token_: {vaultAddress: $vaultAddress, tokenType: VaultShare}, current_: {currentBalance_not: 0}}
-    block: {number: $blockNumber}
+    where: {token_: {tokenType: VaultShare}, current_: {currentBalance_not: 0}}
     first: 1000
     skip: $skip
   ) {
-    id
     account {
+      id
+    }
+    token {
       id
     }
     current {
@@ -5203,7 +5231,7 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     AllTokens(variables?: AllTokensQueryVariables, options?: C): Promise<AllTokensQuery> {
       return requester<AllTokensQuery, AllTokensQueryVariables>(AllTokensDocument, variables, options) as Promise<AllTokensQuery>;
     },
-    AllVaultAccounts(variables: AllVaultAccountsQueryVariables, options?: C): Promise<AllVaultAccountsQuery> {
+    AllVaultAccounts(variables?: AllVaultAccountsQueryVariables, options?: C): Promise<AllVaultAccountsQuery> {
       return requester<AllVaultAccountsQuery, AllVaultAccountsQueryVariables>(AllVaultAccountsDocument, variables, options) as Promise<AllVaultAccountsQuery>;
     },
     AllVaults(variables?: AllVaultsQueryVariables, options?: C): Promise<AllVaultsQuery> {

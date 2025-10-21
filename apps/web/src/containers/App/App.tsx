@@ -34,6 +34,7 @@ import {
   PointsPageInject,
   VaultsPageInject,
   BetaPageInject,
+  BetaPageLeaderboardInject,
 } from '../Webflow/AttributesInject';
 
 const RedirectToDefaultNetwork = () => {
@@ -215,6 +216,17 @@ const AllRoutes = observer(() => {
           element={<LandingLayoutRoute component={AboutUsView} />}
         />
         <Route path="/:basePath" element={<RedirectToDefaultNetwork />} />
+        <Route
+          path="/exponent-leaderboard"
+          element={
+            <AppLayoutRoute
+              path="/exponent-leaderboard"
+              component={BetaPageLeaderboardInject}
+              routeType="Contest"
+              isInjected
+            />
+          }
+        />
         <Route
           path="/exponent-beta"
           element={<LandingLayoutRoute component={BetaPageInject} />}
