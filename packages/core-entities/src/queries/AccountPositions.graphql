@@ -1,10 +1,6 @@
 query AccountPositions($account: String!, $skip: Int) {
   balances(
-    where: {
-      account: $account
-      current_: { currentBalance_not: 0 }
-      token_: { tokenType: VaultShare }
-    }
+    where: { account: $account, current_: { currentBalance_not: 0 } }
     first: 1000
     skip: $skip
   ) {

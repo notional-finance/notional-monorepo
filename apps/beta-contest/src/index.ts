@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/core-entities';
 import { getNowSeconds, Network } from '@notional-finance/util';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AccountPositionsQuery } from 'packages/core-entities/src/.graphclient';
+import { AllVaultAccountsQuery } from 'packages/core-entities/src/.graphclient';
 
 export interface Env {
   VIEW_CACHE_R2: R2Bucket;
@@ -18,9 +18,12 @@ const POINTS_KEY = 'points/beta-contest';
 interface Points {
   address: string;
   points: number;
+  pointsPerDay: number;
 }
 interface PointsResponse {
   points: Points[];
+  totalPointsIssued: number;
+  totalPointsPerDay: number;
   lastUpdated: number;
 }
 
@@ -49,11 +52,11 @@ export default {
   ): Promise<void> {
     const models = initializeTokenBalanceRegistry();
     await Promise.all(models.map((m) => m.triggerRefresh(true)));
-    const { AccountPositionsDocument } = await loadGraphClientDeferred();
+    const { AllVaultAccountsDocument } = await loadGraphClientDeferred();
 
     const allPositions = await fetchGraphPaginate(
       Network.mainnet,
-      AccountPositionsDocument,
+      AllVaultAccountsDocument,
       'balances',
       env.NX_SUBGRAPH_API_KEY
     );
@@ -74,8 +77,8 @@ export default {
       previousPointsResponse.points.map((p) => [p.address, p.points])
     );
 
-    const newPointsMap = (
-      allPositions.data.balances as AccountPositionsQuery['balances']
+    const pointsPerDayMap = (
+      allPositions.data.balances as AllVaultAccountsQuery['balances']
     )
       .map((b) => {
         const token = mainnet.getTokenByID(b.token.id.toLowerCase());
@@ -85,20 +88,29 @@ export default {
         if (points > 25_000) points = 25_000;
 
         return {
-          address: b.id,
+          address: b.account.id,
           points,
         };
       })
       .reduce((acc, curr) => {
         acc.set(curr.address, (acc.get(curr.address) || 0) + curr.points);
         return acc;
-      }, previousPointsMap);
+      }, new Map<string, number>());
 
-    const newPointsResponse = {
-      points: Array.from(newPointsMap.entries()).map(([address, points]) => ({
+    const accountPoints = Array.from(pointsPerDayMap.entries()).map(
+      ([address, pointsPerDay]) => ({
         address,
-        points,
-      })),
+        points: previousPointsMap.get(address) || 0 + pointsPerDay,
+        pointsPerDay,
+      })
+    );
+    const newPointsResponse = {
+      points: accountPoints,
+      totalPointsPerDay: accountPoints.reduce(
+        (t, { pointsPerDay }) => t + pointsPerDay,
+        0
+      ),
+      totalPointsIssued: accountPoints.reduce((t, { points }) => t + points, 0),
       lastUpdated: getNowSeconds(),
     };
 
