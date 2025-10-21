@@ -2,7 +2,10 @@ import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
-import { useWalletConnected } from '@notional-finance/notionable-hooks';
+import {
+  useSelectedNetwork,
+  useWalletConnected,
+} from '@notional-finance/notionable-hooks';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import {
   useSideDrawerState,
@@ -10,6 +13,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
+import { useChangeNetwork } from '../transaction-approvals/hooks';
 
 /* eslint-disable-next-line */
 export interface TradeActionButtonProps {
@@ -56,6 +60,9 @@ export const TradeActionButton = observer(
   }: TradeActionButtonProps) => {
     const theme = useTheme();
     const isWalletConnected = useWalletConnected();
+    const selectedNetwork = useSelectedNetwork();
+    const { mustSwitchNetwork, changeNetwork } =
+      useChangeNetwork(selectedNetwork);
     const { sideDrawerOpen } = useSideDrawerState();
     const { setWalletSideDrawer, clearWalletSideDrawer } =
       useSideDrawerManager();
@@ -79,6 +86,11 @@ export const TradeActionButton = observer(
         description: 'call to action button',
       });
 
+    const buttonTextSwitchNetwork = defineMessage({
+      defaultMessage: 'Switch Network',
+      description: 'switch network button text',
+    });
+
     const buttonTextWalletNotConnected = defineMessage({
       defaultMessage: 'Connect Wallet to Trade',
       description: 'call to action button',
@@ -93,11 +105,19 @@ export const TradeActionButton = observer(
         variant={buttonVariant || 'contained'}
         disabled={!isWalletConnected ? false : !canSubmit}
         canSubmit={!isWalletConnected ? true : canSubmit}
-        onClick={isWalletConnected ? _onSubmit : () => handleConnectWallet()}
+        onClick={
+          isWalletConnected
+            ? mustSwitchNetwork
+              ? () => changeNetwork(selectedNetwork)
+              : _onSubmit
+            : () => handleConnectWallet()
+        }
       >
         {isWalletConnected ? (
           errorText ? (
             <FormattedMessage {...errorText} />
+          ) : mustSwitchNetwork ? (
+            <FormattedMessage {...buttonTextSwitchNetwork} />
           ) : (
             <FormattedMessage {...buttonTextWalletConnected} />
           )
