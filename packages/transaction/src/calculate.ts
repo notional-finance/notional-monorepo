@@ -25,7 +25,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   collateral,
   debt,
   vaultAdapter,
-  depositBalance,
+  depositBalance: _depositBalance,
   balances,
   riskFactorLimit,
   vaultLastUpdateTime,
@@ -53,6 +53,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
 
   let initialDebtUnitsEstimateInRP = RATE_PRECISION;
   let netVaultSharesForWithdraw: TokenBalance | undefined;
+  let depositBalance = _depositBalance;
   if (depositBalance?.isPositive()) {
     // Initial estimate if deposit is positive is the deposit * leverageRatio
     const limitInRP = profile.getRiskFactorInRP(
@@ -103,6 +104,9 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } =
       vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral));
     profile = profile.simulate([netVaultSharesForWithdraw]);
+    // Clear the deposit balance for the debt and collateral calculations to avoid
+    // double counting the withdraw value
+    depositBalance = depositBalance.copy(0);
   } else if (!profile.vaultDebt.isZero()) {
     initialDebtUnitsEstimateInRP = Math.floor(
       (profile.vaultDebt.toFloat() * RATE_PRECISION) / 2
@@ -128,9 +132,10 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
       ? results.collateralBalance.add(netVaultSharesForWithdraw)
       : results.collateralBalance
   )
-    // Buffer the collateral balance to account for slippage or precision loss
+    // Buffer the collateral balance to account for slippage or precision loss, this is
+    // especially important when adjusting leverage downwards.
     .mulInRatePrecision(
-      RATE_PRECISION + (maxCollateralSlippage || BASIS_POINT)
+      RATE_PRECISION + (maxCollateralSlippage || 10 * BASIS_POINT)
     );
 
   // Do not allow the collateral balance withdrawn to exceed the actual account balance
@@ -138,16 +143,19 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     collateralBalance.isNegative() &&
     collateralBalance.abs().gt(profile.vaultShares)
   ) {
-    collateralBalance = profile.vaultShares;
+    collateralBalance = profile.vaultShares.neg();
   }
 
   // NOTE: this will throw if the market cannot support the utilization
   const market = getNetworkModel(
     collateral.network
   ).getLendingMarketFromVaultDebt(debt);
-  market.getInterestRate(
-    market.getUtilization(undefined, results.debtBalance.neg())
-  );
+  // Only do this when borrowing more
+  if (results.debtBalance.isNegative()) {
+    market.getInterestRate(
+      market.getUtilization(undefined, results.debtBalance.neg())
+    );
+  }
 
   return {
     ...results,
@@ -255,13 +263,17 @@ export function calculateWithdraw({
   );
 
   // This is the amount of yield tokens that will be put into the withdraw queue
-  const withdrawAmount = profile.vaultShares.toToken(vaultAdapter.yieldToken);
+  const yieldTokensToRedeem = profile.vaultShares.toToken(
+    vaultAdapter.yieldToken
+  );
+  const simulatedWithdraws = vaultAdapter.simulateWithdraw(profile.vaultShares);
 
   return {
     collateralBalance: profile.vaultShares.neg(),
-    collateralFee: TokenBalance.zero(withdrawAmount.token),
+    collateralFee: TokenBalance.zero(yieldTokensToRedeem.token),
     debtBalance: profile.vaultDebt,
-    netRealizedCollateralBalance: withdrawAmount,
+    netRealizedCollateralBalance: yieldTokensToRedeem,
+    simulatedWithdraws,
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: TokenBalance.zero(debt),
     debtFee: TokenBalance.zero(debt),
@@ -293,19 +305,22 @@ export function calculateFinalizeWithdraw({
     vaultLastUpdateTime || 0,
     withdrawRequests
   );
-  const tokensWithdrawn = profile.withdrawRequests?.[0]?.withdrawTokenAmount;
-  if (!tokensWithdrawn) throw Error('Tokens withdrawn not found');
+  if (!profile.withdrawRequests || profile.withdrawRequests.length === 0)
+    throw Error('Withdraw requests not found');
 
-  const withdrawTokensBurned = depositBalance
-    .neg()
-    .toToken(tokensWithdrawn.token);
+  const totalShareValue = profile.vaultShares.toUnderlying();
   let sharesToRedeem = profile.vaultShares.scale(
-    withdrawTokensBurned,
-    tokensWithdrawn
+    depositBalance,
+    totalShareValue
   );
   // Do not allow the shares to redeem to exceed the vault shares
   if (sharesToRedeem.gt(profile.vaultShares))
     sharesToRedeem = profile.vaultShares;
+
+  const withdrawTokensBurned = profile.withdrawRequests.map((w) => {
+    if (!w.withdrawTokenAmount) throw Error('Withdraw token amount not found');
+    return w.withdrawTokenAmount.scale(sharesToRedeem, profile.vaultShares);
+  });
 
   const vaultTradeMetadata =
     vaultAdapter.getWithdrawTradeMetadata(withdrawTokensBurned);
@@ -318,6 +333,7 @@ export function calculateFinalizeWithdraw({
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: TokenBalance.zero(debt),
     debtFee: TokenBalance.zero(debt),
+    withdrawTokensBurned,
     vaultTradeMetadata,
   };
 }

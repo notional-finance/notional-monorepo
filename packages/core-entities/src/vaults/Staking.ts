@@ -114,6 +114,39 @@ export class Staking extends VaultAdapter {
     };
   }
 
+  override simulateWithdraw(vaultSharesToRedeem: TokenBalance) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length !== 1 || !this.withdrawToken)
+      throw Error('Withdraw manager not found');
+    const yieldTokensRedeemed = vaultSharesToRedeem.toToken(this.yieldToken);
+    const withdrawTokensToReceive = yieldTokensRedeemed.toToken(
+      this.withdrawToken
+    );
+    return [
+      {
+        estimatedWithdrawTime:
+          withdrawManager[0].estimatedWithdrawTimeInSeconds,
+        yieldTokensRedeemed,
+        withdrawTokensToReceive,
+      },
+    ];
+  }
+
+  override async getInitiateWithdrawParameters(
+    account: string,
+    vaultSharesToRedeem: TokenBalance
+  ) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length !== 1 || !this.withdrawToken)
+      throw Error('Withdraw manager not found');
+    return withdrawManager[0].getWithdrawParameters(
+      account,
+      vaultSharesToRedeem
+    );
+  }
+
   override async getDepositParameters(
     _account: string,
     _maturity: number,
@@ -143,12 +176,14 @@ export class Staking extends VaultAdapter {
     );
   }
 
-  override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance) {
+  override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
+    if (withdrawTokensBurned.length !== 1)
+      throw Error('Staking vault only supports one withdraw token');
     const { withdrawPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     return [
       this.getVaultTradeMetadata(
-        withdrawTokensBurned,
+        withdrawTokensBurned[0],
         this.borrowedToken,
         withdrawPoolAddress
       ),
@@ -157,14 +192,16 @@ export class Staking extends VaultAdapter {
 
   override async getWithdrawParameters(
     _account: string,
-    _maturity: number,
-    vaultSharesToRedeem: TokenBalance,
-    _underlyingToRepayDebt: TokenBalance,
+    _vaultSharesToRedeem: TokenBalance,
+    withdrawTokensBurned: TokenBalance[],
     slippageFactor?: number
   ) {
     const { dexId, withdrawExchangeData: exchangeData } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
-    const minPurchaseAmount = vaultSharesToRedeem
+    if (withdrawTokensBurned.length !== 1)
+      throw Error('Staking vault only supports one withdraw token');
+
+    const minPurchaseAmount = withdrawTokensBurned[0]
       .toToken(this.borrowedToken)
       .mulInRatePrecision(slippageFactor || 0).n;
 

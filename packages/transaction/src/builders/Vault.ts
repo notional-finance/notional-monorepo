@@ -105,6 +105,7 @@ export async function ExitVaultFinalizeWithdraw({
   debtBalance,
   maxWithdraw,
   vaultLastUpdateTime,
+  withdrawTokensBurned,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
     collateralBalance?.tokenType !== 'VaultShare' ||
@@ -112,7 +113,8 @@ export async function ExitVaultFinalizeWithdraw({
     debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
     collateralBalance.isPositive() ||
     debtBalance.isNegative() ||
-    vaultLastUpdateTime === undefined
+    vaultLastUpdateTime === undefined ||
+    withdrawTokensBurned === undefined
   )
     throw Error('Collateral balance, debt balance must be defined');
 
@@ -122,9 +124,8 @@ export async function ExitVaultFinalizeWithdraw({
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
   const vaultData = await vaultAdapter.getWithdrawParameters(
     address,
-    collateralBalance.maturity || 0,
     collateralBalance.neg(),
-    assetToRepay
+    withdrawTokensBurned
   );
 
   return populateLendingRouterTxnAndGas(
@@ -179,12 +180,8 @@ export async function InitiateWithdraw({
   const vaultAddress = collateralBalance.vaultAddress;
   const lendingRouter = debtBalance.token.address;
   const model = getNetworkModel(network);
-  const withdrawManagers = model.getWithdrawManagers(vaultAddress);
-  if (withdrawManagers.length !== 1) {
-    throw Error('Vault has multiple withdraw managers');
-  }
-
-  const vaultData = await withdrawManagers[0].getWithdrawParameters(
+  const vaultAdapter = model.getVaultAdapter(vaultAddress);
+  const vaultData = await vaultAdapter.getInitiateWithdrawParameters(
     address,
     collateralBalance.neg()
   );

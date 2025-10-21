@@ -67,7 +67,7 @@ const DataSection = () => {
           />
           <TotalBox
             key={'fee-rate'}
-            title={'Fee Rate'}
+            title={'Vault Fee APY'}
             value={feeRate}
             decimals={4}
             suffix="%"

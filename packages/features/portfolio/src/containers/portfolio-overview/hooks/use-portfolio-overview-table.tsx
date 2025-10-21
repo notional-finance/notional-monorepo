@@ -36,6 +36,7 @@ import {
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../../../components/table-action-row/table-action-row';
 import { ReactNode, useState } from 'react';
+import moment from 'moment';
 
 export interface OverviewTableRow {
   isTotalRow?: boolean;
@@ -130,12 +131,18 @@ function getSpecificVaultInfo(
     };
   } else if (v.hasPendingWithdraw) {
     return {
-      subRowInfo: [
-        {
-          label: <FormattedMessage defaultMessage={'Estimated Finalization'} />,
-          value: 'TODO',
-        },
-      ],
+      subRowInfo: v.estimatedWithdrawTimeInSeconds
+        ? [
+            {
+              label: (
+                <FormattedMessage defaultMessage={'Estimated Finalization'} />
+              ),
+              value: moment
+                .duration(v.estimatedWithdrawTimeInSeconds, 'seconds')
+                .humanize(),
+            },
+          ]
+        : [],
       totalEarnings,
       buttonBarData: [],
       warning: 'pendingWithdraw',

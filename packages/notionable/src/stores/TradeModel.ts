@@ -208,6 +208,16 @@ export const TradeModel = types
     netRealizedCollateralBalance: types.maybe(NotionalTypes.TokenBalance),
     /** Net cost of debts in underlying terms*/
     netRealizedDebtBalance: types.maybe(NotionalTypes.TokenBalance),
+    simulatedWithdraws: types.maybe(
+      types.array(
+        types.model({
+          estimatedWithdrawTime: types.maybe(types.number),
+          yieldTokensRedeemed: NotionalTypes.TokenBalance,
+          withdrawTokensToReceive: NotionalTypes.TokenBalance,
+        })
+      )
+    ),
+    withdrawTokensBurned: types.maybe(types.array(NotionalTypes.TokenBalance)),
 
     /** Calculated updates to the account balances post trade */
     postTradeBalances: types.optional(
@@ -532,7 +542,7 @@ export const TradeModel = types
         } catch (e) {
           console.error('trade model calculate error', e);
           self.calculationSuccess = false;
-          self.calculateError = (e as Error).toString();
+          self.calculateError = (e as Error).message.toString();
           // Clear any calculated inputs that are not required for the trade type
           requiredArgs.forEach((arg) => {
             if (arg === 'deposit') {
@@ -911,6 +921,7 @@ export const TradeModel = types
         },
         updated: postVaultRisk
           ? {
+              isCleared: postVaultRisk?.totalAssets().isZero(),
               healthFactor: postVaultRisk?.healthFactor(),
               leverageRatio: postVaultRisk?.leverageRatio(),
               netWorth: postVaultRisk?.netWorth(),
@@ -1048,23 +1059,7 @@ export const TradeModel = types
     };
 
     const getVaultInitiateWithdraw = () => {
-      if (!self.vaultAddress) return undefined;
-      const model = root().getNetworkClient(self.selectedNetwork);
-      const withdrawManagers = model.getWithdrawManagers(self.vaultAddress);
-      if (withdrawManagers.length === 1) {
-        return withdrawManagers.map((w) => {
-          return {
-            estimatedWithdrawTime: w.estimatedWithdrawTimeInSeconds,
-            // NOTE: this will not work with LP strategies
-            tokensRedeemed: self.netRealizedCollateralBalance,
-            tokensToReceive: self.netRealizedCollateralBalance?.toToken(
-              w.withdrawToken
-            ),
-          };
-        });
-      }
-
-      throw Error('Vault has multiple withdraw managers');
+      return self.simulatedWithdraws;
     };
 
     return {

@@ -145,6 +145,22 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return !!this.withdrawRequests && this.withdrawRequests.length > 0;
   }
 
+  get estimatedWithdrawTimeInSeconds() {
+    return this.hasPendingWithdraw
+      ? this.model
+          .getWithdrawManagers(this.vaultAddress)
+          .reduce(
+            (m, t) =>
+              m === undefined
+                ? t.estimatedWithdrawTimeInSeconds
+                : m < (t.estimatedWithdrawTimeInSeconds || 0)
+                ? m
+                : t.estimatedWithdrawTimeInSeconds,
+            undefined as number | undefined
+          )
+      : undefined;
+  }
+
   get hasFinalizedWithdraw() {
     return (
       !!this.withdrawRequests &&
@@ -200,7 +216,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   collateralRatio(): number | null {
     const totalDebt = this.totalDebtRiskAdjusted().neg();
     const totalAssets = this.totalAssetsRiskAdjusted();
-    return totalDebt.isZero()
+    // The total debt here is assumed to be positive for the calculation but if for some reason it
+    // is negative then we would get an underflow somewhere else.
+    return totalDebt.isZero() || totalDebt.isNegative()
       ? null
       : totalAssets.sub(totalDebt).ratioWith(totalDebt).toNumber() /
           RATE_PRECISION;
@@ -312,7 +330,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   maxWithdraw(_token: TokenDefinition = this.vaultShares.token) {
-    const costToRepay = this.vaultDebt.toUnderlying();
+    const costToRepay = this.vaultDebt.neg().toUnderlying();
 
     // Returns the total underlying received when redeeming all of the vault shares
     let netUnderlyingForVaultShares: TokenBalance;
@@ -325,12 +343,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         return acc.add(w.withdrawTokenAmount.toToken(costToRepay.token));
       }, costToRepay.copy(0));
       feesPaid = TokenBalance.zero(this.denom(this.defaultSymbol));
-      vaultTradeMetadata = this.withdrawRequests.flatMap((w) => {
-        if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
-        return this.vaultAdapter.getWithdrawTradeMetadata(
-          w.withdrawTokenAmount
-        );
-      });
+      vaultTradeMetadata = this.vaultAdapter.getWithdrawTradeMetadata(
+        this.withdrawRequests.map((w) => {
+          if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
+          return w.withdrawTokenAmount;
+        })
+      );
     } else if (this.hasPendingWithdraw) {
       throw Error('Max withdraw not supported for pending withdraws');
     } else {

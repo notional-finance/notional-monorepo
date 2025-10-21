@@ -6,6 +6,7 @@ import { useObserver } from 'mobx-react-lite';
 import { useRootStore } from './use-root-store';
 import { Instance } from 'mobx-state-tree';
 import { defineMessage } from 'react-intl';
+import { UTILIZATION_ERROR } from '@notional-finance/util';
 export interface ObservableContext {
   tradeModel?: Instance<typeof TradeModel>;
 }
@@ -71,6 +72,7 @@ export function useTradeErrorMessage() {
   const context = useCurrentTradeContext();
   const inputsSatisfied = context?.inputsSatisfied;
   const calculationSuccess = context?.calculationSuccess;
+  const calculateError = context?.calculateError;
   const { overPoolCapacityError } = context?.getVaultCapacity() || {};
   const inputErrors = context?.inputErrors;
   if (context?.tradeType === 'ManageVault') return undefined;
@@ -93,9 +95,17 @@ export function useTradeErrorMessage() {
     return defineMessage({
       defaultMessage: 'Insufficient Balance',
     });
-  } else if (!calculationSuccess && inputsSatisfied) {
+  } else if (
+    !calculationSuccess &&
+    inputsSatisfied &&
+    calculateError === UTILIZATION_ERROR
+  ) {
     return defineMessage({
       defaultMessage: 'Insufficient Borrow Liquidity',
+    });
+  } else if (!calculationSuccess && inputsSatisfied) {
+    return defineMessage({
+      defaultMessage: 'Error Calculating Trade',
     });
   }
 

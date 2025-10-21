@@ -5,7 +5,6 @@ import {
   getNowSeconds,
   SECONDS_IN_DAY,
   SCALAR_PRECISION,
-  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
@@ -13,7 +12,10 @@ import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder, BytesLike, formatUnits } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
-import { PointsMultipliers } from '../config/whitelisted-vaults';
+import {
+  PointsMultipliers,
+  VaultDefaultDexParameters,
+} from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
@@ -37,17 +39,11 @@ interface RewardState {
 }
 
 export interface TradeParams {
-  // TODO: make an enum
   dexId: number;
-  // TODO: make an enum
   tradeType: number;
-  oracleSlippagePercentOrLimit: number;
-  exchangeData: string;
-}
-
-export interface DepositTradeParams {
   tradeAmount: TokenBalance;
-  tradeParams: TradeParams;
+  minPurchaseAmount: TokenBalance;
+  exchangeData: string;
 }
 
 export interface RedeemParams {
@@ -58,8 +54,10 @@ export interface RedeemParams {
 /// @notice Deposit parameters
 export interface DepositParams {
   minPoolClaim: TokenBalance;
-  depositTrades: DepositTradeParams[];
+  depositTrades: TradeParams[];
 }
+
+const TRADE_PARAMS_TYPE = `tuple(uint256 tradeAmount, uint16 dexId, uint8 tradeType, uint256 minPurchaseAmount, bytes exchangeData)`;
 
 export class SingleSidedLP extends VaultAdapter {
   // We should make a method that just returns all of these...
@@ -367,6 +365,63 @@ export class SingleSidedLP extends VaultAdapter {
     );
   }
 
+  override simulateWithdraw(vaultSharesToRedeem: TokenBalance) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length === 0)
+      throw Error('Withdraw manager not found');
+    const { tokensOut } = this.pool.getTokensOutGivenLPTokens(
+      this.getVaultSharesToLPTokens(vaultSharesToRedeem)
+    );
+
+    return withdrawManager.map((w) => {
+      const yieldTokensRedeemed = tokensOut.find(
+        (t) => t.tokenId === w.yieldToken.id
+      );
+      if (!yieldTokensRedeemed) throw Error('Yield token not found');
+
+      const withdrawTokensToReceive = yieldTokensRedeemed.toToken(
+        w.withdrawToken
+      );
+      return {
+        estimatedWithdrawTime: w.estimatedWithdrawTimeInSeconds,
+        yieldTokensRedeemed: yieldTokensRedeemed,
+        withdrawTokensToReceive: withdrawTokensToReceive,
+      };
+    });
+  }
+
+  override async getInitiateWithdrawParameters(
+    account: string,
+    vaultSharesToRedeem: TokenBalance
+  ) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length === 0)
+      throw Error('Withdraw manager not found');
+    const { tokensOut } = this.pool.getTokensOutGivenLPTokens(
+      this.getVaultSharesToLPTokens(vaultSharesToRedeem)
+    );
+
+    const minAmounts = tokensOut.map(
+      (t) => t.mulInRatePrecision(RATE_PRECISION - 10 * BASIS_POINT).n
+    );
+
+    const withdrawData = await Promise.all(
+      withdrawManager.map(async (w, i) => {
+        if (tokensOut[i].tokenId !== w.yieldToken.id)
+          throw Error('Yield token not found');
+
+        return w.getWithdrawParameters(account, vaultSharesToRedeem);
+      })
+    );
+
+    return defaultAbiCoder.encode(
+      ['tuple(uint256[] minAmounts, bytes[] withdrawData) d'],
+      [[minAmounts, withdrawData]]
+    );
+  }
+
   override async getDepositParameters(
     _account: string,
     _maturity: number,
@@ -393,15 +448,47 @@ export class SingleSidedLP extends VaultAdapter {
       ]
     );
   }
+  override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
+    return [
+      ...withdrawTokensBurned.map((t) =>
+        this.getVaultTradeMetadata(t, this.borrowedToken)
+      ),
+    ];
+  }
 
-  override getWithdrawParameters(
+  override async getWithdrawParameters(
     _account: string,
-    _maturity: number,
     _vaultSharesToRedeem: TokenBalance,
-    _underlyingToRepayDebt: TokenBalance,
-    _slippageFactor = 10 * BASIS_POINT
+    withdrawTokensBurned: TokenBalance[],
+    slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
-    throw new Error('Not implemented');
+    const { dexId, withdrawExchangeData: exchangeData } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+
+    const redemptionTrades = withdrawTokensBurned
+      .map((t) => {
+        return {
+          tradeAmount: t,
+          dexId,
+          tradeType: 0,
+          minPurchaseAmount: t.mulInRatePrecision(
+            RATE_PRECISION - slippageFactor
+          ).n,
+          exchangeData,
+        };
+      })
+      .map((t) => defaultAbiCoder.encode([TRADE_PARAMS_TYPE], [t]));
+
+    return defaultAbiCoder.encode(
+      ['tuple(uint256[] minAmounts, bytes[] redemptionTrades) r'],
+      [
+        {
+          // No min amounts required for withdraws
+          minAmounts: [],
+          redemptionTrades: redemptionTrades,
+        },
+      ]
+    );
   }
 
   override async getRedeemParameters(
@@ -427,11 +514,11 @@ export class SingleSidedLP extends VaultAdapter {
     }
 
     return defaultAbiCoder.encode(
-      ['tuple(uint256[] minAmounts, bytes secondaryTradeParams) r'],
+      ['tuple(uint256[] minAmounts, bytes[] redemptionTrades) r'],
       [
         {
           minAmounts,
-          secondaryTradeParams: '0x',
+          redemptionTrades: [],
         },
       ]
     );

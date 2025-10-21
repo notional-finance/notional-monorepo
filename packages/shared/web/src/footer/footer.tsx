@@ -138,14 +138,14 @@ export const Footer = () => {
         <FooterLeft>
           <Logo src={logoForDarkBackground} alt="Notional Finance logo" />
           <ExternalLink
-            href="https://v2.notional.finance/"
+            href="https://v3.notional.finance/"
             textDecoration
             style={{
               color: theme.palette.info.accent,
               marginBottom: theme.spacing(3),
             }}
           >
-            <FormattedMessage defaultMessage={'View Notional V2'} />
+            <FormattedMessage defaultMessage={'View Notional V3'} />
           </ExternalLink>
           <H4
             contrast
@@ -172,41 +172,11 @@ export const Footer = () => {
           </Label>
           <HeadingSubtitle
             contrast
-            to="/analytics/all-transactions"
-            marginBottom={theme.spacing(4)}
-          >
-            <FormattedMessage
-              defaultMessage="View Analytics"
-              description="footer link"
-            />
-          </HeadingSubtitle>
-          <HeadingSubtitle
-            contrast
             href="https://docs.notional.finance/notional-v3"
             marginBottom={theme.spacing(4)}
           >
             <FormattedMessage
               defaultMessage="User Documentation"
-              description="footer link"
-            />
-          </HeadingSubtitle>
-          <HeadingSubtitle
-            contrast
-            href="https://www.youtube.com/playlist?list=PLnKdM8f8QEJ2lJ59ZjhVCcJvrT056X0Ga"
-            marginBottom={theme.spacing(4)}
-          >
-            <FormattedMessage
-              defaultMessage="Video Tutorials"
-              description="footer link"
-            />
-          </HeadingSubtitle>
-          <HeadingSubtitle
-            contrast
-            href="https://info.notional.finance/"
-            marginBottom={theme.spacing(4)}
-          >
-            <FormattedMessage
-              defaultMessage="Dashboard"
               description="footer link"
             />
           </HeadingSubtitle>

@@ -53,11 +53,9 @@ export abstract class VaultAdapter {
     vaultTradeMetadata?: VaultTradeMetadata[];
   };
 
-  getWithdrawTradeMetadata(
-    _withdrawTokensBurned: TokenBalance
-  ): VaultTradeMetadata[] {
-    throw new Error('Not implemented');
-  }
+  abstract getWithdrawTradeMetadata(
+    withdrawTokensBurned: TokenBalance[]
+  ): VaultTradeMetadata[];
 
   abstract getDepositParameters(
     account: string,
@@ -74,11 +72,21 @@ export abstract class VaultAdapter {
     slippageFactor?: number
   ): Promise<BytesLike>;
 
+  abstract getInitiateWithdrawParameters(
+    account: string,
+    vaultSharesToRedeem: TokenBalance
+  ): Promise<BytesLike>;
+
+  abstract simulateWithdraw(vaultSharesToRedeem: TokenBalance): {
+    estimatedWithdrawTime: number | undefined;
+    yieldTokensRedeemed: TokenBalance;
+    withdrawTokensToReceive: TokenBalance;
+  }[];
+
   abstract getWithdrawParameters(
     account: string,
-    maturity: number,
     vaultSharesToRedeem: TokenBalance,
-    underlyingToRepayDebt: TokenBalance,
+    withdrawTokensBurned: TokenBalance[],
     slippageFactor?: number
   ): Promise<BytesLike>;
 
