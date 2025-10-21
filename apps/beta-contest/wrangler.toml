@@ -15,4 +15,4 @@ r2_buckets = [
 ]
 
 [env.dev.triggers]
-crons = ["0 * * * *"]
+crons = ["0 0 * * *"]

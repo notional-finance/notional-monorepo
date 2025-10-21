@@ -67,12 +67,18 @@ export default {
     if (!allPositions.data) {
       throw new Error('No positions found');
     }
-    const previousPoints = await env.VIEW_CACHE_R2.get(POINTS_KEY);
-    if (!previousPoints) {
-      throw new Error('No previous points found');
-    }
-    const previousPointsResponse =
-      (await previousPoints?.json()) as PointsResponse;
+    // const previousPoints = await env.VIEW_CACHE_R2.get(POINTS_KEY);
+    // if (!previousPoints) {
+    //   throw new Error('No previous points found');
+    // }
+    // const previousPointsResponse =
+    //   (await previousPoints?.json()) as PointsResponse;
+    const previousPointsResponse: PointsResponse = {
+      points: [],
+      totalPointsIssued: 0,
+      totalPointsPerDay: 0,
+      lastUpdated: 0,
+    };
     const previousPointsMap = new Map<string, number>(
       previousPointsResponse.points.map((p) => [p.address, p.points])
     );
