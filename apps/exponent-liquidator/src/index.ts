@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import ExponentLiquidator from './ExponentLiquidator';
 import { Env, Position } from './types';
 import { fetchPositions } from './utils/dataService';
@@ -5,29 +6,38 @@ import { VaultRegistry } from './utils/vaultRegistry';
 import { getProviderFromNetwork } from '@notional-finance/util';
 import { LiquidatorLogger } from './utils/logging';
 
-async function createLiquidator(env: Env): Promise<ExponentLiquidator> {
+async function createLiquidator(
+  env: Env, 
+  mockedPositions?: Position[], 
+  customProvider?: ethers.providers.Provider
+): Promise<ExponentLiquidator> {
   const logger = new LiquidatorLogger(env);
+  const provider = customProvider || getProviderFromNetwork(env.NETWORK, true);
 
   let positions: Position[];
-  try {
-    // Step 1: Fetch positions from data service
-    positions = await fetchPositions(
-      env.DATA_SERVICE_URL,
-      env.DATA_SERVICE_AUTH_TOKEN
-    );
-  } catch (error) {
-    await logger.logError(
-      'Fetching positions from data service',
-      (error as Error).message,
-      {
-        type: 'generic',
-        data: {
-          dataServiceUrl: env.DATA_SERVICE_URL,
-          network: env.NETWORK,
-        },
-      }
-    );
-    throw error;
+  if (mockedPositions) {
+    positions = mockedPositions;
+  } else {
+    try {
+      // Step 1: Fetch positions from data service
+      positions = await fetchPositions(
+        env.DATA_SERVICE_URL,
+        env.DATA_SERVICE_AUTH_TOKEN
+      );
+    } catch (error) {
+      await logger.logError(
+        'Fetching positions from data service',
+        (error as Error).message,
+        {
+          type: 'generic',
+          data: {
+            dataServiceUrl: env.DATA_SERVICE_URL,
+            network: env.NETWORK,
+          },
+        }
+      );
+      throw error;
+    }
   }
 
   let vaultRegistry: VaultRegistry;
@@ -36,7 +46,6 @@ async function createLiquidator(env: Env): Promise<ExponentLiquidator> {
     const uniqueVaultAddresses = [
       ...new Set(positions.map(([_, vault]) => vault)),
     ];
-    const provider = getProviderFromNetwork(env.NETWORK, true);
     vaultRegistry = await VaultRegistry.initialize(
       uniqueVaultAddresses,
       provider,
@@ -62,7 +71,7 @@ async function createLiquidator(env: Env): Promise<ExponentLiquidator> {
 
   try {
     // Step 3: Create liquidator with initialized dependencies
-    return new ExponentLiquidator(env, positions, vaultRegistry);
+    return new ExponentLiquidator(env, positions, vaultRegistry, provider);
   } catch (error) {
     await logger.logError(
       'Creating ExponentLiquidator instance',
@@ -82,6 +91,57 @@ export default {
     env: Env,
     _: ExecutionContext
   ): Promise<Response> {
+    const url = new URL(request.url);
+    
+    // Test endpoint for mocked data and custom provider
+    if (url.pathname === '/test') {
+      try {
+        const body = await request.json() as {
+          positions: Position[];
+          forkUrl: string;
+          forkBlockNumber?: number;
+        };
+
+        // Create provider for the fork
+        const customProvider = new ethers.providers.JsonRpcProvider(body.forkUrl);
+        
+        const liquidator = await createLiquidator(env, body.positions, customProvider);
+        const result = await liquidator.run();
+
+        return new Response(
+          JSON.stringify({
+            summary: {
+              totalPositionsProcessed: result.enrichedPositions.length,
+              positionsToLiquidate: result.positionsToLiquidate.length,
+              transactionsAttempted: result.liquidationReport.totalTransactions,
+              transactionsSuccessful:
+                result.liquidationReport.successfulTransactions,
+              transactionsFailed: result.liquidationReport.failedTransactions,
+            },
+            liquidationReport: result.liquidationReport,
+            positionsToLiquidate: result.positionsToLiquidate.map((position) => ({
+              account: position.account,
+              vault: position.vault,
+              healthFactor: position.healthFactor,
+              borrowed: position.borrowed.toString(),
+              collateralShares: position.collateralShares.toString(),
+              maxBorrow: position.maxBorrow.toString(),
+              totalVaultShares: position.totalVaultShares.toString(),
+              isWithdrawRequestPending: position.isWithdrawRequestPending,
+              canWithdrawRequestFinalize: position.canWithdrawRequestFinalize,
+            })),
+          }),
+          {
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      } catch (e) {
+        console.error('Test liquidator error:', e);
+        return new Response(`Test Error: ${(e as Error).message}`, { status: 500 });
+      }
+    }
+    
+    // Production endpoint
     try {
       const liquidator = await createLiquidator(env);
       const result = await liquidator.run();

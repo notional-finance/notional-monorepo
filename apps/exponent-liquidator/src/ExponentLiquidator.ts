@@ -41,10 +41,11 @@ export default class ExponentLiquidator {
   constructor(
     private env: Env,
     positions: Position[],
-    vaultRegistry: VaultRegistry
+    vaultRegistry: VaultRegistry,
+    provider?: ethers.providers.Provider
   ) {
     this.network = env.NETWORK;
-    this.provider = getProviderFromNetwork(env.NETWORK, true);
+    this.provider = provider || getProviderFromNetwork(env.NETWORK, true);
     this.positions = positions;
     this.vaultRegistry = vaultRegistry;
     this.morphoRouterIntegration = new MorphoRouterIntegration(
