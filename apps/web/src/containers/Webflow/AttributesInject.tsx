@@ -1,13 +1,12 @@
 import { Box } from '@mui/material';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import {
-  useAccountHasPositions,
   useAllVaults,
   useAppStore,
   useLandingPageStats,
   useLatestBlogPosts,
   useSideDrawerManager,
-  useWalletAddress,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
 import { getDateString, SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
@@ -539,16 +538,14 @@ export const VaultsPageInject = () => {
 export const BetaPageInject = () => {
   const { setWalletSideDrawer } = useSideDrawerManager();
   const navigate = useNavigate();
-  const hasPositions = useAccountHasPositions();
-  const walletAddress = useWalletAddress();
-  // TODO: add the list of valid wallets here.
+  const isBetaUser = useWalletStore().isBetaUser;
 
   useEffect(() => {
-    if (hasPositions.length > 0 || walletAddress) {
+    if (isBetaUser) {
       // Redirect to the landing page
       navigate('/');
     }
-  }, [hasPositions, walletAddress]);
+  }, [isBetaUser, navigate]);
 
   const containerRef = useStartInject(
     '68c076de04c61ce1e06fb0c5',
