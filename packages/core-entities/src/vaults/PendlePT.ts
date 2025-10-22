@@ -361,7 +361,10 @@ export class PendlePT extends VaultAdapter {
           vaultShare
         ).neg(),
         feesPaid: tradeMetadata.reduce(
-          (acc, trade) => (trade.feesPaid ? acc.add(trade.feesPaid) : acc),
+          (acc, trade) =>
+            trade.feesPaid
+              ? acc.add(trade.feesPaid.toToken(this.borrowedToken))
+              : acc,
           TokenBalance.zero(this.borrowedToken)
         ),
         vaultTradeMetadata: tradeMetadata,
