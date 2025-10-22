@@ -284,11 +284,11 @@ function parseLineItem(
     properties = [
       {
         key: `${shortenTokenSymbol(p.underlyingToken.symbol)} Sold`,
-        value: tokenAmount.abs().toDisplayString(4, true, false),
+        value: underlyingAmountRealized.abs().toDisplayString(4, true, false),
       },
       {
         key: `${shortenTokenSymbol(p.token.symbol)} Bought`,
-        value: underlyingAmountRealized.toDisplayString(4, true, false),
+        value: tokenAmount.toDisplayString(4, true, false),
       },
       {
         key: 'Price',
