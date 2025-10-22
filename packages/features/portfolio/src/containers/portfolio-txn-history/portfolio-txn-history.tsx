@@ -110,6 +110,7 @@ export const PortfolioTransactionHistory = observer(() => {
           <FormattedMessage defaultMessage={'Calculating transaction'} />
         }
         pendingTokenData={pendingTokenData}
+        tableLoading={accountHistory === undefined}
         expandableTable={true}
         CustomRowComponent={TxnHistoryRow}
         setExpandedRows={setExpandedRows}

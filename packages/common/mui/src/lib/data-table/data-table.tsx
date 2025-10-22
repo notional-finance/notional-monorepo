@@ -248,11 +248,12 @@ export const DataTable = ({
                 boxShadow: 'none',
                 border: theme.shape.borderStandard,
                 borderRadius: isMobile ? '0' : theme.shape.borderRadius(),
-                overflow: !tableReady
-                  ? 'hidden'
-                  : filterBarData && filterBarData.length > 0
-                  ? 'visible'
-                  : 'auto',
+                overflow:
+                  filterBarData && filterBarData.length > 0
+                    ? 'visible'
+                    : !tableReady
+                    ? 'hidden'
+                    : 'auto',
                 backgroundColor:
                   tableVariant === TABLE_VARIANTS.MINI
                     ? theme.palette.background.default
