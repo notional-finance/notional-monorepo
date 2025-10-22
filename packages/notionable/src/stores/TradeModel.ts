@@ -1,6 +1,7 @@
 import {
   AccountDefinition,
   APYData,
+  createLeveragedAPYData,
   NotionalTypes,
   PendlePT,
   SingleSidedLP,
@@ -946,22 +947,46 @@ export const TradeModel = types
           model.getSpotAPY(self.collateral.id)
         : undefined;
 
-      const updatedAPY = postVaultRisk
-        ? model.getLeveragedAPY(
-            postVaultRisk.vaultShares,
-            postVaultRisk.vaultDebt,
-            postVaultRisk.leverageRatio() || 0,
-            self.vaultTradeMetadata
-          )
-        : undefined;
+      const updatedAPY =
+        holdings && self.tradeType === 'InitiateWithdraw'
+          ? // Clear all the asset APY for a withdraw
+            createLeveragedAPYData(
+              {
+                totalAPY: 0,
+                assetAPY: 0,
+                organicAPY: 0,
+                incentiveAPY: 0,
+                feeAPY: 0,
+                incentives: [],
+                pointMultiples: {},
+              },
+              currentAPY?.debtAPY || 0,
+              holdings.leverageRatio
+            )
+          : postVaultRisk
+          ? model.getLeveragedAPY(
+              postVaultRisk.vaultShares,
+              postVaultRisk.vaultDebt,
+              postVaultRisk.leverageRatio() || 0,
+              self.vaultTradeMetadata
+            )
+          : undefined;
 
       return {
         leveragedAPY: (updatedAPY || currentAPY || undefined) as
           | APYData
           | undefined,
-        assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
+        assets:
+          // Use the prior vault risk assets if there is a withdraw
+          self.tradeType === 'InitiateWithdraw'
+            ? priorVaultRisk?.totalAssets()
+            : postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
         debts: postVaultRisk?.totalDebt() || priorVaultRisk?.totalDebt(),
-        netWorth: postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
+        netWorth:
+          // Use the prior vault risk net worth if there is a withdraw
+          self.tradeType === 'InitiateWithdraw'
+            ? priorVaultRisk?.netWorth()
+            : postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
       };
     };
 

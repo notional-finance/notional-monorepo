@@ -13,6 +13,7 @@ interface ErrorMessageProps {
   sx?: SxProps;
   maxWidth?: string;
   children?: ReactNode;
+  hideTitle?: boolean;
 }
 
 export interface ErrorContainerProps {
@@ -28,6 +29,7 @@ export const ErrorMessage = ({
   children,
   maxWidth,
   sx,
+  hideTitle,
 }: ErrorMessageProps) => {
   const theme = useTheme();
   let defaultTitle: React.ReactNode;
@@ -61,7 +63,7 @@ export const ErrorMessage = ({
     >
       <AlertIcon sx={{ fill: theme.palette[variant].dark }} />
       <ErrorContent>
-        <LabelValue>{title || defaultTitle}</LabelValue>
+        {!hideTitle && <LabelValue>{title || defaultTitle}</LabelValue>}
         <Caption
           sx={{
             whiteSpace: 'pre-line',

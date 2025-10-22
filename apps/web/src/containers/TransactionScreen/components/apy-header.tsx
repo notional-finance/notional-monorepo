@@ -52,7 +52,10 @@ export const APYBeforePoints = ({ apyInfo }: { apyInfo: APYData }) => {
   const theme = useTheme();
 
   const pointBoxes: ReactNode[] = [];
-  if (apyInfo.pointMultiples) {
+  if (
+    apyInfo.pointMultiples &&
+    Object.keys(apyInfo.pointMultiples).length > 0
+  ) {
     Object.entries(apyInfo.pointMultiples).forEach(([key, value]) => {
       pointBoxes.push(<APYSectionDivider />);
       pointBoxes.push(
