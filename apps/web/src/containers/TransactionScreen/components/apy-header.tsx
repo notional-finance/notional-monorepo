@@ -157,9 +157,9 @@ export const APYBox = ({ apyInfo }: { apyInfo: APYData }) => {
         </RowContainer>
         <RowContainer>
           <Body>
-            {apyInfo.assetAPY !== undefined ? (
+            {apyInfo.unleveragedAssetAPY?.totalAPY !== undefined ? (
               <CountUp
-                value={apyInfo.assetAPY}
+                value={apyInfo.unleveragedAssetAPY.totalAPY}
                 decimals={2}
                 duration={1}
                 suffix="% Vault APY"
