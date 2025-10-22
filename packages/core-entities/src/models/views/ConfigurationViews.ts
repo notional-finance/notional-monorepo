@@ -1,7 +1,11 @@
 import { Instance } from 'mobx-state-tree';
 import { NetworkModel } from '../NetworkModel';
 import { BigNumber, ethers } from 'ethers';
-import { RATE_PRECISION, SCALAR_PRECISION } from '@notional-finance/util';
+import {
+  BASIS_POINT,
+  RATE_PRECISION,
+  SCALAR_PRECISION,
+} from '@notional-finance/util';
 
 interface MorphoLendingRouterParams {
   loanToken: string;
@@ -58,8 +62,12 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
         SCALAR_PRECISION.sub(marketParams.lltv)
       );
       return (
-        leverageInScalar.mul(RATE_PRECISION).div(SCALAR_PRECISION).toNumber() /
-        RATE_PRECISION
+        leverageInScalar
+          // Decrease the maximum leverage a bit so that we don't go over the limit and to
+          // account for any precision loss in all these calculations
+          .mul(RATE_PRECISION - 100 * BASIS_POINT)
+          .div(SCALAR_PRECISION)
+          .toNumber() / RATE_PRECISION
       );
     } else {
       throw Error(`Market params for ${vault} on ${lendingRouter} not found`);

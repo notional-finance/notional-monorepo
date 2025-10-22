@@ -386,7 +386,7 @@ const useApyBreakdown = () => {
       : strategyType === 'PendlePT'
       ? 'PT APY'
       : strategyType === 'CurveConvex2Token'
-      ? 'LP Fee APY'
+      ? 'Swap Fee APY'
       : 'Organic APY';
 
   const apy = [
@@ -542,14 +542,14 @@ const useTradeMetadata = () => {
             label: 'Exchange Rate',
             content: (
               <Box>
-                {metadata.differenceFromSpot && (
+                {metadata.differenceFromSpot !== 0 ? (
                   <LabelValue light inline>
                     {`(${formatNumberAsPercent(
                       metadata.differenceFromSpot,
                       4
                     )}) `}
                   </LabelValue>
-                )}
+                ) : undefined}
                 <LabelValue inline>
                   {formatNumber(metadata.exchangeRate, 4)}
                 </LabelValue>
