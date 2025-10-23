@@ -1,15 +1,23 @@
 import { Box } from '@mui/material';
-import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import {
+  formatNumberAsPercentWithUndefined,
+  truncateAddress,
+} from '@notional-finance/helpers';
 import {
   useAllVaults,
   useAppStore,
   useLandingPageStats,
   useLatestBlogPosts,
   useSideDrawerManager,
+  useWalletAddress,
   useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
-import { getDateString, SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
+import {
+  formatNumber,
+  getDateString,
+  SETTINGS_SIDE_DRAWERS,
+} from '@notional-finance/util';
 import { PostOrPage } from '@tryghost/content-api';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -576,16 +584,114 @@ export const BetaPageInject = () => {
   );
 };
 
+interface Points {
+  address: string;
+  points: number;
+  pointsPerDay: number;
+}
+interface PointsResponse {
+  points: Points[];
+  totalPointsIssued: number;
+  totalPointsPerDay: number;
+  lastUpdated: number;
+}
+
 export const BetaPageLeaderboardInject = () => {
   // const walletAddress = useWalletAddress();
+  const [leaderboardData, setLeaderboardData] = useState<
+    PointsResponse | undefined
+  >(undefined);
+  const shadowEl = useRef<Element>();
+  const [isInitialized, setIsInitialized] = useState(false);
+  const walletAddress = useWalletAddress();
+
+  useEffect(() => {
+    fetch('https://beta-contest-dev.notional-finance.workers.dev/')
+      .then((resp) => resp.json() as Promise<PointsResponse>)
+      .then((data: PointsResponse) => {
+        setLeaderboardData(data);
+      });
+  }, []);
 
   const containerRef = useStartInject(
     '68c35869655d936c6aa482b7',
     'exponent-leaderboard',
-    () => {
-      // TODO: fetch the leaderboard data and inject it here
+    (shadow) => {
+      shadowEl.current = shadow;
+      setIsInitialized(true);
     }
   );
+
+  useEffect(() => {
+    if (leaderboardData && isInitialized && shadowEl.current) {
+      const totalPointsIssued = shadowEl.current.shadowRoot?.querySelector(
+        '#Total-Points-Issued'
+      );
+      if (totalPointsIssued) {
+        totalPointsIssued.textContent = formatNumber(
+          leaderboardData.totalPointsIssued,
+          2
+        );
+      }
+
+      const totalPointsPerDay = shadowEl.current.shadowRoot?.querySelector(
+        '#Total-Points-Per-Day'
+      );
+      if (totalPointsPerDay) {
+        totalPointsPerDay.textContent = formatNumber(
+          leaderboardData.totalPointsPerDay,
+          2
+        );
+      }
+
+      const leaderboardBody =
+        shadowEl.current.shadowRoot?.querySelector('.leaderboard-body');
+      const leaderboardRow = leaderboardBody?.querySelector('.leaderboard-row');
+      if (!leaderboardRow) return;
+
+      const newRows = leaderboardData.points.map(
+        ({ address, points, pointsPerDay }) => {
+          const row = leaderboardRow.cloneNode(true) as HTMLElement;
+          const a = row.querySelector('.address-body');
+          if (a) a.textContent = truncateAddress(address);
+          const p = row.querySelector('.points-per-day');
+          if (p) p.textContent = formatNumber(pointsPerDay, 2);
+          const t = row.querySelector('.total-points');
+          if (t) t.textContent = formatNumber(points, 2);
+          return row;
+        }
+      );
+
+      if (leaderboardBody) {
+        leaderboardBody.innerHTML = '';
+        newRows.forEach((row) => {
+          leaderboardBody.appendChild(row);
+        });
+      }
+
+      if (walletAddress) {
+        const walletData = leaderboardData.points.find(
+          (p) => p.address.toLowerCase() === walletAddress.toLowerCase()
+        );
+        const positionRow =
+          shadowEl.current.shadowRoot?.querySelector('.position-row');
+        if (positionRow) {
+          const a = positionRow.querySelector('.address-body');
+          if (a) a.textContent = truncateAddress(walletAddress);
+          const p = positionRow.querySelector('.points-per-day');
+          if (p) p.textContent = formatNumber(walletData?.pointsPerDay || 0, 2);
+          const t = positionRow.querySelector('.total-points');
+          if (t) t.textContent = formatNumber(walletData?.points || 0, 2);
+        }
+        const yourPosition =
+          shadowEl.current.shadowRoot?.querySelector(`.your-position`);
+
+        if (yourPosition) {
+          (yourPosition as HTMLElement).style.display = 'block';
+        }
+      }
+    }
+  }, [leaderboardData, shadowEl, isInitialized, walletAddress]);
 
   return (
     <Box
