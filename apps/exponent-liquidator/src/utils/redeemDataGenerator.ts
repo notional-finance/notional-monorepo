@@ -100,15 +100,6 @@ export function generateStakingRedeemData(
     throw new Error(`DexId not found for vault: ${vaultConfig.address}`);
   }
   
-  // Get exchangeData based on withdraw request status
-  const exchangeData = isWithdrawRequestPending 
-    ? vaultConfig.withdrawExchangeData 
-    : vaultConfig.redeemExchangeData;
-  
-  if (!exchangeData) {
-    throw new Error(`Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${isWithdrawRequestPending}`);
-  }
-  
   // Calculate minPurchaseAmount
   let minPurchaseAmount: ethers.BigNumber;
   
@@ -128,6 +119,10 @@ export function generateStakingRedeemData(
     if (!primaryWithdrawTokenAmount) {
       throw new Error(`Primary withdraw token amount not found for vault: ${vaultConfig.address}`);
     }
+
+    if (vaultConfig.primaryWithdrawToken === vaultConfig.asset) {
+      return '0x';
+    }
     
     minPurchaseAmount = calculateMinPurchaseAmount(
       vaultConfig.primaryWithdrawToken,
@@ -136,6 +131,15 @@ export function generateStakingRedeemData(
       primaryWithdrawTokenAmount,
       tokenPrices
     );
+  }
+
+  // Get exchangeData based on withdraw request status
+  const exchangeData = isWithdrawRequestPending 
+    ? vaultConfig.withdrawExchangeData 
+    : vaultConfig.redeemExchangeData;
+  
+  if (!exchangeData) {
+    throw new Error(`Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${isWithdrawRequestPending}`);
   }
   
   // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
@@ -167,17 +171,6 @@ export async function generatePendlePTRedeemData(
       throw new Error(`Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`);
     }
     
-    // Get exchangeData from redeemExchangeData
-    exchangeData = vaultConfig.redeemExchangeData || '0x';
-    
-    minPurchaseAmount = calculateMinPurchaseAmount(
-      vaultConfig.yieldToken,
-      vaultConfig.asset,
-      vaultConfig.slippageLimit || 0.01,
-      yieldTokenAmount,
-      tokenPrices
-    );
-    
     // Fetch limit order data from Pendle API
     if (vaultConfig.marketAddress && vaultConfig.ptAddress) {
       limitOrderData = await fetchPendleLimitOrderData(
@@ -191,6 +184,22 @@ export async function generatePendlePTRedeemData(
       );
     }
 
+    if (vaultConfig.tokenOutSy === vaultConfig.asset) {
+      exchangeData = '0x';
+      minPurchaseAmount = ethers.BigNumber.from(0);
+    } else {
+      // Get exchangeData from redeemExchangeData
+      exchangeData = vaultConfig.redeemExchangeData || '0x';
+      
+      minPurchaseAmount = calculateMinPurchaseAmount(
+        vaultConfig.yieldToken,
+        vaultConfig.asset,
+        vaultConfig.slippageLimit || 0.01,
+        yieldTokenAmount,
+        tokenPrices
+      );
+    }
+
     // Encode PendleRedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes limitOrderData)
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
       ['uint8', 'uint256', 'bytes', 'bytes'],
@@ -200,6 +209,10 @@ export async function generatePendlePTRedeemData(
     return redeemParams;
     
   } else {
+    if (vaultConfig.primaryWithdrawToken === vaultConfig.asset) {
+      return '0x';
+    }
+
     // Get exchangeData from withdrawExchangeData
     exchangeData = vaultConfig.withdrawExchangeData || '0x';
     

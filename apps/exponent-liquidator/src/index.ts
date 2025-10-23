@@ -9,13 +9,26 @@ import { LiquidatorLogger } from './utils/logging';
 async function createLiquidator(
   env: Env, 
   mockedPositions?: Position[], 
-  customProvider?: ethers.providers.Provider
+  customProvider?: ethers.providers.Provider,
+  environment: 'development' | 'production' = 'production'
 ): Promise<ExponentLiquidator> {
+  console.log('🔨 createLiquidator called', {
+    hasMockedPositions: !!mockedPositions,
+    hasCustomProvider: !!customProvider,
+    network: env.NETWORK
+  });
+  
   const logger = new LiquidatorLogger(env);
   const provider = customProvider || getProviderFromNetwork(env.NETWORK, true);
 
+  console.log('🔌 Provider configured', {
+    isCustom: !!customProvider,
+    providerUrl: customProvider ? 'custom' : 'network-default'
+  });
+
   let positions: Position[];
   if (mockedPositions) {
+    console.log('📋 Using mocked positions:', mockedPositions.length);
     positions = mockedPositions;
   } else {
     try {
@@ -46,11 +59,48 @@ async function createLiquidator(
     const uniqueVaultAddresses = [
       ...new Set(positions.map(([_, vault]) => vault)),
     ];
+    console.log('🏛️  Initializing vault registry', {
+      vaultCount: uniqueVaultAddresses.length,
+      vaults: uniqueVaultAddresses,
+      network: env.NETWORK
+    });
+    
+    // Test direct HTTP access to localhost first
+    console.log('🌐 Testing direct HTTP access to fork...');
+    try {
+      const testResponse = await fetch('http://localhost:8545', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_chainId',
+          params: [],
+          id: 1
+        })
+      });
+      const testResult = await testResponse.json();
+      console.log('✅ Direct HTTP test successful:', testResult);
+    } catch (httpError) {
+      console.error('❌ Direct HTTP access failed:', httpError);
+      throw new Error(`Cannot access localhost:8545 from Cloudflare Workers: ${httpError.message}`);
+    }
+    
+    // Test provider connection
+    console.log('🧪 Testing provider connection...');
+    try {
+      const network = await provider.getNetwork();
+      console.log('🌐 Provider network detected:', network);
+    } catch (providerError) {
+      console.error('❌ Provider network detection failed:', providerError);
+      throw providerError;
+    }
+    
     vaultRegistry = await VaultRegistry.initialize(
       uniqueVaultAddresses,
       provider,
       env.NETWORK
     );
+    console.log('✅ Vault registry initialized successfully');
   } catch (error) {
     const uniqueVaultAddresses = [
       ...new Set(positions.map(([_, vault]) => vault)),
@@ -71,8 +121,9 @@ async function createLiquidator(
 
   try {
     // Step 3: Create liquidator with initialized dependencies
-    return new ExponentLiquidator(env, positions, vaultRegistry, provider);
+    return new ExponentLiquidator(env, positions, vaultRegistry, provider, environment);
   } catch (error) {
+    console.error('❌ Liquidator creation failed:', error);
     await logger.logError(
       'Creating ExponentLiquidator instance',
       (error as Error).message,
@@ -96,16 +147,31 @@ export default {
     // Test endpoint for mocked data and custom provider
     if (url.pathname === '/test') {
       try {
+        console.log('🔧 Test endpoint called');
         const body = await request.json() as {
           positions: Position[];
           forkUrl: string;
           forkBlockNumber?: number;
         };
 
-        // Create provider for the fork
-        const customProvider = new ethers.providers.JsonRpcProvider(body.forkUrl);
+        console.log('📦 Received test payload:', {
+          positionsCount: body.positions.length,
+          forkUrl: body.forkUrl,
+          network: env.NETWORK
+        });
+
+        // Create provider for the fork with explicit network configuration
+        console.log('🌐 Creating custom provider for fork...');
+        const customProvider = new ethers.providers.JsonRpcProvider({
+          url: body.forkUrl,
+          timeout: 30000,
+          skipFetchSetup: true
+        });
         
-        const liquidator = await createLiquidator(env, body.positions, customProvider);
+        console.log('🏗️  Creating liquidator with mocked positions...');
+        const liquidator = await createLiquidator(env, body.positions, customProvider, 'development');
+        
+        console.log('🚀 Starting liquidator run...');
         const result = await liquidator.run();
 
         return new Response(
@@ -143,7 +209,7 @@ export default {
     
     // Production endpoint
     try {
-      const liquidator = await createLiquidator(env);
+      const liquidator = await createLiquidator(env, undefined, undefined, 'production');
       const result = await liquidator.run();
 
       return new Response(
@@ -185,7 +251,7 @@ export default {
     _: ExecutionContext
   ): Promise<void> {
     try {
-      const liquidator = await createLiquidator(env);
+      const liquidator = await createLiquidator(env, undefined, undefined, 'production');
       const result = await liquidator.run();
 
       console.log(

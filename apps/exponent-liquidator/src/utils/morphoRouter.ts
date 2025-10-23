@@ -25,9 +25,10 @@ export class MorphoRouterIntegration {
       args: [account, vault],
       key: `health_${index}`,
     }));
+    console.log('🏗️  Health factor calls:', calls.length);
 
     const { results } = await aggregate(calls, this.provider);
-
+    console.log('🏗️  Health factor results:', results);
     const healthFactorData: HealthFactorData[] = [];
 
     for (let i = 0; i < pairs.length; i++) {
@@ -43,7 +44,7 @@ export class MorphoRouterIntegration {
         maxBorrow,
       });
     }
-
+    console.log('🏗️  Health factor data:', healthFactorData.length);
     return healthFactorData;
   }
 

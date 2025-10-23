@@ -57,7 +57,6 @@ export interface Env {
   FLASH_LIQUIDATOR_ADDRESS: string;
   TRADING_MODULE_ADDRESS: string;
   NETWORK: Network;
-  ALCHEMY_KEY: string;
   DD_API_KEY: string;
   TX_RELAY_AUTH_TOKEN: string;
 }

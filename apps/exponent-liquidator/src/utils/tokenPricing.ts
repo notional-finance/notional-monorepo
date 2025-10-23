@@ -98,11 +98,13 @@ export async function batchFetchTokenPrices(
     for (let i = 0; i < tokenArray.length; i++) {
       const token = tokenArray[i];
       const priceData = results[`price_${i}`] as [ethers.BigNumber];
-      const decimalsData = results[`decimals_${i}`] as [ethers.BigNumber];
+      const decimalsData = results[`decimals_${i}`] as ethers.BigNumber;
       
       if (priceData && decimalsData) {
+        console.log('🏗️  Price data:', priceData);
+        console.log('🏗️  Decimals data:', decimalsData);
         const price = priceData[0];
-        const decimals = decimalsData[0].toNumber();
+        const decimals = decimalsData.toNumber();
         
         priceMap.set(token, {
           token,

@@ -43,8 +43,9 @@ export async function getWithdrawRequestData(
   }
   
   // Execute first batch to get withdraw request data
+  console.log('🏗️  Withdraw request calls:', calls.length);
   const { results } = await aggregate(calls, provider);
-  
+  console.log('🏗️  Withdraw request results:', results);
   // Build calls for canFinalizeWithdrawRequest
   const finalizeCalls: AggregateCall[] = [];
   
@@ -58,9 +59,9 @@ export async function getWithdrawRequestData(
     if (!primaryRequestId.isZero()) {
       finalizeCalls.push({
         target: new ethers.Contract(vaultConfig.primaryWrm, wrmInterface, provider),
-        stage: 1,
-        method: 'canFinalizeWithdrawRequest',
-        args: [primaryRequestId],
+        stage: 0,
+        method: 'finalizeRequestManual',
+        args: [position.vault, position.account],
         key: `primary_finalize_${i}`
       });
     }
@@ -73,20 +74,21 @@ export async function getWithdrawRequestData(
       if (!secondaryRequestId.isZero()) {
         finalizeCalls.push({
           target: new ethers.Contract(vaultConfig.secondaryWrm, wrmInterface, provider),
-          stage: 1,
-          method: 'canFinalizeWithdrawRequest',
-          args: [secondaryRequestId],
+          stage: 0,
+          method: 'finalizeRequestManual',
+          args: [position.vault, position.account],
           key: `secondary_finalize_${i}`
         });
       }
     }
   }
   
-  // Execute finalize calls if any
+  // Execute finalize calls if any with allowFailure=true
+  console.log('🏗️  Finalize calls:', finalizeCalls);
   const finalizeResults = finalizeCalls.length > 0 ? 
-    await aggregate([...calls, ...finalizeCalls], provider) :
-    { results };
-  
+    await aggregate(finalizeCalls, provider, undefined, true) : // allowFailure=true
+    { results: {} };
+  console.log('🏗️  Finalize results:', finalizeResults);
   // Process results and calculate withdraw token amounts
   const processedResults: { isWithdrawRequestPending: boolean; canWithdrawRequestFinalize: boolean; primaryWithdrawTokenAmount?: BigNumber; secondaryWithdrawTokenAmount?: BigNumber }[] = [];
   
@@ -94,13 +96,13 @@ export async function getWithdrawRequestData(
     const position = positions[i];
     const vaultConfig = vaultRegistry.getVaultConfig(position.vault)!;
     
-    const primaryResult = finalizeResults.results[`primary_${i}`] as [any, any];
+    const primaryResult = results[`primary_${i}`] as [any, any];
     const primaryRequestId = primaryResult[0].requestId;
     const primaryWithdrawRequest = primaryResult[0];
     const primaryTokenizedWithdrawRequest = primaryResult[1];
     
     if (vaultConfig.vaultType === VaultType.CurveConvex2Token && vaultConfig.secondaryWrm) {
-      const secondaryResult = finalizeResults.results[`secondary_${i}`] as [any, any];
+      const secondaryResult = results[`secondary_${i}`] as [any, any];
       const secondaryRequestId = secondaryResult[0].requestId;
       const secondaryWithdrawRequest = secondaryResult[0];
       const secondaryTokenizedWithdrawRequest = secondaryResult[1];
@@ -133,10 +135,11 @@ export async function getWithdrawRequestData(
         let canFinalizeSecondary = true;
         
         if (!primaryRequestId.isZero()) {
-          canFinalizePrimary = finalizeResults.results[`primary_finalize_${i}`] as boolean;
+          // Missing key means call reverted (false), present key means call succeeded (true)
+          canFinalizePrimary = finalizeResults.results[`primary_finalize_${i}`] !== undefined;
         }
         if (!secondaryRequestId.isZero()) {
-          canFinalizeSecondary = finalizeResults.results[`secondary_finalize_${i}`] as boolean;
+          canFinalizeSecondary = finalizeResults.results[`secondary_finalize_${i}`] !== undefined;
         }
         
         canWithdrawRequestFinalize = canFinalizePrimary && canFinalizeSecondary;
@@ -162,7 +165,7 @@ export async function getWithdrawRequestData(
       }
       
       const canWithdrawRequestFinalize = isWithdrawRequestPending ? 
-        (finalizeResults.results[`primary_finalize_${i}`] as boolean || false) : false;
+        (finalizeResults.results[`primary_finalize_${i}`] !== undefined) : false;
       
       processedResults.push({
         isWithdrawRequestPending,
