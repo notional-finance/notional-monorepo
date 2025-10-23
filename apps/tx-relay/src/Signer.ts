@@ -65,6 +65,7 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.AaveWrappedFlashLender_MAINNET]: [Sign.flash],
     [Address.BalancerWrappedFlashLender_MAINNET]: [Sign.flash],
     [Address.UniV3WrappedFlashLender_MAINNET]: [Sign.flash],
+    [Address.exponentLiquidator_MAINNET]: [Sign.flashLiquidateExponent],
   },
   arbitrum: {
     [Address.AaveFlashLiquidator_ARBITRUM]: [Sign.flashLiquidate],
@@ -110,7 +111,14 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
 };
 
 function getTxType({ signature }: { signature: Sign }) {
-  if ([Sign.flash, Sign.flashLoan, Sign.flashLiquidate].includes(signature)) {
+  if (
+    [
+      Sign.flash,
+      Sign.flashLoan,
+      Sign.flashLiquidate,
+      Sign.flashLiquidateExponent,
+    ].includes(signature)
+  ) {
     return 'liquidation';
   }
   if (
