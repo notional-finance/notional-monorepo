@@ -81,7 +81,7 @@ export class Staking extends VaultAdapter {
     feesPaid: TokenBalance;
     vaultTradeMetadata?: VaultTradeMetadata[];
   } {
-    const netVaultSharesForUnderlying = netUnderlying.toToken(vaultShare);
+    let netVaultSharesForUnderlying = netUnderlying.toToken(vaultShare);
     const vaultTradeMetadata: VaultTradeMetadata[] = [];
 
     if (netUnderlying.tokenId !== this.stakingToken.id) {
@@ -99,12 +99,13 @@ export class Staking extends VaultAdapter {
     }
 
     if (this.stakingToken.id !== this.yieldToken.id) {
-      vaultTradeMetadata.push(
-        this.getVaultTradeMetadata(
-          netUnderlying.toToken(this.stakingToken),
-          this.yieldToken
-        )
+      const tradeMetadata = this.getVaultTradeMetadata(
+        netUnderlying.toToken(this.stakingToken),
+        this.yieldToken
       );
+      vaultTradeMetadata.push(tradeMetadata);
+      netVaultSharesForUnderlying =
+        tradeMetadata.tokensBought.toToken(vaultShare);
     }
 
     return {
