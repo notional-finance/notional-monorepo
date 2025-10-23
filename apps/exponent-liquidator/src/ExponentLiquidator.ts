@@ -502,6 +502,9 @@ export default class ExponentLiquidator {
             } as ethers.providers.TransactionResponse;
           } else {
             // Production mode: Use relay
+            console.log('🔧 Production mode: Sending transaction via relay');
+            console.log(this.env.NETWORK)
+            console.log(this.env.TX_RELAY_AUTH_TOKEN)
             resp = await sendTxThroughRelayer({
               env: {
                 NETWORK: this.env.NETWORK,

@@ -34,8 +34,10 @@ export class VaultRegistry {
     provider: ethers.providers.Provider,
     network: Network
   ): Promise<VaultRegistry> {
+    console.log('🏗️ VaultRegistry.initialize starting with:', vaultAddresses);
     const registry = new VaultRegistry(provider, network);
     await registry.loadVaultConfigs(vaultAddresses);
+    console.log('🏗️ VaultRegistry.initialize completed');
     return registry;
   }
 
@@ -105,7 +107,9 @@ export class VaultRegistry {
     }
     
     // Execute first stage to get basic vault data
+    console.log('🔧 Stage 1: Executing basic vault data calls:', calls.length);
     const { results } = await aggregate(calls, this.provider);
+    console.log('🔧 Stage 1: Results received:', Object.keys(results).length);
     
     // Prepare additional calls based on vault types
     const additionalCalls: AggregateCall[] = [];
@@ -156,6 +160,20 @@ export class VaultRegistry {
         });
       } else if (vaultType === VaultType.CurveConvex2Token) {
         // For CurveConvex2Token vaults: get TOKENS and PRIMARY_INDEX
+        console.log('🔧 Adding TOKENS call for vault:', vaultAddress);
+        
+        // Test direct call first to debug ABI issue
+        try {
+          const directContract = new ethers.Contract(vaultAddress, curveConvexInterface, this.provider);
+          console.log('🔧 Testing direct TOKENS call...');
+          const directResult = await directContract.TOKENS();
+          console.log('🔧 Direct TOKENS result:', directResult);
+          console.log('🔧 Direct TOKENS result type:', typeof directResult);
+          console.log('🔧 Direct TOKENS result length:', directResult?.length);
+        } catch (error) {
+          console.log('🔧 Direct TOKENS call failed:', error);
+        }
+        
         additionalCalls.push({
           target: new ethers.Contract(vaultAddress, curveConvexInterface, this.provider),
           stage: 1,
@@ -175,7 +193,9 @@ export class VaultRegistry {
     calls.push(...additionalCalls);
     
     // Execute again to get vault-specific data
+    console.log('🔧 Stage 2: Executing vault-specific calls:', calls.length);
     const { results: results2 } = await aggregate(calls, this.provider);
+    console.log('🔧 Stage 2: Results received:', results2);
     
     // Prepare final calls for WRM addresses and withdraw tokens
     const finalCalls: AggregateCall[] = [];
@@ -219,6 +239,9 @@ export class VaultRegistry {
         
         vaultConfigs[i].token0 = token0;
         vaultConfigs[i].token1 = token1;
+        console.log('🔧 tokens:', tokens);
+        console.log('🔧 token0:', token0);
+        console.log('🔧 token1:', token1);
         vaultConfigs[i].primaryIndex = primaryIndex.toNumber();
         
         // Get both WRMs from AddressRegistry
@@ -241,7 +264,9 @@ export class VaultRegistry {
     
     // Add final calls and execute to get WRM addresses
     calls.push(...finalCalls);
+    console.log('🔧 Stage 3: Executing WRM address calls:', calls.length);
     const { results: results3 } = await aggregate(calls, this.provider);
+    console.log('🔧 Stage 3: Results received:', Object.keys(results3).length);
     
     // Prepare calls to get withdraw tokens
     const withdrawTokenCalls: AggregateCall[] = [];
@@ -289,12 +314,16 @@ export class VaultRegistry {
     // Execute final calls to get withdraw tokens if needed
     if (withdrawTokenCalls.length > 0) {
       calls.push(...withdrawTokenCalls);
+      console.log('🔧 Stage 4: Executing withdraw token calls:', withdrawTokenCalls.length);
+      console.log('🔧 Stage 4: Withdraw token calls detail:', withdrawTokenCalls.map(c => ({ target: c.target?.address, method: c.method, key: c.key })));
       const { results: finalResults } = await aggregate(calls, this.provider);
+      console.log('🔧 Stage 4: Results received:', Object.keys(finalResults).length);
       
       // Parse withdraw token results
       for (let i = 0; i < vaultAddresses.length; i++) {
         const vaultAddress = vaultAddresses[i];
         const config = vaultConfigs[i];
+        console.log(`🔧 Parsing results for vault ${i}: ${vaultAddress}`);
         
         if (config.vaultType === VaultType.PendlePT) {
           config.primaryWithdrawToken = finalResults[`${vaultAddress}.primaryWithdrawToken`] as string;

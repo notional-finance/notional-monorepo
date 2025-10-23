@@ -32,19 +32,19 @@ async function createLiquidator(
     positions = mockedPositions;
   } else {
     try {
-      // Step 1: Fetch positions from data service
+      // Step 1: Fetch positions from Hypernative
       positions = await fetchPositions(
-        env.DATA_SERVICE_URL,
-        env.DATA_SERVICE_AUTH_TOKEN
+        env.HYPERNATIVE_CLIENT_ID,
+        env.HYPERNATIVE_CLIENT_SECRET
       );
     } catch (error) {
       await logger.logError(
-        'Fetching positions from data service',
+        'Fetching positions from Hypernative',
         (error as Error).message,
         {
           type: 'generic',
           data: {
-            dataServiceUrl: env.DATA_SERVICE_URL,
+            hypernativeUrl: 'https://api.hypernative.xyz/lists/6ac143d9-9d99-40f1-b26c-458361c695f3',
             network: env.NETWORK,
           },
         }
@@ -53,6 +53,7 @@ async function createLiquidator(
     }
   }
 
+  console.log(positions)
   let vaultRegistry: VaultRegistry;
   try {
     // Step 2: Initialize vault registry with unique vault addresses
@@ -64,36 +65,6 @@ async function createLiquidator(
       vaults: uniqueVaultAddresses,
       network: env.NETWORK
     });
-    
-    // Test direct HTTP access to localhost first
-    console.log('🌐 Testing direct HTTP access to fork...');
-    try {
-      const testResponse = await fetch('http://localhost:8545', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'eth_chainId',
-          params: [],
-          id: 1
-        })
-      });
-      const testResult = await testResponse.json();
-      console.log('✅ Direct HTTP test successful:', testResult);
-    } catch (httpError) {
-      console.error('❌ Direct HTTP access failed:', httpError);
-      throw new Error(`Cannot access localhost:8545 from Cloudflare Workers: ${httpError.message}`);
-    }
-    
-    // Test provider connection
-    console.log('🧪 Testing provider connection...');
-    try {
-      const network = await provider.getNetwork();
-      console.log('🌐 Provider network detected:', network);
-    } catch (providerError) {
-      console.error('❌ Provider network detection failed:', providerError);
-      throw providerError;
-    }
     
     vaultRegistry = await VaultRegistry.initialize(
       uniqueVaultAddresses,

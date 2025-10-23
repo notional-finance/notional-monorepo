@@ -51,14 +51,14 @@ export interface LiquidationRunResult {
 }
 
 export interface Env {
-  DATA_SERVICE_URL: string;
-  DATA_SERVICE_AUTH_TOKEN: string;
   MORPHO_LENDING_ROUTER_ADDRESS: string;
   FLASH_LIQUIDATOR_ADDRESS: string;
   TRADING_MODULE_ADDRESS: string;
   NETWORK: Network;
   DD_API_KEY: string;
   TX_RELAY_AUTH_TOKEN: string;
+  HYPERNATIVE_CLIENT_ID: string;
+  HYPERNATIVE_CLIENT_SECRET: string;
 }
 
 export class MetricNames {
