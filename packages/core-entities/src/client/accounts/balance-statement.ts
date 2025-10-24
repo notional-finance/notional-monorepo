@@ -150,7 +150,7 @@ export function parseCurrentBalanceStatement(
     network
   );
 
-  const currentProfitAndLoss = currentStatement.balance
+  let currentProfitAndLoss = currentStatement.balance
     .toUnderlying()
     .sub(
       currentStatement.adjustedCostBasis.scale(
@@ -162,28 +162,15 @@ export function parseCurrentBalanceStatement(
   let totalInterestAccrual: TokenBalance = currentProfitAndLoss;
 
   if (token.tokenType === 'VaultShare') {
-    // This interest accumulator is always in 18 decimals
-    const currentInterestAccumulator = model
+    const additionalAccruedInterest = model
       .getVaultAdapter(token.id)
-      .getInterestAccrualRate();
-    if (currentInterestAccumulator) {
-      const additionalAccruedInterest = TokenBalance.unit(underlying)
-        .scale(
-          currentInterestAccumulator.sub(
-            current._lastInterestAccumulator as BigNumber
-          ),
-          SCALAR_PRECISION
-        )
-        .scale(currentStatement.balance, currentStatement.balance.precision);
-
-      totalInterestAccrual = currentStatement.totalInterestAccrual.add(
-        additionalAccruedInterest
-      );
-    } else {
-      totalInterestAccrual = currentStatement.totalInterestAccrual;
-    }
-  } else {
-    // For Prime Cash and Prime Debt, the entire PNL is interest accrual
+      .getAdditionalAccruedInterest(currentStatement);
+    totalInterestAccrual = currentStatement.totalInterestAccrual.add(
+      additionalAccruedInterest
+    );
+  } else if (token.tokenType === 'VaultDebt') {
+    currentProfitAndLoss = currentProfitAndLoss.neg();
+    // For vault debt, the entire PNL is interest accrual
     totalInterestAccrual = currentProfitAndLoss;
   }
 
@@ -227,6 +214,7 @@ export function parseBalanceStatement(
     adjustedCostBasis,
     timestamp: snapshot.timestamp,
     accumulatedCostRealized,
+    lastInterestAccumulator: BigNumber.from(snapshot._lastInterestAccumulator),
     totalProfitAndLoss: new TokenBalance(
       snapshot.currentProfitAndLossAtSnapshot,
       underlyingId,

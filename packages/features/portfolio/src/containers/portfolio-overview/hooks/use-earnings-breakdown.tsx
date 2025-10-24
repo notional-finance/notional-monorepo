@@ -10,7 +10,6 @@ import {
   MultiRowTableData,
 } from '@notional-finance/helpers';
 import { FiatKeys, TokenDefinition } from '@notional-finance/core-entities';
-import { formatMaturity } from '@notional-finance/util';
 
 interface EarningsBreakdownRow {
   isTotalRow?: boolean;
@@ -63,7 +62,6 @@ function formatGroupedVaultEarnings(
   {
     underlying,
     name,
-    maturity,
     totalInterestAccrual,
     totalILAndFees,
     marketProfitLoss,
@@ -81,9 +79,9 @@ function formatGroupedVaultEarnings(
       symbol: underlying,
       symbolBottom: '',
       label: name,
-      caption: maturity ? `Maturity: ${formatMaturity(maturity)}` : 'Open Term',
+      caption: '',
     },
-    incentivesEarnings: '',
+    incentivesEarnings: '-',
     accruedInterest: formatCryptoWithFiat(baseCurrency, totalInterestAccrual),
     marketPNL: formatCryptoWithFiat(baseCurrency, marketProfitLoss),
     feesPaid: formatCryptoWithFiat(baseCurrency, totalILAndFees),
@@ -110,7 +108,6 @@ function formatDetailedVaultEarnings(
     vaultDebt,
     underlying,
     name,
-    maturity,
     assetMarketPnL,
     assetInterestAccrual,
     assetFeesPaid,
@@ -124,14 +121,12 @@ function formatDetailedVaultEarnings(
   pendingTokens: TokenDefinition[] | undefined,
   baseCurrency: FiatKeys
 ): EarningsBreakdownRow[] {
-  const { icon, formattedTitle, titleWithMaturity } = formatTokenType(
-    vaultDebt.token
-  );
+  const { icon, formattedTitle } = formatTokenType(vaultDebt.token);
   const vaultCell = {
     symbol: underlying,
     symbolBottom: '',
     label: name,
-    caption: maturity ? `Maturity: ${formatMaturity(maturity)}` : 'Open Term',
+    caption: '',
   };
 
   const shares: EarningsBreakdownRow = {
@@ -166,11 +161,11 @@ function formatDetailedVaultEarnings(
       symbol: icon,
       symbolBottom: '',
       label: formattedTitle,
-      caption: titleWithMaturity,
+      caption: '',
     },
     tokenId: vaultDebt.tokenId,
     isPending: !!pendingTokens?.includes(vaultDebt.token),
-    incentivesEarnings: '',
+    incentivesEarnings: '-',
     accruedInterest: formatCryptoWithFiat(baseCurrency, debtInterestAccrual),
     marketPNL: formatCryptoWithFiat(baseCurrency, debtMarketPnL),
     feesPaid: formatCryptoWithFiat(baseCurrency, debtFeesPaid),

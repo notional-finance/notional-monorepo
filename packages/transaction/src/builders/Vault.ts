@@ -3,11 +3,7 @@ import {
   PopulateTransactionInputs,
   populateLendingRouterTxnAndGas,
 } from './common';
-import {
-  AccountDefinition,
-  getNetworkModel,
-} from '@notional-finance/core-entities';
-import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
+import { getNetworkModel } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 
 export async function EnterVault({
@@ -15,28 +11,16 @@ export async function EnterVault({
   network,
   depositBalance,
   debtBalance,
-  accountBalances,
-  vaultLastUpdateTime,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (!depositBalance || debtBalance?.tokenType !== 'VaultDebt')
     throw Error('Deposit balance, debt balance must be defined');
   const vaultAddress = debtBalance.vaultAddress;
   const lendingRouter = debtBalance.token.address;
 
-  const profile =
-    accountBalances && vaultLastUpdateTime
-      ? VaultAccountRiskProfile.fromAccount(vaultAddress, {
-          balances: accountBalances,
-          vaultLastUpdateTime,
-        } as AccountDefinition)
-      : undefined;
-
   // This must be a positive number
   const borrowAmount = debtBalance.neg().toUnderlying();
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
-  const totalDeposit = profile
-    ? borrowAmount.add(depositBalance)
-    : borrowAmount.add(depositBalance);
+  const totalDeposit = borrowAmount.add(depositBalance);
 
   const vaultData = await vaultAdapter.getDepositParameters(
     address,

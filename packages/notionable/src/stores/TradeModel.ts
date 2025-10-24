@@ -1,6 +1,7 @@
 import {
   AccountDefinition,
   APYData,
+  createLeveragedAPYData,
   NotionalTypes,
   PendlePT,
   SingleSidedLP,
@@ -940,23 +941,108 @@ export const TradeModel = types
       );
       const currentAPY = holdings?.apyData
         ? getSnapshot(holdings?.apyData)
+        : self.collateral
+        ? // If there is no position then use the spot APY, this does not include
+          // any leverage
+          model.getSpotAPY(self.collateral.id)
         : undefined;
-      const updatedAPY = postVaultRisk
-        ? model.getLeveragedAPY(
-            postVaultRisk.vaultShares,
-            postVaultRisk.vaultDebt,
-            postVaultRisk.leverageRatio() || 0,
-            self.vaultTradeMetadata
-          )
-        : undefined;
+
+      let updatedAPY: APYData | undefined;
+      if (holdings && self.tradeType === 'InitiateWithdraw') {
+        // Clear all the asset APY for a withdraw
+        updatedAPY = createLeveragedAPYData(
+          {
+            totalAPY: 0,
+            assetAPY: 0,
+            organicAPY: 0,
+            incentiveAPY: 0,
+            feeAPY: 0,
+            incentives: [],
+            pointMultiples: {},
+          },
+          currentAPY?.debtAPY || 0,
+          holdings.leverageRatio
+        );
+      } else if (postVaultRisk && self.collateralBalance && self.debtBalance) {
+        const netPositionAPY = model.getLeveragedAPY(
+          self.collateralBalance,
+          self.debtBalance,
+          postVaultRisk.leverageRatio() || 0,
+          self.vaultTradeMetadata
+        );
+
+        if (
+          priorVaultRisk &&
+          (self.tradeType === 'AdjustVaultLeverage' ||
+            self.tradeType === 'IncreaseVaultPosition')
+        ) {
+          // Average into the updated apy
+          updatedAPY = {
+            ...netPositionAPY,
+            totalAPY: averageAPY([
+              {
+                apy: currentAPY?.totalAPY || 0,
+                amount: priorVaultRisk.vaultShares,
+              },
+              {
+                apy: netPositionAPY.totalAPY || 0,
+                amount: self.collateralBalance,
+              },
+            ]),
+            assetAPY: averageAPY([
+              {
+                apy: currentAPY?.assetAPY || 0,
+                amount: priorVaultRisk.vaultShares,
+              },
+              {
+                apy: netPositionAPY.assetAPY || 0,
+                amount: self.collateralBalance,
+              },
+            ]),
+            organicAPY: averageAPY([
+              {
+                apy: currentAPY?.organicAPY || 0,
+                amount: priorVaultRisk.totalAssets(),
+              },
+              {
+                apy: netPositionAPY.organicAPY || 0,
+                amount: self.collateralBalance,
+              },
+            ]),
+            incentiveAPY: averageAPY([
+              {
+                apy: currentAPY?.incentiveAPY || 0,
+                amount: priorVaultRisk.totalAssets(),
+              },
+              {
+                apy: netPositionAPY.incentiveAPY || 0,
+                amount: self.collateralBalance,
+              },
+            ]),
+          };
+        } else if (
+          self.tradeType === 'CreateVaultPosition' ||
+          self.tradeType === 'RollVaultPosition'
+        ) {
+          updatedAPY = netPositionAPY;
+        }
+      }
 
       return {
         leveragedAPY: (updatedAPY || currentAPY || undefined) as
           | APYData
           | undefined,
-        assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
+        assets:
+          // Use the prior vault risk assets if there is a withdraw
+          self.tradeType === 'InitiateWithdraw'
+            ? priorVaultRisk?.totalAssets()
+            : postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
         debts: postVaultRisk?.totalDebt() || priorVaultRisk?.totalDebt(),
-        netWorth: postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
+        netWorth:
+          // Use the prior vault risk net worth if there is a withdraw
+          self.tradeType === 'InitiateWithdraw'
+            ? priorVaultRisk?.netWorth()
+            : postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
       };
     };
 
@@ -1315,4 +1401,20 @@ function sortByMaturity<T extends { maturity?: number }>(a: T, b: T) {
       ? 0
       : b.maturity)
   );
+}
+
+function averageAPY(
+  apys: {
+    apy: number;
+    amount: TokenBalance;
+  }[]
+): number {
+  const totalAmount = apys.reduce(
+    (acc, curr) => acc + curr.amount.toFloat(),
+    0
+  );
+  const weightedApys = apys.map(
+    ({ apy, amount }) => (apy * amount.toFloat()) / totalAmount
+  );
+  return weightedApys.reduce((acc, curr) => acc + curr, 0);
 }

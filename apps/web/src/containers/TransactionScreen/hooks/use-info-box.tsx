@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import {
   CountUp,
+  ErrorMessage,
   H5,
   Label,
   LabelValue,
@@ -41,11 +42,13 @@ import { TokenIcon } from '@notional-finance/icons';
 interface LabelValueSectionProps {
   sectionTitle?: ReactNode;
   items: { label: ReactNode; content: ReactNode | string }[];
+  sectionFooter?: ReactNode;
 }
 
 const LabelValueSection = ({
   sectionTitle = '',
   items,
+  sectionFooter,
 }: LabelValueSectionProps) => {
   const theme = useTheme();
 
@@ -67,6 +70,7 @@ const LabelValueSection = ({
           </Box>
         ))}
       </Box>
+      {sectionFooter}
     </Box>
   );
 };
@@ -386,7 +390,7 @@ const useApyBreakdown = () => {
       : strategyType === 'PendlePT'
       ? 'PT APY'
       : strategyType === 'CurveConvex2Token'
-      ? 'LP Fee APY'
+      ? 'Swap Fee APY'
       : 'Organic APY';
 
   const apy = [
@@ -452,7 +456,7 @@ const useOrderDetails = () => {
     });
   }
 
-  if (trade?.debtBalance) {
+  if (trade?.debtBalance && trade.tradeType !== 'InitiateWithdraw') {
     const borrowed = trade.debtBalance.abs().toUnderlying();
     orderDetails.push({
       label: trade.debtBalance.isPositive()
@@ -462,7 +466,7 @@ const useOrderDetails = () => {
     });
   }
 
-  if (trade?.collateralBalance) {
+  if (trade?.collateralBalance && trade.tradeType !== 'InitiateWithdraw') {
     orderDetails.push({
       label: trade.collateralBalance.isNegative()
         ? 'Vault Shares Redeemed'
@@ -542,14 +546,14 @@ const useTradeMetadata = () => {
             label: 'Exchange Rate',
             content: (
               <Box>
-                {metadata.differenceFromSpot && (
+                {metadata.differenceFromSpot !== 0 ? (
                   <LabelValue light inline>
                     {`(${formatNumberAsPercent(
                       metadata.differenceFromSpot,
                       4
                     )}) `}
                   </LabelValue>
-                )}
+                ) : undefined}
                 <LabelValue inline>
                   {formatNumber(metadata.exchangeRate, 4)}
                 </LabelValue>
@@ -628,7 +632,7 @@ export const useInfoBox = () => {
       tabTitle: 'APY Breakdown',
       tabContent: (
         <DividedSections>
-          {apyBreakdown.points && (
+          {apyBreakdown.points && apyBreakdown.points.length > 0 ? (
             <TableSection
               key="points"
               headings={[
@@ -637,7 +641,7 @@ export const useInfoBox = () => {
               ]}
               contents={apyBreakdown.points}
             />
-          )}
+          ) : undefined}
           <TableSection
             key="apy"
             highlightLastRow
@@ -651,6 +655,21 @@ export const useInfoBox = () => {
           <LabelValueSection
             key="assets-debts"
             items={apyBreakdown.assetsDebts}
+            sectionFooter={
+              trade?.tradeType === 'InitiateWithdraw' ? (
+                <ErrorMessage
+                  variant="pending"
+                  hideTitle
+                  message={
+                    <FormattedMessage
+                      defaultMessage={
+                        'Vault stops earning yield during smart withdraw.'
+                      }
+                    />
+                  }
+                />
+              ) : undefined
+            }
           />
         </DividedSections>
       ),

@@ -2,6 +2,7 @@ import {
   BASIS_POINT,
   DEX_ID,
   doSecantSearch,
+  getNowSeconds,
   lastValue,
   Network,
   NetworkId,
@@ -19,6 +20,7 @@ import { defaultAbiCoder } from '@ethersproject/abi';
 import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
 import { APYData } from '../models/views/YieldViews';
 import { registerTokensMap } from '../exchanges/default-pools';
+import { parseBalanceStatement } from '../client/accounts/balance-statement';
 
 export interface PendlePTVaultParams extends BaseVaultParams {
   marketAddress: string;
@@ -361,7 +363,10 @@ export class PendlePT extends VaultAdapter {
           vaultShare
         ).neg(),
         feesPaid: tradeMetadata.reduce(
-          (acc, trade) => (trade.feesPaid ? acc.add(trade.feesPaid) : acc),
+          (acc, trade) =>
+            trade.feesPaid
+              ? acc.add(trade.feesPaid.toToken(this.borrowedToken))
+              : acc,
           TokenBalance.zero(this.borrowedToken)
         ),
         vaultTradeMetadata: tradeMetadata,
@@ -454,6 +459,34 @@ export class PendlePT extends VaultAdapter {
         withdrawPoolAddress
       ),
     ];
+  }
+
+  override getAdditionalAccruedInterest(
+    statement: ReturnType<typeof parseBalanceStatement>
+  ): TokenBalance {
+    const model = getNetworkModel(this.network);
+    const timeSinceLastSnapshot = getNowSeconds() - statement.timestamp;
+    const timeToExpiryBefore = this.expiry - statement.timestamp;
+    // Use the minimum of the time since the last snapshot and the time to expiry
+    const interestAccrueTime =
+      timeSinceLastSnapshot < timeToExpiryBefore
+        ? timeSinceLastSnapshot
+        : timeToExpiryBefore;
+
+    const tokenOutSy = model.getTokenByID(this.tokenOutSy);
+    // This is in PT token precision but we need to scale it back to the tokenOutSy
+    // precision and the FX it back to the borrowed token precision
+
+    const additionalAccruedInterest = TokenBalance.from(
+      statement.lastInterestAccumulator
+        .mul(interestAccrueTime)
+        .div(timeToExpiryBefore)
+        .mul(BigNumber.from(10).pow(tokenOutSy.decimals))
+        .div(BigNumber.from(10).pow(this.market.ptToken.decimals)),
+      tokenOutSy
+    );
+
+    return additionalAccruedInterest.toToken(this.borrowedToken);
   }
 
   override async getDepositParameters(

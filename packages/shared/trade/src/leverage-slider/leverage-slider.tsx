@@ -92,7 +92,7 @@ export const LeverageSlider = observer(
       <SliderInput
         ref={sliderInputRef}
         min={minLeverageRatio || 0}
-        max={maxLeverageRatio * 0.99}
+        max={maxLeverageRatio}
         isRangeSlider={trade?.tradeType === 'AdjustVaultLeverage'}
         onChangeCommitted={onChangeCommitted}
         infoMsg={infoMsg}

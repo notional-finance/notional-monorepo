@@ -2,12 +2,14 @@ import {
   BASIS_POINT,
   getNowSeconds,
   Network,
+  SCALAR_PRECISION,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import {
   APYData,
   getNetworkModel,
+  parseBalanceStatement,
   TimeSeriesResponse,
   TokenBalance,
   TokenDefinition,
@@ -81,7 +83,7 @@ export class Staking extends VaultAdapter {
     feesPaid: TokenBalance;
     vaultTradeMetadata?: VaultTradeMetadata[];
   } {
-    const netVaultSharesForUnderlying = netUnderlying.toToken(vaultShare);
+    let netVaultSharesForUnderlying = netUnderlying.toToken(vaultShare);
     const vaultTradeMetadata: VaultTradeMetadata[] = [];
 
     if (netUnderlying.tokenId !== this.stakingToken.id) {
@@ -99,12 +101,13 @@ export class Staking extends VaultAdapter {
     }
 
     if (this.stakingToken.id !== this.yieldToken.id) {
-      vaultTradeMetadata.push(
-        this.getVaultTradeMetadata(
-          netUnderlying.toToken(this.stakingToken),
-          this.yieldToken
-        )
+      const tradeMetadata = this.getVaultTradeMetadata(
+        netUnderlying.toToken(this.stakingToken),
+        this.yieldToken
       );
+      vaultTradeMetadata.push(tradeMetadata);
+      netVaultSharesForUnderlying =
+        tradeMetadata.tokensBought.toToken(vaultShare);
     }
 
     return {
@@ -264,12 +267,21 @@ export class Staking extends VaultAdapter {
     return [this.stakingToken];
   }
 
-  override getInterestAccrualRate(): BigNumber {
+  override getAdditionalAccruedInterest(
+    statement: ReturnType<typeof parseBalanceStatement>
+  ): TokenBalance {
     const model = getNetworkModel(this.network);
     const oracle = model.oracles.get(
       `${this.stakingToken.id}:${this.yieldToken.id}:WithdrawTokenExchangeRate`
     );
-    return oracle?.latestRate.rate || BigNumber.from(0);
+    const currentInterestAccumulator =
+      oracle?.latestRate.rate || BigNumber.from(0);
+    return TokenBalance.unit(this.borrowedToken)
+      .scale(
+        currentInterestAccumulator.sub(statement.lastInterestAccumulator),
+        SCALAR_PRECISION
+      )
+      .scale(statement.balance, statement.balance.precision);
   }
 
   override getSimulatedAPY(
