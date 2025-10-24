@@ -189,6 +189,7 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
       network: v.fieldData['vault-address-2']['network'][
         'name'
       ].toLowerCase() as Network,
+      vaultIcon: v.fieldData['vault-address-2']['icon']?.url,
       depositToken: v.fieldData['deposit-token-2']['contract-address'],
       vaultFeatures: v.fieldData['vault-features'].map(
         (feature) => feature.name

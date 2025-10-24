@@ -1,5 +1,5 @@
 import { Box, Chip, styled, useTheme } from '@mui/material';
-import { TokenIcon } from '@notional-finance/icons';
+import { MultiTokenIcon } from '@notional-finance/icons';
 import { H2, LargeInputTextEmphasized } from '@notional-finance/mui';
 import {
   useAppStore,
@@ -32,8 +32,11 @@ const Header = observer(({ actionPrefix, isPointsOnly }: HeaderProps) => {
     <HeaderContainer>
       <LeftSection>
         {tokenSymbol && (
-          <TokenIcon
-            symbol={tokenSymbol}
+          <MultiTokenIcon
+            symbols={[
+              vaultMetadata?.vaultIcon,
+              vaultMetadata?.depositToken.symbol,
+            ]}
             size={isMobileView ? 'large' : 'xl'}
           />
         )}

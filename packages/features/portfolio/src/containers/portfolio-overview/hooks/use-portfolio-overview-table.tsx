@@ -319,6 +319,7 @@ function formatVaultHoldings(
     vaultAddress,
     name,
     underlying,
+    vaultIcon,
     amountPaid,
     apyData,
     leverageRatio,
@@ -392,7 +393,7 @@ function formatVaultHoldings(
   return {
     asset: {
       symbol: underlying,
-      symbolBottom: '',
+      symbolBottom: vaultIcon || '',
       label: name,
       caption: rewardClaimIcons,
     },
@@ -434,6 +435,7 @@ function formatDetailedVaultHoldings(
   {
     vaultShares,
     name,
+    vaultIcon,
     vaultDebt,
     underlying,
     assetEarnings,
@@ -457,7 +459,7 @@ function formatDetailedVaultHoldings(
   );
   const assets: OverviewTableRow = {
     asset: {
-      symbol: underlying,
+      symbol: vaultIcon || '',
       symbolBottom: '',
       label: name,
       caption: rewardClaimIcons,
@@ -499,13 +501,13 @@ function formatDetailedVaultHoldings(
   // Short circuit if there are no debts
   if (vaultDebt.isZero()) return [dividerRow(name), assets];
 
-  const { icon, formattedTitle, titleWithMaturity, title } = formatTokenType(
+  const { formattedTitle, titleWithMaturity, title } = formatTokenType(
     vaultDebt.token
   );
 
   const debts: OverviewTableRow = {
     asset: {
-      symbol: icon,
+      symbol: underlying,
       symbolBottom: '',
       label: formattedTitle,
       caption: titleWithMaturity,

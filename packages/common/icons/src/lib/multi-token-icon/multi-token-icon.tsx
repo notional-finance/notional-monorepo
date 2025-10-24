@@ -15,8 +15,8 @@ export function MultiTokenIcon({
   const tokenShift = {
     small: 10,
     medium: 14,
-    large: 20,
-    xl: 30,
+    large: 10,
+    xl: 20,
     xxl: 40,
   };
   const shift = shiftSize ?? tokenShift[size];
@@ -46,7 +46,7 @@ export function MultiTokenIcon({
             sx={{
               position: 'relative',
               right: `${shift * index}px`,
-              zIndex: symbols.length - index,
+              zIndex: index,
               height: '100%',
             }}
           >

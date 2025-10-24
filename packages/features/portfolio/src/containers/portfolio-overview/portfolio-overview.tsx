@@ -133,17 +133,6 @@ const useTableTabState = () => {
       width: theme.spacing(37.5),
     },
     {
-      header: <FormattedMessage defaultMessage="Incentives Earnings" />,
-      cell: MultiValueCell,
-      ToolTip: TotalEarningsTooltip,
-      accessorKey: 'incentivesEarnings',
-      fontWeightBold: true,
-      textAlign: 'right',
-      expandableTable: true,
-      showLoadingSpinner: true,
-      showGreenText: true,
-    },
-    {
       header: <FormattedMessage defaultMessage="Accrued Interest" />,
       cell: MultiValueCell,
       // ToolTip: TotalEarningsTooltip,
@@ -162,14 +151,6 @@ const useTableTabState = () => {
       fontWeightBold: true,
       expandableTable: true,
       showGreenText: true,
-    },
-    {
-      header: <FormattedMessage defaultMessage="Fees Paid" />,
-      cell: MultiValueCell,
-      accessorKey: 'feesPaid',
-      textAlign: 'right',
-      expandableTable: true,
-      fontWeightBold: true,
     },
     {
       header: <FormattedMessage defaultMessage="Total Earnings" />,
