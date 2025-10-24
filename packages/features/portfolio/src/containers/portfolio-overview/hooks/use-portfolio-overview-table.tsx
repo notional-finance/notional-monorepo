@@ -19,11 +19,7 @@ import {
   useSelectedNetwork,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
-import {
-  formatMaturity,
-  pointsMultiple,
-  TXN_HISTORY_TYPE,
-} from '@notional-finance/util';
+import { pointsMultiple, TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
 import {
@@ -448,19 +444,23 @@ function formatDetailedVaultHoldings(
     debtEntryPrice,
     apyData,
     impliedFixedRate,
+    vaultMetadata,
   }: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
   tableRow: OverviewTableRow,
   pendingTokens: TokenDefinition[] | undefined,
-  baseCurrency: FiatKeys
+  baseCurrency: FiatKeys,
+  theme: Theme
 ) {
+  const rewardClaimIcons = getRewardClaimIcon(
+    vaultMetadata.rewardClaims,
+    theme
+  );
   const assets: OverviewTableRow = {
     asset: {
       symbol: underlying,
       symbolBottom: '',
       label: name,
-      caption: vaultShares.maturity
-        ? `Maturity: ${formatMaturity(vaultShares.maturity || 0)}`
-        : 'Open Term',
+      caption: rewardClaimIcons,
     },
     healthFactor: tableRow.healthFactor,
     tokenId: vaultShares.tokenId,
@@ -601,7 +601,8 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
           v,
           tableRow,
           pendingTokens,
-          baseCurrency
+          baseCurrency,
+          theme
         );
       }),
     ];

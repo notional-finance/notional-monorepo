@@ -50,7 +50,7 @@ export const formatCryptoWithFiat = (
     return {
       data: [
         {
-          displayValue: tbn.toDisplayStringWithSymbol(2, true, false),
+          displayValue: tbn.toDisplayStringWithSymbol(4, true, false),
           isNegative: options?.isDebt ? false : tbn.isNegative(),
         },
         {

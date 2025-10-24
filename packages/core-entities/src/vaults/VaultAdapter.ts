@@ -1,4 +1,4 @@
-import { BigNumber, BytesLike } from 'ethers';
+import { BytesLike } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import {
   DEX_ID,
@@ -9,6 +9,7 @@ import {
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
+import { parseBalanceStatement } from '../client/accounts/balance-statement';
 
 export interface BaseVaultParams {
   vaultAddress: string;
@@ -118,8 +119,10 @@ export abstract class VaultAdapter {
     vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData;
 
-  getInterestAccrualRate(): BigNumber {
-    return BigNumber.from(0);
+  getAdditionalAccruedInterest(
+    _statement: ReturnType<typeof parseBalanceStatement>
+  ): TokenBalance {
+    return TokenBalance.zero(this.borrowedToken);
   }
 
   protected getVaultTradeMetadata(
