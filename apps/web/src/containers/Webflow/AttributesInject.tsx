@@ -109,7 +109,11 @@ function patchQueryAndRestart(
       if (DEBUG_MODE) {
         const originalDispatch = ix2.store.dispatch;
         ix2.store.dispatch = function (action) {
-          if (action.type !== 'IX2_ANIMATION_FRAME_CHANGED') {
+          if (
+            action.type !== 'IX2_ANIMATION_FRAME_CHANGED' &&
+            action.type !== 'IX2_ELEMENT_STATE_CHANGED' &&
+            action.payload?.actionTypeId !== 'TRANSFORM_MOVE'
+          ) {
             console.log('[IX2 DISPATCH]', action.type, action);
             console.log('IX2 store state:', ix2.store.getState());
           }
@@ -270,17 +274,103 @@ function useListStart(afterListRendered: () => void) {
 }
 
 export const LandingPageInject = () => {
-  const shadowEl = useRef<Element>();
-  const [isInitialized, setIsInitialized] = useState(false);
   const kpiData = useLandingPageStats();
   const blogPosts = useLatestBlogPosts();
+  // This is required to ensure that the inject process has all the data it needs
+  // before we start and can properly inject all the required data.
+  return kpiData && blogPosts ? (
+    <LandingPageInjectContent kpiData={kpiData} blogPosts={blogPosts} />
+  ) : null;
+};
+
+const LandingPageInjectContent = ({
+  kpiData,
+  blogPosts,
+}: {
+  kpiData: any;
+  blogPosts: any;
+}) => {
+  const shadowEl = useRef<Element>();
 
   const containerRef = useStartInject(
     '6807f00cedf01dce8388f197',
     'landing-page',
     (shadow) => {
       shadowEl.current = shadow;
-      setIsInitialized(true);
+      const tvlElement = shadowEl.current.shadowRoot?.querySelector('#tvl');
+      const maxUsdcApyElement =
+        shadowEl.current.shadowRoot?.querySelector('#max-usdc-apy');
+      const maxEthApyElement =
+        shadowEl.current.shadowRoot?.querySelector('#max-eth-apy');
+
+      if (tvlElement) tvlElement.textContent = `${kpiData?.totalTVL}`;
+      if (maxUsdcApyElement)
+        maxUsdcApyElement.textContent = `${kpiData?.highestUSDC}`;
+      if (maxEthApyElement)
+        maxEthApyElement.textContent = `${kpiData?.highestETH}`;
+
+      const fillInBlogPost = (suffix: string, post: PostOrPage) => {
+        const blogPostImageElement =
+          shadowEl.current?.shadowRoot?.querySelector(`#blog-image-${suffix}`);
+        if (blogPostImageElement && post.feature_image) {
+          (blogPostImageElement as HTMLImageElement).src = post.feature_image;
+          (blogPostImageElement as HTMLImageElement).srcset =
+            post.feature_image;
+        }
+        const blogPostTitleElement =
+          shadowEl.current?.shadowRoot?.querySelector(`#blog-title-${suffix}`);
+        if (blogPostTitleElement) {
+          blogPostTitleElement.textContent = post.title || '';
+        }
+        const blogDescriptionElement =
+          shadowEl.current?.shadowRoot?.querySelector(
+            `#blog-description-${suffix}`
+          );
+        if (blogDescriptionElement) {
+          blogDescriptionElement.innerHTML = `${
+            post.html?.slice(0, 150) || ''
+          }...`;
+        }
+
+        const blogPostAuthorElement =
+          shadowEl.current?.shadowRoot?.querySelector(`#blog-author-${suffix}`);
+        if (blogPostAuthorElement) {
+          (blogPostAuthorElement as HTMLImageElement).src =
+            post.primary_author?.profile_image || '';
+        }
+
+        const blogPostAuthorNameElement =
+          shadowEl.current?.shadowRoot?.querySelector(
+            `#blog-author-name-${suffix}`
+          );
+        if (blogPostAuthorNameElement) {
+          blogPostAuthorNameElement.textContent =
+            post.primary_author?.name || '';
+        }
+
+        const blogPostDateElement = shadowEl.current?.shadowRoot?.querySelector(
+          `#blog-date-${suffix}`
+        );
+        if (blogPostDateElement) {
+          blogPostDateElement.textContent =
+            getDateString(new Date(post.published_at || '').getTime() / 1000) ||
+            '';
+        }
+
+        const blogLinkElement = shadowEl.current?.shadowRoot?.querySelector(
+          `#blog-link-${suffix}`
+        );
+        if (blogLinkElement) {
+          (blogLinkElement as HTMLAnchorElement).href = post.url || '';
+          (blogLinkElement as HTMLAnchorElement).target = '_blank';
+          (blogLinkElement as HTMLAnchorElement).rel = 'noreferrer';
+        }
+      };
+
+      if (blogPosts && blogPosts.length === 2 && shadowEl.current) {
+        fillInBlogPost('left', blogPosts[0] as PostOrPage);
+        fillInBlogPost('right', blogPosts[1] as PostOrPage);
+      }
 
       const newsletterInput: HTMLInputElement | undefined | null =
         shadow.shadowRoot?.querySelector('#newsletter-email-input');
@@ -320,92 +410,6 @@ export const LandingPageInject = () => {
       });
     }
   );
-
-  useEffect(() => {
-    if (kpiData && isInitialized && shadowEl.current) {
-      const tvlElement = shadowEl.current.shadowRoot?.querySelector('#tvl');
-      const maxUsdcApyElement =
-        shadowEl.current.shadowRoot?.querySelector('#max-usdc-apy');
-      const maxEthApyElement =
-        shadowEl.current.shadowRoot?.querySelector('#max-eth-apy');
-
-      if (tvlElement) tvlElement.textContent = `${kpiData.totalTVL}`;
-      if (maxUsdcApyElement)
-        maxUsdcApyElement.textContent = `${kpiData.highestUSDC}`;
-      if (maxEthApyElement)
-        maxEthApyElement.textContent = `${kpiData.highestETH}`;
-    }
-  }, [kpiData, shadowEl, isInitialized]);
-
-  useEffect(() => {
-    const fillInBlogPost = (suffix: string, post: PostOrPage) => {
-      const blogPostImageElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-image-${suffix}`
-      );
-      if (blogPostImageElement && post.feature_image) {
-        (blogPostImageElement as HTMLImageElement).src = post.feature_image;
-        (blogPostImageElement as HTMLImageElement).srcset = post.feature_image;
-      }
-      const blogPostTitleElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-title-${suffix}`
-      );
-      if (blogPostTitleElement) {
-        blogPostTitleElement.textContent = post.title || '';
-      }
-      const blogDescriptionElement =
-        shadowEl.current?.shadowRoot?.querySelector(
-          `#blog-description-${suffix}`
-        );
-      if (blogDescriptionElement) {
-        blogDescriptionElement.innerHTML = `${
-          post.html?.slice(0, 150) || ''
-        }...`;
-      }
-
-      const blogPostAuthorElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-author-${suffix}`
-      );
-      if (blogPostAuthorElement) {
-        (blogPostAuthorElement as HTMLImageElement).src =
-          post.primary_author?.profile_image || '';
-      }
-
-      const blogPostAuthorNameElement =
-        shadowEl.current?.shadowRoot?.querySelector(
-          `#blog-author-name-${suffix}`
-        );
-      if (blogPostAuthorNameElement) {
-        blogPostAuthorNameElement.textContent = post.primary_author?.name || '';
-      }
-
-      const blogPostDateElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-date-${suffix}`
-      );
-      if (blogPostDateElement) {
-        blogPostDateElement.textContent =
-          getDateString(new Date(post.published_at || '').getTime() / 1000) ||
-          '';
-      }
-
-      const blogLinkElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-link-${suffix}`
-      );
-      if (blogLinkElement) {
-        (blogLinkElement as HTMLAnchorElement).href = post.url || '';
-        (blogLinkElement as HTMLAnchorElement).target = '_blank';
-        (blogLinkElement as HTMLAnchorElement).rel = 'noreferrer';
-      }
-    };
-    if (
-      blogPosts &&
-      blogPosts.length === 2 &&
-      isInitialized &&
-      shadowEl.current
-    ) {
-      fillInBlogPost('left', blogPosts[0] as PostOrPage);
-      fillInBlogPost('right', blogPosts[1] as PostOrPage);
-    }
-  }, [blogPosts, shadowEl, isInitialized]);
 
   return (
     <Box
