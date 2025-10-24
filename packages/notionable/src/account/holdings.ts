@@ -99,6 +99,7 @@ export function calculateVaultHoldings(
       vaultAddress: v.vaultAddress,
       vaultShares: v.vaultShares,
       vaultDebt: v.vaultDebt,
+      vaultIcon: v.vaultConfig.vaultIcon,
       liquidationPrices: v.getAllLiquidationPrices(),
       netWorth: v.netWorth(),
       healthFactor: v.healthFactor(),

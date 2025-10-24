@@ -80,7 +80,7 @@ export const MultiValueIconCell = (props): JSX.Element => {
           {values?.symbol && values.symbolBottom && (
             <MultiTokenIcon
               size="medium"
-              symbols={[values?.symbol, values?.symbolBottom]}
+              symbols={[values?.symbolBottom, values?.symbol]}
             />
           )}
           {values?.symbol && !values.symbolBottom && (

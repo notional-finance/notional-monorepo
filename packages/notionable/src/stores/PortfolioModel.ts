@@ -39,6 +39,7 @@ const APYDataModel = types.model('APYDataModel', {
 const VaultHoldingModel = types.model('VaultHoldingModel', {
   network: NotionalTypes.Network,
   name: types.string,
+  vaultIcon: types.maybe(types.string),
   maturity: types.maybe(types.number),
   vaultAddress: types.string,
   vaultShares: NotionalTypes.TokenBalance,

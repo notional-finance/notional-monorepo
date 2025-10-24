@@ -62,6 +62,7 @@ function formatGroupedVaultEarnings(
   {
     underlying,
     name,
+    vaultIcon,
     totalInterestAccrual,
     totalILAndFees,
     marketProfitLoss,
@@ -77,7 +78,7 @@ function formatGroupedVaultEarnings(
     isPending: !!pendingTokens?.includes(vaultShares.token),
     asset: {
       symbol: underlying,
-      symbolBottom: '',
+      symbolBottom: vaultIcon || '',
       label: name,
       caption: '',
     },
@@ -108,6 +109,7 @@ function formatDetailedVaultEarnings(
     vaultDebt,
     underlying,
     name,
+    vaultIcon,
     assetMarketPnL,
     assetInterestAccrual,
     assetFeesPaid,
@@ -121,9 +123,8 @@ function formatDetailedVaultEarnings(
   pendingTokens: TokenDefinition[] | undefined,
   baseCurrency: FiatKeys
 ): EarningsBreakdownRow[] {
-  const { icon, formattedTitle } = formatTokenType(vaultDebt.token);
   const vaultCell = {
-    symbol: underlying,
+    symbol: vaultIcon || '',
     symbolBottom: '',
     label: name,
     caption: '',
@@ -155,10 +156,11 @@ function formatDetailedVaultEarnings(
 
   // Short circuit if there are no debts
   if (vaultDebt.isZero()) return [shares];
+  const { formattedTitle } = formatTokenType(vaultDebt.token);
 
   const debt: EarningsBreakdownRow = {
     asset: {
-      symbol: icon,
+      symbol: underlying,
       symbolBottom: '',
       label: formattedTitle,
       caption: '',

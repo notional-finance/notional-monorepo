@@ -179,6 +179,7 @@ const RewardModel = types.model('RewardModel', {
 
 export const VaultModel = types.model('VaultModel', {
   vaultAddress: types.identifier,
+  vaultIcon: types.maybe(types.string),
   name: types.string,
   network: NotionalTypes.Network,
   vaultFeatures: types.array(types.string),
@@ -187,7 +188,6 @@ export const VaultModel = types.model('VaultModel', {
   vaultDescription: types.string,
   rewards: types.optional(types.array(RewardModel), []),
   projects: types.optional(types.array(ProjectModel), []),
-
   depositToken: types.reference(TokenDefinitionModel),
   yieldToken: types.reference(TokenDefinitionModel),
   vaultToken: types.reference(TokenDefinitionModel),
