@@ -199,7 +199,7 @@ export class Staking extends VaultAdapter {
     withdrawTokensBurned: TokenBalance[],
     slippageFactor?: number
   ) {
-    const { dexId, withdrawExchangeData: exchangeData } =
+    const { dexId, withdrawExchangeData } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (withdrawTokensBurned.length !== 1)
       throw Error('Staking vault only supports one withdraw token');
@@ -212,9 +212,9 @@ export class Staking extends VaultAdapter {
       ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
       [
         {
-          dexId,
+          dexId: withdrawExchangeData ? dexId : 0,
           minPurchaseAmount,
-          exchangeData,
+          exchangeData: withdrawExchangeData || '0x',
         },
       ]
     );

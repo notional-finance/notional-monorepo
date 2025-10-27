@@ -310,7 +310,7 @@ export function calculateFinalizeWithdraw({
 
   const totalShareValue = profile.vaultShares.toUnderlying();
   let sharesToRedeem = profile.vaultShares.scale(
-    depositBalance,
+    depositBalance.neg(),
     totalShareValue
   );
   // Do not allow the shares to redeem to exceed the vault shares
@@ -328,7 +328,7 @@ export function calculateFinalizeWithdraw({
   return {
     collateralBalance: sharesToRedeem.neg(),
     collateralFee: TokenBalance.zero(depositBalance.token),
-    debtBalance: profile.vaultDebt,
+    debtBalance: profile.vaultDebt.neg(),
     netRealizedCollateralBalance: depositBalance.neg(),
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: TokenBalance.zero(debt),

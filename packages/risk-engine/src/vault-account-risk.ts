@@ -334,6 +334,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     let netUnderlyingForVaultShares: TokenBalance;
     let feesPaid: TokenBalance;
     let vaultTradeMetadata: VaultTradeMetadata[];
+    let withdrawTokensBurned: TokenBalance[] | undefined;
     if (this.hasFinalizedWithdraw) {
       if (!this.withdrawRequests) throw Error('Withdraw requests not found');
       netUnderlyingForVaultShares = this.withdrawRequests.reduce((acc, w) => {
@@ -341,12 +342,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         return acc.add(w.withdrawTokenAmount.toToken(costToRepay.token));
       }, costToRepay.copy(0));
       feesPaid = TokenBalance.zero(this.denom(this.defaultSymbol));
-      vaultTradeMetadata = this.vaultAdapter.getWithdrawTradeMetadata(
-        this.withdrawRequests.map((w) => {
-          if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
-          return w.withdrawTokenAmount;
-        })
-      );
+
+      withdrawTokensBurned = this.withdrawRequests.map((w) => {
+        if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
+        return w.withdrawTokenAmount;
+      });
+      vaultTradeMetadata =
+        this.vaultAdapter.getWithdrawTradeMetadata(withdrawTokensBurned);
     } else if (this.hasPendingWithdraw) {
       throw Error('Max withdraw not supported for pending withdraws');
     } else {
@@ -371,6 +373,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       debtFee: costToRepay.copy(0),
       netRealizedDebtBalance: costToRepay,
       vaultTradeMetadata,
+      withdrawTokensBurned,
     };
   }
 }

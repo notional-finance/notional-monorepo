@@ -803,6 +803,13 @@ export const TradeModel = types
       self.vaultTradeMetadata.replace(
         (maxWithdrawValues?.vaultTradeMetadata || []) as any
       );
+      if (maxWithdrawValues?.withdrawTokensBurned) {
+        self.withdrawTokensBurned?.replace(
+          maxWithdrawValues.withdrawTokensBurned || []
+        );
+      } else {
+        self.withdrawTokensBurned = undefined;
+      }
     };
 
     const setLeverageRatio = (leverageRatio: number) => {
