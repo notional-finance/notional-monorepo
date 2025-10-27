@@ -43,6 +43,7 @@ const keysToUse = {
   [Address.BalancerWrappedFlashLender_ARBITRUM]: Key.liquidation,
   [Address.UniV3WrappedFlashLender_ARBITRUM]: Key.liquidation,
   [Address.CamelotWrappedFlashLender_ARBITRUM]: Key.liquidation,
+  [Address.exponentLiquidator_MAINNET]: Key.liquidation,
 };
 
 const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
