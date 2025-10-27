@@ -107,6 +107,22 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
+      address: registerTokensMap[Network.mainnet]['USDeUSDC'],
+      PoolClass: 'Curve2TokenPoolNG',
+      registerTokens: [
+        {
+          id: registerTokensMap[Network.mainnet]['USDeUSDC'],
+          address: registerTokensMap[Network.mainnet]['USDeUSDC'],
+          network: Network.mainnet,
+          symbol: 'USDeUSDC',
+          name: 'USDeUSDC',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
       address:
         registerTokensMap[Network.mainnet]['Pendle-Market-sUSDe-27NOV2025'],
       PoolClass: 'PendleMarketWithFixedSyToAssetExchangeRate',
