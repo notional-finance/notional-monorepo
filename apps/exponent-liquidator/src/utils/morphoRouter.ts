@@ -58,13 +58,12 @@ export class MorphoRouterIntegration {
     for (let i = 0; i < pairs.length; i++) {
       const [account, vault] = pairs[i];
       const healthData = results[`health_${i}`] as [BigNumber, BigNumber, BigNumber];
-      const [borrowed, collateralShares, maxBorrow] = healthData;
+      const [borrowed, , maxBorrow] = healthData;
 
       healthFactorData.push({
         account,
         vault,
         borrowed,
-        collateralShares,
         maxBorrow,
       });
     }

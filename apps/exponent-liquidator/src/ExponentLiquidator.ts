@@ -114,7 +114,6 @@ export default class ExponentLiquidator {
           account: data.account,
           vault: data.vault,
           borrowed: data.borrowed,
-          collateralShares: data.collateralShares,
           maxBorrow: data.maxBorrow,
           healthFactor,
           borrowShares,
@@ -163,25 +162,12 @@ export default class ExponentLiquidator {
     return positions.map((position, index) => {
       const isWithdrawRequestPending =
         withdrawRequestStatuses[index].isWithdrawRequestPending;
-      const totalVaultShares = totalVaultSharesArray[index];
+      const collateralShares = totalVaultSharesArray[index];
       const accountVaultSharePrice = accountVaultSharePricesArray[index];
-      const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
-
-      // Calculate totalYieldTokens based on withdraw request status
-      let totalYieldTokens: ethers.BigNumber;
-      if (isWithdrawRequestPending) {
-        totalYieldTokens = ethers.BigNumber.from(0);
-      } else {
-        // totalYieldTokens = totalVaultShares * vaultConfig.shareToYieldTokenExchangeRate
-        totalYieldTokens = totalVaultShares
-          .mul(vaultConfig!.shareToYieldTokenExchangeRate)
-          .div(ethers.utils.parseUnits('1', 24));
-      }
 
       return {
         ...position,
-        totalVaultShares,
-        totalYieldTokens,
+        collateralShares,
         isWithdrawRequestPending,
         canWithdrawRequestFinalize:
           withdrawRequestStatuses[index].canWithdrawRequestFinalize,
@@ -216,6 +202,13 @@ export default class ExponentLiquidator {
         position.accountVaultSharePrice
       );
 
+      console.log('🏗️  Theoretical seizable collateral quoted in asset:', theoreticalSeizableCollateralQuotedInAsset.toString());
+      console.log('🏗️  Theoretical seizable collateral shares:', theoreticalSeizableCollateralShares.toString());
+      console.log('🏗️  Collateral shares:', position.collateralShares.toString());
+      console.log('🏗️  Borrowed:', position.borrowed.toString());
+      console.log('🏗️  Borrow shares:', position.borrowShares.toString());
+      console.log('🏗️  Account vault share price:', position.accountVaultSharePrice.toString());
+
       if (position.collateralShares.lt(theoreticalSeizableCollateralShares)) {
         totalCollateralSharesSeized = totalCollateralSharesSeized.add(position.collateralShares);
         return {
@@ -225,8 +218,8 @@ export default class ExponentLiquidator {
       } else {
         totalCollateralSharesSeized = totalCollateralSharesSeized.add(theoreticalSeizableCollateralShares);
         return {
-          collateralSharesToSeize: ethers.BigNumber.from(0),
-          borrowSharesToRepay: position.borrowShares
+          collateralSharesToSeize: theoreticalSeizableCollateralShares.sub(ethers.BigNumber.from(1000000)),
+          borrowSharesToRepay: ethers.BigNumber.from(0)
         };
       }
     });
@@ -606,6 +599,8 @@ export default class ExponentLiquidator {
             console.log('🔧 Production mode: Sending transaction via relay');
             console.log(this.env.NETWORK)
             console.log(this.env.TX_RELAY_AUTH_TOKEN)
+            console.log(tx.to as string)
+            console.log(tx.data as string)
             resp = await sendTxThroughRelayer({
               env: {
                 NETWORK: this.env.NETWORK,

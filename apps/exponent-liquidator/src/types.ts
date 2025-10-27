@@ -7,7 +7,6 @@ export type HealthFactorData = {
   account: string;
   vault: string;
   borrowed: BigNumber;
-  collateralShares: BigNumber;
   maxBorrow: BigNumber;
 };
 
@@ -15,7 +14,6 @@ export type RiskyPosition = {
   account: string;
   vault: string;
   borrowed: BigNumber;
-  collateralShares: BigNumber;
   maxBorrow: BigNumber;
   healthFactor: number;
   borrowShares: BigNumber;
@@ -24,8 +22,7 @@ export type RiskyPosition = {
 export type EnrichedPosition = RiskyPosition & {
   isWithdrawRequestPending: boolean;
   canWithdrawRequestFinalize: boolean;
-  totalVaultShares: BigNumber;
-  totalYieldTokens: BigNumber;
+  collateralShares: BigNumber;
   primaryWithdrawTokenAmount?: BigNumber;
   secondaryWithdrawTokenAmount?: BigNumber;
   accountVaultSharePrice: BigNumber;
