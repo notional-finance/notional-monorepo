@@ -36,7 +36,7 @@ export const Address = {
     '0x319300462C37AD2D4f26B584C2b67De51F51f289',
   initializeAllMarkets_MAINNET: '0x40a77E61c230BB3B847231E3F47E47c6c62257db',
   settleAccounts_MAINNET: '0x04f917B9772920BC7E39Da36b465395A7B8E893C',
-  exponentLiquidator_MAINNET: '0xD77Ce5587e0dd3b9239C8c0836a3Dc47b9188ACd',
+  exponentLiquidator_MAINNET: '0x65b4ede768852C0359bAc066eC65CD2e1767eE75',
 };
 
 export enum Sign {
@@ -54,5 +54,5 @@ export enum Sign {
   settleAccounts = '0xd7f4893e',
   settleVaultsAccounts = '0x8261f4ba',
   checkAndRebalance = '0x3ed55f0c',
-  flashLiquidateExponent = '0x672e727f',
+  flashLiquidateExponent = '0x0a4f8685',
 }
