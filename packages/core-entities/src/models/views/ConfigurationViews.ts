@@ -58,14 +58,14 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
 
     if (lr?.name === 'Morpho' && m) {
       const marketParams = decodeMorphoLendingRouterParams(m.params);
-      const leverageInScalar = SCALAR_PRECISION.mul(SCALAR_PRECISION).div(
-        SCALAR_PRECISION.sub(marketParams.lltv)
-      );
+      const leverageInScalar = marketParams.lltv
+        .mul(SCALAR_PRECISION)
+        .div(SCALAR_PRECISION.sub(marketParams.lltv));
       return (
         leverageInScalar
           // Decrease the maximum leverage a bit so that we don't go over the limit and to
           // account for any precision loss in all these calculations
-          .mul(RATE_PRECISION - 100 * BASIS_POINT)
+          .mul(RATE_PRECISION)
           .div(SCALAR_PRECISION)
           .toNumber() / RATE_PRECISION
       );
