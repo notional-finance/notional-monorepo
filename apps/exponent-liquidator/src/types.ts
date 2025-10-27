@@ -18,6 +18,7 @@ export type RiskyPosition = {
   collateralShares: BigNumber;
   maxBorrow: BigNumber;
   healthFactor: number;
+  borrowShares: BigNumber;
 };
 
 export type EnrichedPosition = RiskyPosition & {
@@ -27,6 +28,7 @@ export type EnrichedPosition = RiskyPosition & {
   totalYieldTokens: BigNumber;
   primaryWithdrawTokenAmount?: BigNumber;
   secondaryWithdrawTokenAmount?: BigNumber;
+  accountVaultSharePrice: BigNumber;
 };
 
 export interface TransactionResult {
@@ -93,6 +95,8 @@ export interface OnChainVaultConfig {
   primaryIndex?: number;
   // Exchange rate for converting shares to yield tokens
   shareToYieldTokenExchangeRate: BigNumber;
+  // Liquidation incentive factor for the vault
+  liquidationIncentiveFactor: BigNumber;
 }
 
 export interface OffChainVaultConfig {
@@ -135,6 +139,14 @@ export interface TokenPrice {
   token: string;
   price: BigNumber; // Price in base units (e.g., USD with 8 decimals)
   decimals: number;
+}
+
+export interface MarketParams {
+  loanToken: string;
+  collateralToken: string;
+  oracle: string;
+  irm: string;
+  lltv: BigNumber;
 }
 
 // Pendle API types

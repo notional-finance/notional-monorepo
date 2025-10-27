@@ -1,7 +1,31 @@
 import { ethers, BigNumber, Contract } from 'ethers';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
-import { Position, RiskyPosition, HealthFactorData } from '../types';
+import { Position, RiskyPosition, HealthFactorData, MarketParams } from '../types';
 import { MORPHO_LENDING_ROUTER_ABI } from '../abis';
+
+// Math utility functions adapted for BigNumber
+const WAD = ethers.utils.parseUnits('1', 18);
+const LIQUIDATION_CURSOR = ethers.utils.parseUnits('0.3', 18); // 3e17
+const MAX_LIQUIDATION_INCENTIVE_FACTOR = ethers.utils.parseUnits('1.15', 18); // 115e16
+
+const min = (a: BigNumber, b: BigNumber): BigNumber => (a.lt(b) ? a : b);
+const max = (a: BigNumber, b: BigNumber): BigNumber => (a.lt(b) ? b : a);
+
+const wMulDown = (x: BigNumber, y: BigNumber): BigNumber => {
+  return x.mul(y).div(WAD);
+};
+
+const wDivDown = (x: BigNumber, y: BigNumber): BigNumber => {
+  return x.mul(WAD).div(y);
+};
+
+const incentiveFactor = (lltv: BigNumber): BigNumber => {
+  const wadMinusLltv = WAD.sub(lltv);
+  const cursorMultiplied = wMulDown(LIQUIDATION_CURSOR, wadMinusLltv);
+  const denominator = WAD.sub(cursorMultiplied);
+  const calculated = wDivDown(WAD, denominator);
+  return min(MAX_LIQUIDATION_INCENTIVE_FACTOR, calculated);
+};
 
 export class MorphoRouterIntegration {
   private morphoRouterContract: Contract;
@@ -60,5 +84,59 @@ export class MorphoRouterIntegration {
     const { results } = await aggregate(calls, this.provider);
 
     return positions.map((_, index) => results[`balance_${index}`] as BigNumber);
+  }
+
+  async batchBorrowShareBalances(positions: Position[]): Promise<BigNumber[]> {
+    const calls: AggregateCall[] = positions.map(([account, vault], index) => ({
+      stage: 0,
+      target: this.morphoRouterContract,
+      method: 'balanceOfBorrowShares',
+      args: [account, vault],
+      key: `borrowShares_${index}`,
+    }));
+
+    console.log('🏗️  Borrow share balance calls:', calls.length);
+    const { results } = await aggregate(calls, this.provider);
+    console.log('🏗️  Borrow share balance results:', results);
+
+    return positions.map((_, index) => results[`borrowShares_${index}`] as BigNumber);
+  }
+
+  async batchLiquidationIncentiveFactors(vaultAddresses: string[]): Promise<Map<string, BigNumber>> {
+    const calls: AggregateCall[] = vaultAddresses.map((vault, index) => ({
+      stage: 0,
+      target: this.morphoRouterContract,
+      method: 'marketParams',
+      args: [vault],
+      key: `marketParams_${index}`,
+    }));
+
+    console.log('🏗️  Market params calls:', calls.length);
+    const { results } = await aggregate(calls, this.provider);
+    console.log('🏗️  Market params results:', results);
+
+    const liquidationIncentiveFactors = new Map<string, BigNumber>();
+
+    for (let i = 0; i < vaultAddresses.length; i++) {
+      const vault = vaultAddresses[i];
+      const marketParamsResult = results[`marketParams_${i}`] as [string, string, string, string, BigNumber];
+      const [loanToken, collateralToken, oracle, irm, lltv] = marketParamsResult;
+
+      const marketParams: MarketParams = {
+        loanToken,
+        collateralToken,
+        oracle,
+        irm,
+        lltv,
+      };
+
+      // Calculate liquidation incentive factor using the lltv
+      const liquidationIncentiveFactor = incentiveFactor(marketParams.lltv);
+      liquidationIncentiveFactors.set(vault, liquidationIncentiveFactor);
+      
+      console.log(`🏗️  Vault ${vault} LLTV: ${marketParams.lltv.toString()}, Incentive Factor: ${liquidationIncentiveFactor.toString()}`);
+    }
+
+    return liquidationIncentiveFactors;
   }
 }

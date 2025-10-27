@@ -69,7 +69,8 @@ async function createLiquidator(
     vaultRegistry = await VaultRegistry.initialize(
       uniqueVaultAddresses,
       provider,
-      env.NETWORK
+      env.NETWORK,
+      env.MORPHO_LENDING_ROUTER_ADDRESS
     );
     console.log('✅ Vault registry initialized successfully');
   } catch (error) {

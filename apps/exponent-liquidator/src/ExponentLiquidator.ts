@@ -26,6 +26,20 @@ import {
 import { generateRedeemData } from './utils/redeemDataGenerator';
 import { getTokenPrices } from './utils/tokenPricing';
 import { LiquidatorLogger } from './utils/logging';
+import { aggregate, AggregateCall } from '@notional-finance/multicall';
+import { VAULT_ABI } from './abis';
+
+// Math constants for liquidation calculations
+const ORACLE_PRICE_SCALE = ethers.utils.parseUnits('1', 36);
+
+const wMulDown = (x: ethers.BigNumber, y: ethers.BigNumber): ethers.BigNumber => {
+  const WAD = ethers.utils.parseUnits('1', 18);
+  return x.mul(y).div(WAD);
+};
+
+const mulDivDown = (x: ethers.BigNumber, y: ethers.BigNumber, d: ethers.BigNumber): ethers.BigNumber => {
+  return x.mul(y).div(d);
+};
 
 export default class ExponentLiquidator {
   private provider: ethers.providers.Provider;
@@ -72,11 +86,18 @@ export default class ExponentLiquidator {
     const healthFactorData =
       await this.morphoRouterIntegration.batchHealthFactors(this.positions);
 
+    // Step 2: Batch borrowShares calls to get borrow share data
+    const borrowSharesData =
+      await this.morphoRouterIntegration.batchBorrowShareBalances(this.positions);
+
     // Step 3: Process results, calculate health factors, and filter risky positions
     const riskyPositions: RiskyPosition[] = [];
     console.log('🏗️  Risky positions:', riskyPositions.length);
 
-    for (const data of healthFactorData) {
+    for (let i = 0; i < healthFactorData.length; i++) {
+      const data = healthFactorData[i];
+      const borrowShares = borrowSharesData[i];
+      
       // Calculate health factor: maxBorrow / borrowed
       console.log('🏗️  Health factor data:', data);
       let healthFactor: number;
@@ -96,6 +117,7 @@ export default class ExponentLiquidator {
           collateralShares: data.collateralShares,
           maxBorrow: data.maxBorrow,
           healthFactor,
+          borrowShares,
         });
       }
     }
@@ -112,6 +134,24 @@ export default class ExponentLiquidator {
     const totalVaultSharesArray =
       await this.morphoRouterIntegration.batchCollateralBalances(positions);
 
+    // Get account vault share prices for each position
+    const vaultInterface = new ethers.utils.Interface(VAULT_ABI);
+    const accountVaultSharePriceCalls: AggregateCall[] = positions.map((position, index) => ({
+      stage: 0,
+      target: new ethers.Contract(position.vault, vaultInterface, this.provider),
+      method: 'price',
+      args: [position.account],
+      key: `accountVaultSharePrice_${index}`,
+    }));
+
+    console.log('🏗️  Account vault share price calls:', accountVaultSharePriceCalls.length);
+    const { results: accountVaultSharePriceResults } = await aggregate(accountVaultSharePriceCalls, this.provider);
+    console.log('🏗️  Account vault share price results:', accountVaultSharePriceResults);
+
+    const accountVaultSharePricesArray = positions.map((_, index) => 
+      accountVaultSharePriceResults[`accountVaultSharePrice_${index}`] as ethers.BigNumber
+    );
+
     // Get withdraw request status for each position (now with vault config)
     const withdrawRequestStatuses = await getWithdrawRequestData(
       positions,
@@ -124,6 +164,7 @@ export default class ExponentLiquidator {
       const isWithdrawRequestPending =
         withdrawRequestStatuses[index].isWithdrawRequestPending;
       const totalVaultShares = totalVaultSharesArray[index];
+      const accountVaultSharePrice = accountVaultSharePricesArray[index];
       const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
 
       // Calculate totalYieldTokens based on withdraw request status
@@ -148,8 +189,53 @@ export default class ExponentLiquidator {
           withdrawRequestStatuses[index].primaryWithdrawTokenAmount,
         secondaryWithdrawTokenAmount:
           withdrawRequestStatuses[index].secondaryWithdrawTokenAmount,
+        accountVaultSharePrice,
       };
     });
+  }
+
+  private calculateLiquidationAmounts(
+    positions: EnrichedPosition[],
+    liquidationIncentiveFactor: ethers.BigNumber
+  ): { 
+    collateralSharesToSeize: ethers.BigNumber[]; 
+    borrowSharesToRepay: ethers.BigNumber[];
+    totalCollateralSharesSeized: ethers.BigNumber;
+  } {
+    let totalCollateralSharesSeized = ethers.BigNumber.from(0);
+    
+    const results = positions.map(position => {
+      const theoreticalSeizableCollateralQuotedInAsset = wMulDown(
+        position.borrowed,
+        liquidationIncentiveFactor
+      );
+
+      const theoreticalSeizableCollateralShares = mulDivDown(
+        theoreticalSeizableCollateralQuotedInAsset,
+        ORACLE_PRICE_SCALE,
+        position.accountVaultSharePrice
+      );
+
+      if (position.collateralShares.lt(theoreticalSeizableCollateralShares)) {
+        totalCollateralSharesSeized = totalCollateralSharesSeized.add(position.collateralShares);
+        return {
+          collateralSharesToSeize: position.collateralShares,
+          borrowSharesToRepay: ethers.BigNumber.from(0)
+        };
+      } else {
+        totalCollateralSharesSeized = totalCollateralSharesSeized.add(theoreticalSeizableCollateralShares);
+        return {
+          collateralSharesToSeize: ethers.BigNumber.from(0),
+          borrowSharesToRepay: position.borrowShares
+        };
+      }
+    });
+
+    return {
+      collateralSharesToSeize: results.map(r => r.collateralSharesToSeize),
+      borrowSharesToRepay: results.map(r => r.borrowSharesToRepay),
+      totalCollateralSharesSeized
+    };
   }
 
   filterPositionsForLiquidation(
@@ -285,19 +371,21 @@ export default class ExponentLiquidator {
     {
       vaultAddress: string;
       liquidateAccounts: string[];
-      sharesToLiquidate: ethers.BigNumber[];
+      collateralSharesToSeize: ethers.BigNumber[];
+      borrowSharesToRepay: ethers.BigNumber[];
       assetsToBorrow: ethers.BigNumber;
       redeemData: string;
-      totalSharesLiquidated: ethers.BigNumber;
+      totalCollateralSharesSeized: ethers.BigNumber;
     }[]
   > {
     const liquidationParams: {
       vaultAddress: string;
       liquidateAccounts: string[];
-      sharesToLiquidate: ethers.BigNumber[];
+      collateralSharesToSeize: ethers.BigNumber[];
+      borrowSharesToRepay: ethers.BigNumber[];
       assetsToBorrow: ethers.BigNumber;
       redeemData: string;
-      totalSharesLiquidated: ethers.BigNumber;
+      totalCollateralSharesSeized: ethers.BigNumber;
     }[] = [];
 
     // Iterate through each vault
@@ -333,10 +421,11 @@ export default class ExponentLiquidator {
   ): Promise<{
     vaultAddress: string;
     liquidateAccounts: string[];
-    sharesToLiquidate: ethers.BigNumber[];
+    collateralSharesToSeize: ethers.BigNumber[];
+    borrowSharesToRepay: ethers.BigNumber[];
     assetsToBorrow: ethers.BigNumber;
     redeemData: string;
-    totalSharesLiquidated: ethers.BigNumber;
+    totalCollateralSharesSeized: ethers.BigNumber;
   }> {
     if (positions.length === 0) {
       throw new Error('No positions provided for liquidation');
@@ -345,7 +434,18 @@ export default class ExponentLiquidator {
     // All positions in a batch should be from the same vault
     const vaultAddress = positions[0].vault;
     const liquidateAccounts = positions.map((p) => p.account);
-    const sharesToLiquidate = positions.map((p) => p.collateralShares);
+
+    // Get vault config to get liquidation incentive factor
+    const vaultConfig = this.vaultRegistry.getVaultConfig(vaultAddress);
+    if (!vaultConfig) {
+      throw new Error(`Vault config not found for vault: ${vaultAddress}`);
+    }
+
+    // Calculate collateralSharesToSeize and borrowSharesToRepay for each position
+    const liquidationResults = this.calculateLiquidationAmounts(positions, vaultConfig.liquidationIncentiveFactor);
+    const collateralSharesToSeize = liquidationResults.collateralSharesToSeize;
+    const borrowSharesToRepay = liquidationResults.borrowSharesToRepay;
+    const totalCollateralSharesSeized = liquidationResults.totalCollateralSharesSeized;
 
     // Calculate total assets to borrow (sum of all borrowed amounts + 10% buffer)
     const totalBorrowed = positions.reduce((sum, position) => {
@@ -357,35 +457,33 @@ export default class ExponentLiquidator {
 
     const assetsToBorrow = totalBorrowedWithBuffer;
 
-    // Calculate total shares liquidated by summing up sharesToLiquidate for all accounts in the batch
-    const totalSharesLiquidated = positions.reduce((sum, position) => {
-      return sum.add(position.collateralShares);
-    }, ethers.BigNumber.from(0));
-
-    // Get vault config to determine redeem data
-    const vaultConfig = this.vaultRegistry.getVaultConfig(vaultAddress);
-    if (!vaultConfig) {
-      throw new Error(`Vault config not found for vault: ${vaultAddress}`);
-    }
-
     // Calculate parameters for redeem data generation based on withdraw request status
     let yieldTokenAmount: ethers.BigNumber | undefined;
     let primaryWithdrawTokenAmount: ethers.BigNumber | undefined;
     let secondaryWithdrawTokenAmount: ethers.BigNumber | undefined;
 
     if (!isWithdrawRequestPending) {
-      // yieldTokenAmount = totalSharesLiquidated * vaultConfig.shareToYieldTokenExchangeRate
-      yieldTokenAmount = totalSharesLiquidated
+      // yieldTokenAmount = totalCollateralSharesSeized * vaultConfig.shareToYieldTokenExchangeRate
+      yieldTokenAmount = totalCollateralSharesSeized
         .mul(vaultConfig.shareToYieldTokenExchangeRate)
         .div(ethers.utils.parseUnits('1', 24));
     } else {
-      // primaryWithdrawTokenAmount = position.primaryWithdrawTokenAmount
-      primaryWithdrawTokenAmount = positions[0].primaryWithdrawTokenAmount;
+      // Scale withdraw amounts by (totalCollateralSharesSeized / position.collateralShares)
+      const position = positions[0];
+      const scalingFactor = totalCollateralSharesSeized
+        .mul(ethers.utils.parseUnits('1', 24))
+        .div(position.collateralShares);
 
-      // If vaultConfig.vaultType = CurveConvex2Token: secondaryWithdrawTokenAmount = position.secondaryWithdrawTokenAmount
+      // primaryWithdrawTokenAmount = position.primaryWithdrawTokenAmount * scalingFactor
+      primaryWithdrawTokenAmount = position.primaryWithdrawTokenAmount
+        ?.mul(scalingFactor)
+        .div(ethers.utils.parseUnits('1', 24));
+
+      // If vaultConfig.vaultType = CurveConvex2Token: secondaryWithdrawTokenAmount = position.secondaryWithdrawTokenAmount * scalingFactor
       if (vaultConfig.vaultType === VaultType.CurveConvex2Token) {
-        secondaryWithdrawTokenAmount =
-          positions[0].secondaryWithdrawTokenAmount;
+        secondaryWithdrawTokenAmount = position.secondaryWithdrawTokenAmount
+          ?.mul(scalingFactor)
+          .div(ethers.utils.parseUnits('1', 24));
       }
     }
 
@@ -403,10 +501,11 @@ export default class ExponentLiquidator {
     return {
       vaultAddress,
       liquidateAccounts,
-      sharesToLiquidate,
+      collateralSharesToSeize,
+      borrowSharesToRepay,
       assetsToBorrow,
       redeemData,
-      totalSharesLiquidated,
+      totalCollateralSharesSeized,
     };
   }
 
@@ -414,10 +513,11 @@ export default class ExponentLiquidator {
     liquidationParams: {
       vaultAddress: string;
       liquidateAccounts: string[];
-      sharesToLiquidate: ethers.BigNumber[];
+      collateralSharesToSeize: ethers.BigNumber[];
+      borrowSharesToRepay: ethers.BigNumber[];
       assetsToBorrow: ethers.BigNumber;
       redeemData: string;
-      totalSharesLiquidated: ethers.BigNumber;
+      totalCollateralSharesSeized: ethers.BigNumber;
     }[]
   ): Promise<PopulatedTransaction[]> {
     const populatedTxs: PopulatedTransaction[] = [];
@@ -427,7 +527,8 @@ export default class ExponentLiquidator {
         await this.flashLiquidator.populateTransaction.flashLiquidate(
           params.vaultAddress,
           params.liquidateAccounts,
-          params.sharesToLiquidate,
+          params.collateralSharesToSeize,
+          params.borrowSharesToRepay,
           params.assetsToBorrow,
           params.redeemData
         );
@@ -673,10 +774,11 @@ export default class ExponentLiquidator {
     let liquidationParams: {
       vaultAddress: string;
       liquidateAccounts: string[];
-      sharesToLiquidate: ethers.BigNumber[];
+      collateralSharesToSeize: ethers.BigNumber[];
+      borrowSharesToRepay: ethers.BigNumber[];
       assetsToBorrow: ethers.BigNumber;
       redeemData: string;
-      totalSharesLiquidated: ethers.BigNumber;
+      totalCollateralSharesSeized: ethers.BigNumber;
     }[];
     try {
       // Step 7: Generate liquidation call data
@@ -684,7 +786,13 @@ export default class ExponentLiquidator {
         batchedAndSortedPositions,
         tokenPrices
       );
-      console.log('🏗️  Liquidation params:', liquidationParams);
+      console.log('🏗️  Liquidation params:', liquidationParams.map(param => ({
+        ...param,
+        collateralSharesToSeize: param.collateralSharesToSeize.map(shares => shares.toString()),
+        borrowSharesToRepay: param.borrowSharesToRepay.map(shares => shares.toString()),
+        assetsToBorrow: param.assetsToBorrow.toString(),
+        totalCollateralSharesSeized: param.totalCollateralSharesSeized.toString()
+      })));
     } catch (error) {
       console.error('❌ Generating liquidation call data failed:', error);
       await this.logger.logError(

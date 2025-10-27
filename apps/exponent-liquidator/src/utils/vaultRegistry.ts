@@ -20,22 +20,28 @@ import {
   CURVE_CONVEX_2TOKEN_ABI
 } from '../abis';
 import { getContractAddress, getTokenAddress } from '../constants';
+import { MorphoRouterIntegration } from './morphoRouter';
 
 export class VaultRegistry {
   private vaultConfigs: Map<string, VaultConfig> = new Map();
+  private morphoRouterIntegration: MorphoRouterIntegration;
 
   private constructor(
     private provider: ethers.providers.Provider,
-    private network: Network
-  ) {}
+    private network: Network,
+    morphoRouterAddress: string
+  ) {
+    this.morphoRouterIntegration = new MorphoRouterIntegration(provider, morphoRouterAddress);
+  }
 
   static async initialize(
     vaultAddresses: string[],
     provider: ethers.providers.Provider,
-    network: Network
+    network: Network,
+    morphoRouterAddress: string
   ): Promise<VaultRegistry> {
     console.log('🏗️ VaultRegistry.initialize starting with:', vaultAddresses);
-    const registry = new VaultRegistry(provider, network);
+    const registry = new VaultRegistry(provider, network, morphoRouterAddress);
     await registry.loadVaultConfigs(vaultAddresses);
     console.log('🏗️ VaultRegistry.initialize completed');
     return registry;
@@ -332,6 +338,17 @@ export class VaultRegistry {
           config.secondaryWithdrawToken = finalResults[`${vaultAddress}.secondaryWithdrawToken`] as string;
         }
       }
+    }
+    
+    // Fetch liquidation incentive factors for all vaults
+    console.log('🔧 Stage 5: Fetching liquidation incentive factors for all vaults');
+    const liquidationIncentiveFactors = await this.morphoRouterIntegration.batchLiquidationIncentiveFactors(vaultAddresses);
+    
+    // Add liquidation incentive factors to vault configs
+    for (let i = 0; i < vaultAddresses.length; i++) {
+      const vaultAddress = vaultAddresses[i];
+      const incentiveFactor = liquidationIncentiveFactors.get(vaultAddress);
+      vaultConfigs[i].liquidationIncentiveFactor = incentiveFactor;
     }
     
     return vaultConfigs as OnChainVaultConfig[];
