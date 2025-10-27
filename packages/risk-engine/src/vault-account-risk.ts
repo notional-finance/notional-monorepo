@@ -295,11 +295,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   leverageRatio() {
-    const loanToValue = this.loanToValue();
-    if (loanToValue != 100) {
-      return 100 / (100 - loanToValue);
-    } else {
+    const collateralRatio = this.collateralRatio();
+    if (collateralRatio) {
+      return 1 / collateralRatio;
+    } else if (collateralRatio === 0) {
       return Infinity;
+    } else {
+      return 0;
     }
   }
 
