@@ -42,7 +42,7 @@ export const LeverageSlider = observer(
           <CountUp
             value={debtBalanceUnderlying.abs().toFloat()}
             suffix={` ${debtBalanceUnderlying.symbol || ''}`}
-            decimals={2}
+            decimals={4}
           />
         </>
       ) : undefined;

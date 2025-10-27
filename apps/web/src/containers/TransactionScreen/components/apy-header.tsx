@@ -110,7 +110,10 @@ export const APYBox = ({ apyInfo }: { apyInfo: APYData }) => {
     />
   );
 
-  if (apyInfo.pointMultiples) {
+  if (
+    apyInfo.pointMultiples &&
+    Object.keys(apyInfo.pointMultiples).length > 0
+  ) {
     Object.entries(apyInfo.pointMultiples).forEach(([key, value]) => {
       pointBoxes.push(
         <PointSection label={key} multiple={value} symbol={key} />
