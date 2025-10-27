@@ -168,18 +168,6 @@ export class VaultRegistry {
         // For CurveConvex2Token vaults: get TOKENS and PRIMARY_INDEX
         console.log('🔧 Adding TOKENS call for vault:', vaultAddress);
         
-        // Test direct call first to debug ABI issue
-        try {
-          const directContract = new ethers.Contract(vaultAddress, curveConvexInterface, this.provider);
-          console.log('🔧 Testing direct TOKENS call...');
-          const directResult = await directContract.TOKENS();
-          console.log('🔧 Direct TOKENS result:', directResult);
-          console.log('🔧 Direct TOKENS result type:', typeof directResult);
-          console.log('🔧 Direct TOKENS result length:', directResult?.length);
-        } catch (error) {
-          console.log('🔧 Direct TOKENS call failed:', error);
-        }
-        
         additionalCalls.push({
           target: new ethers.Contract(vaultAddress, curveConvexInterface, this.provider),
           stage: 1,
@@ -321,7 +309,6 @@ export class VaultRegistry {
     if (withdrawTokenCalls.length > 0) {
       calls.push(...withdrawTokenCalls);
       console.log('🔧 Stage 4: Executing withdraw token calls:', withdrawTokenCalls.length);
-      console.log('🔧 Stage 4: Withdraw token calls detail:', withdrawTokenCalls.map(c => ({ target: c.target?.address, method: c.method, key: c.key })));
       const { results: finalResults } = await aggregate(calls, this.provider);
       console.log('🔧 Stage 4: Results received:', Object.keys(finalResults).length);
       

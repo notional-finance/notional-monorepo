@@ -43,6 +43,7 @@ export interface ExponentFlashLiquidatorInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>[],
       PromiseOrValue<BigNumber>[],
+      PromiseOrValue<BigNumber>[],
       PromiseOrValue<BigNumber>,
       PromiseOrValue<BytesLike>
     ]
@@ -100,7 +101,8 @@ export interface ExponentFlashLiquidator extends BaseContract {
     flashLiquidate(
       vaultAddress: PromiseOrValue<string>,
       liquidateAccounts: PromiseOrValue<string>[],
-      sharesToLiquidate: PromiseOrValue<BigNumber>[],
+      collateralSharesToSeize: PromiseOrValue<BigNumber>[],
+      borrowSharesToRepay: PromiseOrValue<BigNumber>[],
       assetsToBorrow: PromiseOrValue<BigNumber>,
       redeemData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -121,7 +123,8 @@ export interface ExponentFlashLiquidator extends BaseContract {
   flashLiquidate(
     vaultAddress: PromiseOrValue<string>,
     liquidateAccounts: PromiseOrValue<string>[],
-    sharesToLiquidate: PromiseOrValue<BigNumber>[],
+    collateralSharesToSeize: PromiseOrValue<BigNumber>[],
+    borrowSharesToRepay: PromiseOrValue<BigNumber>[],
     assetsToBorrow: PromiseOrValue<BigNumber>,
     redeemData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -142,7 +145,8 @@ export interface ExponentFlashLiquidator extends BaseContract {
     flashLiquidate(
       vaultAddress: PromiseOrValue<string>,
       liquidateAccounts: PromiseOrValue<string>[],
-      sharesToLiquidate: PromiseOrValue<BigNumber>[],
+      collateralSharesToSeize: PromiseOrValue<BigNumber>[],
+      borrowSharesToRepay: PromiseOrValue<BigNumber>[],
       assetsToBorrow: PromiseOrValue<BigNumber>,
       redeemData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -166,7 +170,8 @@ export interface ExponentFlashLiquidator extends BaseContract {
     flashLiquidate(
       vaultAddress: PromiseOrValue<string>,
       liquidateAccounts: PromiseOrValue<string>[],
-      sharesToLiquidate: PromiseOrValue<BigNumber>[],
+      collateralSharesToSeize: PromiseOrValue<BigNumber>[],
+      borrowSharesToRepay: PromiseOrValue<BigNumber>[],
       assetsToBorrow: PromiseOrValue<BigNumber>,
       redeemData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -188,7 +193,8 @@ export interface ExponentFlashLiquidator extends BaseContract {
     flashLiquidate(
       vaultAddress: PromiseOrValue<string>,
       liquidateAccounts: PromiseOrValue<string>[],
-      sharesToLiquidate: PromiseOrValue<BigNumber>[],
+      collateralSharesToSeize: PromiseOrValue<BigNumber>[],
+      borrowSharesToRepay: PromiseOrValue<BigNumber>[],
       assetsToBorrow: PromiseOrValue<BigNumber>,
       redeemData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
