@@ -1,0 +1,21 @@
+{
+  "name": "Mainnet Liquidation Tests",
+  "description": "Test cases for mainnet liquidation scenarios",
+  "testCases": [
+    {
+      "name": "weETH staking withdraw request",
+      "description": "successful liquidation of weETH with finalized withdraw request",
+      "forkBlock": 23633600,
+      "network": "mainnet",
+      "positions": [
+        ["0xDF5A26554Ecb1a11614dbB34fC156D0adFc95C07", "0x7f723feE1E65A7d26bE51A05AF0B5eFEE4a7d5ae"]
+      ],
+      "expectedResults": {
+        "successfulTransactions": 1,
+        "failedTransactions": 0,
+        "totalTransactions": 1
+      },
+      "timeout": 60000
+    }
+  ]
+}
