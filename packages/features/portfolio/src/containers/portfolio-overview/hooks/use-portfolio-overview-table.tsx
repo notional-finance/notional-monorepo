@@ -22,17 +22,18 @@ import {
 import { pointsMultiple, TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
-import {
-  Body,
-  ButtonOptionsType,
-  Caption,
-  H4,
-  LinkText,
-} from '@notional-finance/mui';
+import { Body, ButtonOptionsType, H4, LinkText } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../../../components/table-action-row/table-action-row';
 import { ReactNode, useState } from 'react';
 import moment from 'moment';
+import {
+  CooldownCaptionBubble,
+  FinalizedWithdrawCaptionBubble,
+  PendingWithdrawCaptionBubble,
+  PendleExpiredCaptionBubble,
+  RewardClaimCaptionBubble,
+} from '../components/caption-bubble';
 
 export interface OverviewTableRow {
   isTotalRow?: boolean;
@@ -116,6 +117,7 @@ function getSpecificVaultInfo(
     }[];
   };
   showRowWarning?: boolean;
+  captionIcon?: React.ReactNode;
 } {
   const totalEarnings = formatCryptoWithFiat(baseCurrency, v.totalEarnings);
   if (v.hasFinalizedWithdraw) {
@@ -124,6 +126,7 @@ function getSpecificVaultInfo(
       totalEarnings,
       buttonBarData: [],
       warning: 'finalizedWithdraw',
+      captionIcon: <FinalizedWithdrawCaptionBubble />,
     };
   } else if (v.hasPendingWithdraw) {
     return {
@@ -142,6 +145,7 @@ function getSpecificVaultInfo(
       totalEarnings,
       buttonBarData: [],
       warning: 'pendingWithdraw',
+      captionIcon: <PendingWithdrawCaptionBubble />,
     };
   }
 
@@ -247,6 +251,9 @@ function getSpecificVaultInfo(
         },
       ],
       warning: undefined,
+      captionIcon: (
+        <RewardClaimCaptionBubble rewardClaims={v.vaultMetadata.rewardClaims} />
+      ),
     };
   } else if (
     v.vaultMetadata.strategyType === 'PendlePT' &&
@@ -258,6 +265,7 @@ function getSpecificVaultInfo(
       buttonBarData: [],
       warning: 'pendleExpired',
       showRowWarning: true,
+      captionIcon: <PendleExpiredCaptionBubble />,
     };
   }
 
@@ -267,46 +275,6 @@ function getSpecificVaultInfo(
     totalEarnings,
     buttonBarData: [],
   };
-}
-
-function getRewardClaimIcon(rewardClaims: TokenBalance[], theme: Theme) {
-  if (rewardClaims.filter((c) => c !== undefined).length === 0)
-    return undefined;
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        gap: theme.spacing(1),
-        alignItems: 'center',
-        marginTop: theme.spacing(0.5),
-        backgroundColor: theme.palette.info.light,
-        padding: theme.spacing(0.25, 1, 0.25, 0.25),
-        borderRadius: theme.shape.borderRadiusLarge,
-      }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          width: `${8 + rewardClaims.length * 8}px`, // 8px base + 8px per icon (overlapping)
-        }}
-      >
-        {rewardClaims.map((claim, index) => (
-          <Box
-            key={claim.symbol}
-            sx={{
-              marginLeft: index > 0 ? '-8px' : 0, // Overlap by 8px for each subsequent icon
-              zIndex: rewardClaims.length - index, // Stack icons properly
-              position: 'relative',
-            }}
-          >
-            <TokenIcon symbol={claim.symbol} size={'small'} />
-          </Box>
-        ))}
-      </Box>
-      <Caption main>Claim Rewards</Caption>
-    </Box>
-  );
 }
 
 function formatVaultHoldings(
@@ -331,7 +299,6 @@ function formatVaultHoldings(
     vaultShares,
     vaultDebt,
     network,
-    vaultMetadata,
   } = vaultHolding;
   const {
     subRowInfo,
@@ -340,11 +307,8 @@ function formatVaultHoldings(
     warning,
     showRowWarning,
     toolTipData,
+    captionIcon,
   } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
-  const rewardClaimIcons = getRewardClaimIcon(
-    vaultMetadata.rewardClaims,
-    theme
-  );
 
   const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
     {
@@ -395,7 +359,11 @@ function formatVaultHoldings(
       symbol: underlying,
       symbolBottom: vaultIcon || '',
       label: name,
-      caption: rewardClaimIcons,
+      caption: vaultHolding.isInCooldown ? (
+        <CooldownCaptionBubble />
+      ) : (
+        captionIcon
+      ),
     },
     vaultAddress,
     tokenId: vaultShares.tokenId,
@@ -432,7 +400,13 @@ function formatVaultHoldings(
 }
 
 function formatDetailedVaultHoldings(
-  {
+  vaultHolding: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
+  tableRow: OverviewTableRow,
+  pendingTokens: TokenDefinition[] | undefined,
+  baseCurrency: FiatKeys,
+  theme: Theme
+) {
+  const {
     vaultShares,
     name,
     vaultIcon,
@@ -446,15 +420,10 @@ function formatDetailedVaultHoldings(
     debtEntryPrice,
     apyData,
     impliedFixedRate,
-    vaultMetadata,
-  }: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
-  tableRow: OverviewTableRow,
-  pendingTokens: TokenDefinition[] | undefined,
-  baseCurrency: FiatKeys,
-  theme: Theme
-) {
-  const rewardClaimIcons = getRewardClaimIcon(
-    vaultMetadata.rewardClaims,
+  } = vaultHolding;
+  const { captionIcon } = getSpecificVaultInfo(
+    vaultHolding,
+    baseCurrency,
     theme
   );
   const assets: OverviewTableRow = {
@@ -462,7 +431,11 @@ function formatDetailedVaultHoldings(
       symbol: vaultIcon || '',
       symbolBottom: '',
       label: name,
-      caption: rewardClaimIcons,
+      caption: vaultHolding.isInCooldown ? (
+        <CooldownCaptionBubble />
+      ) : (
+        captionIcon
+      ),
     },
     healthFactor: tableRow.healthFactor,
     tokenId: vaultShares.tokenId,

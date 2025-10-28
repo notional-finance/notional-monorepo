@@ -9,6 +9,7 @@ import {
 import {
   RATE_DECIMALS,
   RATE_PRECISION,
+  getNowSeconds,
   leveragedYield,
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
@@ -179,6 +180,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       this.borrowAPY,
       this.leverageRatio() || 0
     );
+  }
+
+  get isInCooldown() {
+    return this.lastUpdateBlockTime > getNowSeconds() - 5 * 60;
   }
 
   protected _netCurrencyDebt() {
