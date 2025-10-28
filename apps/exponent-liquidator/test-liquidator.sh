@@ -2,7 +2,7 @@
 
 # Configuration - Update these values as needed
 FORK_URL="https://eth-mainnet.g.alchemy.com/v2/pq08EwFvymYFPbDReObtP-SFw3bCes8Z"
-FORK_BLOCK_NUMBER="23633600"  # Update to your desired block
+FORK_BLOCK_NUMBER="23670400"  # Update to your desired block
 WRANGLER_URL="http://localhost:8787"
 ANVIL_PORT="8545"
 

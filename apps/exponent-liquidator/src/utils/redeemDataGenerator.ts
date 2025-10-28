@@ -16,28 +16,40 @@ function calculateMinPurchaseAmount(
   // Get required token prices and decimals
   const sellTokenPrice = tokenPrices.get(sellToken);
   const buyTokenPrice = tokenPrices.get(buyToken);
+
+  console.log('sellTokenPrice:', sellTokenPrice?.price.toString());
+  console.log('buyTokenPrice:', buyTokenPrice?.price.toString());
   
   if (!sellTokenPrice || !buyTokenPrice) {
     throw new Error(`Token prices not found for sellToken: ${sellToken} or buyToken: ${buyToken}`);
   }
   
   // pairPrice = sellTokenPrice * buyTokenPrice / 1e18
-  const pairPrice = sellTokenPrice.price.mul(buyTokenPrice.price).div(ethers.utils.parseUnits('1', 18));
+  const pairPrice = buyTokenPrice.price.mul(ethers.utils.parseUnits('1', 18)).div(sellTokenPrice.price);
+
+  console.log('pairPrice:', pairPrice.toString());
   
   // buyTokenAmountSellTokenPrecision = sellTokenAmount * pairPrice / 1e18
   const buyTokenAmountSellTokenPrecision = sellTokenAmount.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
+
+  console.log('buyTokenAmountSellTokenPrecision:', buyTokenAmountSellTokenPrecision.toString());
   
   // buyTokenAmountNativePrecision = buyTokenAmountSellTokenPrecision * 1e(buyTokenDecimals) / 1e(sellTokenDecimals)
   const buyTokenAmountNativePrecision = buyTokenAmountSellTokenPrecision
     .mul(ethers.utils.parseUnits('1', buyTokenPrice.decimals))
     .div(ethers.utils.parseUnits('1', sellTokenPrice.decimals));
   
+  console.log('buyTokenAmountNativePrecision:', buyTokenAmountNativePrecision.toString());
+  
   // minPurchaseAmount = buyTokenAmountNativePrecision * (1 - slippageLimit)
   const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
     ethers.utils.parseUnits(slippageLimit.toString(), 18)
   );
+
+  console.log('slippageMultiplier:', slippageMultiplier.toString());
   const minPurchaseAmount = buyTokenAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
   
+  console.log('minPurchaseAmount:', minPurchaseAmount.toString());
   return minPurchaseAmount;
 }
 
@@ -51,6 +63,7 @@ export async function generateRedeemData(
   secondaryWithdrawTokenAmount?: ethers.BigNumber,
 ): Promise<string> {
   const { vaultType } = vaultConfig;
+  console.log('🏗️  Vault type:', vaultType);
 
   switch (vaultType) {
     case VaultType.Staking:
@@ -143,10 +156,12 @@ export function generateStakingRedeemData(
   }
   
   // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
+  console.log('🔧 generateStakingRedeemData called with:', { dexId, minPurchaseAmount: minPurchaseAmount.toString(), exchangeData });
   const redeemParams = ethers.utils.defaultAbiCoder.encode(
-    ['uint8', 'uint256', 'bytes'],
-    [dexId, minPurchaseAmount, exchangeData]
+    ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
+    [{ dexId, minPurchaseAmount, exchangeData }]
   );
+  console.log('🔧 Encoded staking redeemParams:', redeemParams);
   
   return redeemParams;
 }
@@ -202,8 +217,8 @@ export async function generatePendlePTRedeemData(
 
     // Encode PendleRedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes limitOrderData)
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
-      ['uint8', 'uint256', 'bytes', 'bytes'],
-      [dexId, minPurchaseAmount, exchangeData, limitOrderData]
+      ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes limitOrderData)'],
+      [{ dexId, minPurchaseAmount, exchangeData, limitOrderData }]
     );
     
     return redeemParams;
@@ -229,8 +244,8 @@ export async function generatePendlePTRedeemData(
     );
     
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
-      ['uint8', 'uint256', 'bytes'],
-      [dexId, minPurchaseAmount, exchangeData]
+      ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
+      [{ dexId, minPurchaseAmount, exchangeData }]
     );
     
     return redeemParams;
