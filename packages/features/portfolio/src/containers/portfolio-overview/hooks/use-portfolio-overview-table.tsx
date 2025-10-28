@@ -385,7 +385,7 @@ function formatVaultHoldings(
     amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
     toolTipData,
     actionRow: {
-      warning,
+      warning: vaultHolding.isInCooldown ? 'inCooldown' : warning,
       showRowWarning,
       subRowData,
       buttonBarData,
@@ -518,6 +518,7 @@ function formatDetailedVaultHoldings(
     }),
     totalEarnings: formatCryptoWithFiat(baseCurrency, debtEarnings),
     actionRow: {
+      warning: vaultHolding.isInCooldown ? 'inCooldown' : undefined,
       buttonBarData: tableRow.actionRow.buttonBarData,
       txnHistory: tableRow.actionRow.txnHistory,
       subRowData: [

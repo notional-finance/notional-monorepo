@@ -1,6 +1,12 @@
 import { Box, useTheme } from '@mui/material';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { CheckmarkIcon, ClockIcon, TokenIcon } from '@notional-finance/icons';
+import {
+  CheckmarkIcon,
+  ClockIcon,
+  LockIcon,
+  TokenIcon,
+  HourglassIcon,
+} from '@notional-finance/icons';
 import { Caption } from '@notional-finance/mui';
 
 const CaptionBubble = ({
@@ -99,7 +105,7 @@ export const PendingWithdrawCaptionBubble = () => {
     <CaptionBubble
       caption="Pending Withdraw"
       icon={
-        <ClockIcon
+        <LockIcon
           fill={theme.palette.pending.main}
           sx={{ fontSize: theme.typography.caption.fontSize }}
         />
@@ -113,7 +119,12 @@ export const CooldownCaptionBubble = () => {
   return (
     <CaptionBubble
       caption="In Cooldown"
-      icon={<ClockIcon fill={theme.palette.pending.main} />}
+      icon={
+        <HourglassIcon
+          fill={theme.palette.pending.main}
+          sx={{ fontSize: theme.typography.caption.fontSize }}
+        />
+      }
     />
   );
 };

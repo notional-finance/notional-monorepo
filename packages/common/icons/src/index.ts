@@ -115,3 +115,5 @@ export * from './lib/upward-icon/upward-icon';
 export * from './lib/chart-icon/chart-icon';
 export * from './lib/scrollable-icon/scrollable-icon';
 export * from './lib/clock-icon/clock-icon';
+export * from './lib/lock-icon/lock-icon';
+export * from './lib/hourglass-icon/hourglass-icon';

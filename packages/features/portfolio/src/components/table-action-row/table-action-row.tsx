@@ -68,6 +68,17 @@ const messages: Record<
       },
     }),
   },
+  inCooldown: {
+    variant: 'pending',
+    ...defineMessages({
+      title: { defaultMessage: 'In Cooldown', description: '' },
+      message: {
+        defaultMessage:
+          'Vault actions are paused for five minutes after an entry.',
+        description: '',
+      },
+    }),
+  },
 };
 
 export interface TableActionRowProps {

@@ -38,7 +38,7 @@ const InputContainer = observer(
         <Box
           sx={{
             width: '100%',
-            gap: theme.spacing(5),
+            gap: theme.spacing(4),
             justifyContent: 'space-between',
             display: 'flex',
             flexDirection: 'column',
