@@ -146,6 +146,7 @@ export function parseCurrentBalanceStatement(
   const currentStatement = parseBalanceStatement(
     tokenId,
     underlying.id,
+    _token.vaultAddress?.accountingAsset?.id || underlying.id,
     current as BalanceSnapshot,
     network
   );
@@ -165,9 +166,9 @@ export function parseCurrentBalanceStatement(
     const additionalAccruedInterest = model
       .getVaultAdapter(token.id)
       .getAdditionalAccruedInterest(currentStatement);
-    totalInterestAccrual = currentStatement.totalInterestAccrual.add(
-      additionalAccruedInterest
-    );
+    totalInterestAccrual = currentStatement.totalInterestAccrual
+      .add(additionalAccruedInterest)
+      .toToken(underlying);
   } else if (token.tokenType === 'VaultDebt') {
     currentProfitAndLoss = currentProfitAndLoss.neg();
     // For vault debt, the entire PNL is interest accrual
@@ -192,9 +193,12 @@ export function parseCurrentBalanceStatement(
   };
 }
 
-export function parseBalanceStatement(
+export type BalanceStatementReturnType = ReturnType<typeof parseBalanceStatement>;
+
+function parseBalanceStatement(
   tokenId: string,
   underlyingId: string,
+  accountingAssetId: string,
   snapshot: BalanceSnapshot,
   network: Network
 ) {
@@ -214,6 +218,7 @@ export function parseBalanceStatement(
     adjustedCostBasis,
     timestamp: snapshot.timestamp,
     accumulatedCostRealized,
+    accountingAssetId,
     lastInterestAccumulator: BigNumber.from(snapshot._lastInterestAccumulator),
     totalProfitAndLoss: new TokenBalance(
       snapshot.currentProfitAndLossAtSnapshot,
@@ -222,7 +227,7 @@ export function parseBalanceStatement(
     ),
     totalInterestAccrual: new TokenBalance(
       snapshot.totalInterestAccrualAtSnapshot,
-      underlyingId,
+      accountingAssetId,
       network
     ),
     totalVaultFeesAtSnapshot: new TokenBalance(

@@ -639,7 +639,6 @@ export type Balance_orderBy =
   | 'token__precision'
   | 'token__totalSupply'
   | 'token__maturity'
-  | 'token__vaultAddress'
   | 'token__tokenAddress'
   | 'account'
   | 'account__id'
@@ -1021,7 +1020,6 @@ export type IncentiveSnapshot_orderBy =
   | 'rewardToken__precision'
   | 'rewardToken__totalSupply'
   | 'rewardToken__maturity'
-  | 'rewardToken__vaultAddress'
   | 'rewardToken__tokenAddress'
   | 'totalClaimed'
   | 'adjustedClaimed'
@@ -1592,7 +1590,6 @@ export type Oracle_orderBy =
   | 'base__precision'
   | 'base__totalSupply'
   | 'base__maturity'
-  | 'base__vaultAddress'
   | 'base__tokenAddress'
   | 'quote'
   | 'quote__id'
@@ -1610,7 +1607,6 @@ export type Oracle_orderBy =
   | 'quote__precision'
   | 'quote__totalSupply'
   | 'quote__maturity'
-  | 'quote__vaultAddress'
   | 'quote__tokenAddress'
   | 'decimals'
   | 'ratePrecision'
@@ -1862,7 +1858,6 @@ export type ProfitLossLineItem_orderBy =
   | 'token__precision'
   | 'token__totalSupply'
   | 'token__maturity'
-  | 'token__vaultAddress'
   | 'token__tokenAddress'
   | 'balanceSnapshot'
   | 'balanceSnapshot__id'
@@ -1896,7 +1891,6 @@ export type ProfitLossLineItem_orderBy =
   | 'underlyingToken__precision'
   | 'underlyingToken__totalSupply'
   | 'underlyingToken__maturity'
-  | 'underlyingToken__vaultAddress'
   | 'underlyingToken__tokenAddress'
   | 'lineItemType'
   | 'tokenAmount'
@@ -2270,7 +2264,7 @@ export type Token = {
   /** Maturities are only set for some token types */
   maturity?: Maybe<Scalars['BigInt']>;
   /** Vault address is set for vault token types */
-  vaultAddress?: Maybe<Scalars['Bytes']>;
+  vaultAddress?: Maybe<Vault>;
   /** Set to the ERC20 address or Notional Proxy for ERC1155 addresses */
   tokenAddress: Scalars['Bytes'];
   balanceOf?: Maybe<Array<Balance>>;
@@ -2469,16 +2463,27 @@ export type Token_filter = {
   maturity_lte?: InputMaybe<Scalars['BigInt']>;
   maturity_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maturity_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  vaultAddress?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_not?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_gt?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_lt?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_gte?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_lte?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  vaultAddress_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  vaultAddress_contains?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_not_contains?: InputMaybe<Scalars['Bytes']>;
+  vaultAddress?: InputMaybe<Scalars['String']>;
+  vaultAddress_not?: InputMaybe<Scalars['String']>;
+  vaultAddress_gt?: InputMaybe<Scalars['String']>;
+  vaultAddress_lt?: InputMaybe<Scalars['String']>;
+  vaultAddress_gte?: InputMaybe<Scalars['String']>;
+  vaultAddress_lte?: InputMaybe<Scalars['String']>;
+  vaultAddress_in?: InputMaybe<Array<Scalars['String']>>;
+  vaultAddress_not_in?: InputMaybe<Array<Scalars['String']>>;
+  vaultAddress_contains?: InputMaybe<Scalars['String']>;
+  vaultAddress_contains_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_contains?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_starts_with?: InputMaybe<Scalars['String']>;
+  vaultAddress_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_starts_with?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_ends_with?: InputMaybe<Scalars['String']>;
+  vaultAddress_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_ends_with?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_?: InputMaybe<Vault_filter>;
   tokenAddress?: InputMaybe<Scalars['Bytes']>;
   tokenAddress_not?: InputMaybe<Scalars['Bytes']>;
   tokenAddress_gt?: InputMaybe<Scalars['Bytes']>;
@@ -2523,7 +2528,6 @@ export type Token_orderBy =
   | 'underlying__precision'
   | 'underlying__totalSupply'
   | 'underlying__maturity'
-  | 'underlying__vaultAddress'
   | 'underlying__tokenAddress'
   | 'name'
   | 'symbol'
@@ -2532,6 +2536,16 @@ export type Token_orderBy =
   | 'totalSupply'
   | 'maturity'
   | 'vaultAddress'
+  | 'vaultAddress__id'
+  | 'vaultAddress__firstUpdateBlockNumber'
+  | 'vaultAddress__firstUpdateTimestamp'
+  | 'vaultAddress__firstUpdateTransactionHash'
+  | 'vaultAddress__lastUpdateBlockNumber'
+  | 'vaultAddress__lastUpdateTimestamp'
+  | 'vaultAddress__lastUpdateTransactionHash'
+  | 'vaultAddress__isWhitelisted'
+  | 'vaultAddress__feeRate'
+  | 'vaultAddress__strategyType'
   | 'tokenAddress'
   | 'balanceOf'
   | 'oracles';
@@ -2895,7 +2909,6 @@ export type TradingModulePermission_orderBy =
   | 'token__precision'
   | 'token__totalSupply'
   | 'token__maturity'
-  | 'token__vaultAddress'
   | 'token__tokenAddress'
   | 'tokenAddress'
   | 'name'
@@ -2920,6 +2933,8 @@ export type Vault = {
   yieldToken: Token;
   /** Token that represents the vault */
   vaultToken: Token;
+  /** Token that the vault uses for accounting */
+  accountingAsset: Token;
   /** Fee rate of the vault */
   feeRate: Scalars['BigInt'];
   /** Strategy type of the vault */
@@ -3084,6 +3099,27 @@ export type Vault_filter = {
   vaultToken_not_ends_with?: InputMaybe<Scalars['String']>;
   vaultToken_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   vaultToken_?: InputMaybe<Token_filter>;
+  accountingAsset?: InputMaybe<Scalars['String']>;
+  accountingAsset_not?: InputMaybe<Scalars['String']>;
+  accountingAsset_gt?: InputMaybe<Scalars['String']>;
+  accountingAsset_lt?: InputMaybe<Scalars['String']>;
+  accountingAsset_gte?: InputMaybe<Scalars['String']>;
+  accountingAsset_lte?: InputMaybe<Scalars['String']>;
+  accountingAsset_in?: InputMaybe<Array<Scalars['String']>>;
+  accountingAsset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  accountingAsset_contains?: InputMaybe<Scalars['String']>;
+  accountingAsset_contains_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_contains?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_starts_with?: InputMaybe<Scalars['String']>;
+  accountingAsset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_starts_with?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_ends_with?: InputMaybe<Scalars['String']>;
+  accountingAsset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_ends_with?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_?: InputMaybe<Token_filter>;
   feeRate?: InputMaybe<Scalars['BigInt']>;
   feeRate_not?: InputMaybe<Scalars['BigInt']>;
   feeRate_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3152,7 +3188,6 @@ export type Vault_orderBy =
   | 'asset__precision'
   | 'asset__totalSupply'
   | 'asset__maturity'
-  | 'asset__vaultAddress'
   | 'asset__tokenAddress'
   | 'yieldToken'
   | 'yieldToken__id'
@@ -3170,7 +3205,6 @@ export type Vault_orderBy =
   | 'yieldToken__precision'
   | 'yieldToken__totalSupply'
   | 'yieldToken__maturity'
-  | 'yieldToken__vaultAddress'
   | 'yieldToken__tokenAddress'
   | 'vaultToken'
   | 'vaultToken__id'
@@ -3188,8 +3222,24 @@ export type Vault_orderBy =
   | 'vaultToken__precision'
   | 'vaultToken__totalSupply'
   | 'vaultToken__maturity'
-  | 'vaultToken__vaultAddress'
   | 'vaultToken__tokenAddress'
+  | 'accountingAsset'
+  | 'accountingAsset__id'
+  | 'accountingAsset__firstUpdateBlockNumber'
+  | 'accountingAsset__firstUpdateTimestamp'
+  | 'accountingAsset__firstUpdateTransactionHash'
+  | 'accountingAsset__lastUpdateBlockNumber'
+  | 'accountingAsset__lastUpdateTimestamp'
+  | 'accountingAsset__lastUpdateTransactionHash'
+  | 'accountingAsset__tokenType'
+  | 'accountingAsset__tokenInterface'
+  | 'accountingAsset__name'
+  | 'accountingAsset__symbol'
+  | 'accountingAsset__decimals'
+  | 'accountingAsset__precision'
+  | 'accountingAsset__totalSupply'
+  | 'accountingAsset__maturity'
+  | 'accountingAsset__tokenAddress'
   | 'feeRate'
   | 'strategyType'
   | 'withdrawRequestManagers'
@@ -3420,7 +3470,6 @@ export type WithdrawRequestManager_orderBy =
   | 'yieldToken__precision'
   | 'yieldToken__totalSupply'
   | 'yieldToken__maturity'
-  | 'yieldToken__vaultAddress'
   | 'yieldToken__tokenAddress'
   | 'withdrawToken'
   | 'withdrawToken__id'
@@ -3438,7 +3487,6 @@ export type WithdrawRequestManager_orderBy =
   | 'withdrawToken__precision'
   | 'withdrawToken__totalSupply'
   | 'withdrawToken__maturity'
-  | 'withdrawToken__vaultAddress'
   | 'withdrawToken__tokenAddress'
   | 'stakingToken'
   | 'stakingToken__id'
@@ -3456,7 +3504,6 @@ export type WithdrawRequestManager_orderBy =
   | 'stakingToken__precision'
   | 'stakingToken__totalSupply'
   | 'stakingToken__maturity'
-  | 'stakingToken__vaultAddress'
   | 'stakingToken__tokenAddress'
   | 'approvedVaults'
   | 'withdrawRequests'

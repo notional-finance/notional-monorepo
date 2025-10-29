@@ -218,7 +218,10 @@ export const TradeModel = types
         })
       )
     ),
-    withdrawTokensBurned: types.maybe(types.array(NotionalTypes.TokenBalance)),
+    withdrawTokensBurned: types.optional(
+      types.array(NotionalTypes.TokenBalance),
+      []
+    ),
 
     /** Calculated updates to the account balances post trade */
     postTradeBalances: types.optional(
@@ -803,13 +806,9 @@ export const TradeModel = types
       self.vaultTradeMetadata.replace(
         (maxWithdrawValues?.vaultTradeMetadata || []) as any
       );
-      if (maxWithdrawValues?.withdrawTokensBurned) {
-        self.withdrawTokensBurned?.replace(
-          maxWithdrawValues.withdrawTokensBurned || []
-        );
-      } else {
-        self.withdrawTokensBurned = undefined;
-      }
+      self.withdrawTokensBurned.replace(
+        maxWithdrawValues?.withdrawTokensBurned || []
+      );
     };
 
     const setLeverageRatio = (leverageRatio: number) => {
@@ -948,10 +947,13 @@ export const TradeModel = types
       );
       const currentAPY = holdings?.apyData
         ? getSnapshot(holdings?.apyData)
-        : self.collateral
-        ? // If there is no position then use the spot APY, this does not include
-          // any leverage
-          model.getSpotAPY(self.collateral.id)
+        : self.collateral && self.debt
+        ? // If there is no position then use the spot APY with leverage applied
+          model.getLeveragedAPY(
+            TokenBalance.zero(self.collateral as TokenDefinition),
+            TokenBalance.zero(self.debt as TokenDefinition),
+            self.leverageRatio || 0
+          )
         : undefined;
 
       let updatedAPY: APYData | undefined;
@@ -980,7 +982,9 @@ export const TradeModel = types
 
         if (
           priorVaultRisk &&
-          (self.tradeType === 'AdjustVaultLeverage' ||
+          ((self.tradeType === 'AdjustVaultLeverage' &&
+            // Only do this if we are increasing the leverage
+            (self.leverageRatio || 0) > (postVaultRisk.leverageRatio() || 0)) ||
             self.tradeType === 'IncreaseVaultPosition')
         ) {
           // Average into the updated apy
@@ -1032,6 +1036,13 @@ export const TradeModel = types
           self.tradeType === 'RollVaultPosition'
         ) {
           updatedAPY = netPositionAPY;
+        } else if (self.tradeType === 'AdjustVaultLeverage') {
+          // In this case it is reducing the leverage
+          updatedAPY = createLeveragedAPYData(
+            netPositionAPY.unleveragedAssetAPY || {},
+            netPositionAPY.debtAPY || 0,
+            postVaultRisk.leverageRatio() || 0
+          );
         }
       }
 

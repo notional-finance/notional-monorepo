@@ -9,7 +9,7 @@ import {
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
-import { parseBalanceStatement } from '../client/accounts/balance-statement';
+import { BalanceStatementReturnType } from '../client/accounts/balance-statement';
 
 export interface BaseVaultParams {
   vaultAddress: string;
@@ -120,7 +120,7 @@ export abstract class VaultAdapter {
   ): APYData;
 
   getAdditionalAccruedInterest(
-    _statement: ReturnType<typeof parseBalanceStatement>
+    _statement: BalanceStatementReturnType
   ): TokenBalance {
     return TokenBalance.zero(this.borrowedToken);
   }

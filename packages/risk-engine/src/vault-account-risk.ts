@@ -7,8 +7,8 @@ import {
   WithdrawRequest,
 } from '@notional-finance/core-entities';
 import {
-  RATE_DECIMALS,
   RATE_PRECISION,
+  SCALAR_PRECISION,
   getNowSeconds,
   leveragedYield,
 } from '@notional-finance/util';
@@ -225,10 +225,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     const totalAssets = this.totalAssetsRiskAdjusted();
     // The total debt here is assumed to be positive for the calculation but if for some reason it
     // is negative then we would get an underflow somewhere else.
-    return totalDebt.isZero() || totalDebt.isNegative()
-      ? null
-      : totalAssets.sub(totalDebt).ratioWith(totalDebt).toNumber() /
-          RATE_PRECISION;
+    if (totalDebt.isZero() || totalDebt.isNegative()) return null;
+    const _collateralRatio = totalAssets.sub(totalDebt).ratioWith(totalDebt);
+    // This can occur if the total assets is much larger than the total debt and we would
+    // effectively get no leverage.
+    if (_collateralRatio.gt(Number.MAX_SAFE_INTEGER - 1)) return null;
+
+    return _collateralRatio.toNumber() / RATE_PRECISION;
   }
 
   assetLiquidationThreshold(asset: TokenDefinition): TokenBalance | null {
@@ -236,64 +239,23 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     const shares = this.hasPendingWithdraw
       ? this.pendingYieldTokensForWithdraw()
       : this.vaultShares;
-    console.log('asset liquidation threshold for vault', this.vaultAddress);
-    console.log('target asset', asset.symbol);
-    console.log(
-      'vault shares for withdraw',
-      shares.toDisplayStringWithSymbol(8, false, false)
-    );
 
-    // (minCollateralRatio + 1) * debtOutstanding = vaultSharesValue
-    const { maxLeverageRatio } = this.model.getLeverageRatios(
-      this.vaultDebt.token
+    const collateralValue = shares.toUnderlying();
+    const ltv = this.model.getLTV(
+      this.vaultAddress,
+      this.vaultDebt.token.address
     );
-    console.log('max leverage ratio', maxLeverageRatio);
-    const minCollateralRatioBasisPoints =
-      VaultAccountRiskProfile.leverageToCollateralRatio(maxLeverageRatio);
-    // NOTE: this value is in primary borrow underlying terms
-    console.log(
-      'min collateral ratio basis points',
-      minCollateralRatioBasisPoints
-    );
+    const maxBorrow = collateralValue.scale(ltv, SCALAR_PRECISION);
+    const borrowed = this.totalDebtRiskAdjusted().neg();
 
-    const oneVaultShareValueAtLiquidation = this.totalDebtRiskAdjusted()
-      .neg()
-      .scale(
-        Math.floor(minCollateralRatioBasisPoints + RATE_PRECISION),
-        shares.scaleTo(RATE_DECIMALS)
-      );
-    console.log(
-      'total debt risk adjusted',
-      this.totalDebtRiskAdjusted().toDisplayStringWithSymbol(8, false, false)
-    );
-    console.log(
-      'one vault share value at liquidation',
-      oneVaultShareValueAtLiquidation.toDisplayStringWithSymbol(8, false, false)
-    );
-
-    // This is the relative exchange rate decrease of vault shares to liquidation
     const oneVaultShareValue = TokenBalance.unit(shares.token).toUnderlying();
-    console.log(
-      'one vault share value',
-      oneVaultShareValue.toDisplayStringWithSymbol(8, false, false)
-    );
-    const liquidationPriceRatio =
-      oneVaultShareValueAtLiquidation.ratioWith(oneVaultShareValue);
-    console.log('liquidation price ratio', liquidationPriceRatio);
     const assetToUnderlyingPrice = TokenBalance.unit(asset).toToken(
       oneVaultShareValue.token
     );
-    console.log(
-      'asset to underlying price',
-      assetToUnderlyingPrice.toDisplayStringWithSymbol(8, false, false)
-    );
+
     const assetLiquidationThreshold = assetToUnderlyingPrice
-      .mulInRatePrecision(liquidationPriceRatio)
+      .scale(borrowed, maxBorrow)
       .toToken(asset);
-    console.log(
-      'asset liquidation threshold',
-      assetLiquidationThreshold.toDisplayStringWithSymbol(8, false, false)
-    );
     return assetLiquidationThreshold;
   }
 
