@@ -218,7 +218,10 @@ export const TradeModel = types
         })
       )
     ),
-    withdrawTokensBurned: types.maybe(types.array(NotionalTypes.TokenBalance)),
+    withdrawTokensBurned: types.optional(
+      types.array(NotionalTypes.TokenBalance),
+      []
+    ),
 
     /** Calculated updates to the account balances post trade */
     postTradeBalances: types.optional(
@@ -803,13 +806,9 @@ export const TradeModel = types
       self.vaultTradeMetadata.replace(
         (maxWithdrawValues?.vaultTradeMetadata || []) as any
       );
-      if (maxWithdrawValues?.withdrawTokensBurned) {
-        self.withdrawTokensBurned?.replace(
-          maxWithdrawValues.withdrawTokensBurned || []
-        );
-      } else {
-        self.withdrawTokensBurned = undefined;
-      }
+      self.withdrawTokensBurned.replace(
+        maxWithdrawValues?.withdrawTokensBurned || []
+      );
     };
 
     const setLeverageRatio = (leverageRatio: number) => {
