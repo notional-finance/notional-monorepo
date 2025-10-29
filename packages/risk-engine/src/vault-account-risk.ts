@@ -210,6 +210,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   pendingYieldTokensForWithdraw() {
     if (!this.withdrawRequests || this.withdrawRequests.length === 0)
       throw Error('Withdraw requests not found');
+    // The value of yield tokens for a pending withdraw is the same on all
+    // of the withdraw requests.
     return this.withdrawRequests[0].yieldTokenAmount;
   }
 
@@ -234,32 +236,64 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     const shares = this.hasPendingWithdraw
       ? this.pendingYieldTokensForWithdraw()
       : this.vaultShares;
+    console.log('asset liquidation threshold for vault', this.vaultAddress);
+    console.log('target asset', asset.symbol);
+    console.log(
+      'vault shares for withdraw',
+      shares.toDisplayStringWithSymbol(8, false, false)
+    );
 
     // (minCollateralRatio + 1) * debtOutstanding = vaultSharesValue
     const { maxLeverageRatio } = this.model.getLeverageRatios(
       this.vaultDebt.token
     );
+    console.log('max leverage ratio', maxLeverageRatio);
     const minCollateralRatioBasisPoints =
       VaultAccountRiskProfile.leverageToCollateralRatio(maxLeverageRatio);
     // NOTE: this value is in primary borrow underlying terms
+    console.log(
+      'min collateral ratio basis points',
+      minCollateralRatioBasisPoints
+    );
+
     const oneVaultShareValueAtLiquidation = this.totalDebtRiskAdjusted()
       .neg()
       .scale(
         Math.floor(minCollateralRatioBasisPoints + RATE_PRECISION),
         shares.scaleTo(RATE_DECIMALS)
       );
+    console.log(
+      'total debt risk adjusted',
+      this.totalDebtRiskAdjusted().toDisplayStringWithSymbol(8, false, false)
+    );
+    console.log(
+      'one vault share value at liquidation',
+      oneVaultShareValueAtLiquidation.toDisplayStringWithSymbol(8, false, false)
+    );
 
     // This is the relative exchange rate decrease of vault shares to liquidation
     const oneVaultShareValue = TokenBalance.unit(shares.token).toUnderlying();
+    console.log(
+      'one vault share value',
+      oneVaultShareValue.toDisplayStringWithSymbol(8, false, false)
+    );
     const liquidationPriceRatio =
       oneVaultShareValueAtLiquidation.ratioWith(oneVaultShareValue);
+    console.log('liquidation price ratio', liquidationPriceRatio);
     const assetToUnderlyingPrice = TokenBalance.unit(asset).toToken(
       oneVaultShareValue.token
+    );
+    console.log(
+      'asset to underlying price',
+      assetToUnderlyingPrice.toDisplayStringWithSymbol(8, false, false)
     );
     const assetLiquidationThreshold = assetToUnderlyingPrice
       .mulInRatePrecision(liquidationPriceRatio)
       .toToken(asset);
-
+    console.log(
+      'asset liquidation threshold',
+      assetLiquidationThreshold.toDisplayStringWithSymbol(8, false, false)
+    );
     return assetLiquidationThreshold;
   }
 
