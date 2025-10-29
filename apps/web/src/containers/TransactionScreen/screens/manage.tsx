@@ -106,7 +106,7 @@ export const VaultManageScreen = observer(() => {
       <ErrorMessage
         variant="pending"
         key="in-cooldown"
-        title={<FormattedMessage defaultMessage="In Cooldown" />}
+        title={<FormattedMessage defaultMessage="Lock Period" />}
         message={
           <FormattedMessage defaultMessage="Vault actions are paused for five minutes after an entry." />
         }

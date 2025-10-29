@@ -28,7 +28,7 @@ import { TableActionRowWarning } from '../../../components/table-action-row/tabl
 import { ReactNode, useState } from 'react';
 import moment from 'moment';
 import {
-  CooldownCaptionBubble,
+  LockPeriodCaptionBubble,
   FinalizedWithdrawCaptionBubble,
   PendingWithdrawCaptionBubble,
   PendleExpiredCaptionBubble,
@@ -360,7 +360,7 @@ function formatVaultHoldings(
       symbolBottom: vaultIcon || '',
       label: name,
       caption: vaultHolding.isInCooldown ? (
-        <CooldownCaptionBubble />
+        <LockPeriodCaptionBubble />
       ) : (
         captionIcon
       ),
@@ -385,7 +385,7 @@ function formatVaultHoldings(
     amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
     toolTipData,
     actionRow: {
-      warning: vaultHolding.isInCooldown ? 'inCooldown' : warning,
+      warning: vaultHolding.isInCooldown ? 'lockPeriod' : warning,
       showRowWarning,
       subRowData,
       buttonBarData,
@@ -432,7 +432,7 @@ function formatDetailedVaultHoldings(
       symbolBottom: '',
       label: name,
       caption: vaultHolding.isInCooldown ? (
-        <CooldownCaptionBubble />
+        <LockPeriodCaptionBubble />
       ) : (
         captionIcon
       ),

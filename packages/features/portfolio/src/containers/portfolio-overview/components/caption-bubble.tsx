@@ -105,7 +105,7 @@ export const PendingWithdrawCaptionBubble = () => {
     <CaptionBubble
       caption="Pending Withdraw"
       icon={
-        <LockIcon
+        <HourglassIcon
           fill={theme.palette.pending.main}
           sx={{ fontSize: theme.typography.caption.fontSize }}
         />
@@ -114,13 +114,13 @@ export const PendingWithdrawCaptionBubble = () => {
   );
 };
 
-export const CooldownCaptionBubble = () => {
+export const LockPeriodCaptionBubble = () => {
   const theme = useTheme();
   return (
     <CaptionBubble
-      caption="In Cooldown"
+      caption="Lock Period"
       icon={
-        <HourglassIcon
+        <LockIcon
           fill={theme.palette.pending.main}
           sx={{ fontSize: theme.typography.caption.fontSize }}
         />

@@ -68,10 +68,10 @@ const messages: Record<
       },
     }),
   },
-  inCooldown: {
+  lockPeriod: {
     variant: 'pending',
     ...defineMessages({
-      title: { defaultMessage: 'In Cooldown', description: '' },
+      title: { defaultMessage: 'Lock Period', description: '' },
       message: {
         defaultMessage:
           'Vault actions are paused for five minutes after an entry.',
