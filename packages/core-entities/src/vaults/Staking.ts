@@ -9,7 +9,7 @@ import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import {
   APYData,
   getNetworkModel,
-  parseBalanceStatement,
+  BalanceStatementReturnType,
   TimeSeriesResponse,
   TokenBalance,
   TokenDefinition,
@@ -268,7 +268,7 @@ export class Staking extends VaultAdapter {
   }
 
   override getAdditionalAccruedInterest(
-    statement: ReturnType<typeof parseBalanceStatement>
+    statement: BalanceStatementReturnType
   ): TokenBalance {
     const model = getNetworkModel(this.network);
     const oracle = model.oracles.get(
@@ -276,7 +276,9 @@ export class Staking extends VaultAdapter {
     );
     const currentInterestAccumulator =
       oracle?.latestRate.rate || BigNumber.from(0);
-    return TokenBalance.unit(this.borrowedToken)
+    const accountingAsset = model.getTokenByID(statement.accountingAssetId);
+
+    return TokenBalance.unit(accountingAsset)
       .scale(
         currentInterestAccumulator.sub(statement.lastInterestAccumulator),
         SCALAR_PRECISION

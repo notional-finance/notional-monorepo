@@ -15,7 +15,9 @@ query AccountIncentiveSnapshots($accountId: String!, $skip: Int!) {
     amountClaimed
     balance {
       token {
-        vaultAddress
+        vaultAddress {
+          id
+        }
       }
     }
   }

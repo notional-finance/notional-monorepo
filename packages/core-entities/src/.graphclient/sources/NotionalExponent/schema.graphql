@@ -576,7 +576,6 @@ enum Balance_orderBy {
   token__precision
   token__totalSupply
   token__maturity
-  token__vaultAddress
   token__tokenAddress
   account
   account__id
@@ -967,7 +966,6 @@ enum IncentiveSnapshot_orderBy {
   rewardToken__precision
   rewardToken__totalSupply
   rewardToken__maturity
-  rewardToken__vaultAddress
   rewardToken__tokenAddress
   totalClaimed
   adjustedClaimed
@@ -1520,7 +1518,6 @@ enum Oracle_orderBy {
   base__precision
   base__totalSupply
   base__maturity
-  base__vaultAddress
   base__tokenAddress
   quote
   quote__id
@@ -1538,7 +1535,6 @@ enum Oracle_orderBy {
   quote__precision
   quote__totalSupply
   quote__maturity
-  quote__vaultAddress
   quote__tokenAddress
   decimals
   ratePrecision
@@ -1792,7 +1788,6 @@ enum ProfitLossLineItem_orderBy {
   token__precision
   token__totalSupply
   token__maturity
-  token__vaultAddress
   token__tokenAddress
   balanceSnapshot
   balanceSnapshot__id
@@ -1826,7 +1821,6 @@ enum ProfitLossLineItem_orderBy {
   underlyingToken__precision
   underlyingToken__totalSupply
   underlyingToken__maturity
-  underlyingToken__vaultAddress
   underlyingToken__tokenAddress
   lineItemType
   tokenAmount
@@ -2296,7 +2290,7 @@ type Token {
   """Maturities are only set for some token types"""
   maturity: BigInt
   """Vault address is set for vault token types"""
-  vaultAddress: Bytes
+  vaultAddress: Vault
   """Set to the ERC20 address or Notional Proxy for ERC1155 addresses"""
   tokenAddress: Bytes!
   balanceOf(skip: Int = 0, first: Int = 100, orderBy: Balance_orderBy, orderDirection: OrderDirection, where: Balance_filter): [Balance!]
@@ -2479,16 +2473,27 @@ input Token_filter {
   maturity_lte: BigInt
   maturity_in: [BigInt!]
   maturity_not_in: [BigInt!]
-  vaultAddress: Bytes
-  vaultAddress_not: Bytes
-  vaultAddress_gt: Bytes
-  vaultAddress_lt: Bytes
-  vaultAddress_gte: Bytes
-  vaultAddress_lte: Bytes
-  vaultAddress_in: [Bytes!]
-  vaultAddress_not_in: [Bytes!]
-  vaultAddress_contains: Bytes
-  vaultAddress_not_contains: Bytes
+  vaultAddress: String
+  vaultAddress_not: String
+  vaultAddress_gt: String
+  vaultAddress_lt: String
+  vaultAddress_gte: String
+  vaultAddress_lte: String
+  vaultAddress_in: [String!]
+  vaultAddress_not_in: [String!]
+  vaultAddress_contains: String
+  vaultAddress_contains_nocase: String
+  vaultAddress_not_contains: String
+  vaultAddress_not_contains_nocase: String
+  vaultAddress_starts_with: String
+  vaultAddress_starts_with_nocase: String
+  vaultAddress_not_starts_with: String
+  vaultAddress_not_starts_with_nocase: String
+  vaultAddress_ends_with: String
+  vaultAddress_ends_with_nocase: String
+  vaultAddress_not_ends_with: String
+  vaultAddress_not_ends_with_nocase: String
+  vaultAddress_: Vault_filter
   tokenAddress: Bytes
   tokenAddress_not: Bytes
   tokenAddress_gt: Bytes
@@ -2533,7 +2538,6 @@ enum Token_orderBy {
   underlying__precision
   underlying__totalSupply
   underlying__maturity
-  underlying__vaultAddress
   underlying__tokenAddress
   name
   symbol
@@ -2542,6 +2546,16 @@ enum Token_orderBy {
   totalSupply
   maturity
   vaultAddress
+  vaultAddress__id
+  vaultAddress__firstUpdateBlockNumber
+  vaultAddress__firstUpdateTimestamp
+  vaultAddress__firstUpdateTransactionHash
+  vaultAddress__lastUpdateBlockNumber
+  vaultAddress__lastUpdateTimestamp
+  vaultAddress__lastUpdateTransactionHash
+  vaultAddress__isWhitelisted
+  vaultAddress__feeRate
+  vaultAddress__strategyType
   tokenAddress
   balanceOf
   oracles
@@ -2890,7 +2904,6 @@ enum TradingModulePermission_orderBy {
   token__precision
   token__totalSupply
   token__maturity
-  token__vaultAddress
   token__tokenAddress
   tokenAddress
   name
@@ -2916,6 +2929,8 @@ type Vault {
   yieldToken: Token!
   """Token that represents the vault"""
   vaultToken: Token!
+  """Token that the vault uses for accounting"""
+  accountingAsset: Token!
   """Fee rate of the vault"""
   feeRate: BigInt!
   """Strategy type of the vault"""
@@ -3053,6 +3068,27 @@ input Vault_filter {
   vaultToken_not_ends_with: String
   vaultToken_not_ends_with_nocase: String
   vaultToken_: Token_filter
+  accountingAsset: String
+  accountingAsset_not: String
+  accountingAsset_gt: String
+  accountingAsset_lt: String
+  accountingAsset_gte: String
+  accountingAsset_lte: String
+  accountingAsset_in: [String!]
+  accountingAsset_not_in: [String!]
+  accountingAsset_contains: String
+  accountingAsset_contains_nocase: String
+  accountingAsset_not_contains: String
+  accountingAsset_not_contains_nocase: String
+  accountingAsset_starts_with: String
+  accountingAsset_starts_with_nocase: String
+  accountingAsset_not_starts_with: String
+  accountingAsset_not_starts_with_nocase: String
+  accountingAsset_ends_with: String
+  accountingAsset_ends_with_nocase: String
+  accountingAsset_not_ends_with: String
+  accountingAsset_not_ends_with_nocase: String
+  accountingAsset_: Token_filter
   feeRate: BigInt
   feeRate_not: BigInt
   feeRate_gt: BigInt
@@ -3121,7 +3157,6 @@ enum Vault_orderBy {
   asset__precision
   asset__totalSupply
   asset__maturity
-  asset__vaultAddress
   asset__tokenAddress
   yieldToken
   yieldToken__id
@@ -3139,7 +3174,6 @@ enum Vault_orderBy {
   yieldToken__precision
   yieldToken__totalSupply
   yieldToken__maturity
-  yieldToken__vaultAddress
   yieldToken__tokenAddress
   vaultToken
   vaultToken__id
@@ -3157,8 +3191,24 @@ enum Vault_orderBy {
   vaultToken__precision
   vaultToken__totalSupply
   vaultToken__maturity
-  vaultToken__vaultAddress
   vaultToken__tokenAddress
+  accountingAsset
+  accountingAsset__id
+  accountingAsset__firstUpdateBlockNumber
+  accountingAsset__firstUpdateTimestamp
+  accountingAsset__firstUpdateTransactionHash
+  accountingAsset__lastUpdateBlockNumber
+  accountingAsset__lastUpdateTimestamp
+  accountingAsset__lastUpdateTransactionHash
+  accountingAsset__tokenType
+  accountingAsset__tokenInterface
+  accountingAsset__name
+  accountingAsset__symbol
+  accountingAsset__decimals
+  accountingAsset__precision
+  accountingAsset__totalSupply
+  accountingAsset__maturity
+  accountingAsset__tokenAddress
   feeRate
   strategyType
   withdrawRequestManagers
@@ -3363,7 +3413,6 @@ enum WithdrawRequestManager_orderBy {
   yieldToken__precision
   yieldToken__totalSupply
   yieldToken__maturity
-  yieldToken__vaultAddress
   yieldToken__tokenAddress
   withdrawToken
   withdrawToken__id
@@ -3381,7 +3430,6 @@ enum WithdrawRequestManager_orderBy {
   withdrawToken__precision
   withdrawToken__totalSupply
   withdrawToken__maturity
-  withdrawToken__vaultAddress
   withdrawToken__tokenAddress
   stakingToken
   stakingToken__id
@@ -3399,7 +3447,6 @@ enum WithdrawRequestManager_orderBy {
   stakingToken__precision
   stakingToken__totalSupply
   stakingToken__maturity
-  stakingToken__vaultAddress
   stakingToken__tokenAddress
   approvedVaults
   withdrawRequests

@@ -31,7 +31,9 @@ query AccountTransactionHistory($accountId: String!, $skip: Int!) {
     balanceSnapshot {
       balance {
         token {
-          vaultAddress
+          vaultAddress {
+            id
+          }
         }
       }
     }

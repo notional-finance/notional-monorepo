@@ -20,7 +20,7 @@ import { defaultAbiCoder } from '@ethersproject/abi';
 import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
 import { APYData } from '../models/views/YieldViews';
 import { registerTokensMap } from '../exchanges/default-pools';
-import { parseBalanceStatement } from '../client/accounts/balance-statement';
+import { BalanceStatementReturnType } from '../client/accounts/balance-statement';
 
 export interface PendlePTVaultParams extends BaseVaultParams {
   marketAddress: string;
@@ -504,7 +504,7 @@ export class PendlePT extends VaultAdapter {
   }
 
   override getAdditionalAccruedInterest(
-    statement: ReturnType<typeof parseBalanceStatement>
+    statement: BalanceStatementReturnType
   ): TokenBalance {
     const model = getNetworkModel(this.network);
     const timeSinceLastSnapshot = getNowSeconds() - statement.timestamp;
@@ -515,20 +515,19 @@ export class PendlePT extends VaultAdapter {
         ? timeSinceLastSnapshot
         : timeToExpiryBefore;
 
-    const tokenOutSy = model.getTokenByID(this.tokenOutSy);
+    const accountingAsset = model.getTokenByID(statement.accountingAssetId);
     // This is in PT token precision but we need to scale it back to the tokenOutSy
     // precision and the FX it back to the borrowed token precision
-
     const additionalAccruedInterest = TokenBalance.from(
       statement.lastInterestAccumulator
         .mul(interestAccrueTime)
         .div(timeToExpiryBefore)
-        .mul(BigNumber.from(10).pow(tokenOutSy.decimals))
+        .mul(BigNumber.from(10).pow(accountingAsset.decimals))
         .div(BigNumber.from(10).pow(this.market.ptToken.decimals)),
-      tokenOutSy
+      accountingAsset
     );
 
-    return additionalAccruedInterest.toToken(this.borrowedToken);
+    return additionalAccruedInterest;
   }
 
   override async getDepositParameters(

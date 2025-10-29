@@ -11,7 +11,9 @@ query AllTokens($skip: Int) {
     decimals
     totalSupply
     maturity
-    vaultAddress
+    vaultAddress {
+      id
+    }
     tokenAddress
     totalSupply
   }

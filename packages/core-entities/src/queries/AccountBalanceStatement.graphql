@@ -7,6 +7,11 @@ query AccountBalanceStatement($accountId: ID!) {
         underlying {
           id
         }
+        vaultAddress {
+          accountingAsset {
+            id
+          }
+        }
       }
       withdrawRequest {
         id
