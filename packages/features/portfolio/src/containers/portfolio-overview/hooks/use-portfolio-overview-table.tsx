@@ -319,7 +319,11 @@ function formatVaultHoldings(
     },
     {
       label: <FormattedMessage defaultMessage={'Strategy APY'} />,
-      value: formatNumberAsPercent(apyData?.assetAPY || 0, 2),
+      // This includes the fee apy
+      value: formatNumberAsPercent(
+        apyData?.unleveragedAssetAPY?.totalAPY || 0,
+        2
+      ),
     },
     {
       label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
