@@ -61,6 +61,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   totalDebt: NotionalTypes.TokenBalance,
   underlying: types.string,
   maxLeverageRatio: types.number,
+  isInCooldown: types.boolean,
   apyData: types.maybe(APYDataModel),
   leverageRatio: types.number,
   amountPaid: NotionalTypes.TokenBalance,

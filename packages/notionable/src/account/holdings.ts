@@ -105,6 +105,7 @@ export function calculateVaultHoldings(
       healthFactor: v.healthFactor(),
       totalAssets: v.totalAssets(),
       totalDebt: v.totalDebt(),
+      isInCooldown: v.isInCooldown,
       maxLeverageRatio,
       apyData: createLeveragedAPYData(vaultYield, debtAPY, leverageRatio),
       impliedFixedRate: debtPnL?.impliedFixedRate,

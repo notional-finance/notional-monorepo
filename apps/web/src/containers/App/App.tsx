@@ -1,8 +1,17 @@
-import { useEffect } from 'react';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useEffect, useState } from 'react';
+import {
+  useSelectedNetwork,
+  useWalletStore,
+} from '@notional-finance/notionable-hooks';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { Web3OnboardProvider } from '@web3-onboard/react';
-import { Routes, Route, Navigate, useParams } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+  useNavigate,
+} from 'react-router-dom';
 import { ServerError } from '../ServerError/server-error';
 import RouteContainer from './RouteContainer';
 import AppLayoutRoute from './AppLayoutRoute';
@@ -53,6 +62,18 @@ const RedirectToDefaultNetwork = () => {
 
 const AllRoutes = observer(() => {
   const appStore = useAppStore();
+  const walletStore = useWalletStore();
+  const navigate = useNavigate();
+  const [didRedirect, setDidRedirect] = useState(false);
+
+  useEffect(() => {
+    if (walletStore.isBetaUser && !didRedirect) {
+      setDidRedirect(true);
+      navigate('/');
+    } else if (!didRedirect) {
+      navigate('/exponent-beta');
+    }
+  }, [walletStore, navigate, didRedirect]);
 
   useEffect(() => {
     const models = initializeTokenBalanceRegistry();

@@ -291,6 +291,7 @@ const LandingPageInjectContent = ({
   blogPosts: any;
 }) => {
   const shadowEl = useRef<Element>();
+  const navigate = useNavigate();
 
   const containerRef = useStartInject(
     '6807f00cedf01dce8388f197',
@@ -370,6 +371,17 @@ const LandingPageInjectContent = ({
       if (blogPosts && blogPosts.length === 2 && shadowEl.current) {
         fillInBlogPost('left', blogPosts[0] as PostOrPage);
         fillInBlogPost('right', blogPosts[1] as PostOrPage);
+      }
+
+      const launchAppButtons =
+        shadow.shadowRoot?.querySelectorAll('.launch-app');
+      if (launchAppButtons) {
+        launchAppButtons.forEach((launchAppButton) => {
+          launchAppButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigate('/vaults');
+          });
+        });
       }
 
       const newsletterInput: HTMLInputElement | undefined | null =
