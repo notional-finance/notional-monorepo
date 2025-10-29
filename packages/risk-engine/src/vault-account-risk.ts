@@ -225,10 +225,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     const totalAssets = this.totalAssetsRiskAdjusted();
     // The total debt here is assumed to be positive for the calculation but if for some reason it
     // is negative then we would get an underflow somewhere else.
-    return totalDebt.isZero() || totalDebt.isNegative()
-      ? null
-      : totalAssets.sub(totalDebt).ratioWith(totalDebt).toNumber() /
-          RATE_PRECISION;
+    if (totalDebt.isZero() || totalDebt.isNegative()) return null;
+    const _collateralRatio = totalAssets.sub(totalDebt).ratioWith(totalDebt);
+    // This can occur if the total assets is much larger than the total debt and we would
+    // effectively get no leverage.
+    if (_collateralRatio.gt(Number.MAX_SAFE_INTEGER - 1)) return null;
+
+    return _collateralRatio.toNumber() / RATE_PRECISION;
   }
 
   assetLiquidationThreshold(asset: TokenDefinition): TokenBalance | null {
