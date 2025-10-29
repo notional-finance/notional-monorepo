@@ -947,10 +947,13 @@ export const TradeModel = types
       );
       const currentAPY = holdings?.apyData
         ? getSnapshot(holdings?.apyData)
-        : self.collateral
-        ? // If there is no position then use the spot APY, this does not include
-          // any leverage
-          model.getSpotAPY(self.collateral.id)
+        : self.collateral && self.debt
+        ? // If there is no position then use the spot APY with leverage applied
+          model.getLeveragedAPY(
+            TokenBalance.zero(self.collateral as TokenDefinition),
+            TokenBalance.zero(self.debt as TokenDefinition),
+            self.leverageRatio || 0
+          )
         : undefined;
 
       let updatedAPY: APYData | undefined;
