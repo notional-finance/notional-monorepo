@@ -2,7 +2,6 @@ import { Instance } from 'mobx-state-tree';
 import { NetworkModel } from '../NetworkModel';
 import { BigNumber, ethers } from 'ethers';
 import {
-  BASIS_POINT,
   RATE_PRECISION,
   SCALAR_PRECISION,
 } from '@notional-finance/util';
@@ -50,6 +49,20 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     return assertDefined(self.configuration?.withdrawRequestManagers);
   };
 
+  const getLTV = (vault: string, lendingRouter: string) => {
+    const lr = self.configuration?.lendingRouters.find(
+      (lr) => lr.id === lendingRouter
+    );
+    const m = lr?.markets.find((m) => m.vault === vault);
+
+    if (lr?.name === 'Morpho' && m) {
+      const marketParams = decodeMorphoLendingRouterParams(m.params);
+      return marketParams.lltv;
+    } else {
+      throw Error(`Market params for ${vault} on ${lendingRouter} not found`);
+    }
+  };
+
   const getMaxLeverageRatio = (vault: string, lendingRouter: string) => {
     const lr = self.configuration?.lendingRouters.find(
       (lr) => lr.id === lendingRouter
@@ -85,5 +98,6 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     getLendingRouters,
     getWithdrawRequestManagers,
     getMaxLeverageRatio,
+    getLTV,
   };
 };
