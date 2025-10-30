@@ -284,7 +284,7 @@ export type HistoricalOracles = {
 export const PRICE_ORACLES = [
   'sNOTE',
   'Chainlink',
-  'VaultShareOracleRate',
+  'VaultFeeAccrualRate',
   'BorrowShareOracleRate',
   'sNOTEToETHExchangeRate',
   'WithdrawTokenExchangeRate',

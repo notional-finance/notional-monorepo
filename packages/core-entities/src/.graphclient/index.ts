@@ -4699,7 +4699,13 @@ export type AllOraclesQueryVariables = Exact<{
 
 export type AllOraclesQuery = { oracles: Array<(
     Pick<Oracle, 'id' | 'lastUpdateBlockNumber' | 'lastUpdateTimestamp' | 'decimals' | 'oracleAddress' | 'oracleType' | 'mustInvert' | 'latestRate'>
-    & { base: Pick<Token, 'id' | 'decimals'>, quote: Pick<Token, 'id' | 'decimals'> }
+    & { base: Pick<Token, 'id' | 'decimals'>, quote: (
+      Pick<Token, 'id' | 'decimals'>
+      & { vaultAddress?: Maybe<(
+        Pick<Vault, 'strategyType'>
+        & { yieldToken: Pick<Token, 'id'> }
+      )> }
+    ) }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllOraclesByBlockNumberQueryVariables = Exact<{
@@ -5005,6 +5011,12 @@ export const AllOraclesDocument = gql`
     quote {
       id
       decimals
+      vaultAddress {
+        strategyType
+        yieldToken {
+          id
+        }
+      }
     }
     decimals
     oracleAddress
