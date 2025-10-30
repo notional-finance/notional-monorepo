@@ -162,37 +162,44 @@ export interface OrderType {
   permit: string;
 }
 
-export interface PendleApiResponse {
-  contractCallParams: [
-    string, // router
-    string, // tokenIn
-    string, // netTokenIn
-    {
-      eps: string;
-      guessMax: string;
-      guessMin: string;
-      guessOffchain: string;
-      maxIteration: string;
-    }, // approxParams
-    object, // swapData
-    {
-      epsSkipMarket: string;
-      flashFills: {
-        order: OrderType;
-        signature: string;
-        makingAmount: string;
-      }[];
-      normalFills: {
-        order: OrderType;
-        signature: string;
-        makingAmount: string;
-      }[];
-      optData: string;
-      limitRouter: string;
-    } // limitOrderData
-  ];
-  data: {
-    amountOut: string;
-    priceImpact: number;
-  };
+export interface ConvertResponse {
+  routes: {
+    contractParamInfo: {
+      contractCallParams: [
+        string,
+        string,
+        string,
+        {
+          eps: string;
+          guessMax: string;
+          guessMin: string;
+          guessOffchain: string;
+          maxIteration: string;
+        }, // approxParams
+        object, // swapData
+        {
+          epsSkipMarket: string;
+          flashFills: {
+            order: OrderType;
+            signature: string;
+            makingAmount: string;
+          }[];
+          normalFills: {
+            order: OrderType;
+            signature: string;
+            makingAmount: string;
+          }[];
+          optData: string;
+          limitRouter: string;
+        } // limitOrderData
+      ];
+    };
+    data: {
+      priceImpact: number;
+    };
+    outputs: {
+      amount: string;
+      token: string;
+    }[];
+  }[];
 }

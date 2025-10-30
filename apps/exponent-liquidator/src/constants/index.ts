@@ -32,7 +32,7 @@ export const getContractAddress = (network: Network, contract: keyof typeof CONT
 };
 
 // API URLs
-export const PENDLE_API_URL = 'https://api-v2.pendle.finance/core/v1/sdk';
+export const PENDLE_API_URL = 'https://api-v2.pendle.finance/core/v2/sdk';
 
 // Network mapping for Pendle API
 export const NETWORK_IDS = {

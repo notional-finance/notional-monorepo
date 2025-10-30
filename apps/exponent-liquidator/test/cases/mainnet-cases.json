@@ -31,6 +31,21 @@
         "totalTransactions": 1
       },
       "timeout": 60000
+    },
+    {
+      "name": "OETH/ETH CurveConvex2Token no withdraw request",
+      "description": "successful liquidation of OETH/ETH CurveConvex2Token with no withdraw request",
+      "forkBlock": 23683860,
+      "network": "mainnet",
+      "positions": [
+        ["0xDF5A26554Ecb1a11614dbB34fC156D0adFc95C07", "0x2716561755154Eef59Bc48Eb13712510b27F167F"]
+      ],
+      "expectedResults": {
+        "successfulTransactions": 1,
+        "failedTransactions": 0,
+        "totalTransactions": 1
+      },
+      "timeout": 60000
     }
   ]
 }

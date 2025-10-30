@@ -1,6 +1,6 @@
-import { ethers } from 'ethers';
+import { BytesLike, ethers } from 'ethers';
 import { Network } from '@notional-finance/util';
-import { VaultConfig, VaultType, TokenPrice, PendleApiResponse } from '../types';
+import { VaultConfig, VaultType, TokenPrice, ConvertResponse } from '../types';
 import { PENDLE_API_URL, NETWORK_IDS, LIMIT_ORDER_TYPE, TRADE_TYPE } from '../constants';
 
 /**
@@ -190,7 +190,6 @@ export async function generatePendlePTRedeemData(
     if (vaultConfig.marketAddress && vaultConfig.ptAddress) {
       limitOrderData = await fetchPendleLimitOrderData(
         network,
-        vaultConfig.marketAddress,
         vaultConfig.ptAddress,
         vaultConfig.yieldToken, // tokenOutSy
         vaultConfig.address, // vault address as receiver
@@ -257,7 +256,6 @@ export async function generatePendlePTRedeemData(
  */
 async function fetchPendleLimitOrderData(
   network: Network,
-  marketAddress: string,
   ptAddress: string,
   tokenOutSy: string,
   receiver: string,
@@ -271,7 +269,7 @@ async function fetchPendleLimitOrderData(
       return '0x';
     }
     
-    const apiUrl = `${PENDLE_API_URL}/${networkId}/markets/${marketAddress}/swap?receiver=${receiver}&slippage=${slippage}&enableAggregator=false&tokenIn=${ptAddress}&tokenOut=${tokenOutSy}&amountIn=${amountIn.toString()}`;
+    const apiUrl = `${PENDLE_API_URL}/${networkId}/convert?receiver=${receiver}&slippage=${slippage}&enableAggregator=false&tokensIn=${ptAddress}&tokensOut=${tokenOutSy}&amountsIn=${amountIn.toString()}`;
     
     console.log(`Fetching Pendle limit order data from: ${apiUrl}`);
     
@@ -282,22 +280,23 @@ async function fetchPendleLimitOrderData(
       return '0x';
     }
     
-    const data: PendleApiResponse = await response.json();
+    let pendleData: BytesLike = '0x';
     
-    // Check if there are any fills to encode
-    const limitOrderParams = data.contractCallParams[5];
+    const data: ConvertResponse = await response.json();
     if (
-      limitOrderParams.normalFills.length > 0 ||
-      limitOrderParams.flashFills.length > 0
+      data.routes[0].contractParamInfo.contractCallParams[5].normalFills
+        .length > 0 ||
+      data.routes[0].contractParamInfo.contractCallParams[5].flashFills
+        .length > 0
     ) {
-      // Encode the limit order data if there are normal or flash fills
-      return ethers.utils.defaultAbiCoder.encode(
+      // Only encode the limit order data if there are normal or flash fills
+      pendleData = ethers.utils.defaultAbiCoder.encode(
         [LIMIT_ORDER_TYPE],
-        [limitOrderParams]
+        [data.routes[0].contractParamInfo.contractCallParams[5]]
       );
-    }
-    
-    return '0x';
+    } 
+
+    return pendleData;
     
   } catch (error) {
     console.error('Error fetching Pendle limit order data:', error);
@@ -341,8 +340,8 @@ export function generateCurveConvex2TokenRedeemData(
     
     // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
-      ['uint256[]', 'tuple(uint256,uint16,uint8,uint256,bytes)[]'],
-      [minAmounts, redemptionTrades]
+      ['tuple(uint256[] minAmounts, tuple(uint256,uint16,uint8,uint256,bytes)[] redemptionTrades)'],
+      [{ minAmounts, redemptionTrades }]
     );
     
     return redeemParams;
@@ -421,8 +420,8 @@ export function generateCurveConvex2TokenRedeemData(
     // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
     // TradeParams struct: (uint256 tradeAmount, uint16 dexId, uint8 tradeType, uint256 minPurchaseAmount, bytes exchangeData)
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
-      ['uint256[]', 'tuple(uint256,uint16,uint8,uint256,bytes)[]'],
-      [minAmounts, redemptionTrades]
+      ['tuple(uint256[]', 'tuple(uint256,uint16,uint8,uint256,bytes)[])'],
+      [{ minAmounts, redemptionTrades }]
     );
     
     return redeemParams;
