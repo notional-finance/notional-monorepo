@@ -8,6 +8,7 @@ export const INTERNAL_TOKEN_DECIMALS = 8;
 export const RATE_PRECISION = 1e9;
 export const RATE_DECIMALS = 9;
 export const SCALAR_PRECISION = BigNumber.from(10).pow(18);
+export const SHARE_PRECISION = BigNumber.from(10).pow(24);
 export const SCALAR_DECIMALS = 18;
 export const ZERO_ADDRESS = ethers.constants.AddressZero;
 export const BASIS_POINT = 1e5;
