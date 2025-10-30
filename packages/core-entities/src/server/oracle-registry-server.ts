@@ -10,6 +10,7 @@ import {
   getNowSeconds,
   Network,
   SCALAR_PRECISION,
+  SHARE_PRECISION,
   sNOTE,
   WETHAddress,
   ZERO_ADDRESS,
@@ -391,7 +392,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               provider
             ),
             method: 'convertSharesToYieldToken',
-            args: [SCALAR_PRECISION],
+            args: [SHARE_PRECISION],
             transform: (r: BigNumber) => ({ rate: r }),
           };
         } else if (oracle.oracleType === 'BorrowShareOracleRate') {
