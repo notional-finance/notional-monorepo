@@ -36,7 +36,7 @@ const FILL_ORDER_PARAMS_TYPE = `tuple(${ORDER_TYPE} order, bytes signature, uint
 const LIMIT_ORDER_TYPE = `tuple(address limitRouter, uint256 epsSkipMarket, ${FILL_ORDER_PARAMS_TYPE}[] normalFills, ${FILL_ORDER_PARAMS_TYPE}[] flashFills, bytes optData)`;
 const PENDLE_DATA_TYPE = `tuple(uint256 minPtOut, ${APPROX_PARAMS_TYPE} approxParams, ${LIMIT_ORDER_TYPE} limitOrderData)`;
 
-interface ConvertResponse {
+interface ConvertResponseBuyPT {
   routes: {
     contractParamInfo: {
       contractCallParams: [
@@ -51,6 +51,41 @@ interface ConvertResponse {
           maxIteration: string;
         }, // approxParams
         object, // swapData
+        {
+          epsSkipMarket: string;
+          flashFills: {
+            order: OrderType;
+            signature: string;
+            makingAmount: string;
+          }[];
+          normalFills: {
+            order: OrderType;
+            signature: string;
+            makingAmount: string;
+          }[];
+          optData: string;
+          limitRouter: string;
+        } // limitOrderData
+      ];
+    };
+    data: {
+      priceImpact: number;
+    };
+    outputs: {
+      amount: string;
+      token: string;
+    }[];
+  }[];
+}
+
+interface ConvertResponseSellPT {
+  routes: {
+    contractParamInfo: {
+      contractCallParams: [
+        string, // receiver
+        string, // market
+        string, // exactPTIn
+        object, // output (token info)
         {
           epsSkipMarket: string;
           flashFills: {
@@ -579,7 +614,7 @@ export class PendlePT extends VaultAdapter {
           this.market.ptToken.address
         }&amountsIn=${minSYPurchaseAmount.n.toString()}`
       );
-      const data: ConvertResponse = await response.json();
+      const data: ConvertResponseBuyPT = await response.json();
       minPtOut = BigNumber.from(
         data.routes[0].contractParamInfo.contractCallParams[2] as string
       );
@@ -671,17 +706,17 @@ export class PendlePT extends VaultAdapter {
 
     let pendleData: BytesLike = '0x';
     try {
-      const data: ConvertResponse = await response.json();
+      const data: ConvertResponseSellPT = await response.json();
       if (
-        data.routes[0].contractParamInfo.contractCallParams[5].normalFills
+        data.routes[0].contractParamInfo.contractCallParams[4].normalFills
           .length > 0 ||
-        data.routes[0].contractParamInfo.contractCallParams[5].flashFills
+        data.routes[0].contractParamInfo.contractCallParams[4].flashFills
           .length > 0
       ) {
         // Only encode the limit order data if there are normal or flash fills
         pendleData = defaultAbiCoder.encode(
           [LIMIT_ORDER_TYPE],
-          [data.routes[0].contractParamInfo.contractCallParams[5]]
+          [data.routes[0].contractParamInfo.contractCallParams[4]]
         );
       }
 
