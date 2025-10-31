@@ -169,13 +169,6 @@ export interface ConvertResponse {
         string,
         string,
         string,
-        {
-          eps: string;
-          guessMax: string;
-          guessMin: string;
-          guessOffchain: string;
-          maxIteration: string;
-        }, // approxParams
         object, // swapData
         {
           epsSkipMarket: string;

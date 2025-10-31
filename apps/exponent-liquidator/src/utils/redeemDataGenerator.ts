@@ -2,6 +2,7 @@ import { BytesLike, ethers } from 'ethers';
 import { Network } from '@notional-finance/util';
 import { VaultConfig, VaultType, TokenPrice, ConvertResponse } from '../types';
 import { PENDLE_API_URL, NETWORK_IDS, LIMIT_ORDER_TYPE, TRADE_TYPE } from '../constants';
+import { json } from 'stream/consumers';
 
 /**
  * Calculate minPurchaseAmount based on token prices and slippage
@@ -25,9 +26,10 @@ function calculateMinPurchaseAmount(
   }
   
   // pairPrice = sellTokenPrice * buyTokenPrice / 1e18
-  const pairPrice = buyTokenPrice.price.mul(ethers.utils.parseUnits('1', 18)).div(sellTokenPrice.price);
+  const pairPrice = sellTokenPrice.price.mul(ethers.utils.parseUnits('1', 18)).div(buyTokenPrice.price);
 
   console.log('pairPrice:', pairPrice.toString());
+  console.log('sellTokenAmount:', sellTokenAmount.toString());
   
   // buyTokenAmountSellTokenPrecision = sellTokenAmount * pairPrice / 1e18
   const buyTokenAmountSellTokenPrecision = sellTokenAmount.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
@@ -64,6 +66,11 @@ export async function generateRedeemData(
 ): Promise<string> {
   const { vaultType } = vaultConfig;
   console.log('🏗️  Vault type:', vaultType);
+  console.log('🏗️  Vault config:', JSON.stringify({
+    ...vaultConfig,
+    shareToYieldTokenExchangeRate: vaultConfig.shareToYieldTokenExchangeRate?.toString(),
+    liquidationIncentiveFactor: vaultConfig.liquidationIncentiveFactor?.toString()
+  }, null, 2));
 
   switch (vaultType) {
     case VaultType.Staking:
@@ -191,7 +198,7 @@ export async function generatePendlePTRedeemData(
       limitOrderData = await fetchPendleLimitOrderData(
         network,
         vaultConfig.ptAddress,
-        vaultConfig.yieldToken, // tokenOutSy
+        vaultConfig.tokenOutSy || '', // tokenOutSy
         vaultConfig.address, // vault address as receiver
         yieldTokenAmount,
         vaultConfig.ptSlippageLimit || 0.001
@@ -281,18 +288,21 @@ async function fetchPendleLimitOrderData(
     }
     
     let pendleData: BytesLike = '0x';
+
+    
     
     const data: ConvertResponse = await response.json();
+    console.log('data:', JSON.stringify(data.routes[0].contractParamInfo.contractCallParams[4]));
     if (
-      data.routes[0].contractParamInfo.contractCallParams[5].normalFills
+      data.routes[0].contractParamInfo.contractCallParams[4].normalFills
         .length > 0 ||
-      data.routes[0].contractParamInfo.contractCallParams[5].flashFills
+      data.routes[0].contractParamInfo.contractCallParams[4].flashFills
         .length > 0
     ) {
       // Only encode the limit order data if there are normal or flash fills
       pendleData = ethers.utils.defaultAbiCoder.encode(
         [LIMIT_ORDER_TYPE],
-        [data.routes[0].contractParamInfo.contractCallParams[5]]
+        [data.routes[0].contractParamInfo.contractCallParams[4]]
       );
     } 
 

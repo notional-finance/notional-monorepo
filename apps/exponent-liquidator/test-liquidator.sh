@@ -2,14 +2,13 @@
 
 # Configuration - Update these values as needed
 FORK_URL="https://eth-mainnet.g.alchemy.com/v2/pq08EwFvymYFPbDReObtP-SFw3bCes8Z"
-FORK_BLOCK_NUMBER="23670400"  # Update to your desired block
+FORK_BLOCK_NUMBER="23692000"  # Update to your desired block
 WRANGLER_URL="http://localhost:8787"
 ANVIL_PORT="8545"
 
 # Sample positions for testing - Update with real accounts/vaults
 POSITIONS='[
-  ["0x9299B176bFd1CaBB967ac2A027814FAad8782BA7", "0xAf14d06A65C91541a5b2db627eCd1c92d7d9C48B"],
-  ["0xDF5A26554Ecb1a11614dbB34fC156D0adFc95C07", "0x7f723feE1E65A7d26bE51A05AF0B5eFEE4a7d5ae"]
+  ["0x9299B176bFd1CaBB967ac2A027814FAad8782BA7", "0x0e61e810f0918081cbfd2ac8c97e5866daf3f622"]
 ]'
 
 echo "🔗 Starting Anvil fork..."

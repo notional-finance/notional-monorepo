@@ -21,6 +21,14 @@ export const VaultDefaultDexParameters = {
     '0x2716561755154eef59bc48eb13712510b27f167f': {
       dexId: DexIds.CURVE_V2,
     },
+    '0x0e61e810f0918081cbfd2ac8c97e5866daf3f622': {
+      dexId: DexIds.CURVE_V2,
+      redeemExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7', 0, 1]
+      ),
+      redeemPoolAddress: '0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7',
+    },
   },
   [Network.arbitrum]: {
     // Arbitrum vault configurations
@@ -36,6 +44,11 @@ export const VaultLiquidationSettings = {
       ptSlippageLimit: DEFAULT_PT_SLIPPAGE_LIMIT,
     },
     '0x2716561755154eef59bc48eb13712510b27f167f': {
+      liquidateYieldTokens: true,
+      slippageLimit: DEFAULT_SLIPPAGE_LIMIT,
+      ptSlippageLimit: DEFAULT_PT_SLIPPAGE_LIMIT,
+    },
+    '0x0e61e810f0918081cbfd2ac8c97e5866daf3f622': {
       liquidateYieldTokens: true,
       slippageLimit: DEFAULT_SLIPPAGE_LIMIT,
       ptSlippageLimit: DEFAULT_PT_SLIPPAGE_LIMIT,
