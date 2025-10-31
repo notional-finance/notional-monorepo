@@ -44,7 +44,6 @@ const keysToUse = {
   [Address.UniV3WrappedFlashLender_ARBITRUM]: Key.liquidation,
   [Address.CamelotWrappedFlashLender_ARBITRUM]: Key.liquidation,
   [Address.exponentLiquidator_MAINNET]: Key.liquidation,
-  [Address.exponentLiquidatorV2_MAINNET]: Key.liquidation,
 };
 
 const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
@@ -68,7 +67,6 @@ const whitelist: Record<Network, Partial<Record<string, Sign[]>>> = {
     [Address.BalancerWrappedFlashLender_MAINNET]: [Sign.flash],
     [Address.UniV3WrappedFlashLender_MAINNET]: [Sign.flash],
     [Address.exponentLiquidator_MAINNET]: [Sign.flashLiquidateExponent],
-    [Address.exponentLiquidatorV2_MAINNET]: [Sign.flashLiquidateExponentV2],
   },
   arbitrum: {
     [Address.AaveFlashLiquidator_ARBITRUM]: [Sign.flashLiquidate],
@@ -120,7 +118,6 @@ function getTxType({ signature }: { signature: Sign }) {
       Sign.flashLoan,
       Sign.flashLiquidate,
       Sign.flashLiquidateExponent,
-      Sign.flashLiquidateExponentV2,
     ].includes(signature)
   ) {
     return 'liquidation';
