@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import ExponentLiquidator from '../src/ExponentLiquidator';
 import { Network } from '@notional-finance/util';
 import { LiquidationTestCase, TestResult, TestSuite, TestReport } from './types';
-import { ForkManager, validateTestResult } from './utils';
+import { ForkManager, validateTestResult, ensureFlashLiquidatorDeployed } from './utils';
 import { VaultRegistry } from '../src/utils/vaultRegistry';
 
 async function loadDevVars(): Promise<Record<string, string>> {
@@ -62,18 +62,20 @@ export class LiquidationTestRunner {
     try {
       // Start fork at specified block
       const provider = await this.forkManager.startFork(forkBlock, testCase.network);
-      
+
       // Load secrets from .dev.vars
       const devVars = await loadDevVars();
-      
+
       // Set up environment
+      const flashLiquidatorAddress = testCase.network === 'mainnet'
+        ? '0x3d3DD434c6fd94FBd20e1d0649595Cc7612fFBeB'
+        : '0x3d3DD434c6fd94FBd20e1d0649595Cc7612fFBeB';
+
       const env = {
-        MORPHO_LENDING_ROUTER_ADDRESS: testCase.network === 'mainnet' 
+        MORPHO_LENDING_ROUTER_ADDRESS: testCase.network === 'mainnet'
           ? '0x9a0c630c310030c4602d1a76583a3b16972ecaa0'
           : '0x9a0c630c310030c4602d1a76583a3b16972ecaa0',
-        FLASH_LIQUIDATOR_ADDRESS: testCase.network === 'mainnet'
-          ? '0x65b4ede768852C0359bAc066eC65CD2e1767eE75'
-          : '0x65b4ede768852C0359bAc066eC65CD2e1767eE75',
+        FLASH_LIQUIDATOR_ADDRESS: flashLiquidatorAddress,
         TRADING_MODULE_ADDRESS: testCase.network === 'mainnet'
           ? '0x594734c7e06C3D483466ADBCe401C6Bd269746C8'
           : '0x594734c7e06C3D483466ADBCe401C6Bd269746C8',
@@ -83,6 +85,9 @@ export class LiquidationTestRunner {
         HYPERNATIVE_CLIENT_ID: devVars.HYPERNATIVE_CLIENT_ID || 'test-id',
         HYPERNATIVE_CLIENT_SECRET: devVars.HYPERNATIVE_CLIENT_SECRET || 'test-secret'
       };
+
+      // Ensure flash liquidator contract exists on fork
+      await ensureFlashLiquidatorDeployed(provider, flashLiquidatorAddress, testCase.network);
 
       // Initialize vault registry with unique vault addresses
       const uniqueVaultAddresses = [

@@ -12,10 +12,8 @@ program
   .version('1.0.0');
 
 program
-  .command('single')
+  .command('single <suite-file> <test-name>')
   .description('Run a single test case by name')
-  .argument('<suite-file>', 'Path to test suite file')
-  .argument('<test-name>', 'Name of the test case to run')
   .option('-b, --fork-block <number>', 'Override fork block number')
   .action(async (suiteFile: string, testName: string, options: any) => {
     const runner = new LiquidationTestRunner();
@@ -46,9 +44,8 @@ program
   });
 
 program
-  .command('suite')
+  .command('suite <suite-file>')
   .description('Run entire test suite')
-  .argument('<suite-file>', 'Path to test suite file')
   .option('-b, --fork-block <number>', 'Override fork block number for all tests')
   .action(async (suiteFile: string, options: any) => {
     const runner = new LiquidationTestRunner();
@@ -72,9 +69,8 @@ program
   });
 
 program
-  .command('list')
+  .command('list <suite-file>')
   .description('List all test cases in a suite')
-  .argument('<suite-file>', 'Path to test suite file')
   .action(async (suiteFile: string) => {
     const runner = new LiquidationTestRunner();
     
