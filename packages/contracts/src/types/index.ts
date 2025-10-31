@@ -41,6 +41,7 @@ export type { TradingModule } from "./TradingModule";
 export type { TreasuryManager } from "./TreasuryManager";
 export type { VaultLiquidator } from "./VaultLiquidator";
 export type { ExponentFlashLiquidator } from "./ExponentFlashLiquidator";
+export type { ExponentFlashLiquidatorV2 } from "./ExponentFlashLiquidatorV2";
 export type { NTokenERC20 } from "./NTokenERC20";
 export type { SNOTE } from "./SNOTE";
 export * as factories from "./factories";
