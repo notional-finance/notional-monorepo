@@ -18,8 +18,8 @@ import { MorphoRouterIntegration } from './utils/morphoRouter';
 import { getWithdrawRequestData } from './utils/withdrawRequestData';
 import { VaultRegistry } from './utils/vaultRegistry';
 import {
-  ExponentFlashLiquidator,
-  ExponentFlashLiquidatorABI,
+  ExponentFlashLiquidatorV2,
+  ExponentFlashLiquidatorV2ABI,
   TradingModule,
   TradingModuleABI,
 } from '@notional-finance/contracts';
@@ -47,7 +47,7 @@ export default class ExponentLiquidator {
   private logger: LiquidatorLogger;
   private vaultRegistry: VaultRegistry;
   private positions: Position[];
-  private flashLiquidator: ExponentFlashLiquidator;
+  private flashLiquidator: ExponentFlashLiquidatorV2;
   private tradingModule: TradingModule;
   private network: Network;
   private environment: 'development' | 'production';
@@ -71,9 +71,9 @@ export default class ExponentLiquidator {
     this.logger = new LiquidatorLogger(env);
     this.flashLiquidator = new ethers.Contract(
       env.FLASH_LIQUIDATOR_ADDRESS,
-      ExponentFlashLiquidatorABI,
+      ExponentFlashLiquidatorV2ABI,
       this.provider
-    ) as ExponentFlashLiquidator;
+    ) as ExponentFlashLiquidatorV2;
     this.tradingModule = new ethers.Contract(
       env.TRADING_MODULE_ADDRESS,
       TradingModuleABI,
@@ -185,7 +185,7 @@ export default class ExponentLiquidator {
     liquidationIncentiveFactor: ethers.BigNumber
   ): { 
     collateralSharesToSeize: ethers.BigNumber[]; 
-    borrowSharesToRepay: ethers.BigNumber[];
+    isMaxLiquidate: boolean[];
     totalCollateralSharesSeized: ethers.BigNumber;
   } {
     let totalCollateralSharesSeized = ethers.BigNumber.from(0);
@@ -213,20 +213,20 @@ export default class ExponentLiquidator {
         totalCollateralSharesSeized = totalCollateralSharesSeized.add(position.collateralShares);
         return {
           collateralSharesToSeize: position.collateralShares,
-          borrowSharesToRepay: ethers.BigNumber.from(0)
+          isMaxLiquidate: false
         };
       } else {
         totalCollateralSharesSeized = totalCollateralSharesSeized.add(theoreticalSeizableCollateralShares);
         return {
-          collateralSharesToSeize: theoreticalSeizableCollateralShares.sub(ethers.BigNumber.from(1000000)),
-          borrowSharesToRepay: ethers.BigNumber.from(0)
+          collateralSharesToSeize: theoreticalSeizableCollateralShares,
+          isMaxLiquidate: true
         };
       }
     });
 
     return {
       collateralSharesToSeize: results.map(r => r.collateralSharesToSeize),
-      borrowSharesToRepay: results.map(r => r.borrowSharesToRepay),
+      isMaxLiquidate: results.map(r => r.isMaxLiquidate),
       totalCollateralSharesSeized
     };
   }
@@ -365,7 +365,7 @@ export default class ExponentLiquidator {
       vaultAddress: string;
       liquidateAccounts: string[];
       collateralSharesToSeize: ethers.BigNumber[];
-      borrowSharesToRepay: ethers.BigNumber[];
+      isMaxLiquidate: boolean[];
       assetsToBorrow: ethers.BigNumber;
       redeemData: string;
       totalCollateralSharesSeized: ethers.BigNumber;
@@ -375,7 +375,7 @@ export default class ExponentLiquidator {
       vaultAddress: string;
       liquidateAccounts: string[];
       collateralSharesToSeize: ethers.BigNumber[];
-      borrowSharesToRepay: ethers.BigNumber[];
+      isMaxLiquidate: boolean[];
       assetsToBorrow: ethers.BigNumber;
       redeemData: string;
       totalCollateralSharesSeized: ethers.BigNumber;
@@ -415,7 +415,7 @@ export default class ExponentLiquidator {
     vaultAddress: string;
     liquidateAccounts: string[];
     collateralSharesToSeize: ethers.BigNumber[];
-    borrowSharesToRepay: ethers.BigNumber[];
+    isMaxLiquidate: boolean[];
     assetsToBorrow: ethers.BigNumber;
     redeemData: string;
     totalCollateralSharesSeized: ethers.BigNumber;
@@ -437,7 +437,7 @@ export default class ExponentLiquidator {
     // Calculate collateralSharesToSeize and borrowSharesToRepay for each position
     const liquidationResults = this.calculateLiquidationAmounts(positions, vaultConfig.liquidationIncentiveFactor);
     const collateralSharesToSeize = liquidationResults.collateralSharesToSeize;
-    const borrowSharesToRepay = liquidationResults.borrowSharesToRepay;
+    const isMaxLiquidate = liquidationResults.isMaxLiquidate;
     const totalCollateralSharesSeized = liquidationResults.totalCollateralSharesSeized;
 
     // Calculate total assets to borrow (sum of all borrowed amounts + 10% buffer)
@@ -495,7 +495,7 @@ export default class ExponentLiquidator {
       vaultAddress,
       liquidateAccounts,
       collateralSharesToSeize,
-      borrowSharesToRepay,
+      isMaxLiquidate,
       assetsToBorrow,
       redeemData,
       totalCollateralSharesSeized,
@@ -507,7 +507,7 @@ export default class ExponentLiquidator {
       vaultAddress: string;
       liquidateAccounts: string[];
       collateralSharesToSeize: ethers.BigNumber[];
-      borrowSharesToRepay: ethers.BigNumber[];
+      isMaxLiquidate: boolean[];
       assetsToBorrow: ethers.BigNumber;
       redeemData: string;
       totalCollateralSharesSeized: ethers.BigNumber;
@@ -521,7 +521,7 @@ export default class ExponentLiquidator {
           params.vaultAddress,
           params.liquidateAccounts,
           params.collateralSharesToSeize,
-          params.borrowSharesToRepay,
+          params.isMaxLiquidate,
           params.assetsToBorrow,
           params.redeemData
         );
@@ -770,7 +770,7 @@ export default class ExponentLiquidator {
       vaultAddress: string;
       liquidateAccounts: string[];
       collateralSharesToSeize: ethers.BigNumber[];
-      borrowSharesToRepay: ethers.BigNumber[];
+      isMaxLiquidate: boolean[];
       assetsToBorrow: ethers.BigNumber;
       redeemData: string;
       totalCollateralSharesSeized: ethers.BigNumber;
@@ -784,7 +784,7 @@ export default class ExponentLiquidator {
       console.log('🏗️  Liquidation params:', liquidationParams.map(param => ({
         ...param,
         collateralSharesToSeize: param.collateralSharesToSeize.map(shares => shares.toString()),
-        borrowSharesToRepay: param.borrowSharesToRepay.map(shares => shares.toString()),
+        isMaxLiquidate: param.isMaxLiquidate.map(isMax => isMax.toString()),
         assetsToBorrow: param.assetsToBorrow.toString(),
         totalCollateralSharesSeized: param.totalCollateralSharesSeized.toString()
       })));
