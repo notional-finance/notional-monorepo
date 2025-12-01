@@ -19,6 +19,7 @@ export type VaultDataBase = {
   pool?: string;
   primaryBorrowCurrency: string;
   rewardPoolType: RewardPoolType;
+  version: 'v3' | 'v4';
 };
 
 export type VaultData = VaultDataBase & { pool: string };
