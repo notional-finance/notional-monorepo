@@ -6,30 +6,40 @@ export class ForkManager {
   private anvilProcess: any = null;
   private provider: ethers.providers.JsonRpcProvider | null = null;
 
-  async startFork(forkBlock: number, network: 'mainnet' | 'arbitrum'): Promise<ethers.providers.JsonRpcProvider> {
+  async startFork(
+    forkBlock: number,
+    network: 'mainnet' | 'arbitrum'
+  ): Promise<ethers.providers.JsonRpcProvider> {
     // Stop any existing fork
     await this.stopFork();
 
-    const rpcUrl = network === 'mainnet' 
-      ? 'https://eth-mainnet.g.alchemy.com/v2/pq08EwFvymYFPbDReObtP-SFw3bCes8Z'
-      : 'https://arb-mainnet.g.alchemy.com/v2/pq08EwFvymYFPbDReObtP-SFw3bCes8Z';
+    const rpcUrl =
+      network === 'mainnet'
+        ? 'https://eth-mainnet.g.alchemy.com/v2/pq08EwFvymYFPbDReObtP-SFw3bCes8Z'
+        : 'https://arb-mainnet.g.alchemy.com/v2/pq08EwFvymYFPbDReObtP-SFw3bCes8Z';
 
     console.log(`🔧 Starting fork at block ${forkBlock} on ${network}...`);
 
     return new Promise((resolve, reject) => {
       this.anvilProcess = spawn('anvil', [
-        '--fork-url', rpcUrl,
-        '--fork-block-number', forkBlock.toString(),
-        '--port', '8545',
-        '--host', '0.0.0.0'
+        '--fork-url',
+        rpcUrl,
+        '--fork-block-number',
+        forkBlock.toString(),
+        '--port',
+        '8545',
+        '--host',
+        '0.0.0.0',
       ]);
 
       this.anvilProcess.stdout.on('data', (data: Buffer) => {
         const output = data.toString();
         console.log(`anvil: ${output}`);
-        
+
         if (output.includes('Listening on')) {
-          this.provider = new ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
+          this.provider = new ethers.providers.JsonRpcProvider(
+            'http://127.0.0.1:8545'
+          );
           resolve(this.provider);
         }
       });
@@ -57,9 +67,9 @@ export class ForkManager {
       this.anvilProcess.kill();
       this.anvilProcess = null;
       this.provider = null;
-      
+
       // Wait for process to fully stop
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }
 
@@ -69,8 +79,10 @@ export class ForkManager {
 }
 
 export function validateTestResult(expected: any, actual: any): boolean {
-  if (expected.totalTransactions !== undefined &&
-      expected.totalTransactions !== actual.totalTransactions) {
+  if (
+    expected.totalTransactions !== undefined &&
+    expected.totalTransactions !== actual.totalTransactions
+  ) {
     return false;
   }
 
@@ -78,8 +90,10 @@ export function validateTestResult(expected: any, actual: any): boolean {
     return false;
   }
 
-  if (expected.failedTransactions !== undefined &&
-      expected.failedTransactions !== actual.failedTransactions) {
+  if (
+    expected.failedTransactions !== undefined &&
+    expected.failedTransactions !== actual.failedTransactions
+  ) {
     return false;
   }
 
@@ -105,17 +119,21 @@ export async function contractExists(
 export async function ensureFlashLiquidatorDeployed(
   forkProvider: ethers.providers.JsonRpcProvider,
   flashLiquidatorAddress: string,
-  network: 'mainnet' | 'arbitrum'
+  _network: 'mainnet' | 'arbitrum'
 ): Promise<string> {
   // Check if contract already exists
   const exists = await contractExists(forkProvider, flashLiquidatorAddress);
 
   if (exists) {
-    console.log(`✅ Flash liquidator already exists at ${flashLiquidatorAddress}`);
+    console.log(
+      `✅ Flash liquidator already exists at ${flashLiquidatorAddress}`
+    );
     return flashLiquidatorAddress;
   }
 
-  console.log(`⚠️  Flash liquidator not found at ${flashLiquidatorAddress} on fork`);
+  console.log(
+    `⚠️  Flash liquidator not found at ${flashLiquidatorAddress} on fork`
+  );
   console.log(`🔨 Deploying FlashLiquidatorV2 contract...`);
 
   // Get an anvil test account as signer (anvil provides 10 pre-funded accounts)
@@ -131,7 +149,9 @@ export async function ensureFlashLiquidatorDeployed(
   const deployedContract = await factory.deploy();
   await deployedContract.deployed();
 
-  console.log(`✅ Flash liquidator deployed successfully at ${deployedContract.address}`);
+  console.log(
+    `✅ Flash liquidator deployed successfully at ${deployedContract.address}`
+  );
 
   return deployedContract.address;
 }

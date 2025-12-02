@@ -1,10 +1,18 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { ethers } from 'ethers';
 import ExponentLiquidator from '../src/ExponentLiquidator';
 import { Network } from '@notional-finance/util';
-import { LiquidationTestCase, TestResult, TestSuite, TestReport } from './types';
-import { ForkManager, validateTestResult, ensureFlashLiquidatorDeployed } from './utils';
+import {
+  LiquidationTestCase,
+  TestResult,
+  TestSuite,
+  TestReport,
+} from './types';
+import {
+  ForkManager,
+  validateTestResult,
+  ensureFlashLiquidatorDeployed,
+} from './utils';
 import { VaultRegistry } from '../src/utils/vaultRegistry';
 
 async function loadDevVars(): Promise<Record<string, string>> {
@@ -12,8 +20,8 @@ async function loadDevVars(): Promise<Record<string, string>> {
     const devVarsPath = path.join(__dirname, '../.dev.vars');
     const content = await fs.readFile(devVarsPath, 'utf-8');
     const vars: Record<string, string> = {};
-    
-    content.split('\n').forEach(line => {
+
+    content.split('\n').forEach((line) => {
       const trimmed = line.trim();
       if (trimmed && !trimmed.startsWith('#')) {
         const [key, ...valueParts] = trimmed.split('=');
@@ -22,7 +30,7 @@ async function loadDevVars(): Promise<Record<string, string>> {
         }
       }
     });
-    
+
     return vars;
   } catch (error) {
     console.warn('Could not load .dev.vars file, using test defaults');
@@ -48,11 +56,11 @@ export class LiquidationTestRunner {
   }
 
   async runTestCase(
-    testCase: LiquidationTestCase, 
+    testCase: LiquidationTestCase,
     overrideForkBlock?: number
   ): Promise<TestResult> {
     const forkBlock = overrideForkBlock || testCase.forkBlock;
-    
+
     console.log(`\\n🧪 Running test: ${testCase.name}`);
     console.log(`📝 Description: ${testCase.description}`);
     console.log(`🔗 Fork block: ${forkBlock}`);
@@ -61,15 +69,19 @@ export class LiquidationTestRunner {
 
     try {
       // Start fork at specified block
-      const provider = await this.forkManager.startFork(forkBlock, testCase.network);
+      const provider = await this.forkManager.startFork(
+        forkBlock,
+        testCase.network
+      );
 
       // Load secrets from .dev.vars
       const devVars = await loadDevVars();
 
       // Set up environment
-      const expectedFlashLiquidatorAddress = testCase.network === 'mainnet'
-        ? '0x3d3DD434c6fd94FBd20e1d0649595Cc7612fFBeB'
-        : '0x3d3DD434c6fd94FBd20e1d0649595Cc7612fFBeB';
+      const expectedFlashLiquidatorAddress =
+        testCase.network === 'mainnet'
+          ? '0x3d3DD434c6fd94FBd20e1d0649595Cc7612fFBeB'
+          : '0x3d3DD434c6fd94FBd20e1d0649595Cc7612fFBeB';
 
       // Ensure flash liquidator contract exists on fork (deploys if needed)
       const flashLiquidatorAddress = await ensureFlashLiquidatorDeployed(
@@ -79,18 +91,22 @@ export class LiquidationTestRunner {
       );
 
       const env = {
-        MORPHO_LENDING_ROUTER_ADDRESS: testCase.network === 'mainnet'
-          ? '0x9a0c630c310030c4602d1a76583a3b16972ecaa0'
-          : '0x9a0c630c310030c4602d1a76583a3b16972ecaa0',
+        MORPHO_LENDING_ROUTER_ADDRESS:
+          testCase.network === 'mainnet'
+            ? '0x9a0c630c310030c4602d1a76583a3b16972ecaa0'
+            : '0x9a0c630c310030c4602d1a76583a3b16972ecaa0',
         FLASH_LIQUIDATOR_ADDRESS: flashLiquidatorAddress,
-        TRADING_MODULE_ADDRESS: testCase.network === 'mainnet'
-          ? '0x594734c7e06C3D483466ADBCe401C6Bd269746C8'
-          : '0x594734c7e06C3D483466ADBCe401C6Bd269746C8',
-        NETWORK: testCase.network === 'mainnet' ? Network.mainnet : Network.arbitrum,
+        TRADING_MODULE_ADDRESS:
+          testCase.network === 'mainnet'
+            ? '0x594734c7e06C3D483466ADBCe401C6Bd269746C8'
+            : '0x594734c7e06C3D483466ADBCe401C6Bd269746C8',
+        NETWORK:
+          testCase.network === 'mainnet' ? Network.mainnet : Network.arbitrum,
         DD_API_KEY: devVars.DD_API_KEY || 'test-key',
         TX_RELAY_AUTH_TOKEN: devVars.TX_RELAY_AUTH_TOKEN || 'test-token',
         HYPERNATIVE_CLIENT_ID: devVars.HYPERNATIVE_CLIENT_ID || 'test-id',
-        HYPERNATIVE_CLIENT_SECRET: devVars.HYPERNATIVE_CLIENT_SECRET || 'test-secret'
+        HYPERNATIVE_CLIENT_SECRET:
+          devVars.HYPERNATIVE_CLIENT_SECRET || 'test-secret',
       };
 
       // Initialize vault registry with unique vault addresses
@@ -100,9 +116,9 @@ export class LiquidationTestRunner {
       console.log('🏛️  Initializing vault registry', {
         vaultCount: uniqueVaultAddresses.length,
         vaults: uniqueVaultAddresses,
-        network: testCase.network
+        network: testCase.network,
       });
-      
+
       const vaultRegistry = await VaultRegistry.initialize(
         uniqueVaultAddresses,
         provider,
@@ -127,10 +143,13 @@ export class LiquidationTestRunner {
       const actualResults = {
         successfulTransactions: result.liquidationReport.successfulTransactions,
         failedTransactions: result.liquidationReport.failedTransactions,
-        totalTransactions: result.liquidationReport.totalTransactions
+        totalTransactions: result.liquidationReport.totalTransactions,
       };
 
-      const success = validateTestResult(testCase.expectedResults, actualResults);
+      const success = validateTestResult(
+        testCase.expectedResults,
+        actualResults
+      );
 
       console.log(`✅ Test ${success ? 'PASSED' : 'FAILED'}: ${testCase.name}`);
       console.log(`📊 Expected: ${JSON.stringify(testCase.expectedResults)}`);
@@ -140,9 +159,8 @@ export class LiquidationTestRunner {
         testCase,
         success,
         actualResults,
-        error: success ? undefined : 'Results did not match expected values'
+        error: success ? undefined : 'Results did not match expected values',
       };
-
     } catch (error) {
       console.log(`❌ Test FAILED with error: ${testCase.name}`);
       console.log(`💥 Error: ${error}`);
@@ -153,9 +171,9 @@ export class LiquidationTestRunner {
         actualResults: {
           successfulTransactions: 0,
           failedTransactions: 0,
-          totalTransactions: 0
+          totalTransactions: 0,
         },
-        error: (error as Error).message
+        error: (error as Error).message,
       };
     } finally {
       // Clean up fork
@@ -163,7 +181,10 @@ export class LiquidationTestRunner {
     }
   }
 
-  async runTestSuite(suite: TestSuite, overrideForkBlock?: number): Promise<TestResult[]> {
+  async runTestSuite(
+    suite: TestSuite,
+    overrideForkBlock?: number
+  ): Promise<TestResult[]> {
     console.log(`\\n🚀 Running test suite: ${suite.name}`);
     console.log(`📝 Description: ${suite.description}`);
     console.log(`🧪 Total tests: ${suite.testCases.length}`);
@@ -179,7 +200,7 @@ export class LiquidationTestRunner {
   }
 
   async generateReport(results: TestResult[]): Promise<TestReport> {
-    const passed = results.filter(r => r.success).length;
+    const passed = results.filter((r) => r.success).length;
     const failed = results.length - passed;
 
     const report: TestReport = {
@@ -187,7 +208,7 @@ export class LiquidationTestRunner {
       totalTests: results.length,
       passed,
       failed,
-      testResults: results
+      testResults: results,
     };
 
     console.log(`\\n📊 Test Report Summary:`);
@@ -196,9 +217,11 @@ export class LiquidationTestRunner {
 
     if (failed > 0) {
       console.log(`\\n❌ Failed tests:`);
-      results.filter(r => !r.success).forEach(r => {
-        console.log(`  - ${r.testCase.name}: ${r.error}`);
-      });
+      results
+        .filter((r) => !r.success)
+        .forEach((r) => {
+          console.log(`  - ${r.testCase.name}: ${r.error}`);
+        });
     }
 
     return report;

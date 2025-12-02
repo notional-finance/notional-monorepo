@@ -1,6 +1,11 @@
 import { ethers, BigNumber, Contract } from 'ethers';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
-import { Position, RiskyPosition, HealthFactorData, MarketParams } from '../types';
+import {
+  Position,
+  RiskyPosition,
+  HealthFactorData,
+  MarketParams,
+} from '../types';
 import { MORPHO_LENDING_ROUTER_ABI } from '../abis';
 
 // Math utility functions adapted for BigNumber
@@ -9,7 +14,6 @@ const LIQUIDATION_CURSOR = ethers.utils.parseUnits('0.3', 18); // 3e17
 const MAX_LIQUIDATION_INCENTIVE_FACTOR = ethers.utils.parseUnits('1.15', 18); // 115e16
 
 const min = (a: BigNumber, b: BigNumber): BigNumber => (a.lt(b) ? a : b);
-const max = (a: BigNumber, b: BigNumber): BigNumber => (a.lt(b) ? b : a);
 
 const wMulDown = (x: BigNumber, y: BigNumber): BigNumber => {
   return x.mul(y).div(WAD);
@@ -57,7 +61,11 @@ export class MorphoRouterIntegration {
 
     for (let i = 0; i < pairs.length; i++) {
       const [account, vault] = pairs[i];
-      const healthData = results[`health_${i}`] as [BigNumber, BigNumber, BigNumber];
+      const healthData = results[`health_${i}`] as [
+        BigNumber,
+        BigNumber,
+        BigNumber
+      ];
       const [borrowed, , maxBorrow] = healthData;
 
       healthFactorData.push({
@@ -71,7 +79,9 @@ export class MorphoRouterIntegration {
     return healthFactorData;
   }
 
-  async batchCollateralBalances(positions: RiskyPosition[]): Promise<BigNumber[]> {
+  async batchCollateralBalances(
+    positions: RiskyPosition[]
+  ): Promise<BigNumber[]> {
     const calls: AggregateCall[] = positions.map((position, index) => ({
       stage: 0,
       target: this.morphoRouterContract,
@@ -82,7 +92,9 @@ export class MorphoRouterIntegration {
 
     const { results } = await aggregate(calls, this.provider);
 
-    return positions.map((_, index) => results[`balance_${index}`] as BigNumber);
+    return positions.map(
+      (_, index) => results[`balance_${index}`] as BigNumber
+    );
   }
 
   async batchBorrowShareBalances(positions: Position[]): Promise<BigNumber[]> {
@@ -98,10 +110,14 @@ export class MorphoRouterIntegration {
     const { results } = await aggregate(calls, this.provider);
     console.log('🏗️  Borrow share balance results:', results);
 
-    return positions.map((_, index) => results[`borrowShares_${index}`] as BigNumber);
+    return positions.map(
+      (_, index) => results[`borrowShares_${index}`] as BigNumber
+    );
   }
 
-  async batchLiquidationIncentiveFactors(vaultAddresses: string[]): Promise<Map<string, BigNumber>> {
+  async batchLiquidationIncentiveFactors(
+    vaultAddresses: string[]
+  ): Promise<Map<string, BigNumber>> {
     const calls: AggregateCall[] = vaultAddresses.map((vault, index) => ({
       stage: 0,
       target: this.morphoRouterContract,
@@ -118,8 +134,15 @@ export class MorphoRouterIntegration {
 
     for (let i = 0; i < vaultAddresses.length; i++) {
       const vault = vaultAddresses[i];
-      const marketParamsResult = results[`marketParams_${i}`] as [string, string, string, string, BigNumber];
-      const [loanToken, collateralToken, oracle, irm, lltv] = marketParamsResult;
+      const marketParamsResult = results[`marketParams_${i}`] as [
+        string,
+        string,
+        string,
+        string,
+        BigNumber
+      ];
+      const [loanToken, collateralToken, oracle, irm, lltv] =
+        marketParamsResult;
 
       const marketParams: MarketParams = {
         loanToken,
@@ -132,8 +155,10 @@ export class MorphoRouterIntegration {
       // Calculate liquidation incentive factor using the lltv
       const liquidationIncentiveFactor = incentiveFactor(marketParams.lltv);
       liquidationIncentiveFactors.set(vault, liquidationIncentiveFactor);
-      
-      console.log(`🏗️  Vault ${vault} LLTV: ${marketParams.lltv.toString()}, Incentive Factor: ${liquidationIncentiveFactor.toString()}`);
+
+      console.log(
+        `🏗️  Vault ${vault} LLTV: ${marketParams.lltv.toString()}, Incentive Factor: ${liquidationIncentiveFactor.toString()}`
+      );
     }
 
     return liquidationIncentiveFactors;

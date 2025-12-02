@@ -1,8 +1,12 @@
 import { BytesLike, ethers } from 'ethers';
 import { Network } from '@notional-finance/util';
 import { VaultConfig, VaultType, TokenPrice, ConvertResponse } from '../types';
-import { PENDLE_API_URL, NETWORK_IDS, LIMIT_ORDER_TYPE, TRADE_TYPE } from '../constants';
-import { json } from 'stream/consumers';
+import {
+  PENDLE_API_URL,
+  NETWORK_IDS,
+  LIMIT_ORDER_TYPE,
+  TRADE_TYPE,
+} from '../constants';
 
 /**
  * Calculate minPurchaseAmount based on token prices and slippage
@@ -20,37 +24,51 @@ function calculateMinPurchaseAmount(
 
   console.log('sellTokenPrice:', sellTokenPrice?.price.toString());
   console.log('buyTokenPrice:', buyTokenPrice?.price.toString());
-  
+
   if (!sellTokenPrice || !buyTokenPrice) {
-    throw new Error(`Token prices not found for sellToken: ${sellToken} or buyToken: ${buyToken}`);
+    throw new Error(
+      `Token prices not found for sellToken: ${sellToken} or buyToken: ${buyToken}`
+    );
   }
-  
+
   // pairPrice = sellTokenPrice * buyTokenPrice / 1e18
-  const pairPrice = sellTokenPrice.price.mul(ethers.utils.parseUnits('1', 18)).div(buyTokenPrice.price);
+  const pairPrice = sellTokenPrice.price
+    .mul(ethers.utils.parseUnits('1', 18))
+    .div(buyTokenPrice.price);
 
   console.log('pairPrice:', pairPrice.toString());
   console.log('sellTokenAmount:', sellTokenAmount.toString());
-  
-  // buyTokenAmountSellTokenPrecision = sellTokenAmount * pairPrice / 1e18
-  const buyTokenAmountSellTokenPrecision = sellTokenAmount.mul(pairPrice).div(ethers.utils.parseUnits('1', 18));
 
-  console.log('buyTokenAmountSellTokenPrecision:', buyTokenAmountSellTokenPrecision.toString());
-  
+  // buyTokenAmountSellTokenPrecision = sellTokenAmount * pairPrice / 1e18
+  const buyTokenAmountSellTokenPrecision = sellTokenAmount
+    .mul(pairPrice)
+    .div(ethers.utils.parseUnits('1', 18));
+
+  console.log(
+    'buyTokenAmountSellTokenPrecision:',
+    buyTokenAmountSellTokenPrecision.toString()
+  );
+
   // buyTokenAmountNativePrecision = buyTokenAmountSellTokenPrecision * 1e(buyTokenDecimals) / 1e(sellTokenDecimals)
   const buyTokenAmountNativePrecision = buyTokenAmountSellTokenPrecision
     .mul(ethers.utils.parseUnits('1', buyTokenPrice.decimals))
     .div(ethers.utils.parseUnits('1', sellTokenPrice.decimals));
-  
-  console.log('buyTokenAmountNativePrecision:', buyTokenAmountNativePrecision.toString());
-  
-  // minPurchaseAmount = buyTokenAmountNativePrecision * (1 - slippageLimit)
-  const slippageMultiplier = ethers.utils.parseUnits('1', 18).sub(
-    ethers.utils.parseUnits(slippageLimit.toString(), 18)
+
+  console.log(
+    'buyTokenAmountNativePrecision:',
+    buyTokenAmountNativePrecision.toString()
   );
 
+  // minPurchaseAmount = buyTokenAmountNativePrecision * (1 - slippageLimit)
+  const slippageMultiplier = ethers.utils
+    .parseUnits('1', 18)
+    .sub(ethers.utils.parseUnits(slippageLimit.toString(), 18));
+
   console.log('slippageMultiplier:', slippageMultiplier.toString());
-  const minPurchaseAmount = buyTokenAmountNativePrecision.mul(slippageMultiplier).div(ethers.utils.parseUnits('1', 18));
-  
+  const minPurchaseAmount = buyTokenAmountNativePrecision
+    .mul(slippageMultiplier)
+    .div(ethers.utils.parseUnits('1', 18));
+
   console.log('minPurchaseAmount:', minPurchaseAmount.toString());
   return minPurchaseAmount;
 }
@@ -62,15 +80,24 @@ export async function generateRedeemData(
   network: Network,
   yieldTokenAmount?: ethers.BigNumber,
   primaryWithdrawTokenAmount?: ethers.BigNumber,
-  secondaryWithdrawTokenAmount?: ethers.BigNumber,
+  secondaryWithdrawTokenAmount?: ethers.BigNumber
 ): Promise<string> {
   const { vaultType } = vaultConfig;
   console.log('🏗️  Vault type:', vaultType);
-  console.log('🏗️  Vault config:', JSON.stringify({
-    ...vaultConfig,
-    shareToYieldTokenExchangeRate: vaultConfig.shareToYieldTokenExchangeRate?.toString(),
-    liquidationIncentiveFactor: vaultConfig.liquidationIncentiveFactor?.toString()
-  }, null, 2));
+  console.log(
+    '🏗️  Vault config:',
+    JSON.stringify(
+      {
+        ...vaultConfig,
+        shareToYieldTokenExchangeRate:
+          vaultConfig.shareToYieldTokenExchangeRate?.toString(),
+        liquidationIncentiveFactor:
+          vaultConfig.liquidationIncentiveFactor?.toString(),
+      },
+      null,
+      2
+    )
+  );
 
   switch (vaultType) {
     case VaultType.Staking:
@@ -81,7 +108,7 @@ export async function generateRedeemData(
         primaryWithdrawTokenAmount,
         tokenPrices
       );
-    
+
     case VaultType.PendlePT:
       return await generatePendlePTRedeemData(
         vaultConfig,
@@ -91,7 +118,7 @@ export async function generateRedeemData(
         tokenPrices,
         network
       );
-    
+
     case VaultType.CurveConvex2Token:
       return generateCurveConvex2TokenRedeemData(
         vaultConfig,
@@ -101,9 +128,11 @@ export async function generateRedeemData(
         secondaryWithdrawTokenAmount,
         tokenPrices
       );
-    
+
     default:
-      throw new Error(`Unsupported vault type for withdraw requests: ${vaultType}`);
+      throw new Error(
+        `Unsupported vault type for withdraw requests: ${vaultType}`
+      );
   }
 }
 
@@ -119,15 +148,17 @@ export function generateStakingRedeemData(
   if (dexId === undefined) {
     throw new Error(`DexId not found for vault: ${vaultConfig.address}`);
   }
-  
+
   // Calculate minPurchaseAmount
   let minPurchaseAmount: ethers.BigNumber;
-  
+
   if (!isWithdrawRequestPending) {
     if (!yieldTokenAmount) {
-      throw new Error(`Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`);
+      throw new Error(
+        `Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`
+      );
     }
-    
+
     minPurchaseAmount = calculateMinPurchaseAmount(
       vaultConfig.yieldToken,
       vaultConfig.asset,
@@ -137,13 +168,15 @@ export function generateStakingRedeemData(
     );
   } else {
     if (!primaryWithdrawTokenAmount) {
-      throw new Error(`Primary withdraw token amount not found for vault: ${vaultConfig.address}`);
+      throw new Error(
+        `Primary withdraw token amount not found for vault: ${vaultConfig.address}`
+      );
     }
 
     if (vaultConfig.primaryWithdrawToken === vaultConfig.asset) {
       return '0x';
     }
-    
+
     minPurchaseAmount = calculateMinPurchaseAmount(
       vaultConfig.primaryWithdrawToken,
       vaultConfig.asset,
@@ -154,22 +187,28 @@ export function generateStakingRedeemData(
   }
 
   // Get exchangeData based on withdraw request status
-  const exchangeData = isWithdrawRequestPending 
-    ? vaultConfig.withdrawExchangeData 
+  const exchangeData = isWithdrawRequestPending
+    ? vaultConfig.withdrawExchangeData
     : vaultConfig.redeemExchangeData;
-  
+
   if (!exchangeData) {
-    throw new Error(`Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${isWithdrawRequestPending}`);
+    throw new Error(
+      `Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${isWithdrawRequestPending}`
+    );
   }
-  
+
   // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
-  console.log('🔧 generateStakingRedeemData called with:', { dexId, minPurchaseAmount: minPurchaseAmount.toString(), exchangeData });
+  console.log('🔧 generateStakingRedeemData called with:', {
+    dexId,
+    minPurchaseAmount: minPurchaseAmount.toString(),
+    exchangeData,
+  });
   const redeemParams = ethers.utils.defaultAbiCoder.encode(
     ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
     [{ dexId, minPurchaseAmount, exchangeData }]
   );
   console.log('🔧 Encoded staking redeemParams:', redeemParams);
-  
+
   return redeemParams;
 }
 
@@ -182,17 +221,19 @@ export async function generatePendlePTRedeemData(
   network: Network
 ): Promise<string> {
   const dexId = vaultConfig.dexId;
-  
+
   // Calculate minPurchaseAmount using the same logic as Staking
   let minPurchaseAmount: ethers.BigNumber;
   let exchangeData: string;
   let limitOrderData = '0x';
-  
+
   if (!isWithdrawRequestPending) {
     if (!yieldTokenAmount) {
-      throw new Error(`Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`);
+      throw new Error(
+        `Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`
+      );
     }
-    
+
     // Fetch limit order data from Pendle API
     if (vaultConfig.marketAddress && vaultConfig.ptAddress) {
       limitOrderData = await fetchPendleLimitOrderData(
@@ -211,7 +252,7 @@ export async function generatePendlePTRedeemData(
     } else {
       // Get exchangeData from redeemExchangeData
       exchangeData = vaultConfig.redeemExchangeData || '0x';
-      
+
       minPurchaseAmount = calculateMinPurchaseAmount(
         vaultConfig.yieldToken,
         vaultConfig.asset,
@@ -223,12 +264,13 @@ export async function generatePendlePTRedeemData(
 
     // Encode PendleRedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes limitOrderData)
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
-      ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes limitOrderData)'],
+      [
+        'tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData, bytes limitOrderData)',
+      ],
       [{ dexId, minPurchaseAmount, exchangeData, limitOrderData }]
     );
-    
+
     return redeemParams;
-    
   } else {
     if (vaultConfig.primaryWithdrawToken === vaultConfig.asset) {
       return '0x';
@@ -236,11 +278,13 @@ export async function generatePendlePTRedeemData(
 
     // Get exchangeData from withdrawExchangeData
     exchangeData = vaultConfig.withdrawExchangeData || '0x';
-    
+
     if (!primaryWithdrawTokenAmount) {
-      throw new Error(`Primary withdraw token amount not found for vault: ${vaultConfig.address}`);
+      throw new Error(
+        `Primary withdraw token amount not found for vault: ${vaultConfig.address}`
+      );
     }
-    
+
     minPurchaseAmount = calculateMinPurchaseAmount(
       vaultConfig.primaryWithdrawToken,
       vaultConfig.asset,
@@ -248,12 +292,12 @@ export async function generatePendlePTRedeemData(
       primaryWithdrawTokenAmount,
       tokenPrices
     );
-    
+
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
       ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
       [{ dexId, minPurchaseAmount, exchangeData }]
     );
-    
+
     return redeemParams;
   }
 }
@@ -275,39 +319,41 @@ async function fetchPendleLimitOrderData(
       console.warn(`Network ${network} not supported by Pendle API`);
       return '0x';
     }
-    
+
     const apiUrl = `${PENDLE_API_URL}/${networkId}/convert?receiver=${receiver}&slippage=${slippage}&enableAggregator=false&tokensIn=${ptAddress}&tokensOut=${tokenOutSy}&amountsIn=${amountIn.toString()}`;
-    
+
     console.log(`Fetching Pendle limit order data from: ${apiUrl}`);
-    
+
     const response = await fetch(apiUrl);
-    
+
     if (!response.ok) {
-      console.warn(`Pendle API request failed: ${response.status} ${response.statusText}`);
+      console.warn(
+        `Pendle API request failed: ${response.status} ${response.statusText}`
+      );
       return '0x';
     }
-    
+
     let pendleData: BytesLike = '0x';
 
-    
-    
     const data: ConvertResponse = await response.json();
-    console.log('data:', JSON.stringify(data.routes[0].contractParamInfo.contractCallParams[4]));
+    console.log(
+      'data:',
+      JSON.stringify(data.routes[0].contractParamInfo.contractCallParams[4])
+    );
     if (
       data.routes[0].contractParamInfo.contractCallParams[4].normalFills
         .length > 0 ||
-      data.routes[0].contractParamInfo.contractCallParams[4].flashFills
-        .length > 0
+      data.routes[0].contractParamInfo.contractCallParams[4].flashFills.length >
+        0
     ) {
       // Only encode the limit order data if there are normal or flash fills
       pendleData = ethers.utils.defaultAbiCoder.encode(
         [LIMIT_ORDER_TYPE],
         [data.routes[0].contractParamInfo.contractCallParams[4]]
       );
-    } 
+    }
 
     return pendleData;
-    
   } catch (error) {
     console.error('Error fetching Pendle limit order data:', error);
     return '0x';
@@ -322,17 +368,20 @@ export function generateCurveConvex2TokenRedeemData(
   secondaryWithdrawTokenAmount: ethers.BigNumber | undefined,
   tokenPrices: Map<string, TokenPrice>
 ): string {
-
   if (!isWithdrawRequestPending) {
     if (!yieldTokenAmount) {
-      throw new Error(`Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`);
+      throw new Error(
+        `Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`
+      );
     }
-    
+
     // For direct liquidation: empty redemptionTrades array
     if (vaultConfig.primaryIndex === undefined) {
-      throw new Error(`Primary index not found for vault: ${vaultConfig.address}`);
+      throw new Error(
+        `Primary index not found for vault: ${vaultConfig.address}`
+      );
     }
-    
+
     const minPurchaseAmount = calculateMinPurchaseAmount(
       vaultConfig.yieldToken,
       vaultConfig.asset,
@@ -340,27 +389,31 @@ export function generateCurveConvex2TokenRedeemData(
       yieldTokenAmount,
       tokenPrices
     );
-    
+
     // Initialize minAmounts array with zeros for both tokens
-    const minAmounts: ethers.BigNumber[] = [ethers.BigNumber.from(0), ethers.BigNumber.from(0)];
+    const minAmounts: ethers.BigNumber[] = [
+      ethers.BigNumber.from(0),
+      ethers.BigNumber.from(0),
+    ];
     // Set minAmounts[primaryIndex] equal to minPurchaseAmount
     minAmounts[vaultConfig.primaryIndex] = minPurchaseAmount;
-    
+
     const redemptionTrades: any[] = []; // Empty array as specified
-    
+
     // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
-      ['tuple(uint256[] minAmounts, tuple(uint256,uint16,uint8,uint256,bytes)[] redemptionTrades)'],
+      [
+        'tuple(uint256[] minAmounts, tuple(uint256,uint16,uint8,uint256,bytes)[] redemptionTrades)',
+      ],
       [{ minAmounts, redemptionTrades }]
     );
-    
+
     return redeemParams;
-    
   } else {
     // For withdraw requests: leave minAmounts empty, use redemptionTrades
     const minAmounts: ethers.BigNumber[] = [];
     const redemptionTrades: any[] = [];
-    
+
     // Handle primaryWithdrawToken
     if (vaultConfig.primaryWithdrawToken === vaultConfig.asset) {
       // If primaryWithdrawToken == asset, add empty trade params
@@ -369,14 +422,16 @@ export function generateCurveConvex2TokenRedeemData(
         dexId: 0,
         tradeType: 0,
         minPurchaseAmount: ethers.BigNumber.from(0),
-        exchangeData: '0x'
+        exchangeData: '0x',
       });
     } else {
       // Construct actual trade params for primaryWithdrawToken
       if (!primaryWithdrawTokenAmount) {
-        throw new Error(`Primary withdraw token amount not found for vault: ${vaultConfig.address}`);
+        throw new Error(
+          `Primary withdraw token amount not found for vault: ${vaultConfig.address}`
+        );
       }
-      
+
       const primaryMinPurchaseAmount = calculateMinPurchaseAmount(
         vaultConfig.primaryWithdrawToken,
         vaultConfig.asset,
@@ -384,16 +439,16 @@ export function generateCurveConvex2TokenRedeemData(
         primaryWithdrawTokenAmount,
         tokenPrices
       );
-      
+
       redemptionTrades.push({
         tradeAmount: primaryWithdrawTokenAmount,
         dexId: vaultConfig.primaryWithdrawDexId || 0,
         tradeType: TRADE_TYPE.EXACT_IN_SINGLE,
         minPurchaseAmount: primaryMinPurchaseAmount,
-        exchangeData: vaultConfig.primaryWithdrawExchangeData || '0x'
+        exchangeData: vaultConfig.primaryWithdrawExchangeData || '0x',
       });
     }
-    
+
     // Handle secondaryWithdrawToken
     if (vaultConfig.secondaryWithdrawToken === vaultConfig.asset) {
       // If secondaryWithdrawToken == asset, add empty trade params
@@ -402,14 +457,16 @@ export function generateCurveConvex2TokenRedeemData(
         dexId: 0,
         tradeType: 0,
         minPurchaseAmount: ethers.BigNumber.from(0),
-        exchangeData: '0x'
+        exchangeData: '0x',
       });
     } else {
       // Construct actual trade params for secondaryWithdrawToken
       if (!secondaryWithdrawTokenAmount) {
-        throw new Error(`Secondary withdraw token amount not found for vault: ${vaultConfig.address}`);
+        throw new Error(
+          `Secondary withdraw token amount not found for vault: ${vaultConfig.address}`
+        );
       }
-      
+
       const secondaryMinPurchaseAmount = calculateMinPurchaseAmount(
         vaultConfig.secondaryWithdrawToken!,
         vaultConfig.asset,
@@ -417,23 +474,23 @@ export function generateCurveConvex2TokenRedeemData(
         secondaryWithdrawTokenAmount,
         tokenPrices
       );
-      
+
       redemptionTrades.push({
         tradeAmount: secondaryWithdrawTokenAmount,
         dexId: vaultConfig.secondaryWithdrawDexId || 0,
         tradeType: TRADE_TYPE.EXACT_IN_SINGLE,
         minPurchaseAmount: secondaryMinPurchaseAmount,
-        exchangeData: vaultConfig.secondaryWithdrawExchangeData || '0x'
+        exchangeData: vaultConfig.secondaryWithdrawExchangeData || '0x',
       });
     }
-    
+
     // Encode RedeemParams struct: (uint256[] minAmounts, TradeParams[] redemptionTrades)
     // TradeParams struct: (uint256 tradeAmount, uint16 dexId, uint8 tradeType, uint256 minPurchaseAmount, bytes exchangeData)
     const redeemParams = ethers.utils.defaultAbiCoder.encode(
       ['tuple(uint256[]', 'tuple(uint256,uint16,uint8,uint256,bytes)[])'],
       [{ minAmounts, redemptionTrades }]
     );
-    
+
     return redeemParams;
   }
 }
