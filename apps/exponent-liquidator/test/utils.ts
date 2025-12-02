@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import { ethers } from 'ethers';
+import { ExponentFlashLiquidatorV2Artifact } from '@notional-finance/contracts';
 
 export class ForkManager {
   private anvilProcess: any = null;
@@ -98,50 +99,39 @@ export async function contractExists(
 
 /**
  * Ensures the flash liquidator contract exists at the specified address.
- * If it doesn't exist (e.g., on an old fork block), fetches the bytecode from
- * the latest mainnet deployment and sets it at the fork using anvil_setCode.
+ * If it doesn't exist (e.g., on an old fork block), deploys a new instance
+ * and returns the deployed address.
  */
 export async function ensureFlashLiquidatorDeployed(
   forkProvider: ethers.providers.JsonRpcProvider,
   flashLiquidatorAddress: string,
   network: 'mainnet' | 'arbitrum'
-): Promise<void> {
+): Promise<string> {
   // Check if contract already exists
   const exists = await contractExists(forkProvider, flashLiquidatorAddress);
 
   if (exists) {
     console.log(`✅ Flash liquidator already exists at ${flashLiquidatorAddress}`);
-    return;
+    return flashLiquidatorAddress;
   }
 
   console.log(`⚠️  Flash liquidator not found at ${flashLiquidatorAddress} on fork`);
-  console.log(`📦 Fetching bytecode from latest ${network} deployment...`);
+  console.log(`🔨 Deploying FlashLiquidatorV2 contract...`);
 
-  // Create provider for latest mainnet/arbitrum state
-  const latestRpcUrl = network === 'mainnet'
-    ? 'https://eth-mainnet.g.alchemy.com/v2/pq08EwFvymYFPbDReObtP-SFw3bCes8Z'
-    : 'https://arb-mainnet.g.alchemy.com/v2/pq08EwFvymYFPbDReObtP-SFw3bCes8Z';
+  // Get an anvil test account as signer (anvil provides 10 pre-funded accounts)
+  const signer = forkProvider.getSigner(0);
 
-  const latestProvider = new ethers.providers.JsonRpcProvider(latestRpcUrl);
+  // Deploy the contract using the artifact
+  const factory = new ethers.ContractFactory(
+    ExponentFlashLiquidatorV2Artifact.abi,
+    ExponentFlashLiquidatorV2Artifact.bytecode.object,
+    signer
+  );
 
-  // Fetch the bytecode from the latest deployment
-  const bytecode = await latestProvider.getCode(flashLiquidatorAddress);
+  const deployedContract = await factory.deploy();
+  await deployedContract.deployed();
 
-  if (bytecode === '0x') {
-    throw new Error(`Flash liquidator contract not found at ${flashLiquidatorAddress} on latest ${network}`);
-  }
+  console.log(`✅ Flash liquidator deployed successfully at ${deployedContract.address}`);
 
-  console.log(`📝 Fetched bytecode (${bytecode.length} bytes)`);
-  console.log(`🔧 Setting bytecode at ${flashLiquidatorAddress} on fork...`);
-
-  // Use anvil_setCode to set the bytecode at the fork
-  await forkProvider.send('anvil_setCode', [flashLiquidatorAddress, bytecode]);
-
-  // Verify the deployment
-  const verifyCode = await forkProvider.getCode(flashLiquidatorAddress);
-  if (verifyCode === '0x') {
-    throw new Error('Failed to set contract bytecode on fork');
-  }
-
-  console.log(`✅ Flash liquidator deployed successfully at ${flashLiquidatorAddress}`);
+  return deployedContract.address;
 }

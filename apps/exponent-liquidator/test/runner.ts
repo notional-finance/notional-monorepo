@@ -67,9 +67,16 @@ export class LiquidationTestRunner {
       const devVars = await loadDevVars();
 
       // Set up environment
-      const flashLiquidatorAddress = testCase.network === 'mainnet'
+      const expectedFlashLiquidatorAddress = testCase.network === 'mainnet'
         ? '0x3d3DD434c6fd94FBd20e1d0649595Cc7612fFBeB'
         : '0x3d3DD434c6fd94FBd20e1d0649595Cc7612fFBeB';
+
+      // Ensure flash liquidator contract exists on fork (deploys if needed)
+      const flashLiquidatorAddress = await ensureFlashLiquidatorDeployed(
+        provider,
+        expectedFlashLiquidatorAddress,
+        testCase.network
+      );
 
       const env = {
         MORPHO_LENDING_ROUTER_ADDRESS: testCase.network === 'mainnet'
@@ -85,9 +92,6 @@ export class LiquidationTestRunner {
         HYPERNATIVE_CLIENT_ID: devVars.HYPERNATIVE_CLIENT_ID || 'test-id',
         HYPERNATIVE_CLIENT_SECRET: devVars.HYPERNATIVE_CLIENT_SECRET || 'test-secret'
       };
-
-      // Ensure flash liquidator contract exists on fork
-      await ensureFlashLiquidatorDeployed(provider, flashLiquidatorAddress, testCase.network);
 
       // Initialize vault registry with unique vault addresses
       const uniqueVaultAddresses = [
