@@ -3,18 +3,21 @@ import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { RiskyPosition, VaultType, TokenPrice } from '../types';
 import { VaultRegistry } from './vaultRegistry';
-import { ERC20_ABI, TRADING_MODULE_ABI } from '../abis';
+import { ERC20_ABI } from '../abis';
 import { getTokenAddress } from '../constants';
 
-export function getRequiredTokensForPricing(riskyPositions: RiskyPosition[], vaultRegistry: VaultRegistry): {
-  requiredTokens: Set<string>,
-  curveConvex2TokenYieldTokens: Set<string>
+export function getRequiredTokensForPricing(
+  riskyPositions: RiskyPosition[],
+  vaultRegistry: VaultRegistry
+): {
+  requiredTokens: Set<string>;
+  curveConvex2TokenYieldTokens: Set<string>;
 } {
   const requiredTokens = new Set<string>();
   const curveConvex2TokenYieldTokens = new Set<string>();
 
   // Get unique vaults from risky positions
-  const uniqueVaults = [...new Set(riskyPositions.map(p => p.vault))];
+  const uniqueVaults = [...new Set(riskyPositions.map((p) => p.vault))];
 
   for (const vaultAddress of uniqueVaults) {
     const vaultConfig = vaultRegistry.getVaultConfig(vaultAddress);
@@ -70,8 +73,14 @@ export async function batchFetchTokenPrices(
   network: Network
 ): Promise<Map<string, TokenPrice>> {
   const tokenArray = Array.from(tokens);
-  console.log(`Fetching prices and decimals for ${tokenArray.length} tokens:`, tokenArray);
-  console.log(`CurveConvex2Token yieldTokens (decimals hardcoded to 18):`, Array.from(curveConvex2TokenYieldTokens));
+  console.log(
+    `Fetching prices and decimals for ${tokenArray.length} tokens:`,
+    tokenArray
+  );
+  console.log(
+    `CurveConvex2Token yieldTokens (decimals hardcoded to 18):`,
+    Array.from(curveConvex2TokenYieldTokens)
+  );
 
   // Build multicall calls for both prices and decimals
   const calls: AggregateCall[] = [];
@@ -83,7 +92,7 @@ export async function batchFetchTokenPrices(
       target: tradingModule,
       method: 'getOraclePrice',
       args: [token, getTokenAddress(network, 'USDC')],
-      key: `price_${index}`
+      key: `price_${index}`,
     });
   });
 
@@ -95,7 +104,7 @@ export async function batchFetchTokenPrices(
         target: new ethers.Contract(token, ERC20_ABI, provider),
         method: 'decimals',
         args: [],
-        key: `decimals_${index}`
+        key: `decimals_${index}`,
       });
     }
   });
@@ -114,7 +123,9 @@ export async function batchFetchTokenPrices(
       let decimals: number;
       if (curveConvex2TokenYieldTokens.has(token)) {
         decimals = 18;
-        console.log(`Token ${token} (CurveConvex2Token yieldToken): decimals hardcoded to 18`);
+        console.log(
+          `Token ${token} (CurveConvex2Token yieldToken): decimals hardcoded to 18`
+        );
       } else {
         const decimalsData = results[`decimals_${i}`] as ethers.BigNumber;
         if (!decimalsData) {
@@ -131,10 +142,12 @@ export async function batchFetchTokenPrices(
         priceMap.set(token, {
           token,
           price: price,
-          decimals: decimals
+          decimals: decimals,
         });
 
-        console.log(`Token ${token}: price=${price.toString()}, decimals=${decimals}`);
+        console.log(
+          `Token ${token}: price=${price.toString()}, decimals=${decimals}`
+        );
       }
     }
 
@@ -153,10 +166,17 @@ export async function getTokenPrices(
   network: Network
 ): Promise<Map<string, TokenPrice>> {
   // Step 1: Determine required tokens and identify CurveConvex2Token yieldTokens
-  const { requiredTokens, curveConvex2TokenYieldTokens } = getRequiredTokensForPricing(riskyPositions, vaultRegistry);
+  const { requiredTokens, curveConvex2TokenYieldTokens } =
+    getRequiredTokensForPricing(riskyPositions, vaultRegistry);
 
   // Step 2: Batch fetch token prices
-  const tokenPrices = await batchFetchTokenPrices(requiredTokens, curveConvex2TokenYieldTokens, provider, tradingModule, network);
+  const tokenPrices = await batchFetchTokenPrices(
+    requiredTokens,
+    curveConvex2TokenYieldTokens,
+    provider,
+    tradingModule,
+    network
+  );
 
   console.log(`Fetched prices for ${tokenPrices.size} tokens`);
 
