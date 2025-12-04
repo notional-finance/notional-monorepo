@@ -1,4 +1,4 @@
-import { ethers, BigNumber } from 'ethers';
+import { ethers } from 'ethers';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { RiskyPosition, VaultType } from '../types';
 import { VaultRegistry } from './vaultRegistry';
@@ -8,14 +8,7 @@ export async function getWithdrawRequestData(
   positions: RiskyPosition[],
   provider: ethers.providers.Provider,
   vaultRegistry: VaultRegistry
-): Promise<
-  {
-    isWithdrawRequestPending: boolean;
-    canWithdrawRequestFinalize: boolean;
-    primaryWithdrawTokenAmount?: BigNumber;
-    secondaryWithdrawTokenAmount?: BigNumber;
-  }[]
-> {
+) {
   const wrmInterface = new ethers.utils.Interface(WITHDRAW_REQUEST_MANAGER_ABI);
 
   // Build calls for getting withdraw requests

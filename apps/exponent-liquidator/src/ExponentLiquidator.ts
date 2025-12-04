@@ -195,11 +195,7 @@ export default class ExponentLiquidator {
   private calculateLiquidationAmounts(
     positions: EnrichedPosition[],
     liquidationIncentiveFactor: ethers.BigNumber
-  ): {
-    collateralSharesToSeize: ethers.BigNumber[];
-    isMaxLiquidate: boolean[];
-    totalCollateralSharesSeized: ethers.BigNumber;
-  } {
+  ) {
     let totalCollateralSharesSeized = ethers.BigNumber.from(0);
 
     const results = positions.map((position) => {
@@ -281,13 +277,7 @@ export default class ExponentLiquidator {
     });
   }
 
-  private sortPositionsForLiquidation(positions: EnrichedPosition[]): Map<
-    string,
-    {
-      withoutWithdrawRequest: EnrichedPosition[];
-      withWithdrawRequest: EnrichedPosition[];
-    }
-  > {
+  private sortPositionsForLiquidation(positions: EnrichedPosition[]) {
     return positions.reduce((sortedPositions, position) => {
       if (!sortedPositions.has(position.vault)) {
         sortedPositions.set(position.vault, {
@@ -314,13 +304,7 @@ export default class ExponentLiquidator {
         withWithdrawRequest: EnrichedPosition[];
       }
     >
-  ): Map<
-    string,
-    {
-      withoutWithdrawRequest: EnrichedPosition[][];
-      withWithdrawRequest: EnrichedPosition[];
-    }
-  > {
+  ) {
     return new Map(
       Array.from(sortedPositions, ([vaultAddress, vaultPositions]) => [
         vaultAddress,
@@ -352,17 +336,7 @@ export default class ExponentLiquidator {
       }
     >,
     tokenPrices: Map<string, TokenPrice>
-  ): Promise<
-    {
-      vaultAddress: string;
-      liquidateAccounts: string[];
-      collateralSharesToSeize: ethers.BigNumber[];
-      isMaxLiquidate: boolean[];
-      assetsToBorrow: ethers.BigNumber;
-      redeemData: string;
-      totalCollateralSharesSeized: ethers.BigNumber;
-    }[]
-  > {
+  ) {
     return Promise.all(
       Array.from(batchedAndSortedPositions).flatMap(([_, vaultPositions]) => {
         return [
@@ -389,15 +363,7 @@ export default class ExponentLiquidator {
     positions: EnrichedPosition[],
     isWithdrawRequestPending: boolean,
     tokenPrices: Map<string, TokenPrice>
-  ): Promise<{
-    vaultAddress: string;
-    liquidateAccounts: string[];
-    collateralSharesToSeize: ethers.BigNumber[];
-    isMaxLiquidate: boolean[];
-    assetsToBorrow: ethers.BigNumber;
-    redeemData: string;
-    totalCollateralSharesSeized: ethers.BigNumber;
-  }> {
+  ) {
     if (positions.length === 0) {
       throw new Error('No positions provided for liquidation');
     }

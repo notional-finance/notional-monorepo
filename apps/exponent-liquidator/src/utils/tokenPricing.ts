@@ -9,10 +9,7 @@ import { getTokenAddress } from '../constants';
 export function getRequiredTokensForPricing(
   riskyPositions: RiskyPosition[],
   vaultRegistry: VaultRegistry
-): {
-  requiredTokens: Set<string>;
-  curveConvex2TokenYieldTokens: Set<string>;
-} {
+) {
   const requiredTokens = new Set<string>();
   const curveConvex2TokenYieldTokens = new Set<string>();
 
