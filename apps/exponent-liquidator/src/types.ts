@@ -8,6 +8,7 @@ export type HealthFactorData = {
   vault: string;
   borrowed: BigNumber;
   maxBorrow: BigNumber;
+  healthFactor: number;
 };
 
 export type RiskyPosition = {

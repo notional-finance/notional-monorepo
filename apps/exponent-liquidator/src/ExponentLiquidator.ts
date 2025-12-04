@@ -1,8 +1,5 @@
 import { ethers, PopulatedTransaction } from 'ethers';
-import {
-  Network,
-  sendTxThroughRelayer,
-} from '@notional-finance/util';
+import { Network, sendTxThroughRelayer } from '@notional-finance/util';
 import {
   RiskyPosition,
   EnrichedPosition,
@@ -32,12 +29,19 @@ import { VAULT_ABI } from './abis';
 // Math constants for liquidation calculations
 const ORACLE_PRICE_SCALE = ethers.utils.parseUnits('1', 36);
 
-const wMulDown = (x: ethers.BigNumber, y: ethers.BigNumber): ethers.BigNumber => {
+const wMulDown = (
+  x: ethers.BigNumber,
+  y: ethers.BigNumber
+): ethers.BigNumber => {
   const WAD = ethers.utils.parseUnits('1', 18);
   return x.mul(y).div(WAD);
 };
 
-const mulDivDown = (x: ethers.BigNumber, y: ethers.BigNumber, d: ethers.BigNumber): ethers.BigNumber => {
+const mulDivDown = (
+  x: ethers.BigNumber,
+  y: ethers.BigNumber,
+  d: ethers.BigNumber
+): ethers.BigNumber => {
   return x.mul(y).div(d);
 };
 
@@ -88,38 +92,26 @@ export default class ExponentLiquidator {
 
     // Step 2: Batch borrowShares calls to get borrow share data
     const borrowSharesData =
-      await this.morphoRouterIntegration.batchBorrowShareBalances(this.positions);
+      await this.morphoRouterIntegration.batchBorrowShareBalances(
+        this.positions
+      );
 
-    // Step 3: Process results, calculate health factors, and filter risky positions
-    const riskyPositions: RiskyPosition[] = [];
+    const riskyPositions: RiskyPosition[] = healthFactorData
+      .map((data, index) => ({
+        ...data,
+        borrowShares: borrowSharesData[index],
+      }))
+      .filter((data) => data.healthFactor < 1)
+      .map((data) => ({
+        account: data.account,
+        vault: data.vault,
+        borrowed: data.borrowed,
+        maxBorrow: data.maxBorrow,
+        healthFactor: data.healthFactor,
+        borrowShares: data.borrowShares,
+      }));
+
     console.log('🏗️  Risky positions:', riskyPositions.length);
-
-    for (let i = 0; i < healthFactorData.length; i++) {
-      const data = healthFactorData[i];
-      const borrowShares = borrowSharesData[i];
-      
-      // Calculate health factor: maxBorrow / borrowed
-      console.log('🏗️  Health factor data:', data);
-      let healthFactor: number;
-      if (data.borrowed.isZero()) {
-        healthFactor = Number.MAX_SAFE_INTEGER; // No debt = healthy
-      } else {
-        healthFactor =
-          data.maxBorrow.mul(ethers.utils.parseUnits('1', 18)).div(data.borrowed).div(ethers.utils.parseUnits('1', 18)).toNumber();
-      }
-      console.log('🏗️  Health factor:', healthFactor);
-      // Only include risky positions (healthFactor < 1)
-      if (healthFactor < 1) {
-        riskyPositions.push({
-          account: data.account,
-          vault: data.vault,
-          borrowed: data.borrowed,
-          maxBorrow: data.maxBorrow,
-          healthFactor,
-          borrowShares,
-        });
-      }
-    }
 
     return riskyPositions;
   }
@@ -135,20 +127,38 @@ export default class ExponentLiquidator {
 
     // Get account vault share prices for each position
     const vaultInterface = new ethers.utils.Interface(VAULT_ABI);
-    const accountVaultSharePriceCalls: AggregateCall[] = positions.map((position, index) => ({
-      stage: 0,
-      target: new ethers.Contract(position.vault, vaultInterface, this.provider),
-      method: 'price',
-      args: [position.account],
-      key: `accountVaultSharePrice_${index}`,
-    }));
+    const accountVaultSharePriceCalls: AggregateCall[] = positions.map(
+      (position, index) => ({
+        stage: 0,
+        target: new ethers.Contract(
+          position.vault,
+          vaultInterface,
+          this.provider
+        ),
+        method: 'price',
+        args: [position.account],
+        key: `accountVaultSharePrice_${index}`,
+      })
+    );
 
-    console.log('🏗️  Account vault share price calls:', accountVaultSharePriceCalls.length);
-    const { results: accountVaultSharePriceResults } = await aggregate(accountVaultSharePriceCalls, this.provider);
-    console.log('🏗️  Account vault share price results:', accountVaultSharePriceResults);
+    console.log(
+      '🏗️  Account vault share price calls:',
+      accountVaultSharePriceCalls.length
+    );
+    const { results: accountVaultSharePriceResults } = await aggregate(
+      accountVaultSharePriceCalls,
+      this.provider
+    );
+    console.log(
+      '🏗️  Account vault share price results:',
+      accountVaultSharePriceResults
+    );
 
-    const accountVaultSharePricesArray = positions.map((_, index) => 
-      accountVaultSharePriceResults[`accountVaultSharePrice_${index}`] as ethers.BigNumber
+    const accountVaultSharePricesArray = positions.map(
+      (_, index) =>
+        accountVaultSharePriceResults[
+          `accountVaultSharePrice_${index}`
+        ] as ethers.BigNumber
     );
 
     // Get withdraw request status for each position (now with vault config)
@@ -183,14 +193,14 @@ export default class ExponentLiquidator {
   private calculateLiquidationAmounts(
     positions: EnrichedPosition[],
     liquidationIncentiveFactor: ethers.BigNumber
-  ): { 
-    collateralSharesToSeize: ethers.BigNumber[]; 
+  ): {
+    collateralSharesToSeize: ethers.BigNumber[];
     isMaxLiquidate: boolean[];
     totalCollateralSharesSeized: ethers.BigNumber;
   } {
     let totalCollateralSharesSeized = ethers.BigNumber.from(0);
-    
-    const results = positions.map(position => {
+
+    const results = positions.map((position) => {
       const theoreticalSeizableCollateralQuotedInAsset = wMulDown(
         position.borrowed,
         liquidationIncentiveFactor
@@ -202,67 +212,71 @@ export default class ExponentLiquidator {
         position.accountVaultSharePrice
       );
 
-      console.log('🏗️  Theoretical seizable collateral quoted in asset:', theoreticalSeizableCollateralQuotedInAsset.toString());
-      console.log('🏗️  Theoretical seizable collateral shares:', theoreticalSeizableCollateralShares.toString());
-      console.log('🏗️  Collateral shares:', position.collateralShares.toString());
+      console.log(
+        '🏗️  Theoretical seizable collateral quoted in asset:',
+        theoreticalSeizableCollateralQuotedInAsset.toString()
+      );
+      console.log(
+        '🏗️  Theoretical seizable collateral shares:',
+        theoreticalSeizableCollateralShares.toString()
+      );
+      console.log(
+        '🏗️  Collateral shares:',
+        position.collateralShares.toString()
+      );
       console.log('🏗️  Borrowed:', position.borrowed.toString());
       console.log('🏗️  Borrow shares:', position.borrowShares.toString());
-      console.log('🏗️  Account vault share price:', position.accountVaultSharePrice.toString());
+      console.log(
+        '🏗️  Account vault share price:',
+        position.accountVaultSharePrice.toString()
+      );
 
       if (position.collateralShares.lt(theoreticalSeizableCollateralShares)) {
-        totalCollateralSharesSeized = totalCollateralSharesSeized.add(position.collateralShares);
+        totalCollateralSharesSeized = totalCollateralSharesSeized.add(
+          position.collateralShares
+        );
         return {
           collateralSharesToSeize: position.collateralShares,
-          isMaxLiquidate: false
+          isMaxLiquidate: false,
         };
       } else {
-        totalCollateralSharesSeized = totalCollateralSharesSeized.add(theoreticalSeizableCollateralShares);
+        totalCollateralSharesSeized = totalCollateralSharesSeized.add(
+          theoreticalSeizableCollateralShares
+        );
         return {
           collateralSharesToSeize: theoreticalSeizableCollateralShares,
-          isMaxLiquidate: true
+          isMaxLiquidate: true,
         };
       }
     });
 
     return {
-      collateralSharesToSeize: results.map(r => r.collateralSharesToSeize),
-      isMaxLiquidate: results.map(r => r.isMaxLiquidate),
-      totalCollateralSharesSeized
+      collateralSharesToSeize: results.map((r) => r.collateralSharesToSeize),
+      isMaxLiquidate: results.map((r) => r.isMaxLiquidate),
+      totalCollateralSharesSeized,
     };
   }
 
   filterPositionsForLiquidation(
     enrichedPositions: EnrichedPosition[]
   ): EnrichedPosition[] {
-    const positionsToLiquidate: EnrichedPosition[] = [];
-
-    for (const position of enrichedPositions) {
+    return enrichedPositions.filter((position) => {
       const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
-
       if (!vaultConfig) {
         console.warn(
           `Vault config not found for vault: ${position.vault}, skipping liquidation check`
         );
-        continue;
+        return false;
       }
 
-      // Check liquidation criteria
-      if (
-        !position.isWithdrawRequestPending &&
-        vaultConfig.liquidateYieldTokens === true
-      ) {
-        // No withdraw request pending and vault allows yield token liquidation
-        positionsToLiquidate.push(position);
-      } else if (
+      const canLiquidateYieldTokens =
+        vaultConfig.liquidateYieldTokens === true &&
+        !position.isWithdrawRequestPending;
+      const canLiquidateWithdrawRequest =
         position.isWithdrawRequestPending &&
-        position.canWithdrawRequestFinalize
-      ) {
-        // Withdraw request is pending and can be finalized
-        positionsToLiquidate.push(position);
-      }
-    }
-
-    return positionsToLiquidate;
+        position.canWithdrawRequestFinalize;
+      return canLiquidateYieldTokens || canLiquidateWithdrawRequest;
+    });
   }
 
   private sortPositionsForLiquidation(positions: EnrichedPosition[]): Map<
@@ -272,33 +286,22 @@ export default class ExponentLiquidator {
       withWithdrawRequest: EnrichedPosition[];
     }
   > {
-    const sortedByVault = new Map<
-      string,
-      {
-        withoutWithdrawRequest: EnrichedPosition[];
-        withWithdrawRequest: EnrichedPosition[];
-      }
-    >();
-
-    // Group positions by vault
-    for (const position of positions) {
-      if (!sortedByVault.has(position.vault)) {
-        sortedByVault.set(position.vault, {
+    return positions.reduce((sortedPositions, position) => {
+      if (!sortedPositions.has(position.vault)) {
+        sortedPositions.set(position.vault, {
           withoutWithdrawRequest: [],
           withWithdrawRequest: [],
         });
       }
-
-      const vaultPositions = sortedByVault.get(position.vault)!;
-
       if (position.isWithdrawRequestPending) {
-        vaultPositions.withWithdrawRequest.push(position);
+        sortedPositions.get(position.vault)!.withWithdrawRequest.push(position);
       } else {
-        vaultPositions.withoutWithdrawRequest.push(position);
+        sortedPositions
+          .get(position.vault)!
+          .withoutWithdrawRequest.push(position);
       }
-    }
-
-    return sortedByVault;
+      return sortedPositions;
+    }, new Map<string, { withoutWithdrawRequest: EnrichedPosition[]; withWithdrawRequest: EnrichedPosition[] }>());
   }
 
   private batchPositionsForLiquidation(
@@ -316,39 +319,26 @@ export default class ExponentLiquidator {
       withWithdrawRequest: EnrichedPosition[];
     }
   > {
-    const batchedAndSortedPositions = new Map<
-      string,
-      {
-        withoutWithdrawRequest: EnrichedPosition[][];
-        withWithdrawRequest: EnrichedPosition[];
-      }
-    >();
-
-    for (const [vaultAddress, vaultPositions] of sortedPositions) {
-      // Batch the withoutWithdrawRequest positions
-      const batchedWithoutWithdrawRequest = this.batchPositions(
-        vaultPositions.withoutWithdrawRequest,
-        5
-      );
-
-      // Keep withWithdrawRequest positions as-is (not batched)
-      batchedAndSortedPositions.set(vaultAddress, {
-        withoutWithdrawRequest: batchedWithoutWithdrawRequest,
-        withWithdrawRequest: vaultPositions.withWithdrawRequest,
-      });
-    }
-
-    return batchedAndSortedPositions;
-  }
-
-  private batchPositions<T>(positions: T[], batchSize = 5): T[][] {
-    const batches: T[][] = [];
-
-    for (let i = 0; i < positions.length; i += batchSize) {
-      batches.push(positions.slice(i, i + batchSize));
-    }
-
-    return batches;
+    return new Map(
+      Array.from(sortedPositions, ([vaultAddress, vaultPositions]) => [
+        vaultAddress,
+        {
+          withoutWithdrawRequest: Array.from(
+            {
+              length: Math.ceil(
+                vaultPositions.withoutWithdrawRequest.length / 5
+              ),
+            },
+            (_, index) =>
+              vaultPositions.withoutWithdrawRequest.slice(
+                index * 5,
+                (index + 1) * 5
+              )
+          ),
+          withWithdrawRequest: vaultPositions.withWithdrawRequest,
+        },
+      ])
+    );
   }
 
   private async generateLiquidationCallData(
@@ -371,40 +361,26 @@ export default class ExponentLiquidator {
       totalCollateralSharesSeized: ethers.BigNumber;
     }[]
   > {
-    const liquidationParams: {
-      vaultAddress: string;
-      liquidateAccounts: string[];
-      collateralSharesToSeize: ethers.BigNumber[];
-      isMaxLiquidate: boolean[];
-      assetsToBorrow: ethers.BigNumber;
-      redeemData: string;
-      totalCollateralSharesSeized: ethers.BigNumber;
-    }[] = [];
-
-    // Iterate through each vault
-    for (const [, vaultPositions] of batchedAndSortedPositions) {
-      // Process isWithdrawRequestPending False batches first
-      for (const batch of vaultPositions.withoutWithdrawRequest) {
-        const liquidationData = await this.generateSingleLiquidationCallData(
-          batch,
-          false,
-          tokenPrices
-        );
-        liquidationParams.push(liquidationData);
-      }
-
-      // Then process isWithdrawRequestPending True positions one by one
-      for (const position of vaultPositions.withWithdrawRequest) {
-        const liquidationData = await this.generateSingleLiquidationCallData(
-          [position],
-          true,
-          tokenPrices
-        );
-        liquidationParams.push(liquidationData);
-      }
-    }
-
-    return liquidationParams;
+    return Promise.all(
+      Array.from(batchedAndSortedPositions).flatMap(([_, vaultPositions]) => {
+        return [
+          ...vaultPositions.withoutWithdrawRequest.map(async (batch) => {
+            return await this.generateSingleLiquidationCallData(
+              batch,
+              false,
+              tokenPrices
+            );
+          }),
+          ...vaultPositions.withWithdrawRequest.map(async (position) => {
+            return await this.generateSingleLiquidationCallData(
+              [position],
+              true,
+              tokenPrices
+            );
+          }),
+        ];
+      })
+    );
   }
 
   private async generateSingleLiquidationCallData(
@@ -435,10 +411,14 @@ export default class ExponentLiquidator {
     }
 
     // Calculate collateralSharesToSeize and borrowSharesToRepay for each position
-    const liquidationResults = this.calculateLiquidationAmounts(positions, vaultConfig.liquidationIncentiveFactor);
+    const liquidationResults = this.calculateLiquidationAmounts(
+      positions,
+      vaultConfig.liquidationIncentiveFactor
+    );
     const collateralSharesToSeize = liquidationResults.collateralSharesToSeize;
     const isMaxLiquidate = liquidationResults.isMaxLiquidate;
-    const totalCollateralSharesSeized = liquidationResults.totalCollateralSharesSeized;
+    const totalCollateralSharesSeized =
+      liquidationResults.totalCollateralSharesSeized;
 
     // Calculate total assets to borrow (sum of all borrowed amounts + 10% buffer)
     const totalBorrowed = positions.reduce((sum, position) => {
@@ -513,22 +493,20 @@ export default class ExponentLiquidator {
       totalCollateralSharesSeized: ethers.BigNumber;
     }[]
   ): Promise<PopulatedTransaction[]> {
-    const populatedTxs: PopulatedTransaction[] = [];
-
-    for (const params of liquidationParams) {
-      const populatedTx =
-        await this.flashLiquidator.populateTransaction.flashLiquidate(
-          params.vaultAddress,
-          params.liquidateAccounts,
-          params.collateralSharesToSeize,
-          params.isMaxLiquidate,
-          params.assetsToBorrow,
-          params.redeemData
-        );
-      populatedTxs.push(populatedTx);
-    }
-
-    return populatedTxs;
+    return Promise.all(
+      liquidationParams.map(async (params) => {
+        const populatedTx =
+          await this.flashLiquidator.populateTransaction.flashLiquidate(
+            params.vaultAddress,
+            params.liquidateAccounts,
+            params.collateralSharesToSeize,
+            params.isMaxLiquidate,
+            params.assetsToBorrow,
+            params.redeemData
+          );
+        return populatedTx;
+      })
+    );
   }
 
   private async pruneFailingTransactions(
@@ -573,10 +551,12 @@ export default class ExponentLiquidator {
         if (tx.data && tx.to) {
           if (this.environment === 'development') {
             // In development mode, simulate transaction execution on anvil fork
-            console.log('🧪 Development mode: Simulating transaction execution');
+            console.log(
+              '🧪 Development mode: Simulating transaction execution'
+            );
             const simulationResult = await this.provider.call(tx);
             console.log('🔬 Simulation result:', simulationResult);
-            
+
             // Create a mock transaction response
             resp = {
               hash: `0x${'dev'.padEnd(64, '0')}`,
@@ -592,15 +572,15 @@ export default class ExponentLiquidator {
               nonce: 0,
               data: tx.data,
               chainId: 1,
-              wait: async () => ({} as any)
+              wait: async () => ({} as any),
             } as ethers.providers.TransactionResponse;
           } else {
             // Production mode: Use relay
             console.log('🔧 Production mode: Sending transaction via relay');
-            console.log(this.env.NETWORK)
-            console.log(this.env.TX_RELAY_AUTH_TOKEN)
-            console.log(tx.to as string)
-            console.log(tx.data as string)
+            console.log(this.env.NETWORK);
+            console.log(this.env.TX_RELAY_AUTH_TOKEN);
+            console.log(tx.to as string);
+            console.log(tx.data as string);
             resp = await sendTxThroughRelayer({
               env: {
                 NETWORK: this.env.NETWORK,
@@ -734,7 +714,10 @@ export default class ExponentLiquidator {
       // Step 5: Batch positions for liquidation
       batchedAndSortedPositions =
         this.batchPositionsForLiquidation(sortedPositions);
-      console.log('🏗️  Batched and sorted positions:', batchedAndSortedPositions.size);
+      console.log(
+        '🏗️  Batched and sorted positions:',
+        batchedAndSortedPositions.size
+      );
     } catch (error) {
       console.error('❌ Batching positions for liquidation failed:', error);
       await this.logger.logError(
@@ -781,13 +764,19 @@ export default class ExponentLiquidator {
         batchedAndSortedPositions,
         tokenPrices
       );
-      console.log('🏗️  Liquidation params:', liquidationParams.map(param => ({
-        ...param,
-        collateralSharesToSeize: param.collateralSharesToSeize.map(shares => shares.toString()),
-        isMaxLiquidate: param.isMaxLiquidate.map(isMax => isMax.toString()),
-        assetsToBorrow: param.assetsToBorrow.toString(),
-        totalCollateralSharesSeized: param.totalCollateralSharesSeized.toString()
-      })));
+      console.log(
+        '🏗️  Liquidation params:',
+        liquidationParams.map((param) => ({
+          ...param,
+          collateralSharesToSeize: param.collateralSharesToSeize.map((shares) =>
+            shares.toString()
+          ),
+          isMaxLiquidate: param.isMaxLiquidate.map((isMax) => isMax.toString()),
+          assetsToBorrow: param.assetsToBorrow.toString(),
+          totalCollateralSharesSeized:
+            param.totalCollateralSharesSeized.toString(),
+        }))
+      );
     } catch (error) {
       console.error('❌ Generating liquidation call data failed:', error);
       await this.logger.logError(

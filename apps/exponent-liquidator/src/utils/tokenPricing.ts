@@ -93,6 +93,7 @@ export async function batchFetchTokenPrices(
       method: 'getOraclePrice',
       args: [token, getTokenAddress(network, 'USDC')],
       key: `price_${index}`,
+      transform: (priceData: [ethers.BigNumber]) => priceData[0],
     });
   });
 
@@ -105,6 +106,7 @@ export async function batchFetchTokenPrices(
         method: 'decimals',
         args: [],
         key: `decimals_${index}`,
+        transform: (decimals: ethers.BigNumber) => decimals.toNumber(),
       });
     }
   });
@@ -117,7 +119,7 @@ export async function batchFetchTokenPrices(
 
     for (let i = 0; i < tokenArray.length; i++) {
       const token = tokenArray[i];
-      const priceData = results[`price_${i}`] as [ethers.BigNumber];
+      const price: ethers.BigNumber = results[`price_${i}`] as ethers.BigNumber;
 
       // For CurveConvex2Token yieldTokens, hardcode decimals to 18
       let decimals: number;
@@ -127,27 +129,21 @@ export async function batchFetchTokenPrices(
           `Token ${token} (CurveConvex2Token yieldToken): decimals hardcoded to 18`
         );
       } else {
-        const decimalsData = results[`decimals_${i}`] as ethers.BigNumber;
-        if (!decimalsData) {
+        decimals = results[`decimals_${i}`] as number;
+        if (!decimals) {
           console.warn(`No decimals data found for token ${token}`);
           continue;
         }
-        decimals = decimalsData.toNumber();
       }
 
-      if (priceData) {
-        console.log('🏗️  Price data:', priceData);
-        const price = priceData[0];
+      if (price) {
+        console.log('🏗️  Price data:', price);
 
         priceMap.set(token, {
           token,
           price: price,
           decimals: decimals,
         });
-
-        console.log(
-          `Token ${token}: price=${price.toString()}, decimals=${decimals}`
-        );
       }
     }
 
