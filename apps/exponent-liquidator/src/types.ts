@@ -20,6 +20,11 @@ export type RiskyPosition = {
   borrowShares: BigNumber;
 };
 
+export type RiskyPositionWithoutBorrowShares = Omit<
+  RiskyPosition,
+  'borrowShares'
+>;
+
 export type EnrichedPosition = RiskyPosition & {
   isWithdrawRequestPending: boolean;
   canWithdrawRequestFinalize: boolean;

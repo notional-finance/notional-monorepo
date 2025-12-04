@@ -2,6 +2,7 @@ import { ethers, PopulatedTransaction } from 'ethers';
 import { Network, sendTxThroughRelayer } from '@notional-finance/util';
 import {
   RiskyPosition,
+  RiskyPositionWithoutBorrowShares,
   EnrichedPosition,
   Env,
   Position,
@@ -90,29 +91,30 @@ export default class ExponentLiquidator {
     const healthFactorData =
       await this.morphoRouterIntegration.batchHealthFactors(this.positions);
 
-    // Step 2: Batch borrowShares calls to get borrow share data
+    const riskyPositionsData: RiskyPositionWithoutBorrowShares[] =
+      healthFactorData
+        .filter((data) => data.healthFactor < 1)
+        .map((data) => ({
+          account: data.account,
+          vault: data.vault,
+          borrowed: data.borrowed,
+          maxBorrow: data.maxBorrow,
+          healthFactor: data.healthFactor,
+        }));
+
     const borrowSharesData =
       await this.morphoRouterIntegration.batchBorrowShareBalances(
-        this.positions
+        riskyPositionsData.map((position) => [position.account, position.vault])
       );
 
-    const riskyPositions: RiskyPosition[] = healthFactorData
-      .map((data, index) => ({
-        ...data,
+    const riskyPositions: RiskyPosition[] = riskyPositionsData.map(
+      (position, index) => ({
+        ...position,
         borrowShares: borrowSharesData[index],
-      }))
-      .filter((data) => data.healthFactor < 1)
-      .map((data) => ({
-        account: data.account,
-        vault: data.vault,
-        borrowed: data.borrowed,
-        maxBorrow: data.maxBorrow,
-        healthFactor: data.healthFactor,
-        borrowShares: data.borrowShares,
-      }));
+      })
+    );
 
     console.log('🏗️  Risky positions:', riskyPositions.length);
-
     return riskyPositions;
   }
 
