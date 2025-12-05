@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import { ethers } from 'ethers';
-import { ExponentFlashLiquidatorV2Artifact } from '@notional-finance/contracts';
+import { ExponentFlashLiquidatorV2Artifact__factory } from '@notional-finance/contracts';
 
 export class ForkManager {
   private anvilProcess: any = null;
@@ -139,14 +139,10 @@ export async function ensureFlashLiquidatorDeployed(
   // Get an anvil test account as signer (anvil provides 10 pre-funded accounts)
   const signer = forkProvider.getSigner(0);
 
-  // Deploy the contract using the artifact
-  const factory = new ethers.ContractFactory(
-    ExponentFlashLiquidatorV2Artifact.abi,
-    ExponentFlashLiquidatorV2Artifact.bytecode.object,
+  // Deploy the contract using the TypeChain-generated factory
+  const deployedContract = await new ExponentFlashLiquidatorV2Artifact__factory(
     signer
-  );
-
-  const deployedContract = await factory.deploy();
+  ).deploy();
   await deployedContract.deployed();
 
   console.log(

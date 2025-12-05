@@ -20,12 +20,12 @@ import {
   ExponentFlashLiquidatorV2ABI,
   TradingModule,
   TradingModuleABI,
+  YieldStrategy__factory,
 } from '@notional-finance/contracts';
 import { generateRedeemData } from './utils/redeemDataGenerator';
 import { getTokenPrices } from './utils/tokenPricing';
 import { LiquidatorLogger } from './utils/logging';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
-import { VAULT_ABI } from './abis';
 
 // Math constants for liquidation calculations
 const ORACLE_PRICE_SCALE = ethers.utils.parseUnits('1', 36);
@@ -128,16 +128,11 @@ export default class ExponentLiquidator {
       await this.morphoRouterIntegration.batchCollateralBalances(positions);
 
     // Get account vault share prices for each position
-    const vaultInterface = new ethers.utils.Interface(VAULT_ABI);
     const accountVaultSharePriceCalls: AggregateCall[] = positions.map(
       (position, index) => ({
         stage: 0,
-        target: new ethers.Contract(
-          position.vault,
-          vaultInterface,
-          this.provider
-        ),
-        method: 'price',
+        target: YieldStrategy__factory.connect(position.vault, this.provider),
+        method: 'price(address)',
         args: [position.account],
         key: `accountVaultSharePrice_${index}`,
       })

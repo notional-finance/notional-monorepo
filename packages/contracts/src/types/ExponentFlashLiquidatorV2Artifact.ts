@@ -23,7 +23,8 @@ import type {
   PromiseOrValue,
 } from "./common";
 
-export interface ExponentFlashLiquidatorV2Interface extends utils.Interface {
+export interface ExponentFlashLiquidatorV2ArtifactInterface
+  extends utils.Interface {
   functions: {
     "approve(address)": FunctionFragment;
     "flashLiquidate(address,address[],uint256[],bool[],uint256,bytes)": FunctionFragment;
@@ -67,12 +68,12 @@ export interface ExponentFlashLiquidatorV2Interface extends utils.Interface {
   events: {};
 }
 
-export interface ExponentFlashLiquidatorV2 extends BaseContract {
+export interface ExponentFlashLiquidatorV2Artifact extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: ExponentFlashLiquidatorV2Interface;
+  interface: ExponentFlashLiquidatorV2ArtifactInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

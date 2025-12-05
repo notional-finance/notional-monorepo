@@ -3,7 +3,7 @@ import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { RiskyPosition, VaultType, TokenPrice } from '../types';
 import { VaultRegistry } from './vaultRegistry';
-import { ERC20_ABI } from '../abis';
+import { ERC20__factory } from '@notional-finance/contracts';
 import { getTokenAddress } from '../constants';
 
 export function getRequiredTokensForPricing(
@@ -99,11 +99,10 @@ export async function batchFetchTokenPrices(
     if (!curveConvex2TokenYieldTokens.has(token)) {
       calls.push({
         stage: 0,
-        target: new ethers.Contract(token, ERC20_ABI, provider),
+        target: ERC20__factory.connect(token, provider),
         method: 'decimals',
         args: [],
         key: `decimals_${index}`,
-        transform: (decimals: ethers.BigNumber) => decimals.toNumber(),
       });
     }
   });

@@ -1,7 +1,7 @@
 import { ethers, BigNumber, Contract } from 'ethers';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { Position, RiskyPosition, HealthFactorData } from '../types';
-import { MORPHO_LENDING_ROUTER_ABI } from '../abis';
+import { MorphoLendingRouter__factory } from '@notional-finance/contracts';
 
 // Math utility functions adapted for BigNumber
 const WAD = ethers.utils.parseUnits('1', 18);
@@ -33,9 +33,8 @@ export class MorphoRouterIntegration {
     private provider: ethers.providers.Provider,
     morphoRouterAddress: string
   ) {
-    this.morphoRouterContract = new ethers.Contract(
+    this.morphoRouterContract = MorphoLendingRouter__factory.connect(
       morphoRouterAddress,
-      MORPHO_LENDING_ROUTER_ABI,
       provider
     );
   }

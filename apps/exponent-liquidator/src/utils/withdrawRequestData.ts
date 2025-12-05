@@ -2,15 +2,13 @@ import { ethers } from 'ethers';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { RiskyPosition, VaultType } from '../types';
 import { VaultRegistry } from './vaultRegistry';
-import { WITHDRAW_REQUEST_MANAGER_ABI } from '../abis';
+import { WithdrawRequestManager__factory } from '@notional-finance/contracts';
 
 export async function getWithdrawRequestData(
   positions: RiskyPosition[],
   provider: ethers.providers.Provider,
   vaultRegistry: VaultRegistry
 ) {
-  const wrmInterface = new ethers.utils.Interface(WITHDRAW_REQUEST_MANAGER_ABI);
-
   // Build calls for getting withdraw requests
   const calls: AggregateCall[] = positions.flatMap((position, i) => {
     const vaultConfig = vaultRegistry.getVaultConfig(position.vault);
@@ -20,9 +18,8 @@ export async function getWithdrawRequestData(
     }
 
     const primaryCall = {
-      target: new ethers.Contract(
+      target: WithdrawRequestManager__factory.connect(
         vaultConfig.primaryWrm,
-        wrmInterface,
         provider
       ),
       stage: 0,
@@ -39,9 +36,8 @@ export async function getWithdrawRequestData(
       return [
         primaryCall,
         {
-          target: new ethers.Contract(
+          target: WithdrawRequestManager__factory.connect(
             vaultConfig.secondaryWrm,
-            wrmInterface,
             provider
           ),
           stage: 0,
@@ -71,9 +67,8 @@ export async function getWithdrawRequestData(
 
     if (!primaryRequestId.isZero()) {
       calls.push({
-        target: new ethers.Contract(
+        target: WithdrawRequestManager__factory.connect(
           vaultConfig.primaryWrm,
-          wrmInterface,
           provider
         ),
         stage: 0,
@@ -93,9 +88,8 @@ export async function getWithdrawRequestData(
 
       if (!secondaryRequestId.isZero()) {
         calls.push({
-          target: new ethers.Contract(
+          target: WithdrawRequestManager__factory.connect(
             vaultConfig.secondaryWrm,
-            wrmInterface,
             provider
           ),
           stage: 0,

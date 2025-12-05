@@ -13,12 +13,12 @@ import {
   DEFAULT_VAULT_LIQUIDATION_SETTINGS,
 } from '../configs';
 import {
-  VAULT_ABI,
-  ADDRESS_REGISTRY_ABI,
-  WITHDRAW_REQUEST_MANAGER_ABI,
-  PENDLE_PT_ABI,
-  CURVE_CONVEX_2TOKEN_ABI,
-} from '../abis';
+  YieldStrategy__factory,
+  AddressRegistry__factory,
+  WithdrawRequestManager__factory,
+  PendlePT__factory,
+  CurveConvex2Token__factory,
+} from '@notional-finance/contracts';
 import { getContractAddress, getTokenAddress } from '../constants';
 import { MorphoRouterIntegration } from './morphoRouter';
 
@@ -82,29 +82,15 @@ export class VaultRegistry {
   private async batchFetchOnChainData(
     vaultAddresses: string[]
   ): Promise<OnChainVaultConfig[]> {
-    const vaultInterface = new ethers.utils.Interface(VAULT_ABI);
-    const addressRegistryInterface = new ethers.utils.Interface(
-      ADDRESS_REGISTRY_ABI
-    );
-    const wrmInterface = new ethers.utils.Interface(
-      WITHDRAW_REQUEST_MANAGER_ABI
-    );
-    const pendlePtInterface = new ethers.utils.Interface(PENDLE_PT_ABI);
-    const curveConvexInterface = new ethers.utils.Interface(
-      CURVE_CONVEX_2TOKEN_ABI
-    );
-
-    const addressRegistryContract = new ethers.Contract(
+    const addressRegistryContract = AddressRegistry__factory.connect(
       getContractAddress(this.network, 'ADDRESS_REGISTRY')!,
-      addressRegistryInterface,
       this.provider
     );
 
     // Add base vault calls for each vault
     const calls: AggregateCall[] = vaultAddresses.flatMap((vaultAddress) => {
-      const vaultContract = new ethers.Contract(
+      const vaultContract = YieldStrategy__factory.connect(
         vaultAddress,
-        vaultInterface,
         this.provider
       );
       return [
@@ -162,7 +148,7 @@ export class VaultRegistry {
         if (vaultType === VaultType.Staking) {
           return [
             {
-              target: addressRegistryContract,
+              target: addressRegistryContract as ethers.Contract,
               stage: 1,
               method: 'withdrawRequestManagers',
               args: [results[`${vaultAddress}.yieldToken`] as string],
@@ -170,46 +156,44 @@ export class VaultRegistry {
             },
           ];
         } else if (vaultType === VaultType.PendlePT) {
-          const pendlePtContract = new ethers.Contract(
+          const pendlePtContract = PendlePT__factory.connect(
             vaultAddress,
-            pendlePtInterface,
             this.provider
           );
           return [
             {
-              target: pendlePtContract,
+              target: pendlePtContract as ethers.Contract,
               stage: 1,
               method: 'TOKEN_OUT_SY',
               key: `${vaultAddress}.tokenOutSy`,
             },
             {
-              target: pendlePtContract,
+              target: pendlePtContract as ethers.Contract,
               stage: 1,
               method: 'MARKET',
               key: `${vaultAddress}.marketAddress`,
             },
             {
-              target: pendlePtContract,
+              target: pendlePtContract as ethers.Contract,
               stage: 1,
               method: 'PT',
               key: `${vaultAddress}.ptAddress`,
             },
           ];
         } else if (vaultType === VaultType.CurveConvex2Token) {
-          const curveConvexContract = new ethers.Contract(
+          const curveConvexContract = CurveConvex2Token__factory.connect(
             vaultAddress,
-            curveConvexInterface,
             this.provider
           );
           return [
             {
-              target: curveConvexContract,
+              target: curveConvexContract as ethers.Contract,
               stage: 1,
               method: 'TOKENS',
               key: `${vaultAddress}.tokens`,
             },
             {
-              target: curveConvexContract,
+              target: curveConvexContract as ethers.Contract,
               stage: 1,
               method: 'PRIMARY_INDEX',
               key: `${vaultAddress}.primaryIndex`,
@@ -278,14 +262,13 @@ export class VaultRegistry {
         const config = enrichedVaultConfigs[i];
 
         if (config.vaultType === VaultType.Staking) {
-          const wrmContract = new ethers.Contract(
+          const wrmContract = WithdrawRequestManager__factory.connect(
             config.primaryWrm!,
-            wrmInterface,
             this.provider
           );
           return [
             {
-              target: wrmContract,
+              target: wrmContract as ethers.Contract,
               stage: 2,
               method: 'WITHDRAW_TOKEN',
               key: `${vaultAddress}.primaryWithdrawToken`,
@@ -294,7 +277,7 @@ export class VaultRegistry {
         } else if (config.vaultType === VaultType.PendlePT) {
           return [
             {
-              target: addressRegistryContract,
+              target: addressRegistryContract as ethers.Contract,
               stage: 2,
               method: 'withdrawRequestManagers',
               args: [config.tokenOutSy!],
@@ -304,14 +287,14 @@ export class VaultRegistry {
         } else if (config.vaultType === VaultType.CurveConvex2Token) {
           return [
             {
-              target: addressRegistryContract,
+              target: addressRegistryContract as ethers.Contract,
               stage: 2,
               method: 'withdrawRequestManagers',
               args: [config.token0!],
               key: `${vaultAddress}.primaryWrm`,
             },
             {
-              target: addressRegistryContract,
+              target: addressRegistryContract as ethers.Contract,
               stage: 2,
               method: 'withdrawRequestManagers',
               args: [config.token1!],
@@ -361,9 +344,8 @@ export class VaultRegistry {
         const config = enrichedVaultConfigs2[i];
 
         if (config.vaultType === VaultType.PendlePT) {
-          const primaryWrmContract = new ethers.Contract(
+          const primaryWrmContract = WithdrawRequestManager__factory.connect(
             config.primaryWrm!,
-            wrmInterface,
             this.provider
           );
           return [
@@ -375,14 +357,12 @@ export class VaultRegistry {
             },
           ];
         } else if (config.vaultType === VaultType.CurveConvex2Token) {
-          const primaryWrmContract = new ethers.Contract(
+          const primaryWrmContract = WithdrawRequestManager__factory.connect(
             config.primaryWrm!,
-            wrmInterface,
             this.provider
           );
-          const secondaryWrmContract = new ethers.Contract(
+          const secondaryWrmContract = WithdrawRequestManager__factory.connect(
             config.secondaryWrm!,
-            wrmInterface,
             this.provider
           );
           return [
