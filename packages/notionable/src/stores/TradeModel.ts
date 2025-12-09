@@ -46,6 +46,7 @@ import {
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
+import { reaction } from 'mobx';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -200,6 +201,17 @@ export const TradeModel = types
     inputsSatisfied: types.optional(types.boolean, false),
     /** True if all calculations have been completed */
     calculationSuccess: types.optional(types.boolean, false),
+
+    /** True if the calculation is deferred */
+    deferredCalculationStatus: types.optional(
+      types.enumeration('DeferredCalculationStatus', [
+        'NotStarted',
+        'Pending',
+        'Completed',
+        'Error',
+      ]),
+      'NotStarted'
+    ),
     /** True if the form is in the confirmation state */
     confirm: types.optional(types.boolean, false),
     /** Simulation error transaction */
@@ -1122,13 +1134,14 @@ export const TradeModel = types
           leverageRatio !== undefined &&
           leverageRatio < postAccountRisk.maxLeverageRatio;
 
-        return (
+        const canSubmit =
           self.calculationSuccess &&
           hasPostAccountRisk &&
           isLeverageRatioValid &&
           overPoolCapacityError === false &&
-          self.inputErrors === false
-        );
+          self.inputErrors === false;
+
+        return canSubmit;
       } else if (isNOTEStake(self.tradeType)) {
         const account = root().getNetworkAccount(self.selectedNetwork);
         const priorBalances = account?.balances;
