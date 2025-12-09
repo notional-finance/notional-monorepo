@@ -361,21 +361,6 @@ export const configDefs: ConfigDefinition[] = [
   {
     sourceType: SourceType.Multicall,
     sourceConfig: {
-      contractAddress: '0x761aaebf021f19f198d325d7979965d0c7c9e53b',
-      contractABI: IAggregatorABI,
-      method: 'latestAnswer',
-    },
-    tableName: TableName.GenericData,
-    dataConfig: {
-      strategyId: Strategy.Generic,
-      variable: 'Ohmv2 To Usd Oracle',
-      decimals: 8,
-    },
-    network: Network.arbitrum,
-  },
-  {
-    sourceType: SourceType.Multicall,
-    sourceConfig: {
       contractAddress: '0x0411d28c94d85a36bc72cb0f875dfa8371d8ffff',
       contractABI: IAggregatorABI,
       method: 'latestAnswer',
@@ -716,6 +701,51 @@ export const configDefs: ConfigDefinition[] = [
       strategyId: Strategy.Generic,
       variable: 'sUSDe to USDe Exchange Rate',
       decimals: 18,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x8D51DBC85cEef637c97D02bdaAbb5E274850e68C',
+      contractABI: ['function lastAnswer() view external returns (int256)'],
+      method: 'lastAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'mF-ONE to USD Exchange Rate',
+      decimals: 8,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x43881B05C3BE68B2d33eb70aDdF9F666C5005f68',
+      contractABI: ['function lastAnswer() view external returns (int256)'],
+      method: 'lastAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'mHYPER to USD Exchange Rate',
+      decimals: 8,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x84303e5568C7B167fa4fEBc6253CDdfe12b7Ee4B',
+      contractABI: ['function lastAnswer() view external returns (int256)'],
+      method: 'lastAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'mAPOLLO to USD Exchange Rate',
+      decimals: 8,
     },
     network: Network.mainnet,
   },
