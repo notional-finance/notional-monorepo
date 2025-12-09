@@ -1,9 +1,8 @@
 import { Request, Response } from '@google-cloud/functions-framework';
 import DataService from './DataService';
-import { calculateAccountRisks, executeMonitoring } from './RiskService';
 import { syncDune } from './DuneService';
 import { ONE_HOUR_MS } from '@notional-finance/util';
-import { logToDataDog, parseQueryParams } from './util';
+import { logToDataDog } from './util';
 
 export default async function (req: Request, res: Response) {
   // no custom authentication/authorization needed since cron service
@@ -11,33 +10,12 @@ export default async function (req: Request, res: Response) {
   // that has the necessary permissions and is not meant to be accessed from outside of google cloud
 
   const dataService = new DataService();
-  const queryParams = parseQueryParams(req.query);
 
   try {
     switch (req.path) {
-      case '/executeMonitoring':
-        await executeMonitoring();
-        res.status(200).send('OK');
-        break;
-      case '/calculateRisk':
-        await calculateAccountRisks();
-        res.status(200).send('OK');
-        break;
       case '/syncDune':
         await syncDune();
         res.status(200).send('OK');
-        break;
-      case '/syncAccounts':
-        res.send(
-          JSON.stringify(await dataService.syncAccounts(queryParams.network))
-        );
-        break;
-      case '/syncVaultAccounts':
-        res.send(
-          JSON.stringify(
-            await dataService.syncVaultAccounts(queryParams.network)
-          )
-        );
         break;
       case '/syncOracleData':
         res.send(

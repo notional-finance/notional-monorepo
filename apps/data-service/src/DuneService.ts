@@ -1,11 +1,29 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { getS3 } from './RiskService';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
+const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
 const queries = [
   { queryId: 3709164, name: 'sNOTEPoolData' },
   { queryId: 3709178, name: 'sNOTEReinvestment' },
   { queryId: 3711394, name: 'NOTESupply' },
 ];
+
+let cachedS3Client: S3Client;
+export function getS3() {
+  const R2_ACCESS_KEY_ID = process.env['R2_ACCESS_KEY_ID'] as string;
+  const R2_SECRET_ACCESS_KEY = process.env['R2_SECRET_ACCESS_KEY'] as string;
+
+  if (!cachedS3Client) {
+    cachedS3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: R2_ACCESS_KEY_ID,
+        secretAccessKey: R2_SECRET_ACCESS_KEY,
+      },
+    });
+  }
+  return cachedS3Client;
+}
 
 export async function syncDune() {
   const DUNE_API_KEY = process.env['DUNE_API_KEY'] as string;

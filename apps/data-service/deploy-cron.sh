@@ -2,15 +2,8 @@
 set -e
 
 # Cron jobs to deploy, format is "Description|URL|Schedule"
-cron_jobs="Risk_Service|/calculateRisk|*/35 * * * *
-Monitoring_Service|/executeMonitoring|*/10 * * * *
-Sync_Dune|/syncDune|30 1 * * *
-Sync_Generic_Data|/syncGenericData|0 * * * *
-Sync_Oracle_Data|/syncOracleData|0 * * * *
-Sync_Accounts_Arbitrum|/syncAccounts?network=arbitrum|*/20 * * * *
-Sync_Accounts_Mainnet|/syncAccounts?network=mainnet|*/20 * * * *
-Sync_Vault_Accounts_Arbitrum|/syncVaultAccounts?network=arbitrum|*/20 * * * *
-Sync_Vault_Accounts_Mainnet|/syncVaultAccounts?network=mainnet|*/20 * * * *"
+cron_jobs="Sync_Generic_Data|/syncGenericData|0 * * * *
+Sync_Oracle_Data|/syncOracleData|0 * * * *"
 
 # Set the base URI as an environment variable
 # Get the function URI using gcloud
