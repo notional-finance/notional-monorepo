@@ -64,6 +64,7 @@ export interface Env {
   TX_RELAY_AUTH_TOKEN: string;
   HYPERNATIVE_CLIENT_ID: string;
   HYPERNATIVE_CLIENT_SECRET: string;
+  LOG_LEVEL: 'info' | 'debug';
 }
 
 export class MetricNames {

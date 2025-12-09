@@ -7,6 +7,7 @@ import {
   LIMIT_ORDER_TYPE,
   TRADE_TYPE,
 } from '../constants';
+import { logError } from './logger';
 
 /**
  * Calculate minPurchaseAmount based on token prices and slippage
@@ -22,9 +23,6 @@ function calculateMinPurchaseAmount(
   const sellTokenPrice = tokenPrices.get(sellToken);
   const buyTokenPrice = tokenPrices.get(buyToken);
 
-  console.log('sellTokenPrice:', sellTokenPrice?.price.toString());
-  console.log('buyTokenPrice:', buyTokenPrice?.price.toString());
-
   if (!sellTokenPrice || !buyTokenPrice) {
     throw new Error(
       `Token prices not found for sellToken: ${sellToken} or buyToken: ${buyToken}`
@@ -36,40 +34,25 @@ function calculateMinPurchaseAmount(
     .mul(ethers.utils.parseUnits('1', 18))
     .div(buyTokenPrice.price);
 
-  console.log('pairPrice:', pairPrice.toString());
-  console.log('sellTokenAmount:', sellTokenAmount.toString());
-
   // buyTokenAmountSellTokenPrecision = sellTokenAmount * pairPrice / 1e18
   const buyTokenAmountSellTokenPrecision = sellTokenAmount
     .mul(pairPrice)
     .div(ethers.utils.parseUnits('1', 18));
-
-  console.log(
-    'buyTokenAmountSellTokenPrecision:',
-    buyTokenAmountSellTokenPrecision.toString()
-  );
 
   // buyTokenAmountNativePrecision = buyTokenAmountSellTokenPrecision * 1e(buyTokenDecimals) / 1e(sellTokenDecimals)
   const buyTokenAmountNativePrecision = buyTokenAmountSellTokenPrecision
     .mul(ethers.utils.parseUnits('1', buyTokenPrice.decimals))
     .div(ethers.utils.parseUnits('1', sellTokenPrice.decimals));
 
-  console.log(
-    'buyTokenAmountNativePrecision:',
-    buyTokenAmountNativePrecision.toString()
-  );
-
   // minPurchaseAmount = buyTokenAmountNativePrecision * (1 - slippageLimit)
   const slippageMultiplier = ethers.utils
     .parseUnits('1', 18)
     .sub(ethers.utils.parseUnits(slippageLimit.toString(), 18));
 
-  console.log('slippageMultiplier:', slippageMultiplier.toString());
   const minPurchaseAmount = buyTokenAmountNativePrecision
     .mul(slippageMultiplier)
     .div(ethers.utils.parseUnits('1', 18));
 
-  console.log('minPurchaseAmount:', minPurchaseAmount.toString());
   return minPurchaseAmount;
 }
 
@@ -83,21 +66,6 @@ export async function generateRedeemData(
   secondaryWithdrawTokenAmount?: ethers.BigNumber
 ): Promise<string> {
   const { vaultType } = vaultConfig;
-  console.log('🏗️  Vault type:', vaultType);
-  console.log(
-    '🏗️  Vault config:',
-    JSON.stringify(
-      {
-        ...vaultConfig,
-        shareToYieldTokenExchangeRate:
-          vaultConfig.shareToYieldTokenExchangeRate?.toString(),
-        liquidationIncentiveFactor:
-          vaultConfig.liquidationIncentiveFactor?.toString(),
-      },
-      null,
-      2
-    )
-  );
 
   switch (vaultType) {
     case VaultType.Staking:
@@ -198,16 +166,10 @@ export function generateStakingRedeemData(
   }
 
   // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
-  console.log('🔧 generateStakingRedeemData called with:', {
-    dexId,
-    minPurchaseAmount: minPurchaseAmount.toString(),
-    exchangeData,
-  });
   const redeemParams = ethers.utils.defaultAbiCoder.encode(
     ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
     [{ dexId, minPurchaseAmount, exchangeData }]
   );
-  console.log('🔧 Encoded staking redeemParams:', redeemParams);
 
   return redeemParams;
 }
@@ -316,30 +278,20 @@ async function fetchPendleLimitOrderData(
   try {
     const networkId = NETWORK_IDS[network];
     if (!networkId) {
-      console.warn(`Network ${network} not supported by Pendle API`);
       return '0x';
     }
 
     const apiUrl = `${PENDLE_API_URL}/${networkId}/convert?receiver=${receiver}&slippage=${slippage}&enableAggregator=false&tokensIn=${ptAddress}&tokensOut=${tokenOutSy}&amountsIn=${amountIn.toString()}`;
 
-    console.log(`Fetching Pendle limit order data from: ${apiUrl}`);
-
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
-      console.warn(
-        `Pendle API request failed: ${response.status} ${response.statusText}`
-      );
       return '0x';
     }
 
     let pendleData: BytesLike = '0x';
 
     const data: ConvertResponse = await response.json();
-    console.log(
-      'data:',
-      JSON.stringify(data.routes[0].contractParamInfo.contractCallParams[4])
-    );
     if (
       data.routes[0].contractParamInfo.contractCallParams[4].normalFills
         .length > 0 ||
@@ -355,7 +307,14 @@ async function fetchPendleLimitOrderData(
 
     return pendleData;
   } catch (error) {
-    console.error('Error fetching Pendle limit order data:', error);
+    logError('Error fetching Pendle limit order data', error as Error, {
+      network,
+      ptAddress,
+      tokenOutSy,
+      receiver,
+      amountIn,
+      slippage,
+    });
     return '0x';
   }
 }

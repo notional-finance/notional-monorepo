@@ -52,9 +52,7 @@ export async function getWithdrawRequestData(
   });
 
   // Execute first batch to get withdraw request data
-  console.log('🏗️  Withdraw request calls:', calls.length);
   const { results } = await aggregate(calls, provider);
-  console.log('🏗️  Withdraw request results:', results);
 
   // Build calls for canFinalizeWithdrawRequest
   const finalizeCalls: AggregateCall[] = positions.flatMap((position, i) => {
@@ -104,12 +102,10 @@ export async function getWithdrawRequestData(
   });
 
   // Execute finalize calls if any with allowFailure=true
-  console.log('🏗️  Finalize calls:', finalizeCalls);
   const finalizeResults =
     finalizeCalls.length > 0
       ? await aggregate(finalizeCalls, provider, undefined, true) // allowFailure=true
       : { results: {} };
-  console.log('🏗️  Finalize results:', finalizeResults);
 
   // Process results and calculate withdraw token amounts
   return positions.map((position, i) => {

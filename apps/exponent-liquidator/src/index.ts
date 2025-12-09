@@ -4,31 +4,44 @@ import { Env, Position } from './types';
 import { fetchPositions } from './utils/dataService';
 import { VaultRegistry } from './utils/vaultRegistry';
 import { getProviderFromNetwork } from '@notional-finance/util';
-import { LiquidatorLogger } from './utils/logging';
+import { logDebug, logInfo, logError } from './utils/logger';
 
 async function createLiquidator(
-  env: Env, 
-  mockedPositions?: Position[], 
+  env: Env,
+  mockedPositions?: Position[],
   customProvider?: ethers.providers.Provider,
   environment: 'development' | 'production' = 'production'
 ): Promise<ExponentLiquidator> {
-  console.log('🔨 createLiquidator called', {
-    hasMockedPositions: !!mockedPositions,
-    hasCustomProvider: !!customProvider,
-    network: env.NETWORK
-  });
-  
-  const logger = new LiquidatorLogger(env);
+  logDebug(
+    'createLiquidator called',
+    {
+      hasMockedPositions: !!mockedPositions,
+      hasCustomProvider: !!customProvider,
+      network: env.NETWORK,
+    },
+    env.LOG_LEVEL
+  );
+
   const provider = customProvider || getProviderFromNetwork(env.NETWORK, true);
 
-  console.log('🔌 Provider configured', {
-    isCustom: !!customProvider,
-    providerUrl: customProvider ? 'custom' : 'network-default'
-  });
+  logDebug(
+    'Provider configured',
+    {
+      isCustom: !!customProvider,
+      providerUrl: customProvider ? 'custom' : 'network-default',
+    },
+    env.LOG_LEVEL
+  );
 
   let positions: Position[];
   if (mockedPositions) {
-    console.log('📋 Using mocked positions:', mockedPositions.length);
+    logDebug(
+      'Using mocked positions',
+      {
+        positionsCount: mockedPositions.length,
+      },
+      env.LOG_LEVEL
+    );
     positions = mockedPositions;
   } else {
     try {
@@ -38,72 +51,76 @@ async function createLiquidator(
         env.HYPERNATIVE_CLIENT_SECRET
       );
     } catch (error) {
-      await logger.logError(
-        'Fetching positions from Hypernative',
-        (error as Error).message,
-        {
-          type: 'generic',
-          data: {
-            hypernativeUrl: 'https://api.hypernative.xyz/lists/6ac143d9-9d99-40f1-b26c-458361c695f3',
-            network: env.NETWORK,
-          },
-        }
-      );
+      logError('Fetching positions from Hypernative', error as Error, {
+        hypernativeUrl:
+          'https://api.hypernative.xyz/lists/6ac143d9-9d99-40f1-b26c-458361c695f3',
+        network: env.NETWORK,
+      });
       throw error;
     }
   }
 
-  console.log(positions)
+  logDebug(
+    'Positions fetched',
+    {
+      positionsCount: positions.length,
+    },
+    env.LOG_LEVEL
+  );
+
   let vaultRegistry: VaultRegistry;
   try {
     // Step 2: Initialize vault registry with unique vault addresses
     const uniqueVaultAddresses = [
       ...new Set(positions.map(([_, vault]) => vault)),
     ];
-    console.log('🏛️  Initializing vault registry', {
-      vaultCount: uniqueVaultAddresses.length,
-      vaults: uniqueVaultAddresses,
-      network: env.NETWORK
-    });
-    
+    logDebug(
+      'Initializing vault registry',
+      {
+        vaultCount: uniqueVaultAddresses.length,
+        vaults: uniqueVaultAddresses,
+        network: env.NETWORK,
+      },
+      env.LOG_LEVEL
+    );
+
     vaultRegistry = await VaultRegistry.initialize(
       uniqueVaultAddresses,
       provider,
       env.NETWORK,
       env.MORPHO_LENDING_ROUTER_ADDRESS
     );
-    console.log('✅ Vault registry initialized successfully');
+    logDebug(
+      'Vault registry initialized successfully',
+      undefined,
+      env.LOG_LEVEL
+    );
   } catch (error) {
     const uniqueVaultAddresses = [
       ...new Set(positions.map(([_, vault]) => vault)),
     ];
-    await logger.logError(
-      'Initializing vault registry',
-      (error as Error).message,
-      {
-        type: 'vaultRegistry',
-        data: {
-          vaultAddresses: uniqueVaultAddresses,
-          network: env.NETWORK,
-        },
-      }
-    );
+    logError('Initializing vault registry', error as Error, {
+      vaultAddresses: uniqueVaultAddresses,
+      vaultCount: uniqueVaultAddresses.length,
+      network: env.NETWORK,
+    });
     throw error;
   }
 
   try {
     // Step 3: Create liquidator with initialized dependencies
-    return new ExponentLiquidator(env, positions, vaultRegistry, provider, environment);
-  } catch (error) {
-    console.error('❌ Liquidator creation failed:', error);
-    await logger.logError(
-      'Creating ExponentLiquidator instance',
-      (error as Error).message,
-      {
-        type: 'positions',
-        data: positions,
-      }
+    return new ExponentLiquidator(
+      env,
+      positions,
+      vaultRegistry,
+      provider,
+      environment
     );
+  } catch (error) {
+    logError('Creating ExponentLiquidator instance', error as Error, {
+      positionsCount: positions.length,
+      network: env.NETWORK,
+    });
     throw error;
   }
 }
@@ -115,35 +132,48 @@ export default {
     _: ExecutionContext
   ): Promise<Response> {
     const url = new URL(request.url);
-    
+
     // Test endpoint for mocked data and custom provider
     if (url.pathname === '/test') {
       try {
-        console.log('🔧 Test endpoint called');
-        const body = await request.json() as {
+        logDebug('Test endpoint called', undefined, env.LOG_LEVEL);
+        const body = (await request.json()) as {
           positions: Position[];
           forkUrl: string;
           forkBlockNumber?: number;
         };
 
-        console.log('📦 Received test payload:', {
-          positionsCount: body.positions.length,
-          forkUrl: body.forkUrl,
-          network: env.NETWORK
-        });
+        logDebug(
+          'Received test payload',
+          {
+            positionsCount: body.positions.length,
+            forkUrl: body.forkUrl,
+            network: env.NETWORK,
+          },
+          env.LOG_LEVEL
+        );
 
         // Create provider for the fork with explicit network configuration
-        console.log('🌐 Creating custom provider for fork...');
+        logDebug('Creating custom provider for fork', undefined, env.LOG_LEVEL);
         const customProvider = new ethers.providers.JsonRpcProvider({
           url: body.forkUrl,
           timeout: 30000,
-          skipFetchSetup: true
+          skipFetchSetup: true,
         });
-        
-        console.log('🏗️  Creating liquidator with mocked positions...');
-        const liquidator = await createLiquidator(env, body.positions, customProvider, 'development');
-        
-        console.log('🚀 Starting liquidator run...');
+
+        logDebug(
+          'Creating liquidator with mocked positions',
+          undefined,
+          env.LOG_LEVEL
+        );
+        const liquidator = await createLiquidator(
+          env,
+          body.positions,
+          customProvider,
+          'development'
+        );
+
+        logDebug('Starting liquidator run', undefined, env.LOG_LEVEL);
         const result = await liquidator.run();
 
         return new Response(
@@ -157,30 +187,39 @@ export default {
               transactionsFailed: result.liquidationReport.failedTransactions,
             },
             liquidationReport: result.liquidationReport,
-            positionsToLiquidate: result.positionsToLiquidate.map((position) => ({
-              account: position.account,
-              vault: position.vault,
-              healthFactor: position.healthFactor,
-              borrowed: position.borrowed.toString(),
-              collateralShares: position.collateralShares.toString(),
-              maxBorrow: position.maxBorrow.toString(),
-              isWithdrawRequestPending: position.isWithdrawRequestPending,
-              canWithdrawRequestFinalize: position.canWithdrawRequestFinalize,
-            })),
+            positionsToLiquidate: result.positionsToLiquidate.map(
+              (position) => ({
+                account: position.account,
+                vault: position.vault,
+                healthFactor: position.healthFactor,
+                borrowed: position.borrowed.toString(),
+                collateralShares: position.collateralShares.toString(),
+                maxBorrow: position.maxBorrow.toString(),
+                isWithdrawRequestPending: position.isWithdrawRequestPending,
+                canWithdrawRequestFinalize: position.canWithdrawRequestFinalize,
+              })
+            ),
           }),
           {
             headers: { 'Content-Type': 'application/json' },
           }
         );
       } catch (e) {
-        console.error('Test liquidator error:', e);
-        return new Response(`Test Error: ${(e as Error).message}`, { status: 500 });
+        logError('Test liquidator error', e as Error);
+        return new Response(`Test Error: ${(e as Error).message}`, {
+          status: 500,
+        });
       }
     }
-    
+
     // Production endpoint
     try {
-      const liquidator = await createLiquidator(env, undefined, undefined, 'production');
+      const liquidator = await createLiquidator(
+        env,
+        undefined,
+        undefined,
+        'production'
+      );
       const result = await liquidator.run();
 
       return new Response(
@@ -210,7 +249,7 @@ export default {
         }
       );
     } catch (e) {
-      console.error('Liquidator error:', e);
+      logError('Liquidator error', e as Error);
       return new Response(`Error: ${(e as Error).message}`, { status: 500 });
     }
   },
@@ -221,14 +260,22 @@ export default {
     _: ExecutionContext
   ): Promise<void> {
     try {
-      const liquidator = await createLiquidator(env, undefined, undefined, 'production');
+      const liquidator = await createLiquidator(
+        env,
+        undefined,
+        undefined,
+        'production'
+      );
       const result = await liquidator.run();
 
-      console.log(
-        `Processed ${result.enrichedPositions.length} risky positions, attempted ${result.liquidationReport.totalTransactions} liquidations, ${result.liquidationReport.successfulTransactions} successful`
-      );
+      logInfo('Scheduled liquidation completed', {
+        riskyPositionsCount: result.enrichedPositions.length,
+        totalTransactions: result.liquidationReport.totalTransactions,
+        successfulTransactions: result.liquidationReport.successfulTransactions,
+        failedTransactions: result.liquidationReport.failedTransactions,
+      });
     } catch (e) {
-      console.error('Scheduled liquidator error:', e);
+      logError('Scheduled liquidation failed', e as Error);
     }
   },
 };

@@ -5,7 +5,7 @@ import { RiskyPosition, VaultType, TokenPrice } from '../types';
 import { VaultRegistry } from './vaultRegistry';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { getTokenAddress } from '../constants';
-
+import { logError } from './logger';
 export function getRequiredTokensForPricing(
   riskyPositions: RiskyPosition[],
   vaultRegistry: VaultRegistry
@@ -19,7 +19,6 @@ export function getRequiredTokensForPricing(
   for (const vaultAddress of uniqueVaults) {
     const vaultConfig = vaultRegistry.getVaultConfig(vaultAddress);
     if (!vaultConfig) {
-      console.warn(`Vault config not found for vault: ${vaultAddress}`);
       continue;
     }
 
@@ -70,14 +69,6 @@ export async function batchFetchTokenPrices(
   network: Network
 ): Promise<Map<string, TokenPrice>> {
   const tokenArray = Array.from(tokens);
-  console.log(
-    `Fetching prices and decimals for ${tokenArray.length} tokens:`,
-    tokenArray
-  );
-  console.log(
-    `CurveConvex2Token yieldTokens (decimals hardcoded to 18):`,
-    Array.from(curveConvex2TokenYieldTokens)
-  );
 
   // Build multicall calls for both prices and decimals
   const calls: AggregateCall[] = [];
@@ -121,20 +112,14 @@ export async function batchFetchTokenPrices(
       let decimals: number;
       if (curveConvex2TokenYieldTokens.has(token)) {
         decimals = 18;
-        console.log(
-          `Token ${token} (CurveConvex2Token yieldToken): decimals hardcoded to 18`
-        );
       } else {
         decimals = results[`decimals_${i}`] as number;
         if (!decimals) {
-          console.warn(`No decimals data found for token ${token}`);
           continue;
         }
       }
 
       if (price) {
-        console.log('🏗️  Price data:', price);
-
         priceMap.set(token, {
           token,
           price: price,
@@ -145,7 +130,7 @@ export async function batchFetchTokenPrices(
 
     return priceMap;
   } catch (error) {
-    console.error('Error fetching token prices and decimals:', error);
+    logError('Error fetching token prices and decimals', error as Error);
     throw new Error(`Failed to fetch token prices and decimals: ${error}`);
   }
 }
@@ -169,8 +154,6 @@ export async function getTokenPrices(
     tradingModule,
     network
   );
-
-  console.log(`Fetched prices for ${tokenPrices.size} tokens`);
 
   return tokenPrices;
 }

@@ -24,8 +24,8 @@ import {
 } from '@notional-finance/contracts';
 import { generateRedeemData } from './utils/redeemDataGenerator';
 import { getTokenPrices } from './utils/tokenPricing';
-import { LiquidatorLogger } from './utils/logging';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
+import { logDebug, logError } from './utils/logger';
 
 // Math constants for liquidation calculations
 const ORACLE_PRICE_SCALE = ethers.utils.parseUnits('1', 36);
@@ -49,7 +49,6 @@ const mulDivDown = (
 export default class ExponentLiquidator {
   private provider: ethers.providers.Provider;
   private morphoRouterIntegration: MorphoRouterIntegration;
-  private logger: LiquidatorLogger;
   private vaultRegistry: VaultRegistry;
   private positions: Position[];
   private flashLiquidator: ExponentFlashLiquidatorV2;
@@ -73,7 +72,6 @@ export default class ExponentLiquidator {
       this.provider,
       env.MORPHO_LENDING_ROUTER_ADDRESS
     );
-    this.logger = new LiquidatorLogger(env);
     this.flashLiquidator = new ethers.Contract(
       env.FLASH_LIQUIDATOR_ADDRESS,
       ExponentFlashLiquidatorV2ABI,
@@ -114,7 +112,13 @@ export default class ExponentLiquidator {
       })
     );
 
-    console.log('🏗️  Risky positions:', riskyPositions.length);
+    logDebug(
+      'Risky positions identified',
+      {
+        riskyPositionsCount: riskyPositions.length,
+      },
+      this.env.LOG_LEVEL
+    );
     return riskyPositions;
   }
 
@@ -138,17 +142,23 @@ export default class ExponentLiquidator {
       })
     );
 
-    console.log(
-      '🏗️  Account vault share price calls:',
-      accountVaultSharePriceCalls.length
+    logDebug(
+      'Account vault share price calls',
+      {
+        callsCount: accountVaultSharePriceCalls.length,
+      },
+      this.env.LOG_LEVEL
     );
     const { results: accountVaultSharePriceResults } = await aggregate(
       accountVaultSharePriceCalls,
       this.provider
     );
-    console.log(
-      '🏗️  Account vault share price results:',
-      accountVaultSharePriceResults
+    logDebug(
+      'Account vault share price results received',
+      {
+        resultsCount: Object.keys(accountVaultSharePriceResults).length,
+      },
+      this.env.LOG_LEVEL
     );
 
     const accountVaultSharePricesArray = positions.map(
@@ -205,23 +215,19 @@ export default class ExponentLiquidator {
         position.accountVaultSharePrice
       );
 
-      console.log(
-        '🏗️  Theoretical seizable collateral quoted in asset:',
-        theoreticalSeizableCollateralQuotedInAsset.toString()
-      );
-      console.log(
-        '🏗️  Theoretical seizable collateral shares:',
-        theoreticalSeizableCollateralShares.toString()
-      );
-      console.log(
-        '🏗️  Collateral shares:',
-        position.collateralShares.toString()
-      );
-      console.log('🏗️  Borrowed:', position.borrowed.toString());
-      console.log('🏗️  Borrow shares:', position.borrowShares.toString());
-      console.log(
-        '🏗️  Account vault share price:',
-        position.accountVaultSharePrice.toString()
+      logDebug(
+        'Liquidation calculation details',
+        {
+          theoreticalSeizableCollateralQuotedInAsset:
+            theoreticalSeizableCollateralQuotedInAsset.toString(),
+          theoreticalSeizableCollateralShares:
+            theoreticalSeizableCollateralShares.toString(),
+          collateralShares: position.collateralShares.toString(),
+          borrowed: position.borrowed.toString(),
+          borrowShares: position.borrowShares.toString(),
+          accountVaultSharePrice: position.accountVaultSharePrice.toString(),
+        },
+        this.env.LOG_LEVEL
       );
 
       if (position.collateralShares.lt(theoreticalSeizableCollateralShares)) {
@@ -483,7 +489,13 @@ export default class ExponentLiquidator {
           this.provider
             .estimateGas(tx)
             .catch((e) => {
-              console.log('FAILED ESTIMATE GAS ', e);
+              logDebug(
+                'Failed estimate gas',
+                {
+                  error: (e as Error).message,
+                },
+                this.env.LOG_LEVEL
+              );
               failingTxns.push(tx);
               return null;
             })
@@ -506,7 +518,13 @@ export default class ExponentLiquidator {
 
     for (const tx of validTxs) {
       try {
-        console.log(`Executing transaction to: ${tx.to}`);
+        logDebug(
+          'Executing transaction',
+          {
+            to: tx.to,
+          },
+          this.env.LOG_LEVEL
+        );
 
         const gasLimit = await this.provider.estimateGas(tx);
 
@@ -514,11 +532,19 @@ export default class ExponentLiquidator {
         if (tx.data && tx.to) {
           if (this.environment === 'development') {
             // In development mode, simulate transaction execution on anvil fork
-            console.log(
-              '🧪 Development mode: Simulating transaction execution'
+            logDebug(
+              'Development mode: Simulating transaction execution',
+              undefined,
+              this.env.LOG_LEVEL
             );
             const simulationResult = await this.provider.call(tx);
-            console.log('🔬 Simulation result:', simulationResult);
+            logDebug(
+              'Simulation result received',
+              {
+                result: simulationResult,
+              },
+              this.env.LOG_LEVEL
+            );
 
             // Create a mock transaction response
             resp = {
@@ -539,11 +565,14 @@ export default class ExponentLiquidator {
             } as ethers.providers.TransactionResponse;
           } else {
             // Production mode: Use relay
-            console.log('🔧 Production mode: Sending transaction via relay');
-            console.log(this.env.NETWORK);
-            console.log(this.env.TX_RELAY_AUTH_TOKEN);
-            console.log(tx.to as string);
-            console.log(tx.data as string);
+            logDebug(
+              'Production mode: Sending transaction via relay',
+              {
+                network: this.env.NETWORK,
+                to: tx.to as string,
+              },
+              this.env.LOG_LEVEL
+            );
             resp = await sendTxThroughRelayer({
               env: {
                 NETWORK: this.env.NETWORK,
@@ -563,11 +592,20 @@ export default class ExponentLiquidator {
           });
 
           if (resp) {
-            console.log(`Transaction sent via relay: ${resp.hash}`);
+            logDebug(
+              'Transaction sent via relay',
+              {
+                hash: resp.hash,
+              },
+              this.env.LOG_LEVEL
+            );
           }
         }
       } catch (error) {
-        console.error('Transaction execution failed:', error);
+        logError('Transaction execution failed', error as Error, {
+          to: tx.to as string,
+          data: tx.data as string,
+        });
         transactionResults.push({
           success: false,
           error: (error as Error).message,
@@ -584,8 +622,13 @@ export default class ExponentLiquidator {
       transactionResults,
     };
 
-    console.log(
-      `Completed liquidation: ${report.successfulTransactions}/${report.totalTransactions} transactions successful`
+    logDebug(
+      'Completed liquidation',
+      {
+        successfulTransactions: report.successfulTransactions,
+        totalTransactions: report.totalTransactions,
+      },
+      this.env.LOG_LEVEL
     );
 
     return report;
@@ -605,28 +648,36 @@ export default class ExponentLiquidator {
     try {
       // Step 1: Get risky positions
       riskyPositions = await this.getRiskyPositions();
-      console.log('🏗️  Risky positions:', riskyPositions.length);
-    } catch (error) {
-      console.error('❌ Getting risky positions failed:', error);
-      await this.logger.logError(
-        'Getting risky positions',
-        (error as Error).message,
-        { type: 'positions', data: this.positions }
+      logDebug(
+        'Risky positions retrieved',
+        {
+          riskyPositionsCount: riskyPositions.length,
+        },
+        this.env.LOG_LEVEL
       );
+    } catch (error) {
+      logError('Getting risky positions', error as Error, {
+        positionsCount: this.positions.length,
+        network: this.network,
+      });
       throw error;
     }
 
     try {
       // Step 2: Enrich position data
       enrichedPositions = await this.enrichPositionData(riskyPositions);
-      console.log('🏗️  Enriched positions:', enrichedPositions.length);
-    } catch (error) {
-      console.error('❌ Enriching position data failed:', error);
-      await this.logger.logError(
-        'Enriching position data',
-        (error as Error).message,
-        { type: 'riskyPositions', data: riskyPositions }
+      logDebug(
+        'Enriched positions',
+        {
+          enrichedPositionsCount: enrichedPositions.length,
+        },
+        this.env.LOG_LEVEL
       );
+    } catch (error) {
+      logError('Enriching position data', error as Error, {
+        riskyPositions: riskyPositions,
+        network: this.network,
+      });
       throw error;
     }
 
@@ -634,14 +685,18 @@ export default class ExponentLiquidator {
       // Step 3: Filter positions for liquidation
       positionsToLiquidate =
         this.filterPositionsForLiquidation(enrichedPositions);
-      console.log('🏗️  Positions to liquidate:', positionsToLiquidate.length);
-    } catch (error) {
-      console.error('❌ Filtering positions for liquidation failed:', error);
-      await this.logger.logError(
-        'Filtering positions for liquidation',
-        (error as Error).message,
-        { type: 'enrichedPositions', data: enrichedPositions }
+      logDebug(
+        'Positions to liquidate filtered',
+        {
+          positionsToLiquidateCount: positionsToLiquidate.length,
+        },
+        this.env.LOG_LEVEL
       );
+    } catch (error) {
+      logError('Filtering positions for liquidation', error as Error, {
+        enrichedPositions: enrichedPositions,
+        network: this.network,
+      });
       throw error;
     }
 
@@ -655,14 +710,18 @@ export default class ExponentLiquidator {
     try {
       // Step 4: Sort positions for liquidation
       sortedPositions = this.sortPositionsForLiquidation(positionsToLiquidate);
-      console.log('🏗️  Sorted positions:', sortedPositions.size);
-    } catch (error) {
-      console.error('❌ Sorting positions for liquidation failed:', error);
-      await this.logger.logError(
-        'Sorting positions for liquidation',
-        (error as Error).message,
-        { type: 'enrichedPositions', data: positionsToLiquidate }
+      logDebug(
+        'Sorted positions',
+        {
+          sortedPositionsCount: sortedPositions.size,
+        },
+        this.env.LOG_LEVEL
       );
+    } catch (error) {
+      logError('Sorting positions for liquidation', error as Error, {
+        positionsToLiquidate: positionsToLiquidate,
+        network: this.network,
+      });
       throw error;
     }
 
@@ -677,17 +736,18 @@ export default class ExponentLiquidator {
       // Step 5: Batch positions for liquidation
       batchedAndSortedPositions =
         this.batchPositionsForLiquidation(sortedPositions);
-      console.log(
-        '🏗️  Batched and sorted positions:',
-        batchedAndSortedPositions.size
+      logDebug(
+        'Batched and sorted positions',
+        {
+          batchedPositionsCount: batchedAndSortedPositions.size,
+        },
+        this.env.LOG_LEVEL
       );
     } catch (error) {
-      console.error('❌ Batching positions for liquidation failed:', error);
-      await this.logger.logError(
-        'Batching positions for liquidation',
-        (error as Error).message,
-        { type: 'enrichedPositions', data: positionsToLiquidate }
-      );
+      logError('Batching positions for liquidation', error as Error, {
+        positionsToLiquidate: positionsToLiquidate,
+        network: this.network,
+      });
       throw error;
     }
 
@@ -701,14 +761,18 @@ export default class ExponentLiquidator {
         this.tradingModule,
         this.network
       );
-      console.log('🏗️  Token prices:', tokenPrices.size);
-    } catch (error) {
-      console.error('❌ Fetching token prices failed:', error);
-      await this.logger.logError(
-        'Fetching token prices',
-        (error as Error).message,
-        { type: 'enrichedPositions', data: positionsToLiquidate }
+      logDebug(
+        'Token prices fetched',
+        {
+          tokenPricesCount: tokenPrices.size,
+        },
+        this.env.LOG_LEVEL
       );
+    } catch (error) {
+      logError('Fetching token prices', error as Error, {
+        positionsToLiquidate: positionsToLiquidate,
+        network: this.network,
+      });
       throw error;
     }
 
@@ -727,26 +791,29 @@ export default class ExponentLiquidator {
         batchedAndSortedPositions,
         tokenPrices
       );
-      console.log(
-        '🏗️  Liquidation params:',
-        liquidationParams.map((param) => ({
-          ...param,
-          collateralSharesToSeize: param.collateralSharesToSeize.map((shares) =>
-            shares.toString()
-          ),
-          isMaxLiquidate: param.isMaxLiquidate.map((isMax) => isMax.toString()),
-          assetsToBorrow: param.assetsToBorrow.toString(),
-          totalCollateralSharesSeized:
-            param.totalCollateralSharesSeized.toString(),
-        }))
+      logDebug(
+        'Liquidation params generated',
+        {
+          liquidationParams: liquidationParams.map((param) => ({
+            ...param,
+            collateralSharesToSeize: param.collateralSharesToSeize.map(
+              (shares) => shares.toString()
+            ),
+            isMaxLiquidate: param.isMaxLiquidate.map((isMax) =>
+              isMax.toString()
+            ),
+            assetsToBorrow: param.assetsToBorrow.toString(),
+            totalCollateralSharesSeized:
+              param.totalCollateralSharesSeized.toString(),
+          })),
+        },
+        this.env.LOG_LEVEL
       );
     } catch (error) {
-      console.error('❌ Generating liquidation call data failed:', error);
-      await this.logger.logError(
-        'Generating liquidation call data',
-        (error as Error).message,
-        { type: 'enrichedPositions', data: positionsToLiquidate }
-      );
+      logError('Generating liquidation call data', error as Error, {
+        positionsToLiquidate: positionsToLiquidate,
+        network: this.network,
+      });
       throw error;
     }
 
@@ -754,14 +821,18 @@ export default class ExponentLiquidator {
     try {
       // Step 8: Generate populated transactions
       populatedTxs = await this.generateTransactions(liquidationParams);
-      console.log('🏗️  Populated transactions:', populatedTxs.length);
-    } catch (error) {
-      console.error('❌ Generating populated transactions failed:', error);
-      await this.logger.logError(
-        'Generating populated transactions',
-        (error as Error).message,
-        { type: 'enrichedPositions', data: positionsToLiquidate }
+      logDebug(
+        'Populated transactions generated',
+        {
+          populatedTxsCount: populatedTxs.length,
+        },
+        this.env.LOG_LEVEL
       );
+    } catch (error) {
+      logError('Generating populated transactions', error as Error, {
+        positionsToLiquidate: positionsToLiquidate,
+        network: this.network,
+      });
       throw error;
     }
 
@@ -769,28 +840,36 @@ export default class ExponentLiquidator {
     try {
       // Step 9: Prune failing transactions
       validTxs = await this.pruneFailingTransactions(populatedTxs);
-      console.log('🏗️  Valid transactions:', validTxs.length);
-    } catch (error) {
-      console.error('❌ Pruning failing transactions failed:', error);
-      await this.logger.logError(
-        'Pruning failing transactions',
-        (error as Error).message,
-        { type: 'enrichedPositions', data: positionsToLiquidate }
+      logDebug(
+        'Valid transactions',
+        {
+          validTxsCount: validTxs.length,
+        },
+        this.env.LOG_LEVEL
       );
+    } catch (error) {
+      logError('Pruning failing transactions', error as Error, {
+        positionsToLiquidate: positionsToLiquidate,
+        network: this.network,
+      });
       throw error;
     }
 
     try {
       // Step 10: Execute the valid transactions via relay
       liquidationReport = await this.executeTransactionsViaRelay(validTxs);
-      console.log('🏗️  Liquidation report:', liquidationReport);
-    } catch (error) {
-      console.error('❌ Executing transactions via relay failed:', error);
-      await this.logger.logError(
-        'Executing transactions via relay',
-        (error as Error).message,
-        { type: 'enrichedPositions', data: positionsToLiquidate }
+      logDebug(
+        'Liquidation report',
+        {
+          liquidationReport,
+        },
+        this.env.LOG_LEVEL
       );
+    } catch (error) {
+      logError('Executing transactions via relay', error as Error, {
+        positionsToLiquidate: positionsToLiquidate,
+        network: this.network,
+      });
       throw error;
     }
 

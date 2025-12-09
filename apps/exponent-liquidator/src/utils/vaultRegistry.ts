@@ -43,10 +43,8 @@ export class VaultRegistry {
     network: Network,
     morphoRouterAddress: string
   ): Promise<VaultRegistry> {
-    console.log('🏗️ VaultRegistry.initialize starting with:', vaultAddresses);
     const registry = new VaultRegistry(provider, network, morphoRouterAddress);
     await registry.loadVaultConfigs(vaultAddresses);
-    console.log('🏗️ VaultRegistry.initialize completed');
     return registry;
   }
 
@@ -123,9 +121,7 @@ export class VaultRegistry {
     });
 
     // Execute first stage to get basic vault data
-    console.log('🔧 Stage 1: Executing basic vault data calls:', calls.length);
     const { results } = await aggregate(calls, this.provider);
-    console.log('🔧 Stage 1: Results received:', Object.keys(results).length);
 
     // Prepare additional calls based on vault types
     const vaultConfigs: Partial<OnChainVaultConfig>[] = vaultAddresses.map(
@@ -208,9 +204,7 @@ export class VaultRegistry {
     calls.push(...additionalCalls);
 
     // Execute again to get vault-specific data
-    console.log('🔧 Stage 2: Executing vault-specific calls:', calls.length);
     const { results: results2 } = await aggregate(calls, this.provider);
-    console.log('🔧 Stage 2: Results received:', results2);
 
     // Enrich vault configs with stage 2 data
     const enrichedVaultConfigs = vaultAddresses.map((vaultAddress, i) => {
@@ -241,10 +235,6 @@ export class VaultRegistry {
           tokens[1] === ethers.constants.AddressZero
             ? getTokenAddress(this.network, 'WETH')!
             : tokens[1];
-
-        console.log('🔧 tokens:', tokens);
-        console.log('🔧 token0:', token0);
-        console.log('🔧 token1:', token1);
 
         return {
           ...config,
@@ -308,9 +298,7 @@ export class VaultRegistry {
 
     // Add final calls and execute to get WRM addresses
     calls.push(...finalCalls);
-    console.log('🔧 Stage 3: Executing WRM address calls:', calls.length);
     const { results: results3 } = await aggregate(calls, this.provider);
-    console.log('🔧 Stage 3: Results received:', Object.keys(results3).length);
 
     // Enrich vault configs with stage 3 data
     const enrichedVaultConfigs2 = vaultAddresses.map((vaultAddress, i) => {
@@ -389,20 +377,11 @@ export class VaultRegistry {
 
     if (withdrawTokenCalls.length > 0) {
       calls.push(...withdrawTokenCalls);
-      console.log(
-        '🔧 Stage 4: Executing withdraw token calls:',
-        withdrawTokenCalls.length
-      );
       const { results: finalResults } = await aggregate(calls, this.provider);
-      console.log(
-        '🔧 Stage 4: Results received:',
-        Object.keys(finalResults).length
-      );
 
       // Enrich vault configs with stage 4 data (withdraw tokens)
       finalEnrichedConfigs = vaultAddresses.map((vaultAddress, i) => {
         const config = enrichedVaultConfigs2[i];
-        console.log(`🔧 Parsing results for vault ${i}: ${vaultAddress}`);
 
         if (config.vaultType === VaultType.PendlePT) {
           return {
@@ -430,9 +409,6 @@ export class VaultRegistry {
     }
 
     // Fetch liquidation incentive factors for all vaults
-    console.log(
-      '🔧 Stage 5: Fetching liquidation incentive factors for all vaults'
-    );
     const liquidationIncentiveFactors =
       await this.morphoRouterIntegration.batchLiquidationIncentiveFactors(
         vaultAddresses

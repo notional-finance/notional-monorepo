@@ -67,15 +67,12 @@ export class MorphoRouterIntegration {
         };
       },
     }));
-    console.log('🏗️  Health factor calls:', calls.length);
 
     const { results } = await aggregate(calls, this.provider);
-    console.log('🏗️  Health factor results:', results);
 
     const healthFactorData = pairs.map(
       (_, index) => results[`health_${index}`] as HealthFactorData
     );
-    console.log('🏗️  Health factor data:', healthFactorData.length);
     return healthFactorData;
   }
 
@@ -106,9 +103,7 @@ export class MorphoRouterIntegration {
       key: `borrowShares_${index}`,
     }));
 
-    console.log('🏗️  Borrow share balance calls:', calls.length);
     const { results } = await aggregate(calls, this.provider);
-    console.log('🏗️  Borrow share balance results:', results);
 
     return positions.map(
       (_, index) => results[`borrowShares_${index}`] as BigNumber
@@ -131,17 +126,11 @@ export class MorphoRouterIntegration {
 
         const liquidationIncentiveFactor = incentiveFactor(lltv);
 
-        console.log(
-          `🏗️  Vault ${vault} LLTV: ${lltv.toString()}, Incentive Factor: ${liquidationIncentiveFactor.toString()}`
-        );
-
         return liquidationIncentiveFactor;
       },
     }));
 
-    console.log('🏗️  Market params calls:', calls.length);
     const { results } = await aggregate(calls, this.provider);
-    console.log('🏗️  Incentive factor results:', results);
 
     const liquidationIncentiveFactors = new Map<string, BigNumber>();
     vaultAddresses.forEach((vault, index) => {
