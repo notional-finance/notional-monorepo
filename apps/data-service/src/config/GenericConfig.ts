@@ -716,4 +716,49 @@ export const configDefs: ConfigDefinition[] = [
     },
     network: Network.mainnet,
   },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x8D51DBC85cEef637c97D02bdaAbb5E274850e68C',
+      contractABI: ['function lastAnswer() view external returns (int256)'],
+      method: 'lastAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'mF-ONE to USD Exchange Rate',
+      decimals: 8,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x43881B05C3BE68B2d33eb70aDdF9F666C5005f68',
+      contractABI: ['function lastAnswer() view external returns (int256)'],
+      method: 'lastAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'mHYPER to USD Exchange Rate',
+      decimals: 8,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x84303e5568C7B167fa4fEBc6253CDdfe12b7Ee4B',
+      contractABI: ['function lastAnswer() view external returns (int256)'],
+      method: 'lastAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'mAPOLLO to USD Exchange Rate',
+      decimals: 8,
+    },
+    network: Network.mainnet,
+  },
 ];
