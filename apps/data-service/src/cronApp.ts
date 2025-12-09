@@ -1,0 +1,59 @@
+import { Request, Response } from '@google-cloud/functions-framework';
+import DataService from './DataService';
+import { syncDune } from './DuneService';
+import { ONE_HOUR_MS } from '@notional-finance/util';
+import { logToDataDog } from './util';
+
+export default async function (req: Request, res: Response) {
+  // no custom authentication/authorization needed since cron service
+  // will be only triggered by google cloud scheduler with the proper service account
+  // that has the necessary permissions and is not meant to be accessed from outside of google cloud
+
+  const dataService = new DataService();
+
+  try {
+    switch (req.path) {
+      case '/syncDune':
+        await syncDune();
+        res.status(200).send('OK');
+        break;
+      case '/syncOracleData':
+        res.send(
+          JSON.stringify(
+            await dataService.syncOracleData(
+              dataService.latestTimestamp() - ONE_HOUR_MS / 1000
+            )
+          )
+        );
+        break;
+      case '/syncGenericData':
+        res.send(
+          JSON.stringify(
+            await dataService.syncGenericData(
+              dataService.latestTimestamp() - ONE_HOUR_MS / 1000
+            )
+          )
+        );
+        break;
+
+      default:
+        res.status(404).send('Not found');
+        break;
+    }
+  } catch (err) {
+    console.error(err);
+    await logToDataDog(
+      'cron-service',
+      {
+        url: req.url,
+        method: req.method,
+        message: (err as Error)?.message,
+        stack: (err as Error)?.stack,
+        err: JSON.stringify(err),
+        status: 'error',
+      },
+      'error:cronApp'
+    );
+    res.status(500).send(JSON.stringify(err));
+  }
+}

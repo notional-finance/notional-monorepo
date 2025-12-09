@@ -66,14 +66,14 @@ const AllRoutes = observer(() => {
   const navigate = useNavigate();
   const [didRedirect, setDidRedirect] = useState(false);
 
-  useEffect(() => {
-    if (walletStore.isBetaUser && !didRedirect) {
-      setDidRedirect(true);
-      navigate('/');
-    } else if (!didRedirect) {
-      navigate('/exponent-beta');
-    }
-  }, [walletStore, navigate, didRedirect]);
+  // useEffect(() => {
+  //   if (walletStore.isBetaUser && !didRedirect) {
+  //     setDidRedirect(true);
+  //     navigate('/');
+  //   } else if (!didRedirect) {
+  //     navigate('/exponent-beta');
+  //   }
+  // }, [walletStore, navigate, didRedirect]);
 
   useEffect(() => {
     const models = initializeTokenBalanceRegistry();
