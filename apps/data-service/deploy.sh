@@ -18,7 +18,7 @@ fi
 ENV_VARS="DB_USER=postgres,\
 DB_NAME=notional-v3,\
 DB_HOST=/cloudsql/monitoring-agents:us-central1:notional,\
-REGISTRY_URL=https://registry.notional.finance,\
+REGISTRY_URL=https://registry-v4.notional.finance,\
 MERGE_CONFLICTS=false,\
 NX_USE_CROSS_FETCH=true,\
 CLOUDFLARE_ACCOUNT_ID=274f86c6dcfbb77c09e49e86d101c753,\
@@ -69,3 +69,14 @@ else
   echo "Error: Invalid argument. Please provide 'data-service' or 'cron-service'."
   exit 1
 fi
+
+# After deploying the function, update the Cloud Run service
+# gcloud run services update data-service \
+#   --region us-central1 \
+#   --add-cloudsql-instances=monitoring-agents:us-central1:notional \
+#   --project monitoring-agents
+
+# gcloud run services update cron-service \
+#   --region us-central1 \
+#   --add-cloudsql-instances=monitoring-agents:us-central1:notional \
+#   --project monitoring-agents

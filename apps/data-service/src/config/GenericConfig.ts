@@ -1,8 +1,5 @@
 import {
   BalancerBoostedPoolABI,
-  wstETHABI,
-  cbETHABI,
-  rETHABI,
   BalancerStablePoolABI,
   ERC20ABI,
   IAggregatorABI,
@@ -17,7 +14,9 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
-      contractABI: wstETHABI,
+      contractABI: new ethers.utils.Interface([
+        'function getStETHByWstETH(uint256 wstETH) view returns (uint256)',
+      ]).format(),
       method: 'getStETHByWstETH',
       args: [ethers.utils.parseEther('1')],
     },
@@ -33,7 +32,9 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704',
-      contractABI: cbETHABI,
+      contractABI: new ethers.utils.Interface([
+        'function exchangeRate() view returns (uint256)',
+      ]).format(),
       method: 'exchangeRate',
     },
     tableName: TableName.GenericData,
@@ -48,7 +49,9 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xae78736cd615f374d3085123a210448e74fc6393',
-      contractABI: rETHABI,
+      contractABI: new ethers.utils.Interface([
+        'function getExchangeRate() view returns (uint256)',
+      ]).format(),
       method: 'getExchangeRate',
     },
     tableName: TableName.GenericData,

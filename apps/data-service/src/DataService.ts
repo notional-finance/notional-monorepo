@@ -33,7 +33,12 @@ import {
   gql,
 } from '@apollo/client/core';
 import { graphQueries } from './graphQueries';
-import { Servers } from '@notional-finance/core-entities';
+import {
+  initializeTokenBalanceRegistry,
+  Servers,
+} from '@notional-finance/core-entities';
+
+initializeTokenBalanceRegistry();
 
 // TODO: fetch from DB
 const networkToId = {
