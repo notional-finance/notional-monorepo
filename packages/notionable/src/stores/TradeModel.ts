@@ -41,7 +41,6 @@ import {
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { CalculationFnParams } from '@notional-finance/transaction';
-import { reaction } from 'mobx';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -402,50 +401,6 @@ export const TradeModel = types
       }
     };
 
-    // Track the disposer for cleanup
-    let deferredCalculationDisposer: (() => void) | null = null;
-    const setupDeferredCalculationReaction = () => {
-      if (deferredCalculationDisposer) {
-        deferredCalculationDisposer();
-        deferredCalculationDisposer = null;
-      }
-
-      deferredCalculationDisposer = reaction(
-        () => {
-          const { requiredArgs } = getTradeConfig(self.tradeType);
-          return {
-            nonce: self.deferredCalculationNonce,
-            inputs: getRequiredInputs(requiredArgs),
-          };
-        },
-        async (snapshot) => {
-          if (!snapshot) return;
-          if (!isAlive(self)) return;
-          const { nonce, inputs } = snapshot;
-          // Cancel if this is not the latest calculation
-          if (nonce !== self.deferredCalculationNonce) return;
-          self.deferredCalculationStatus = 'Running';
-          try {
-            // Trigger async calculation
-            // const result = await calculate(inputs);
-            console.log('deferred calculation running', inputs);
-            // Cancel again if the nonce has changed
-            if (nonce !== self.deferredCalculationNonce) return;
-
-            // TODO: set deferred state here
-            self.deferredCalculationStatus = 'Completed';
-          } catch (e) {
-            console.error('deferred calculation error', e);
-            self.deferredCalculationStatus = 'Error';
-          }
-        },
-        {
-          delay: 500,
-          name: 'deferredCalculationReaction',
-        }
-      );
-    };
-
     const afterAttach = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
       if (self.vaultAddress) {
@@ -516,7 +471,6 @@ export const TradeModel = types
         self.selectedNetwork,
         self.tradeType
       );
-      setupDeferredCalculationReaction();
       self.isReady = true;
     };
 
@@ -579,6 +533,57 @@ export const TradeModel = types
       self.deferredNetRealizedCollateralBalance = undefined;
     };
 
+    // The actual deferred calculation function (runs as an action)
+    const runDeferredCalculation = flow(function* (nonce: number) {
+      if (!isAlive(self)) return;
+
+      // Check if this is still the latest calculation
+      if (nonce !== self.deferredCalculationNonce) {
+        return; // A newer calculation has been scheduled, skip this one
+      }
+
+      self.deferredCalculationStatus = 'Running';
+
+      try {
+        // Capture current state snapshot for the calculation
+        const { requiredArgs } = getTradeConfig(self.tradeType);
+        const { inputs } = getRequiredInputs(requiredArgs);
+
+        // Perform your async deferred calculation here
+        // Example:
+        // const result = await someAsyncCalculation(inputs);
+        console.log('deferred calculation running', inputs);
+
+        // Check again if this is still the latest after async operation
+        if (nonce !== self.deferredCalculationNonce) {
+          return; // A newer calculation has been scheduled, discard this result
+        }
+
+        // Update the model with results
+        // self.deferredCollateralBalance = result.collateralBalance;
+        // self.deferredDebtBalance = result.debtBalance;
+        // etc.
+
+        self.deferredCalculationStatus = 'Completed';
+      } catch (error) {
+        // Only update status if this is still the latest calculation
+        if (nonce === self.deferredCalculationNonce) {
+          self.deferredCalculationStatus = 'Error';
+          console.error('Deferred calculation error', error);
+        }
+      }
+    });
+
+    // Debounced version of the deferred calculation
+    const debouncedDeferredCalculation = debounce(
+      (nonce: number) => {
+        // runDeferredCalculation is available at runtime
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (self as any).runDeferredCalculation(nonce);
+      },
+      500 // debounce delay in milliseconds
+    );
+
     const calculate = () => {
       if (!isAlive(self)) return;
 
@@ -628,9 +633,10 @@ export const TradeModel = types
           }
 
           self.calculationSuccess = true;
-          // This will trigger the next deferred calculation
+          debouncedDeferredCalculation.cancel();
           self.deferredCalculationNonce += 1;
           self.deferredCalculationStatus = 'Pending';
+          debouncedDeferredCalculation(self.deferredCalculationNonce);
           self.calculateError = undefined;
         } catch (e) {
           console.error('trade model calculate error', e);
@@ -910,6 +916,7 @@ export const TradeModel = types
       setETHBalanceForStaking,
       setUseOptimalETHForStaking,
       setVaultMaxWithdraw,
+      runDeferredCalculation,
     };
   })
   .views((self) => {
@@ -1340,3 +1347,30 @@ function averageAPY(
   );
   return weightedApys.reduce((acc, curr) => acc + curr, 0);
 }
+
+// Simple debounce implementation
+const debounce = <T extends (...args: any[]) => void>(
+  func: T,
+  delay: number
+): ((...args: Parameters<T>) => void) & { cancel: () => void } => {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  const debounced = (...args: Parameters<T>) => {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+      timeoutId = null;
+    }, delay);
+  };
+
+  debounced.cancel = () => {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  };
+
+  return debounced;
+};

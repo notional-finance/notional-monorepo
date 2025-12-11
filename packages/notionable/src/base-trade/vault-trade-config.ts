@@ -67,7 +67,7 @@ function matchingVaultShare(
     : true;
 }
 
-export const VaultTradeConfiguration = {
+export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
   /**
    * Input:
    * depositBalance
