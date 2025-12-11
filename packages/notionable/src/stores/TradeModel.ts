@@ -41,6 +41,7 @@ import {
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { CalculationFnParams } from '@notional-finance/transaction';
+import { reaction } from 'mobx';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -202,6 +203,7 @@ export const TradeModel = types
       types.enumeration('DeferredCalculationStatus', [
         'NotStarted',
         'Pending',
+        'Running',
         'Completed',
         'Error',
       ]),
@@ -400,6 +402,50 @@ export const TradeModel = types
       }
     };
 
+    // Track the disposer for cleanup
+    let deferredCalculationDisposer: (() => void) | null = null;
+    const setupDeferredCalculationReaction = () => {
+      if (deferredCalculationDisposer) {
+        deferredCalculationDisposer();
+        deferredCalculationDisposer = null;
+      }
+
+      deferredCalculationDisposer = reaction(
+        () => {
+          const { requiredArgs } = getTradeConfig(self.tradeType);
+          return {
+            nonce: self.deferredCalculationNonce,
+            inputs: getRequiredInputs(requiredArgs),
+          };
+        },
+        async (snapshot) => {
+          if (!snapshot) return;
+          if (!isAlive(self)) return;
+          const { nonce, inputs } = snapshot;
+          // Cancel if this is not the latest calculation
+          if (nonce !== self.deferredCalculationNonce) return;
+          self.deferredCalculationStatus = 'Running';
+          try {
+            // Trigger async calculation
+            // const result = await calculate(inputs);
+            console.log('deferred calculation running', inputs);
+            // Cancel again if the nonce has changed
+            if (nonce !== self.deferredCalculationNonce) return;
+
+            // TODO: set deferred state here
+            self.deferredCalculationStatus = 'Completed';
+          } catch (e) {
+            console.error('deferred calculation error', e);
+            self.deferredCalculationStatus = 'Error';
+          }
+        },
+        {
+          delay: 500,
+          name: 'deferredCalculationReaction',
+        }
+      );
+    };
+
     const afterAttach = () => {
       const model = root().getNetworkClient(self.selectedNetwork);
       if (self.vaultAddress) {
@@ -470,13 +516,11 @@ export const TradeModel = types
         self.selectedNetwork,
         self.tradeType
       );
+      setupDeferredCalculationReaction();
       self.isReady = true;
     };
 
-    const calculate = () => {
-      if (!isAlive(self)) return;
-
-      const { requiredArgs, calculationFn } = getTradeConfig(self.tradeType);
+    const getRequiredInputs = (requiredArgs: CalculationFnParams[]) => {
       let inputsSatisfied = true;
 
       const inputs = requiredArgs.reduce((acc, arg) => {
@@ -523,6 +567,27 @@ export const TradeModel = types
         return acc;
       }, {} as Record<CalculationFnParams, unknown>);
 
+      return { inputs, inputsSatisfied };
+    };
+
+    const clearDeferredState = () => {
+      self.deferredCalculationStatus = 'NotStarted';
+      self.deferredCollateralAPY = undefined;
+      self.deferredCollateralBalance = undefined;
+      self.deferredDepositBalance = undefined;
+      self.deferredCollateralFee = undefined;
+      self.deferredNetRealizedCollateralBalance = undefined;
+    };
+
+    const calculate = () => {
+      if (!isAlive(self)) return;
+
+      const { requiredArgs, calculationFn } = getTradeConfig(self.tradeType);
+      const { inputs, inputsSatisfied } = getRequiredInputs(requiredArgs);
+      // Ensure that any deferred state is cleared before calculating so we don't
+      // show any stale deferred state.
+      clearDeferredState();
+
       self.inputsSatisfied = inputsSatisfied;
       if (inputsSatisfied) {
         try {
@@ -563,6 +628,9 @@ export const TradeModel = types
           }
 
           self.calculationSuccess = true;
+          // This will trigger the next deferred calculation
+          self.deferredCalculationNonce += 1;
+          self.deferredCalculationStatus = 'Pending';
           self.calculateError = undefined;
         } catch (e) {
           console.error('trade model calculate error', e);
