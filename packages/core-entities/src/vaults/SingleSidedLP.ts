@@ -295,7 +295,7 @@ export class SingleSidedLP extends VaultAdapter {
     return incentiveAverages;
   }
 
-  getNetVaultSharesMinted(
+  getEstimatedVaultShares(
     netUnderlying: TokenBalance,
     vaultShare: TokenDefinition
   ): {
@@ -330,7 +330,7 @@ export class SingleSidedLP extends VaultAdapter {
     }
   }
 
-  getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  getEstimatedUnderlying(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
@@ -451,7 +451,7 @@ export class SingleSidedLP extends VaultAdapter {
   override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
     return [
       ...withdrawTokensBurned.map((t) =>
-        this.getVaultTradeMetadata(t, this.borrowedToken)
+        this.getEstimatedVaultTrade(t, this.borrowedToken)
       ),
     ];
   }

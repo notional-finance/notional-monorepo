@@ -209,7 +209,7 @@ export class PendlePT extends VaultAdapter {
     const { depositPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (depositPoolAddress) {
-      return this.getVaultTradeMetadata(
+      return this.getEstimatedVaultTrade(
         underlyingIn,
         this.assetToken,
         depositPoolAddress,
@@ -251,7 +251,7 @@ export class PendlePT extends VaultAdapter {
       if (tokenOutSy.symbol === 'sUSDe') {
         // For sUSDe we need to trade to sDAI and then redeem the sDAI to DAI before
         // we execute the following trade.
-        const sDAITrade = this.getVaultTradeMetadata(
+        const sDAITrade = this.getEstimatedVaultTrade(
           tokenOutSy,
           getNetworkModel(this.network).getTokenBySymbol('sDAI'),
           registerTokensMap[this.network]['sDAI/sUSDe']
@@ -261,7 +261,7 @@ export class PendlePT extends VaultAdapter {
         _tokenOutSy = sDAITrade.tokensBought;
       }
 
-      const trade = this.getVaultTradeMetadata(
+      const trade = this.getEstimatedVaultTrade(
         _tokenOutSy,
         this.borrowedToken,
         redeemPoolAddress
@@ -287,14 +287,14 @@ export class PendlePT extends VaultAdapter {
     return vaultTradeMetadata;
   }
 
-  getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  getEstimatedUnderlying(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
     // This is only called on maxWithdraw from a vault
     if (netVaultShares.isPositive())
       throw Error(
-        'getNetVaultSharesCost should not be called with a positive netVaultShares'
+        'getEstimatedUnderlying should not be called with a positive netVaultShares'
       );
 
     const ptTokens = TokenBalance.from(
@@ -329,7 +329,7 @@ export class PendlePT extends VaultAdapter {
     };
   }
 
-  getNetVaultSharesMinted(
+  getEstimatedVaultShares(
     netUnderlying: TokenBalance,
     vaultShare: TokenDefinition
   ): {
@@ -530,7 +530,7 @@ export class PendlePT extends VaultAdapter {
     const { withdrawPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     return [
-      this.getVaultTradeMetadata(
+      this.getEstimatedVaultTrade(
         withdrawTokensBurned[0],
         this.borrowedToken,
         withdrawPoolAddress
@@ -676,7 +676,7 @@ export class PendlePT extends VaultAdapter {
       ({ dexId, redeemExchangeData: exchangeData } =
         VaultDefaultDexParameters[this.network][this.vaultAddress]);
 
-      const minTradedPurchaseAmount = this.getNetVaultSharesCost(
+      const minTradedPurchaseAmount = this.getEstimatedUnderlying(
         vaultSharesToRedeem.neg()
       ).netUnderlyingForVaultShares.mulInRatePrecision(
         RATE_PRECISION - slippageFactor

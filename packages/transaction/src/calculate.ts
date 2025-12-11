@@ -102,7 +102,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     }
 
     ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } =
-      vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral));
+      vaultAdapter.getEstimatedVaultShares(depositBalance, collateral));
     profile = profile.simulate([netVaultSharesForWithdraw]);
     // Clear the deposit balance for the debt and collateral calculations to avoid
     // double counting the withdraw value
@@ -223,7 +223,7 @@ function calculateVaultCollateral({
 
   // This value accounts for slippage...
   const { netVaultSharesForUnderlying, feesPaid, vaultTradeMetadata } =
-    vaultAdapter.getNetVaultSharesMinted(
+    vaultAdapter.getEstimatedVaultShares(
       netRealizedCollateralBalance,
       collateral
     );

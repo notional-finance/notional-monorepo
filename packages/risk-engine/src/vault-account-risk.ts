@@ -356,8 +356,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       throw Error('Max withdraw not supported for pending withdraws');
     } else {
       ({ netUnderlyingForVaultShares, feesPaid } =
-        this.vaultAdapter.getNetVaultSharesCost(this.vaultShares.neg()));
-      const result = this.vaultAdapter.getNetVaultSharesMinted(
+        this.vaultAdapter.getEstimatedUnderlying(this.vaultShares.neg()));
+      const result = this.vaultAdapter.getEstimatedVaultShares(
         netUnderlyingForVaultShares,
         this.vaultShares.token
       );

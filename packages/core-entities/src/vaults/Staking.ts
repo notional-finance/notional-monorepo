@@ -62,7 +62,7 @@ export class Staking extends VaultAdapter {
     return [this.stakingToken.id].join(':');
   }
 
-  override getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  override getEstimatedUnderlying(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
@@ -75,7 +75,7 @@ export class Staking extends VaultAdapter {
     };
   }
 
-  override getNetVaultSharesMinted(
+  override getEstimatedVaultShares(
     netUnderlying: TokenBalance,
     vaultShare: TokenDefinition
   ): {
@@ -90,7 +90,7 @@ export class Staking extends VaultAdapter {
       const defaultDex =
         VaultDefaultDexParameters[this.network][this.vaultAddress];
       vaultTradeMetadata.push(
-        this.getVaultTradeMetadata(
+        this.getEstimatedVaultTrade(
           netUnderlying,
           this.stakingToken,
           netUnderlying.isPositive()
@@ -101,7 +101,7 @@ export class Staking extends VaultAdapter {
     }
 
     if (this.stakingToken.id !== this.yieldToken.id) {
-      const tradeMetadata = this.getVaultTradeMetadata(
+      const tradeMetadata = this.getEstimatedVaultTrade(
         netUnderlying.toToken(this.stakingToken),
         this.yieldToken
       );
@@ -185,7 +185,7 @@ export class Staking extends VaultAdapter {
     const { withdrawPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     return [
-      this.getVaultTradeMetadata(
+      this.getEstimatedVaultTrade(
         withdrawTokensBurned[0],
         this.borrowedToken,
         withdrawPoolAddress

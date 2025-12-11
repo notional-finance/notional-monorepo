@@ -62,9 +62,9 @@ const RedirectToDefaultNetwork = () => {
 
 const AllRoutes = observer(() => {
   const appStore = useAppStore();
-  const walletStore = useWalletStore();
-  const navigate = useNavigate();
-  const [didRedirect, setDidRedirect] = useState(false);
+  // const walletStore = useWalletStore();
+  // const navigate = useNavigate();
+  // const [didRedirect, setDidRedirect] = useState(false);
 
   // useEffect(() => {
   //   if (walletStore.isBetaUser && !didRedirect) {
