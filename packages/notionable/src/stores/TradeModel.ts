@@ -18,7 +18,6 @@ import {
   isNOTEStake,
   isVaultTrade,
   NOTETradeType,
-  TokenOption,
   getTradeConfig,
 } from '../base-trade/base-trade-store';
 import {
@@ -38,15 +37,10 @@ import {
   getNowSeconds,
   Network,
   PRIME_CASH_VAULT_MATURITY,
-  RATE_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
 } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
-import {
-  CalculationFn,
-  CalculationFnParams,
-} from '@notional-finance/transaction';
-import { reaction } from 'mobx';
+import { CalculationFnParams } from '@notional-finance/transaction';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -79,12 +73,13 @@ const TokenDefinitionReference = types.reference(TokenDefinitionModel, {
   },
 });
 
-export const TokenOptionModel = types.model('TokenOption', {
-  token: TokenDefinitionReference,
-  balance: types.maybe(NotionalTypes.TokenBalance),
-  interestRate: types.maybe(types.number),
-  error: types.maybe(types.string),
-  utilization: types.maybe(types.number),
+export const VaultTradeMetadataModel = types.model('VaultTradeMetadata', {
+  tokensSold: NotionalTypes.TokenBalance,
+  tokensBought: NotionalTypes.TokenBalance,
+  exchangeRate: types.number,
+  differenceFromSpot: types.number,
+  dexId: types.number,
+  isEstimated: types.boolean,
 });
 
 export const TradeModel = types
@@ -185,10 +180,10 @@ export const TradeModel = types
     debtFee: types.optional(types.maybe(NotionalTypes.TokenBalance), undefined),
     /** Error message from calculation */
     calculateError: types.maybe(types.string),
-    /** Alternative debt options given if all the inputs are satisfied */
-    debtOptions: types.optional(types.array(TokenOptionModel), []),
-    /** Alternative collateral options given if all the inputs are satisfied */
-    collateralOptions: types.optional(types.array(TokenOptionModel), []),
+
+    /** Calculated APY for the debt */
+    debtAPY: types.maybe(types.number),
+    collateralAPY: types.maybe(types.number),
 
     /** Default leverage ratio for the selected debt and collateral */
     defaultLeverageRatio: types.maybe(types.number),
@@ -212,6 +207,29 @@ export const TradeModel = types
       ]),
       'NotStarted'
     ),
+    deferredCalculationNonce: types.optional(types.number, 0),
+    deferredCollateralAPY: types.maybe(types.number),
+    deferredCollateralBalance: types.optional(
+      types.maybe(NotionalTypes.TokenBalance),
+      undefined
+    ),
+    deferredDepositBalance: types.optional(
+      types.maybe(NotionalTypes.TokenBalance),
+      undefined
+    ),
+    deferredCollateralFee: types.optional(
+      types.maybe(NotionalTypes.TokenBalance),
+      undefined
+    ),
+    deferredNetRealizedCollateralBalance: types.optional(
+      types.maybe(NotionalTypes.TokenBalance),
+      undefined
+    ),
+    deferredVaultTradeMetadata: types.optional(
+      types.array(VaultTradeMetadataModel),
+      []
+    ),
+
     /** True if the form is in the confirmation state */
     confirm: types.optional(types.boolean, false),
     /** Simulation error transaction */
@@ -247,22 +265,9 @@ export const TradeModel = types
     useOptimalETH: types.optional(types.boolean, false),
 
     vaultTradeMetadata: types.optional(
-      types.array(
-        types.model({
-          tokensSold: NotionalTypes.TokenBalance,
-          tokensBought: NotionalTypes.TokenBalance,
-          exchangeRate: types.number,
-          differenceFromSpot: types.number,
-          dexId: types.number,
-          minPurchaseAmount: types.maybe(NotionalTypes.TokenBalance),
-          exchangeData: types.maybe(types.string),
-          isEstimated: types.boolean,
-        })
-      ),
+      types.array(VaultTradeMetadataModel),
       []
     ),
-    /** True if the trade is a deleverage */
-    isDeleverage: types.optional(types.boolean, false),
 
     /** Vault type */
     strategyType: types.optional(
@@ -381,28 +386,12 @@ export const TradeModel = types
       const model = root().getNetworkClient(self.selectedNetwork);
 
       if (self.tradeType === 'CreateVaultPosition') {
-        self.debtOptions.replace(
-          self.availableDebtTokens
-            .map((t) => ({
-              token: t,
-              balance: TokenBalance.zero(t as TokenDefinition),
-              interestRate: model.getSpotAPY(t.id).totalAPY,
-              error: undefined,
-              utilization: undefined,
-            }))
-            .sort((a, b) => sortByMaturity(a.token, b.token))
-        );
-        self.collateralOptions.replace(
-          self.availableCollateralTokens.map((t) => {
-            return {
-              token: t,
-              balance: TokenBalance.zero(t as TokenDefinition),
-              interestRate: model.getSpotAPY(t.id).totalAPY,
-              error: undefined,
-              utilization: undefined,
-            };
-          })
-        );
+        self.debtAPY = self.debt?.id
+          ? model.getSpotAPY(self.debt.id).totalAPY
+          : undefined;
+        self.collateralAPY = self.collateral?.id
+          ? model.getSpotAPY(self.collateral.id).totalAPY
+          : undefined;
       } else if (
         isNOTEStake(self.tradeType) ||
         self.tradeType === 'InitiateWithdraw'
@@ -487,12 +476,7 @@ export const TradeModel = types
     const calculate = () => {
       if (!isAlive(self)) return;
 
-      const {
-        requiredArgs,
-        calculationFn,
-        calculateDebtOptions,
-        calculateCollateralOptions,
-      } = getTradeConfig(self.tradeType);
+      const { requiredArgs, calculationFn } = getTradeConfig(self.tradeType);
       let inputsSatisfied = true;
 
       const inputs = requiredArgs.reduce((acc, arg) => {
@@ -539,6 +523,7 @@ export const TradeModel = types
         return acc;
       }, {} as Record<CalculationFnParams, unknown>);
 
+      self.inputsSatisfied = inputsSatisfied;
       if (inputsSatisfied) {
         try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -551,6 +536,30 @@ export const TradeModel = types
                 self[key] = outputs[key];
               }
             });
+          }
+
+          if (self.netRealizedCollateralBalance && self.collateralBalance) {
+            self.collateralAPY = calculateTradedInterestRate(
+              self.netRealizedCollateralBalance,
+              self.collateralBalance,
+              self.tradeType,
+              inputs['vaultAdapter'] as VaultAdapter | undefined,
+              root().getNetworkClient(self.selectedNetwork),
+              self.vaultTradeMetadata as VaultTradeMetadata[] | undefined
+            );
+          }
+
+          if (self.netRealizedDebtBalance && self.debtBalance) {
+            // NOTE: in the future if we want to support debt options then we will need to
+            // do some sort of looping here.
+            self.debtAPY = calculateTradedInterestRate(
+              self.netRealizedDebtBalance,
+              self.debtBalance,
+              self.tradeType,
+              undefined, // Vault Adapter is not used for debt
+              root().getNetworkClient(self.selectedNetwork),
+              undefined // No vault trade metadata for debt
+            );
           }
 
           self.calculationSuccess = true;
@@ -570,49 +579,6 @@ export const TradeModel = types
           self.debtFee = undefined;
           self.collateralFee = undefined;
         }
-      }
-      self.inputsSatisfied = inputsSatisfied;
-
-      if (
-        calculateCollateralOptions &&
-        self.availableCollateralTokens &&
-        requiredArgs
-          .filter((c) => c !== 'collateral')
-          .every((r) => inputs[r] !== undefined) &&
-        (inputs['collateralPool'] !== undefined ||
-          inputs['vaultAdapter'] !== undefined)
-      ) {
-        self.collateralOptions.replace(
-          computeCollateralOptions(
-            inputs,
-            calculationFn,
-            self.availableCollateralTokens as TokenDefinition[],
-            self.tradeType,
-            inputs['vaultAdapter'] as VaultAdapter | undefined,
-            root().getNetworkClient(self.selectedNetwork)
-          ) || []
-        );
-      }
-
-      if (
-        calculateDebtOptions &&
-        self.availableDebtTokens &&
-        requiredArgs
-          .filter((c) => c !== 'debt')
-          .filter((c) =>
-            isVaultTrade(self.tradeType) ? c !== 'collateral' : true
-          )
-          .every((r) => inputs[r] !== undefined)
-      ) {
-        self.debtOptions.replace(
-          computeDebtOptions(
-            inputs,
-            calculationFn,
-            self.availableDebtTokens as TokenDefinition[],
-            self.tradeType,
-            root().getNetworkClient(self.selectedNetwork)
-          ) || []
-        );
       }
     };
 
@@ -989,7 +955,7 @@ export const TradeModel = types
           self.collateralBalance,
           self.debtBalance,
           postVaultRisk.leverageRatio() || 0,
-          self.vaultTradeMetadata
+          self.vaultTradeMetadata as VaultTradeMetadata[]
         );
 
         if (
@@ -1205,10 +1171,10 @@ export const TradeModel = types
             | undefined,
         };
       },
-      get computedOptions() {
+      get computedAPY() {
         return {
-          collateral: self.collateralOptions as TokenOption[] | undefined,
-          debt: self.debtOptions as TokenOption[] | undefined,
+          collateral: self.collateralAPY,
+          debt: self.debtAPY,
         };
       },
       getVaultRiskSummary,
@@ -1244,140 +1210,21 @@ export const TradeModel = types
 //   }
 // }
 
-function computeCollateralOptions(
-  inputs: Record<CalculationFnParams, unknown>,
-  calculationFn: CalculationFn,
-  options: TokenDefinition[],
-  tradeType: AllTradeTypes | undefined,
-  vaultAdapter: VaultAdapter | undefined,
-  model: NetworkClientModelType
-) {
-  return options.map((c) => {
-    const i = { ...inputs, collateral: c };
-    try {
-      const {
-        collateralBalance,
-        netRealizedCollateralBalance,
-        vaultTradeMetadata,
-      } = calculationFn(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        i as any
-      ) as {
-        collateralFee: TokenBalance;
-        collateralBalance: TokenBalance;
-        netRealizedCollateralBalance: TokenBalance;
-        vaultTradeMetadata?: VaultTradeMetadata[];
-      };
-
-      return {
-        token: c as Instance<typeof TokenDefinitionModel>,
-        balance: collateralBalance,
-        vaultTradeMetadata,
-        error: undefined,
-        ..._getTradedInterestRate(
-          netRealizedCollateralBalance,
-          collateralBalance,
-          tradeType,
-          vaultAdapter,
-          model,
-          vaultTradeMetadata
-        ),
-      };
-    } catch (e) {
-      console.error(e);
-      return {
-        token: c as Instance<typeof TokenDefinitionModel>,
-        balance: undefined,
-        vaultTradeMetadata: undefined,
-        utilization: undefined,
-        interestRate: undefined,
-        error: (e as Error).toString(),
-      };
-    }
-  });
-}
-
-function computeDebtOptions(
-  inputs: Record<CalculationFnParams, unknown>,
-  calculationFn: CalculationFn,
-  options: TokenDefinition[],
-  tradeType: AllTradeTypes | undefined,
-  model: NetworkClientModelType
-) {
-  return (
-    options
-      // Sorts debt options so that the variable rate option is first
-      .sort(sortByMaturity)
-      .map((d) => {
-        const i = { ...inputs, debt: d };
-        try {
-          if (isVaultTrade(tradeType)) {
-            // Switch to the matching vault share token for vault trades
-            if (!d.vaultAddress) throw Error('Invalid debt token');
-            i['collateral'] = model.getVaultShare(d.vaultAddress);
-          }
-
-          const { debtBalance, netRealizedDebtBalance } = calculationFn(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            i as any
-          ) as {
-            debtFee: TokenBalance;
-            debtBalance: TokenBalance;
-            netRealizedDebtBalance: TokenBalance;
-          };
-
-          return {
-            token: d as Instance<typeof TokenDefinitionModel>,
-            balance: debtBalance,
-            error: undefined,
-            ..._getTradedInterestRate(
-              netRealizedDebtBalance,
-              debtBalance,
-              tradeType,
-              undefined, // Vault Adapter is not used for debt
-              model,
-              undefined // No vault trade metadata for debt
-            ),
-          };
-        } catch (e) {
-          console.error(e);
-          return {
-            token: d as Instance<typeof TokenDefinitionModel>,
-            balance: undefined,
-            interestRate: undefined,
-            utilization: undefined,
-            error: (e as Error).toString(),
-          };
-        }
-      })
-  );
-}
-
-function _getTradedInterestRate(
+function calculateTradedInterestRate(
   realized: TokenBalance,
   amount: TokenBalance,
   tradeType: AllTradeTypes | NOTETradeType | undefined,
   vaultAdapter: VaultAdapter | undefined,
   model: NetworkClientModelType,
   vaultTradeMetadata: VaultTradeMetadata[] | undefined
-): {
-  interestRate: number | undefined;
-  utilization: number | undefined;
-} {
-  let interestRate: number | undefined;
-  let utilization: number | undefined;
+): number | undefined {
   if (amount.tokenType === 'VaultDebt') {
     const market = model.getLendingMarketFromVaultDebt(amount.token);
     // If borrowing and withdrawing then it is just prime debt increase. This
     // includes vault debt
-    utilization = market.getUtilizationPercent(undefined, amount.neg());
-    interestRate = market.getInterestRate(
+    return market.getInterestRate(
       market.getUtilization(undefined, amount.neg())
     );
-    return {
-      utilization,
-      interestRate,
-    };
   } else if (
     amount.tokenType === 'VaultShare' &&
     vaultAdapter &&
@@ -1397,41 +1244,17 @@ function _getTradedInterestRate(
         : realized;
     const impliedExchangeRate = amount.toFloat() / amountInSy.toFloat();
     const timeToMaturity = (vaultAdapter as PendlePT).timeToExpiry;
-    interestRate = Math.trunc(
-      RATE_PRECISION *
-        (Math.pow(
-          impliedExchangeRate,
-          SECONDS_IN_YEAR_ACTUAL / timeToMaturity
-        ) -
-          1)
+    return (
+      100 *
+      (Math.pow(impliedExchangeRate, SECONDS_IN_YEAR_ACTUAL / timeToMaturity) -
+        1)
     );
   } else if (amount.tokenType === 'VaultShare' && vaultAdapter) {
     // In other cases, just use the spot APY
-    return {
-      interestRate: vaultAdapter.getVaultAPY(),
-      utilization: undefined,
-    };
+    return vaultAdapter.getVaultAPY();
   }
 
-  return {
-    interestRate:
-      interestRate !== undefined
-        ? (interestRate * 100) / RATE_PRECISION
-        : undefined,
-    utilization,
-  };
-}
-
-/** Sorts tokens so that variable rate (undefined/PRIME_CASH_VAULT_MATURITY) options appear first */
-function sortByMaturity<T extends { maturity?: number }>(a: T, b: T) {
-  return (
-    (a.maturity === undefined || a.maturity === PRIME_CASH_VAULT_MATURITY
-      ? 0
-      : a.maturity) -
-    (b.maturity === undefined || b.maturity === PRIME_CASH_VAULT_MATURITY
-      ? 0
-      : b.maturity)
-  );
+  return undefined;
 }
 
 function averageAPY(

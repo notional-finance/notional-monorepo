@@ -1,7 +1,6 @@
 import { IntlShape, MessageDescriptor, useIntl } from 'react-intl';
 import { DetailItem, OrderDetailLabels } from '.';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { TokenOption } from '@notional-finance/notionable';
 import {
   formatNumberAsPercent,
   formatTokenType,
@@ -20,7 +19,7 @@ function getOrderDetails(
   feeValue: TokenBalance,
   intl: IntlShape,
   isLeverageOrRoll: boolean,
-  options: TokenOption[] | undefined
+  apy: number | undefined
 ): DetailItem[] {
   const { title, caption } = formatTokenType(b.token);
   const apyLabel =
@@ -35,7 +34,6 @@ function getOrderDetails(
     b.tokenType === 'VaultShare'
       ? OrderDetailLabels.captionPrice
       : OrderDetailLabels.price;
-  const apy = options?.find((o) => o.token.id === b.tokenId)?.interestRate;
 
   let valueLabel: MessageDescriptor;
   switch (b.tokenType) {
@@ -124,8 +122,8 @@ export function useOrderDetails(): OrderDetails {
   const collateralBalance = trade?.collateralBalance;
   const debtFee = trade?.debtFee;
   const collateralFee = trade?.collateralFee;
-  const { collateral: collateralOptions, debt: debtOptions } =
-    trade?.computedOptions ?? {};
+  const collateralAPY = trade?.collateralAPY;
+  const debtAPY = trade?.debtAPY;
   const netRealizedDebtBalance = trade?.netRealizedDebtBalance;
   const netRealizedCollateralBalance = trade?.netRealizedCollateralBalance;
   const depositBalance = trade?.depositBalance;
@@ -181,7 +179,7 @@ export function useOrderDetails(): OrderDetails {
         debtFee?.toUnderlying() || netRealizedDebtBalance.copy(0),
         intl,
         isLeverageOrRoll,
-        debtOptions
+        debtAPY
       )
     );
   }
@@ -195,7 +193,7 @@ export function useOrderDetails(): OrderDetails {
         collateralFee?.toUnderlying() || netRealizedCollateralBalance.copy(0),
         intl,
         isLeverageOrRoll,
-        collateralOptions
+        collateralAPY
       )
     );
   }
