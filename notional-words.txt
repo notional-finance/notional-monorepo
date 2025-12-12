@@ -124,6 +124,8 @@ healthcheck
 healthz
 helptext
 httpserver
+Hypernative
+hypernative
 ical
 idcard
 ierc

@@ -1,0 +1,16 @@
+# Local development environment variables
+.dev.vars
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+.wrangler/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db

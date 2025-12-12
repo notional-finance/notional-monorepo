@@ -37,3 +37,4 @@ export { default as AddressRegistryABI } from './AddressRegistry.json';
 export { default as LendingRouterABI } from './ILendingRouter.json';
 export { default as YieldStrategyABI } from './IYieldStrategy.json';
 export { default as WithdrawRequestManagerABI } from './IWithdrawRequestManager.json';
+export { default as ExponentFlashLiquidatorV2ABI } from './ExponentFlashLiquidatorV2.json';
