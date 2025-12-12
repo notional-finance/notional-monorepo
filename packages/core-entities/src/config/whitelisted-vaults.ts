@@ -90,15 +90,16 @@ export const VaultDefaultDexParameters: Record<
   Network,
   Record<
     string,
-    {
-      dexId: DexIds;
-      depositExchangeData: BytesLike;
-      redeemExchangeData: BytesLike;
-      withdrawExchangeData?: BytesLike;
-      depositPoolAddress?: string;
-      redeemPoolAddress?: string;
-      withdrawPoolAddress?: string;
-    }
+    | {
+        dexId: DexIds;
+        depositExchangeData: BytesLike;
+        redeemExchangeData: BytesLike;
+        withdrawExchangeData?: BytesLike;
+        depositPoolAddress?: string;
+        redeemPoolAddress?: string;
+        withdrawPoolAddress?: string;
+      }
+    | undefined
   >
 > = {
   [Network.arbitrum]: {},

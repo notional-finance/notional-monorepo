@@ -5,7 +5,10 @@ import {
   IS_TEST_ENV,
   Network,
 } from '@notional-finance/util';
-import { TokenBalance } from '@notional-finance/core-entities';
+import {
+  TokenBalance,
+  VaultTradeMetadata,
+} from '@notional-finance/core-entities';
 import { simulateOnTenderly } from '../simulate';
 
 export enum TradeActionType {
@@ -41,6 +44,7 @@ export interface PopulateTransactionInputs {
   tradeType?: string;
   ethRedeem?: TokenBalance;
   withdrawTokensBurned?: TokenBalance[];
+  vaultTradeMetadata?: VaultTradeMetadata[];
 }
 
 export async function populateTxnAndGas(

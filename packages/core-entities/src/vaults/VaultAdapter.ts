@@ -1,7 +1,8 @@
-import { BytesLike } from 'ethers';
+import { BigNumber, BytesLike } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import {
   DEX_ID,
+  get0xData,
   Network,
   RATE_PRECISION,
   ZERO_ADDRESS,
@@ -10,6 +11,7 @@ import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
 import { BalanceStatementReturnType } from '../client/accounts/balance-statement';
+import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
 
 export interface BaseVaultParams {
   vaultAddress: string;
@@ -54,22 +56,31 @@ export abstract class VaultAdapter {
     vaultTradeMetadata?: VaultTradeMetadata[];
   };
 
+  abstract getVaultShares(
+    netUnderlying: TokenBalance,
+    vaultShare: TokenDefinition
+  ): Promise<{
+    netVaultSharesForUnderlying: TokenBalance;
+    feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
+  }>;
+
   abstract getWithdrawTradeMetadata(
     withdrawTokensBurned: TokenBalance[]
   ): VaultTradeMetadata[];
 
   abstract getDepositParameters(
     account: string,
-    maturity: number,
     totalDeposit: TokenBalance,
+    vaultTradeMetadata?: VaultTradeMetadata[],
     slippageFactor?: number
   ): Promise<BytesLike>;
 
   abstract getRedeemParameters(
     account: string,
-    maturity: number,
     vaultSharesToRedeem: TokenBalance,
     underlyingToRepayDebt: TokenBalance,
+    vaultTradeMetadata?: VaultTradeMetadata[],
     slippageFactor?: number
   ): Promise<BytesLike>;
 
@@ -88,6 +99,7 @@ export abstract class VaultAdapter {
     account: string,
     vaultSharesToRedeem: TokenBalance,
     withdrawTokensBurned: TokenBalance[],
+    vaultTradeMetadata?: VaultTradeMetadata[],
     slippageFactor?: number
   ): Promise<BytesLike>;
 
@@ -182,5 +194,76 @@ export abstract class VaultAdapter {
       isEstimated,
       dexId,
     };
+  }
+
+  protected async getVaultTrade(
+    tokenSold: TokenBalance,
+    tokenBought: TokenDefinition,
+    aggregator: 'Pendle' | 'ZeroEx',
+    sellEntireBalance?: boolean
+  ): Promise<VaultTradeMetadata> {
+    if (aggregator === 'Pendle') {
+      throw Error('Pendle trade not supported');
+    } else if (aggregator === 'ZeroEx') {
+      const { buyAmount, limit, data } = await get0xData({
+        network: this.network,
+        sellToken: tokenSold.tokenId,
+        buyToken: tokenBought.id,
+        sellAmount: tokenSold.n,
+        slippageBPS: 10,
+        taker: this.vaultAddress,
+        sellEntireBalance,
+      });
+      const tokensBought = TokenBalance.from(buyAmount, tokenBought);
+      const exchangeRate = tokensBought.toFloat() / tokenSold.toFloat();
+      const spotPrice =
+        tokenSold.toFloat() / tokenSold.toToken(tokenBought).toFloat();
+
+      return {
+        tokensSold: tokenSold,
+        tokensBought,
+        exchangeRate,
+        differenceFromSpot: exchangeRate - spotPrice,
+        // TODO: get fees from 0x data
+        feesPaid: TokenBalance.zero(tokenBought),
+        isEstimated: false,
+        dexId: DEX_ID.ZERO_EX,
+        minPurchaseAmount: TokenBalance.from(limit, tokenBought),
+        exchangeData: data,
+      };
+    } else {
+      throw Error(`Unsupported aggregator: ${aggregator}`);
+    }
+  }
+
+  protected getExchangeData(
+    vaultTradeMetadata: VaultTradeMetadata[] | undefined,
+    exchangeKey: 'deposit' | 'redeem' | 'withdraw',
+    defaultMinPurchaseAmount: BigNumber
+  ): { dexId: number; exchangeData: BytesLike; minPurchaseAmount: BigNumber } {
+    const zeroExTrade = vaultTradeMetadata?.find(
+      (t) => t.dexId === DEX_ID.ZERO_EX
+    );
+    if (zeroExTrade) {
+      if (!zeroExTrade.minPurchaseAmount || !zeroExTrade.exchangeData)
+        throw Error(
+          'ZeroEx trade metadata is missing min purchase amount or exchange data'
+        );
+      return {
+        dexId: zeroExTrade.dexId,
+        exchangeData: zeroExTrade.exchangeData,
+        minPurchaseAmount: zeroExTrade.minPurchaseAmount.n,
+      };
+    } else {
+      const defaultDex =
+        VaultDefaultDexParameters[this.network][this.vaultAddress];
+      if (!defaultDex) throw Error('Default dex not found');
+
+      return {
+        dexId: defaultDex.dexId,
+        exchangeData: defaultDex[exchangeKey + 'ExchangeData'],
+        minPurchaseAmount: defaultMinPurchaseAmount,
+      };
+    }
   }
 }

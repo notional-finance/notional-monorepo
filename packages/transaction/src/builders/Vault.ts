@@ -11,6 +11,7 @@ export async function EnterVault({
   network,
   depositBalance,
   debtBalance,
+  vaultTradeMetadata,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (!depositBalance || debtBalance?.tokenType !== 'VaultDebt')
     throw Error('Deposit balance, debt balance must be defined');
@@ -24,8 +25,8 @@ export async function EnterVault({
 
   const vaultData = await vaultAdapter.getDepositParameters(
     address,
-    debtBalance.maturity || 0,
-    totalDeposit
+    totalDeposit,
+    vaultTradeMetadata
   );
 
   return populateLendingRouterTxnAndGas(
@@ -44,6 +45,7 @@ export async function ExitVault({
   debtBalance,
   maxWithdraw,
   vaultLastUpdateTime,
+  vaultTradeMetadata,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
     collateralBalance?.tokenType !== 'VaultShare' ||
@@ -61,9 +63,9 @@ export async function ExitVault({
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
   const vaultData = await vaultAdapter.getRedeemParameters(
     address,
-    collateralBalance.maturity || 0,
     collateralBalance.neg(),
-    assetToRepay
+    assetToRepay,
+    vaultTradeMetadata
   );
 
   return populateLendingRouterTxnAndGas(
@@ -90,6 +92,7 @@ export async function ExitVaultFinalizeWithdraw({
   maxWithdraw,
   vaultLastUpdateTime,
   withdrawTokensBurned,
+  vaultTradeMetadata,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
     collateralBalance?.tokenType !== 'VaultShare' ||
@@ -109,7 +112,8 @@ export async function ExitVaultFinalizeWithdraw({
   const vaultData = await vaultAdapter.getWithdrawParameters(
     address,
     collateralBalance.neg(),
-    withdrawTokensBurned
+    withdrawTokensBurned,
+    vaultTradeMetadata
   );
 
   return populateLendingRouterTxnAndGas(

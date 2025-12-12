@@ -1,5 +1,6 @@
 import {
   BASIS_POINT,
+  DEX_ID,
   getNowSeconds,
   Network,
   SCALAR_PRECISION,
@@ -62,6 +63,32 @@ export class Staking extends VaultAdapter {
     return [this.stakingToken.id].join(':');
   }
 
+  getStakeTrade(
+    stakingTokens: TokenBalance,
+    vaultShare: TokenDefinition
+  ): {
+    vaultShares: TokenBalance;
+    tradeMetadata?: VaultTradeMetadata;
+  } {
+    if (this.stakingToken.id === this.yieldToken.id) {
+      return {
+        vaultShares: stakingTokens.toToken(vaultShare),
+        tradeMetadata: undefined,
+      };
+    } else {
+      // This is based on the exchange rate of the staking token to the yield token.
+      const tradeMetadata = this.getEstimatedVaultTrade(
+        stakingTokens,
+        this.yieldToken
+      );
+      const vaultShares = tradeMetadata.tokensBought.toToken(vaultShare);
+      return {
+        vaultShares,
+        tradeMetadata,
+      };
+    }
+  }
+
   override getEstimatedUnderlying(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
@@ -83,36 +110,73 @@ export class Staking extends VaultAdapter {
     feesPaid: TokenBalance;
     vaultTradeMetadata?: VaultTradeMetadata[];
   } {
-    let netVaultSharesForUnderlying = netUnderlying.toToken(vaultShare);
+    let netStakingTokens: TokenBalance;
     const vaultTradeMetadata: VaultTradeMetadata[] = [];
 
-    if (netUnderlying.tokenId !== this.stakingToken.id) {
+    if (netUnderlying.tokenId === this.stakingToken.id) {
+      netStakingTokens = netUnderlying;
+    } else {
       const defaultDex =
         VaultDefaultDexParameters[this.network][this.vaultAddress];
-      vaultTradeMetadata.push(
-        this.getEstimatedVaultTrade(
-          netUnderlying,
-          this.stakingToken,
-          netUnderlying.isPositive()
+      const tradeMetadata = this.getEstimatedVaultTrade(
+        netUnderlying,
+        this.stakingToken,
+        defaultDex
+          ? netUnderlying.isPositive()
             ? defaultDex.depositPoolAddress
             : defaultDex.redeemPoolAddress
-        )
+          : undefined
       );
+      netStakingTokens = tradeMetadata.tokensBought;
+      vaultTradeMetadata.push(tradeMetadata);
     }
 
-    if (this.stakingToken.id !== this.yieldToken.id) {
-      const tradeMetadata = this.getEstimatedVaultTrade(
-        netUnderlying.toToken(this.stakingToken),
-        this.yieldToken
-      );
-      vaultTradeMetadata.push(tradeMetadata);
-      netVaultSharesForUnderlying =
-        tradeMetadata.tokensBought.toToken(vaultShare);
-    }
+    const { vaultShares, tradeMetadata } = this.getStakeTrade(
+      netStakingTokens,
+      vaultShare
+    );
+
+    if (tradeMetadata) vaultTradeMetadata.push(tradeMetadata);
 
     return {
       feesPaid: netUnderlying.copy(0),
-      netVaultSharesForUnderlying,
+      netVaultSharesForUnderlying: vaultShares,
+      vaultTradeMetadata,
+    };
+  }
+
+  override async getVaultShares(
+    netUnderlying: TokenBalance,
+    vaultShare: TokenDefinition
+  ): Promise<{
+    netVaultSharesForUnderlying: TokenBalance;
+    feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
+  }> {
+    const vaultTradeMetadata: VaultTradeMetadata[] = [];
+    let netStakingTokens: TokenBalance;
+
+    if (netUnderlying.tokenId === this.stakingToken.id) {
+      netStakingTokens = netUnderlying;
+    } else {
+      const tradeMetadata = await this.getVaultTrade(
+        netUnderlying,
+        this.stakingToken,
+        'ZeroEx'
+      );
+      netStakingTokens = tradeMetadata.tokensBought;
+      vaultTradeMetadata.push(tradeMetadata);
+    }
+
+    const { vaultShares, tradeMetadata } = this.getStakeTrade(
+      netStakingTokens,
+      vaultShare
+    );
+    if (tradeMetadata) vaultTradeMetadata.push(tradeMetadata);
+
+    return {
+      netVaultSharesForUnderlying: vaultShares,
+      feesPaid: netUnderlying.copy(0),
       vaultTradeMetadata,
     };
   }
@@ -152,16 +216,16 @@ export class Staking extends VaultAdapter {
 
   override async getDepositParameters(
     _account: string,
-    _maturity: number,
     totalDeposit: TokenBalance,
+    vaultTradeMetadata?: VaultTradeMetadata[],
     slippageFactor = 25 * BASIS_POINT
   ) {
-    const { dexId, depositExchangeData: exchangeData } =
-      VaultDefaultDexParameters[this.network][this.vaultAddress];
-    const tradeType = 0; // Exact In Single
-    const minPurchaseAmount = totalDeposit
-      .toToken(this.stakingToken)
-      .mulInRatePrecision(slippageFactor).n;
+    const { dexId, exchangeData, minPurchaseAmount } = this.getExchangeData(
+      vaultTradeMetadata,
+      'deposit',
+      totalDeposit.toToken(this.stakingToken).mulInRatePrecision(slippageFactor)
+        .n
+    );
 
     return defaultAbiCoder.encode(
       [
@@ -169,7 +233,7 @@ export class Staking extends VaultAdapter {
       ],
       [
         {
-          tradeType,
+          tradeType: 0, // Exact In Single
           minPurchaseAmount,
           exchangeData,
           dexId,
@@ -179,16 +243,17 @@ export class Staking extends VaultAdapter {
     );
   }
 
+  // TODO: this needs an estimated version
   override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
     if (withdrawTokensBurned.length !== 1)
       throw Error('Staking vault only supports one withdraw token');
-    const { withdrawPoolAddress } =
+    const defaultDex =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     return [
       this.getEstimatedVaultTrade(
         withdrawTokensBurned[0],
         this.borrowedToken,
-        withdrawPoolAddress
+        defaultDex?.withdrawPoolAddress
       ),
     ];
   }
@@ -197,24 +262,26 @@ export class Staking extends VaultAdapter {
     _account: string,
     _vaultSharesToRedeem: TokenBalance,
     withdrawTokensBurned: TokenBalance[],
-    slippageFactor?: number
+    vaultTradeMetadata?: VaultTradeMetadata[],
+    slippageFactor = 25 * BASIS_POINT
   ) {
-    const { dexId, withdrawExchangeData } =
-      VaultDefaultDexParameters[this.network][this.vaultAddress];
     if (withdrawTokensBurned.length !== 1)
       throw Error('Staking vault only supports one withdraw token');
-
-    const minPurchaseAmount = withdrawTokensBurned[0]
-      .toToken(this.borrowedToken)
-      .mulInRatePrecision(slippageFactor || 0).n;
+    const { dexId, exchangeData, minPurchaseAmount } = this.getExchangeData(
+      vaultTradeMetadata,
+      'withdraw',
+      withdrawTokensBurned[0]
+        .toToken(this.borrowedToken)
+        .mulInRatePrecision(slippageFactor || 0).n
+    );
 
     return defaultAbiCoder.encode(
       ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
       [
         {
-          dexId: withdrawExchangeData ? dexId : 0,
+          dexId,
           minPurchaseAmount,
-          exchangeData: withdrawExchangeData || '0x',
+          exchangeData,
         },
       ]
     );
@@ -222,16 +289,18 @@ export class Staking extends VaultAdapter {
 
   override async getRedeemParameters(
     _account: string,
-    _maturity: number,
     vaultSharesToRedeem: TokenBalance,
     _underlyingToRepayDebt: TokenBalance,
-    slippageFactor?: number
+    vaultTradeMetadata?: VaultTradeMetadata[],
+    slippageFactor = 25 * BASIS_POINT
   ) {
-    const { dexId, redeemExchangeData: exchangeData } =
-      VaultDefaultDexParameters[this.network][this.vaultAddress];
-    const minPurchaseAmount = vaultSharesToRedeem
-      .toToken(this.borrowedToken)
-      .mulInRatePrecision(slippageFactor || 0).n;
+    const { dexId, exchangeData, minPurchaseAmount } = this.getExchangeData(
+      vaultTradeMetadata,
+      'redeem',
+      vaultSharesToRedeem
+        .toToken(this.borrowedToken)
+        .mulInRatePrecision(slippageFactor || 0).n
+    );
 
     return defaultAbiCoder.encode(
       ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],

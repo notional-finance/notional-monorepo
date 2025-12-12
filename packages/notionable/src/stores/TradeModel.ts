@@ -762,6 +762,9 @@ export const TradeModel = types
             : new Map<string, number>(),
           address: account.address,
           network: account.network,
+          vaultTradeMetadata: self.deferredVaultTradeMetadata as
+            | VaultTradeMetadata[]
+            | undefined,
         });
 
         return {

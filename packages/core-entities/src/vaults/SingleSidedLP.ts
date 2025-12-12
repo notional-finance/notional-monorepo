@@ -12,10 +12,7 @@ import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder, BytesLike, formatUnits } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
-import {
-  PointsMultipliers,
-  VaultDefaultDexParameters,
-} from '../config/whitelisted-vaults';
+import { PointsMultipliers } from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
@@ -330,6 +327,19 @@ export class SingleSidedLP extends VaultAdapter {
     }
   }
 
+  override getVaultShares(
+    netUnderlying: TokenBalance,
+    vaultShare: TokenDefinition
+  ): Promise<{
+    netVaultSharesForUnderlying: TokenBalance;
+    feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
+  }> {
+    return Promise.resolve(
+      this.getEstimatedVaultShares(netUnderlying, vaultShare)
+    );
+  }
+
   getEstimatedUnderlying(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
@@ -424,8 +434,8 @@ export class SingleSidedLP extends VaultAdapter {
 
   override async getDepositParameters(
     _account: string,
-    _maturity: number,
     totalDeposit: TokenBalance,
+    _vaultTradeMetadata?: VaultTradeMetadata[],
     slippageFactor = 5 * BASIS_POINT
   ) {
     const tokensIn = this.pool.zeroTokenArray();
@@ -460,21 +470,21 @@ export class SingleSidedLP extends VaultAdapter {
     _account: string,
     _vaultSharesToRedeem: TokenBalance,
     withdrawTokensBurned: TokenBalance[],
-    slippageFactor = 10 * BASIS_POINT
+    vaultTradeMetadata?: VaultTradeMetadata[],
+    _slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
-    const { dexId, withdrawExchangeData: exchangeData } =
-      VaultDefaultDexParameters[this.network][this.vaultAddress];
-
     const redemptionTrades = withdrawTokensBurned
-      .map((t) => {
+      .map((w) => {
+        const t = vaultTradeMetadata?.find(
+          (trade) => trade.tokensSold.tokenId === w.tokenId
+        );
+        if (!t) throw Error('Trade not found');
         return {
-          tradeAmount: t,
-          dexId,
+          tradeAmount: w,
+          dexId: t.dexId,
           tradeType: 0,
-          minPurchaseAmount: t.mulInRatePrecision(
-            RATE_PRECISION - slippageFactor
-          ).n,
-          exchangeData,
+          minPurchaseAmount: t.minPurchaseAmount,
+          exchangeData: t.exchangeData,
         };
       })
       .map((t) => defaultAbiCoder.encode([TRADE_PARAMS_TYPE], [t]));
@@ -493,9 +503,9 @@ export class SingleSidedLP extends VaultAdapter {
 
   override async getRedeemParameters(
     _account: string,
-    _maturity: number,
     vaultSharesToRedeem: TokenBalance,
     _underlyingToRepayDebt: TokenBalance,
+    _vaultTradeMetadata?: VaultTradeMetadata[],
     slippageFactor = 10 * BASIS_POINT
   ) {
     // Since this is single sided then everything is back to one side.

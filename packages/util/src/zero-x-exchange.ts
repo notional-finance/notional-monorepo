@@ -1,13 +1,9 @@
 import { Network, NetworkId } from './constants';
 import { BigNumber } from 'ethers';
 
-interface Env {
-  NETWORK: Network;
-  ZERO_EX_API_KEY: string;
-}
-
-const DEFAULT_SLIPPAGE_PERCENT = 5;
-const zeroXDelay = 4000; // in ms
+const ZERO_EX_API_KEY = process.env.ZERO_EX_API_KEY;
+const DEFAULT_SLIPPAGE_BPS = 10;
+const zeroXDelay = 100; // in ms
 const s = { lastGet0xDataCall: 0 };
 
 const wait = (ms: number) => new Promise((f) => setTimeout(f, ms));
@@ -15,20 +11,22 @@ const wait = (ms: number) => new Promise((f) => setTimeout(f, ms));
 export const zeroExUrl = 'https://api.0x.org/swap/allowance-holder/quote';
 
 export async function get0xData(arg: {
+  network: Network;
   sellToken: string;
   buyToken: string;
   sellAmount: BigNumber;
-  slippagePercentage?: number;
+  slippageBPS?: number;
   taker: string;
-  env: Env;
+  sellEntireBalance?: boolean;
 }) {
   const {
     sellToken,
     buyToken,
     sellAmount,
     taker,
-    env,
-    slippagePercentage = DEFAULT_SLIPPAGE_PERCENT,
+    slippageBPS = DEFAULT_SLIPPAGE_BPS,
+    network,
+    sellEntireBalance = false,
   } = arg;
   if (sellAmount.isZero()) {
     return {
@@ -44,17 +42,18 @@ export async function get0xData(arg: {
   }
 
   const searchParams = new URLSearchParams({
-    chainId: String(NetworkId[env.NETWORK]),
+    chainId: String(NetworkId[network]),
     sellToken: sellToken,
     buyToken: buyToken,
     sellAmount: sellAmount.toString(),
-    slippagePercentage: String(slippagePercentage / 100),
+    slippageBPS: slippageBPS.toString(),
+    sellEntireBalance: sellEntireBalance ? 'true' : 'false',
     taker,
   }).toString();
 
   const response = await fetch(`${zeroExUrl}?${searchParams}`, {
     headers: {
-      '0x-api-key': env.ZERO_EX_API_KEY,
+      '0x-api-key': ZERO_EX_API_KEY || '',
       '0x-version': 'v2',
     },
   });
@@ -75,7 +74,7 @@ export async function get0xData(arg: {
   const buyAmount = BigNumber.from(data['buyAmount']);
   return {
     buyAmount,
-    limit: buyAmount.mul(100 - slippagePercentage).div(100),
+    limit: BigNumber.from(data['minBuyAmount']),
     data: data['transaction']['data'] as string,
   };
 }

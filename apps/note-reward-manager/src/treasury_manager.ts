@@ -1,5 +1,9 @@
 import { Provider } from '@ethersproject/abstract-provider';
-import { get0xData, sendTxThroughRelayer } from '@notional-finance/util';
+import {
+  get0xData,
+  Network,
+  sendTxThroughRelayer,
+} from '@notional-finance/util';
 import {
   TreasuryManager as TreasuryManagerProxy,
   TreasuryManager__factory,
@@ -98,7 +102,7 @@ export default class TreasuryManager {
             buyToken: this.NOTE,
             sellAmount: wethForBurn,
             taker: this.proxy.address,
-            env: this.env,
+            network: this.network as Network,
           });
 
           trade.amount = wethForBurn;
@@ -139,7 +143,7 @@ export default class TreasuryManager {
             buyToken: this.WETH,
             sellAmount,
             taker: this.proxy.address,
-            env: this.env,
+            network: this.network as Network,
           });
           console.log(`
             sellAmount = ${sellAmount.toString()}

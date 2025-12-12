@@ -567,8 +567,8 @@ export class PendlePT extends VaultAdapter {
 
   override async getDepositParameters(
     _account: string,
-    _maturity: number,
     totalDeposit: TokenBalance,
+    _vaultTradeMetadata?: VaultTradeMetadata[],
     slippageFactor = 25 * BASIS_POINT
   ): Promise<BytesLike> {
     const { dexId, depositExchangeData: exchangeData } =
@@ -639,6 +639,7 @@ export class PendlePT extends VaultAdapter {
     _account: string,
     _vaultSharesToRedeem: TokenBalance,
     withdrawTokensBurned: TokenBalance[],
+    _vaultTradeMetadata?: VaultTradeMetadata[],
     slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
     const { dexId, withdrawExchangeData: exchangeData } =
@@ -663,9 +664,9 @@ export class PendlePT extends VaultAdapter {
 
   override async getRedeemParameters(
     _account: string,
-    _maturity: number,
     vaultSharesToRedeem: TokenBalance,
     _underlyingToRepayDebt: TokenBalance,
+    _vaultTradeMetadata?: VaultTradeMetadata[],
     slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
     let dexId = 0;
