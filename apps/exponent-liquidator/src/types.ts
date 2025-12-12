@@ -60,7 +60,6 @@ export interface Env {
   FLASH_LIQUIDATOR_ADDRESS: string;
   TRADING_MODULE_ADDRESS: string;
   NETWORK: Network;
-  DD_API_KEY: string;
   TX_RELAY_AUTH_TOKEN: string;
   HYPERNATIVE_CLIENT_ID: string;
   HYPERNATIVE_CLIENT_SECRET: string;
