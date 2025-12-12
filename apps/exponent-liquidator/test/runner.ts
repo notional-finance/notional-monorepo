@@ -102,11 +102,11 @@ export class LiquidationTestRunner {
             : '0x594734c7e06C3D483466ADBCe401C6Bd269746C8',
         NETWORK:
           testCase.network === 'mainnet' ? Network.mainnet : Network.arbitrum,
-        DD_API_KEY: devVars.DD_API_KEY || 'test-key',
         TX_RELAY_AUTH_TOKEN: devVars.TX_RELAY_AUTH_TOKEN || 'test-token',
         HYPERNATIVE_CLIENT_ID: devVars.HYPERNATIVE_CLIENT_ID || 'test-id',
         HYPERNATIVE_CLIENT_SECRET:
           devVars.HYPERNATIVE_CLIENT_SECRET || 'test-secret',
+        LOG_LEVEL: 'debug' as const,
       };
 
       // Initialize vault registry with unique vault addresses
