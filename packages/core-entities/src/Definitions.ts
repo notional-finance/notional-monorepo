@@ -127,20 +127,30 @@ export interface BalanceStatement {
   impliedFixedRate?: number;
 }
 
+export interface AccountTransactions {
+  timestamp: number;
+  vaultAddress: string;
+  blockNumber: number;
+  transactionHash: {
+    hash: string;
+    href: string;
+  };
+  transactionType: {
+    symbol: string;
+    label: string;
+    caption: string;
+  };
+  amountToFromWallet?: TokenBalance;
+  lineItems: AccountHistory[];
+}
 export interface AccountHistory {
-  lineItemType: string;
   timestamp: number;
   blockNumber: number;
-  token: TokenDefinition;
-  underlying: TokenDefinition;
-  tokenAmount: TokenBalance;
   transactionHash: string;
-  underlyingAmountRealized: TokenBalance;
-  underlyingAmountSpot: TokenBalance;
-  realizedPrice: TokenBalance;
-  spotPrice: TokenBalance;
-  impliedFixedRate?: number;
-  account?: string;
+  lineItemType: string;
+  lineItemLabel: string;
+  vaultAddress: string;
+  properties: { key: string; value: string }[];
 }
 
 export interface StakeNoteStatus {
@@ -274,7 +284,7 @@ export type HistoricalOracles = {
 export const PRICE_ORACLES = [
   'sNOTE',
   'Chainlink',
-  'VaultShareOracleRate',
+  'VaultFeeAccrualRate',
   'BorrowShareOracleRate',
   'sNOTEToETHExchangeRate',
   'WithdrawTokenExchangeRate',

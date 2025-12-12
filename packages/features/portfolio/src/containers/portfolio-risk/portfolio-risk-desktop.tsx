@@ -47,9 +47,7 @@ const PortfolioRiskDesktop = () => {
             }}
             tableTitle={
               <Box sx={{ padding: theme.spacing(0, 1) }}>
-                <FormattedMessage
-                  defaultMessage={'Leveraged Vaults Liquidation Risk'}
-                />
+                <FormattedMessage defaultMessage={'Liquidation Risk'} />
               </Box>
             }
           />

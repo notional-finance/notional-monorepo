@@ -116,11 +116,13 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       const simulatedAPY = adapter.getSimulatedAPY(TokenBalance.zero(token));
       apyData.incentiveAPY = simulatedAPY.incentiveAPY;
       apyData.incentives = simulatedAPY.incentives;
-      apyData.totalAPY = simulatedAPY.totalAPY;
       apyData.organicAPY = simulatedAPY.organicAPY;
       apyData.assetAPY = simulatedAPY.assetAPY;
       apyData.pointMultiples = simulatedAPY.pointMultiples;
       apyData.feeAPY = getVaultFee(token.vaultAddress);
+      apyData.totalAPY = simulatedAPY.totalAPY
+        ? simulatedAPY.totalAPY - (apyData.feeAPY || 0)
+        : undefined;
     }
 
     return apyData;
@@ -158,7 +160,6 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
         apyData.organicAPY = market.getSpotInterestRate();
         apyData.totalAPY = apyData.organicAPY;
       } catch (e) {
-        console.error(e);
         apyData.organicAPY = undefined;
         apyData.totalAPY = undefined;
       }
@@ -166,6 +167,9 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       const adapter = getVaultAdapter(netAmount.vaultAddress);
       const apyData = adapter.getSimulatedAPY(netAmount, vaultTradeMetadata);
       apyData.feeAPY = getVaultFee(netAmount.vaultAddress);
+      apyData.totalAPY = apyData.totalAPY
+        ? apyData.totalAPY - (apyData.feeAPY || 0)
+        : undefined;
       return apyData;
     }
 
@@ -173,17 +177,17 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
   };
 
   const getLeveragedAPY = (
-    collateralAmount: TokenBalance,
-    debtAmount: TokenBalance,
+    netCollateralAmount: TokenBalance,
+    netDebtAmount: TokenBalance,
     leverageRatio: number,
     vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData => {
-    const collateralAPY = collateralAmount.isZero()
-      ? getSpotAPY(collateralAmount.tokenId)
-      : getSimulatedAPY(collateralAmount, vaultTradeMetadata);
-    const debtAPY = debtAmount.isZero()
-      ? getSpotAPY(debtAmount.tokenId)
-      : getSimulatedAPY(debtAmount);
+    const collateralAPY = netCollateralAmount.isZero()
+      ? getSpotAPY(netCollateralAmount.tokenId)
+      : getSimulatedAPY(netCollateralAmount, vaultTradeMetadata);
+    const debtAPY = netDebtAmount.isZero()
+      ? getSpotAPY(netDebtAmount.tokenId)
+      : getSimulatedAPY(netDebtAmount);
 
     return createLeveragedAPYData(
       collateralAPY,

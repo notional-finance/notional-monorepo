@@ -1,4 +1,4 @@
-import { BigNumber, BytesLike } from 'ethers';
+import { BytesLike } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import {
   DEX_ID,
@@ -9,6 +9,7 @@ import {
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
+import { BalanceStatementReturnType } from '../client/accounts/balance-statement';
 
 export interface BaseVaultParams {
   vaultAddress: string;
@@ -53,11 +54,9 @@ export abstract class VaultAdapter {
     vaultTradeMetadata?: VaultTradeMetadata[];
   };
 
-  getWithdrawTradeMetadata(
-    _withdrawTokensBurned: TokenBalance
-  ): VaultTradeMetadata[] {
-    throw new Error('Not implemented');
-  }
+  abstract getWithdrawTradeMetadata(
+    withdrawTokensBurned: TokenBalance[]
+  ): VaultTradeMetadata[];
 
   abstract getDepositParameters(
     account: string,
@@ -74,11 +73,21 @@ export abstract class VaultAdapter {
     slippageFactor?: number
   ): Promise<BytesLike>;
 
+  abstract getInitiateWithdrawParameters(
+    account: string,
+    vaultSharesToRedeem: TokenBalance
+  ): Promise<BytesLike>;
+
+  abstract simulateWithdraw(vaultSharesToRedeem: TokenBalance): {
+    estimatedWithdrawTime: number | undefined;
+    yieldTokensRedeemed: TokenBalance;
+    withdrawTokensToReceive: TokenBalance;
+  }[];
+
   abstract getWithdrawParameters(
     account: string,
-    maturity: number,
     vaultSharesToRedeem: TokenBalance,
-    underlyingToRepayDebt: TokenBalance,
+    withdrawTokensBurned: TokenBalance[],
     slippageFactor?: number
   ): Promise<BytesLike>;
 
@@ -110,8 +119,10 @@ export abstract class VaultAdapter {
     vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData;
 
-  getInterestAccrualRate(): BigNumber {
-    return BigNumber.from(0);
+  getAdditionalAccruedInterest(
+    _statement: BalanceStatementReturnType
+  ): TokenBalance {
+    return TokenBalance.zero(this.borrowedToken);
   }
 
   protected getVaultTradeMetadata(

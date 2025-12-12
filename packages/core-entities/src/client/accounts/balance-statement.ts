@@ -84,14 +84,27 @@ export async function fetchBalanceStatements(
         [account]:
           r.account?.balances
             ?.filter(({ token }) => !!token.underlying)
-            .map(({ current, token }) => {
+            .map(({ current, token, incentives }) => {
               if (!token.underlying) throw Error('Unknown underlying');
+              const model = getNetworkModel(network);
+
               return {
                 ...parseCurrentBalanceStatement(
                   current as BalanceSnapshot,
                   token as Token,
                   network
                 ),
+                incentives:
+                  incentives?.map((i) => ({
+                    totalClaimed: model.getTokenBalanceFromSymbol(
+                      i.totalClaimed,
+                      i.rewardToken.symbol
+                    ),
+                    adjustedClaimed: model.getTokenBalanceFromSymbol(
+                      i.adjustedClaimed,
+                      i.rewardToken.symbol
+                    ),
+                  })) || [],
               };
             }) || [],
       };
@@ -133,11 +146,12 @@ export function parseCurrentBalanceStatement(
   const currentStatement = parseBalanceStatement(
     tokenId,
     underlying.id,
+    _token.vaultAddress?.accountingAsset?.id || underlying.id,
     current as BalanceSnapshot,
     network
   );
 
-  const currentProfitAndLoss = currentStatement.balance
+  let currentProfitAndLoss = currentStatement.balance
     .toUnderlying()
     .sub(
       currentStatement.adjustedCostBasis.scale(
@@ -146,44 +160,18 @@ export function parseCurrentBalanceStatement(
       )
     );
 
-  const incentives =
-    current.incentives?.map((i) => ({
-      // PartOf: Incentive Earnings
-      adjustedClaimed: model.getTokenBalanceFromSymbol(
-        i.adjustedClaimed,
-        i.rewardToken.symbol
-      ),
-      totalClaimed: model.getTokenBalanceFromSymbol(
-        i.totalClaimed,
-        i.rewardToken.symbol
-      ),
-    })) || [];
-
   let totalInterestAccrual: TokenBalance = currentProfitAndLoss;
 
   if (token.tokenType === 'VaultShare') {
-    // This interest accumulator is always in 18 decimals
-    const currentInterestAccumulator = model
+    const additionalAccruedInterest = model
       .getVaultAdapter(token.id)
-      .getInterestAccrualRate();
-    if (currentInterestAccumulator) {
-      const additionalAccruedInterest = TokenBalance.unit(underlying)
-        .scale(
-          currentInterestAccumulator.sub(
-            current._lastInterestAccumulator as BigNumber
-          ),
-          SCALAR_PRECISION
-        )
-        .scale(currentStatement.balance, currentStatement.balance.precision);
-
-      totalInterestAccrual = currentStatement.totalInterestAccrual.add(
-        additionalAccruedInterest
-      );
-    } else {
-      totalInterestAccrual = currentStatement.totalInterestAccrual;
-    }
-  } else {
-    // For Prime Cash and Prime Debt, the entire PNL is interest accrual
+      .getAdditionalAccruedInterest(currentStatement);
+    totalInterestAccrual = currentStatement.totalInterestAccrual
+      .add(additionalAccruedInterest)
+      .toToken(underlying);
+  } else if (token.tokenType === 'VaultDebt') {
+    currentProfitAndLoss = currentProfitAndLoss.neg();
+    // For vault debt, the entire PNL is interest accrual
     totalInterestAccrual = currentProfitAndLoss;
   }
 
@@ -201,14 +189,16 @@ export function parseCurrentBalanceStatement(
     totalInterestAccrual,
     // Amount Paid
     accumulatedCostRealized: currentStatement.accumulatedCostRealized,
-    incentives,
     totalVaultFees: currentStatement.totalVaultFeesAtSnapshot,
   };
 }
 
-export function parseBalanceStatement(
+export type BalanceStatementReturnType = ReturnType<typeof parseBalanceStatement>;
+
+function parseBalanceStatement(
   tokenId: string,
   underlyingId: string,
+  accountingAssetId: string,
   snapshot: BalanceSnapshot,
   network: Network
 ) {
@@ -228,6 +218,8 @@ export function parseBalanceStatement(
     adjustedCostBasis,
     timestamp: snapshot.timestamp,
     accumulatedCostRealized,
+    accountingAssetId,
+    lastInterestAccumulator: BigNumber.from(snapshot._lastInterestAccumulator),
     totalProfitAndLoss: new TokenBalance(
       snapshot.currentProfitAndLossAtSnapshot,
       underlyingId,
@@ -235,7 +227,7 @@ export function parseBalanceStatement(
     ),
     totalInterestAccrual: new TokenBalance(
       snapshot.totalInterestAccrualAtSnapshot,
-      underlyingId,
+      accountingAssetId,
       network
     ),
     totalVaultFeesAtSnapshot: new TokenBalance(

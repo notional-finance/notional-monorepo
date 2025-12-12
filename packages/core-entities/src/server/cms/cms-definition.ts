@@ -87,6 +87,7 @@ export interface VaultCMSData {
   name: string;
   address: string;
   network: Network;
+  vaultIcon: string;
   depositToken: string;
   vaultFeatures: string[];
   launchedOn: number;

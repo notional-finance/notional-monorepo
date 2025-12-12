@@ -25,6 +25,7 @@ export async function loadGraphClientDeferred() {
     AllOraclesDocument,
     AllOraclesByBlockNumberDocument,
     AllVaultsDocument,
+    AllVaultAccountsDocument,
     AllLendingRoutersDocument,
     AllWithdrawRequestManagersDocument,
     AccountTransactionHistoryDocument,
@@ -35,6 +36,7 @@ export async function loadGraphClientDeferred() {
     MetaDocument,
     AccountHoldingsHistoricalDocument,
     AccountPositionsDocument,
+    AccountIncentiveSnapshotsDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
   } = await import('../.graphclient/index');
 
@@ -46,6 +48,7 @@ export async function loadGraphClientDeferred() {
     AllOraclesDocument,
     AllOraclesByBlockNumberDocument,
     AllVaultsDocument,
+    AllVaultAccountsDocument,
     AllLendingRoutersDocument,
     AllWithdrawRequestManagersDocument,
     ExchangeRateValuesDocument,
@@ -55,6 +58,7 @@ export async function loadGraphClientDeferred() {
     NetworkTransactionHistoryDocument,
     MetaDocument,
     AccountHoldingsHistoricalDocument,
+    AccountIncentiveSnapshotsDocument,
   };
 }
 

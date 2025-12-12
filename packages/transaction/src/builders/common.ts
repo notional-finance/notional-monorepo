@@ -40,6 +40,7 @@ export interface PopulateTransactionInputs {
   vaultLastUpdateTime?: Map<string, number>;
   tradeType?: string;
   ethRedeem?: TokenBalance;
+  withdrawTokensBurned?: TokenBalance[];
 }
 
 export async function populateTxnAndGas(

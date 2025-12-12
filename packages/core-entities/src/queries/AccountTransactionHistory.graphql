@@ -15,9 +15,11 @@ query AccountTransactionHistory($accountId: String!, $skip: Int!) {
     }
     token {
       id
+      symbol
     }
     underlyingToken {
       id
+      symbol
     }
     tokenAmount
     underlyingAmountRealized
@@ -25,5 +27,15 @@ query AccountTransactionHistory($accountId: String!, $skip: Int!) {
     realizedPrice
     spotPrice
     impliedFixedRate
+    yieldTokenAmount
+    balanceSnapshot {
+      balance {
+        token {
+          vaultAddress {
+            id
+          }
+        }
+      }
+    }
   }
 }

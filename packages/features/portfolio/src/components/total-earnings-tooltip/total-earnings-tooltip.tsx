@@ -1,5 +1,4 @@
 import { H5, InfoTooltip } from '@notional-finance/mui';
-import { NotionalTheme } from '@notional-finance/styles';
 import { trackEvent } from '@notional-finance/helpers';
 import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
@@ -7,14 +6,9 @@ import { Box, styled, useTheme } from '@mui/material';
 
 export interface TotalEarningsTooltipProps {
   toolTipData: {
-    perAssetEarnings?: { underlying: string; baseCurrency: string }[];
+    perAssetEarnings?: { underlying: string; baseCurrency?: string }[];
     totalEarnings?: { value: string; symbol: string }[];
   };
-}
-
-interface FirstValueProps {
-  theme: NotionalTheme;
-  isNegative?: boolean;
 }
 
 export const TotalEarningsTooltip = ({
@@ -58,13 +52,8 @@ export const TotalEarningsTooltip = ({
                   sx={{ marginTop: index === 0 ? 0 : theme.spacing(1) }}
                 >
                   <>
-                    <FirstValue
-                      theme={theme}
-                      isNegative={asset.underlying?.includes('-')}
-                    >
-                      {asset.underlying}
-                    </FirstValue>
-                    <H5>({asset.baseCurrency})</H5>
+                    <FirstValue theme={theme}>{asset.underlying}</FirstValue>
+                    {asset.baseCurrency && <H5>({asset.baseCurrency})</H5>}
                   </>
                 </ValueContainer>
               ) : null
@@ -98,14 +87,10 @@ const ValueContainer = styled(Box)(`
   justify-content: end;
 `);
 
-const FirstValue = styled(H5, {
-  shouldForwardProp: (prop: string) => prop !== 'isNegative',
-})(
-  ({ theme, isNegative }: FirstValueProps) => `
+const FirstValue = styled(H5)(
+  ({ theme }) => `
   margin-right: ${theme.spacing(1)};
-  color: ${
-    isNegative ? theme.palette.typography.main : theme.palette.primary.main
-  };
+  color: ${theme.palette.typography.main};
 `
 );
 

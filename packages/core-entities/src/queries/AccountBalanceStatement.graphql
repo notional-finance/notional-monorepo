@@ -7,6 +7,11 @@ query AccountBalanceStatement($accountId: ID!) {
         underlying {
           id
         }
+        vaultAddress {
+          accountingAsset {
+            id
+          }
+        }
       }
       withdrawRequest {
         id
@@ -31,14 +36,14 @@ query AccountBalanceStatement($accountId: ID!) {
         _lastInterestAccumulator
         _lastVaultFeeAccumulator
         impliedFixedRate
-        incentives {
-          rewardToken {
-            id
-            symbol
-          }
-          totalClaimed
-          adjustedClaimed
+      }
+      incentives {
+        rewardToken {
+          id
+          symbol
         }
+        totalClaimed
+        adjustedClaimed
       }
     }
   }

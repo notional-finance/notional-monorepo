@@ -11,7 +11,7 @@ import {
 } from '@notional-finance/helpers';
 import { useTheme } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
-import { Network } from '@notional-finance/util';
+import { Network, shortenTokenSymbol } from '@notional-finance/util';
 import { useObserver } from 'mobx-react-lite';
 import { useFetchAnalyticsData } from './use-market';
 
@@ -60,7 +60,10 @@ function parseUnderlyingLiquidationPrice(
         <span>
           {titleWithMaturity}
           <span style={{ color: secondary }}>
-            &nbsp;/&nbsp;{debt?.symbol || threshold?.underlying.symbol || ''}
+            &nbsp;/&nbsp;
+            {shortenTokenSymbol(
+              debt?.symbol || threshold?.underlying.symbol || ''
+            )}
           </span>
         </span>
       ),

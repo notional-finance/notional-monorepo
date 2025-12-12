@@ -1,6 +1,7 @@
 import {
   AccountDefinition,
   APYData,
+  createLeveragedAPYData,
   NotionalTypes,
   PendlePT,
   SingleSidedLP,
@@ -45,6 +46,7 @@ import {
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
+import { reaction } from 'mobx';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -199,6 +201,17 @@ export const TradeModel = types
     inputsSatisfied: types.optional(types.boolean, false),
     /** True if all calculations have been completed */
     calculationSuccess: types.optional(types.boolean, false),
+
+    /** True if the calculation is deferred */
+    deferredCalculationStatus: types.optional(
+      types.enumeration('DeferredCalculationStatus', [
+        'NotStarted',
+        'Pending',
+        'Completed',
+        'Error',
+      ]),
+      'NotStarted'
+    ),
     /** True if the form is in the confirmation state */
     confirm: types.optional(types.boolean, false),
     /** Simulation error transaction */
@@ -208,6 +221,19 @@ export const TradeModel = types
     netRealizedCollateralBalance: types.maybe(NotionalTypes.TokenBalance),
     /** Net cost of debts in underlying terms*/
     netRealizedDebtBalance: types.maybe(NotionalTypes.TokenBalance),
+    simulatedWithdraws: types.maybe(
+      types.array(
+        types.model({
+          estimatedWithdrawTime: types.maybe(types.number),
+          yieldTokensRedeemed: NotionalTypes.TokenBalance,
+          withdrawTokensToReceive: NotionalTypes.TokenBalance,
+        })
+      )
+    ),
+    withdrawTokensBurned: types.optional(
+      types.array(NotionalTypes.TokenBalance),
+      []
+    ),
 
     /** Calculated updates to the account balances post trade */
     postTradeBalances: types.optional(
@@ -532,7 +558,7 @@ export const TradeModel = types
         } catch (e) {
           console.error('trade model calculate error', e);
           self.calculationSuccess = false;
-          self.calculateError = (e as Error).toString();
+          self.calculateError = (e as Error).message.toString();
           // Clear any calculated inputs that are not required for the trade type
           requiredArgs.forEach((arg) => {
             if (arg === 'deposit') {
@@ -792,6 +818,9 @@ export const TradeModel = types
       self.vaultTradeMetadata.replace(
         (maxWithdrawValues?.vaultTradeMetadata || []) as any
       );
+      self.withdrawTokensBurned.replace(
+        maxWithdrawValues?.withdrawTokensBurned || []
+      );
     };
 
     const setLeverageRatio = (leverageRatio: number) => {
@@ -911,6 +940,7 @@ export const TradeModel = types
         },
         updated: postVaultRisk
           ? {
+              isCleared: postVaultRisk?.totalAssets().isZero(),
               healthFactor: postVaultRisk?.healthFactor(),
               leverageRatio: postVaultRisk?.leverageRatio(),
               netWorth: postVaultRisk?.netWorth(),
@@ -929,23 +959,120 @@ export const TradeModel = types
       );
       const currentAPY = holdings?.apyData
         ? getSnapshot(holdings?.apyData)
-        : undefined;
-      const updatedAPY = postVaultRisk
-        ? model.getLeveragedAPY(
-            postVaultRisk.vaultShares,
-            postVaultRisk.vaultDebt,
-            postVaultRisk.leverageRatio() || 0,
-            self.vaultTradeMetadata
+        : self.collateral && self.debt
+        ? // If there is no position then use the spot APY with leverage applied
+          model.getLeveragedAPY(
+            TokenBalance.zero(self.collateral as TokenDefinition),
+            TokenBalance.zero(self.debt as TokenDefinition),
+            self.leverageRatio || 0
           )
         : undefined;
 
+      let updatedAPY: APYData | undefined;
+      if (holdings && self.tradeType === 'InitiateWithdraw') {
+        // Clear all the asset APY for a withdraw
+        updatedAPY = createLeveragedAPYData(
+          {
+            totalAPY: 0,
+            assetAPY: 0,
+            organicAPY: 0,
+            incentiveAPY: 0,
+            feeAPY: 0,
+            incentives: [],
+            pointMultiples: {},
+          },
+          currentAPY?.debtAPY || 0,
+          holdings.leverageRatio
+        );
+      } else if (postVaultRisk && self.collateralBalance && self.debtBalance) {
+        const netPositionAPY = model.getLeveragedAPY(
+          self.collateralBalance,
+          self.debtBalance,
+          postVaultRisk.leverageRatio() || 0,
+          self.vaultTradeMetadata
+        );
+
+        if (
+          priorVaultRisk &&
+          ((self.tradeType === 'AdjustVaultLeverage' &&
+            // Only do this if we are increasing the leverage
+            (self.leverageRatio || 0) > (postVaultRisk.leverageRatio() || 0)) ||
+            self.tradeType === 'IncreaseVaultPosition')
+        ) {
+          // Average into the updated apy
+          updatedAPY = {
+            ...netPositionAPY,
+            totalAPY: averageAPY([
+              {
+                apy: currentAPY?.totalAPY || 0,
+                amount: priorVaultRisk.vaultShares,
+              },
+              {
+                apy: netPositionAPY.totalAPY || 0,
+                amount: self.collateralBalance,
+              },
+            ]),
+            assetAPY: averageAPY([
+              {
+                apy: currentAPY?.assetAPY || 0,
+                amount: priorVaultRisk.vaultShares,
+              },
+              {
+                apy: netPositionAPY.assetAPY || 0,
+                amount: self.collateralBalance,
+              },
+            ]),
+            organicAPY: averageAPY([
+              {
+                apy: currentAPY?.organicAPY || 0,
+                amount: priorVaultRisk.totalAssets(),
+              },
+              {
+                apy: netPositionAPY.organicAPY || 0,
+                amount: self.collateralBalance,
+              },
+            ]),
+            incentiveAPY: averageAPY([
+              {
+                apy: currentAPY?.incentiveAPY || 0,
+                amount: priorVaultRisk.totalAssets(),
+              },
+              {
+                apy: netPositionAPY.incentiveAPY || 0,
+                amount: self.collateralBalance,
+              },
+            ]),
+          };
+        } else if (
+          self.tradeType === 'CreateVaultPosition' ||
+          self.tradeType === 'RollVaultPosition'
+        ) {
+          updatedAPY = netPositionAPY;
+        } else if (self.tradeType === 'AdjustVaultLeverage') {
+          // In this case it is reducing the leverage
+          updatedAPY = createLeveragedAPYData(
+            netPositionAPY.unleveragedAssetAPY || {},
+            netPositionAPY.debtAPY || 0,
+            postVaultRisk.leverageRatio() || 0
+          );
+        }
+      }
+
       return {
-        leveragedAPY: (currentAPY || updatedAPY || undefined) as
+        leveragedAPY: (updatedAPY || currentAPY || undefined) as
           | APYData
           | undefined,
-        assets: postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
+        assets:
+          // Use the prior vault risk assets if there is a withdraw
+          self.tradeType === 'InitiateWithdraw'
+            ? priorVaultRisk?.totalAssets()
+            : postVaultRisk?.totalAssets() || priorVaultRisk?.totalAssets(),
         debts: postVaultRisk?.totalDebt() || priorVaultRisk?.totalDebt(),
-        netWorth: postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
+        netWorth:
+          // Use the prior vault risk net worth if there is a withdraw
+          self.tradeType === 'InitiateWithdraw'
+            ? priorVaultRisk?.netWorth()
+            : postVaultRisk?.netWorth() || priorVaultRisk?.netWorth(),
       };
     };
 
@@ -1007,13 +1134,14 @@ export const TradeModel = types
           leverageRatio !== undefined &&
           leverageRatio < postAccountRisk.maxLeverageRatio;
 
-        return (
+        const canSubmit =
           self.calculationSuccess &&
           hasPostAccountRisk &&
           isLeverageRatioValid &&
           overPoolCapacityError === false &&
-          self.inputErrors === false
-        );
+          self.inputErrors === false;
+
+        return canSubmit;
       } else if (isNOTEStake(self.tradeType)) {
         const account = root().getNetworkAccount(self.selectedNetwork);
         const priorBalances = account?.balances;
@@ -1048,23 +1176,7 @@ export const TradeModel = types
     };
 
     const getVaultInitiateWithdraw = () => {
-      if (!self.vaultAddress) return undefined;
-      const model = root().getNetworkClient(self.selectedNetwork);
-      const withdrawManagers = model.getWithdrawManagers(self.vaultAddress);
-      if (withdrawManagers.length === 1) {
-        return withdrawManagers.map((w) => {
-          return {
-            estimatedWithdrawTime: w.estimatedWithdrawTimeInSeconds,
-            // NOTE: this will not work with LP strategies
-            tokensRedeemed: self.netRealizedCollateralBalance,
-            tokensToReceive: self.netRealizedCollateralBalance?.toToken(
-              w.withdrawToken
-            ),
-          };
-        });
-      }
-
-      throw Error('Vault has multiple withdraw managers');
+      return self.simulatedWithdraws;
     };
 
     return {
@@ -1320,4 +1432,20 @@ function sortByMaturity<T extends { maturity?: number }>(a: T, b: T) {
       ? 0
       : b.maturity)
   );
+}
+
+function averageAPY(
+  apys: {
+    apy: number;
+    amount: TokenBalance;
+  }[]
+): number {
+  const totalAmount = apys.reduce(
+    (acc, curr) => acc + curr.amount.toFloat(),
+    0
+  );
+  const weightedApys = apys.map(
+    ({ apy, amount }) => (apy * amount.toFloat()) / totalAmount
+  );
+  return weightedApys.reduce((acc, curr) => acc + curr, 0);
 }

@@ -9,10 +9,7 @@ import {
   TRACKING_EVENTS,
   TransactionStatus,
 } from '@notional-finance/util';
-import {
-  checkNewUserAddress,
-  checkSanctionedAddress,
-} from '../account/communities';
+import { checkSanctionedAddress } from '../account/communities';
 import { updateWalletTracking } from '../account/tracking';
 import { identify, trackEvent } from '@notional-finance/helpers';
 import {
@@ -70,7 +67,7 @@ export const WalletModel = types
     userWallet: types.maybe(UserWalletModel),
     country: types.maybe(types.string),
     isSanctionedAddress: types.boolean,
-    isStarterBoostUser: types.boolean,
+    isBetaUser: types.boolean,
     isAccountPending: types.boolean,
     networkAccounts: types.optional(types.map(AccountPortfolioModel), {}),
     totalPoints: types.maybe(types.number),
@@ -92,6 +89,15 @@ export const WalletModel = types
   }))
   .actions((self) => {
     const root = getRoot<RootStoreInterface>(self);
+
+    const checkBetaUser = async (address: string) => {
+      const response = await fetch(
+        `https://registry.notional.finance/exponent_beta_whitelist.json`
+      );
+      const data: string[] = await response.json();
+      return data.includes(address);
+    };
+
     const executeUserTracking = async (
       userWallet: Instance<typeof UserWalletModel>
     ) => {
@@ -262,9 +268,7 @@ export const WalletModel = types
         self.country = vpnCheck.status !== 200 ? 'VPN' : country['country'];
 
         self.isSanctionedAddress = yield executeUserTracking(userWallet);
-        self.isStarterBoostUser = yield checkNewUserAddress(
-          userWallet.selectedAddress
-        );
+        self.isBetaUser = yield checkBetaUser(userWallet.selectedAddress);
         self.isAccountPending = false;
       }
 

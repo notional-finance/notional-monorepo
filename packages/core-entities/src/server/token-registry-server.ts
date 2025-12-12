@@ -55,7 +55,7 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
             tokenType: v.tokenType,
             underlying: v.underlying?.id || undefined,
             maturity: parseInt(v.maturity) || undefined,
-            vaultAddress: v.vaultAddress || undefined,
+            vaultAddress: v.vaultAddress?.id || undefined,
             totalSupply: v.totalSupply
               ? TokenBalance.toJSON(
                   BigNumber.from(v.totalSupply),

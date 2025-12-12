@@ -7,8 +7,9 @@ import {
   WithdrawRequest,
 } from '@notional-finance/core-entities';
 import {
-  RATE_DECIMALS,
   RATE_PRECISION,
+  SCALAR_PRECISION,
+  getNowSeconds,
   leveragedYield,
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
@@ -145,6 +146,22 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return !!this.withdrawRequests && this.withdrawRequests.length > 0;
   }
 
+  get estimatedWithdrawTimeInSeconds() {
+    return this.hasPendingWithdraw
+      ? this.model
+          .getWithdrawManagers(this.vaultAddress)
+          .reduce(
+            (m, t) =>
+              m === undefined
+                ? t.estimatedWithdrawTimeInSeconds
+                : m < (t.estimatedWithdrawTimeInSeconds || 0)
+                ? m
+                : t.estimatedWithdrawTimeInSeconds,
+            undefined as number | undefined
+          )
+      : undefined;
+  }
+
   get hasFinalizedWithdraw() {
     return (
       !!this.withdrawRequests &&
@@ -163,6 +180,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       this.borrowAPY,
       this.leverageRatio() || 0
     );
+  }
+
+  get isInCooldown() {
+    return this.lastUpdateBlockTime > getNowSeconds() - 5 * 60;
   }
 
   protected _netCurrencyDebt() {
@@ -189,6 +210,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   pendingYieldTokensForWithdraw() {
     if (!this.withdrawRequests || this.withdrawRequests.length === 0)
       throw Error('Withdraw requests not found');
+    // The value of yield tokens for a pending withdraw is the same on all
+    // of the withdraw requests.
     return this.withdrawRequests[0].yieldTokenAmount;
   }
 
@@ -200,10 +223,15 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   collateralRatio(): number | null {
     const totalDebt = this.totalDebtRiskAdjusted().neg();
     const totalAssets = this.totalAssetsRiskAdjusted();
-    return totalDebt.isZero()
-      ? null
-      : totalAssets.sub(totalDebt).ratioWith(totalDebt).toNumber() /
-          RATE_PRECISION;
+    // The total debt here is assumed to be positive for the calculation but if for some reason it
+    // is negative then we would get an underflow somewhere else.
+    if (totalDebt.isZero() || totalDebt.isNegative()) return null;
+    const _collateralRatio = totalAssets.sub(totalDebt).ratioWith(totalDebt);
+    // This can occur if the total assets is much larger than the total debt and we would
+    // effectively get no leverage.
+    if (_collateralRatio.gt(Number.MAX_SAFE_INTEGER - 1)) return null;
+
+    return _collateralRatio.toNumber() / RATE_PRECISION;
   }
 
   assetLiquidationThreshold(asset: TokenDefinition): TokenBalance | null {
@@ -212,31 +240,22 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       ? this.pendingYieldTokensForWithdraw()
       : this.vaultShares;
 
-    // (minCollateralRatio + 1) * debtOutstanding = vaultSharesValue
-    const { maxLeverageRatio } = this.model.getLeverageRatios(
-      this.vaultDebt.token
+    const collateralValue = shares.toUnderlying();
+    const ltv = this.model.getLTV(
+      this.vaultAddress,
+      this.vaultDebt.token.address
     );
-    const minCollateralRatioBasisPoints =
-      VaultAccountRiskProfile.leverageToCollateralRatio(maxLeverageRatio);
-    // NOTE: this value is in primary borrow underlying terms
-    const oneVaultShareValueAtLiquidation = this.totalDebtRiskAdjusted()
-      .neg()
-      .scale(
-        Math.floor(minCollateralRatioBasisPoints + RATE_PRECISION),
-        shares.scaleTo(RATE_DECIMALS)
-      );
+    const maxBorrow = collateralValue.scale(ltv, SCALAR_PRECISION);
+    const borrowed = this.totalDebtRiskAdjusted().neg();
 
-    // This is the relative exchange rate decrease of vault shares to liquidation
     const oneVaultShareValue = TokenBalance.unit(shares.token).toUnderlying();
-    const liquidationPriceRatio =
-      oneVaultShareValueAtLiquidation.ratioWith(oneVaultShareValue);
     const assetToUnderlyingPrice = TokenBalance.unit(asset).toToken(
       oneVaultShareValue.token
     );
-    const assetLiquidationThreshold = assetToUnderlyingPrice
-      .mulInRatePrecision(liquidationPriceRatio)
-      .toToken(asset);
 
+    const assetLiquidationThreshold = assetToUnderlyingPrice
+      .scale(borrowed, maxBorrow)
+      .toToken(asset);
     return assetLiquidationThreshold;
   }
 
@@ -249,7 +268,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         return {
           asset,
           debt: borrowedToken,
-          threshold: this.assetLiquidationThreshold(asset),
+          threshold:
+            this.assetLiquidationThreshold(asset)?.toToken(borrowedToken) ||
+            null,
           isDebtThreshold: false,
         };
       })
@@ -310,12 +331,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   maxWithdraw(_token: TokenDefinition = this.vaultShares.token) {
-    const costToRepay = this.vaultDebt.toUnderlying();
+    const costToRepay = this.vaultDebt.neg().toUnderlying();
 
     // Returns the total underlying received when redeeming all of the vault shares
     let netUnderlyingForVaultShares: TokenBalance;
     let feesPaid: TokenBalance;
     let vaultTradeMetadata: VaultTradeMetadata[];
+    let withdrawTokensBurned: TokenBalance[] | undefined;
     if (this.hasFinalizedWithdraw) {
       if (!this.withdrawRequests) throw Error('Withdraw requests not found');
       netUnderlyingForVaultShares = this.withdrawRequests.reduce((acc, w) => {
@@ -323,12 +345,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         return acc.add(w.withdrawTokenAmount.toToken(costToRepay.token));
       }, costToRepay.copy(0));
       feesPaid = TokenBalance.zero(this.denom(this.defaultSymbol));
-      vaultTradeMetadata = this.withdrawRequests.flatMap((w) => {
+
+      withdrawTokensBurned = this.withdrawRequests.map((w) => {
         if (!w.withdrawTokenAmount) throw Error('Tokens withdrawn not found');
-        return this.vaultAdapter.getWithdrawTradeMetadata(
-          w.withdrawTokenAmount
-        );
+        return w.withdrawTokenAmount;
       });
+      vaultTradeMetadata =
+        this.vaultAdapter.getWithdrawTradeMetadata(withdrawTokensBurned);
     } else if (this.hasPendingWithdraw) {
       throw Error('Max withdraw not supported for pending withdraws');
     } else {
@@ -353,6 +376,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       debtFee: costToRepay.copy(0),
       netRealizedDebtBalance: costToRepay,
       vaultTradeMetadata,
+      withdrawTokensBurned,
     };
   }
 }

@@ -1,6 +1,5 @@
 import { RootStoreInterface } from './root-store';
 import {
-  AccountHistory,
   BalanceStatement,
   NotionalTypes,
   TokenBalance,
@@ -34,11 +33,13 @@ const APYDataModel = types.model('APYDataModel', {
   ),
   utilization: types.maybe(types.number),
   pointMultiples: types.maybe(types.map(types.number)),
+  unleveragedAssetAPY: types.maybe(types.late(() => APYDataModel)),
 });
 
 const VaultHoldingModel = types.model('VaultHoldingModel', {
   network: NotionalTypes.Network,
   name: types.string,
+  vaultIcon: types.maybe(types.string),
   maturity: types.maybe(types.number),
   vaultAddress: types.string,
   vaultShares: NotionalTypes.TokenBalance,
@@ -60,6 +61,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   totalDebt: NotionalTypes.TokenBalance,
   underlying: types.string,
   maxLeverageRatio: types.number,
+  isInCooldown: types.boolean,
   apyData: types.maybe(APYDataModel),
   leverageRatio: types.number,
   amountPaid: NotionalTypes.TokenBalance,
@@ -80,11 +82,21 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   debtEntryPrice: types.maybe(NotionalTypes.TokenBalance),
   assetAmountPaid: NotionalTypes.TokenBalance,
   debtAmountPaid: NotionalTypes.TokenBalance,
+  estimatedWithdrawTimeInSeconds: types.maybe(types.number),
   vaultMetadata: types.model({
     rewardClaims: types.optional(types.array(NotionalTypes.TokenBalance), []),
     strategyType: types.string,
     isExpired: types.maybe(types.boolean),
   }),
+  incentiveEarnings: types.optional(
+    types.array(
+      types.model({
+        totalClaimed: NotionalTypes.TokenBalance,
+        adjustedClaimed: NotionalTypes.TokenBalance,
+      })
+    ),
+    []
+  ),
 });
 
 const PortfolioModel = types.model('PortfolioModel', {
@@ -165,7 +177,6 @@ export const AccountPortfolioActions = (
       root().getNetworkClient(self.network),
       self.balances,
       self.balanceStatement as BalanceStatement[],
-      self.accountHistory as AccountHistory[],
       new Map(self.vaultLastUpdateTime.entries()),
       Object.fromEntries(self.rewardClaims.entries()),
       new Map(self.withdrawRequests.entries())
@@ -251,6 +262,12 @@ export const AccountPortfolioActions = (
             h.vaultMetadata.rewardClaims?.map((r) => r.toJSON())
           ),
         },
+        incentiveEarnings: cast(
+          h.incentiveEarnings?.map((i) => ({
+            adjustedClaimed: i.adjustedClaimed.toJSON(),
+            totalClaimed: i.totalClaimed.toJSON(),
+          }))
+        ),
       }))
     );
 

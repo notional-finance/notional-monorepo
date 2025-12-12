@@ -11,7 +11,11 @@ import { useRootStore, useAppStore } from '@notional-finance/notionable-hooks';
 import WalletSelector from '@notional-finance/wallet';
 import { Box, CssBaseline, styled } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { META_TAG_CATEGORIES, RouteType } from '@notional-finance/util';
+import {
+  META_TAG_CATEGORIES,
+  RouteType,
+  THEME_VARIANTS,
+} from '@notional-finance/util';
 import {
   InitIntercom,
   InitSanctionsBlock,
@@ -33,9 +37,12 @@ const AppLayoutRoute = ({
   routeType,
   isInjected,
 }: AppLayoutRouteProps) => {
-  const { themeVariant } = useAppStore();
+  let { themeVariant } = useAppStore();
   const { setRoute } = useRootStore();
   const params = useParams();
+  if (routeType === 'Contest') {
+    themeVariant = THEME_VARIANTS.DARK;
+  }
   const notionalTheme = useNotionalTheme(themeVariant, 'product');
   const slicedPath = path
     .match(/\/[^/]+/)?.[0]

@@ -8,7 +8,7 @@ import {
   formatHealthFactorValues,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
-import { Body, Button, Caption, H4, LabelValue } from '@notional-finance/mui';
+import { Body, Button, H4, LabelValue } from '@notional-finance/mui';
 import { useVaultRiskTable } from '../../../hooks';
 
 const VaultTab = () => {
@@ -25,7 +25,6 @@ const VaultTab = () => {
               <TokenIcon symbol={item.vault.symbol} size={'xl'} />
               <Box>
                 <H4>{item.vault.label}</H4>
-                <Caption>{item.vault.caption}</Caption>
               </Box>
             </TokenContainer>
 

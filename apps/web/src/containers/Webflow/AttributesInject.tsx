@@ -1,13 +1,23 @@
 import { Box } from '@mui/material';
-import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
+import {
+  formatNumberAsPercentWithUndefined,
+  truncateAddress,
+} from '@notional-finance/helpers';
 import {
   useAllVaults,
   useAppStore,
   useLandingPageStats,
   useLatestBlogPosts,
+  useSideDrawerManager,
+  useWalletAddress,
+  useWalletStore,
 } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
-import { getDateString } from '@notional-finance/util';
+import {
+  formatNumber,
+  getDateString,
+  SETTINGS_SIDE_DRAWERS,
+} from '@notional-finance/util';
 import { PostOrPage } from '@tryghost/content-api';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -99,7 +109,11 @@ function patchQueryAndRestart(
       if (DEBUG_MODE) {
         const originalDispatch = ix2.store.dispatch;
         ix2.store.dispatch = function (action) {
-          if (action.type !== 'IX2_ANIMATION_FRAME_CHANGED') {
+          if (
+            action.type !== 'IX2_ANIMATION_FRAME_CHANGED' &&
+            action.type !== 'IX2_ELEMENT_STATE_CHANGED' &&
+            action.payload?.actionTypeId !== 'TRANSFORM_MOVE'
+          ) {
             console.log('[IX2 DISPATCH]', action.type, action);
             console.log('IX2 store state:', ix2.store.getState());
           }
@@ -260,105 +274,154 @@ function useListStart(afterListRendered: () => void) {
 }
 
 export const LandingPageInject = () => {
-  const shadowEl = useRef<Element>();
-  const [isInitialized, setIsInitialized] = useState(false);
   const kpiData = useLandingPageStats();
   const blogPosts = useLatestBlogPosts();
+  // This is required to ensure that the inject process has all the data it needs
+  // before we start and can properly inject all the required data.
+  return kpiData && blogPosts ? (
+    <LandingPageInjectContent kpiData={kpiData} blogPosts={blogPosts} />
+  ) : null;
+};
+
+const LandingPageInjectContent = ({
+  kpiData,
+  blogPosts,
+}: {
+  kpiData: any;
+  blogPosts: any;
+}) => {
+  const shadowEl = useRef<Element>();
+  const navigate = useNavigate();
 
   const containerRef = useStartInject(
     '6807f00cedf01dce8388f197',
     'landing-page',
     (shadow) => {
       shadowEl.current = shadow;
-      setIsInitialized(true);
-    }
-  );
-
-  useEffect(() => {
-    if (kpiData && isInitialized && shadowEl.current) {
       const tvlElement = shadowEl.current.shadowRoot?.querySelector('#tvl');
       const maxUsdcApyElement =
         shadowEl.current.shadowRoot?.querySelector('#max-usdc-apy');
       const maxEthApyElement =
         shadowEl.current.shadowRoot?.querySelector('#max-eth-apy');
 
-      if (tvlElement) tvlElement.textContent = `${kpiData.totalTVL}`;
+      if (tvlElement) tvlElement.textContent = `${kpiData?.totalTVL}`;
       if (maxUsdcApyElement)
-        maxUsdcApyElement.textContent = `${kpiData.highestUSDC}`;
+        maxUsdcApyElement.textContent = `${kpiData?.highestUSDC}`;
       if (maxEthApyElement)
-        maxEthApyElement.textContent = `${kpiData.highestETH}`;
-    }
-  }, [kpiData, shadowEl, isInitialized]);
+        maxEthApyElement.textContent = `${kpiData?.highestETH}`;
 
-  useEffect(() => {
-    const fillInBlogPost = (suffix: string, post: PostOrPage) => {
-      const blogPostImageElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-image-${suffix}`
-      );
-      if (blogPostImageElement && post.feature_image) {
-        (blogPostImageElement as HTMLImageElement).src = post.feature_image;
-        (blogPostImageElement as HTMLImageElement).srcset = post.feature_image;
-      }
-      const blogPostTitleElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-title-${suffix}`
-      );
-      if (blogPostTitleElement) {
-        blogPostTitleElement.textContent = post.title || '';
-      }
-      const blogDescriptionElement =
-        shadowEl.current?.shadowRoot?.querySelector(
-          `#blog-description-${suffix}`
+      const fillInBlogPost = (suffix: string, post: PostOrPage) => {
+        const blogPostImageElement =
+          shadowEl.current?.shadowRoot?.querySelector(`#blog-image-${suffix}`);
+        if (blogPostImageElement && post.feature_image) {
+          (blogPostImageElement as HTMLImageElement).src = post.feature_image;
+          (blogPostImageElement as HTMLImageElement).srcset =
+            post.feature_image;
+        }
+        const blogPostTitleElement =
+          shadowEl.current?.shadowRoot?.querySelector(`#blog-title-${suffix}`);
+        if (blogPostTitleElement) {
+          blogPostTitleElement.textContent = post.title || '';
+        }
+        const blogDescriptionElement =
+          shadowEl.current?.shadowRoot?.querySelector(
+            `#blog-description-${suffix}`
+          );
+        if (blogDescriptionElement) {
+          blogDescriptionElement.innerHTML = `${
+            post.html?.slice(0, 150) || ''
+          }...`;
+        }
+
+        const blogPostAuthorElement =
+          shadowEl.current?.shadowRoot?.querySelector(`#blog-author-${suffix}`);
+        if (blogPostAuthorElement) {
+          (blogPostAuthorElement as HTMLImageElement).src =
+            post.primary_author?.profile_image || '';
+        }
+
+        const blogPostAuthorNameElement =
+          shadowEl.current?.shadowRoot?.querySelector(
+            `#blog-author-name-${suffix}`
+          );
+        if (blogPostAuthorNameElement) {
+          blogPostAuthorNameElement.textContent =
+            post.primary_author?.name || '';
+        }
+
+        const blogPostDateElement = shadowEl.current?.shadowRoot?.querySelector(
+          `#blog-date-${suffix}`
         );
-      if (blogDescriptionElement) {
-        blogDescriptionElement.innerHTML = `${
-          post.html?.slice(0, 150) || ''
-        }...`;
-      }
+        if (blogPostDateElement) {
+          blogPostDateElement.textContent =
+            getDateString(new Date(post.published_at || '').getTime() / 1000) ||
+            '';
+        }
 
-      const blogPostAuthorElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-author-${suffix}`
-      );
-      if (blogPostAuthorElement) {
-        (blogPostAuthorElement as HTMLImageElement).src =
-          post.primary_author?.profile_image || '';
-      }
-
-      const blogPostAuthorNameElement =
-        shadowEl.current?.shadowRoot?.querySelector(
-          `#blog-author-name-${suffix}`
+        const blogLinkElement = shadowEl.current?.shadowRoot?.querySelector(
+          `#blog-link-${suffix}`
         );
-      if (blogPostAuthorNameElement) {
-        blogPostAuthorNameElement.textContent = post.primary_author?.name || '';
+        if (blogLinkElement) {
+          (blogLinkElement as HTMLAnchorElement).href = post.url || '';
+          (blogLinkElement as HTMLAnchorElement).target = '_blank';
+          (blogLinkElement as HTMLAnchorElement).rel = 'noreferrer';
+        }
+      };
+
+      if (blogPosts && blogPosts.length === 2 && shadowEl.current) {
+        fillInBlogPost('left', blogPosts[0] as PostOrPage);
+        fillInBlogPost('right', blogPosts[1] as PostOrPage);
       }
 
-      const blogPostDateElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-date-${suffix}`
-      );
-      if (blogPostDateElement) {
-        blogPostDateElement.textContent =
-          getDateString(new Date(post.published_at || '').getTime() / 1000) ||
-          '';
+      const launchAppButtons =
+        shadow.shadowRoot?.querySelectorAll('.launch-app');
+      if (launchAppButtons) {
+        launchAppButtons.forEach((launchAppButton) => {
+          launchAppButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigate('/vaults');
+          });
+        });
       }
 
-      const blogLinkElement = shadowEl.current?.shadowRoot?.querySelector(
-        `#blog-link-${suffix}`
-      );
-      if (blogLinkElement) {
-        (blogLinkElement as HTMLAnchorElement).href = post.url || '';
-        (blogLinkElement as HTMLAnchorElement).target = '_blank';
-        (blogLinkElement as HTMLAnchorElement).rel = 'noreferrer';
-      }
-    };
-    if (
-      blogPosts &&
-      blogPosts.length === 2 &&
-      isInitialized &&
-      shadowEl.current
-    ) {
-      fillInBlogPost('left', blogPosts[0] as PostOrPage);
-      fillInBlogPost('right', blogPosts[1] as PostOrPage);
+      const newsletterInput: HTMLInputElement | undefined | null =
+        shadow.shadowRoot?.querySelector('#newsletter-email-input');
+      const successMessage: HTMLElement | undefined | null =
+        shadow.shadowRoot?.querySelector('.success-message');
+      const subscribeButton: HTMLButtonElement | undefined | null =
+        shadow.shadowRoot?.querySelector('#newsletter-subscribe');
+      subscribeButton?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const email = newsletterInput?.value;
+        if (email) {
+          try {
+            fetch(`${window.location.origin}/subscribe-email`, {
+              method: 'POST',
+              body: JSON.stringify({ email }),
+            })
+              .then((resp) => {
+                if (resp.ok) {
+                  console.log('newsletter subscribed');
+                  successMessage?.style?.setProperty('display', 'block');
+                  newsletterInput?.style?.setProperty('display', 'none');
+                  subscribeButton?.style?.setProperty('display', 'none');
+                } else {
+                  console.error(
+                    'failed to subscribe to newsletter',
+                    resp.statusText
+                  );
+                }
+              })
+              .catch((err) => {
+                console.error('failed to subscribe to newsletter', err);
+              });
+          } catch (err) {
+            console.error('failed to subscribe to newsletter', err);
+          }
+        }
+      });
     }
-  }, [blogPosts, shadowEl, isInitialized]);
+  );
 
   return (
     <Box
@@ -491,6 +554,169 @@ export const VaultsPageInject = () => {
       fs-inject-element="target"
       fs-inject-source="/embed/vaults"
       fs-inject-instance="vaults-page"
+      fs-inject-cache={'false'}
+    />
+  );
+};
+
+export const BetaPageInject = () => {
+  const { setWalletSideDrawer } = useSideDrawerManager();
+  const navigate = useNavigate();
+  const isBetaUser = useWalletStore().isBetaUser;
+
+  useEffect(() => {
+    if (isBetaUser) {
+      // Redirect to the landing page
+      navigate('/');
+    }
+  }, [isBetaUser, navigate]);
+
+  const containerRef = useStartInject(
+    '68c076de04c61ce1e06fb0c5',
+    'exponent-beta',
+    (shadow) => {
+      const connectButton = shadow.shadowRoot?.querySelector('#connect-wallet');
+      if (connectButton) {
+        connectButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          // This component is included in the LandingLayoutRoute, so we need to set the wallet side drawer
+          // to show it here.
+          setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET);
+        });
+      }
+    }
+  );
+
+  return (
+    <Box
+      ref={containerRef}
+      sx={{ height: '100vh' }}
+      className="body-3"
+      fs-inject-element="target"
+      fs-inject-source="/embed/exponent-beta"
+      fs-inject-instance="exponent-beta"
+      fs-inject-cache={'false'}
+    />
+  );
+};
+
+interface Points {
+  address: string;
+  points: number;
+  pointsPerDay: number;
+}
+interface PointsResponse {
+  points: Points[];
+  totalPointsIssued: number;
+  totalPointsPerDay: number;
+  lastUpdated: number;
+}
+
+export const BetaPageLeaderboardInject = () => {
+  // const walletAddress = useWalletAddress();
+  const [leaderboardData, setLeaderboardData] = useState<
+    PointsResponse | undefined
+  >(undefined);
+  const shadowEl = useRef<Element>();
+  const [isInitialized, setIsInitialized] = useState(false);
+  const walletAddress = useWalletAddress();
+
+  useEffect(() => {
+    fetch('https://beta-contest-dev.notional-finance.workers.dev/')
+      .then((resp) => resp.json() as Promise<PointsResponse>)
+      .then((data: PointsResponse) => {
+        setLeaderboardData(data);
+      });
+  }, []);
+
+  const containerRef = useStartInject(
+    '68c35869655d936c6aa482b7',
+    'exponent-leaderboard',
+    (shadow) => {
+      shadowEl.current = shadow;
+      setIsInitialized(true);
+    }
+  );
+
+  useEffect(() => {
+    if (leaderboardData && isInitialized && shadowEl.current) {
+      const totalPointsIssued = shadowEl.current.shadowRoot?.querySelector(
+        '#Total-Points-Issued'
+      );
+      if (totalPointsIssued) {
+        totalPointsIssued.textContent = formatNumber(
+          leaderboardData.totalPointsIssued,
+          2
+        );
+      }
+
+      const totalPointsPerDay = shadowEl.current.shadowRoot?.querySelector(
+        '#Total-Points-Per-Day'
+      );
+      if (totalPointsPerDay) {
+        totalPointsPerDay.textContent = formatNumber(
+          leaderboardData.totalPointsPerDay,
+          2
+        );
+      }
+
+      const leaderboardBody =
+        shadowEl.current.shadowRoot?.querySelector('.leaderboard-body');
+      const leaderboardRow = leaderboardBody?.querySelector('.leaderboard-row');
+      if (!leaderboardRow) return;
+
+      const newRows = leaderboardData.points.map(
+        ({ address, points, pointsPerDay }) => {
+          const row = leaderboardRow.cloneNode(true) as HTMLElement;
+          const a = row.querySelector('.address-body');
+          if (a) a.textContent = truncateAddress(address);
+          const p = row.querySelector('.points-per-day');
+          if (p) p.textContent = formatNumber(pointsPerDay, 2);
+          const t = row.querySelector('.total-points');
+          if (t) t.textContent = formatNumber(points, 2);
+          return row;
+        }
+      );
+
+      if (leaderboardBody) {
+        leaderboardBody.innerHTML = '';
+        newRows.forEach((row) => {
+          leaderboardBody.appendChild(row);
+        });
+      }
+
+      if (walletAddress) {
+        const walletData = leaderboardData.points.find(
+          (p) => p.address.toLowerCase() === walletAddress.toLowerCase()
+        );
+        const positionRow =
+          shadowEl.current.shadowRoot?.querySelector('.position-row');
+        if (positionRow) {
+          const a = positionRow.querySelector('.address-body');
+          if (a) a.textContent = truncateAddress(walletAddress);
+          const p = positionRow.querySelector('.points-per-day');
+          if (p) p.textContent = formatNumber(walletData?.pointsPerDay || 0, 2);
+          const t = positionRow.querySelector('.total-points');
+          if (t) t.textContent = formatNumber(walletData?.points || 0, 2);
+        }
+        const yourPosition =
+          shadowEl.current.shadowRoot?.querySelector(`.your-position`);
+
+        if (yourPosition) {
+          (yourPosition as HTMLElement).style.display = 'block';
+        }
+      }
+    }
+  }, [leaderboardData, shadowEl, isInitialized, walletAddress]);
+
+  return (
+    <Box
+      ref={containerRef}
+      sx={{ height: '100vh' }}
+      className="beta-leaderboard-body"
+      fs-inject-element="target"
+      fs-inject-source="/embed/exponent-leaderboard"
+      fs-inject-instance="exponent-leaderboard"
       fs-inject-cache={'false'}
     />
   );

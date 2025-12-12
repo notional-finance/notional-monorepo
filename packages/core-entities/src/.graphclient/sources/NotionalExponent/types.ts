@@ -159,9 +159,12 @@ export type Balance = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   current: BalanceSnapshot;
+  lendingRouter?: Maybe<LendingRouter>;
+  _lastIncentiveSnapshotBlockNumber?: Maybe<Scalars['BigInt']>;
   /** Link to the withdraw requests that this balance is associated with */
   withdrawRequest?: Maybe<Array<WithdrawRequest>>;
   snapshots?: Maybe<Array<BalanceSnapshot>>;
+  incentives?: Maybe<Array<IncentiveSnapshot>>;
 };
 
 
@@ -180,6 +183,15 @@ export type BalancesnapshotsArgs = {
   orderBy?: InputMaybe<BalanceSnapshot_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<BalanceSnapshot_filter>;
+};
+
+
+export type BalanceincentivesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<IncentiveSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<IncentiveSnapshot_filter>;
 };
 
 export type BalanceSnapshot = {
@@ -215,8 +227,6 @@ export type BalanceSnapshot = {
   /** Internal vault fee accumulator */
   _lastVaultFeeAccumulator: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
-  /** Snapshots of the secondary incentives */
-  incentives?: Maybe<Array<IncentiveSnapshot>>;
 };
 
 
@@ -226,15 +236,6 @@ export type BalanceSnapshotprofitLossLineItemsArgs = {
   orderBy?: InputMaybe<ProfitLossLineItem_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<ProfitLossLineItem_filter>;
-};
-
-
-export type BalanceSnapshotincentivesArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<IncentiveSnapshot_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<IncentiveSnapshot_filter>;
 };
 
 export type BalanceSnapshot_filter = {
@@ -403,7 +404,6 @@ export type BalanceSnapshot_filter = {
   _lastVaultFeeAccumulator_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _lastVaultFeeAccumulator_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
-  incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<BalanceSnapshot_filter>>>;
@@ -439,6 +439,7 @@ export type BalanceSnapshot_orderBy =
   | 'balance__lastUpdateBlockNumber'
   | 'balance__lastUpdateTimestamp'
   | 'balance__lastUpdateTransactionHash'
+  | 'balance___lastIncentiveSnapshotBlockNumber'
   | 'currentBalance'
   | 'previousBalance'
   | 'adjustedCostBasis'
@@ -450,8 +451,7 @@ export type BalanceSnapshot_orderBy =
   | '_accumulatedCostRealized'
   | '_lastInterestAccumulator'
   | '_lastVaultFeeAccumulator'
-  | 'profitLossLineItems'
-  | 'incentives';
+  | 'profitLossLineItems';
 
 export type Balance_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -577,6 +577,35 @@ export type Balance_filter = {
   current_not_ends_with?: InputMaybe<Scalars['String']>;
   current_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   current_?: InputMaybe<BalanceSnapshot_filter>;
+  lendingRouter?: InputMaybe<Scalars['String']>;
+  lendingRouter_not?: InputMaybe<Scalars['String']>;
+  lendingRouter_gt?: InputMaybe<Scalars['String']>;
+  lendingRouter_lt?: InputMaybe<Scalars['String']>;
+  lendingRouter_gte?: InputMaybe<Scalars['String']>;
+  lendingRouter_lte?: InputMaybe<Scalars['String']>;
+  lendingRouter_in?: InputMaybe<Array<Scalars['String']>>;
+  lendingRouter_not_in?: InputMaybe<Array<Scalars['String']>>;
+  lendingRouter_contains?: InputMaybe<Scalars['String']>;
+  lendingRouter_contains_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_contains?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_starts_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_starts_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_ends_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_ends_with?: InputMaybe<Scalars['String']>;
+  lendingRouter_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  lendingRouter_?: InputMaybe<LendingRouter_filter>;
+  _lastIncentiveSnapshotBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  _lastIncentiveSnapshotBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _lastIncentiveSnapshotBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   withdrawRequest?: InputMaybe<Array<Scalars['String']>>;
   withdrawRequest_not?: InputMaybe<Array<Scalars['String']>>;
   withdrawRequest_contains?: InputMaybe<Array<Scalars['String']>>;
@@ -585,6 +614,7 @@ export type Balance_filter = {
   withdrawRequest_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   withdrawRequest_?: InputMaybe<WithdrawRequest_filter>;
   snapshots_?: InputMaybe<BalanceSnapshot_filter>;
+  incentives_?: InputMaybe<IncentiveSnapshot_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Balance_filter>>>;
@@ -609,7 +639,6 @@ export type Balance_orderBy =
   | 'token__precision'
   | 'token__totalSupply'
   | 'token__maturity'
-  | 'token__vaultAddress'
   | 'token__tokenAddress'
   | 'account'
   | 'account__id'
@@ -642,8 +671,19 @@ export type Balance_orderBy =
   | 'current___accumulatedCostRealized'
   | 'current___lastInterestAccumulator'
   | 'current___lastVaultFeeAccumulator'
+  | 'lendingRouter'
+  | 'lendingRouter__id'
+  | 'lendingRouter__firstUpdateBlockNumber'
+  | 'lendingRouter__firstUpdateTimestamp'
+  | 'lendingRouter__firstUpdateTransactionHash'
+  | 'lendingRouter__lastUpdateBlockNumber'
+  | 'lendingRouter__lastUpdateTimestamp'
+  | 'lendingRouter__lastUpdateTransactionHash'
+  | 'lendingRouter__name'
+  | '_lastIncentiveSnapshotBlockNumber'
   | 'withdrawRequest'
-  | 'snapshots';
+  | 'snapshots'
+  | 'incentives';
 
 export type BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -768,14 +808,20 @@ export type IncentiveSnapshot = {
   blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transactionHash: Scalars['Bytes'];
-  /** Link back to the balance snapshot for this secondary incentive */
-  balanceSnapshot: BalanceSnapshot;
+  /** Address of the account that holds this balance */
+  account: Account;
+  /** Link back to the balance for this secondary incentive */
+  balance: Balance;
+  /** Link back to the previous incentive snapshot */
+  previousIncentiveSnapshot?: Maybe<IncentiveSnapshot>;
   /** Reward token associated with this snapshot */
   rewardToken: Token;
   /** Total reward accrued over the lifetime of this balance */
   totalClaimed: Scalars['BigInt'];
   /** Reward earnings adjusted for balance changes */
   adjustedClaimed: Scalars['BigInt'];
+  /** Claimed amount in the current transaction */
+  amountClaimed: Scalars['BigInt'];
 };
 
 export type IncentiveSnapshot_filter = {
@@ -813,27 +859,69 @@ export type IncentiveSnapshot_filter = {
   transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  balanceSnapshot?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_gt?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_lt?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_gte?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_lte?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_in?: InputMaybe<Array<Scalars['String']>>;
-  balanceSnapshot_not_in?: InputMaybe<Array<Scalars['String']>>;
-  balanceSnapshot_contains?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_contains_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_contains?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_starts_with?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_starts_with?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_ends_with?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_ends_with?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  balanceSnapshot_?: InputMaybe<BalanceSnapshot_filter>;
+  account?: InputMaybe<Scalars['String']>;
+  account_not?: InputMaybe<Scalars['String']>;
+  account_gt?: InputMaybe<Scalars['String']>;
+  account_lt?: InputMaybe<Scalars['String']>;
+  account_gte?: InputMaybe<Scalars['String']>;
+  account_lte?: InputMaybe<Scalars['String']>;
+  account_in?: InputMaybe<Array<Scalars['String']>>;
+  account_not_in?: InputMaybe<Array<Scalars['String']>>;
+  account_contains?: InputMaybe<Scalars['String']>;
+  account_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_not_contains?: InputMaybe<Scalars['String']>;
+  account_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_starts_with?: InputMaybe<Scalars['String']>;
+  account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_starts_with?: InputMaybe<Scalars['String']>;
+  account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_ends_with?: InputMaybe<Scalars['String']>;
+  account_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_ends_with?: InputMaybe<Scalars['String']>;
+  account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_?: InputMaybe<Account_filter>;
+  balance?: InputMaybe<Scalars['String']>;
+  balance_not?: InputMaybe<Scalars['String']>;
+  balance_gt?: InputMaybe<Scalars['String']>;
+  balance_lt?: InputMaybe<Scalars['String']>;
+  balance_gte?: InputMaybe<Scalars['String']>;
+  balance_lte?: InputMaybe<Scalars['String']>;
+  balance_in?: InputMaybe<Array<Scalars['String']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['String']>>;
+  balance_contains?: InputMaybe<Scalars['String']>;
+  balance_contains_nocase?: InputMaybe<Scalars['String']>;
+  balance_not_contains?: InputMaybe<Scalars['String']>;
+  balance_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  balance_starts_with?: InputMaybe<Scalars['String']>;
+  balance_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_not_starts_with?: InputMaybe<Scalars['String']>;
+  balance_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_ends_with?: InputMaybe<Scalars['String']>;
+  balance_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_not_ends_with?: InputMaybe<Scalars['String']>;
+  balance_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_?: InputMaybe<Balance_filter>;
+  previousIncentiveSnapshot?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_gt?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_lt?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_gte?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_lte?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_in?: InputMaybe<Array<Scalars['String']>>;
+  previousIncentiveSnapshot_not_in?: InputMaybe<Array<Scalars['String']>>;
+  previousIncentiveSnapshot_contains?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_contains_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_contains?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_starts_with?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_starts_with?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_ends_with?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_ends_with?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  previousIncentiveSnapshot_?: InputMaybe<IncentiveSnapshot_filter>;
   rewardToken?: InputMaybe<Scalars['String']>;
   rewardToken_not?: InputMaybe<Scalars['String']>;
   rewardToken_gt?: InputMaybe<Scalars['String']>;
@@ -871,6 +959,14 @@ export type IncentiveSnapshot_filter = {
   adjustedClaimed_lte?: InputMaybe<Scalars['BigInt']>;
   adjustedClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adjustedClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amountClaimed?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_not?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_gt?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_lt?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_gte?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_lte?: InputMaybe<Scalars['BigInt']>;
+  amountClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amountClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<IncentiveSnapshot_filter>>>;
@@ -882,22 +978,32 @@ export type IncentiveSnapshot_orderBy =
   | 'blockNumber'
   | 'timestamp'
   | 'transactionHash'
-  | 'balanceSnapshot'
-  | 'balanceSnapshot__id'
-  | 'balanceSnapshot__blockNumber'
-  | 'balanceSnapshot__timestamp'
-  | 'balanceSnapshot__transactionHash'
-  | 'balanceSnapshot__currentBalance'
-  | 'balanceSnapshot__previousBalance'
-  | 'balanceSnapshot__adjustedCostBasis'
-  | 'balanceSnapshot__currentProfitAndLossAtSnapshot'
-  | 'balanceSnapshot__totalInterestAccrualAtSnapshot'
-  | 'balanceSnapshot__totalVaultFeesAtSnapshot'
-  | 'balanceSnapshot__impliedFixedRate'
-  | 'balanceSnapshot___accumulatedBalance'
-  | 'balanceSnapshot___accumulatedCostRealized'
-  | 'balanceSnapshot___lastInterestAccumulator'
-  | 'balanceSnapshot___lastVaultFeeAccumulator'
+  | 'account'
+  | 'account__id'
+  | 'account__firstUpdateBlockNumber'
+  | 'account__firstUpdateTimestamp'
+  | 'account__firstUpdateTransactionHash'
+  | 'account__lastUpdateBlockNumber'
+  | 'account__lastUpdateTimestamp'
+  | 'account__lastUpdateTransactionHash'
+  | 'account__systemAccountType'
+  | 'balance'
+  | 'balance__id'
+  | 'balance__firstUpdateBlockNumber'
+  | 'balance__firstUpdateTimestamp'
+  | 'balance__firstUpdateTransactionHash'
+  | 'balance__lastUpdateBlockNumber'
+  | 'balance__lastUpdateTimestamp'
+  | 'balance__lastUpdateTransactionHash'
+  | 'balance___lastIncentiveSnapshotBlockNumber'
+  | 'previousIncentiveSnapshot'
+  | 'previousIncentiveSnapshot__id'
+  | 'previousIncentiveSnapshot__blockNumber'
+  | 'previousIncentiveSnapshot__timestamp'
+  | 'previousIncentiveSnapshot__transactionHash'
+  | 'previousIncentiveSnapshot__totalClaimed'
+  | 'previousIncentiveSnapshot__adjustedClaimed'
+  | 'previousIncentiveSnapshot__amountClaimed'
   | 'rewardToken'
   | 'rewardToken__id'
   | 'rewardToken__firstUpdateBlockNumber'
@@ -914,10 +1020,10 @@ export type IncentiveSnapshot_orderBy =
   | 'rewardToken__precision'
   | 'rewardToken__totalSupply'
   | 'rewardToken__maturity'
-  | 'rewardToken__vaultAddress'
   | 'rewardToken__tokenAddress'
   | 'totalClaimed'
-  | 'adjustedClaimed';
+  | 'adjustedClaimed'
+  | 'amountClaimed';
 
 export type LendingRouter = {
   id: Scalars['ID'];
@@ -1484,7 +1590,6 @@ export type Oracle_orderBy =
   | 'base__precision'
   | 'base__totalSupply'
   | 'base__maturity'
-  | 'base__vaultAddress'
   | 'base__tokenAddress'
   | 'quote'
   | 'quote__id'
@@ -1502,7 +1607,6 @@ export type Oracle_orderBy =
   | 'quote__precision'
   | 'quote__totalSupply'
   | 'quote__maturity'
-  | 'quote__vaultAddress'
   | 'quote__tokenAddress'
   | 'decimals'
   | 'ratePrecision'
@@ -1532,6 +1636,8 @@ export type ProfitLossLineItem = {
   tokenAmount: Scalars['BigInt'];
   underlyingAmountRealized: Scalars['BigInt'];
   underlyingAmountSpot: Scalars['BigInt'];
+  /** Amount of yield tokens if token amount is a vault share */
+  yieldTokenAmount?: Maybe<Scalars['BigInt']>;
   realizedPrice: Scalars['BigInt'];
   spotPrice: Scalars['BigInt'];
   impliedFixedRate?: Maybe<Scalars['BigInt']>;
@@ -1684,6 +1790,14 @@ export type ProfitLossLineItem_filter = {
   underlyingAmountSpot_lte?: InputMaybe<Scalars['BigInt']>;
   underlyingAmountSpot_in?: InputMaybe<Array<Scalars['BigInt']>>;
   underlyingAmountSpot_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  yieldTokenAmount?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_not?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  yieldTokenAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  yieldTokenAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   realizedPrice?: InputMaybe<Scalars['BigInt']>;
   realizedPrice_not?: InputMaybe<Scalars['BigInt']>;
   realizedPrice_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1744,7 +1858,6 @@ export type ProfitLossLineItem_orderBy =
   | 'token__precision'
   | 'token__totalSupply'
   | 'token__maturity'
-  | 'token__vaultAddress'
   | 'token__tokenAddress'
   | 'balanceSnapshot'
   | 'balanceSnapshot__id'
@@ -1778,12 +1891,12 @@ export type ProfitLossLineItem_orderBy =
   | 'underlyingToken__precision'
   | 'underlyingToken__totalSupply'
   | 'underlyingToken__maturity'
-  | 'underlyingToken__vaultAddress'
   | 'underlyingToken__tokenAddress'
   | 'lineItemType'
   | 'tokenAmount'
   | 'underlyingAmountRealized'
   | 'underlyingAmountSpot'
+  | 'yieldTokenAmount'
   | 'realizedPrice'
   | 'spotPrice'
   | 'impliedFixedRate';
@@ -2130,7 +2243,6 @@ export type Token = {
    * ID space varies by token type:
    * - ERC20: token address
    * - ERC1155: `emitter address:tokenId`
-   *
    */
   id: Scalars['ID'];
   firstUpdateBlockNumber: Scalars['BigInt'];
@@ -2152,7 +2264,7 @@ export type Token = {
   /** Maturities are only set for some token types */
   maturity?: Maybe<Scalars['BigInt']>;
   /** Vault address is set for vault token types */
-  vaultAddress?: Maybe<Scalars['Bytes']>;
+  vaultAddress?: Maybe<Vault>;
   /** Set to the ERC20 address or Notional Proxy for ERC1155 addresses */
   tokenAddress: Scalars['Bytes'];
   balanceOf?: Maybe<Array<Balance>>;
@@ -2351,16 +2463,27 @@ export type Token_filter = {
   maturity_lte?: InputMaybe<Scalars['BigInt']>;
   maturity_in?: InputMaybe<Array<Scalars['BigInt']>>;
   maturity_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  vaultAddress?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_not?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_gt?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_lt?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_gte?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_lte?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  vaultAddress_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
-  vaultAddress_contains?: InputMaybe<Scalars['Bytes']>;
-  vaultAddress_not_contains?: InputMaybe<Scalars['Bytes']>;
+  vaultAddress?: InputMaybe<Scalars['String']>;
+  vaultAddress_not?: InputMaybe<Scalars['String']>;
+  vaultAddress_gt?: InputMaybe<Scalars['String']>;
+  vaultAddress_lt?: InputMaybe<Scalars['String']>;
+  vaultAddress_gte?: InputMaybe<Scalars['String']>;
+  vaultAddress_lte?: InputMaybe<Scalars['String']>;
+  vaultAddress_in?: InputMaybe<Array<Scalars['String']>>;
+  vaultAddress_not_in?: InputMaybe<Array<Scalars['String']>>;
+  vaultAddress_contains?: InputMaybe<Scalars['String']>;
+  vaultAddress_contains_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_contains?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_starts_with?: InputMaybe<Scalars['String']>;
+  vaultAddress_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_starts_with?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_ends_with?: InputMaybe<Scalars['String']>;
+  vaultAddress_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_ends_with?: InputMaybe<Scalars['String']>;
+  vaultAddress_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  vaultAddress_?: InputMaybe<Vault_filter>;
   tokenAddress?: InputMaybe<Scalars['Bytes']>;
   tokenAddress_not?: InputMaybe<Scalars['Bytes']>;
   tokenAddress_gt?: InputMaybe<Scalars['Bytes']>;
@@ -2405,7 +2528,6 @@ export type Token_orderBy =
   | 'underlying__precision'
   | 'underlying__totalSupply'
   | 'underlying__maturity'
-  | 'underlying__vaultAddress'
   | 'underlying__tokenAddress'
   | 'name'
   | 'symbol'
@@ -2414,6 +2536,16 @@ export type Token_orderBy =
   | 'totalSupply'
   | 'maturity'
   | 'vaultAddress'
+  | 'vaultAddress__id'
+  | 'vaultAddress__firstUpdateBlockNumber'
+  | 'vaultAddress__firstUpdateTimestamp'
+  | 'vaultAddress__firstUpdateTransactionHash'
+  | 'vaultAddress__lastUpdateBlockNumber'
+  | 'vaultAddress__lastUpdateTimestamp'
+  | 'vaultAddress__lastUpdateTransactionHash'
+  | 'vaultAddress__isWhitelisted'
+  | 'vaultAddress__feeRate'
+  | 'vaultAddress__strategyType'
   | 'tokenAddress'
   | 'balanceOf'
   | 'oracles';
@@ -2607,7 +2739,7 @@ export type TradingModulePermission = {
   lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
-  sender: Account;
+  sender: Scalars['Bytes'];
   token?: Maybe<Token>;
   tokenAddress: Scalars['Bytes'];
   name: Scalars['String'];
@@ -2652,27 +2784,16 @@ export type TradingModulePermission_filter = {
   lastUpdateTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   lastUpdateTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   lastUpdateTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  sender?: InputMaybe<Scalars['String']>;
-  sender_not?: InputMaybe<Scalars['String']>;
-  sender_gt?: InputMaybe<Scalars['String']>;
-  sender_lt?: InputMaybe<Scalars['String']>;
-  sender_gte?: InputMaybe<Scalars['String']>;
-  sender_lte?: InputMaybe<Scalars['String']>;
-  sender_in?: InputMaybe<Array<Scalars['String']>>;
-  sender_not_in?: InputMaybe<Array<Scalars['String']>>;
-  sender_contains?: InputMaybe<Scalars['String']>;
-  sender_contains_nocase?: InputMaybe<Scalars['String']>;
-  sender_not_contains?: InputMaybe<Scalars['String']>;
-  sender_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  sender_starts_with?: InputMaybe<Scalars['String']>;
-  sender_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  sender_not_starts_with?: InputMaybe<Scalars['String']>;
-  sender_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  sender_ends_with?: InputMaybe<Scalars['String']>;
-  sender_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  sender_not_ends_with?: InputMaybe<Scalars['String']>;
-  sender_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  sender_?: InputMaybe<Account_filter>;
+  sender?: InputMaybe<Scalars['Bytes']>;
+  sender_not?: InputMaybe<Scalars['Bytes']>;
+  sender_gt?: InputMaybe<Scalars['Bytes']>;
+  sender_lt?: InputMaybe<Scalars['Bytes']>;
+  sender_gte?: InputMaybe<Scalars['Bytes']>;
+  sender_lte?: InputMaybe<Scalars['Bytes']>;
+  sender_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  sender_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  sender_contains?: InputMaybe<Scalars['Bytes']>;
+  sender_not_contains?: InputMaybe<Scalars['Bytes']>;
   token?: InputMaybe<Scalars['String']>;
   token_not?: InputMaybe<Scalars['String']>;
   token_gt?: InputMaybe<Scalars['String']>;
@@ -2772,14 +2893,6 @@ export type TradingModulePermission_orderBy =
   | 'lastUpdateTimestamp'
   | 'lastUpdateTransactionHash'
   | 'sender'
-  | 'sender__id'
-  | 'sender__firstUpdateBlockNumber'
-  | 'sender__firstUpdateTimestamp'
-  | 'sender__firstUpdateTransactionHash'
-  | 'sender__lastUpdateBlockNumber'
-  | 'sender__lastUpdateTimestamp'
-  | 'sender__lastUpdateTransactionHash'
-  | 'sender__systemAccountType'
   | 'token'
   | 'token__id'
   | 'token__firstUpdateBlockNumber'
@@ -2796,7 +2909,6 @@ export type TradingModulePermission_orderBy =
   | 'token__precision'
   | 'token__totalSupply'
   | 'token__maturity'
-  | 'token__vaultAddress'
   | 'token__tokenAddress'
   | 'tokenAddress'
   | 'name'
@@ -2821,6 +2933,8 @@ export type Vault = {
   yieldToken: Token;
   /** Token that represents the vault */
   vaultToken: Token;
+  /** Token that the vault uses for accounting */
+  accountingAsset: Token;
   /** Fee rate of the vault */
   feeRate: Scalars['BigInt'];
   /** Strategy type of the vault */
@@ -2985,6 +3099,27 @@ export type Vault_filter = {
   vaultToken_not_ends_with?: InputMaybe<Scalars['String']>;
   vaultToken_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   vaultToken_?: InputMaybe<Token_filter>;
+  accountingAsset?: InputMaybe<Scalars['String']>;
+  accountingAsset_not?: InputMaybe<Scalars['String']>;
+  accountingAsset_gt?: InputMaybe<Scalars['String']>;
+  accountingAsset_lt?: InputMaybe<Scalars['String']>;
+  accountingAsset_gte?: InputMaybe<Scalars['String']>;
+  accountingAsset_lte?: InputMaybe<Scalars['String']>;
+  accountingAsset_in?: InputMaybe<Array<Scalars['String']>>;
+  accountingAsset_not_in?: InputMaybe<Array<Scalars['String']>>;
+  accountingAsset_contains?: InputMaybe<Scalars['String']>;
+  accountingAsset_contains_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_contains?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_starts_with?: InputMaybe<Scalars['String']>;
+  accountingAsset_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_starts_with?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_ends_with?: InputMaybe<Scalars['String']>;
+  accountingAsset_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_ends_with?: InputMaybe<Scalars['String']>;
+  accountingAsset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  accountingAsset_?: InputMaybe<Token_filter>;
   feeRate?: InputMaybe<Scalars['BigInt']>;
   feeRate_not?: InputMaybe<Scalars['BigInt']>;
   feeRate_gt?: InputMaybe<Scalars['BigInt']>;
@@ -3053,7 +3188,6 @@ export type Vault_orderBy =
   | 'asset__precision'
   | 'asset__totalSupply'
   | 'asset__maturity'
-  | 'asset__vaultAddress'
   | 'asset__tokenAddress'
   | 'yieldToken'
   | 'yieldToken__id'
@@ -3071,7 +3205,6 @@ export type Vault_orderBy =
   | 'yieldToken__precision'
   | 'yieldToken__totalSupply'
   | 'yieldToken__maturity'
-  | 'yieldToken__vaultAddress'
   | 'yieldToken__tokenAddress'
   | 'vaultToken'
   | 'vaultToken__id'
@@ -3089,8 +3222,24 @@ export type Vault_orderBy =
   | 'vaultToken__precision'
   | 'vaultToken__totalSupply'
   | 'vaultToken__maturity'
-  | 'vaultToken__vaultAddress'
   | 'vaultToken__tokenAddress'
+  | 'accountingAsset'
+  | 'accountingAsset__id'
+  | 'accountingAsset__firstUpdateBlockNumber'
+  | 'accountingAsset__firstUpdateTimestamp'
+  | 'accountingAsset__firstUpdateTransactionHash'
+  | 'accountingAsset__lastUpdateBlockNumber'
+  | 'accountingAsset__lastUpdateTimestamp'
+  | 'accountingAsset__lastUpdateTransactionHash'
+  | 'accountingAsset__tokenType'
+  | 'accountingAsset__tokenInterface'
+  | 'accountingAsset__name'
+  | 'accountingAsset__symbol'
+  | 'accountingAsset__decimals'
+  | 'accountingAsset__precision'
+  | 'accountingAsset__totalSupply'
+  | 'accountingAsset__maturity'
+  | 'accountingAsset__tokenAddress'
   | 'feeRate'
   | 'strategyType'
   | 'withdrawRequestManagers'
@@ -3321,7 +3470,6 @@ export type WithdrawRequestManager_orderBy =
   | 'yieldToken__precision'
   | 'yieldToken__totalSupply'
   | 'yieldToken__maturity'
-  | 'yieldToken__vaultAddress'
   | 'yieldToken__tokenAddress'
   | 'withdrawToken'
   | 'withdrawToken__id'
@@ -3339,7 +3487,6 @@ export type WithdrawRequestManager_orderBy =
   | 'withdrawToken__precision'
   | 'withdrawToken__totalSupply'
   | 'withdrawToken__maturity'
-  | 'withdrawToken__vaultAddress'
   | 'withdrawToken__tokenAddress'
   | 'stakingToken'
   | 'stakingToken__id'
@@ -3357,7 +3504,6 @@ export type WithdrawRequestManager_orderBy =
   | 'stakingToken__precision'
   | 'stakingToken__totalSupply'
   | 'stakingToken__maturity'
-  | 'stakingToken__vaultAddress'
   | 'stakingToken__tokenAddress'
   | 'approvedVaults'
   | 'withdrawRequests'
@@ -3574,6 +3720,7 @@ export type WithdrawRequest_orderBy =
   | 'balance__lastUpdateBlockNumber'
   | 'balance__lastUpdateTimestamp'
   | 'balance__lastUpdateTransactionHash'
+  | 'balance___lastIncentiveSnapshotBlockNumber'
   | 'requestId'
   | 'yieldTokenAmount'
   | 'sharesAmount'
@@ -3607,7 +3754,6 @@ export type _Meta_ = {
    * will be null if the _meta field has a block constraint that asks for
    * a block number. It will be filled if the _meta field has no block constraint
    * and therefore asks for the latest  block
-   *
    */
   block: _Block_;
   /** The deployment ID */

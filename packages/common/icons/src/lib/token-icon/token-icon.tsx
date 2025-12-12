@@ -278,6 +278,9 @@ export function TokenIcon({
   useAccentBorderImg,
   network,
 }: TokenIconProps) {
+  // Allow the image to load from a symbol that is a URL
+  const url = symbol.startsWith('http') ? symbol : undefined;
+
   const tokenKey = symbol?.toLowerCase();
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
@@ -296,11 +299,11 @@ export function TokenIcon({
   };
 
   // Allow the image to load a custom sized PNG if it matches the width
-
   const image =
-    tokenIcon.widths && tokenSizes[size] in tokenIcon.widths
+    url ||
+    (tokenIcon.widths && tokenSizes[size] in tokenIcon.widths
       ? tokenIcon.widths[tokenSizes[size]]
-      : tokenIcon.img;
+      : tokenIcon.img);
 
   if (tokenIcon.name === 'unknown') {
     tokenIcon.alt = `${symbol?.toLowerCase()} ${tokenIcon.alt}`;

@@ -19,23 +19,21 @@ import {
   useSelectedNetwork,
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
-import {
-  formatMaturity,
-  pointsMultiple,
-  TXN_HISTORY_TYPE,
-} from '@notional-finance/util';
+import { pointsMultiple, TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
-import {
-  Body,
-  ButtonOptionsType,
-  Caption,
-  H4,
-  LinkText,
-} from '@notional-finance/mui';
+import { Body, ButtonOptionsType, H4, LinkText } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
 import { TableActionRowWarning } from '../../../components/table-action-row/table-action-row';
 import { ReactNode, useState } from 'react';
+import moment from 'moment';
+import {
+  LockPeriodCaptionBubble,
+  FinalizedWithdrawCaptionBubble,
+  PendingWithdrawCaptionBubble,
+  PendleExpiredCaptionBubble,
+  RewardClaimCaptionBubble,
+} from '../components/caption-bubble';
 
 export interface OverviewTableRow {
   isTotalRow?: boolean;
@@ -96,6 +94,7 @@ function dividerRow(label: string) {
       txnHistory: '',
     },
     tokenId: ' ',
+    // This keeps the style of the row thin
     isTotalRow: true,
     isPending: false,
     isDividerRow: true,
@@ -111,7 +110,14 @@ function getSpecificVaultInfo(
   totalEarnings: MultiRowTableData;
   buttonBarData: ButtonOptionsType[];
   warning: TableActionRowWarning | undefined;
+  toolTipData?: {
+    perAssetEarnings: {
+      underlying: string | undefined;
+      baseCurrency: string | undefined;
+    }[];
+  };
   showRowWarning?: boolean;
+  captionIcon?: React.ReactNode;
 } {
   const totalEarnings = formatCryptoWithFiat(baseCurrency, v.totalEarnings);
   if (v.hasFinalizedWithdraw) {
@@ -120,18 +126,26 @@ function getSpecificVaultInfo(
       totalEarnings,
       buttonBarData: [],
       warning: 'finalizedWithdraw',
+      captionIcon: <FinalizedWithdrawCaptionBubble />,
     };
   } else if (v.hasPendingWithdraw) {
     return {
-      subRowInfo: [
-        {
-          label: <FormattedMessage defaultMessage={'Estimated Finalization'} />,
-          value: 'TODO',
-        },
-      ],
+      subRowInfo: v.estimatedWithdrawTimeInSeconds
+        ? [
+            {
+              label: (
+                <FormattedMessage defaultMessage={'Estimated Finalization'} />
+              ),
+              value: moment
+                .duration(v.estimatedWithdrawTimeInSeconds, 'seconds')
+                .humanize(),
+            },
+          ]
+        : [],
       totalEarnings,
       buttonBarData: [],
       warning: 'pendingWithdraw',
+      captionIcon: <PendingWithdrawCaptionBubble />,
     };
   }
 
@@ -209,17 +223,27 @@ function getSpecificVaultInfo(
           {
             displayValue: 'N/A',
             textColor: theme.palette.typography.main,
-            toolTipContent: defineMessage({
-              defaultMessage:
-                'This vault requires claiming reward tokens directly. We are unable to calculate the dollar value at this time. Claim rewards in the drawer below.',
-              description: 'reward token tooltip',
-            }),
           },
           {
             displayValue: '',
           },
         ],
       },
+      toolTipData:
+        v.incentiveEarnings && v.incentiveEarnings.length > 0
+          ? {
+              perAssetEarnings: v.incentiveEarnings.map(
+                ({ adjustedClaimed }) => ({
+                  underlying: adjustedClaimed.toDisplayStringWithSymbol(
+                    4,
+                    true,
+                    false
+                  ),
+                  baseCurrency: undefined,
+                })
+              ),
+            }
+          : undefined,
       buttonBarData: [
         {
           buttonText: <FormattedMessage defaultMessage={'Claim Rewards'} />,
@@ -227,6 +251,9 @@ function getSpecificVaultInfo(
         },
       ],
       warning: undefined,
+      captionIcon: (
+        <RewardClaimCaptionBubble rewardClaims={v.vaultMetadata.rewardClaims} />
+      ),
     };
   } else if (
     v.vaultMetadata.strategyType === 'PendlePT' &&
@@ -238,6 +265,7 @@ function getSpecificVaultInfo(
       buttonBarData: [],
       warning: 'pendleExpired',
       showRowWarning: true,
+      captionIcon: <PendleExpiredCaptionBubble />,
     };
   }
 
@@ -247,46 +275,6 @@ function getSpecificVaultInfo(
     totalEarnings,
     buttonBarData: [],
   };
-}
-
-function getRewardClaimIcon(rewardClaims: TokenBalance[], theme: Theme) {
-  if (rewardClaims.filter((c) => c !== undefined).length === 0)
-    return undefined;
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        gap: theme.spacing(1),
-        alignItems: 'center',
-        marginTop: theme.spacing(0.5),
-        backgroundColor: theme.palette.info.light,
-        padding: theme.spacing(0.25, 1, 0.25, 0.25),
-        borderRadius: theme.shape.borderRadiusLarge,
-      }}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          width: `${8 + rewardClaims.length * 8}px`, // 8px base + 8px per icon (overlapping)
-        }}
-      >
-        {rewardClaims.map((claim, index) => (
-          <Box
-            key={claim.symbol}
-            sx={{
-              marginLeft: index > 0 ? '-8px' : 0, // Overlap by 8px for each subsequent icon
-              zIndex: rewardClaims.length - index, // Stack icons properly
-              position: 'relative',
-            }}
-          >
-            <TokenIcon symbol={claim.symbol} size={'small'} />
-          </Box>
-        ))}
-      </Box>
-      <Caption main>Claim Rewards</Caption>
-    </Box>
-  );
 }
 
 function formatVaultHoldings(
@@ -299,6 +287,7 @@ function formatVaultHoldings(
     vaultAddress,
     name,
     underlying,
+    vaultIcon,
     amountPaid,
     apyData,
     leverageRatio,
@@ -310,14 +299,16 @@ function formatVaultHoldings(
     vaultShares,
     vaultDebt,
     network,
-    vaultMetadata,
   } = vaultHolding;
-  const { subRowInfo, totalEarnings, buttonBarData, warning, showRowWarning } =
-    getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
-  const rewardClaimIcons = getRewardClaimIcon(
-    vaultMetadata.rewardClaims,
-    theme
-  );
+  const {
+    subRowInfo,
+    totalEarnings,
+    buttonBarData,
+    warning,
+    showRowWarning,
+    toolTipData,
+    captionIcon,
+  } = getSpecificVaultInfo(vaultHolding, baseCurrency, theme);
 
   const subRowData: { label: React.ReactNode; value: React.ReactNode }[] = [
     {
@@ -328,7 +319,11 @@ function formatVaultHoldings(
     },
     {
       label: <FormattedMessage defaultMessage={'Strategy APY'} />,
-      value: formatNumberAsPercent(apyData?.assetAPY || 0, 2),
+      // This includes the fee apy
+      value: formatNumberAsPercent(
+        apyData?.unleveragedAssetAPY?.totalAPY || 0,
+        2
+      ),
     },
     {
       label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
@@ -366,9 +361,13 @@ function formatVaultHoldings(
   return {
     asset: {
       symbol: underlying,
-      symbolBottom: '',
+      symbolBottom: vaultIcon || '',
       label: name,
-      caption: rewardClaimIcons,
+      caption: vaultHolding.isInCooldown ? (
+        <LockPeriodCaptionBubble />
+      ) : (
+        captionIcon
+      ),
     },
     vaultAddress,
     tokenId: vaultShares.tokenId,
@@ -388,8 +387,9 @@ function formatVaultHoldings(
         ? formatNumberAsPercent(apyData.totalAPY)
         : '-',
     amountPaid: formatCryptoWithFiat(baseCurrency, amountPaid),
+    toolTipData,
     actionRow: {
-      warning,
+      warning: vaultHolding.isInCooldown ? 'lockPeriod' : warning,
       showRowWarning,
       subRowData,
       buttonBarData,
@@ -404,9 +404,16 @@ function formatVaultHoldings(
 }
 
 function formatDetailedVaultHoldings(
-  {
+  vaultHolding: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
+  tableRow: OverviewTableRow,
+  pendingTokens: TokenDefinition[] | undefined,
+  baseCurrency: FiatKeys,
+  theme: Theme
+) {
+  const {
     vaultShares,
     name,
+    vaultIcon,
     vaultDebt,
     underlying,
     assetEarnings,
@@ -417,19 +424,22 @@ function formatDetailedVaultHoldings(
     debtEntryPrice,
     apyData,
     impliedFixedRate,
-  }: NonNullable<ReturnType<typeof useVaultHoldings>>[number],
-  tableRow: OverviewTableRow,
-  pendingTokens: TokenDefinition[] | undefined,
-  baseCurrency: FiatKeys
-) {
+  } = vaultHolding;
+  const { captionIcon } = getSpecificVaultInfo(
+    vaultHolding,
+    baseCurrency,
+    theme
+  );
   const assets: OverviewTableRow = {
     asset: {
-      symbol: underlying,
+      symbol: vaultIcon || '',
       symbolBottom: '',
       label: name,
-      caption: vaultShares.maturity
-        ? `Maturity: ${formatMaturity(vaultShares.maturity || 0)}`
-        : 'Open Term',
+      caption: vaultHolding.isInCooldown ? (
+        <LockPeriodCaptionBubble />
+      ) : (
+        captionIcon
+      ),
     },
     healthFactor: tableRow.healthFactor,
     tokenId: vaultShares.tokenId,
@@ -468,13 +478,13 @@ function formatDetailedVaultHoldings(
   // Short circuit if there are no debts
   if (vaultDebt.isZero()) return [dividerRow(name), assets];
 
-  const { icon, formattedTitle, titleWithMaturity, title } = formatTokenType(
+  const { formattedTitle, titleWithMaturity, title } = formatTokenType(
     vaultDebt.token
   );
 
   const debts: OverviewTableRow = {
     asset: {
-      symbol: icon,
+      symbol: underlying,
       symbolBottom: '',
       label: formattedTitle,
       caption: titleWithMaturity,
@@ -512,6 +522,7 @@ function formatDetailedVaultHoldings(
     }),
     totalEarnings: formatCryptoWithFiat(baseCurrency, debtEarnings),
     actionRow: {
+      warning: vaultHolding.isInCooldown ? 'inCooldown' : undefined,
       buttonBarData: tableRow.actionRow.buttonBarData,
       txnHistory: tableRow.actionRow.txnHistory,
       subRowData: [
@@ -570,7 +581,8 @@ export const usePortfolioOverviewTable = (showGrouped: boolean) => {
           v,
           tableRow,
           pendingTokens,
-          baseCurrency
+          baseCurrency,
+          theme
         );
       }),
     ];

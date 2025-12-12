@@ -65,6 +65,11 @@ export const PerformanceChart = observer(() => {
           ? 'Vault APY'
           : `n${deposit?.symbol} APY`,
       hideTopGridLine: true,
+      chartHeaderData: {
+        messageBox: (
+          <FormattedMessage defaultMessage={'Vault fee not included'} />
+        ),
+      },
       Component: (
         <BarChart
           xAxisTickFormat="date"

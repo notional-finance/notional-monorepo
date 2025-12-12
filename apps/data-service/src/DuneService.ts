@@ -1,0 +1,54 @@
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+
+const CLOUDFLARE_ACCOUNT_ID = process.env['CLOUDFLARE_ACCOUNT_ID'] as string;
+const queries = [
+  { queryId: 3709164, name: 'sNOTEPoolData' },
+  { queryId: 3709178, name: 'sNOTEReinvestment' },
+  { queryId: 3711394, name: 'NOTESupply' },
+];
+
+let cachedS3Client: S3Client;
+export function getS3() {
+  const R2_ACCESS_KEY_ID = process.env['R2_ACCESS_KEY_ID'] as string;
+  const R2_SECRET_ACCESS_KEY = process.env['R2_SECRET_ACCESS_KEY'] as string;
+
+  if (!cachedS3Client) {
+    cachedS3Client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: R2_ACCESS_KEY_ID,
+        secretAccessKey: R2_SECRET_ACCESS_KEY,
+      },
+    });
+  }
+  return cachedS3Client;
+}
+
+export async function syncDune() {
+  const DUNE_API_KEY = process.env['DUNE_API_KEY'] as string;
+
+  for (const q of queries) {
+    const { queryId, name } = q;
+    const query_result = await fetch(
+      `https://api.dune.com/api/v1/query/${queryId}/results`,
+      {
+        method: 'GET',
+        headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
+      }
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (query_result.status === 200) {
+      await getS3().send(
+        new PutObjectCommand({
+          Bucket: 'view-cache-r2',
+          Key: `mainnet/note/${name}`,
+          ContentType: 'application/json',
+          Body: JSON.stringify(await query_result.json()),
+        })
+      );
+    }
+  }
+}

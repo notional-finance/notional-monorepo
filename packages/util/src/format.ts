@@ -49,3 +49,23 @@ export function formatNumber(num: string | number, decimals = 4) {
 export function formatNumberAsPercent(num: number | string, decimals = 2) {
   return `${formatNumber(num, decimals)}%`;
 }
+
+/**
+ * Converts camelCase or PascalCase strings to readable text with spaces
+ * @param text - The camelCase or PascalCase string to convert
+ * @returns A string with spaces inserted before capital letters
+ *
+ * @example
+ * camelCaseToReadable('EnterPosition') // returns 'Enter Position'
+ * camelCaseToReadable('exitPosition') // returns 'exit Position'
+ * camelCaseToReadable('manageVault') // returns 'manage Vault'
+ */
+export function camelCaseToReadable(text: string): string {
+  return text.replace(/([A-Z])/g, ' $1').trim();
+}
+
+export function shortenTokenSymbol(symbol: string): string {
+  if (symbol.startsWith('PT-')) return 'PT';
+  if (symbol.toLowerCase() === 'unknown') return 'LP Token';
+  return symbol;
+}

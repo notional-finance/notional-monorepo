@@ -2,12 +2,14 @@ import {
   BASIS_POINT,
   getNowSeconds,
   Network,
+  SCALAR_PRECISION,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
 import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import {
   APYData,
   getNetworkModel,
+  BalanceStatementReturnType,
   TimeSeriesResponse,
   TokenBalance,
   TokenDefinition,
@@ -81,7 +83,7 @@ export class Staking extends VaultAdapter {
     feesPaid: TokenBalance;
     vaultTradeMetadata?: VaultTradeMetadata[];
   } {
-    const netVaultSharesForUnderlying = netUnderlying.toToken(vaultShare);
+    let netVaultSharesForUnderlying = netUnderlying.toToken(vaultShare);
     const vaultTradeMetadata: VaultTradeMetadata[] = [];
 
     if (netUnderlying.tokenId !== this.stakingToken.id) {
@@ -99,12 +101,13 @@ export class Staking extends VaultAdapter {
     }
 
     if (this.stakingToken.id !== this.yieldToken.id) {
-      vaultTradeMetadata.push(
-        this.getVaultTradeMetadata(
-          netUnderlying.toToken(this.stakingToken),
-          this.yieldToken
-        )
+      const tradeMetadata = this.getVaultTradeMetadata(
+        netUnderlying.toToken(this.stakingToken),
+        this.yieldToken
       );
+      vaultTradeMetadata.push(tradeMetadata);
+      netVaultSharesForUnderlying =
+        tradeMetadata.tokensBought.toToken(vaultShare);
     }
 
     return {
@@ -112,6 +115,39 @@ export class Staking extends VaultAdapter {
       netVaultSharesForUnderlying,
       vaultTradeMetadata,
     };
+  }
+
+  override simulateWithdraw(vaultSharesToRedeem: TokenBalance) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length !== 1 || !this.withdrawToken)
+      throw Error('Withdraw manager not found');
+    const yieldTokensRedeemed = vaultSharesToRedeem.toToken(this.yieldToken);
+    const withdrawTokensToReceive = yieldTokensRedeemed.toToken(
+      this.withdrawToken
+    );
+    return [
+      {
+        estimatedWithdrawTime:
+          withdrawManager[0].estimatedWithdrawTimeInSeconds,
+        yieldTokensRedeemed,
+        withdrawTokensToReceive,
+      },
+    ];
+  }
+
+  override async getInitiateWithdrawParameters(
+    account: string,
+    vaultSharesToRedeem: TokenBalance
+  ) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length !== 1 || !this.withdrawToken)
+      throw Error('Withdraw manager not found');
+    return withdrawManager[0].getWithdrawParameters(
+      account,
+      vaultSharesToRedeem
+    );
   }
 
   override async getDepositParameters(
@@ -143,12 +179,14 @@ export class Staking extends VaultAdapter {
     );
   }
 
-  override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance) {
+  override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
+    if (withdrawTokensBurned.length !== 1)
+      throw Error('Staking vault only supports one withdraw token');
     const { withdrawPoolAddress } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     return [
       this.getVaultTradeMetadata(
-        withdrawTokensBurned,
+        withdrawTokensBurned[0],
         this.borrowedToken,
         withdrawPoolAddress
       ),
@@ -157,14 +195,16 @@ export class Staking extends VaultAdapter {
 
   override async getWithdrawParameters(
     _account: string,
-    _maturity: number,
-    vaultSharesToRedeem: TokenBalance,
-    _underlyingToRepayDebt: TokenBalance,
+    _vaultSharesToRedeem: TokenBalance,
+    withdrawTokensBurned: TokenBalance[],
     slippageFactor?: number
   ) {
-    const { dexId, withdrawExchangeData: exchangeData } =
+    const { dexId, withdrawExchangeData } =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
-    const minPurchaseAmount = vaultSharesToRedeem
+    if (withdrawTokensBurned.length !== 1)
+      throw Error('Staking vault only supports one withdraw token');
+
+    const minPurchaseAmount = withdrawTokensBurned[0]
       .toToken(this.borrowedToken)
       .mulInRatePrecision(slippageFactor || 0).n;
 
@@ -172,9 +212,9 @@ export class Staking extends VaultAdapter {
       ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
       [
         {
-          dexId,
+          dexId: withdrawExchangeData ? dexId : 0,
           minPurchaseAmount,
-          exchangeData,
+          exchangeData: withdrawExchangeData || '0x',
         },
       ]
     );
@@ -227,12 +267,23 @@ export class Staking extends VaultAdapter {
     return [this.stakingToken];
   }
 
-  override getInterestAccrualRate(): BigNumber {
+  override getAdditionalAccruedInterest(
+    statement: BalanceStatementReturnType
+  ): TokenBalance {
     const model = getNetworkModel(this.network);
     const oracle = model.oracles.get(
       `${this.stakingToken.id}:${this.yieldToken.id}:WithdrawTokenExchangeRate`
     );
-    return oracle?.latestRate.rate || BigNumber.from(0);
+    const currentInterestAccumulator =
+      oracle?.latestRate.rate || BigNumber.from(0);
+    const accountingAsset = model.getTokenByID(statement.accountingAssetId);
+
+    return TokenBalance.unit(accountingAsset)
+      .scale(
+        currentInterestAccumulator.sub(statement.lastInterestAccumulator),
+        SCALAR_PRECISION
+      )
+      .scale(statement.balance, statement.balance.precision);
   }
 
   override getSimulatedAPY(

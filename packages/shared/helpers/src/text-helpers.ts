@@ -1,4 +1,7 @@
-import { TokenDefinition } from '@notional-finance/core-entities';
+import {
+  getNetworkModel,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import {
   PRIME_CASH_VAULT_MATURITY,
   formatMaturity,
@@ -57,14 +60,18 @@ export function formatTokenType(token: TokenDefinition): {
         token.maturity === undefined
           ? 'Open Term'
           : formatMaturity(token.maturity || 0);
+      const model = getNetworkModel(token.network);
+      const lendingRouter = model.getLendingRouter(token.address);
+      const title = lendingRouter?.name
+        ? `${lendingRouter?.name} Variable Debt`
+        : 'Variable Debt';
 
-      // TODO: add the lending router name here
       return {
-        title: 'Vault Debt',
-        formattedTitle: 'Vault Debt',
-        icon: token.tokenType,
+        title,
+        formattedTitle: title,
+        icon: lendingRouter?.name || 'unknown',
         caption: maturity,
-        titleWithMaturity: `Vault Debt ${maturity}`,
+        titleWithMaturity: token.maturity ? `${title} ${maturity}` : '',
       };
     }
     default:

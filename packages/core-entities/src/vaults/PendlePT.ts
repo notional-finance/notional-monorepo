@@ -2,6 +2,7 @@ import {
   BASIS_POINT,
   DEX_ID,
   doSecantSearch,
+  getNowSeconds,
   lastValue,
   Network,
   NetworkId,
@@ -19,6 +20,7 @@ import { defaultAbiCoder } from '@ethersproject/abi';
 import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
 import { APYData } from '../models/views/YieldViews';
 import { registerTokensMap } from '../exchanges/default-pools';
+import { BalanceStatementReturnType } from '../client/accounts/balance-statement';
 
 export interface PendlePTVaultParams extends BaseVaultParams {
   marketAddress: string;
@@ -33,6 +35,83 @@ const ORDER_TYPE =
 const FILL_ORDER_PARAMS_TYPE = `tuple(${ORDER_TYPE} order, bytes signature, uint256 makingAmount)`;
 const LIMIT_ORDER_TYPE = `tuple(address limitRouter, uint256 epsSkipMarket, ${FILL_ORDER_PARAMS_TYPE}[] normalFills, ${FILL_ORDER_PARAMS_TYPE}[] flashFills, bytes optData)`;
 const PENDLE_DATA_TYPE = `tuple(uint256 minPtOut, ${APPROX_PARAMS_TYPE} approxParams, ${LIMIT_ORDER_TYPE} limitOrderData)`;
+
+interface ConvertResponseBuyPT {
+  routes: {
+    contractParamInfo: {
+      contractCallParams: [
+        string,
+        string,
+        string,
+        {
+          eps: string;
+          guessMax: string;
+          guessMin: string;
+          guessOffchain: string;
+          maxIteration: string;
+        }, // approxParams
+        object, // swapData
+        {
+          epsSkipMarket: string;
+          flashFills: {
+            order: OrderType;
+            signature: string;
+            makingAmount: string;
+          }[];
+          normalFills: {
+            order: OrderType;
+            signature: string;
+            makingAmount: string;
+          }[];
+          optData: string;
+          limitRouter: string;
+        } // limitOrderData
+      ];
+    };
+    data: {
+      priceImpact: number;
+    };
+    outputs: {
+      amount: string;
+      token: string;
+    }[];
+  }[];
+}
+
+interface ConvertResponseSellPT {
+  routes: {
+    contractParamInfo: {
+      contractCallParams: [
+        string, // receiver
+        string, // market
+        string, // exactPTIn
+        object, // output (token info)
+        {
+          epsSkipMarket: string;
+          flashFills: {
+            order: OrderType;
+            signature: string;
+            makingAmount: string;
+          }[];
+          normalFills: {
+            order: OrderType;
+            signature: string;
+            makingAmount: string;
+          }[];
+          optData: string;
+          limitRouter: string;
+        } // limitOrderData
+      ];
+    };
+    data: {
+      priceImpact: number;
+    };
+    outputs: {
+      amount: string;
+      token: string;
+    }[];
+  }[];
+}
 
 interface OrderType {
   salt: string;
@@ -50,7 +129,7 @@ interface OrderType {
 }
 
 export class PendlePT extends VaultAdapter {
-  protected apiUrl = 'https://api-v2.pendle.finance/core/v1/sdk';
+  protected apiUrl = 'https://api-v2.pendle.finance/core/v2/sdk';
   public tokenInSy: string;
   public tokenOutSy: string;
   public marketAddress: string;
@@ -361,7 +440,10 @@ export class PendlePT extends VaultAdapter {
           vaultShare
         ).neg(),
         feesPaid: tradeMetadata.reduce(
-          (acc, trade) => (trade.feesPaid ? acc.add(trade.feesPaid) : acc),
+          (acc, trade) =>
+            trade.feesPaid
+              ? acc.add(trade.feesPaid.toToken(this.borrowedToken))
+              : acc,
           TokenBalance.zero(this.borrowedToken)
         ),
         vaultTradeMetadata: tradeMetadata,
@@ -405,6 +487,84 @@ export class PendlePT extends VaultAdapter {
     };
   }
 
+  override simulateWithdraw(vaultSharesToRedeem: TokenBalance) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length !== 1)
+      throw Error('Withdraw manager not found');
+    const tokenOutSy = model.getTokenBySymbol(this.tokenOutSy);
+
+    const yieldTokensRedeemed = vaultSharesToRedeem
+      .toToken(this.market.ptToken)
+      .toToken(tokenOutSy);
+    const withdrawTokensToReceive = yieldTokensRedeemed.toToken(
+      withdrawManager[0].withdrawToken
+    );
+    return [
+      {
+        estimatedWithdrawTime:
+          withdrawManager[0].estimatedWithdrawTimeInSeconds,
+        yieldTokensRedeemed,
+        withdrawTokensToReceive,
+      },
+    ];
+  }
+
+  override async getInitiateWithdrawParameters(
+    account: string,
+    vaultSharesToRedeem: TokenBalance
+  ) {
+    const model = getNetworkModel(this.network);
+    const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
+    if (!withdrawManager || withdrawManager.length !== 1)
+      throw Error('Withdraw manager not found');
+    return withdrawManager[0].getWithdrawParameters(
+      account,
+      vaultSharesToRedeem
+    );
+  }
+  override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
+    if (withdrawTokensBurned.length !== 1)
+      throw Error('PendlePT vault only supports one withdraw token');
+
+    const { withdrawPoolAddress } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    return [
+      this.getVaultTradeMetadata(
+        withdrawTokensBurned[0],
+        this.borrowedToken,
+        withdrawPoolAddress
+      ),
+    ];
+  }
+
+  override getAdditionalAccruedInterest(
+    statement: BalanceStatementReturnType
+  ): TokenBalance {
+    const model = getNetworkModel(this.network);
+    const timeSinceLastSnapshot = getNowSeconds() - statement.timestamp;
+    const timeToExpiryBefore = this.expiry - statement.timestamp;
+    // Use the minimum of the time since the last snapshot and the time to expiry
+    const interestAccrueTime =
+      timeSinceLastSnapshot < timeToExpiryBefore
+        ? timeSinceLastSnapshot
+        : timeToExpiryBefore;
+
+    const accountingAsset = model.getTokenByID(statement.accountingAssetId);
+    // This is in PT token precision but we need to scale it back to the tokenOutSy
+    // precision and the FX it back to the borrowed token precision
+    const additionalAccruedInterest = TokenBalance.from(
+      statement.lastInterestAccumulator
+        .mul(interestAccrueTime)
+        .div(timeToExpiryBefore)
+        .mul(BigNumber.from(10).pow(accountingAsset.decimals))
+        .div(BigNumber.from(10).pow(this.market.ptToken.decimals)),
+      accountingAsset
+    );
+
+    return additionalAccruedInterest;
+  }
+
   override async getDepositParameters(
     _account: string,
     _maturity: number,
@@ -446,51 +606,20 @@ export class PendlePT extends VaultAdapter {
       };
     } else {
       const response = await fetch(
-        `${this.apiUrl}/${NetworkId[this.network]}/markets/${
-          this.marketAddress
-        }/swap?receiver=${this.vaultAddress}&slippage=${
+        `${this.apiUrl}/${NetworkId[this.network]}/convert?receiver=${
+          this.vaultAddress
+        }&slippage=${
           slippageFactor / RATE_PRECISION
-        }&enableAggregator=false&tokenIn=${this.tokenInSy}&tokenOut=${
+        }&enableAggregator=false&tokensIn=${this.tokenInSy}&tokensOut=${
           this.market.ptToken.address
-        }&amountIn=${minSYPurchaseAmount.n.toString()}`
+        }&amountsIn=${minSYPurchaseAmount.n.toString()}`
       );
-      const data: {
-        contractCallParams: [
-          string,
-          string,
-          string,
-          {
-            eps: string;
-            guessMax: string;
-            guessMin: string;
-            guessOffchain: string;
-            maxIteration: string;
-          }, // approxParams
-          object, // swapData
-          {
-            epsSkipMarket: string;
-            flashFills: {
-              order: OrderType;
-              signature: string;
-              makingAmount: string;
-            }[];
-            normalFills: {
-              order: OrderType;
-              signature: string;
-              makingAmount: string;
-            }[];
-            optData: string;
-            limitRouter: string;
-          } // limitOrderData
-        ];
-        data: {
-          amountOut: string;
-          priceImpact: number;
-        };
-      } = await response.json();
-      minPtOut = BigNumber.from(data.contractCallParams[2] as string);
-      approxParams = data.contractCallParams[3];
-      limitOrderData = data.contractCallParams[5];
+      const data: ConvertResponseBuyPT = await response.json();
+      minPtOut = BigNumber.from(
+        data.routes[0].contractParamInfo.contractCallParams[2] as string
+      );
+      approxParams = data.routes[0].contractParamInfo.contractCallParams[3];
+      limitOrderData = data.routes[0].contractParamInfo.contractCallParams[5];
     }
 
     const pendleData = defaultAbiCoder.encode(
@@ -508,12 +637,28 @@ export class PendlePT extends VaultAdapter {
 
   override async getWithdrawParameters(
     _account: string,
-    _maturity: number,
     _vaultSharesToRedeem: TokenBalance,
-    _underlyingToRepayDebt: TokenBalance,
-    _slippageFactor = 10 * BASIS_POINT
+    withdrawTokensBurned: TokenBalance[],
+    slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
-    throw new Error('Not implemented');
+    const { dexId, withdrawExchangeData: exchangeData } =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (withdrawTokensBurned.length !== 1)
+      throw Error('PendlePT vault only supports one withdraw token');
+    const minPurchaseAmount = withdrawTokensBurned[0]
+      .toToken(this.borrowedToken)
+      .mulInRatePrecision(slippageFactor || 0).n;
+
+    return defaultAbiCoder.encode(
+      ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
+      [
+        {
+          dexId,
+          minPurchaseAmount,
+          exchangeData,
+        },
+      ]
+    );
   }
 
   override async getRedeemParameters(
@@ -523,14 +668,10 @@ export class PendlePT extends VaultAdapter {
     _underlyingToRepayDebt: TokenBalance,
     slippageFactor = 10 * BASIS_POINT
   ): Promise<BytesLike> {
-    let dexId: number;
-    let exchangeData: BytesLike;
-    let minPurchaseAmount: BigNumber;
-    if (this.tokenOutSy === this.borrowedToken.id) {
-      dexId = 0;
-      exchangeData = '0x';
-      minPurchaseAmount = BigNumber.from(0);
-    } else {
+    let dexId = 0;
+    let exchangeData: BytesLike = '0x';
+    let minPurchaseAmount: BigNumber | undefined;
+    if (this.tokenOutSy !== this.borrowedToken.id) {
       // In the other case, we need to determine the default exit trade.
       ({ dexId, redeemExchangeData: exchangeData } =
         VaultDefaultDexParameters[this.network][this.vaultAddress]);
@@ -552,66 +693,45 @@ export class PendlePT extends VaultAdapter {
     }
 
     const response = await fetch(
-      `${this.apiUrl}/${NetworkId[this.network]}/markets/${
-        this.marketAddress
-      }/swap?receiver=${this.vaultAddress}&slippage=${
+      `${this.apiUrl}/${NetworkId[this.network]}/convert?receiver=${
+        this.vaultAddress
+      }&slippage=${
         slippageFactor / RATE_PRECISION
-      }&enableAggregator=false&tokenIn=${
+      }&enableAggregator=false&tokensIn=${
         this.market.ptToken.address
-      }&tokenOut=${this.tokenOutSy}&amountIn=${vaultSharesToRedeem
+      }&tokensOut=${this.tokenOutSy}&amountsIn=${vaultSharesToRedeem
         .toToken(this.market.ptToken)
         .n.toString()}`
     );
 
     let pendleData: BytesLike = '0x';
     try {
-      const data: {
-        contractCallParams: [
-          string,
-          string,
-          string,
-          {
-            eps: string;
-            guessMax: string;
-            guessMin: string;
-            guessOffchain: string;
-            maxIteration: string;
-          }, // approxParams
-          object, // swapData
-          {
-            epsSkipMarket: string;
-            flashFills: {
-              order: OrderType;
-              signature: string;
-              makingAmount: string;
-            }[];
-            normalFills: {
-              order: OrderType;
-              signature: string;
-              makingAmount: string;
-            }[];
-            optData: string;
-            limitRouter: string;
-          } // limitOrderData
-        ];
-        data: {
-          amountOut: string;
-          priceImpact: number;
-        };
-      } = await response.json();
-
+      const data: ConvertResponseSellPT = await response.json();
       if (
-        data.contractCallParams[5].normalFills.length > 0 ||
-        data.contractCallParams[5].flashFills.length > 0
+        data.routes[0].contractParamInfo.contractCallParams[4].normalFills
+          .length > 0 ||
+        data.routes[0].contractParamInfo.contractCallParams[4].flashFills
+          .length > 0
       ) {
         // Only encode the limit order data if there are normal or flash fills
         pendleData = defaultAbiCoder.encode(
           [LIMIT_ORDER_TYPE],
-          [data.contractCallParams[5]]
+          [data.routes[0].contractParamInfo.contractCallParams[4]]
         );
+      }
+
+      if (this.tokenOutSy === this.borrowedToken.id) {
+        minPurchaseAmount = BigNumber.from(data.routes[0].outputs[0].amount)
+          .mul(RATE_PRECISION - slippageFactor)
+          .div(RATE_PRECISION);
       }
     } catch (error) {
       console.error(error);
+      throw error;
+    }
+
+    if (minPurchaseAmount === undefined) {
+      throw new Error('Min purchase amount is undefined');
     }
 
     return defaultAbiCoder.encode(

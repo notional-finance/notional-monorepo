@@ -1,7 +1,10 @@
 import { Instance } from 'mobx-state-tree';
 import { NetworkModel } from '../NetworkModel';
 import { BigNumber, ethers } from 'ethers';
-import { RATE_PRECISION, SCALAR_PRECISION } from '@notional-finance/util';
+import {
+  RATE_PRECISION,
+  SCALAR_PRECISION,
+} from '@notional-finance/util';
 
 interface MorphoLendingRouterParams {
   loanToken: string;
@@ -46,6 +49,20 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     return assertDefined(self.configuration?.withdrawRequestManagers);
   };
 
+  const getLTV = (vault: string, lendingRouter: string) => {
+    const lr = self.configuration?.lendingRouters.find(
+      (lr) => lr.id === lendingRouter
+    );
+    const m = lr?.markets.find((m) => m.vault === vault);
+
+    if (lr?.name === 'Morpho' && m) {
+      const marketParams = decodeMorphoLendingRouterParams(m.params);
+      return marketParams.lltv;
+    } else {
+      throw Error(`Market params for ${vault} on ${lendingRouter} not found`);
+    }
+  };
+
   const getMaxLeverageRatio = (vault: string, lendingRouter: string) => {
     const lr = self.configuration?.lendingRouters.find(
       (lr) => lr.id === lendingRouter
@@ -54,12 +71,16 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
 
     if (lr?.name === 'Morpho' && m) {
       const marketParams = decodeMorphoLendingRouterParams(m.params);
-      const leverageInScalar = SCALAR_PRECISION.mul(SCALAR_PRECISION).div(
-        SCALAR_PRECISION.sub(marketParams.lltv)
-      );
+      const leverageInScalar = marketParams.lltv
+        .mul(SCALAR_PRECISION)
+        .div(SCALAR_PRECISION.sub(marketParams.lltv));
       return (
-        leverageInScalar.mul(RATE_PRECISION).div(SCALAR_PRECISION).toNumber() /
-        RATE_PRECISION
+        leverageInScalar
+          // Decrease the maximum leverage a bit so that we don't go over the limit and to
+          // account for any precision loss in all these calculations
+          .mul(RATE_PRECISION)
+          .div(SCALAR_PRECISION)
+          .toNumber() / RATE_PRECISION
       );
     } else {
       throw Error(`Market params for ${vault} on ${lendingRouter} not found`);
@@ -77,5 +98,6 @@ export const ConfigurationViews = (self: Instance<typeof NetworkModel>) => {
     getLendingRouters,
     getWithdrawRequestManagers,
     getMaxLeverageRatio,
+    getLTV,
   };
 };

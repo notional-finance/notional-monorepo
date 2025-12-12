@@ -52,7 +52,10 @@ export const APYBeforePoints = ({ apyInfo }: { apyInfo: APYData }) => {
   const theme = useTheme();
 
   const pointBoxes: ReactNode[] = [];
-  if (apyInfo.pointMultiples) {
+  if (
+    apyInfo.pointMultiples &&
+    Object.keys(apyInfo.pointMultiples).length > 0
+  ) {
     Object.entries(apyInfo.pointMultiples).forEach(([key, value]) => {
       pointBoxes.push(<APYSectionDivider />);
       pointBoxes.push(
@@ -107,7 +110,10 @@ export const APYBox = ({ apyInfo }: { apyInfo: APYData }) => {
     />
   );
 
-  if (apyInfo.pointMultiples) {
+  if (
+    apyInfo.pointMultiples &&
+    Object.keys(apyInfo.pointMultiples).length > 0
+  ) {
     Object.entries(apyInfo.pointMultiples).forEach(([key, value]) => {
       pointBoxes.push(
         <PointSection label={key} multiple={value} symbol={key} />
@@ -157,9 +163,9 @@ export const APYBox = ({ apyInfo }: { apyInfo: APYData }) => {
         </RowContainer>
         <RowContainer>
           <Body>
-            {apyInfo.assetAPY !== undefined ? (
+            {apyInfo.unleveragedAssetAPY?.totalAPY !== undefined ? (
               <CountUp
-                value={apyInfo.assetAPY}
+                value={apyInfo.unleveragedAssetAPY.totalAPY}
                 decimals={2}
                 duration={1}
                 suffix="% Vault APY"

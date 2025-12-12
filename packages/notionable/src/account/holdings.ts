@@ -6,7 +6,6 @@ import {
   TokenBalance,
   NetworkClientModel,
   BalanceStatement,
-  AccountHistory,
   createLeveragedAPYData,
   WithdrawRequest,
 } from '@notional-finance/core-entities';
@@ -23,14 +22,12 @@ export function calculateVaultHoldings(
   model: Instance<typeof NetworkClientModel>,
   balances: TokenBalance[],
   balanceStatements: BalanceStatement[],
-  accountHistory: AccountHistory[],
   vaultLastUpdateTime: Map<string, number>,
   rewardClaims: Record<string, TokenBalance[]>,
   withdrawRequests: Map<string, WithdrawRequest[]>
 ) {
   const vaultProfiles = VaultAccountRiskProfile.getAllRiskProfiles(model, {
     balances,
-    accountHistory,
     vaultLastUpdateTime,
     withdrawRequests,
   } as AccountDefinition);
@@ -102,17 +99,20 @@ export function calculateVaultHoldings(
       vaultAddress: v.vaultAddress,
       vaultShares: v.vaultShares,
       vaultDebt: v.vaultDebt,
+      vaultIcon: v.vaultConfig.vaultIcon,
       liquidationPrices: v.getAllLiquidationPrices(),
       netWorth: v.netWorth(),
       healthFactor: v.healthFactor(),
       totalAssets: v.totalAssets(),
       totalDebt: v.totalDebt(),
+      isInCooldown: v.isInCooldown,
       maxLeverageRatio,
       apyData: createLeveragedAPYData(vaultYield, debtAPY, leverageRatio),
       impliedFixedRate: debtPnL?.impliedFixedRate,
       leverageRatio,
       hasPendingWithdraw: v.hasPendingWithdraw,
       hasFinalizedWithdraw: v.hasFinalizedWithdraw,
+      estimatedWithdrawTimeInSeconds: v.estimatedWithdrawTimeInSeconds,
       amountPaid,
       totalEarnings,
       underlying: denom.symbol,
@@ -133,6 +133,7 @@ export function calculateVaultHoldings(
       debtAmountPaid,
       assetEntryPrice,
       debtEntryPrice,
+      incentiveEarnings: assetPnL?.incentives,
     };
   });
 }

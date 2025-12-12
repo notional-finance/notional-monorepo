@@ -1,4 +1,5 @@
 export { default } from './wallet-selector/wallet-selector';
+export { default as WalletSideDrawer } from './wallet-side-drawer/wallet-side-drawer';
 export * from './wallet-selector/wallet-selector';
 export * from './connect-wallet-side-drawer/connect-wallet-side-drawer';
 export * from './notifications-side-drawer/notifications-side-drawer';
