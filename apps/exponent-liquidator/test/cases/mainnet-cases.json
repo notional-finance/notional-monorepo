@@ -8,7 +8,10 @@
       "forkBlock": 23670400,
       "network": "mainnet",
       "positions": [
-        ["0xDF5A26554Ecb1a11614dbB34fC156D0adFc95C07", "0x7f723feE1E65A7d26bE51A05AF0B5eFEE4a7d5ae"]
+        [
+          "0xDF5A26554Ecb1a11614dbB34fC156D0adFc95C07",
+          "0x7f723feE1E65A7d26bE51A05AF0B5eFEE4a7d5ae"
+        ]
       ],
       "expectedResults": {
         "successfulTransactions": 1,
@@ -23,7 +26,10 @@
       "forkBlock": 23677790,
       "network": "mainnet",
       "positions": [
-        ["0x9299B176bFd1CaBB967ac2A027814FAad8782BA7", "0x7f723feE1E65A7d26bE51A05AF0B5eFEE4a7d5ae"]
+        [
+          "0x9299B176bFd1CaBB967ac2A027814FAad8782BA7",
+          "0x7f723feE1E65A7d26bE51A05AF0B5eFEE4a7d5ae"
+        ]
       ],
       "expectedResults": {
         "successfulTransactions": 1,
@@ -38,7 +44,28 @@
       "forkBlock": 23683860,
       "network": "mainnet",
       "positions": [
-        ["0xDF5A26554Ecb1a11614dbB34fC156D0adFc95C07", "0x2716561755154Eef59Bc48Eb13712510b27F167F"]
+        [
+          "0xDF5A26554Ecb1a11614dbB34fC156D0adFc95C07",
+          "0x2716561755154Eef59Bc48Eb13712510b27F167F"
+        ]
+      ],
+      "expectedResults": {
+        "successfulTransactions": 1,
+        "failedTransactions": 0,
+        "totalTransactions": 1
+      },
+      "timeout": 60000
+    },
+    {
+      "name": "sUSDe staking withdraw request",
+      "description": "successful liquidation of sUSDe staking with withdraw request",
+      "forkBlock": 24020231,
+      "network": "mainnet",
+      "positions": [
+        [
+          "0xBF4864A994Ce850a8456093A565AcAF776343838",
+          "0xAf14d06A65C91541a5b2db627eCd1c92d7d9C48B"
+        ]
       ],
       "expectedResults": {
         "successfulTransactions": 1,
