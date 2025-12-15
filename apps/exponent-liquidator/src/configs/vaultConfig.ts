@@ -24,7 +24,6 @@ export const VaultDefaultDexParameters = {
         ['address', 'int128', 'int128'],
         ['0xDB74dfDD3BB46bE8Ce6C33dC9D82777BCFc3dEd5', 1, 0]
       ),
-      redeemPoolAddress: '0xDB74dfDD3BB46bE8Ce6C33dC9D82777BCFc3dEd5',
     },
     '0x2716561755154eef59bc48eb13712510b27f167f': {
       dexId: DexIds.CURVE_V2,
@@ -35,7 +34,13 @@ export const VaultDefaultDexParameters = {
         ['address', 'int128', 'int128'],
         ['0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7', 0, 1]
       ),
-      redeemPoolAddress: '0xbebc44782c7db0a1a60cb6fe97d0b483032ff1c7',
+    },
+    '0xaf14d06a65c91541a5b2db627ecd1c92d7d9c48b': {
+      dexId: DexIds.CURVE_V2,
+      withdrawExchangeData: defaultAbiCoder.encode(
+        ['address', 'int128', 'int128'],
+        ['0x02950460E2b9529D0E00284A5fA2d7bDF3fA4d72', 0, 1]
+      ),
     },
   },
   [Network.arbitrum]: {
@@ -50,6 +55,9 @@ export const VaultLiquidationSettings = {
     '0x7f723fee1e65a7d26be51a05af0b5efee4a7d5ae': {},
     '0x2716561755154eef59bc48eb13712510b27f167f': {},
     '0x0e61e810f0918081cbfd2ac8c97e5866daf3f622': {},
+    '0xaf14d06a65c91541a5b2db627ecd1c92d7d9c48b': {
+      liquidateYieldTokens: false,
+    },
   },
   [Network.arbitrum]: {
     // Arbitrum vault liquidation settings
