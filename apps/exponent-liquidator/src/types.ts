@@ -106,7 +106,6 @@ export interface OffChainVaultConfig {
   dexId?: number;
   redeemExchangeData?: string;
   withdrawExchangeData?: string;
-  redeemPoolAddress?: string;
   withdrawPoolAddress?: string;
   liquidateYieldTokens?: boolean;
   slippageLimit?: number;

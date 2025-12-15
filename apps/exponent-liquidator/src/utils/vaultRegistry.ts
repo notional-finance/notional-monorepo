@@ -441,7 +441,6 @@ export class VaultRegistry {
       dexId: dexParams?.dexId,
       redeemExchangeData: dexParams?.redeemExchangeData?.toString(),
       withdrawExchangeData: dexParams?.withdrawExchangeData?.toString(),
-      redeemPoolAddress: dexParams?.redeemPoolAddress,
       withdrawPoolAddress: dexParams?.withdrawPoolAddress,
       liquidateYieldTokens: liquidationSettings.liquidateYieldTokens,
       slippageLimit: liquidationSettings.slippageLimit,
