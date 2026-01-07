@@ -46,7 +46,6 @@ import {
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
-import { reaction } from 'mobx';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 

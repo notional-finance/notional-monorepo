@@ -35,13 +35,15 @@ export const VaultManageScreen = observer(() => {
     label: React.ReactNode;
     disabled?: boolean;
     to?: string;
-  }[] = [
-    {
+  }[] = [];
+
+  if (metadata?.enabled) {
+    maintainLeverage.push({
       label: <FormattedMessage defaultMessage="Deposit" />,
       to: `${path}/deposit`,
       disabled: isInCooldown,
-    },
-  ];
+    });
+  }
 
   if (metadata?.vaultFeatures.includes('Instant Withdrawal')) {
     maintainLeverage.push({
@@ -75,29 +77,19 @@ export const VaultManageScreen = observer(() => {
     }
   }
 
-  const adjustLeverage = [
-    {
+  const adjustLeverage: {
+    label: React.ReactNode;
+    disabled?: boolean;
+    to?: string;
+  }[] = [];
+
+  if (metadata?.enabled) {
+    adjustLeverage.push({
       label: <FormattedMessage defaultMessage="Adjust Leverage" />,
       to: `${path}/adjust-leverage`,
       disabled: isInCooldown,
-    },
-    // {
-    //   label: <FormattedMessage defaultMessage="Deposit" />,
-    //   to: `${path}/deposit`,
-    // },
-    // {
-    //   label: <FormattedMessage defaultMessage="Borrow" />,
-    //   to: `${path}/borrow`,
-    // },
-    // {
-    //   label: <FormattedMessage defaultMessage="Repay" />,
-    //   to: `${path}/repay`,
-    // },
-    // {
-    //   label: <FormattedMessage defaultMessage="Sell Assets" />,
-    //   to: `${path}/sell-assets`,
-    // },
-  ];
+    });
+  }
 
   const inputs: React.ReactNode[] = [];
 
@@ -115,18 +107,25 @@ export const VaultManageScreen = observer(() => {
     );
   }
 
-  inputs.push(
-    <ManageButtonSection
-      key="deposit-withdraw"
-      heading={<FormattedMessage defaultMessage="Deposit / Withdraw" />}
-      links={maintainLeverage}
-    />,
-    <ManageButtonSection
-      key="adjust-leverage"
-      heading={<FormattedMessage defaultMessage="Adjust Leverage" />}
-      links={adjustLeverage}
-    />
-  );
+  if (maintainLeverage.length > 0) {
+    inputs.push(
+      <ManageButtonSection
+        key="deposit-withdraw"
+        heading={<FormattedMessage defaultMessage="Deposit / Withdraw" />}
+        links={maintainLeverage}
+      />
+    );
+  }
+
+  if (adjustLeverage.length > 0) {
+    inputs.push(
+      <ManageButtonSection
+        key="adjust-leverage"
+        heading={<FormattedMessage defaultMessage="Adjust Leverage" />}
+        links={adjustLeverage}
+      />
+    );
+  }
 
   if (claimRewards) {
     inputs.push(
