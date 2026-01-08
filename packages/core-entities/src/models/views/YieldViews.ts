@@ -120,9 +120,10 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
       apyData.assetAPY = simulatedAPY.assetAPY;
       apyData.pointMultiples = simulatedAPY.pointMultiples;
       apyData.feeAPY = getVaultFee(token.vaultAddress);
-      apyData.totalAPY = simulatedAPY.totalAPY
-        ? simulatedAPY.totalAPY - (apyData.feeAPY || 0)
-        : undefined;
+      apyData.totalAPY =
+        simulatedAPY.totalAPY !== undefined
+          ? simulatedAPY.totalAPY - (apyData.feeAPY || 0)
+          : undefined;
     }
 
     return apyData;

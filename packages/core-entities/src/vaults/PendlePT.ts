@@ -492,7 +492,7 @@ export class PendlePT extends VaultAdapter {
     const withdrawManager = model.getWithdrawManagers(this.vaultAddress);
     if (!withdrawManager || withdrawManager.length !== 1)
       throw Error('Withdraw manager not found');
-    const tokenOutSy = model.getTokenBySymbol(this.tokenOutSy);
+    const tokenOutSy = model.getTokenByID(this.tokenOutSy);
 
     const yieldTokensRedeemed = vaultSharesToRedeem
       .toToken(this.market.ptToken)

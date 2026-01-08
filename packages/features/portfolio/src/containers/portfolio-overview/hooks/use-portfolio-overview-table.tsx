@@ -444,7 +444,10 @@ function formatDetailedVaultHoldings(
     healthFactor: tableRow.healthFactor,
     tokenId: vaultShares.tokenId,
     isPending: !!pendingTokens?.find((t) => t.id === vaultShares.tokenId),
-    marketApy: apyData?.assetAPY ? formatNumberAsPercent(apyData.assetAPY) : '',
+    marketApy:
+      apyData?.assetAPY !== undefined
+        ? formatNumberAsPercent(apyData.assetAPY)
+        : '',
     amountPaid: formatCryptoWithFiat(baseCurrency, assetAmountPaid),
     presentValue: formatCryptoWithFiat(
       baseCurrency,

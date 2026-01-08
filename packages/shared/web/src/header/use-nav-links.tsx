@@ -5,7 +5,6 @@ import {
   CoinsIcon,
   GearIcon,
   LightningOutlineIcon,
-  PointsOutlineIcon,
   ExponentBetaIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS, Network } from '@notional-finance/util';
@@ -58,19 +57,19 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
         />
       ),
     },
-    {
-      key: 'points',
-      label: <FormattedMessage defaultMessage={'Points'} />,
-      link: '/points',
-      iconImg: (
-        <PointsOutlineIcon
-          className="color-fill"
-          sx={{
-            height: theme.spacing(2.25),
-          }}
-        />
-      ),
-    },
+    // {
+    //   key: 'points',
+    //   label: <FormattedMessage defaultMessage={'Points'} />,
+    //   link: '/points',
+    //   iconImg: (
+    //     <PointsOutlineIcon
+    //       className="color-fill"
+    //       sx={{
+    //         height: theme.spacing(2.25),
+    //       }}
+    //     />
+    //   ),
+    // },
     {
       key: 'exponent-beta',
       link: '/exponent-leaderboard',
