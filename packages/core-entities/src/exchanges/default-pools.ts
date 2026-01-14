@@ -25,6 +25,8 @@ export const registerTokensMap = {
     'SY-sUSDe': '0xAbf8165dD7a90ab75878161db15Bf85F6F781d9b' as const,
     'sDAI/sUSDe': '0x167478921b907422f8e88b43c4af2b8bea278d3a' as const,
     'OETH/WETH': '0xcc7d5785AD5755B6164e21495E07aDb0Ff11C2A8' as const,
+    mAPOLLO: '0xE4ebB6EA270a70491c3Af06376a5862a0fdA7268' as const,
+    mHYPER: '0x18f86644781fc9F7B4641D371f377c96744EC10F' as const,
   },
   arbitrum: {},
 };
@@ -161,6 +163,16 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
           tokenType: 'Underlying',
         },
       ],
+    },
+    {
+      address: registerTokensMap[Network.mainnet]['mAPOLLO'],
+      PoolClass: 'MidasPool',
+      registerTokens: [],
+    },
+    {
+      address: registerTokensMap[Network.mainnet]['mHYPER'],
+      PoolClass: 'MidasPool',
+      registerTokens: [],
     },
   ],
   [Network.arbitrum]: [],

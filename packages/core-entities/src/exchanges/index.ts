@@ -21,6 +21,7 @@ import {
   MorphoAdaptiveIRM,
   MorphoVariableMarket,
 } from './Morpho/MorphoVariableMarket';
+import { MidasPool } from './Midas/MidasPool';
 
 type PoolConstructor = new (
   network: Network,
@@ -48,6 +49,7 @@ const PoolClasses: Record<
     PendleMarketWithFixedSyToAssetExchangeRate,
   Curve2TokenPoolNG: Curve2TokenPoolNG,
   MorphoAdaptiveIRM: MorphoAdaptiveIRM,
+  MidasPool: MidasPool,
 };
 
 export type LendingMarket = MorphoVariableMarket;
@@ -67,4 +69,5 @@ export {
   SNOTEWeightedPool,
   PendleMarket,
   Curve2TokenPoolNG,
+  MidasPool,
 };
