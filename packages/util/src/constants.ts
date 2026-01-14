@@ -147,6 +147,7 @@ export enum DexIds {
   // NOTIONAL_VAULT = 6,
   CURVE_V2 = 7,
   CAMELOT_V3 = 8,
+  UNKNOWN = 9999,
 }
 
 // This kludge is necessary because the subgraph only allows a skip value of
@@ -228,6 +229,8 @@ export const vaults = {
   mainnet: {
     Staking_sUSDe: '0xaf14d06a65c91541a5b2db627ecd1c92d7d9c48b' as const,
     Staking_weETH: '0x7f723feE1E65A7d26bE51A05AF0B5eFEE4a7d5ae' as const,
+    Staking_mHYPER: '0x94F6Cb4FaE0EB3Fa74e9847dfF2fF52fd5ec7e6e' as const,
+    Staking_mAPOLLO: '0x091356E6793a0d960174eaAb4d470E39A99DD673' as const,
     Pendle_sUSDe_27NOV2025:
       '0x0e61E810f0918081CBFD2aC8c97E5866DAF3F622' as const,
     Convex_OETH_WETH: '0x2716561755154Eef59Bc48Eb13712510b27F167F' as const,
