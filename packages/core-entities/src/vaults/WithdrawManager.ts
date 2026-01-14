@@ -36,6 +36,7 @@ export class WithdrawManager {
 
   constructor(
     public address: string,
+    public strategyType: string,
     public stakingToken: TokenDefinition,
     public withdrawToken: TokenDefinition,
     public yieldToken: TokenDefinition
@@ -49,6 +50,8 @@ export class WithdrawManager {
 
   private createStrategy(): WithdrawStrategy {
     if (this.yieldToken.symbol === 'sUSDe') {
+      return new DefaultWithdrawStrategy(7 * SECONDS_IN_DAY);
+    } else if (this.strategyType === 'MidasStaking') {
       return new DefaultWithdrawStrategy(7 * SECONDS_IN_DAY);
     }
     // Can switch on yield token here to return different strategies

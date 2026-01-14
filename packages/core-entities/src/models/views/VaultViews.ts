@@ -115,6 +115,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     return v.withdrawRequestManagers.map((wrm) => {
       return new WithdrawManager(
         wrm.id,
+        v.strategyType,
         getTokenByID(wrm.stakingToken.id),
         getTokenByID(wrm.withdrawToken.id),
         getTokenByID(wrm.yieldToken.id)
