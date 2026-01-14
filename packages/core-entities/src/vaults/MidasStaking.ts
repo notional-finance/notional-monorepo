@@ -1,7 +1,7 @@
 import { BASIS_POINT, RATE_PRECISION } from '@notional-finance/util';
 import { TokenBalance } from '../token-balance';
-import { Staking } from './Staking';
 import { defaultAbiCoder } from '@ethersproject/abi';
+import { Staking } from './Staking';
 
 export class MidasStaking extends Staking {
   override getNetVaultSharesCost(netVaultShares: TokenBalance): {
