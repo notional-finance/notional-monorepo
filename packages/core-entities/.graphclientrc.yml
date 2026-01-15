@@ -2,10 +2,8 @@ sources:
   - name: NotionalExponent
     handler:
       graphql:
-        endpoint: https://api.studio.thegraph.com/query/60626/notional-exponent/version/latest
-        # endpoint: https://gateway.thegraph.com/api/subgraphs/id/9fw42E6QrezaPxixKN9H79nWmpVWURkLmcJdgGHyC14B
-        operationHeaders:
-          Authorization: Bearer {context.apiKey}
+        # endpoint: https://api.studio.thegraph.com/query/60626/notional-exponent/version/latest
+        endpoint: https://gateway-arbitrum.network.thegraph.com/api/{context.apiKey:env.NX_SUBGRAPH_API_KEY}/subgraphs/id/9fw42E6QrezaPxixKN9H79nWmpVWURkLmcJdgGHyC14B
         retry: 2
 
 documents:

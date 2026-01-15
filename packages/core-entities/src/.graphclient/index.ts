@@ -4437,7 +4437,7 @@ const notionalExponentTransforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalExponentHandler = new GraphqlHandler({
               name: "NotionalExponent",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/60626/notional-exponent/version/latest","operationHeaders":{"Authorization":"Bearer {context.apiKey}"},"retry":2},
+              config: {"endpoint":"https://gateway-arbitrum.network.thegraph.com/api/f9f58a6131e8807672eaa304ed6abef8/subgraphs/id/9fw42E6QrezaPxixKN9H79nWmpVWURkLmcJdgGHyC14B","retry":2},
               baseDir,
               cache,
               pubsub,
