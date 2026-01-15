@@ -177,6 +177,14 @@ const RewardModel = types.model('RewardModel', {
   token: types.reference(TokenDefinitionModel),
 });
 
+const VaultAssetModel = types.model('VaultAssetModel', {
+  id: types.identifier,
+  name: types.string,
+  contractAddress: types.string,
+  logoURL: types.maybe(types.string),
+  description: types.maybe(types.string),
+});
+
 export const VaultModel = types.model('VaultModel', {
   vaultAddress: types.identifier,
   vaultIcon: types.maybe(types.string),
@@ -188,6 +196,7 @@ export const VaultModel = types.model('VaultModel', {
   vaultDescription: types.string,
   rewards: types.optional(types.array(RewardModel), []),
   projects: types.optional(types.array(ProjectModel), []),
+  vaultAssets: types.optional(types.array(VaultAssetModel), []),
   depositToken: types.reference(TokenDefinitionModel),
   yieldToken: types.reference(TokenDefinitionModel),
   vaultToken: types.reference(TokenDefinitionModel),
