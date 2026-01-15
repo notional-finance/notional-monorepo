@@ -145,6 +145,7 @@ export const VAULT_TYPES = [
   'Staking',
   'CurveConvex2Token',
   'PendlePT',
+  'MidasStaking',
 ] as const;
 
 export type VaultType = (typeof VAULT_TYPES)[number];
