@@ -2,21 +2,27 @@ import { BASIS_POINT, RATE_PRECISION } from '@notional-finance/util';
 import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder } from '@ethersproject/abi';
 import { Staking } from './Staking';
+import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
+import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
+import { getNetworkModel } from '../Models';
+import { MidasPool } from '../exchanges';
 
 export class MidasStaking extends Staking {
-  override getNetVaultSharesCost(netVaultShares: TokenBalance): {
-    netUnderlyingForVaultShares: TokenBalance;
+  override getNetVaultSharesMinted(
+    netUnderlying: TokenBalance,
+    vaultShare: TokenDefinition
+  ): {
+    netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
   } {
-    const netUnderlyingForVaultShares = netVaultShares
-      .toToken(this.borrowedToken)
-      .neg();
-    // TODO: include instant redeem fees
-
-    return {
-      netUnderlyingForVaultShares,
-      feesPaid: netVaultShares.copy(0),
-    };
+    const defaultDex =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    return super.getNetVaultSharesMinted(
+      netUnderlying,
+      vaultShare,
+      defaultDex.depositPoolAddress
+    );
   }
 
   override async getDepositParameters(
@@ -57,12 +63,23 @@ export class MidasStaking extends Staking {
     _maturity: number,
     vaultSharesToRedeem: TokenBalance,
     _underlyingToRepayDebt: TokenBalance,
-    slippageFactor = 25 * BASIS_POINT
+    slippageFactor = 55 * BASIS_POINT
   ) {
+    const defaultDex =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    const pool = getNetworkModel(this.network).getPoolInstance(
+      defaultDex.redeemPoolAddress || ''
+    );
+    const instantRedeemFee = (pool as MidasPool).poolParams.instantRedeemFee;
+
     // This includes the fees paid
     const minReceiveAmount = vaultSharesToRedeem
       .toToken(this.borrowedToken)
-      .mulInRatePrecision(RATE_PRECISION - slippageFactor).n;
+      .mulInRatePrecision(
+        RATE_PRECISION -
+          (instantRedeemFee.toNumber() * RATE_PRECISION) / 10000 -
+          slippageFactor
+      ).n;
 
     return defaultAbiCoder.encode(
       ['tuple(uint256 minReceiveAmount)'],
