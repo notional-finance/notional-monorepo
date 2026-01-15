@@ -558,7 +558,7 @@ const useTradeMetadata = () => {
       },
     ];
 
-    if (metadata.feesPaid !== undefined) {
+    if (metadata.feesPaid && !metadata.feesPaid.isZero()) {
       items.push({
         label: 'Fees Paid',
         content: formatCountUp(metadata.feesPaid.abs()),
