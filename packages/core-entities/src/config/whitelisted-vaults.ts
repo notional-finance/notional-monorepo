@@ -54,10 +54,9 @@ export const whitelistedVaults = (
       return [];
     case Network.mainnet:
       return [
-        vaults.mainnet.Staking_sUSDe,
-        vaults.mainnet.Staking_weETH,
-        vaults.mainnet.Pendle_sUSDe_27NOV2025,
         vaults.mainnet.Convex_OETH_WETH,
+        vaults.mainnet.Staking_mHYPER,
+        vaults.mainnet.Staking_mAPOLLO,
       ].map(toLowercase);
     case Network.arbitrum:
       return [].map(toLowercase);
@@ -119,6 +118,24 @@ export const VaultDefaultDexParameters: Record<
       ),
       redeemPoolAddress: '0xDB74dfDD3BB46bE8Ce6C33dC9D82777BCFc3dEd5',
     },
+    [vaults.mainnet.Staking_mHYPER.toLowerCase()]: {
+      dexId: DexIds.UNKNOWN,
+      depositPoolAddress: '0x18f86644781fc9F7B4641D371f377c96744EC10F',
+      redeemPoolAddress: '0x18f86644781fc9F7B4641D371f377c96744EC10F',
+      withdrawPoolAddress: '0x18f86644781fc9F7B4641D371f377c96744EC10F',
+      depositExchangeData: '0x',
+      redeemExchangeData: '0x',
+      withdrawExchangeData: '0x',
+    },
+    [vaults.mainnet.Staking_mAPOLLO.toLowerCase()]: {
+      dexId: DexIds.UNKNOWN,
+      depositPoolAddress: '0xE4ebB6EA270a70491c3Af06376a5862a0fdA7268',
+      redeemPoolAddress: '0xE4ebB6EA270a70491c3Af06376a5862a0fdA7268',
+      withdrawPoolAddress: '0xE4ebB6EA270a70491c3Af06376a5862a0fdA7268',
+      depositExchangeData: '0x',
+      redeemExchangeData: '0x',
+      withdrawExchangeData: '0x',
+    },
   },
   [Network.all]: {},
 };
@@ -127,6 +144,7 @@ export const VAULT_TYPES = [
   'Staking',
   'CurveConvex2Token',
   'PendlePT',
+  'MidasStaking',
 ] as const;
 
 export type VaultType = (typeof VAULT_TYPES)[number];

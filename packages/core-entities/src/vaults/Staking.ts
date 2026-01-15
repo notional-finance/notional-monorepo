@@ -2,6 +2,7 @@ import {
   BASIS_POINT,
   getNowSeconds,
   Network,
+  RATE_PRECISION,
   SCALAR_PRECISION,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
@@ -161,7 +162,7 @@ export class Staking extends VaultAdapter {
     const tradeType = 0; // Exact In Single
     const minPurchaseAmount = totalDeposit
       .toToken(this.stakingToken)
-      .mulInRatePrecision(slippageFactor).n;
+      .mulInRatePrecision(RATE_PRECISION - slippageFactor).n;
 
     return defaultAbiCoder.encode(
       [
@@ -206,7 +207,7 @@ export class Staking extends VaultAdapter {
 
     const minPurchaseAmount = withdrawTokensBurned[0]
       .toToken(this.borrowedToken)
-      .mulInRatePrecision(slippageFactor || 0).n;
+      .mulInRatePrecision(RATE_PRECISION - (slippageFactor || 0)).n;
 
     return defaultAbiCoder.encode(
       ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
@@ -231,7 +232,7 @@ export class Staking extends VaultAdapter {
       VaultDefaultDexParameters[this.network][this.vaultAddress];
     const minPurchaseAmount = vaultSharesToRedeem
       .toToken(this.borrowedToken)
-      .mulInRatePrecision(slippageFactor || 0).n;
+      .mulInRatePrecision(RATE_PRECISION - (slippageFactor || 0)).n;
 
     return defaultAbiCoder.encode(
       ['tuple(uint16 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],

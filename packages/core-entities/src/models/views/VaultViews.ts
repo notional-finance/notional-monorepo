@@ -66,6 +66,19 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
           yieldToken,
           getTimeSeries(v.vaultAddress, ChartType.APY)?.data
         );
+      case 'MidasStaking': {
+        // Lazy import to break circular dependency
+        // eslint-disable-next-line
+        const { MidasStaking } = require('../../vaults/MidasStaking');
+        return new MidasStaking(
+          self.network,
+          vaultAddress,
+          params as StakingVaultParams,
+          primaryToken,
+          yieldToken,
+          getTimeSeries(v.vaultAddress, ChartType.APY)?.data
+        );
+      }
       default:
         throw Error(`Unknown vault type: ${params.strategyType}`);
     }
@@ -115,6 +128,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     return v.withdrawRequestManagers.map((wrm) => {
       return new WithdrawManager(
         wrm.id,
+        v.strategyType,
         getTokenByID(wrm.stakingToken.id),
         getTokenByID(wrm.withdrawToken.id),
         getTokenByID(wrm.yieldToken.id)

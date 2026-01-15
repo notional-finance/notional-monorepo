@@ -1,6 +1,6 @@
 import { useState, ReactNode, useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { SimpleToggle, TradeSummaryBox, Body } from '@notional-finance/mui';
+import { SimpleToggle, TradeSummaryBox } from '@notional-finance/mui';
 import { observer } from 'mobx-react-lite';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
@@ -84,11 +84,31 @@ export const TransactionScreen = observer(
                   setInfoTab(value as number);
                 }}
               />
+              <Box sx={{ width: '100%', padding: theme.spacing(2) }}></Box>
               {infoTab === 0 && (
                 <RichText htmlInput={vaultMetadata?.vaultDescription || ''} />
               )}
-              {infoTab === 1 && <Body>"Asset Info"</Body>}
-              {infoTab === 2 && <Body>"Project Info"</Body>}
+              {infoTab === 1 && (
+                <RichText
+                  htmlInput={
+                    vaultMetadata?.vaultAssets
+                      .map(
+                        (asset) =>
+                          `<h1>${asset.name}</h1><div>${asset.description}</div>`
+                      )
+                      .join('<br />') || ''
+                  }
+                />
+              )}
+              {infoTab === 2 && (
+                <RichText
+                  htmlInput={
+                    vaultMetadata?.projects
+                      .map((project) => project.description)
+                      .join('<br />') || ''
+                  }
+                />
+              )}
             </TradeSummaryBox>
           </ContentContainer>
         </ScreenContainer>

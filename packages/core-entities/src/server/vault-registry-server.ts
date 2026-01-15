@@ -98,6 +98,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             calls = this.getPendlePTCalls(vaultAddress, network, enabled);
             break;
           case 'Staking':
+          case 'MidasStaking':
             calls = this.getStakingCalls(vaultAddress, enabled);
             break;
           default:

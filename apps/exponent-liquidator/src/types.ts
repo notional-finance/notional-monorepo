@@ -78,6 +78,7 @@ export enum VaultType {
   Staking = 'Staking',
   PendlePT = 'PendlePT',
   CurveConvex2Token = 'CurveConvex2Token',
+  MidasStaking = 'MidasStaking',
 }
 
 export interface OnChainVaultConfig {

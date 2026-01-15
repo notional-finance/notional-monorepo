@@ -214,6 +214,8 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
         )
       : this.poolParams.marketState.totalBorrowAssets;
 
+    if (totalSupplyAssets.isZero() && netBorrow?.isPositive())
+      throw new Error(UTILIZATION_ERROR);
     if (totalSupplyAssets.isZero()) return BigNumber.from(0);
 
     // Utilization is in 1e18 precision

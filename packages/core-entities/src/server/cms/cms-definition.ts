@@ -83,6 +83,14 @@ export interface RewardDefinition {
   token: string;
 }
 
+export interface VaultAssetDefinition {
+  id: string;
+  name: string;
+  contractAddress: string;
+  logoURL: string;
+  description: string;
+}
+
 export interface VaultCMSData {
   name: string;
   address: string;
@@ -95,4 +103,5 @@ export interface VaultCMSData {
   vaultDescription: string;
   projects: ProjectDefinition[];
   rewards: RewardDefinition[];
+  vaultAssets: VaultAssetDefinition[];
 }

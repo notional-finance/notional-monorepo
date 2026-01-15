@@ -141,7 +141,10 @@ export class VaultRegistry {
       (vaultAddress) => {
         const vaultType = results[`${vaultAddress}.strategy`] as VaultType;
 
-        if (vaultType === VaultType.Staking) {
+        if (
+          vaultType === VaultType.Staking ||
+          vaultType === VaultType.MidasStaking
+        ) {
           return [
             {
               target: addressRegistryContract as ethers.Contract,
