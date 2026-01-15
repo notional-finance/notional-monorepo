@@ -153,8 +153,8 @@ export abstract class VaultAdapter {
 
         tokensBought = tokensOut;
         fees =
-          feesPaid.find((t) => t.tokenId === tokenSold.tokenId) ||
-          tokenSold.copy(0);
+          feesPaid.find((t) => t.tokenId === tokenBought.id) ||
+          TokenBalance.zero(tokenBought);
         isEstimated = false;
         dexId = defaultPool.dexId;
       } else {

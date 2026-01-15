@@ -532,35 +532,44 @@ const useTradeMetadata = () => {
   const trade = useCurrentTradeContext();
   if (trade?.tradeType === 'ManageVault') return undefined;
   return trade?.vaultTradeMetadata?.map((metadata, index) => {
+    const items = [
+      {
+        label: 'Amount Sold',
+        content: formatCountUp(metadata.tokensSold),
+      },
+      {
+        label: 'Amount Bought',
+        content: formatCountUp(metadata.tokensBought),
+      },
+      {
+        label: 'Exchange Rate',
+        content: (
+          <Box>
+            {metadata.differenceFromSpot !== 0 ? (
+              <LabelValue light inline>
+                {`(${formatNumberAsPercent(metadata.differenceFromSpot, 4)}) `}
+              </LabelValue>
+            ) : undefined}
+            <LabelValue inline>
+              {formatNumber(metadata.exchangeRate, 4)}
+            </LabelValue>
+          </Box>
+        ),
+      },
+    ];
+
+    if (metadata.feesPaid !== undefined) {
+      items.push({
+        label: 'Fees Paid',
+        content: formatCountUp(metadata.feesPaid.abs()),
+      });
+    }
+
     return (
       <LabelValueSection
         key={index}
         sectionTitle={`Trade: ${metadata.tokensSold.symbol} → ${metadata.tokensBought.symbol}`}
-        items={[
-          { label: 'Amount Sold', content: formatCountUp(metadata.tokensSold) },
-          {
-            label: 'Amount Bought',
-            content: formatCountUp(metadata.tokensBought),
-          },
-          {
-            label: 'Exchange Rate',
-            content: (
-              <Box>
-                {metadata.differenceFromSpot !== 0 ? (
-                  <LabelValue light inline>
-                    {`(${formatNumberAsPercent(
-                      metadata.differenceFromSpot,
-                      4
-                    )}) `}
-                  </LabelValue>
-                ) : undefined}
-                <LabelValue inline>
-                  {formatNumber(metadata.exchangeRate, 4)}
-                </LabelValue>
-              </Box>
-            ),
-          },
-        ]}
+        items={items}
       />
     );
   });

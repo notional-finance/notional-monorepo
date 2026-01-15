@@ -256,6 +256,7 @@ export const TradeModel = types
           minPurchaseAmount: types.maybe(NotionalTypes.TokenBalance),
           exchangeData: types.maybe(types.string),
           isEstimated: types.boolean,
+          feesPaid: types.maybe(NotionalTypes.TokenBalance),
         })
       ),
       []

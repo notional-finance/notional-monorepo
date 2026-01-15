@@ -126,7 +126,7 @@ export class MidasPool extends BaseLiquidityPool<MidasPoolParams> {
       const tokensOutPreFee = tokensIn.toToken(this.balances[0].token);
       const feesPaid = tokensOutPreFee.scale(
         this.poolParams.instantRedeemFee,
-        SCALAR_PRECISION
+        10000
       );
       return {
         tokensOut: tokensOutPreFee.sub(feesPaid),
@@ -134,13 +134,10 @@ export class MidasPool extends BaseLiquidityPool<MidasPoolParams> {
       };
     } else if (tokenIndexOut === 1) {
       // This is the yield token, apply the deposit fee
-      const tokensOutPreFee = tokensIn.toToken(this.balances[1].token);
-      const feesPaid = tokensIn.scale(
-        this.poolParams.instantDepositFee,
-        SCALAR_PRECISION
-      );
+      const feesPaid = tokensIn.scale(this.poolParams.instantDepositFee, 10000);
+      const tokensOut = tokensIn.sub(feesPaid).toToken(this.balances[1].token);
       return {
-        tokensOut: tokensOutPreFee.sub(feesPaid),
+        tokensOut: tokensOut,
         feesPaid: [feesPaid],
       };
     } else {

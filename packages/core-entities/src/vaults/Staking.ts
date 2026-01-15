@@ -76,14 +76,48 @@ export class Staking extends VaultAdapter {
     };
   }
 
-  override getNetVaultSharesMinted(
+  getRedeemVaultShares(
     netUnderlying: TokenBalance,
-    vaultShare: TokenDefinition
+    vaultShare: TokenDefinition,
+    stakingPoolAddress?: string
   ): {
     netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
     vaultTradeMetadata?: VaultTradeMetadata[];
   } {
+    // netUnderlying is negative in this case. This is the amount of yield tokens we need
+    // to redeem to the vault shares.
+    const yieldTokens = netUnderlying.neg().toToken(this.yieldToken);
+    const tradeMetadata = this.getVaultTradeMetadata(
+      yieldTokens,
+      this.borrowedToken,
+      stakingPoolAddress
+    );
+
+    return {
+      feesPaid: netUnderlying.copy(0),
+      netVaultSharesForUnderlying: yieldTokens.neg().toToken(vaultShare),
+      vaultTradeMetadata: [tradeMetadata],
+    };
+  }
+
+  override getNetVaultSharesMinted(
+    netUnderlying: TokenBalance,
+    vaultShare: TokenDefinition,
+    stakingPoolAddress?: string
+  ): {
+    netVaultSharesForUnderlying: TokenBalance;
+    feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
+  } {
+    if (netUnderlying.isNegative()) {
+      return this.getRedeemVaultShares(
+        netUnderlying,
+        vaultShare,
+        stakingPoolAddress
+      );
+    }
+
     let netVaultSharesForUnderlying = netUnderlying.toToken(vaultShare);
     const vaultTradeMetadata: VaultTradeMetadata[] = [];
 
@@ -104,7 +138,8 @@ export class Staking extends VaultAdapter {
     if (this.stakingToken.id !== this.yieldToken.id) {
       const tradeMetadata = this.getVaultTradeMetadata(
         netUnderlying.toToken(this.stakingToken),
-        this.yieldToken
+        this.yieldToken,
+        stakingPoolAddress
       );
       vaultTradeMetadata.push(tradeMetadata);
       netVaultSharesForUnderlying =
