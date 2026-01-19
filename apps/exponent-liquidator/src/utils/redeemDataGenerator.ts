@@ -77,6 +77,15 @@ export async function generateRedeemData(
         tokenPrices
       );
 
+    case VaultType.MidasStaking:
+      return generateMidasStakingRedeemData(
+        vaultConfig,
+        isWithdrawRequestPending,
+        yieldTokenAmount,
+        primaryWithdrawTokenAmount,
+        tokenPrices
+      );
+
     case VaultType.PendlePT:
       return await generatePendlePTRedeemData(
         vaultConfig,
@@ -172,6 +181,108 @@ export function generateStakingRedeemData(
   );
 
   return redeemParams;
+}
+
+export function generateMidasStakingRedeemData(
+  vaultConfig: VaultConfig,
+  isWithdrawRequestPending: boolean,
+  yieldTokenAmount: ethers.BigNumber | undefined,
+  primaryWithdrawTokenAmount: ethers.BigNumber | undefined,
+  tokenPrices: Map<string, TokenPrice>
+): string {
+  let minPurchaseAmount: ethers.BigNumber;
+
+  if (!isWithdrawRequestPending) {
+    if (!yieldTokenAmount) {
+      throw new Error(
+        `Yield token amount is required when not withdrawing for vault: ${vaultConfig.address}`
+      );
+    }
+
+    // Calculate minPurchaseAmount once for both paths
+    minPurchaseAmount = calculateMinPurchaseAmount(
+      vaultConfig.yieldToken,
+      vaultConfig.asset,
+      vaultConfig.slippageLimit || 0,
+      yieldTokenAmount,
+      tokenPrices
+    );
+
+    // Check if vaultAssetEqualsWithdrawToken flag is set
+    if (vaultConfig.vaultAssetEqualsWithdrawToken) {
+      // For vaults where vault asset == withdraw token, use simple encoding
+      // Encode as (uint256 minReceiveAmount)
+      const redeemData = ethers.utils.defaultAbiCoder.encode(
+        ['uint256'],
+        [minPurchaseAmount]
+      );
+
+      return redeemData;
+    } else {
+      // For vaults where vault asset != withdraw token, use the standard staking approach
+      const dexId = vaultConfig.dexId;
+      if (dexId === undefined) {
+        throw new Error(`DexId not found for vault: ${vaultConfig.address}`);
+      }
+
+      const exchangeData = vaultConfig.redeemExchangeData;
+      if (!exchangeData) {
+        throw new Error(
+          `Exchange data not found for vault: ${vaultConfig.address}`
+        );
+      }
+
+      // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
+      const redeemParams = ethers.utils.defaultAbiCoder.encode(
+        ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
+        [{ dexId, minPurchaseAmount, exchangeData }]
+      );
+
+      return redeemParams;
+    }
+  } else {
+    // Handle withdraw request pending case
+    if (!primaryWithdrawTokenAmount) {
+      throw new Error(
+        `Primary withdraw token amount not found for vault: ${vaultConfig.address}`
+      );
+    }
+
+    // Calculate minPurchaseAmount once for both paths
+    minPurchaseAmount = calculateMinPurchaseAmount(
+      vaultConfig.primaryWithdrawToken,
+      vaultConfig.asset,
+      vaultConfig.slippageLimit || 0,
+      primaryWithdrawTokenAmount,
+      tokenPrices
+    );
+
+    // Check if vaultAssetEqualsWithdrawToken flag is set
+    if (vaultConfig.vaultAssetEqualsWithdrawToken) {
+      return '0x';
+    } else {
+      // For vaults where vault asset != withdraw token, use standard staking approach
+      const dexId = vaultConfig.dexId;
+      if (dexId === undefined) {
+        throw new Error(`DexId not found for vault: ${vaultConfig.address}`);
+      }
+
+      const exchangeData = vaultConfig.withdrawExchangeData;
+      if (!exchangeData) {
+        throw new Error(
+          `Exchange data not found for vault: ${vaultConfig.address}, isWithdrawRequest: ${isWithdrawRequestPending}`
+        );
+      }
+
+      // Encode RedeemParams struct: (uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)
+      const redeemParams = ethers.utils.defaultAbiCoder.encode(
+        ['tuple(uint8 dexId, uint256 minPurchaseAmount, bytes exchangeData)'],
+        [{ dexId, minPurchaseAmount, exchangeData }]
+      );
+
+      return redeemParams;
+    }
+  }
 }
 
 export async function generatePendlePTRedeemData(

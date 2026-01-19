@@ -213,7 +213,10 @@ export class VaultRegistry {
     const enrichedVaultConfigs = vaultAddresses.map((vaultAddress, i) => {
       const config = vaultConfigs[i];
 
-      if (config.vaultType === VaultType.Staking) {
+      if (
+        config.vaultType === VaultType.Staking ||
+        config.vaultType === VaultType.MidasStaking
+      ) {
         return {
           ...config,
           primaryWrm: results2[`${vaultAddress}.primaryWrm`] as string,
@@ -254,7 +257,10 @@ export class VaultRegistry {
       (vaultAddress, i) => {
         const config = enrichedVaultConfigs[i];
 
-        if (config.vaultType === VaultType.Staking) {
+        if (
+          config.vaultType === VaultType.Staking ||
+          config.vaultType === VaultType.MidasStaking
+        ) {
           const wrmContract = WithdrawRequestManager__factory.connect(
             config.primaryWrm!,
             this.provider
@@ -307,7 +313,10 @@ export class VaultRegistry {
     const enrichedVaultConfigs2 = vaultAddresses.map((vaultAddress, i) => {
       const config = enrichedVaultConfigs[i];
 
-      if (config.vaultType === VaultType.Staking) {
+      if (
+        config.vaultType === VaultType.Staking ||
+        config.vaultType === VaultType.MidasStaking
+      ) {
         return {
           ...config,
           primaryWithdrawToken: results3[
@@ -448,6 +457,8 @@ export class VaultRegistry {
       liquidateYieldTokens: liquidationSettings.liquidateYieldTokens,
       slippageLimit: liquidationSettings.slippageLimit,
       ptSlippageLimit: liquidationSettings.ptSlippageLimit,
+      vaultAssetEqualsWithdrawToken:
+        liquidationSettings.vaultAssetEqualsWithdrawToken,
     };
   }
 }
