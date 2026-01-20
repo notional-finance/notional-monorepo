@@ -71,7 +71,7 @@ function groupIntoTransactions(
   const model = getNetworkModel(network);
   const grouped = groupArrayByKey(lineItems, (i) => i.transactionHash)
     .map((g) => {
-      const transactionType =
+      let transactionType =
         g.find(
           (i) =>
             i.lineItemType !== 'Rewards Claimed' &&
@@ -96,6 +96,15 @@ function groupIntoTransactions(
           g.find((i) => i.lineItemLabel === 'Repay Vault Debt')
             ?.underlyingAmountRealized || zero;
         amountToFromWallet = sharesValue.sub(borrowValue);
+      }
+
+      // If the amountToFromWallet is marginal then the transaction type is "adjust leverage"
+      if (
+        amountToFromWallet?.isZero() &&
+        (transactionType === 'EnterPosition' ||
+          transactionType === 'ExitPosition')
+      ) {
+        transactionType = 'Adjust Leverage';
       }
 
       return {
@@ -203,7 +212,8 @@ function parseLineItem(
           ),
         },
         {
-          key: 'Entry Price',
+          key:
+            p.lineItemType === 'EnterPosition' ? 'Entry Price' : 'Exit Price',
           value: realizedPrice.toDisplayStringWithSymbol(4, true, false),
         },
         {
@@ -242,7 +252,8 @@ function parseLineItem(
           ),
         },
         {
-          key: 'Entry Price',
+          key:
+            p.lineItemType === 'EnterPosition' ? 'Entry Price' : 'Exit Price',
           value: realizedPrice.toDisplayStringWithSymbol(4, true, false),
         },
         {
