@@ -119,6 +119,14 @@ export abstract class VaultAdapter {
     vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData;
 
+  getPendingWithdrawAPY(): APYData {
+    return {
+      totalAPY: 0,
+      assetAPY: 0,
+      feeAPY: 0,
+    };
+  }
+
   getAdditionalAccruedInterest(
     _statement: BalanceStatementReturnType
   ): TokenBalance {

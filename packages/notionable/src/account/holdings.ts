@@ -51,7 +51,7 @@ export function calculateVaultHoldings(
       debtPnL?.totalProfitAndLoss || zeroDenom
     );
     const vaultYield = v.hasPendingWithdraw
-      ? { totalAPY: 0, feeAPY: 0, assetAPY: 0 }
+      ? v.vaultAdapter.getPendingWithdrawAPY()
       : model.getSpotAPY(v.vaultShares.tokenId);
     const debtAPY = model.getSpotAPY(v.vaultDebt.tokenId).totalAPY || 0;
     const assetInterestAccrual = assetPnL?.totalInterestAccrual || zeroDenom;
