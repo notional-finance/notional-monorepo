@@ -287,14 +287,15 @@ export class PendlePT extends VaultAdapter {
     return vaultTradeMetadata;
   }
 
-  getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  getVaultShareExitToUnderlying(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
   } {
     // This is only called on maxWithdraw from a vault
     if (netVaultShares.isPositive())
       throw Error(
-        'getNetVaultSharesCost should not be called with a positive netVaultShares'
+        'getVaultShareExitToUnderlying should not be called with a positive netVaultShares'
       );
 
     const ptTokens = TokenBalance.from(
@@ -326,6 +327,7 @@ export class PendlePT extends VaultAdapter {
       feesPaid: tradingFeesPaid.add(
         this.market.convertSyToAsset(feesPaid[0]).toToken(tradingFeesPaid.token)
       ),
+      vaultTradeMetadata: tradeMetadata,
     };
   }
 
@@ -675,7 +677,7 @@ export class PendlePT extends VaultAdapter {
       ({ dexId, redeemExchangeData: exchangeData } =
         VaultDefaultDexParameters[this.network][this.vaultAddress]);
 
-      const minTradedPurchaseAmount = this.getNetVaultSharesCost(
+      const minTradedPurchaseAmount = this.getVaultShareExitToUnderlying(
         vaultSharesToRedeem.neg()
       ).netUnderlyingForVaultShares.mulInRatePrecision(
         RATE_PRECISION - slippageFactor

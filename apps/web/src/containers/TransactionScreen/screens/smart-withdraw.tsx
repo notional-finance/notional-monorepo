@@ -19,9 +19,8 @@ export const VaultSmartWithdraw = observer(() => {
         <Body main inline>
           Smart withdraw redeems your staked tokens from the project that issued
           them. Once you initiate smart withdrawal, your leveraged position is
-          locked until your redemption finalizes and you stop earning yield.
-          Once your redemption finalizes and you receive the unstaked tokens,
-          you can repay your debt and exit.{' '}
+          locked until your redemption finalizes. Once your redemption finalizes
+          and you receive the unstaked tokens, you can repay your debt and exit.{' '}
           <LinkText
             inline
             href="https://docs.notional.finance/exponent/overview/smart-withdrawal"
@@ -47,10 +46,14 @@ export const VaultPendingWithdraw = observer(() => {
         <Body main inline>
           Smart withdraw redeems your staked tokens from the project that issued
           them. Once you initiate smart withdrawal, your leveraged position is
-          locked until your redemption finalizes and you stop earning yield.
-          Once your redemption finalizes and you receive the unstaked tokens,
-          you can repay your debt and exit.{' '}
-          <LinkText inline>Read more</LinkText>
+          locked until your redemption finalizes. Once your redemption finalizes
+          and you receive the unstaked tokens, you can repay your debt and exit.{' '}
+          <LinkText
+            inline
+            href="https://docs.notional.finance/exponent/overview/smart-withdrawal"
+          >
+            Read more
+          </LinkText>
         </Body>,
         <img src={SmartWithdrawInfo} alt="Smart Withdraw" />,
       ]}

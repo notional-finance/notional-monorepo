@@ -36,9 +36,10 @@ export abstract class VaultAdapter {
    * Returns the underlying received when redeeming a negative amount of vault shares
    * @returns netUnderlyingForVaultShares and feesPaid
    */
-  abstract getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  abstract getVaultShareExitToUnderlying(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
   };
 
   /**

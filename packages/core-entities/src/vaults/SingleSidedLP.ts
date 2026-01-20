@@ -330,7 +330,7 @@ export class SingleSidedLP extends VaultAdapter {
     }
   }
 
-  getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  getVaultShareExitToUnderlying(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
