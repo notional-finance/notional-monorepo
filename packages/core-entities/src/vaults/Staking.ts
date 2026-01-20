@@ -164,8 +164,7 @@ export class Staking extends VaultAdapter {
     );
     return [
       {
-        estimatedWithdrawTime:
-          withdrawManager[0].estimatedWithdrawTimeInSeconds,
+        estimatedWithdrawTime: withdrawManager[0].estimatedWithdrawTime,
         yieldTokensRedeemed,
         withdrawTokensToReceive,
       },
@@ -300,7 +299,7 @@ export class Staking extends VaultAdapter {
   }
 
   override getLiquidationPriceTokens(): TokenDefinition[] {
-    return [this.stakingToken];
+    return [this.yieldToken];
   }
 
   override getAdditionalAccruedInterest(

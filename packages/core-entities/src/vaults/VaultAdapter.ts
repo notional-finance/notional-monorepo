@@ -79,7 +79,7 @@ export abstract class VaultAdapter {
   ): Promise<BytesLike>;
 
   abstract simulateWithdraw(vaultSharesToRedeem: TokenBalance): {
-    estimatedWithdrawTime: number | undefined;
+    estimatedWithdrawTime: string | undefined;
     yieldTokensRedeemed: TokenBalance;
     withdrawTokensToReceive: TokenBalance;
   }[];
@@ -118,6 +118,14 @@ export abstract class VaultAdapter {
     netAmount: TokenBalance,
     vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData;
+
+  getPendingWithdrawAPY(): APYData {
+    return {
+      totalAPY: 0,
+      assetAPY: 0,
+      feeAPY: 0,
+    };
+  }
 
   getAdditionalAccruedInterest(
     _statement: BalanceStatementReturnType

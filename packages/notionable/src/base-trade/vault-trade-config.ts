@@ -225,6 +225,9 @@ export const VaultTradeConfiguration = {
     },
     requiredArgs: [],
     transactionBuilder: () => Promise.reject(new Error('Not implemented')),
+    debtFilter: (t, a, s) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
   } as TransactionConfig,
   InitiateWithdraw: {
     calculationFn: calculateWithdraw,

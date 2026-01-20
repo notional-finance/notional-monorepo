@@ -16,11 +16,11 @@ interface WithdrawStrategy {
     context: WithdrawContext
   ): Promise<BytesLike>;
 
-  estimatedWithdrawTimeInSeconds?: number;
+  estimatedWithdrawTime?: string;
 }
 
 class DefaultWithdrawStrategy implements WithdrawStrategy {
-  constructor(public estimatedWithdrawTimeInSeconds?: number) {}
+  constructor(public estimatedWithdrawTime?: string) {}
 
   async getWithdrawParameters(
     _account: string,
@@ -44,15 +44,15 @@ export class WithdrawManager {
     this.strategy = this.createStrategy();
   }
 
-  get estimatedWithdrawTimeInSeconds(): number | undefined {
-    return this.strategy.estimatedWithdrawTimeInSeconds;
+  get estimatedWithdrawTime(): string | undefined {
+    return this.strategy.estimatedWithdrawTime;
   }
 
   private createStrategy(): WithdrawStrategy {
     if (this.yieldToken.symbol === 'sUSDe') {
-      return new DefaultWithdrawStrategy(7 * SECONDS_IN_DAY);
+      return new DefaultWithdrawStrategy('7 days');
     } else if (this.strategyType === 'MidasStaking') {
-      return new DefaultWithdrawStrategy(7 * SECONDS_IN_DAY);
+      return new DefaultWithdrawStrategy('within 3 business days');
     }
     // Can switch on yield token here to return different strategies
     return new DefaultWithdrawStrategy();
