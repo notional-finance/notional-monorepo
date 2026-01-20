@@ -972,7 +972,7 @@ export const TradeModel = types
       if (holdings && self.tradeType === 'InitiateWithdraw') {
         // Clear all the asset APY for a withdraw
         updatedAPY = createLeveragedAPYData(
-          {
+          priorVaultRisk?.vaultAdapter.getPendingWithdrawAPY() || {
             totalAPY: 0,
             assetAPY: 0,
             organicAPY: 0,
