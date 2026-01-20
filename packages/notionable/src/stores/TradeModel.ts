@@ -223,7 +223,7 @@ export const TradeModel = types
     simulatedWithdraws: types.maybe(
       types.array(
         types.model({
-          estimatedWithdrawTime: types.maybe(types.number),
+          estimatedWithdrawTime: types.maybe(types.string),
           yieldTokensRedeemed: NotionalTypes.TokenBalance,
           withdrawTokensToReceive: NotionalTypes.TokenBalance,
         })

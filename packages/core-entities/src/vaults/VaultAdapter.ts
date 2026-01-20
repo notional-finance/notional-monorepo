@@ -79,7 +79,7 @@ export abstract class VaultAdapter {
   ): Promise<BytesLike>;
 
   abstract simulateWithdraw(vaultSharesToRedeem: TokenBalance): {
-    estimatedWithdrawTime: number | undefined;
+    estimatedWithdrawTime: string | undefined;
     yieldTokensRedeemed: TokenBalance;
     withdrawTokensToReceive: TokenBalance;
   }[];

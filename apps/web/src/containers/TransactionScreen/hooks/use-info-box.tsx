@@ -36,7 +36,6 @@ import {
 } from '@notional-finance/util';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
-import moment from 'moment';
 import { TokenIcon } from '@notional-finance/icons';
 
 interface LabelValueSectionProps {
@@ -508,9 +507,7 @@ const useWithdrawDetails = () => {
     if (withdraw.estimatedWithdrawTime) {
       items.push({
         label: 'Estimated Redemption Time',
-        content: moment
-          .duration(withdraw.estimatedWithdrawTime, 'seconds')
-          .humanize(),
+        content: withdraw.estimatedWithdrawTime,
       });
     }
 

@@ -82,7 +82,7 @@ const VaultHoldingModel = types.model('VaultHoldingModel', {
   debtEntryPrice: types.maybe(NotionalTypes.TokenBalance),
   assetAmountPaid: NotionalTypes.TokenBalance,
   debtAmountPaid: NotionalTypes.TokenBalance,
-  estimatedWithdrawTimeInSeconds: types.maybe(types.number),
+  estimatedWithdrawTime: types.maybe(types.string),
   vaultMetadata: types.model({
     rewardClaims: types.optional(types.array(NotionalTypes.TokenBalance), []),
     strategyType: types.string,

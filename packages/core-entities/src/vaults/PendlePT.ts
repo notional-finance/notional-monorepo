@@ -502,8 +502,7 @@ export class PendlePT extends VaultAdapter {
     );
     return [
       {
-        estimatedWithdrawTime:
-          withdrawManager[0].estimatedWithdrawTimeInSeconds,
+        estimatedWithdrawTime: withdrawManager[0].estimatedWithdrawTime,
         yieldTokensRedeemed,
         withdrawTokensToReceive,
       },
