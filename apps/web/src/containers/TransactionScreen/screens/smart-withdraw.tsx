@@ -22,7 +22,12 @@ export const VaultSmartWithdraw = observer(() => {
           locked until your redemption finalizes and you stop earning yield.
           Once your redemption finalizes and you receive the unstaked tokens,
           you can repay your debt and exit.{' '}
-          <LinkText inline>Read more</LinkText>
+          <LinkText
+            inline
+            href="https://docs.notional.finance/exponent/overview/smart-withdrawal"
+          >
+            Read more
+          </LinkText>
         </Body>,
         <img src={SmartWithdrawInfo} alt="Smart Withdraw" />,
       ]}
