@@ -26,7 +26,7 @@ const vaultRiskTableColumns = (theme: NotionalTheme) => [
         description={'column header'}
       />
     ),
-    cell: MultiValueIconCell,
+    cell: DisplayCell,
     expandableTable: true,
     accessorKey: 'exchangeRate',
     textAlign: 'left',

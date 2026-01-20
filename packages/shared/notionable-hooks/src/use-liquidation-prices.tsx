@@ -37,37 +37,30 @@ function parseUnderlyingLiquidationPrice(
   secondary: string,
   debt?: TokenDefinition
 ) {
-  const { icon, titleWithMaturity } = formatTokenType(asset);
+  const { titleWithMaturity } = formatTokenType(asset);
   const liquidationPrice = debt
     ? threshold?.toToken(debt).toDisplayStringWithSymbol(4, false)
     : threshold?.toUnderlying().toDisplayStringWithSymbol(4, false);
   const currentPrice =
     debt && threshold
-      ? TokenBalance.unit(threshold.token)
+      ? TokenBalance.unit(asset)
           .toToken(debt)
-          .toDisplayStringWithSymbol(4, false)
-      : threshold
-      ? TokenBalance.unit(threshold.token)
-          .toUnderlying()
           .toDisplayStringWithSymbol(4, false)
       : '';
 
   return {
     // Used on portfolio screen
-    exchangeRate: {
-      symbol: icon,
-      label: (
-        <span>
-          {titleWithMaturity}
-          <span style={{ color: secondary }}>
-            &nbsp;/&nbsp;
-            {shortenTokenSymbol(
-              debt?.symbol || threshold?.underlying.symbol || ''
-            )}
-          </span>
+    exchangeRate: (
+      <span>
+        {titleWithMaturity}
+        <span style={{ color: secondary }}>
+          &nbsp;/&nbsp;
+          {shortenTokenSymbol(
+            debt?.symbol || threshold?.underlying.symbol || ''
+          )}
         </span>
-      ),
-    },
+      </span>
+    ),
     currentPrice,
     oneDayChange: oneDay?.underlyingChange
       ? formatNumberAsPercent(oneDay.underlyingChange)

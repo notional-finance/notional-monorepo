@@ -2,18 +2,13 @@ import { observer } from 'mobx-react-lite';
 import { Box, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
-
 import { TokenIcon } from '@notional-finance/icons';
-import {
-  formatHealthFactorValues,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { formatHealthFactorValues } from '@notional-finance/notionable-hooks';
 import { Body, Button, H4, LabelValue } from '@notional-finance/mui';
 import { useVaultRiskTable } from '../../../hooks';
 
 const VaultTab = () => {
   const theme = useTheme();
-  const network = useSelectedNetwork();
   const { riskTableData } = useVaultRiskTable();
 
   return (
@@ -49,13 +44,7 @@ const VaultTab = () => {
               </Body>
 
               <Row sx={{ width: 'fit-content', gap: 1 }}>
-                <TokenIcon
-                  symbol={item.exchangeRate.symbol}
-                  network={network}
-                  size={'small'}
-                  style={{ display: 'flex' }}
-                />
-                <LabelValue>{item.exchangeRate.label}</LabelValue>
+                <LabelValue>{item.exchangeRate}</LabelValue>
               </Row>
             </Row>
 

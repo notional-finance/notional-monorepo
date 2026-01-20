@@ -299,7 +299,7 @@ export class Staking extends VaultAdapter {
   }
 
   override getLiquidationPriceTokens(): TokenDefinition[] {
-    return [this.stakingToken];
+    return [this.yieldToken];
   }
 
   override getAdditionalAccruedInterest(
