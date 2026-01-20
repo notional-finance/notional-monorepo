@@ -19,6 +19,52 @@ export class MidasStaking extends Staking {
     };
   }
 
+  override getVaultShareExitToUnderlying(netVaultShares: TokenBalance): {
+    netUnderlyingForVaultShares: TokenBalance;
+    feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
+  } {
+    const defaultDex =
+      VaultDefaultDexParameters[this.network][this.vaultAddress];
+    return super.getVaultShareExitToUnderlying(
+      netVaultShares,
+      defaultDex.depositPoolAddress
+    );
+  }
+
+  override getRedeemVaultShares(
+    netUnderlying: TokenBalance,
+    vaultShare: TokenDefinition,
+    stakingPoolAddress?: string
+  ): {
+    netVaultSharesForUnderlying: TokenBalance;
+    feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
+  } {
+    if (!stakingPoolAddress)
+      throw new Error('Staking pool address is required');
+    const midasPool = getNetworkModel(this.network).getPoolInstance(
+      stakingPoolAddress
+    ) as MidasPool;
+    // Increase the amount of underlying required to account for the instant redeem fee
+    const yieldTokens = netUnderlying
+      .neg()
+      .scale(midasPool.poolParams.instantRedeemFee.add(10000), 10000)
+      .toToken(this.yieldToken);
+
+    const tradeMetadata = this.getVaultTradeMetadata(
+      yieldTokens,
+      this.borrowedToken,
+      stakingPoolAddress
+    );
+
+    return {
+      feesPaid: netUnderlying.copy(0),
+      netVaultSharesForUnderlying: yieldTokens.neg().toToken(vaultShare),
+      vaultTradeMetadata: [tradeMetadata],
+    };
+  }
+
   override getNetVaultSharesMinted(
     netUnderlying: TokenBalance,
     vaultShare: TokenDefinition

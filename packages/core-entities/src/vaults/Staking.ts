@@ -63,16 +63,23 @@ export class Staking extends VaultAdapter {
     return [this.stakingToken.id].join(':');
   }
 
-  override getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  override getVaultShareExitToUnderlying(
+    netVaultShares: TokenBalance,
+    stakingPoolAddress?: string
+  ): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
+    vaultTradeMetadata?: VaultTradeMetadata[];
   } {
-    const netUnderlyingForVaultShares = netVaultShares
-      .toToken(this.borrowedToken)
-      .neg();
+    const tradeMetadata = this.getVaultTradeMetadata(
+      netVaultShares.neg().toToken(this.yieldToken),
+      this.borrowedToken,
+      stakingPoolAddress
+    );
     return {
-      netUnderlyingForVaultShares: netUnderlyingForVaultShares,
-      feesPaid: netUnderlyingForVaultShares.copy(0),
+      netUnderlyingForVaultShares: tradeMetadata.tokensBought,
+      feesPaid: tradeMetadata.feesPaid || TokenBalance.zero(this.borrowedToken),
+      vaultTradeMetadata: tradeMetadata ? [tradeMetadata] : [],
     };
   }
 
