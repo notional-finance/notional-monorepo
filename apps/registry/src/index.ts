@@ -3,6 +3,7 @@ import { NetworkServerModel } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 import { putStorageKey } from './registry-helpers';
 import { refreshViews } from './views-helpers';
+import { destroy } from 'mobx-state-tree';
 
 export interface BaseDOEnv {
   NX_COMMIT_REF: string | undefined;
@@ -22,10 +23,17 @@ async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
   }
 
   const networkModel = NetworkServerModel.create({ network });
-  networkModel.initialize(async (data: string) => {
-    await putStorageKey(env, `${network}/v4/snapshot`, data);
-  }, env);
-  await networkModel.refresh(true);
+  try {
+    networkModel.initialize(async (data: string) => {
+      await putStorageKey(env, `${network}/v4/snapshot`, data);
+    }, env);
+    console.log('Refreshing snapshot for', network);
+    await networkModel.refresh(true);
+    console.log('Refreshed snapshot for', network);
+  } finally {
+    networkModel.cleanup();
+    destroy(networkModel);
+  }
 }
 
 export default {
