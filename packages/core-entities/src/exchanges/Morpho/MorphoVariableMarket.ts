@@ -6,6 +6,7 @@ import {
   getProviderFromNetwork,
   MorphoRouter,
   Network,
+  NetworkId,
   SCALAR_DECIMALS,
   SCALAR_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
@@ -18,8 +19,107 @@ import {
   MorphoABI,
   MorphoAdaptiveIRMABI,
 } from '@notional-finance/contracts';
+import {
+  ApolloClient,
+  gql,
+  HttpLink,
+  InMemoryCache,
+} from '@apollo/client/core';
 
-interface MorphoVariableMarketParams {
+const MorphoLiquidityQuery = gql`
+  query MarketByUniqueKey($uniqueKey: String!, $chainId: Int) {
+    marketByUniqueKey(uniqueKey: $uniqueKey, chainId: $chainId) {
+      reallocatableLiquidityAssets
+      state {
+        liquidityAssets
+      }
+      loanAsset {
+        address
+      }
+      publicAllocatorSharedLiquidity {
+        assets
+        vault {
+          address
+        }
+        withdrawMarket {
+          uniqueKey
+          loanAsset {
+            address
+          }
+          collateralAsset {
+            address
+          }
+          oracle {
+            address
+          }
+          irmAddress
+          lltv
+          state {
+            supplyApy
+          }
+        }
+      }
+    }
+  }
+`;
+interface MorphoLiquidityQueryResult {
+  marketByUniqueKey: {
+    reallocatableLiquidityAssets: TokenBalance;
+    state: {
+      liquidityAssets: string;
+    };
+    loanAsset: {
+      address: string;
+    };
+    publicAllocatorSharedLiquidity: {
+      assets: string;
+      vault: {
+        address: string;
+      };
+      withdrawMarket: {
+        uniqueKey: string;
+        loanAsset: {
+          address: string;
+        };
+        collateralAsset: {
+          address: string;
+        };
+        oracle: {
+          address: string;
+        };
+        irmAddress: string;
+        lltv: string;
+        state: {
+          supplyApy: number;
+        };
+      };
+    }[];
+  };
+}
+
+interface MorphoPublicAllocatorSharedLiquidity {
+  // Liquidity that can be reallocated from other markets (including the flow caps)
+  reallocatableLiquidityAssets: TokenBalance;
+  sharedLiquidity: {
+    // Liquidity that can be reallocated to this market from this vault / market combination
+    assets: TokenBalance;
+    morphoVault: string;
+    withdrawMarket: {
+      uniqueKey: string;
+      marketParams: {
+        loanToken: string;
+        collateralToken: string;
+        oracle: string;
+        irm: string;
+        lltv: BigNumber;
+      };
+      supplyApy: number;
+    };
+  }[];
+}
+interface MorphoVariableMarketParams
+  extends MorphoPublicAllocatorSharedLiquidity {
+  marketKey: string;
   marketParams: {
     loanToken: string;
     collateralToken: string;
@@ -58,6 +158,13 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
         method: 'idToMarketParams',
         key: 'marketParams',
         args: [marketId],
+      },
+      {
+        target: 'NO_OP',
+        method: 'NO_OP',
+        key: 'marketKey',
+        args: [],
+        transform: () => marketId,
       },
       {
         stage: 0,
@@ -123,6 +230,60 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
     ];
 
     return calls;
+  }
+
+  public static override async getPoolParamsOffChain(
+    network: Network,
+    marketId: string
+  ): Promise<Record<string, unknown>> {
+    const client = new ApolloClient({
+      link: new HttpLink({
+        uri: 'https://api.morpho.org/graphql',
+      }),
+      cache: new InMemoryCache(),
+    });
+    const { data, errors } = await client.query<MorphoLiquidityQueryResult>({
+      query: MorphoLiquidityQuery,
+      variables: {
+        uniqueKey: marketId,
+        chainId: NetworkId[network],
+      },
+    });
+
+    if (errors) throw new Error(errors[0].message);
+
+    const reallocatableLiquidityAssets = TokenBalance.toJSON(
+      BigNumber.from(data.marketByUniqueKey.reallocatableLiquidityAssets),
+      data.marketByUniqueKey.loanAsset.address,
+      network
+    );
+    const sharedLiquidity =
+      data.marketByUniqueKey.publicAllocatorSharedLiquidity.map((s) => {
+        return {
+          assets: TokenBalance.toJSON(
+            BigNumber.from(s.assets),
+            s.withdrawMarket.loanAsset.address,
+            network
+          ),
+          morphoVault: s.vault.address,
+          withdrawMarket: {
+            uniqueKey: s.withdrawMarket.uniqueKey,
+            marketParams: {
+              loanToken: s.withdrawMarket.loanAsset.address,
+              collateralToken: s.withdrawMarket.collateralAsset.address,
+              oracle: s.withdrawMarket.oracle.address,
+              irm: s.withdrawMarket.irmAddress,
+              lltv: BigNumber.from(s.withdrawMarket.lltv),
+            },
+            supplyApy: s.withdrawMarket.state.supplyApy,
+          },
+        };
+      });
+
+    return {
+      reallocatableLiquidityAssets,
+      sharedLiquidity,
+    };
   }
 
   public getSpotInterestRate(): number {
