@@ -49,6 +49,8 @@ export async function syncDune() {
           Body: JSON.stringify(await query_result.json()),
         })
       );
+    } else {
+      return false;
     }
   }
 }

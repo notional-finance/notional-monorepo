@@ -2,7 +2,8 @@
 set -e
 
 # Cron jobs to deploy, format is "Description|URL|Schedule"
-cron_jobs="Sync_Generic_Data|/syncGenericData|0 * * * *
+cron_jobs="Sync_Dune|/syncDune|0 * * * *
+Sync_Generic_Data|/syncGenericData|0 * * * *
 Sync_Oracle_Data|/syncOracleData|0 * * * *"
 
 # Set the base URI as an environment variable
