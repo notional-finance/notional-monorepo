@@ -296,9 +296,10 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
 
   protected getMinReallocateAmount() {
     return new TokenBalance(
-      BigNumber.from(1_000e8), // 1000 USD
+      // BigNumber.from(1_000e6), // 1000 USD
+      BigNumber.from(1e6), // 1 USD
       'USD',
-      Network.mainnet
+      Network.all
     );
   }
 
@@ -353,8 +354,11 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
           this.poolParams.reallocatableLiquidityAssets
         )
       ) {
+        // Cap this at the reallocatable liquidity assets
         amountToReallocateToKink = this.poolParams.reallocatableLiquidityAssets;
-      } else if (
+      }
+
+      if (
         amountToReallocateToKink.toFiat('USD').lt(this.getMinReallocateAmount())
       ) {
         // Don't reallocate if we are below the minium reallocate amount
@@ -440,6 +444,11 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
     const { totalReallocated, allocations } = this.getActualReallocated(
       amountToReallocateToKink
     );
+    console.log(
+      'amountToReallocateToKink',
+      amountToReallocateToKink.toExactString()
+    );
+    console.log('totalReallocated', totalReallocated.toExactString());
     const finalSupplyAssets = totalSupplyAssets.add(totalReallocated);
 
     return {
