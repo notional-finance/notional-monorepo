@@ -25,6 +25,7 @@ import {
   HttpLink,
   InMemoryCache,
 } from '@apollo/client/core';
+import { MorphoAllocationStruct } from '@notional-finance/contracts/types/MorphoLendingRouter';
 
 const MorphoLiquidityQuery = gql`
   query MarketByUniqueKey($uniqueKey: String!, $chainId: Int) {
@@ -137,6 +138,9 @@ interface MorphoVariableMarketParams
 }
 
 const ADAPTIVE_IRM = '0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC';
+
+const MARKET_PARAMS_TYPE = `tuple(address loanToken, address collateralToken, address oracle, address irm, uint256 lltv)`;
+const ALLOCATION_DATA_TYPE = `tuple(address vault, uint256 feeAmount, tuple(${MARKET_PARAMS_TYPE}, uint128 amount)[] withdrawals)`;
 
 export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVariableMarketParams> {
   public static override getInitData(
@@ -290,6 +294,166 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
     return this.getInterestRate(this.getUtilization());
   }
 
+  protected getMinReallocateAmount() {
+    return new TokenBalance(
+      BigNumber.from(1_000e8), // 1000 USD
+      'USD',
+      Network.mainnet
+    );
+  }
+
+  protected calculateUtilization(
+    totalSupplyAssets: TokenBalance,
+    totalBorrowAssets: TokenBalance
+  ) {
+    // Utilization is in 1e18 precision
+    return totalSupplyAssets.isZero()
+      ? BigNumber.from(0)
+      : totalBorrowAssets
+          .scaleTo(SCALAR_DECIMALS)
+          .mul(SCALAR_PRECISION)
+          .div(totalSupplyAssets.scaleTo(SCALAR_DECIMALS));
+  }
+
+  private getInitialReallocateLiquidityAmount(
+    netSupply: TokenBalance | undefined,
+    netBorrow: TokenBalance | undefined,
+    targetUtilization: BigNumber
+  ) {
+    const totalSupplyAssets = netSupply
+      ? this.poolParams.marketState.totalSupplyAssets.add(netSupply)
+      : this.poolParams.marketState.totalSupplyAssets;
+    const totalBorrowAssets = netBorrow
+      ? this.poolParams.marketState.totalBorrowAssets.add(
+          netBorrow.toUnderlying()
+        )
+      : this.poolParams.marketState.totalBorrowAssets;
+    let amountToReallocateToKink = totalSupplyAssets.copy(0);
+
+    const initialUtilization = this.calculateUtilization(
+      totalSupplyAssets,
+      totalBorrowAssets
+    );
+
+    if (
+      initialUtilization.gt(targetUtilization) &&
+      netBorrow?.isPositive() &&
+      this.poolParams.reallocatableLiquidityAssets.isPositive()
+    ) {
+      // Simulate reallocating more liquidity from the reallocatable liquidity assets to this market
+      // totalMarketBorrow + netBorrowAmount = TARGET_UTILIZATION * (totalMarketSupply + reallocateAmount)
+      // totalMarketBorrow + newBorrowAmount - TARGET_UTILIZATION * totalMarketSupply = TARGET_UTILIZATION * reallocateAmount
+      // (totalMarketBorrow + newBorrowAmount - TARGET_UTILIZATION * totalMarketSupply) / TARGET_UTILIZATION = reallocateAmount
+      amountToReallocateToKink = totalBorrowAssets
+        .sub(totalSupplyAssets.scale(targetUtilization, SCALAR_PRECISION))
+        .scale(SCALAR_PRECISION, targetUtilization);
+
+      if (
+        amountToReallocateToKink.gt(
+          this.poolParams.reallocatableLiquidityAssets
+        )
+      ) {
+        amountToReallocateToKink = this.poolParams.reallocatableLiquidityAssets;
+      } else if (
+        amountToReallocateToKink.toFiat('USD').lt(this.getMinReallocateAmount())
+      ) {
+        // Don't reallocate if we are below the minium reallocate amount
+        amountToReallocateToKink = totalSupplyAssets.copy(0);
+      }
+    }
+
+    return {
+      totalSupplyAssets,
+      totalBorrowAssets,
+      amountToReallocateToKink,
+      utilization: this.calculateUtilization(
+        totalSupplyAssets,
+        totalBorrowAssets
+      ),
+    };
+  }
+
+  private getActualReallocated(amountToReallocateToKink: TokenBalance): {
+    totalReallocated: TokenBalance;
+    allocations: MorphoAllocationStruct[] | undefined;
+  } {
+    if (amountToReallocateToKink.isZero()) {
+      return {
+        totalReallocated: amountToReallocateToKink,
+        allocations: undefined,
+      };
+    }
+
+    const sharedLiquidity = this.poolParams.sharedLiquidity.sort(
+      // Sort by lowest supply APY first
+      (a, b) => a.withdrawMarket.supplyApy - b.withdrawMarket.supplyApy
+    );
+
+    let allocationRequired = amountToReallocateToKink;
+    const allocations: MorphoAllocationStruct[] = [];
+    for (const s of sharedLiquidity) {
+      if (s.assets.gte(allocationRequired)) {
+        allocations.push({
+          vault: s.morphoVault,
+          feeAmount: 0,
+          withdrawals: [
+            {
+              marketParams: s.withdrawMarket.marketParams,
+              amount: allocationRequired.n,
+            },
+          ],
+        });
+        allocationRequired = allocationRequired.copy(0);
+        break;
+      } else if (s.assets.lt(allocationRequired)) {
+        allocations.push({
+          vault: s.morphoVault,
+          feeAmount: 0,
+          withdrawals: [
+            {
+              marketParams: s.withdrawMarket.marketParams,
+              amount: s.assets.n,
+            },
+          ],
+        });
+        allocationRequired = allocationRequired.sub(s.assets);
+      }
+    }
+
+    return {
+      allocations,
+      totalReallocated: amountToReallocateToKink.sub(allocationRequired),
+    };
+  }
+
+  protected getReallocateLiquidityAmount(
+    netSupply: TokenBalance | undefined,
+    netBorrow: TokenBalance | undefined,
+    targetUtilization: BigNumber
+  ) {
+    const { totalSupplyAssets, totalBorrowAssets, amountToReallocateToKink } =
+      this.getInitialReallocateLiquidityAmount(
+        netSupply,
+        netBorrow,
+        targetUtilization
+      );
+    const { totalReallocated, allocations } = this.getActualReallocated(
+      amountToReallocateToKink
+    );
+    const finalSupplyAssets = totalSupplyAssets.add(totalReallocated);
+
+    return {
+      totalSupplyAssets: finalSupplyAssets,
+      totalBorrowAssets,
+      totalReallocated,
+      utilization: this.calculateUtilization(
+        finalSupplyAssets,
+        totalBorrowAssets
+      ),
+      allocations,
+    };
+  }
+
   public getUtilizationPercent(
     netSupply?: TokenBalance,
     netBorrow?: TokenBalance
@@ -310,6 +474,11 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
   ): BigNumber;
 
   public abstract getInterestRate(utilization: BigNumber): number;
+
+  public abstract getAllocationData(
+    netSupply?: TokenBalance,
+    netBorrow?: TokenBalance
+  ): MorphoAllocationStruct[] | undefined;
 
   public getLiquidity() {
     return (
@@ -368,25 +537,25 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
   // 4e18
   public CURVE_STEEPNESS = SCALAR_PRECISION.mul(4);
 
+  public getAllocationData(netSupply?: TokenBalance, netBorrow?: TokenBalance) {
+    const { allocations } = this.getReallocateLiquidityAmount(
+      netSupply,
+      netBorrow,
+      this.TARGET_UTILIZATION
+    );
+    return allocations;
+  }
+
   public getUtilization(netSupply?: TokenBalance, netBorrow?: TokenBalance) {
-    const totalSupplyAssets = netSupply
-      ? this.poolParams.marketState.totalSupplyAssets.add(netSupply)
-      : this.poolParams.marketState.totalSupplyAssets;
-    const totalBorrowAssets = netBorrow
-      ? this.poolParams.marketState.totalBorrowAssets.add(
-          netBorrow.toUnderlying()
-        )
-      : this.poolParams.marketState.totalBorrowAssets;
+    const { utilization, totalSupplyAssets } =
+      this.getReallocateLiquidityAmount(
+        netSupply,
+        netBorrow,
+        this.TARGET_UTILIZATION
+      );
 
     if (totalSupplyAssets.isZero() && netBorrow?.isPositive())
       throw new Error(UTILIZATION_ERROR);
-    if (totalSupplyAssets.isZero()) return BigNumber.from(0);
-
-    // Utilization is in 1e18 precision
-    const utilization = totalBorrowAssets
-      .scaleTo(SCALAR_DECIMALS)
-      .mul(SCALAR_PRECISION)
-      .div(totalSupplyAssets.scaleTo(SCALAR_DECIMALS));
 
     if (utilization.lt(0) || utilization.gt(SCALAR_PRECISION)) {
       throw new Error(UTILIZATION_ERROR);
