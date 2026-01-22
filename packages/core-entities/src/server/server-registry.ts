@@ -62,6 +62,21 @@ export async function loadGraphClientDeferred() {
   };
 }
 
+export async function destroyGraphClient() {
+  try {
+    // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+    const { getBuiltGraphClient } = await import('../.graphclient/index');
+    const mesh = await getBuiltGraphClient();
+
+    if (mesh && typeof mesh.destroy === 'function') {
+      mesh.destroy();
+    }
+  } catch (e) {
+    // Silently fail if mesh isn't initialized or already destroyed
+    console.log('GraphQL Mesh cleanup skipped:', e);
+  }
+}
+
 export async function fetchUsingMulticall<T>(
   network: Network,
   calls: AggregateCall<T>[],

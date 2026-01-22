@@ -38,3 +38,4 @@ export { default as LendingRouterABI } from './ILendingRouter.json';
 export { default as YieldStrategyABI } from './IYieldStrategy.json';
 export { default as WithdrawRequestManagerABI } from './IWithdrawRequestManager.json';
 export { default as ExponentFlashLiquidatorV2ABI } from './ExponentFlashLiquidatorV2.json';
+export { default as MorphoLendingRouterABI } from './MorphoLendingRouter.json';

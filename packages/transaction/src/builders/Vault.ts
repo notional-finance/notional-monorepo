@@ -21,12 +21,32 @@ export async function EnterVault({
   const borrowAmount = debtBalance.neg().toUnderlying();
   const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
   const totalDeposit = borrowAmount.add(depositBalance);
+  const allocations = getNetworkModel(network)
+    .getLendingMarketFromVaultDebt(debtBalance.token)
+    .getAllocationData(undefined, debtBalance.neg());
 
   const vaultData = await vaultAdapter.getDepositParameters(
     address,
     debtBalance.maturity || 0,
     totalDeposit
   );
+
+  if (allocations) {
+    return populateLendingRouterTxnAndGas(
+      network,
+      address,
+      lendingRouter,
+      'allocateAndEnterPosition',
+      [
+        address,
+        vaultAddress,
+        depositBalance.n,
+        borrowAmount.n,
+        vaultData,
+        allocations,
+      ]
+    );
+  }
 
   return populateLendingRouterTxnAndGas(
     network,

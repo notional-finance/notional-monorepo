@@ -124,8 +124,8 @@ healthcheck
 healthz
 helptext
 httpserver
-Hypernative
 hypernative
+Hypernative
 ical
 idcard
 ierc
@@ -248,6 +248,7 @@ pwbtc
 pwst
 pwsteth
 pyusdusdc
+reallocatable
 rebalance
 rebalancing
 reentrancy

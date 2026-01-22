@@ -158,7 +158,9 @@ export const YieldViews = (self: Instance<typeof NetworkModel>) => {
           undefined,
           netAmount.neg()
         );
-        apyData.organicAPY = market.getSpotInterestRate();
+        const utilizationBN = market.getUtilization(undefined, netAmount.neg());
+
+        apyData.organicAPY = market.getInterestRate(utilizationBN);
         apyData.totalAPY = apyData.organicAPY;
       } catch (e) {
         apyData.organicAPY = undefined;

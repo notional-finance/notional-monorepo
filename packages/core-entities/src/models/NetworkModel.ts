@@ -35,6 +35,7 @@ import { buildOracleGraph, OracleViews } from './views/OracleViews';
 import { YieldViews } from './views/YieldViews';
 import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { getEnvVarWithFallback } from '../utils/env';
+import { destroyGraphClient } from '../server/server-registry';
 
 const REGISTRY_URL = getEnvVarWithFallback(
   'NX_REGISTRY_URL',
@@ -127,7 +128,6 @@ export const NetworkServerModel = NetworkModelWithViews.named(
     self.oracleGraph.adjList.replace(
       buildOracleGraph(Array.from(self.oracles.values()))
     );
-
     self.lastUpdated = getNowSeconds();
 
     if (saveStorage) yield saveStorage();
@@ -146,6 +146,16 @@ export const NetworkServerModel = NetworkModelWithViews.named(
       saveStorage = () => {
         return storageMethod(JSON.stringify(getSnapshot(self)));
       };
+    },
+    cleanup: () => {
+      destroyGraphClient();
+      // Clear all registry references
+      tokenRegistry = undefined as any;
+      configurationRegistry = undefined as any;
+      exchangeRegistry = undefined as any;
+      oracleRegistry = undefined as any;
+      vaultRegistry = undefined as any;
+      saveStorage = undefined as any;
     },
   };
 });

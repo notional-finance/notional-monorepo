@@ -6,6 +6,7 @@ import {
   getProviderFromNetwork,
   MorphoRouter,
   Network,
+  NetworkId,
   SCALAR_DECIMALS,
   SCALAR_PRECISION,
   SECONDS_IN_YEAR_ACTUAL,
@@ -18,8 +19,108 @@ import {
   MorphoABI,
   MorphoAdaptiveIRMABI,
 } from '@notional-finance/contracts';
+import {
+  ApolloClient,
+  gql,
+  HttpLink,
+  InMemoryCache,
+} from '@apollo/client/core';
+import { MorphoAllocationStruct } from '@notional-finance/contracts/types/MorphoLendingRouter';
 
-interface MorphoVariableMarketParams {
+const MorphoLiquidityQuery = gql`
+  query MarketByUniqueKey($uniqueKey: String!, $chainId: Int) {
+    marketByUniqueKey(uniqueKey: $uniqueKey, chainId: $chainId) {
+      reallocatableLiquidityAssets
+      state {
+        liquidityAssets
+      }
+      loanAsset {
+        address
+      }
+      publicAllocatorSharedLiquidity {
+        assets
+        vault {
+          address
+        }
+        withdrawMarket {
+          uniqueKey
+          loanAsset {
+            address
+          }
+          collateralAsset {
+            address
+          }
+          oracle {
+            address
+          }
+          irmAddress
+          lltv
+          state {
+            supplyApy
+          }
+        }
+      }
+    }
+  }
+`;
+interface MorphoLiquidityQueryResult {
+  marketByUniqueKey: {
+    reallocatableLiquidityAssets: TokenBalance;
+    state: {
+      liquidityAssets: string;
+    };
+    loanAsset: {
+      address: string;
+    };
+    publicAllocatorSharedLiquidity: {
+      assets: string;
+      vault: {
+        address: string;
+      };
+      withdrawMarket: {
+        uniqueKey: string;
+        loanAsset: {
+          address: string;
+        };
+        collateralAsset: {
+          address: string;
+        };
+        oracle: {
+          address: string;
+        };
+        irmAddress: string;
+        lltv: string;
+        state: {
+          supplyApy: number;
+        };
+      };
+    }[];
+  };
+}
+
+interface MorphoPublicAllocatorSharedLiquidity {
+  // Liquidity that can be reallocated from other markets (including the flow caps)
+  reallocatableLiquidityAssets: TokenBalance;
+  sharedLiquidity: {
+    // Liquidity that can be reallocated to this market from this vault / market combination
+    assets: TokenBalance;
+    morphoVault: string;
+    withdrawMarket: {
+      uniqueKey: string;
+      marketParams: {
+        loanToken: string;
+        collateralToken: string;
+        oracle: string;
+        irm: string;
+        lltv: BigNumber;
+      };
+      supplyApy: number;
+    };
+  }[];
+}
+interface MorphoVariableMarketParams
+  extends MorphoPublicAllocatorSharedLiquidity {
+  marketKey: string;
   marketParams: {
     loanToken: string;
     collateralToken: string;
@@ -37,6 +138,9 @@ interface MorphoVariableMarketParams {
 }
 
 const ADAPTIVE_IRM = '0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC';
+
+const MARKET_PARAMS_TYPE = `tuple(address loanToken, address collateralToken, address oracle, address irm, uint256 lltv)`;
+const ALLOCATION_DATA_TYPE = `tuple(address vault, uint256 feeAmount, tuple(${MARKET_PARAMS_TYPE}, uint128 amount)[] withdrawals)`;
 
 export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVariableMarketParams> {
   public static override getInitData(
@@ -58,6 +162,13 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
         method: 'idToMarketParams',
         key: 'marketParams',
         args: [marketId],
+      },
+      {
+        target: 'NO_OP',
+        method: 'NO_OP',
+        key: 'marketKey',
+        args: [],
+        transform: () => marketId,
       },
       {
         stage: 0,
@@ -125,8 +236,231 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
     return calls;
   }
 
+  public static override async getPoolParamsOffChain(
+    network: Network,
+    marketId: string
+  ): Promise<Record<string, unknown>> {
+    const client = new ApolloClient({
+      link: new HttpLink({
+        uri: 'https://api.morpho.org/graphql',
+      }),
+      cache: new InMemoryCache(),
+    });
+    const { data, errors } = await client.query<MorphoLiquidityQueryResult>({
+      query: MorphoLiquidityQuery,
+      variables: {
+        uniqueKey: marketId,
+        chainId: NetworkId[network],
+      },
+    });
+
+    if (errors) throw new Error(errors[0].message);
+
+    const reallocatableLiquidityAssets = TokenBalance.toJSON(
+      BigNumber.from(data.marketByUniqueKey.reallocatableLiquidityAssets),
+      data.marketByUniqueKey.loanAsset.address,
+      network
+    );
+    const sharedLiquidity =
+      data.marketByUniqueKey.publicAllocatorSharedLiquidity.map((s) => {
+        return {
+          assets: TokenBalance.toJSON(
+            BigNumber.from(s.assets),
+            s.withdrawMarket.loanAsset.address,
+            network
+          ),
+          morphoVault: s.vault.address,
+          withdrawMarket: {
+            uniqueKey: s.withdrawMarket.uniqueKey,
+            marketParams: {
+              loanToken: s.withdrawMarket.loanAsset.address,
+              collateralToken: s.withdrawMarket.collateralAsset.address,
+              oracle: s.withdrawMarket.oracle.address,
+              irm: s.withdrawMarket.irmAddress,
+              lltv: BigNumber.from(s.withdrawMarket.lltv),
+            },
+            supplyApy: s.withdrawMarket.state.supplyApy,
+          },
+        };
+      });
+
+    return {
+      reallocatableLiquidityAssets,
+      sharedLiquidity,
+    };
+  }
+
   public getSpotInterestRate(): number {
     return this.getInterestRate(this.getUtilization());
+  }
+
+  protected getMinReallocateAmount() {
+    return new TokenBalance(
+      // BigNumber.from(1_000e6), // 1000 USD
+      BigNumber.from(1e6), // 1 USD
+      'USD',
+      Network.all
+    );
+  }
+
+  protected calculateUtilization(
+    totalSupplyAssets: TokenBalance,
+    totalBorrowAssets: TokenBalance
+  ) {
+    // Utilization is in 1e18 precision
+    return totalSupplyAssets.isZero()
+      ? BigNumber.from(0)
+      : totalBorrowAssets
+          .scaleTo(SCALAR_DECIMALS)
+          .mul(SCALAR_PRECISION)
+          .div(totalSupplyAssets.scaleTo(SCALAR_DECIMALS));
+  }
+
+  private getInitialReallocateLiquidityAmount(
+    netSupply: TokenBalance | undefined,
+    netBorrow: TokenBalance | undefined,
+    targetUtilization: BigNumber
+  ) {
+    const totalSupplyAssets = netSupply
+      ? this.poolParams.marketState.totalSupplyAssets.add(netSupply)
+      : this.poolParams.marketState.totalSupplyAssets;
+    const totalBorrowAssets = netBorrow
+      ? this.poolParams.marketState.totalBorrowAssets.add(
+          netBorrow.toUnderlying()
+        )
+      : this.poolParams.marketState.totalBorrowAssets;
+    let amountToReallocateToKink = totalSupplyAssets.copy(0);
+
+    const initialUtilization = this.calculateUtilization(
+      totalSupplyAssets,
+      totalBorrowAssets
+    );
+
+    if (
+      initialUtilization.gt(targetUtilization) &&
+      netBorrow?.isPositive() &&
+      this.poolParams.reallocatableLiquidityAssets.isPositive()
+    ) {
+      // Simulate reallocating more liquidity from the reallocatable liquidity assets to this market
+      // totalMarketBorrow + netBorrowAmount = TARGET_UTILIZATION * (totalMarketSupply + reallocateAmount)
+      // totalMarketBorrow + newBorrowAmount - TARGET_UTILIZATION * totalMarketSupply = TARGET_UTILIZATION * reallocateAmount
+      // (totalMarketBorrow + newBorrowAmount - TARGET_UTILIZATION * totalMarketSupply) / TARGET_UTILIZATION = reallocateAmount
+      amountToReallocateToKink = totalBorrowAssets
+        .sub(totalSupplyAssets.scale(targetUtilization, SCALAR_PRECISION))
+        .scale(SCALAR_PRECISION, targetUtilization);
+
+      if (
+        amountToReallocateToKink.gt(
+          this.poolParams.reallocatableLiquidityAssets
+        )
+      ) {
+        // Cap this at the reallocatable liquidity assets
+        amountToReallocateToKink = this.poolParams.reallocatableLiquidityAssets;
+      }
+
+      if (
+        amountToReallocateToKink.toFiat('USD').lt(this.getMinReallocateAmount())
+      ) {
+        // Don't reallocate if we are below the minium reallocate amount
+        amountToReallocateToKink = totalSupplyAssets.copy(0);
+      }
+    }
+
+    return {
+      totalSupplyAssets,
+      totalBorrowAssets,
+      amountToReallocateToKink,
+      utilization: this.calculateUtilization(
+        totalSupplyAssets,
+        totalBorrowAssets
+      ),
+    };
+  }
+
+  private getActualReallocated(amountToReallocateToKink: TokenBalance): {
+    totalReallocated: TokenBalance;
+    allocations: MorphoAllocationStruct[] | undefined;
+  } {
+    if (amountToReallocateToKink.isZero()) {
+      return {
+        totalReallocated: amountToReallocateToKink,
+        allocations: undefined,
+      };
+    }
+
+    const sharedLiquidity = this.poolParams.sharedLiquidity.sort(
+      // Sort by lowest supply APY first
+      (a, b) => a.withdrawMarket.supplyApy - b.withdrawMarket.supplyApy
+    );
+
+    let allocationRequired = amountToReallocateToKink;
+    const allocations: MorphoAllocationStruct[] = [];
+    for (const s of sharedLiquidity) {
+      if (s.assets.gte(allocationRequired)) {
+        allocations.push({
+          vault: s.morphoVault,
+          feeAmount: 0,
+          withdrawals: [
+            {
+              marketParams: s.withdrawMarket.marketParams,
+              amount: allocationRequired.n,
+            },
+          ],
+        });
+        allocationRequired = allocationRequired.copy(0);
+        break;
+      } else if (s.assets.lt(allocationRequired)) {
+        allocations.push({
+          vault: s.morphoVault,
+          feeAmount: 0,
+          withdrawals: [
+            {
+              marketParams: s.withdrawMarket.marketParams,
+              amount: s.assets.n,
+            },
+          ],
+        });
+        allocationRequired = allocationRequired.sub(s.assets);
+      }
+    }
+
+    return {
+      allocations,
+      totalReallocated: amountToReallocateToKink.sub(allocationRequired),
+    };
+  }
+
+  protected getReallocateLiquidityAmount(
+    netSupply: TokenBalance | undefined,
+    netBorrow: TokenBalance | undefined,
+    targetUtilization: BigNumber
+  ) {
+    const { totalSupplyAssets, totalBorrowAssets, amountToReallocateToKink } =
+      this.getInitialReallocateLiquidityAmount(
+        netSupply,
+        netBorrow,
+        targetUtilization
+      );
+    const { totalReallocated, allocations } = this.getActualReallocated(
+      amountToReallocateToKink
+    );
+    console.log(
+      'amountToReallocateToKink',
+      amountToReallocateToKink.toExactString()
+    );
+    console.log('totalReallocated', totalReallocated.toExactString());
+    const finalSupplyAssets = totalSupplyAssets.add(totalReallocated);
+
+    return {
+      totalSupplyAssets: finalSupplyAssets,
+      totalBorrowAssets,
+      totalReallocated,
+      utilization: this.calculateUtilization(
+        finalSupplyAssets,
+        totalBorrowAssets
+      ),
+      allocations,
+    };
   }
 
   public getUtilizationPercent(
@@ -150,9 +484,17 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
 
   public abstract getInterestRate(utilization: BigNumber): number;
 
+  public abstract getAllocationData(
+    netSupply?: TokenBalance,
+    netBorrow?: TokenBalance
+  ): MorphoAllocationStruct[] | undefined;
+
   public getLiquidity() {
-    return this.poolParams.marketState.totalSupplyAssets.sub(
-      this.poolParams.marketState.totalBorrowAssets
+    return (
+      this.poolParams.marketState.totalSupplyAssets
+        .sub(this.poolParams.marketState.totalBorrowAssets)
+        // This is the total liquidity that can be reallocated to this market from other markets
+        .add(this.poolParams.reallocatableLiquidityAssets)
     );
   }
 
@@ -204,25 +546,25 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
   // 4e18
   public CURVE_STEEPNESS = SCALAR_PRECISION.mul(4);
 
+  public getAllocationData(netSupply?: TokenBalance, netBorrow?: TokenBalance) {
+    const { allocations } = this.getReallocateLiquidityAmount(
+      netSupply,
+      netBorrow,
+      this.TARGET_UTILIZATION
+    );
+    return allocations;
+  }
+
   public getUtilization(netSupply?: TokenBalance, netBorrow?: TokenBalance) {
-    const totalSupplyAssets = netSupply
-      ? this.poolParams.marketState.totalSupplyAssets.add(netSupply)
-      : this.poolParams.marketState.totalSupplyAssets;
-    const totalBorrowAssets = netBorrow
-      ? this.poolParams.marketState.totalBorrowAssets.add(
-          netBorrow.toUnderlying()
-        )
-      : this.poolParams.marketState.totalBorrowAssets;
+    const { utilization, totalSupplyAssets } =
+      this.getReallocateLiquidityAmount(
+        netSupply,
+        netBorrow,
+        this.TARGET_UTILIZATION
+      );
 
     if (totalSupplyAssets.isZero() && netBorrow?.isPositive())
       throw new Error(UTILIZATION_ERROR);
-    if (totalSupplyAssets.isZero()) return BigNumber.from(0);
-
-    // Utilization is in 1e18 precision
-    const utilization = totalBorrowAssets
-      .scaleTo(SCALAR_DECIMALS)
-      .mul(SCALAR_PRECISION)
-      .div(totalSupplyAssets.scaleTo(SCALAR_DECIMALS));
 
     if (utilization.lt(0) || utilization.gt(SCALAR_PRECISION)) {
       throw new Error(UTILIZATION_ERROR);

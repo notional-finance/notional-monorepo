@@ -1,4 +1,7 @@
-import { ILendingRouter, LendingRouterABI } from '@notional-finance/contracts';
+import {
+  MorphoLendingRouter,
+  MorphoLendingRouterABI,
+} from '@notional-finance/contracts';
 import { BigNumber, Contract, PayableOverrides } from 'ethers';
 import {
   getProviderFromNetwork,
@@ -85,20 +88,20 @@ export async function populateTxnAndGas(
 }
 
 export async function populateLendingRouterTxnAndGas<
-  M extends keyof ILendingRouter['functions']
+  M extends keyof MorphoLendingRouter['functions']
 >(
   network: Network,
   msgSender: string,
   lendingRouter: string,
   methodName: M,
-  methodArgs: Parameters<ILendingRouter['functions'][M]>,
+  methodArgs: Parameters<MorphoLendingRouter['functions'][M]>,
   gasBufferPercent = 5
 ) {
   const contract = new Contract(
     lendingRouter,
-    LendingRouterABI,
+    MorphoLendingRouterABI,
     getProviderFromNetwork(network)
-  ) as ILendingRouter;
+  ) as MorphoLendingRouter;
 
   return populateTxnAndGas(
     contract,
