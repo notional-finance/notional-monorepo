@@ -312,8 +312,11 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
   public abstract getInterestRate(utilization: BigNumber): number;
 
   public getLiquidity() {
-    return this.poolParams.marketState.totalSupplyAssets.sub(
-      this.poolParams.marketState.totalBorrowAssets
+    return (
+      this.poolParams.marketState.totalSupplyAssets
+        .sub(this.poolParams.marketState.totalBorrowAssets)
+        // This is the total liquidity that can be reallocated to this market from other markets
+        .add(this.poolParams.reallocatableLiquidityAssets)
     );
   }
 
