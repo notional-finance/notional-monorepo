@@ -13,10 +13,15 @@ export default async function (req: Request, res: Response) {
 
   try {
     switch (req.path) {
-      case '/syncDune':
-        await syncDune();
-        res.status(200).send('OK');
+      case '/syncDune': {
+        const success = await syncDune();
+        if (!success) {
+          res.status(500).send('Failed to sync Dune data');
+        } else {
+          res.status(200).send('OK');
+        }
         break;
+      }
       case '/syncOracleData':
         res.send(
           JSON.stringify(

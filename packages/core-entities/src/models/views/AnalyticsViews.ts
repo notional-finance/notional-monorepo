@@ -83,9 +83,17 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
     K extends keyof typeof self.analytics
   >(key: K) {
     if (self.analytics[key]) return self.analytics[key];
+    let hostname = REGISTRY_HOSTNAME;
+    if (
+      key === 'noteSupply' ||
+      key === 'sNOTEData' ||
+      key === 'sNOTEReinvestment'
+    ) {
+      hostname = 'https://registry.notional.finance';
+    }
 
     const response = yield fetch(
-      `${REGISTRY_HOSTNAME}/${KeyToSuffix(key, self.network)}`
+      `${hostname}/${KeyToSuffix(key, self.network)}`
     );
     if (!response.ok) {
       throw new Error(`Failed to fetch ${String(key)}: ${response.statusText}`);
