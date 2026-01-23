@@ -30,23 +30,47 @@ export async function syncDune() {
 
   for (const q of queries) {
     const { queryId, name } = q;
-    const query_result = await fetch(
-      `https://api.dune.com/api/v1/query/${queryId}/results`,
+    const execute_result = await fetch(
+      `https://api.dune.com/api/v1/query/${queryId}/execute`,
       {
-        method: 'GET',
+        method: 'POST',
         headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
       }
     );
+    const execution_id = (await execute_result.json()) as {
+      execution_id: string;
+    };
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Wait for the execution to complete
+    let attempts = 0;
+    while (attempts < 10) {
+      const execution_result = await fetch(
+        `https://api.dune.com/api/v1/execution/${execution_id}/status`,
+        {
+          headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
+        }
+      );
+      const { is_execution_finished } = await execution_result.json();
+      if (is_execution_finished) break;
 
-    if (query_result.status === 200) {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      attempts++;
+    }
+
+    const get_result = await fetch(
+      `https://api.dune.com/api/v1/execution/${execution_id}/results`,
+      {
+        method: 'POST',
+        headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
+      }
+    );
+    if (get_result.status === 200) {
       await getS3().send(
         new PutObjectCommand({
           Bucket: 'view-cache-r2',
           Key: `mainnet/note/${name}`,
           ContentType: 'application/json',
-          Body: JSON.stringify(await query_result.json()),
+          Body: JSON.stringify(await get_result.json()),
         })
       );
     } else {
