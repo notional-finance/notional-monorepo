@@ -53,7 +53,7 @@ export async function syncDune() {
       const { is_execution_finished } = await execution_result.json();
       if (is_execution_finished) break;
 
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 10_000));
       attempts++;
     }
 
