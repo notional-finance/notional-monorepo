@@ -73,6 +73,28 @@
         "totalTransactions": 1
       },
       "timeout": 60000
+    },
+    {
+      "name": "MidasStaking (mApollo and mHyper) no withdraw request",
+      "description": "successful liquidation of MidasStaking vaults with no withdraw request",
+      "forkBlock": 24270548,
+      "network": "mainnet",
+      "positions": [
+        [
+          "0x9299B176bFd1CaBB967ac2A027814FAad8782BA7",
+          "0x94F6Cb4FaE0EB3Fa74e9847dfF2fF52fd5ec7e6e"
+        ],
+        [
+          "0x9299B176bFd1CaBB967ac2A027814FAad8782BA7",
+          "0x091356E6793a0d960174eaAb4d470E39A99DD673"
+        ]
+      ],
+      "expectedResults": {
+        "successfulTransactions": 2,
+        "failedTransactions": 0,
+        "totalTransactions": 2
+      },
+      "timeout": 60000
     }
   ]
 }

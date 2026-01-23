@@ -5,6 +5,7 @@ A Cloudflare Worker that monitors and liquidates risky positions in Notional's E
 ## Overview
 
 The Exponent Liquidator:
+
 - Fetches risky positions from Hypernative API
 - Evaluates positions for liquidation eligibility
 - Handles multiple vault types (Staking, PendlePT, CurveConvex2Token)
@@ -105,7 +106,7 @@ To run the liquidator locally against a forked network:
 
 ```bash
 # Start Wrangler dev server
-npx wrangler dev
+npx wrangler dev --env mainnet
 
 # In another terminal, trigger a run
 curl http://localhost:8787/
@@ -208,6 +209,7 @@ apps/exponent-liquidator/
 ### Decimals Revert Error
 
 If you see errors about `decimals()` calls reverting:
+
 - CurveConvex2Token yieldTokens don't implement `decimals()`
 - This is handled automatically by hardcoding to 18 decimals
 - See `src/utils/tokenPricing.ts` for implementation

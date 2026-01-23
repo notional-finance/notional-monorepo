@@ -115,6 +115,7 @@ export interface OffChainVaultConfig {
   primaryWithdrawExchangeData?: string;
   secondaryWithdrawDexId?: number;
   secondaryWithdrawExchangeData?: string;
+  vaultAssetEqualsWithdrawToken?: boolean;
 }
 
 export interface VaultConfig extends OnChainVaultConfig, OffChainVaultConfig {
