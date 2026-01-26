@@ -23,18 +23,8 @@ const SanctionedCountries = [
   'VE', // Venezuela
   'YE', // Yemen
   'ZW', // Zimbabwe
+  'US', // United States(blocked for leverage usage)
 ];
-
-export function useLeverageBlock() {
-  const walletStore = useWalletStore();
-  const country = walletStore.country;
-  const isProd = env === 'production' && !isTestHost();
-  console.log('[DEBUG] Leverage Blocked: ', country);
-
-  return isProd
-    ? country === undefined || country === 'US' || country === 'VPN'
-    : false;
-}
 
 export function useSanctionsBlock() {
   const walletStore = useWalletStore();
@@ -42,12 +32,13 @@ export function useSanctionsBlock() {
   const isSanctionedAddress = walletStore.isSanctionedAddress;
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const isProd = env === 'production' && !isTestHost();
 
   const isSanctioned =
     SanctionedCountries.find((s) => s === country) || isSanctionedAddress;
   useEffect(() => {
-    if (isSanctioned && pathname !== 'error') {
-      navigate('/error?code=451');
+    if (isProd && isSanctioned && pathname !== 'error') {
+      navigate('/blocked');
     }
   }, [navigate, pathname, isSanctioned]);
 }
