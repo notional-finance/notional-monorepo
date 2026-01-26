@@ -37,9 +37,11 @@ export async function syncDune() {
         headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
       }
     );
-    const execution_id = (await execute_result.json()) as {
-      execution_id: string;
-    };
+    const execution_result = await execute_result.json();
+    console.log(
+      `Query ${queryId} Execution ID: ${JSON.stringify(execution_result)}`
+    );
+    const execution_id = execution_result['execution_id'];
 
     // Wait for the execution to complete
     let attempts = 0;
@@ -50,8 +52,13 @@ export async function syncDune() {
           headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
         }
       );
-      const { is_execution_finished } = await execution_result.json();
-      if (is_execution_finished) break;
+      const execution_result_json = await execution_result.json();
+      console.log(
+        `Query ${queryId} Execution Finished: ${JSON.stringify(
+          execution_result_json
+        )}`
+      );
+      if (execution_result_json['is_execution_finished']) break;
 
       await new Promise((resolve) => setTimeout(resolve, 10_000));
       attempts++;
@@ -60,10 +67,11 @@ export async function syncDune() {
     const get_result = await fetch(
       `https://api.dune.com/api/v1/execution/${execution_id}/results`,
       {
-        method: 'POST',
+        method: 'GET',
         headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
       }
     );
+    console.log(`Query ${queryId} Get Result: ${get_result.status}`);
     if (get_result.status === 200) {
       await getS3().send(
         new PutObjectCommand({
