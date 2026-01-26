@@ -102,7 +102,7 @@ export const TransactionModal = ({
         fill={theme.palette.success.main}
       />
     );
-    title = (
+    title = title || (
       <FormattedMessage
         defaultMessage="<a1>Success!</a1> Transaction is confirmed."
         values={{
