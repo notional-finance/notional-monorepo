@@ -30,23 +30,55 @@ export async function syncDune() {
 
   for (const q of queries) {
     const { queryId, name } = q;
-    const query_result = await fetch(
-      `https://api.dune.com/api/v1/query/${queryId}/results`,
+    const execute_result = await fetch(
+      `https://api.dune.com/api/v1/query/${queryId}/execute`,
+      {
+        method: 'POST',
+        headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
+      }
+    );
+    const execution_result = await execute_result.json();
+    console.log(
+      `Query ${queryId} Execution ID: ${JSON.stringify(execution_result)}`
+    );
+    const execution_id = execution_result['execution_id'];
+
+    // Wait for the execution to complete
+    let attempts = 0;
+    while (attempts < 10) {
+      const execution_result = await fetch(
+        `https://api.dune.com/api/v1/execution/${execution_id}/status`,
+        {
+          headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
+        }
+      );
+      const execution_result_json = await execution_result.json();
+      console.log(
+        `Query ${queryId} Execution Finished: ${JSON.stringify(
+          execution_result_json
+        )}`
+      );
+      if (execution_result_json['is_execution_finished']) break;
+
+      await new Promise((resolve) => setTimeout(resolve, 10_000));
+      attempts++;
+    }
+
+    const get_result = await fetch(
+      `https://api.dune.com/api/v1/execution/${execution_id}/results`,
       {
         method: 'GET',
         headers: { 'X-DUNE-API-KEY': DUNE_API_KEY },
       }
     );
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    if (query_result.status === 200) {
+    console.log(`Query ${queryId} Get Result: ${get_result.status}`);
+    if (get_result.status === 200) {
       await getS3().send(
         new PutObjectCommand({
           Bucket: 'view-cache-r2',
           Key: `mainnet/note/${name}`,
           ContentType: 'application/json',
-          Body: JSON.stringify(await query_result.json()),
+          Body: JSON.stringify(await get_result.json()),
         })
       );
     } else {
