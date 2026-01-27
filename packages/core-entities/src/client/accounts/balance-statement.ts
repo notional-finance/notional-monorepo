@@ -1,7 +1,6 @@
 import {
   Network,
   RATE_PRECISION,
-  SCALAR_PRECISION,
   getNowSeconds,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
@@ -193,7 +192,9 @@ export function parseCurrentBalanceStatement(
   };
 }
 
-export type BalanceStatementReturnType = ReturnType<typeof parseBalanceStatement>;
+export type BalanceStatementReturnType = ReturnType<
+  typeof parseBalanceStatement
+>;
 
 function parseBalanceStatement(
   tokenId: string,

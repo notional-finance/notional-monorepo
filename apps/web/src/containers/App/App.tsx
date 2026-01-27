@@ -9,7 +9,6 @@ import AppLayoutRoute from './AppLayoutRoute';
 import LandingLayoutRoute from './LandingLayoutRoute';
 import { OnboardContext } from '@notional-finance/wallet';
 // Feature shell views
-import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { TermsView } from '../../containers/TermsView';
@@ -36,6 +35,7 @@ import {
   BetaPageInject,
   BetaPageLeaderboardInject,
 } from '../Webflow/AttributesInject';
+import { BlockedView } from '../TermsView/blocked';
 
 const RedirectToDefaultNetwork = () => {
   const selectedNetwork = useSelectedNetwork();
@@ -53,18 +53,6 @@ const RedirectToDefaultNetwork = () => {
 
 const AllRoutes = observer(() => {
   const appStore = useAppStore();
-  // const walletStore = useWalletStore();
-  // const navigate = useNavigate();
-  // const [didRedirect, setDidRedirect] = useState(false);
-
-  // useEffect(() => {
-  //   if (walletStore.isBetaUser && !didRedirect) {
-  //     setDidRedirect(true);
-  //     navigate('/');
-  //   } else if (!didRedirect) {
-  //     navigate('/exponent-beta');
-  //   }
-  // }, [walletStore, navigate, didRedirect]);
 
   useEffect(() => {
     const models = initializeTokenBalanceRegistry();
@@ -224,8 +212,14 @@ const AllRoutes = observer(() => {
           element={<LandingLayoutRoute component={PrivacyView} />}
         />
         <Route
-          path="/about"
-          element={<LandingLayoutRoute component={AboutUsView} />}
+          path="/blocked"
+          element={
+            <AppLayoutRoute
+              path="/blocked"
+              component={BlockedView}
+              routeType="Error"
+            />
+          }
         />
         <Route path="/:basePath" element={<RedirectToDefaultNetwork />} />
         <Route

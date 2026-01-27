@@ -178,9 +178,9 @@ export abstract class VaultAdapter {
         .mulInRatePrecision(RATE_PRECISION - defaultSlippage);
     }
 
-    const exchangeRate = tokenSold.toFloat() / tokensBought.toFloat();
+    const exchangeRate = tokensBought.toFloat() / tokenSold.toFloat();
     const spotPrice =
-      tokenSold.toFloat() / tokenSold.toToken(tokenBought).toFloat();
+      tokenSold.toToken(tokenBought).toFloat() / tokenSold.toFloat();
 
     return {
       tokensSold: tokenSold,

@@ -19,12 +19,6 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@notional-finance/about-us-feature-shell": [
-        "packages/features/about-us/src/index.ts"
-      ],
-      "@notional-finance/about-us-feature-shell/*": [
-        "packages/features/about-us/src/*"
-      ],
       "@notional-finance/assets/*": ["packages/shared/assets/src/assets/*"],
       "@notional-finance/contracts": ["packages/contracts/src/index.ts"],
       "@notional-finance/contracts/*": ["packages/contracts/src/*"],

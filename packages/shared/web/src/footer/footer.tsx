@@ -137,16 +137,6 @@ export const Footer = () => {
       <StyledFooter>
         <FooterLeft>
           <Logo src={logoForDarkBackground} alt="Notional Finance logo" />
-          <ExternalLink
-            href="https://v3.notional.finance/"
-            textDecoration
-            style={{
-              color: theme.palette.info.accent,
-              marginBottom: theme.spacing(3),
-            }}
-          >
-            <FormattedMessage defaultMessage={'View Notional V3'} />
-          </ExternalLink>
           <H4
             contrast
             href="mailto:support@notional.finance"

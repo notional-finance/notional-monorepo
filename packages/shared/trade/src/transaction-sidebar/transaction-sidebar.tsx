@@ -5,16 +5,9 @@ import {
   Drawer,
   ScrollToTop,
 } from '@notional-finance/mui';
-import {
-  useLeverageBlock,
-  useCurrentTradeContext,
-} from '@notional-finance/notionable-hooks';
+import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  FormattedMessage,
-  MessageDescriptor,
-  defineMessages,
-} from 'react-intl';
+import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { TradeActionButton } from '../trade-action-button/trade-action-button';
 import TransactionConfirmation from '../transaction-confirmation/transaction-confirmation';
@@ -85,7 +78,6 @@ const TransactionSidebarComponent = ({
   const selectedNetwork = trade?.selectedNetwork;
   const { debt, collateral } = trade?.selectedTokens ?? {};
   const { mustSwitchNetwork } = useChangeNetwork(selectedNetwork);
-  const isBlocked = useLeverageBlock();
   const approvalData = useTransactionApprovals(spender, requiredApprovalAmount);
 
   const showApprovals =
@@ -141,17 +133,8 @@ const TransactionSidebarComponent = ({
 
   if (tradeType === undefined) return <PageLoading />;
 
-  const errorMessage = defineMessages({
-    geoErrorHeading: {
-      defaultMessage:
-        'Leveraged products are not available in the US or to VPN users. Non-Leveraged products are available to all users globally.',
-    },
-  });
-
   const getTokenSpecificHelpText = () => {
-    if (isBlocked) {
-      return errorMessage.geoErrorHeading;
-    } else if (helptext) {
+    if (helptext) {
       return helptext;
     } else if (debt?.tokenType && collateral?.tokenType) {
       const CombinedTokenType =
@@ -203,9 +186,8 @@ const TransactionSidebarComponent = ({
       }
       submitText={TransactionHeadings[tradeType].submitText}
       handleSubmit={handleSubmit}
-      canSubmit={!!canSubmit && !isBlocked}
+      canSubmit={!!canSubmit}
       onCancelCallback={handleActionSidebarCancel}
-      leverageDisabled={isBlocked}
       hideTextOnMobile={isPortfolio || !hideTextOnMobile ? false : true}
       NetworkSelector={NetworkSelector}
       hideActionButtons={hideActionButtons}

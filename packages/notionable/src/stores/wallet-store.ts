@@ -90,14 +90,6 @@ export const WalletModel = types
   .actions((self) => {
     const root = getRoot<RootStoreInterface>(self);
 
-    const checkBetaUser = async (address: string) => {
-      const response = await fetch(
-        `https://registry.notional.finance/exponent_beta_whitelist.json`
-      );
-      const data: string[] = await response.json();
-      return data.includes(address);
-    };
-
     const executeUserTracking = async (
       userWallet: Instance<typeof UserWalletModel>
     ) => {
@@ -257,18 +249,13 @@ export const WalletModel = types
           if (provider) m.setProvider(provider);
           self.networkAccounts.set(network, m);
         });
-        const vpnCheck = yield fetch('https://detect.notional.finance/').catch(
-          () => ({ status: 403 })
-        );
-        console.log('[DEBUG] VPN Check: ', vpnCheck.status);
         const country = yield fetch('https://api.notional.finance/geoip').then(
           (r) => r.json()
         );
         console.log('[DEBUG] Geo IP Country: ', JSON.stringify(country));
-        self.country = vpnCheck.status !== 200 ? 'VPN' : country['country'];
+        self.country = country['country'];
 
         self.isSanctionedAddress = yield executeUserTracking(userWallet);
-        self.isBetaUser = yield checkBetaUser(userWallet.selectedAddress);
         self.isAccountPending = false;
       }
 

@@ -6,11 +6,12 @@ import { useNewUserTracking, usePageTrack } from '@notional-finance/helpers';
 import { Intercom, shutdown } from '@intercom/messenger-js-sdk';
 import { RouteType } from '@notional-finance/util';
 import { useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 
-export const InitSanctionsBlock = () => {
+export const InitSanctionsBlock = observer(() => {
   useSanctionsBlock();
   return <div></div>;
-};
+});
 
 export const InitIntercom = () => {
   const intercomID = process.env['NX_INTERCOM_APP_ID'] as string;
