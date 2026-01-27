@@ -26,6 +26,19 @@ const _abi = [
   },
   {
     type: "function",
+    name: "addPausableContract",
+    inputs: [
+      {
+        name: "pausableContract",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "clearPosition",
     inputs: [
       {
@@ -44,6 +57,24 @@ const _abi = [
   },
   {
     type: "function",
+    name: "emitAccountNativePosition",
+    inputs: [
+      {
+        name: "account",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "isCleared",
+        type: "bool",
+        internalType: "bool",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
     name: "feeReceiver",
     inputs: [],
     outputs: [
@@ -51,6 +82,19 @@ const _abi = [
         name: "",
         type: "address",
         internalType: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "getAllPausableContracts",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address[]",
+        internalType: "address[]",
       },
     ],
     stateMutability: "view",
@@ -163,6 +207,25 @@ const _abi = [
   },
   {
     type: "function",
+    name: "pausableContracts",
+    inputs: [
+      {
+        name: "",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "pauseAdmin",
     inputs: [],
     outputs: [
@@ -199,6 +262,19 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "removePausableContract",
+    inputs: [
+      {
+        name: "indexes",
+        type: "uint256[]",
+        internalType: "uint256[]",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
   },
   {
     type: "function",
@@ -421,6 +497,32 @@ const _abi = [
     inputs: [
       {
         name: "lendingRouter",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "PausableContractAdded",
+    inputs: [
+      {
+        name: "pausableContract",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "PausableContractsRemoved",
+    inputs: [
+      {
+        name: "removedContracts",
         type: "address",
         indexed: true,
         internalType: "address",

@@ -41,16 +41,21 @@ export interface AddressRegistryInterface extends utils.Interface {
   functions: {
     "acceptPauseAdmin()": FunctionFragment;
     "acceptUpgradeOwnership()": FunctionFragment;
+    "addPausableContract(address)": FunctionFragment;
     "clearPosition(address,address)": FunctionFragment;
+    "emitAccountNativePosition(address,bool)": FunctionFragment;
     "feeReceiver()": FunctionFragment;
+    "getAllPausableContracts()": FunctionFragment;
     "getVaultPosition(address,address)": FunctionFragment;
     "getWithdrawRequestManager(address)": FunctionFragment;
     "initialize(bytes)": FunctionFragment;
     "isLendingRouter(address)": FunctionFragment;
     "lendingRouters(address)": FunctionFragment;
+    "pausableContracts(uint256)": FunctionFragment;
     "pauseAdmin()": FunctionFragment;
     "pendingPauseAdmin()": FunctionFragment;
     "pendingUpgradeAdmin()": FunctionFragment;
+    "removePausableContract(uint256[])": FunctionFragment;
     "setLendingRouter(address)": FunctionFragment;
     "setPosition(address,address)": FunctionFragment;
     "setWhitelistedVault(address,bool)": FunctionFragment;
@@ -67,16 +72,21 @@ export interface AddressRegistryInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "acceptPauseAdmin"
       | "acceptUpgradeOwnership"
+      | "addPausableContract"
       | "clearPosition"
+      | "emitAccountNativePosition"
       | "feeReceiver"
+      | "getAllPausableContracts"
       | "getVaultPosition"
       | "getWithdrawRequestManager"
       | "initialize"
       | "isLendingRouter"
       | "lendingRouters"
+      | "pausableContracts"
       | "pauseAdmin"
       | "pendingPauseAdmin"
       | "pendingUpgradeAdmin"
+      | "removePausableContract"
       | "setLendingRouter"
       | "setPosition"
       | "setWhitelistedVault"
@@ -98,11 +108,23 @@ export interface AddressRegistryInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "addPausableContract",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "clearPosition",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "emitAccountNativePosition",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "feeReceiver",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAllPausableContracts",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -126,6 +148,10 @@ export interface AddressRegistryInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "pausableContracts",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "pauseAdmin",
     values?: undefined
   ): string;
@@ -136,6 +162,10 @@ export interface AddressRegistryInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "pendingUpgradeAdmin",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removePausableContract",
+    values: [PromiseOrValue<BigNumberish>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "setLendingRouter",
@@ -187,11 +217,23 @@ export interface AddressRegistryInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "addPausableContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "clearPosition",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "emitAccountNativePosition",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "feeReceiver",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAllPausableContracts",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -211,6 +253,10 @@ export interface AddressRegistryInterface extends utils.Interface {
     functionFragment: "lendingRouters",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "pausableContracts",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "pauseAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pendingPauseAdmin",
@@ -218,6 +264,10 @@ export interface AddressRegistryInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "pendingUpgradeAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removePausableContract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -266,6 +316,8 @@ export interface AddressRegistryInterface extends utils.Interface {
     "AccountPositionCreated(address,address,address)": EventFragment;
     "FeeReceiverTransferred(address)": EventFragment;
     "LendingRouterSet(address)": EventFragment;
+    "PausableContractAdded(address)": EventFragment;
+    "PausableContractsRemoved(address)": EventFragment;
     "PauseAdminTransferred(address)": EventFragment;
     "PendingPauseAdminSet(address)": EventFragment;
     "PendingUpgradeAdminSet(address)": EventFragment;
@@ -278,6 +330,8 @@ export interface AddressRegistryInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AccountPositionCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeReceiverTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LendingRouterSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PausableContractAdded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PausableContractsRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PauseAdminTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PendingPauseAdminSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PendingUpgradeAdminSet"): EventFragment;
@@ -333,6 +387,28 @@ export type LendingRouterSetEvent = TypedEvent<
 
 export type LendingRouterSetEventFilter =
   TypedEventFilter<LendingRouterSetEvent>;
+
+export interface PausableContractAddedEventObject {
+  pausableContract: string;
+}
+export type PausableContractAddedEvent = TypedEvent<
+  [string],
+  PausableContractAddedEventObject
+>;
+
+export type PausableContractAddedEventFilter =
+  TypedEventFilter<PausableContractAddedEvent>;
+
+export interface PausableContractsRemovedEventObject {
+  removedContracts: string;
+}
+export type PausableContractsRemovedEvent = TypedEvent<
+  [string],
+  PausableContractsRemovedEventObject
+>;
+
+export type PausableContractsRemovedEventFilter =
+  TypedEventFilter<PausableContractsRemovedEvent>;
 
 export interface PauseAdminTransferredEventObject {
   newPauseAdmin: string;
@@ -437,13 +513,26 @@ export interface AddressRegistry extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    addPausableContract(
+      pausableContract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     clearPosition(
       account: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    emitAccountNativePosition(
+      account: PromiseOrValue<string>,
+      isCleared: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     feeReceiver(overrides?: CallOverrides): Promise<[string]>;
+
+    getAllPausableContracts(overrides?: CallOverrides): Promise<[string[]]>;
 
     getVaultPosition(
       account: PromiseOrValue<string>,
@@ -471,11 +560,21 @@ export interface AddressRegistry extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean] & { isLendingRouter: boolean }>;
 
+    pausableContracts(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     pauseAdmin(overrides?: CallOverrides): Promise<[string]>;
 
     pendingPauseAdmin(overrides?: CallOverrides): Promise<[string]>;
 
     pendingUpgradeAdmin(overrides?: CallOverrides): Promise<[string]>;
+
+    removePausableContract(
+      indexes: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     setLendingRouter(
       lendingRouter: PromiseOrValue<string>,
@@ -535,13 +634,26 @@ export interface AddressRegistry extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  addPausableContract(
+    pausableContract: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   clearPosition(
     account: PromiseOrValue<string>,
     vault: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  emitAccountNativePosition(
+    account: PromiseOrValue<string>,
+    isCleared: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   feeReceiver(overrides?: CallOverrides): Promise<string>;
+
+  getAllPausableContracts(overrides?: CallOverrides): Promise<string[]>;
 
   getVaultPosition(
     account: PromiseOrValue<string>,
@@ -569,11 +681,21 @@ export interface AddressRegistry extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  pausableContracts(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   pauseAdmin(overrides?: CallOverrides): Promise<string>;
 
   pendingPauseAdmin(overrides?: CallOverrides): Promise<string>;
 
   pendingUpgradeAdmin(overrides?: CallOverrides): Promise<string>;
+
+  removePausableContract(
+    indexes: PromiseOrValue<BigNumberish>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   setLendingRouter(
     lendingRouter: PromiseOrValue<string>,
@@ -629,13 +751,26 @@ export interface AddressRegistry extends BaseContract {
 
     acceptUpgradeOwnership(overrides?: CallOverrides): Promise<void>;
 
+    addPausableContract(
+      pausableContract: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     clearPosition(
       account: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
+    emitAccountNativePosition(
+      account: PromiseOrValue<string>,
+      isCleared: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     feeReceiver(overrides?: CallOverrides): Promise<string>;
+
+    getAllPausableContracts(overrides?: CallOverrides): Promise<string[]>;
 
     getVaultPosition(
       account: PromiseOrValue<string>,
@@ -663,11 +798,21 @@ export interface AddressRegistry extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    pausableContracts(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     pauseAdmin(overrides?: CallOverrides): Promise<string>;
 
     pendingPauseAdmin(overrides?: CallOverrides): Promise<string>;
 
     pendingUpgradeAdmin(overrides?: CallOverrides): Promise<string>;
+
+    removePausableContract(
+      indexes: PromiseOrValue<BigNumberish>[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setLendingRouter(
       lendingRouter: PromiseOrValue<string>,
@@ -756,6 +901,20 @@ export interface AddressRegistry extends BaseContract {
       lendingRouter?: PromiseOrValue<string> | null
     ): LendingRouterSetEventFilter;
 
+    "PausableContractAdded(address)"(
+      pausableContract?: PromiseOrValue<string> | null
+    ): PausableContractAddedEventFilter;
+    PausableContractAdded(
+      pausableContract?: PromiseOrValue<string> | null
+    ): PausableContractAddedEventFilter;
+
+    "PausableContractsRemoved(address)"(
+      removedContracts?: PromiseOrValue<string> | null
+    ): PausableContractsRemovedEventFilter;
+    PausableContractsRemoved(
+      removedContracts?: PromiseOrValue<string> | null
+    ): PausableContractsRemovedEventFilter;
+
     "PauseAdminTransferred(address)"(
       newPauseAdmin?: PromiseOrValue<string> | null
     ): PauseAdminTransferredEventFilter;
@@ -812,13 +971,26 @@ export interface AddressRegistry extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    addPausableContract(
+      pausableContract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     clearPosition(
       account: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    emitAccountNativePosition(
+      account: PromiseOrValue<string>,
+      isCleared: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     feeReceiver(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getAllPausableContracts(overrides?: CallOverrides): Promise<BigNumber>;
 
     getVaultPosition(
       account: PromiseOrValue<string>,
@@ -846,11 +1018,21 @@ export interface AddressRegistry extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    pausableContracts(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     pauseAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
     pendingPauseAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
     pendingUpgradeAdmin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    removePausableContract(
+      indexes: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     setLendingRouter(
       lendingRouter: PromiseOrValue<string>,
@@ -911,13 +1093,28 @@ export interface AddressRegistry extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    addPausableContract(
+      pausableContract: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     clearPosition(
       account: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    emitAccountNativePosition(
+      account: PromiseOrValue<string>,
+      isCleared: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     feeReceiver(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getAllPausableContracts(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getVaultPosition(
       account: PromiseOrValue<string>,
@@ -945,12 +1142,22 @@ export interface AddressRegistry extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    pausableContracts(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     pauseAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pendingPauseAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pendingUpgradeAdmin(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    removePausableContract(
+      indexes: PromiseOrValue<BigNumberish>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setLendingRouter(
