@@ -11,13 +11,15 @@ export async function fetchYields() {
   const mainnet = models.find((m) => m.network === Network.mainnet);
   if (!mainnet) return [];
 
-  const allVaults = mainnet.getAllListedVaults(false);
+  const allVaults = mainnet.getAllListedVaults().filter((v) => v.isVisible);
   await Promise.all(
     allVaults.map((v) =>
       mainnet.fetchTimeSeriesData(v.vaultAddress, ChartType.APY)
     )
   );
-  const allVaultsWithYield = mainnet.getAllListedVaultsWithYield();
+  const allVaultsWithYield = mainnet
+    .getAllListedVaultsWithYield()
+    .filter((v) => v.vaultConfig.isVisible);
 
   return (
     allVaultsWithYield?.map((v) => ({
