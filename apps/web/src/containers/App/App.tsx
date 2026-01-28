@@ -36,6 +36,7 @@ import {
   BetaPageLeaderboardInject,
 } from '../Webflow/AttributesInject';
 import { BlockedView } from '../TermsView/blocked';
+import { VaultList } from '../VaultList';
 
 const RedirectToDefaultNetwork = () => {
   const selectedNetwork = useSelectedNetwork();
@@ -169,6 +170,16 @@ const AllRoutes = observer(() => {
               component={VaultsPageInject}
               routeType="Card"
               isInjected
+            />
+          }
+        />
+        <Route
+          path="/vaults-list"
+          element={
+            <AppLayoutRoute
+              path="/vaults-list"
+              component={VaultList}
+              routeType="Card"
             />
           }
         />
