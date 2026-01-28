@@ -5,13 +5,13 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import {
   useTheme,
   Box,
-  Button,
   Menu,
   MenuProps,
   styled,
   MenuItem,
   ListItemIcon,
 } from '@mui/material';
+import { Button } from '../button/button';
 import { trackOutboundLink } from '@notional-finance/helpers';
 
 export interface DropdownItem {
@@ -42,20 +42,15 @@ const TextWrapper = styled('div', {
 `
 );
 
-const DropdownButton = styled(Button)`
-  width: 100%;
-  text-transform: capitalize;
-  justify-content: flex-start;
-  padding: 1.25rem;
-  font-size: 1rem;
-  font-weight: 700;
-`;
-
 const ArrowWrapper = styled(Box)(
-  ({ theme: { palette } }) => `
-  background-color: ${palette.primary.light};
+  ({ theme }) => `
+  background-color: ${theme.palette.info.light};
   border-radius: 50%;
-  width: 28px;
+  margin-left: ${theme.spacing(2)};
+  padding: ${theme.spacing(0.5)};
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `
 );
 
@@ -83,13 +78,24 @@ export function Dropdown({
 
   return (
     <Box>
-      <DropdownButton
+      <Button
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
-        variant="contained"
+        variant="outlined"
+        size="medium"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
+        sx={{
+          borderRadius: theme.spacing(4),
+          padding: theme.spacing(1, 2),
+          color: theme.palette.typography.light,
+          background: theme.palette.background.paper,
+          border: theme.shape.borderStandard,
+          '&:hover': {
+            border: theme.shape.borderStandard,
+          },
+        }}
         startIcon={ButtonStartIcon && <ButtonStartIcon />}
         endIcon={
           ButtonEndIcon ? (
@@ -98,12 +104,11 @@ export function Dropdown({
             <ArrowWrapper>
               <ArrowIcon
                 sx={{
-                  color: theme.palette.common.white,
-                  backgroundColor: theme.palette.primary.light,
-                  fontSize: '.875rem',
-                  fontWeight: 800,
+                  color: theme.palette.primary.main,
                   transform: `rotate(${open ? '0' : '180'}deg)`,
                   transition: 'transform .5s ease-in-out',
+                  width: theme.spacing(2),
+                  height: theme.spacing(2),
                 }}
               />
             </ArrowWrapper>
@@ -113,7 +118,7 @@ export function Dropdown({
         <TextWrapper buttonTextAlign={buttonTextAlign} theme={theme}>
           <FormattedMessage {...buttonText} />
         </TextWrapper>
-      </DropdownButton>
+      </Button>
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
