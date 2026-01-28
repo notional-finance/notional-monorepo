@@ -444,11 +444,6 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
     const { totalReallocated, allocations } = this.getActualReallocated(
       amountToReallocateToKink
     );
-    console.log(
-      'amountToReallocateToKink',
-      amountToReallocateToKink.toExactString()
-    );
-    console.log('totalReallocated', totalReallocated.toExactString());
     const finalSupplyAssets = totalSupplyAssets.add(totalReallocated);
 
     return {

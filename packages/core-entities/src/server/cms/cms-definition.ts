@@ -45,6 +45,7 @@ export interface ApiVaultData {
     'launched-on': string;
     projects: ApiProject[];
     rewards: ApiReward[];
+    'is-visible': boolean;
     'strategy-type-2': {
       name: string;
       slug: string;
@@ -98,6 +99,7 @@ export interface VaultCMSData {
   vaultIcon: string;
   depositToken: string;
   vaultFeatures: string[];
+  isVisible: boolean;
   launchedOn: number;
   strategyClass: string;
   vaultDescription: string;
