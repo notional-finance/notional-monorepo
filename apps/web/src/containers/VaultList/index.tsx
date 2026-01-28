@@ -1,10 +1,10 @@
 import { Box, useTheme } from '@mui/material';
-import { VaultStar } from '@notional-finance/icons';
-import { H3, Paragraph } from '@notional-finance/mui';
+import { TokenIcon, VaultStar } from '@notional-finance/icons';
+import { Button, Dropdown, H3, Paragraph, Toggle } from '@notional-finance/mui';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { FormattedMessage } from 'react-intl';
+import { defineMessage, FormattedMessage } from 'react-intl';
 
 const TopBanner = () => {
   const { themeVariant } = useAppStore();
@@ -22,6 +22,7 @@ const TopBanner = () => {
         alignItems: 'center',
         borderRadius: theme.shape.borderRadiusLarge,
         padding: theme.spacing(2, 3),
+        marginBottom: theme.spacing(5),
       }}
     >
       <Box
@@ -63,6 +64,60 @@ export const VaultList = () => {
       }}
     >
       <TopBanner />
+      <Box
+        sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing(3) }}
+      >
+        <Toggle
+          selectedTabIndex={0}
+          tabLabels={[
+            <FormattedMessage
+              defaultMessage="All Tokens"
+              description="Toggle label"
+            />,
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: theme.spacing(1),
+              }}
+            >
+              <TokenIcon symbol="usdc" size="small" />
+              <FormattedMessage
+                defaultMessage="USDC"
+                description="Toggle label"
+              />
+            </Box>,
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: theme.spacing(1),
+              }}
+            >
+              <TokenIcon symbol="weth" size="small" />
+              <FormattedMessage
+                defaultMessage="WETH"
+                description="Toggle label"
+              />
+            </Box>,
+          ]}
+        />
+        <Dropdown
+          buttonText={defineMessage({
+            defaultMessage: 'Strategy Type',
+            description: 'Dropdown button text',
+          })}
+          dropDownItems={[
+            { label: 'All Tokens', href: '/vaults-list' },
+            { label: 'USDC', href: '/vaults-list/usdc' },
+            { label: 'WETH', href: '/vaults-list/weth' },
+          ]}
+          open={false}
+        />
+        <Button variant="outlined" size="medium">
+          Clear All
+        </Button>
+      </Box>
     </Box>
   );
 };
