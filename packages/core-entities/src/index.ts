@@ -12,6 +12,7 @@ export {
   fetchGraph,
   loadGraphClientDeferred,
   fetchGraphPaginate,
+  destroyGraphClient,
 } from './server/server-registry';
 export * from './config/whitelisted-vaults';
 

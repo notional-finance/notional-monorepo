@@ -1,4 +1,5 @@
 import {
+  destroyGraphClient,
   fetchGraphPaginate,
   initializeTokenBalanceRegistry,
   loadGraphClientDeferred,
@@ -46,18 +47,17 @@ async function refreshPoints(env: Env) {
   if (!allPositions.data) {
     throw new Error('No positions found');
   }
+  let previousPointsResponse: PointsResponse = {
+    points: [],
+    totalPointsIssued: 0,
+    totalPointsPerDay: 0,
+    lastUpdated: 0,
+  };
   const previousPoints = await env.VIEW_CACHE_R2.get(POINTS_KEY);
-  if (!previousPoints) {
-    throw new Error('No previous points found');
+  if (previousPoints) {
+    previousPointsResponse = (await previousPoints.json()) as PointsResponse;
   }
-  const previousPointsResponse =
-    (await previousPoints?.json()) as PointsResponse;
-  // const previousPointsResponse: PointsResponse = {
-  //   points: [],
-  //   totalPointsIssued: 0,
-  //   totalPointsPerDay: 0,
-  //   lastUpdated: 0,
-  // };
+
   const previousPointsMap = new Map<string, number>(
     previousPointsResponse.points.map((p) => [p.address, p.points])
   );
@@ -68,9 +68,7 @@ async function refreshPoints(env: Env) {
     .map((b) => {
       const token = mainnet.getTokenByID(b.token.id.toLowerCase());
       const balance = TokenBalance.from(b.current.currentBalance, token);
-      let points = balance.toFiat('USD').toFloat();
-      // Cap the points at 25_000
-      if (points > 25_000) points = 25_000;
+      const points = balance.toFiat('USD').toFloat();
 
       return {
         address: b.account.id,
@@ -100,6 +98,7 @@ async function refreshPoints(env: Env) {
   };
 
   await env.VIEW_CACHE_R2.put(POINTS_KEY, JSON.stringify(newPointsResponse));
+  await destroyGraphClient();
 }
 
 export default {
@@ -115,6 +114,7 @@ export default {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
     const points = await env.VIEW_CACHE_R2.get(POINTS_KEY);
     if (!points) {
       return new Response('No points found', { status: 404 });
