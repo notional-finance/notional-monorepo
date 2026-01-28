@@ -7,6 +7,7 @@ import {
 import { getNowSeconds, Network } from '@notional-finance/util';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllVaultAccountsQuery } from 'packages/core-entities/src/.graphclient';
+import { fetchYields } from './yields';
 
 export interface Env {
   VIEW_CACHE_R2: R2Bucket;
@@ -103,10 +104,17 @@ async function refreshPoints(env: Env) {
 
 export default {
   async fetch(
-    _request: Request,
+    req: Request,
     env: Env,
     _ctx: ExecutionContext
   ): Promise<Response> {
+    const url = new URL(req.url);
+    if (url.pathname === '/fetchYields') {
+      const yields = await fetchYields();
+      return new Response(JSON.stringify(yields), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     const points = await env.VIEW_CACHE_R2.get(POINTS_KEY);
     if (!points) {
       return new Response('No points found', { status: 404 });

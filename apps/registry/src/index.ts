@@ -4,7 +4,6 @@ import { Network } from '@notional-finance/util';
 import { putStorageKey } from './registry-helpers';
 import { refreshViews } from './views-helpers';
 import { destroy } from 'mobx-state-tree';
-import { fetchYields } from './yields';
 
 export interface BaseDOEnv {
   NX_COMMIT_REF: string | undefined;
@@ -50,11 +49,6 @@ export default {
         env.SUPPORTED_NETWORKS.map((network) => execute(env, network, false))
       );
       return new Response('Executed', { status: 200 });
-    } else if (url.pathname === '/fetchYields') {
-      const yields = await fetchYields();
-      return new Response(JSON.stringify(yields), {
-        headers: { 'Content-Type': 'application/json' },
-      });
     }
 
     // Allow fetches directly from the registry for different files, useful for local development
