@@ -32,7 +32,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     const params = self.vaults.get(vaultAddress);
     if (!params) throw Error(`No vault params found: ${vaultAddress}`);
     const v = self.configuration?.vaults.find(
-      (c) => c.vaultAddress === vaultAddress
+      (c) => c.vaultAddress.toLowerCase() === vaultAddress.toLowerCase()
     );
     if (!v) throw Error(`Configuration not found for ${vaultAddress}`);
     const primaryToken = getTokenByID(v.depositToken.id);
@@ -86,7 +86,7 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
 
   const getVaultName = (vaultAddress: string) => {
     const vault = self.configuration?.vaults.find(
-      (v) => v.vaultAddress === vaultAddress
+      (v) => v.vaultAddress.toLowerCase() === vaultAddress.toLowerCase()
     );
     if (!vault) throw Error(`No vault params found: ${vaultAddress}`);
     return vault.name;
@@ -106,9 +106,9 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
 
   const getVaultConfig = (vaultAddress: string) => {
     const v = self.configuration?.vaults.find(
-      (v) => v.vaultAddress === vaultAddress
+      (v) => v.vaultAddress.toLowerCase() === vaultAddress.toLowerCase()
     );
-    const vaultParams = self.vaults.get(vaultAddress);
+    const vaultParams = self.vaults.get(vaultAddress.toLowerCase());
     if (!v || !vaultParams)
       throw Error(`No vault params found: ${vaultAddress}`);
     return {
