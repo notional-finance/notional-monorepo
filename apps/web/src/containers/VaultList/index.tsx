@@ -1,6 +1,23 @@
-import { Box, useTheme } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  useTheme,
+} from '@mui/material';
 import { TokenIcon, VaultStar } from '@notional-finance/icons';
-import { Button, Dropdown, H3, Paragraph, Toggle } from '@notional-finance/mui';
+import {
+  Button,
+  Dropdown,
+  H3,
+  H5,
+  Paragraph,
+  Toggle,
+} from '@notional-finance/mui';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/util';
@@ -53,6 +70,62 @@ const TopBanner = () => {
   );
 };
 
+const VaultTable = () => {
+  const theme = useTheme();
+
+  return (
+    <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
+      <Table
+        sx={{
+          '.TableRow': {
+            borderBottom: 'none',
+            borderRadius: theme.shape.borderRadius,
+          },
+        }}
+      >
+        <TableHead>
+          <TableRow>
+            <TableCell>
+              <H5>Vault</H5>
+            </TableCell>
+            <TableCell>
+              <H5>Yield Token</H5>
+            </TableCell>
+            <TableCell>
+              <H5>Available Liquidity</H5>
+            </TableCell>
+            <TableCell>
+              <H5>Rewards</H5>
+            </TableCell>
+            <TableCell>
+              <H5>Points</H5>
+            </TableCell>
+            <TableCell>
+              <H5>Max APY</H5>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {/* {rows.map((row) => (
+            <TableRow
+              key={row.name}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                {row.name}
+              </TableCell>
+              <TableCell align="right">{row.calories}</TableCell>
+              <TableCell align="right">{row.fat}</TableCell>
+              <TableCell align="right">{row.carbs}</TableCell>
+              <TableCell align="right">{row.protein}</TableCell>
+            </TableRow>
+          ))} */}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+
 export const VaultList = () => {
   const theme = useTheme();
 
@@ -65,7 +138,12 @@ export const VaultList = () => {
     >
       <TopBanner />
       <Box
-        sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing(3) }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: theme.spacing(3),
+          marginBottom: theme.spacing(5),
+        }}
       >
         <Toggle
           selectedTabIndex={0}
@@ -118,6 +196,7 @@ export const VaultList = () => {
           Clear All
         </Button>
       </Box>
+      <VaultTable />
     </Box>
   );
 };
