@@ -31,7 +31,7 @@ export async function calculateKPI(viewCacheR2: R2Bucket) {
   if (!mainnet || !all) return;
 
   // Update the landing page stats
-  const allVaults = mainnet.getAllListedVaults(false);
+  const allVaults = mainnet.getAllListedVaults(true);
   await Promise.all(
     allVaults.map((v) =>
       mainnet.fetchTimeSeriesData(v.vaultToken.id, ChartType.APY)

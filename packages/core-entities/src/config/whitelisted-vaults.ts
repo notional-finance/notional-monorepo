@@ -55,7 +55,7 @@ export const whitelistedVaults = (
     case Network.mainnet:
       return [
         vaults.mainnet.Convex_OETH_WETH,
-        vaults.mainnet.Staking_mHYPER,
+        // vaults.mainnet.Staking_mHYPER,
         vaults.mainnet.Staking_mAPOLLO,
       ].map(toLowercase);
     case Network.arbitrum:
