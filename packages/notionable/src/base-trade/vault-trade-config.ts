@@ -25,7 +25,8 @@ function eligibleDebtToken(
   }
 ) {
   return (
-    t.tokenType === 'VaultDebt' && t.vaultAddress === vaultConfig?.vaultAddress
+    t.tokenType === 'VaultDebt' &&
+    t.vaultAddress?.toLowerCase() === vaultConfig?.vaultAddress?.toLowerCase()
   );
 }
 
