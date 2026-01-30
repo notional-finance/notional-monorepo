@@ -13,3 +13,9 @@ run_worker_first = true
 [[r2_buckets]]
 binding = "VIEW_CACHE_R2"
 bucket_name = "view-cache-r2"
+
+[env.prod]
+name = "notional-web-v4"
+
+[env.dev]
+name = "notional-web-v4-dev"
