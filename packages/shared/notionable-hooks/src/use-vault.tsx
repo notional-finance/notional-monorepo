@@ -25,3 +25,8 @@ export function useVaultFeeRate(vaultAddress?: string) {
     ? currentNetworkStore.getVaultFee(vaultAddress)
     : undefined;
 }
+
+export function useLendingRouters() {
+  const currentNetworkStore = useCurrentNetworkStore();
+  return currentNetworkStore.getLendingRouters();
+}
