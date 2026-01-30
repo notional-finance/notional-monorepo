@@ -66,6 +66,10 @@ export const VaultLiquidationSettings = {
       vaultAssetEqualsWithdrawToken: true,
       slippageLimit: 0.0051,
     },
+    '0x2a5c94fe8fa6c0c8d2a87e5c71ad628caa092ce4': {
+      vaultAssetEqualsWithdrawToken: true,
+      slippageLimit: 0.0051,
+    },
   },
   [Network.arbitrum]: {
     // Arbitrum vault liquidation settings

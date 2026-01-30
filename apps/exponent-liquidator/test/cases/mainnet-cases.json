@@ -95,6 +95,24 @@
         "totalTransactions": 2
       },
       "timeout": 60000
+    },
+    {
+      "name": "MidasStaking mHYPER 77% LTV no withdraw request",
+      "description": "successful liquidation of MidasStaking vault with no withdraw request",
+      "forkBlock": 24349855,
+      "network": "mainnet",
+      "positions": [
+        [
+          "0x9299B176bFd1CaBB967ac2A027814FAad8782BA7",
+          "0x2a5c94fe8fa6c0c8d2a87e5c71ad628caa092ce4"
+        ]
+      ],
+      "expectedResults": {
+        "successfulTransactions": 1,
+        "failedTransactions": 0,
+        "totalTransactions": 1
+      },
+      "timeout": 60000
     }
   ]
 }
