@@ -37,7 +37,7 @@ const useTradeModel = (tradeType: AllTradeTypes) => {
       selectedNetwork: network,
       selectedDepositToken: params.selectedDepositToken,
       selectedToken: params.selectedToken,
-      vaultAddress: params.vaultAddress,
+      vaultAddress: params.vaultAddress?.toLowerCase(),
     });
 
     return () => {

@@ -9,15 +9,12 @@ import {
 } from '@notional-finance/mui';
 import {
   useAccountReady,
+  useLendingRouters,
   useWalletAllowances,
   useWalletConnectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
-import {
-  SupportedNetworks,
-  UNLIMITED_APPROVAL,
-  ZERO_ADDRESS,
-} from '@notional-finance/util';
+import { SupportedNetworks, UNLIMITED_APPROVAL } from '@notional-finance/util';
 import { Title } from '../../settings-side-drawer';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { EditIcon, TokenIcon } from '@notional-finance/icons';
@@ -58,15 +55,19 @@ const TokenAllowanceRow = ({ amount }: { amount: TokenBalance }) => {
   const walletConnected = useAccountReady(network);
   const isUnlimited = amount.n.gte(UNLIMITED_APPROVAL);
   const canEdit = network === amount.network && walletConnected;
+  // TODO: support multiple lending routers
+  const lendingRouters = useLendingRouters();
+
   const { enableToken } = useTokenApproval(
     amount.symbol,
-    ZERO_ADDRESS,
+    lendingRouters[0]?.id,
     amount.network
   );
   const { changeNetwork } = useChangeNetwork(amount.network);
 
   return (
     <Box
+      key={amount.token.address}
       sx={{
         display: 'flex',
         alignItems: 'center',
@@ -95,7 +96,7 @@ const TokenAllowanceRow = ({ amount }: { amount: TokenBalance }) => {
       </Box>
       <Box
         sx={{ display: 'flex', cursor: canEdit ? 'pointer' : 'auto' }}
-        onClick={canEdit ? () => enableToken(false) : undefined}
+        onClick={canEdit ? () => enableToken(true) : undefined}
       >
         <Subtitle accent marginRight={theme.spacing(0.5)}>
           {isUnlimited ? (
@@ -145,6 +146,7 @@ export const EnabledCurrencies = () => {
       {SupportedNetworks.map((network) => {
         return (
           <Box
+            key={network}
             sx={{
               width: '100%',
               display: 'block',

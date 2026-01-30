@@ -51,8 +51,7 @@ export const useTransactionApprovals = (
 
   const tokenApprovalRequired =
     !!isSignerConnected &&
-    insufficientAllowance === true &&
-    tokenStatus?.amount.isZero() === true;
+    (insufficientAllowance === true || tokenStatus?.amount.isZero() === true);
 
   const secondaryTokenApprovalRequired =
     !!isSignerConnected &&

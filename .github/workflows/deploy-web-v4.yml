@@ -59,7 +59,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --config ./apps/web/wrangler.toml
+          command: deploy --config ./apps/web/wrangler.toml --env ${{ github.ref == 'refs/heads/v4/prod' && 'prod' || 'dev' }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy Workers
         shell: bash
