@@ -17,19 +17,19 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
   const { getTimeSeries } = AnalyticsViews(self);
 
   const isVaultEnabled = (vaultAddress: string) => {
-    return self.vaults.get(vaultAddress)?.enabled || false;
+    return self.vaults.get(vaultAddress.toLowerCase())?.enabled || false;
   };
 
   const getYieldToken = (vaultAddress: string) => {
     const v = self.configuration?.vaults.find(
-      (v) => v.vaultAddress === vaultAddress
+      (v) => v.vaultAddress.toLowerCase() === vaultAddress.toLowerCase()
     );
     if (!v) throw Error(`No vault params found: ${vaultAddress}`);
     return getTokenByID(v.yieldToken.id);
   };
 
   const getVaultAdapter = (vaultAddress: string) => {
-    const params = self.vaults.get(vaultAddress);
+    const params = self.vaults.get(vaultAddress.toLowerCase());
     if (!params) throw Error(`No vault params found: ${vaultAddress}`);
     const v = self.configuration?.vaults.find(
       (c) => c.vaultAddress.toLowerCase() === vaultAddress.toLowerCase()

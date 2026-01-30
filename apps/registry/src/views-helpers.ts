@@ -2,6 +2,7 @@ import { AnalyticsServer } from '@notional-finance/core-entities/src/server/anal
 import { putStorageKey } from './registry-helpers';
 import { BaseDOEnv } from '.';
 import { Network } from '@notional-finance/util';
+import { destroyGraphClient } from '@notional-finance/core-entities';
 
 async function fetchDBView(env: BaseDOEnv, network: Network, name: string) {
   try {
@@ -26,17 +27,6 @@ async function fetchDBView(env: BaseDOEnv, network: Network, name: string) {
   }
 }
 
-async function storeDocument(
-  env: BaseDOEnv,
-  result: { data?: unknown },
-  name: string,
-  network: Network
-) {
-  const key = `${network}/views/${name}`;
-  if (result['data'])
-    return putStorageKey(env, key, JSON.stringify(result['data']));
-}
-
 async function fetchAllDBViews(env: BaseDOEnv, network: Network) {
   const resp = await fetch(`${env.DATA_SERVICE_URL}/views?network=${network}`, {
     headers: {
@@ -44,29 +34,15 @@ async function fetchAllDBViews(env: BaseDOEnv, network: Network) {
     },
   });
   const data = (await resp.json()) as { view_name: string }[];
-  await Promise.all(data.map((v) => fetchDBView(env, network, v.view_name)));
-}
-
-export async function fetchReconciliationViews(
-  env: BaseDOEnv,
-  network: Network
-) {
-  if (network === Network.all) return;
-  const analyticsServer = new AnalyticsServer(env);
-
-  await Promise.all([
-    analyticsServer
-      .fetchGraphDocument(network, 'MetaDocument')
-      .then((d) => storeDocument(env, d, 'SubgraphMeta', network)),
-  ]);
+  for (const v of data) {
+    await fetchDBView(env, network, v.view_name);
+  }
 }
 
 export async function refreshViews(env: BaseDOEnv, network: Network) {
-  // const logger = createLogger(env, 'views');
   const analyticsServer = new AnalyticsServer(env);
 
   await fetchAllDBViews(env, network);
-  await fetchReconciliationViews(env, network);
   // Saves time series data to R2 for the registry to serve
   const { timeSeries, priceChanges } = await analyticsServer.fetchTimeSeries(
     network
@@ -79,8 +55,10 @@ export async function refreshViews(env: BaseDOEnv, network: Network) {
   );
 
   await Promise.all(
-    timeSeries.map((v) =>
-      putStorageKey(env, `${network}/views/${v.id}`, JSON.stringify(v))
-    )
+    timeSeries.map((v) => {
+      return putStorageKey(env, `${network}/views/${v.id}`, JSON.stringify(v));
+    })
   );
+
+  await destroyGraphClient();
 }
