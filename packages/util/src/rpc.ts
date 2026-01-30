@@ -78,6 +78,7 @@ export function getEtherscanAddressLink(
 export function isTestHost() {
   return (
     globalThis.location.hostname === 'exponent.notional.finance' ||
+    globalThis.location.hostname === 'dev.notional.finance' ||
     globalThis.location.hostname === 'localhost:3000'
   );
 }
