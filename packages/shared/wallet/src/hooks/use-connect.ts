@@ -1,6 +1,10 @@
 import { trackEvent } from '@notional-finance/helpers';
 import { useWalletStore } from '@notional-finance/notionable-hooks';
-import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
+import {
+  getNetworkFromId,
+  Network,
+  TRACKING_EVENTS,
+} from '@notional-finance/util';
 import { useConnectWallet, useSetChain } from '@web3-onboard/react';
 import { BigNumber } from 'ethers';
 import { useCallback, useEffect } from 'react';
@@ -61,15 +65,11 @@ export const useConnect = () => {
   useEffect(() => {
     if (!selectedAddress) {
       walletStore.setUserWallet(undefined);
-    } else if (
-      wallet &&
-      selectedAddress &&
-      !isReadOnlyAddress &&
-      selectedChain
-    ) {
+    } else if (wallet && selectedAddress && !isReadOnlyAddress) {
       setPrimaryWallet(wallet, selectedAddress);
       walletStore.setUserWallet({
-        selectedChain,
+        // Set the default network to mainnet if we are not on a supported network
+        selectedChain: selectedChain || Network.mainnet,
         selectedAddress,
         isReadOnlyAddress: false,
         label: wallet.label,
