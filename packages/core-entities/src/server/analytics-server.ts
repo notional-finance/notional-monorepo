@@ -503,7 +503,7 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
   async fetchView(network: Network, view: string): Promise<AnalyticsData> {
     const _fetch = USE_CROSS_FETCH ? crossFetch : fetch;
-    const cacheUrl = `https://registry-v4.notional.finance/${network}/views/${view}`;
+    const cacheUrl = `https://registry.notional.finance/${network}/views/${view}`;
     const result = await _fetch(cacheUrl);
     const body = await result.text();
     if (result.status !== 200) throw Error(`Failed Request: ${body}`);
