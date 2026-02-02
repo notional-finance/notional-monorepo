@@ -295,7 +295,7 @@ export class Staking extends VaultAdapter {
     const vaultAPYs =
       this.apyHistory?.data
         ?.filter(
-          ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+          ({ timestamp }) => timestamp > getNowSeconds() - 3 * SECONDS_IN_DAY
         )
         .map(({ totalAPY }) => totalAPY)
         .filter((apy) => apy !== null) || [];
