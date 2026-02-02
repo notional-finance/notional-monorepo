@@ -27,12 +27,8 @@ export function getProviderFromNetwork(
       skipFetchSetup: true,
     });
   }
-  const provider = new ethers.providers.AlchemyProvider(
-    NetworkId[network],
-    ALCHEMY_KEY
-  );
-  provider.send = ethers.providers.JsonRpcBatchProvider.prototype.send;
-  return provider;
+
+  return new ethers.providers.JsonRpcProvider(getProviderURLFromNetwork(network));
 }
 
 export function getNetworkFromId(id: number) {
