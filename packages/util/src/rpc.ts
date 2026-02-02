@@ -39,11 +39,9 @@ export function networkName(id: number) {
 export function getRpcUrl(networkId: number) {
   switch (networkId) {
     case 1:
-      return 'https://eth-mainnet.alchemyapi.io/v2/JU05SBqaAUg1-2xYuUvvJlE2-zcFKSwz';
-    case 5:
-      return 'https://eth-goerli.alchemyapi.io/v2/u9PaziJgX-8l4j8_c88b777-Io4scNUe';
+      return 'https://eth-mainnet.g.alchemy.com/v2/JU05SBqaAUg1-2xYuUvvJlE2-zcFKSwz';
     default:
-      return 'https://eth-goerli.alchemyapi.io/v2/u9PaziJgX-8l4j8_c88b777-Io4scNUe';
+      return 'https://eth-mainnet.g.alchemy.com/v2/JU05SBqaAUg1-2xYuUvvJlE2-zcFKSwz';
   }
 }
 
