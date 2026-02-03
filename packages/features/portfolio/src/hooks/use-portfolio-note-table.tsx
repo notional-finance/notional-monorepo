@@ -12,7 +12,6 @@ import {
   useWalletNetworkAccounts,
 } from '@notional-finance/notionable-hooks';
 import { Network, SupportedNetworks } from '@notional-finance/util';
-import { TokenBalance } from '@notional-finance/core-entities';
 import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export function usePortfolioNOTETable() {
@@ -23,37 +22,13 @@ export function usePortfolioNOTETable() {
 
   const result = SupportedNetworks.map((network) => {
     const account = networkAccounts ? networkAccounts.get(network) : undefined;
-    const totalIncentives =
-      networkAccounts && networkAccounts[network]
-        ? networkAccounts[network].totalIncentives
-        : undefined;
-    const unclaimedNOTE =
-      totalIncentives && totalIncentives['NOTE']
-        ? totalIncentives['NOTE'].current
-        : undefined;
     const noteBalance = account?.balances.find((t) => t.symbol === 'NOTE');
     const sNoteBalance = account?.balances.find((t) => t.symbol === 'sNOTE');
 
     hasNoteOrSNote =
       !noteBalance?.isZero() || !sNoteBalance?.isZero() ? true : false;
 
-    const getTotalNote = () => {
-      let total = undefined as TokenBalance | undefined;
-      if (noteBalance && unclaimedNOTE) {
-        total = noteBalance?.add(unclaimedNOTE);
-      } else if (noteBalance && !unclaimedNOTE) {
-        total = noteBalance;
-      } else if (!noteBalance && unclaimedNOTE) {
-        total = unclaimedNOTE;
-      }
-
-      return total;
-    };
-
-    if (
-      (unclaimedNOTE === undefined || unclaimedNOTE?.isZero()) &&
-      noteBalance?.isZero()
-    ) {
+    if (noteBalance?.isZero()) {
       return null;
     }
 
@@ -84,38 +59,6 @@ export function usePortfolioNOTETable() {
           {
             displayValue:
               noteBalance
-                ?.toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(2, true, false) || '-',
-            isNegative: false,
-          },
-        ],
-      },
-      unclaimedNOTE: {
-        data: [
-          {
-            displayValue:
-              unclaimedNOTE?.toDisplayStringWithSymbol(2, true, false) || '-',
-            isNegative: false,
-          },
-          {
-            displayValue:
-              unclaimedNOTE
-                ?.toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(2, true, false) || '-',
-            isNegative: false,
-          },
-        ],
-      },
-      totalNOTE: {
-        data: [
-          {
-            displayValue:
-              getTotalNote()?.toDisplayStringWithSymbol(2, true, false) || '-',
-            isNegative: false,
-          },
-          {
-            displayValue:
-              getTotalNote()
                 ?.toFiat(baseCurrency)
                 .toDisplayStringWithSymbol(2, true, false) || '-',
             isNegative: false,
@@ -175,22 +118,6 @@ export function usePortfolioNOTETable() {
         textAlign: 'right',
         expandableTable: true,
         showLoadingSpinner: true,
-        fontWeightBold: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Unclaimed NOTE" />,
-        cell: MultiValueCell,
-        accessorKey: 'unclaimedNOTE',
-        textAlign: 'right',
-        expandableTable: true,
-        fontWeightBold: true,
-      },
-      {
-        header: <FormattedMessage defaultMessage="Total NOTE" />,
-        cell: MultiValueCell,
-        accessorKey: 'totalNOTE',
-        textAlign: 'right',
-        expandableTable: true,
         fontWeightBold: true,
       },
     ],

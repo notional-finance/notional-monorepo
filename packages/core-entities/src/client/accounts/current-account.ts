@@ -433,6 +433,10 @@ function getStakedNOTECalls(
   provider: providers.Provider
 ): AggregateCall[] {
   if (network !== Network.mainnet) return [];
+  const model = getNetworkModel(network);
+  const NOTE = model.getTokenBySymbol('NOTE');
+  const sNOTE = model.getTokenBySymbol('sNOTE');
+
   return [
     {
       stage: 0,
@@ -455,6 +459,36 @@ function getStakedNOTECalls(
           inCoolDown,
           inRedeemWindow,
         };
+      },
+    },
+    {
+      stage: 0,
+      target: SNOTEWeightedPool.sNOTE_Contract.connect(provider),
+      method: 'balanceOf',
+      args: [account],
+      key: `${sNOTE.address}.balance`,
+      transform: (r: BigNumber) => {
+        return TokenBalance.from(r, sNOTE);
+      },
+    },
+    {
+      stage: 0,
+      target: new Contract(NOTE.address, ERC20ABI, provider),
+      method: 'allowance',
+      args: [account, sNOTE.address],
+      key: `${NOTE.address}.${sNOTE.address}.allowance`,
+      transform: (b: BigNumber) => {
+        return TokenBalance.from(b, NOTE);
+      },
+    },
+    {
+      stage: 0,
+      target: new Contract(NOTE.address, ERC20ABI, provider),
+      method: 'balanceOf',
+      args: [account],
+      key: `${NOTE.address}.balance`,
+      transform: (r: BigNumber) => {
+        return TokenBalance.from(r, NOTE);
       },
     },
   ];
