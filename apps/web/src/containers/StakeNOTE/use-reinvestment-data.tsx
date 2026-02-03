@@ -39,7 +39,7 @@ export const useReinvestmentData = () => {
   const model = getNetworkModel(Network.mainnet);
   const snoteData = model.getSNOTEReinvestment()?.map((r) => ({
     ...r,
-    day: new Date(r.day).getTime(),
+    day: new Date(r.day).getTime() / 1000,
     txnHash: {
       href: getEtherscanTransactionLink(r.transaction_hash, Network.mainnet),
       hash: r.transaction_hash,
