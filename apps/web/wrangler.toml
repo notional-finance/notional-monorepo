@@ -10,6 +10,11 @@ not_found_handling = "single-page-application"
 binding = "ASSETS"
 run_worker_first = true
 
+[[r2_buckets]]
+binding = "VIEW_CACHE_R2"
+bucket_name = "view-cache-r2-dev"
+preview_bucket_name = "view-cache-r2-dev"
+
 [env.prod]
 name = "notional-web-v4"
 r2_buckets = [

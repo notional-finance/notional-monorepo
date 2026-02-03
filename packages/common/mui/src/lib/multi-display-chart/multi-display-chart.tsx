@@ -62,7 +62,6 @@ export const MultiDisplayChart = observer(
           width: '100%',
           padding: theme.spacing(3),
           position: 'relative',
-          height: '100%',
           display: 'flex',
           flexDirection: 'column',
         }}

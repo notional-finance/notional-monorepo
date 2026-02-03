@@ -353,6 +353,7 @@ export function calculateStake({
 }) {
   const mainnet = getNetworkModel(Network.mainnet);
   const ETH = mainnet.getTokenBySymbol('ETH');
+  const WETH = mainnet.getTokenBySymbol('WETH');
   const NOTE = mainnet.getTokenBySymbol('NOTE');
   const noteIn = secondaryDepositBalance || TokenBalance.zero(NOTE);
   const ethIn = useOptimalETH
@@ -370,7 +371,7 @@ export function calculateStake({
   }
 
   const { lpTokens, feesPaid } = collateralPool.getLPTokensGivenTokens([
-    ethIn.toToken(ETH),
+    ethIn.toToken(WETH),
     noteIn,
   ]);
 
@@ -381,7 +382,7 @@ export function calculateStake({
   );
   const expectedNOTEPrice = collateralPool.getExpectedETHPrice(
     noteIn,
-    ethIn.toToken(ETH)
+    ethIn.toToken(WETH)
   );
 
   return {
