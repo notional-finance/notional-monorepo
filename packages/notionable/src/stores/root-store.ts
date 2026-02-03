@@ -94,11 +94,6 @@ export const createRootStore = (): RootStoreType => {
       themeVariant: userSettings?.themeVariant
         ? userSettings?.themeVariant
         : THEME_VARIANTS.LIGHT,
-      heroStats: {
-        totalAccounts: 0,
-        totalDeposits: 0,
-        totalOpenDebt: 0,
-      },
       globalError: {
         error: undefined,
       },
