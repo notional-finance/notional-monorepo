@@ -99,7 +99,14 @@ export const AnalyticsActions = (self: Instance<typeof NetworkModel>) => {
       throw new Error(`Failed to fetch ${String(key)}: ${response.statusText}`);
     }
     try {
-      const data = parseData(key, yield response.json());
+      let data = parseData(key, yield response.json());
+      if (key === 'sNOTEReinvestment') {
+        data = data.map((r) => ({
+          ...r,
+          apy: r.apy && Number.isFinite(r.apy) ? r.apy : null,
+        }));
+      }
+
       self.analytics[key] = data;
       return data;
     } catch (e) {
