@@ -450,14 +450,11 @@ export const TradeModel = types
           self.tradeType = 'StakeNOTERedeem';
         } else {
           // This is the normal case, just staking NOTE
-          const ETH = model.getTokenBySymbol('ETH') as Instance<
-            typeof TokenDefinitionModel
-          >;
           const WETH = model.getTokenBySymbol('WETH') as Instance<
             typeof TokenDefinitionModel
           >;
           self.tradeType = 'StakeNOTE';
-          self.availableDepositTokens.replace([ETH, WETH]);
+          self.availableDepositTokens.replace([WETH]);
           self.availableCollateralTokens.replace([sNOTE]);
           self.collateral = sNOTE;
           self.useOptimalETH = true;

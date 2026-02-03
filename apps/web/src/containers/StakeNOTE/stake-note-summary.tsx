@@ -7,6 +7,8 @@ import {
   Faq,
   DataTable,
   TotalBoxProps,
+  CountUp,
+  H1,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { SECONDS_IN_DAY, TRACKING_EVENTS } from '@notional-finance/util';
@@ -37,6 +39,7 @@ const StakeNOTESummary = ({
     historicalSNOTEAPY,
     annualizedRewardRate,
     totalSNOTEValue,
+    currentSNOTEYield,
   } = useStakedNote(stakedNoteData, 90 * SECONDS_IN_DAY, baseCurrency);
   const { reinvestmentTableColumns, reinvestmentTableData } =
     useReinvestmentData();
@@ -63,8 +66,19 @@ const StakeNOTESummary = ({
   ];
 
   return (
-    <Box>
-      {/* <TradeActionSummary stakedNOTEApy={currentSNOTEYield}> */}
+    <Box
+      sx={{
+        paddingRight: theme.spacing(8),
+        paddingLeft: theme.spacing(8),
+      }}
+    >
+      <H1
+        sx={{
+          marginBottom: theme.spacing(4),
+        }}
+      >
+        <CountUp value={currentSNOTEYield} suffix="%" decimals={2} /> APY
+      </H1>
       <MultiDisplayChart
         chartComponents={[
           {

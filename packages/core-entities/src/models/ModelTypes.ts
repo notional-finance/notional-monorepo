@@ -398,7 +398,7 @@ export const AnalyticsModel = types.model('Analytics', {
         eth_reinvestment: types.number,
         note_reinvestment: types.number,
         transaction_hash: types.string,
-        apy: types.number,
+        apy: types.maybeNull(types.number),
       })
     )
   ),

@@ -32,11 +32,11 @@ const NoteHoldingsDetail: React.FC<NoteHoldingsDetailProps> = ({ value }) => {
               },
             },
             {
-              label: 'Total NOTE',
+              label: 'Wallet Balance',
               value: {
-                text: value.totalNOTE.data?.[0]?.displayValue,
+                text: value.walletBalance.data?.[0]?.displayValue,
               },
-              caption: value.totalNOTE.data?.[1]?.displayValue,
+              caption: value.walletBalance.data?.[1]?.displayValue,
             },
           ],
         },
