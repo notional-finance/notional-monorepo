@@ -34,18 +34,24 @@ async function fetchAllDBViews(env: BaseDOEnv, network: Network) {
     },
   });
   const data = (await resp.json()) as { view_name: string }[];
+  const vaultAddresses = data
+    .filter((v) => v.view_name.startsWith('0x'))
+    .map((v) => v.view_name);
   for (const v of data) {
     await fetchDBView(env, network, v.view_name);
   }
+
+  return vaultAddresses;
 }
 
 export async function refreshViews(env: BaseDOEnv, network: Network) {
   const analyticsServer = new AnalyticsServer(env);
 
-  await fetchAllDBViews(env, network);
+  const vaultAddresses = await fetchAllDBViews(env, network);
   // Saves time series data to R2 for the registry to serve
   const { timeSeries, priceChanges } = await analyticsServer.fetchTimeSeries(
-    network
+    network,
+    vaultAddresses
   );
 
   await putStorageKey(
