@@ -1,4 +1,4 @@
-import { Network, VaultAddress, vaults, DexIds } from '@notional-finance/util';
+import { Network, vaults, DexIds } from '@notional-finance/util';
 import { VaultAdapter } from '../vaults';
 import { defaultAbiCoder } from '@ethersproject/abi';
 import { BytesLike } from 'ethers';
@@ -43,24 +43,6 @@ export const PendlePTVaults: Record<Network, string[]> = {
   [Network.arbitrum]: [].map(toLowercase),
   [Network.mainnet]: [vaults.mainnet.Pendle_sUSDe_27NOV2025].map(toLowercase),
   [Network.all]: [],
-};
-
-/** @dev all vault addresses should be lowercased */
-export const whitelistedVaults = (
-  network: Network
-): Lowercase<VaultAddress>[] => {
-  switch (network) {
-    case Network.all:
-      return [];
-    case Network.mainnet:
-      return [
-        vaults.mainnet.Convex_OETH_WETH,
-        vaults.mainnet.Staking_mHYPER,
-        vaults.mainnet.Staking_mAPOLLO,
-      ].map(toLowercase);
-    case Network.arbitrum:
-      return [].map(toLowercase);
-  }
 };
 
 const sUSDe_DEFAULT_DEX_PARAMETERS = {
