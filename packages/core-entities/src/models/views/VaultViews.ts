@@ -1,8 +1,6 @@
-import { VaultAddress } from '@notional-finance/util';
 import { PendlePT, SingleSidedLP, WithdrawManager } from '../../vaults';
-import { whitelistedVaults } from '../../config/whitelisted-vaults';
 import { getPoolInstance_ } from './ExchangeViews';
-import { ChartType } from '../ModelTypes';
+import { ChartType, VaultModel } from '../ModelTypes';
 import { Instance } from 'mobx-state-tree';
 import { NetworkModel } from '../NetworkModel';
 import { TokenViews } from './TokenViews';
@@ -92,16 +90,8 @@ export const VaultViews = (self: Instance<typeof NetworkModel>) => {
     return vault.name;
   };
 
-  const getAllListedVaults = (onlyWhitelisted = true) => {
-    return (
-      self.configuration?.vaults.filter((v) =>
-        onlyWhitelisted
-          ? whitelistedVaults(self.network).includes(
-              v.vaultAddress.toLowerCase() as Lowercase<VaultAddress>
-            )
-          : true
-      ) || []
-    );
+  const getAllListedVaults = () => {
+    return (self.configuration?.vaults || []) as Instance<typeof VaultModel>[];
   };
 
   const getVaultConfig = (vaultAddress: string) => {

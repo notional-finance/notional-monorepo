@@ -49,7 +49,7 @@ export async function fetchCurrentAccount(
   const depositTokens = model
     .getAllTokens()
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
-  const allVaults = model.getAllListedVaults(false);
+  const allVaults = model.getAllListedVaults();
 
   const vaultAddresses = allVaults.map((v) => v.vaultAddress);
   const rewardVaults = allVaults
