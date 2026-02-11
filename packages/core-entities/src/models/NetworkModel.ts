@@ -33,7 +33,6 @@ import { ConfigurationViews } from './views/ConfigurationViews';
 import defaultPools from '../exchanges/default-pools';
 import { buildOracleGraph, OracleViews } from './views/OracleViews';
 import { YieldViews } from './views/YieldViews';
-import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { getEnvVarWithFallback } from '../utils/env';
 import { destroyGraphClient } from '../server/server-registry';
 
@@ -141,7 +140,6 @@ export const NetworkServerModel = NetworkModelWithViews.named(
       exchangeRegistry = new ExchangeRegistryServer(env);
       oracleRegistry = new OracleRegistryServer(env);
       vaultRegistry = new VaultRegistryServer(env);
-      // TODO: need to fetch from previous snapshot and apply it here if not doing a full refresh
 
       saveStorage = () => {
         return storageMethod(JSON.stringify(getSnapshot(self)));
@@ -202,8 +200,8 @@ export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
 
     // NOTE: just trigger this in the background so the APYs can load.
     if (isCreate) {
-      whitelistedVaults(self.network).forEach((vaultAddress) => {
-        self.fetchTimeSeriesData(vaultAddress, ChartType.APY);
+      self.getAllListedVaults().forEach((v) => {
+        self.fetchTimeSeriesData(v.vaultAddress, ChartType.APY);
       });
     }
   });

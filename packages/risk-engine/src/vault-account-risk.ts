@@ -66,7 +66,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return (
       model
         // Include disabled vaults here in case the account still has a position
-        .getAllListedVaults(false)
+        .getAllListedVaults()
         ?.map(({ vaultAddress }) => {
           return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
         })
