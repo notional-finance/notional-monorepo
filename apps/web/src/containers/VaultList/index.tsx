@@ -1,5 +1,7 @@
 import {
+  alpha,
   Box,
+  Button as MuiButton,
   Paper,
   Table,
   TableBody,
@@ -11,7 +13,7 @@ import {
 } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { TokenIcon, VaultStar } from '@notional-finance/icons';
-import { Body, Button, Dropdown, H1, H5, Toggle } from '@notional-finance/mui';
+import { Body, Dropdown, H1, H5, Toggle } from '@notional-finance/mui';
 import { useState } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
@@ -214,9 +216,32 @@ export const VaultList = () => {
           ]}
           open={false}
         />
-        <Button variant="outlined" size="medium">
+        <MuiButton
+          disableRipple
+          sx={{
+            height: theme.spacing(5.5),
+            minWidth: 0,
+            padding: theme.spacing(0, 2.5),
+            borderRadius: theme.shape.borderRadius(),
+            border: 'none',
+            boxShadow: 'none',
+            backgroundColor: theme.palette.common.white,
+            color: theme.palette.typography.light,
+            fontSize: '14px',
+            fontWeight: 500,
+            lineHeight: '20px',
+            textTransform: 'none',
+            transition: 'all .2s ease-in-out',
+            '&:hover': {
+              border: 'none',
+              boxShadow: 'none',
+              color: theme.palette.primary.light,
+              backgroundColor: alpha(theme.palette.primary.light, 0.2),
+            },
+          }}
+        >
           Clear All
-        </Button>
+        </MuiButton>
       </Box>
       <VaultTable />
     </Box>
