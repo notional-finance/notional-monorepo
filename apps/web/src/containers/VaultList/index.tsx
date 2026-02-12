@@ -12,6 +12,7 @@ import {
 import { colors } from '@notional-finance/styles';
 import { TokenIcon, VaultStar } from '@notional-finance/icons';
 import { Body, Button, Dropdown, H1, H5, Toggle } from '@notional-finance/mui';
+import { useState } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
 const TopBanner = () => {
@@ -147,6 +148,7 @@ const VaultTable = () => {
 
 export const VaultList = () => {
   const theme = useTheme();
+  const [selectedTokenIndex, setSelectedTokenIndex] = useState(0);
 
   return (
     <Box
@@ -165,7 +167,8 @@ export const VaultList = () => {
         }}
       >
         <Toggle
-          selectedTabIndex={0}
+          selectedTabIndex={selectedTokenIndex}
+          onChange={(_, value) => setSelectedTokenIndex(Number(value))}
           tabLabels={[
             <FormattedMessage
               defaultMessage="All Tokens"

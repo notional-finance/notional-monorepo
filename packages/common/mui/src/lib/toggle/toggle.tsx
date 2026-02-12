@@ -15,6 +15,7 @@ export const Toggle = ({
   selectedTabIndex = 0,
   tabLabels,
   onChange,
+  ...tabsProps
 }: ToggleProps) => {
   const theme = useTheme() as NotionalTheme;
   return (
@@ -22,14 +23,15 @@ export const Toggle = ({
       <StyledTabs
         theme={theme}
         variant="fullWidth"
-        defaultValue={0}
         value={selectedTabIndex}
         onChange={onChange}
+        TabIndicatorProps={{ children: <IndicatorPill theme={theme} /> }}
+        {...tabsProps}
       >
         {tabLabels.map((l, i) => {
           return (
             <StyledTab
-              disableRipple={true}
+              disableRipple
               theme={theme}
               key={`tab-label-${i}`}
               label={l}
@@ -43,55 +45,70 @@ export const Toggle = ({
 
 const Container = styled(Box)(
   ({ theme }) => `
-  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  height: ${theme?.spacing(5.5)};
   background: ${theme?.palette.common.white};
-  border-radius: 32px;
+  border-radius: ${theme?.spacing(6.5)};
 `
 );
 
 const StyledTabs = styled(Tabs)(
   ({ theme }) => `
   height: 100%;
-  border-radius: ${theme?.spacing(4)};
-  border: ${theme?.shape.borderStandard};
+  min-height: unset;
+  border-radius: ${theme?.spacing(6.5)};
   background: transparent;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  transition: background 0.3s ease;
+  overflow: hidden;
 
   .MuiTabs-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: ${theme?.spacing(5)};
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
     z-index: 1;
-    background: ${theme?.palette.info.light};
-    border-radius: ${theme?.spacing(4)};
-    height: 100%;
   }
+
   .MuiTabs-flexContainer {
-    display: inline;
     height: 100%;
+    align-items: center;
   }
+`
+);
+
+const IndicatorPill = styled(Box)(
+  ({ theme }) => `
+  width: 100%;
+  height: 100%;
+  border-radius: ${theme?.spacing(6.5)};
+  background: ${theme?.palette.info.light};
 `
 );
 
 const StyledTab = styled(Tab)(
   ({ theme }) => `
-  height: 100%;
+  height: ${theme?.spacing(5)};
   background-color: transparent;
-  z-index: 2;
-  transition-delay: 0s;
-  transition-duration: 0.3s;
-  transition-property: all;
   min-height: unset;
-  font-weight: 500 !important;
+  min-width: ${theme?.spacing(14)};
+  z-index: 2;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600 !important;
   color: ${theme?.palette.typography.light};
-  padding: ${theme?.spacing(1, 3)};
+  padding: ${theme?.spacing(1, 2)};
+  text-transform: none;
+  border-radius: ${theme?.spacing(6.5)};
 
   &.Mui-selected {
     font-weight: 600 !important;
     color: ${theme?.palette.typography.accent};
   }
   &:hover {
-    background: ${theme.palette.info.light};
-    border-radius: 50px;
+    background: transparent;
   }
 `
 );
