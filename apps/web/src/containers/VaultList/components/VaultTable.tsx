@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import { ArrowIcon } from '@notional-finance/icons';
 import { H5 } from '@notional-finance/mui';
+import { useAllVaults, useAppStore } from '@notional-finance/notionable-hooks';
+import { VaultRow } from './VaultRow';
 
 const SortIndicator = () => {
   const theme = useTheme();
@@ -48,6 +50,8 @@ const SortIndicator = () => {
 
 export const VaultTable = () => {
   const theme = useTheme();
+  const vaults = useAllVaults();
+  const { baseCurrency } = useAppStore();
 
   return (
     <TableContainer
@@ -61,7 +65,7 @@ export const VaultTable = () => {
       <Table
         sx={{
           borderCollapse: 'separate',
-          borderSpacing: 0,
+          borderSpacing: `0 ${theme.spacing(1)}`,
           tableLayout: 'fixed',
           '& .MuiTableCell-root': {
             borderBottom: 'none',
@@ -96,14 +100,27 @@ export const VaultTable = () => {
                 <SortIndicator />
               </Box>
             </TableCell>
-            <TableCell sx={{ padding: theme.spacing(2, 1) }}>
+            <TableCell
+              sx={{ padding: theme.spacing(2, 1), textAlign: 'right' }}
+            >
               <H5 gutter="none">Rewards</H5>
             </TableCell>
-            <TableCell sx={{ padding: theme.spacing(2, 1) }}>
+            <TableCell
+              sx={{ padding: theme.spacing(2, 1), textAlign: 'right' }}
+            >
               <H5 gutter="none">Points</H5>
             </TableCell>
-            <TableCell sx={{ padding: theme.spacing(2, 3), textAlign: 'left' }}>
-              <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+            <TableCell
+              sx={{ padding: theme.spacing(2, 3), textAlign: 'right' }}
+            >
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  width: '100%',
+                }}
+              >
                 <H5 gutter="none">Max APY</H5>
                 <SortIndicator />
               </Box>
@@ -111,20 +128,15 @@ export const VaultTable = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {/* {rows.map((row) => (
-            <TableRow
-              key={row.name}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
-            </TableRow>
-          ))} */}
+          {vaults
+            .filter((vault) => vault.vaultConfig.isVisible)
+            .map((vault) => (
+              <VaultRow
+                key={vault.vaultConfig.vaultAddress}
+                vault={vault}
+                baseCurrency={baseCurrency}
+              />
+            ))}
         </TableBody>
       </Table>
     </TableContainer>
