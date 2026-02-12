@@ -12,7 +12,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { colors } from '@notional-finance/styles';
-import { TokenIcon, VaultStar } from '@notional-finance/icons';
+import { ArrowIcon, TokenIcon, VaultStar } from '@notional-finance/icons';
 import { Body, Dropdown, H1, H5, Toggle } from '@notional-finance/mui';
 import { useState } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
@@ -94,36 +94,94 @@ const TopBanner = () => {
 
 const VaultTable = () => {
   const theme = useTheme();
+  const SortIndicator = () => (
+    <Box
+      aria-hidden
+      sx={{
+        display: 'inline-flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: theme.spacing(1),
+      }}
+    >
+      <ArrowIcon
+        sx={{
+          width: theme.spacing(1),
+          height: theme.spacing(1),
+          color: theme.palette.typography.light,
+          transform: 'rotate(0deg)',
+        }}
+      />
+      <ArrowIcon
+        sx={{
+          width: theme.spacing(1),
+          height: theme.spacing(1),
+          color: theme.palette.typography.light,
+          transform: 'rotate(180deg)',
+        }}
+      />
+    </Box>
+  );
 
   return (
-    <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
+    <TableContainer
+      component={Paper}
+      sx={{
+        boxShadow: 'none',
+        background: 'transparent',
+        marginTop: theme.spacing(1),
+      }}
+    >
       <Table
         sx={{
-          '.TableRow': {
+          borderCollapse: 'separate',
+          borderSpacing: 0,
+          tableLayout: 'fixed',
+          '& .MuiTableCell-root': {
             borderBottom: 'none',
-            borderRadius: theme.shape.borderRadius,
           },
         }}
       >
         <TableHead>
-          <TableRow>
-            <TableCell>
-              <H5>Vault</H5>
+          <TableRow
+            sx={{
+              height: theme.spacing(6.5),
+              backgroundColor: theme.palette.common.white,
+              '& .MuiTableCell-root:first-of-type': {
+                borderTopLeftRadius: theme.shape.borderRadius(),
+                borderBottomLeftRadius: theme.shape.borderRadius(),
+                width: '33%',
+              },
+              '& .MuiTableCell-root:last-of-type': {
+                borderTopRightRadius: theme.shape.borderRadius(),
+                borderBottomRightRadius: theme.shape.borderRadius(),
+              },
+            }}
+          >
+            <TableCell sx={{ padding: theme.spacing(2, 3) }}>
+              <H5 gutter="none">Vault</H5>
             </TableCell>
-            <TableCell>
-              <H5>Yield Token</H5>
+            <TableCell sx={{ padding: theme.spacing(2, 1) }}>
+              <H5 gutter="none">Yield Token</H5>
             </TableCell>
-            <TableCell>
-              <H5>Available Liquidity</H5>
+            <TableCell sx={{ padding: theme.spacing(2, 1) }}>
+              <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                <H5 gutter="none">Available Liquidity</H5>
+                <SortIndicator />
+              </Box>
             </TableCell>
-            <TableCell>
-              <H5>Rewards</H5>
+            <TableCell sx={{ padding: theme.spacing(2, 1) }}>
+              <H5 gutter="none">Rewards</H5>
             </TableCell>
-            <TableCell>
-              <H5>Points</H5>
+            <TableCell sx={{ padding: theme.spacing(2, 1) }}>
+              <H5 gutter="none">Points</H5>
             </TableCell>
-            <TableCell>
-              <H5>Max APY</H5>
+            <TableCell sx={{ padding: theme.spacing(2, 3), textAlign: 'left' }}>
+              <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                <H5 gutter="none">Max APY</H5>
+                <SortIndicator />
+              </Box>
             </TableCell>
           </TableRow>
         </TableHead>
