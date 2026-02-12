@@ -1,8 +1,7 @@
 import { alpha, Box, Chip, TableCell, TableRow, useTheme } from '@mui/material';
 import { FiatKeys } from '@notional-finance/core-entities';
-import { colors } from '@notional-finance/styles';
 import { TokenIcon } from '@notional-finance/icons';
-import { Body } from '@notional-finance/mui';
+import { Body, BodySecondary, H4 } from '@notional-finance/mui';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useAllVaults } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
@@ -89,18 +88,7 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
         >
           <TokenIcon symbol={depositSymbol || 'unknown'} size="large" />
           <Box>
-            <Body
-              gutter="none"
-              sx={{
-                color: colors.darkGreen,
-                fontSize: '20px',
-                fontWeight: 500,
-                lineHeight: '20px',
-                marginBottom: theme.spacing(0.5),
-              }}
-            >
-              {vault?.vaultConfig?.name || '-'}
-            </Body>
+            <H4 gutter="none">{vault?.vaultConfig?.name || '-'}</H4>
             <Box
               sx={{
                 display: 'flex',
@@ -108,17 +96,14 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
                 gap: theme.spacing(1),
               }}
             >
-              <Body
+              <BodySecondary
                 gutter="none"
                 sx={{
                   color: theme.palette.typography.light,
-                  fontSize: '12px',
-                  fontWeight: 500,
-                  lineHeight: '20px',
                 }}
               >
                 {strategyType}
-              </Body>
+              </BodySecondary>
               {vaultFeatures.slice(0, 2).map((feature) => (
                 <Chip
                   key={feature}
@@ -133,7 +118,6 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
                       padding: theme.spacing(0.5, 1.5),
                       fontSize: '12px',
                       fontWeight: 500,
-                      lineHeight: '12px',
                     },
                   }}
                 />
@@ -155,24 +139,11 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
         </Box>
       </TableCell>
       <TableCell sx={{ textAlign: 'right' }}>
-        <Body
-          gutter="none"
-          sx={{
-            color: colors.darkGreen,
-            fontSize: '20px',
-            fontWeight: 600,
-            lineHeight: '30px',
-          }}
-        >
-          {liquidityText}
-        </Body>
+        <H4 gutter="none">{liquidityText}</H4>
         <Body
           gutter="none"
           sx={{
             color: theme.palette.typography.light,
-            fontSize: '14px',
-            fontWeight: 500,
-            lineHeight: '20px',
           }}
         >
           {`${tvlText} TVL`}
@@ -209,17 +180,9 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
         </Body>
       </TableCell>
       <TableCell sx={{ textAlign: 'right' }}>
-        <Body
-          gutter="none"
-          sx={{
-            color: colors.darkGreen,
-            fontSize: '20px',
-            fontWeight: 600,
-            lineHeight: '30px',
-          }}
-        >
+        <H4 gutter="none">
           {formatNumberAsPercentWithUndefined(vault?.apy?.totalAPY, '-')}
-        </Body>
+        </H4>
       </TableCell>
     </TableRow>
   );
