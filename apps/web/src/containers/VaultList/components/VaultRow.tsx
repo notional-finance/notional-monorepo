@@ -1,10 +1,11 @@
-import { Box, Chip, TableCell, TableRow, useTheme } from '@mui/material';
+import { alpha, Box, Chip, TableCell, TableRow, useTheme } from '@mui/material';
 import { FiatKeys } from '@notional-finance/core-entities';
 import { colors } from '@notional-finance/styles';
 import { TokenIcon } from '@notional-finance/icons';
 import { Body } from '@notional-finance/mui';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useAllVaults } from '@notional-finance/notionable-hooks';
+import { useNavigate } from 'react-router-dom';
 
 interface VaultRowProps {
   vault: ReturnType<typeof useAllVaults>[number];
@@ -20,10 +21,15 @@ const STRATEGY_LABELS: Record<string, string> = {
 
 export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const strategyType =
     STRATEGY_LABELS[vault?.vaultConfig?.strategyClass] || 'Vault';
   const vaultFeatures = vault?.vaultConfig?.vaultFeatures || [];
   const depositSymbol = vault?.vaultConfig?.depositToken?.symbol?.toLowerCase();
+  const selectedNetwork = String(
+    vault?.vaultConfig?.network || 'mainnet'
+  ).toLowerCase();
+  const vaultAddress = vault?.vaultConfig?.vaultAddress?.toLowerCase();
 
   const liquidityText =
     vault?.liquidity
@@ -35,11 +41,30 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
       ?.toFiat(baseCurrency)
       .toDisplayStringWithSymbol(2, true, false) || '-';
 
+  const onRowClick = () => {
+    if (!vaultAddress) return;
+    navigate(`/vault/${selectedNetwork}/${vaultAddress}`);
+  };
+
   return (
     <TableRow
+      onClick={onRowClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onRowClick();
+        }
+      }}
+      tabIndex={0}
+      role="link"
       sx={{
         height: theme.spacing(10.25),
         backgroundColor: theme.palette.common.white,
+        cursor: 'pointer',
+        transition: 'all .2s ease-in-out',
+        '&:hover': {
+          backgroundColor: alpha(theme.palette.primary.light, 0.15),
+        },
         '& .MuiTableCell-root': {
           borderBottom: 'none',
           padding: theme.spacing(2, 1),
