@@ -9,6 +9,11 @@ import { useNavigate } from 'react-router-dom';
 interface VaultRowProps {
   vault: ReturnType<typeof useAllVaults>[number];
   baseCurrency: FiatKeys;
+  onAssetClick: (asset: {
+    assetName: string;
+    assetLogoUrl?: string;
+    assetDescription?: string;
+  }) => void;
 }
 
 const STRATEGY_LABELS: Record<string, string> = {
@@ -18,7 +23,11 @@ const STRATEGY_LABELS: Record<string, string> = {
   SingleSidedLP: 'Liquidity',
 };
 
-export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
+export const VaultRow = ({
+  vault,
+  baseCurrency,
+  onAssetClick,
+}: VaultRowProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const strategyType =
@@ -147,7 +156,27 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
           {vaultAssets.map((asset, index) => (
             <Box
               key={asset.name || String(index)}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAssetClick({
+                  assetName: asset.name || 'Vault Asset',
+                  assetLogoUrl: asset.logoURL,
+                  assetDescription: asset.description,
+                });
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onAssetClick({
+                    assetName: asset.name || 'Vault Asset',
+                    assetLogoUrl: asset.logoURL,
+                    assetDescription: asset.description,
+                  });
+                }
+              }}
+              role="button"
+              tabIndex={0}
               sx={{
                 width: theme.spacing(5),
                 height: theme.spacing(5),

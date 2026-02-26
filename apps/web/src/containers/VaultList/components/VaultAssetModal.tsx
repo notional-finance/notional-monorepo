@@ -7,7 +7,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
-import { BodySecondary, H3 } from '@notional-finance/mui';
+import { H3 } from '@notional-finance/mui';
 import RichText from '../../TransactionScreen/components/rich-text';
 
 interface VaultAssetModalProps {
@@ -31,22 +31,22 @@ export const VaultAssetModal = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
-      fullWidth
+      maxWidth={false}
       PaperProps={{
         sx: {
+          width: theme.spacing(117.5),
+          maxWidth: `calc(100% - ${theme.spacing(8)})`,
           borderRadius: theme.shape.borderRadius(),
-          padding: theme.spacing(1),
         },
       }}
     >
-      <DialogContent sx={{ padding: theme.spacing(2, 2, 3) }}>
+      <DialogContent sx={{ padding: theme.spacing(3) }}>
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: theme.spacing(2),
+            marginBottom: theme.spacing(1.25),
           }}
         >
           <Box
@@ -54,18 +54,24 @@ export const VaultAssetModal = ({
               display: 'flex',
               alignItems: 'center',
               gap: theme.spacing(1.5),
+              marginBottom: theme.spacing(3),
             }}
           >
-            <TokenIcon symbol={assetLogoUrl || 'unknown'} size="medium" />
+            <TokenIcon symbol={assetLogoUrl || 'unknown'} size="large" />
             <H3 gutter="none">{assetName}</H3>
           </Box>
           <IconButton onClick={onClose} size="small">
             <Close fontSize="small" />
           </IconButton>
         </Box>
-        <BodySecondary gutter="none">
-          <RichText htmlInput={assetDescription || ''} />
-        </BodySecondary>
+        <Box
+          sx={{
+            color: theme.palette.typography.light,
+            overflowWrap: 'anywhere',
+          }}
+        >
+          <RichText htmlInput={assetDescription || ''} clearPadding />
+        </Box>
       </DialogContent>
     </Dialog>
   );
