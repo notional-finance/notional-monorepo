@@ -102,6 +102,7 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
                   color: theme.palette.typography.light,
                 }}
               >
+                <img src={vault?.vaultConfig?.strategyIcon} />
                 {strategyType}
               </BodySecondary>
               {vaultFeatures.slice(0, 2).map((feature) => (
@@ -130,12 +131,9 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
         <Box
           sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing(1) }}
         >
-          <TokenIcon
-            symbol={
-              vault?.vaultConfig?.yieldToken?.symbol?.toLowerCase() || 'unknown'
-            }
-            size="medium"
-          />
+          {vault?.vaultConfig?.vaultAssets?.map((asset) => (
+            <TokenIcon symbol={asset.logoURL || 'unknown'} size="medium" />
+          ))}
         </Box>
       </TableCell>
       <TableCell sx={{ textAlign: 'right' }}>

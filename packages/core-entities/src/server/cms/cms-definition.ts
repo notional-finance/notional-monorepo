@@ -102,6 +102,7 @@ export interface VaultCMSData {
   isVisible: boolean;
   launchedOn: number;
   strategyClass: string;
+  strategyIcon?: string;
   vaultDescription: string;
   projects: ProjectDefinition[];
   rewards: RewardDefinition[];
