@@ -31,7 +31,6 @@ import { VaultDefaultScreen } from '../TransactionScreen';
 import {
   LandingPageInject,
   PointsPageInject,
-  VaultsPageInject,
   BetaPageInject,
   BetaPageLeaderboardInject,
 } from '../Webflow/AttributesInject';
@@ -167,17 +166,6 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path="/vaults"
-              component={VaultsPageInject}
-              routeType="Card"
-              isInjected
-            />
-          }
-        />
-        <Route
-          path="/vaults-list"
-          element={
-            <AppLayoutRoute
-              path="/vaults-list"
               component={VaultList}
               routeType="Card"
             />

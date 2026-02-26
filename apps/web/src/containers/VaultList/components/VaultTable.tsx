@@ -15,6 +15,7 @@ import { H5 } from '@notional-finance/mui';
 import { useAllVaults, useAppStore } from '@notional-finance/notionable-hooks';
 import { VaultAssetModal } from './VaultAssetModal';
 import { VaultRow } from './VaultRow';
+import { observer } from 'mobx-react-lite';
 
 const SortIndicator = () => {
   const theme = useTheme();
@@ -50,7 +51,7 @@ const SortIndicator = () => {
   );
 };
 
-export const VaultTable = () => {
+export const VaultTable = observer(() => {
   const theme = useTheme();
   const vaults = useAllVaults();
   const { baseCurrency } = useAppStore();
@@ -158,4 +159,4 @@ export const VaultTable = () => {
       />
     </>
   );
-};
+});
