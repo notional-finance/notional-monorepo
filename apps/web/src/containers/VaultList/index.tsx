@@ -23,7 +23,7 @@ export const VaultList = () => {
           display: 'flex',
           alignItems: 'center',
           gap: theme.spacing(3),
-          marginBottom: theme.spacing(5),
+          marginBottom: theme.spacing(1),
         }}
       >
         <TokenToggleControl

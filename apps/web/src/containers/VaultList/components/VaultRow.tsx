@@ -91,6 +91,7 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
             <H4 gutter="none">{vault?.vaultConfig?.name || '-'}</H4>
             <Box
               sx={{
+                marginTop: theme.spacing(0.5),
                 display: 'flex',
                 alignItems: 'center',
                 gap: theme.spacing(1),
@@ -99,6 +100,9 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
               <BodySecondary
                 gutter="none"
                 sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: theme.spacing(0.5),
                   color: theme.palette.typography.light,
                 }}
               >
