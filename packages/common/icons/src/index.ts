@@ -117,3 +117,4 @@ export * from './lib/scrollable-icon/scrollable-icon';
 export * from './lib/clock-icon/clock-icon';
 export * from './lib/lock-icon/lock-icon';
 export * from './lib/hourglass-icon/hourglass-icon';
+export * from './lib/vault-star/vault-star';

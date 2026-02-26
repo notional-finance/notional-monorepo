@@ -193,6 +193,7 @@ export const VaultModel = types.model('VaultModel', {
   vaultFeatures: types.array(types.string),
   launchedOn: types.Date,
   strategyClass: types.string,
+  strategyIcon: types.optional(types.maybe(types.string), undefined),
   vaultDescription: types.string,
   isVisible: types.boolean,
   rewards: types.optional(types.array(RewardModel), []),

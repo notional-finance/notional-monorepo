@@ -1,11 +1,17 @@
 import { Box, useTheme } from '@mui/material';
 
-const RichText = ({ htmlInput }: { htmlInput: string }) => {
+const RichText = ({
+  htmlInput,
+  clearPadding,
+}: {
+  htmlInput: string;
+  clearPadding?: boolean;
+}) => {
   const theme = useTheme();
   return (
     <Box
       sx={{
-        padding: theme.spacing(0, 3),
+        padding: clearPadding ? 0 : theme.spacing(0, 3),
         'h1, h2, h3, h4, h5, h6': {
           ...theme.typography.h5,
         },

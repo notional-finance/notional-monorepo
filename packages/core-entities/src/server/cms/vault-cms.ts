@@ -196,6 +196,7 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
       ),
       launchedOn: new Date(v.fieldData['launched-on']).getTime(),
       strategyClass: v.fieldData['strategy-type-2'].name,
+      strategyIcon: v.fieldData['strategy-type-2']['icon']?.url,
       vaultDescription: v.fieldData['vault-description'] || '',
       isVisible: v.fieldData['is-visible'],
       projects: v.fieldData['projects'].map((p) => ({
@@ -214,7 +215,7 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
         id: a.slug,
         name: a.name,
         contractAddress: a['contract-address'],
-        logoURL: a['asset-logo']?.url,
+        logoURL: a['icon']?.url,
         description: a['description'],
       })),
     };
