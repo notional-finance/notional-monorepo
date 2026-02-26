@@ -24,6 +24,7 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
   const strategyType =
     STRATEGY_LABELS[vault?.vaultConfig?.strategyClass] || 'Vault';
   const vaultFeatures = vault?.vaultConfig?.vaultFeatures || [];
+  const vaultAssets = vault?.vaultConfig?.vaultAssets || [];
   const depositSymbol = vault?.vaultConfig?.depositToken?.symbol?.toLowerCase();
   const selectedNetwork = String(
     vault?.vaultConfig?.network || 'mainnet'
@@ -84,7 +85,11 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
     >
       <TableCell>
         <Box
-          sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing(2) }}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: theme.spacing(2),
+          }}
         >
           <TokenIcon symbol={depositSymbol || 'unknown'} size="large" />
           <Box>
@@ -133,10 +138,32 @@ export const VaultRow = ({ vault, baseCurrency }: VaultRowProps) => {
       </TableCell>
       <TableCell>
         <Box
-          sx={{ display: 'flex', alignItems: 'center', gap: theme.spacing(1) }}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: theme.spacing(1),
+          }}
         >
-          {vault?.vaultConfig?.vaultAssets?.map((asset) => (
-            <TokenIcon symbol={asset.logoURL || 'unknown'} size="medium" />
+          {vaultAssets.map((asset, index) => (
+            <Box
+              key={asset.name || String(index)}
+              onClick={(e) => e.stopPropagation()}
+              sx={{
+                width: theme.spacing(5),
+                height: theme.spacing(5),
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: theme.shape.borderRadius(),
+                backgroundColor: theme.palette.background.default,
+                transition: 'background-color .2s ease-in-out',
+                '&:hover': {
+                  backgroundColor: alpha(theme.palette.primary.light, 0.16),
+                },
+              }}
+            >
+              <TokenIcon symbol={asset.logoURL || 'unknown'} size="medium" />
+            </Box>
           ))}
         </Box>
       </TableCell>
