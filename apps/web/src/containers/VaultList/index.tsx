@@ -1,7 +1,5 @@
 import { Box, useTheme } from '@mui/material';
 import { useState } from 'react';
-import { ClearAllControl } from './components/ClearAllControl';
-import { StrategyTypeControl } from './components/StrategyTypeControl';
 import { TokenToggleControl } from './components/TokenToggleControl';
 import { TopBanner } from './components/TopBanner';
 import { VaultTable } from './components/VaultTable';
@@ -9,6 +7,12 @@ import { VaultTable } from './components/VaultTable';
 export const VaultList = () => {
   const theme = useTheme();
   const [selectedTokenIndex, setSelectedTokenIndex] = useState(0);
+  const selectedDepositToken =
+    selectedTokenIndex === 1
+      ? 'USDC'
+      : selectedTokenIndex === 2
+      ? 'WETH'
+      : null;
 
   return (
     <Box
@@ -30,10 +34,10 @@ export const VaultList = () => {
           selectedTokenIndex={selectedTokenIndex}
           onChange={setSelectedTokenIndex}
         />
-        <StrategyTypeControl />
-        <ClearAllControl />
+        {/* <StrategyTypeControl /> */}
+        {/* <ClearAllControl /> */}
       </Box>
-      <VaultTable />
+      <VaultTable selectedDepositToken={selectedDepositToken} />
     </Box>
   );
 };
