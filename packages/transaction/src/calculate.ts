@@ -25,7 +25,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   collateral,
   debt,
   vaultAdapter,
-  depositBalance: _depositBalance,
+  depositBalance,
   balances,
   riskFactorLimit,
   vaultLastUpdateTime,
@@ -53,7 +53,6 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
 
   let initialDebtUnitsEstimateInRP = RATE_PRECISION;
   let netVaultSharesForWithdraw: TokenBalance | undefined;
-  let depositBalance = _depositBalance;
   if (depositBalance?.isPositive()) {
     // Initial estimate if deposit is positive is the deposit * leverageRatio
     const limitInRP = profile.getRiskFactorInRP(
@@ -101,6 +100,8 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
       };
     }
 
+    // NOTE: deposit balance should always be the borrowed token in this case
+    // because we are withdrawing. We don't allow withdrawing the yield token.
     ({ netVaultSharesForUnderlying: netVaultSharesForWithdraw } =
       vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral));
     profile = profile.simulate([netVaultSharesForWithdraw]);
@@ -217,9 +218,12 @@ function calculateVaultCollateral({
 }) {
   if (debtBalance.tokenType !== 'VaultDebt') throw Error('Invalid inputs');
   const underlyingBorrowed = debtBalance.neg().toUnderlying();
-  const netRealizedCollateralBalance = depositBalance
-    ? underlyingBorrowed.add(depositBalance)
-    : underlyingBorrowed;
+  let netRealizedCollateralBalance: TokenBalance;
+  if (depositBalance?.token.id === vaultAdapter.borrowedToken.id) {
+    netRealizedCollateralBalance = underlyingBorrowed.add(depositBalance);
+  } else {
+    netRealizedCollateralBalance = underlyingBorrowed;
+  }
 
   // This value accounts for slippage...
   const { netVaultSharesForUnderlying, feesPaid, vaultTradeMetadata } =
@@ -228,8 +232,16 @@ function calculateVaultCollateral({
       collateral
     );
 
+  let collateralBalance = netVaultSharesForUnderlying;
+  if (depositBalance?.tokenId === vaultAdapter.yieldToken.id) {
+    collateralBalance = netVaultSharesForUnderlying.add(
+      // Convert the yield tokens to vault shares
+      depositBalance.toToken(collateral)
+    );
+  }
+
   return {
-    collateralBalance: netVaultSharesForUnderlying,
+    collateralBalance,
     debtFee: netRealizedCollateralBalance.copy(0),
     collateralFee: feesPaid,
     netRealizedCollateralBalance: debtBalance.isNegative()
