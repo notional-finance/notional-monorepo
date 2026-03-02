@@ -67,14 +67,19 @@ export function CurrencySelect({
       buttonComponent={StyledButton}
       popperWidth={parentWidth === undefined ? minWidth : `${parentWidth}px`}
       showScrollPopper={showScrollPopper}
-      renderValue={(opt) =>
-        opt ? (
-          <Box sx={{ display: 'flex', marginRight: 'auto' }}>
-            <TokenIcon symbol={opt.label as string} size="medium" />
-            <H4 marginLeft={theme.spacing(1)}>{opt.label}</H4>
-          </Box>
-        ) : undefined
-      }
+      renderValue={(opt) => {
+        if (opt) {
+          const symbol = options.find((o) => o.token.id === opt.value)?.token
+            .symbol;
+          return (
+            <Box sx={{ display: 'flex', marginRight: 'auto' }}>
+              <TokenIcon symbol={opt.label as string} size="medium" />
+              <H4 marginLeft={theme.spacing(1)}>{symbol}</H4>
+            </Box>
+          );
+        }
+        return null;
+      }}
       onChange={(value: string | null) => {
         setValue(value);
         if (onSelectChange) onSelectChange(value);
@@ -94,7 +99,7 @@ export const formatOption = (
   theme: NotionalTheme,
   wrapInOption = true
 ) => {
-  const { icon, titleWithMaturity } = formatTokenType(
+  const { icon, titleWithMaturity, title } = formatTokenType(
     option.displayToken || option.token
   );
   let rightContent: ReactNode | undefined;
@@ -215,6 +220,7 @@ export const formatOption = (
     <StyledItem
       value={option.token.id}
       key={option.token.id}
+      displayName={title}
       label={icon}
       theme={theme}
       disabled={option.disabled}
@@ -275,7 +281,7 @@ const StyledItem = styled(Option)(
 
 const StyledButton = styled(Button)(
   ({ theme }) => `
-  min-width: ${theme.spacing(18)};
+  min-width: ${theme.spacing(22)};
   margin-top: ${theme.spacing(-1)};
   margin-bottom: ${theme.spacing(-1)};
   flex-grow: 1;

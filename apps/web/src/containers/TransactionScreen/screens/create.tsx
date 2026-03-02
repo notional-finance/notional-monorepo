@@ -7,9 +7,12 @@ import {
   useCurrentTradeContext,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
+import { TokenDefinition } from '@notional-finance/core-entities';
+import { useLocation } from 'react-router-dom';
 
 export const VaultCreateScreen = observer(() => {
   const { currencyInputRef } = useCurrencyInputRef();
+  const location = useLocation();
   useTradeContext('CreateVaultPosition');
   const trade = useCurrentTradeContext();
 
@@ -22,9 +25,17 @@ export const VaultCreateScreen = observer(() => {
             defaultMessage: 'Deposit',
           })}
           inputRef={currencyInputRef}
-          // TODO: the yield token needs the icon in here...
           depositTokens={trade?.availableTokens.deposit}
-          // TODO: add new route here to switch the token symbol
+          newRoute={(
+            tokenSymbol: string | null,
+            newToken: TokenDefinition | null
+          ) => {
+            if (tokenSymbol && newToken) {
+              trade?.setDepositToken(newToken);
+              return `${location.pathname}?deposit=${tokenSymbol}`;
+            }
+            return location.pathname;
+          }}
         />,
         <LeverageSlider
           key="leverage-slider"
