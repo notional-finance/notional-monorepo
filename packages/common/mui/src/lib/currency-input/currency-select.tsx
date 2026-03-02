@@ -37,6 +37,7 @@ export interface CurrencySelectProps {
   defaultValue: string | null;
   onSelectChange?: (value: string | null) => void;
   popperRef?: React.ForwardedRef<unknown>;
+  popupContainer?: HTMLElement | null;
   showScrollPopper?: boolean;
   minWidth?: string;
 }
@@ -46,6 +47,7 @@ export function CurrencySelect({
   options,
   onSelectChange,
   popperRef,
+  popupContainer,
   showScrollPopper,
   minWidth = '200px',
 }: CurrencySelectProps) {
@@ -53,7 +55,7 @@ export function CurrencySelect({
   const theme = useTheme();
 
   const parentWidth =
-    popperRef && popperRef['current']
+    !popupContainer && popperRef && popperRef['current']
       ? popperRef['current']['clientWidth']
       : undefined;
 
@@ -65,7 +67,14 @@ export function CurrencySelect({
     <SelectDropdown
       value={value}
       buttonComponent={StyledButton}
-      popperWidth={parentWidth === undefined ? minWidth : `${parentWidth}px`}
+      popupContainer={popupContainer}
+      popperWidth={
+        popupContainer == null
+          ? parentWidth === undefined
+            ? minWidth
+            : `${parentWidth}px`
+          : undefined
+      }
       showScrollPopper={showScrollPopper}
       renderValue={(opt) => {
         if (opt) {

@@ -46,10 +46,11 @@ export async function fetchCurrentAccount(
   const isContract = (await provider.getCode(account)) !== '0x';
   const model = getNetworkModel(network);
   const lendingRouters = model.getLendingRouters();
+  const allVaults = model.getAllListedVaults();
   const depositTokens = model
     .getAllTokens()
-    .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
-  const allVaults = model.getAllListedVaults();
+    .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol))
+    .concat(allVaults.map((v) => v.yieldToken as TokenDefinition));
 
   const vaultAddresses = allVaults.map((v) => v.vaultAddress);
   const rewardVaults = allVaults
