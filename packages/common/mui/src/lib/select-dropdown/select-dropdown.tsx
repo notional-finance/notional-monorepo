@@ -94,6 +94,7 @@ export const SelectDropdown = ({
       ),
       theme,
       sx: {
+        marginLeft: theme.spacing(1),
         borderRadius: theme.shape.borderRadius(),
         h4: {
           color: landingPage
