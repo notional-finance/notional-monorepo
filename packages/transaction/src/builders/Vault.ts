@@ -31,6 +31,8 @@ export async function EnterVault({
     totalDeposit
   );
 
+  // TODO: check if deposit token is the yield token
+
   if (allocations) {
     return populateLendingRouterTxnAndGas(
       network,
