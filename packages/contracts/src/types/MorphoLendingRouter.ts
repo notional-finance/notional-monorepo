@@ -79,12 +79,16 @@ export type MorphoAllocationStructOutput = [
 export interface MorphoLendingRouterInterface extends utils.Interface {
   functions: {
     "allocateAndEnterPosition(address,address,uint256,uint256,bytes,(address,uint256,((address,address,address,address,uint256),uint128)[])[])": FunctionFragment;
+    "allocateAndEnterPositionWithYieldToken(address,address,uint256,uint256,(address,uint256,((address,address,address,address,uint256),uint128)[])[])": FunctionFragment;
+    "allocateAndEnterPositionWithYieldTokenAndLeverage(address,address,uint256,uint256,bytes,(address,uint256,((address,address,address,address,uint256),uint128)[])[])": FunctionFragment;
     "allocateAndMigratePosition(address,address,address,(address,uint256,((address,address,address,address,uint256),uint128)[])[])": FunctionFragment;
     "balanceOfBorrowShares(address,address)": FunctionFragment;
     "balanceOfCollateral(address,address)": FunctionFragment;
     "claimRewards(address,address)": FunctionFragment;
     "convertBorrowSharesToAssets(address,uint256)": FunctionFragment;
     "enterPosition(address,address,uint256,uint256,bytes)": FunctionFragment;
+    "enterPositionWithYieldToken(address,address,uint256,uint256)": FunctionFragment;
+    "enterPositionWithYieldTokenAndLeverage(address,address,uint256,uint256,bytes)": FunctionFragment;
     "exitPosition(address,address,address,uint256,uint256,bytes)": FunctionFragment;
     "forceWithdraw(address,address,bytes)": FunctionFragment;
     "healthFactor(address,address)": FunctionFragment;
@@ -98,18 +102,23 @@ export interface MorphoLendingRouterInterface extends utils.Interface {
     "onMorphoFlashLoan(uint256,bytes)": FunctionFragment;
     "onMorphoLiquidate(uint256,bytes)": FunctionFragment;
     "onMorphoRepay(uint256,bytes)": FunctionFragment;
+    "positionSwapContract()": FunctionFragment;
     "setApproval(address,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "allocateAndEnterPosition"
+      | "allocateAndEnterPositionWithYieldToken"
+      | "allocateAndEnterPositionWithYieldTokenAndLeverage"
       | "allocateAndMigratePosition"
       | "balanceOfBorrowShares"
       | "balanceOfCollateral"
       | "claimRewards"
       | "convertBorrowSharesToAssets"
       | "enterPosition"
+      | "enterPositionWithYieldToken"
+      | "enterPositionWithYieldTokenAndLeverage"
       | "exitPosition"
       | "forceWithdraw"
       | "healthFactor"
@@ -123,11 +132,33 @@ export interface MorphoLendingRouterInterface extends utils.Interface {
       | "onMorphoFlashLoan"
       | "onMorphoLiquidate"
       | "onMorphoRepay"
+      | "positionSwapContract"
       | "setApproval"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "allocateAndEnterPosition",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>,
+      MorphoAllocationStruct[]
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allocateAndEnterPositionWithYieldToken",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      MorphoAllocationStruct[]
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allocateAndEnterPositionWithYieldTokenAndLeverage",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -164,6 +195,25 @@ export interface MorphoLendingRouterInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "enterPosition",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "enterPositionWithYieldToken",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "enterPositionWithYieldTokenAndLeverage",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -250,12 +300,24 @@ export interface MorphoLendingRouterInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "positionSwapContract",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "setApproval",
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
 
   decodeFunctionResult(
     functionFragment: "allocateAndEnterPosition",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "allocateAndEnterPositionWithYieldToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "allocateAndEnterPositionWithYieldTokenAndLeverage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -280,6 +342,14 @@ export interface MorphoLendingRouterInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "enterPosition",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "enterPositionWithYieldToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "enterPositionWithYieldTokenAndLeverage",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -326,6 +396,10 @@ export interface MorphoLendingRouterInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "positionSwapContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setApproval",
     data: BytesLike
   ): Result;
@@ -333,6 +407,7 @@ export interface MorphoLendingRouterInterface extends utils.Interface {
   events: {
     "ApprovalUpdated(address,address,bool)": EventFragment;
     "EnterPosition(address,address,uint256,uint256,uint256,bool)": EventFragment;
+    "EnterPositionWithYieldToken(address,address,uint256,uint256,uint256)": EventFragment;
     "ExitPosition(address,address,uint256,uint256,uint256)": EventFragment;
     "ForceWithdraw(address,address,uint256)": EventFragment;
     "LiquidatePosition(address,address,address,uint256,uint256)": EventFragment;
@@ -340,6 +415,9 @@ export interface MorphoLendingRouterInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "ApprovalUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EnterPosition"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "EnterPositionWithYieldToken"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExitPosition"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ForceWithdraw"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidatePosition"): EventFragment;
@@ -371,6 +449,21 @@ export type EnterPositionEvent = TypedEvent<
 >;
 
 export type EnterPositionEventFilter = TypedEventFilter<EnterPositionEvent>;
+
+export interface EnterPositionWithYieldTokenEventObject {
+  user: string;
+  vault: string;
+  yieldTokenAmount: BigNumber;
+  borrowShares: BigNumber;
+  vaultSharesReceived: BigNumber;
+}
+export type EnterPositionWithYieldTokenEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, BigNumber],
+  EnterPositionWithYieldTokenEventObject
+>;
+
+export type EnterPositionWithYieldTokenEventFilter =
+  TypedEventFilter<EnterPositionWithYieldTokenEvent>;
 
 export interface ExitPositionEventObject {
   user: string;
@@ -450,6 +543,25 @@ export interface MorphoLendingRouter extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    allocateAndEnterPositionWithYieldToken(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      allocationData: MorphoAllocationStruct[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    allocateAndEnterPositionWithYieldTokenAndLeverage(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      depositData: PromiseOrValue<BytesLike>,
+      allocationData: MorphoAllocationStruct[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     allocateAndMigratePosition(
       onBehalf: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
@@ -486,6 +598,23 @@ export interface MorphoLendingRouter extends BaseContract {
       onBehalf: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       depositAssetAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      depositData: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    enterPositionWithYieldToken(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    enterPositionWithYieldTokenAndLeverage(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
       borrowAmount: PromiseOrValue<BigNumberish>,
       depositData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -574,6 +703,8 @@ export interface MorphoLendingRouter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    positionSwapContract(overrides?: CallOverrides): Promise<[string]>;
+
     setApproval(
       operator: PromiseOrValue<string>,
       approved: PromiseOrValue<boolean>,
@@ -585,6 +716,25 @@ export interface MorphoLendingRouter extends BaseContract {
     onBehalf: PromiseOrValue<string>,
     vault: PromiseOrValue<string>,
     depositAssetAmount: PromiseOrValue<BigNumberish>,
+    borrowAmount: PromiseOrValue<BigNumberish>,
+    depositData: PromiseOrValue<BytesLike>,
+    allocationData: MorphoAllocationStruct[],
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  allocateAndEnterPositionWithYieldToken(
+    onBehalf: PromiseOrValue<string>,
+    vault: PromiseOrValue<string>,
+    yieldTokenAmount: PromiseOrValue<BigNumberish>,
+    borrowAmount: PromiseOrValue<BigNumberish>,
+    allocationData: MorphoAllocationStruct[],
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  allocateAndEnterPositionWithYieldTokenAndLeverage(
+    onBehalf: PromiseOrValue<string>,
+    vault: PromiseOrValue<string>,
+    yieldTokenAmount: PromiseOrValue<BigNumberish>,
     borrowAmount: PromiseOrValue<BigNumberish>,
     depositData: PromiseOrValue<BytesLike>,
     allocationData: MorphoAllocationStruct[],
@@ -627,6 +777,23 @@ export interface MorphoLendingRouter extends BaseContract {
     onBehalf: PromiseOrValue<string>,
     vault: PromiseOrValue<string>,
     depositAssetAmount: PromiseOrValue<BigNumberish>,
+    borrowAmount: PromiseOrValue<BigNumberish>,
+    depositData: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  enterPositionWithYieldToken(
+    onBehalf: PromiseOrValue<string>,
+    vault: PromiseOrValue<string>,
+    yieldTokenAmount: PromiseOrValue<BigNumberish>,
+    borrowAmount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  enterPositionWithYieldTokenAndLeverage(
+    onBehalf: PromiseOrValue<string>,
+    vault: PromiseOrValue<string>,
+    yieldTokenAmount: PromiseOrValue<BigNumberish>,
     borrowAmount: PromiseOrValue<BigNumberish>,
     depositData: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -715,6 +882,8 @@ export interface MorphoLendingRouter extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  positionSwapContract(overrides?: CallOverrides): Promise<string>;
+
   setApproval(
     operator: PromiseOrValue<string>,
     approved: PromiseOrValue<boolean>,
@@ -726,6 +895,25 @@ export interface MorphoLendingRouter extends BaseContract {
       onBehalf: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       depositAssetAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      depositData: PromiseOrValue<BytesLike>,
+      allocationData: MorphoAllocationStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    allocateAndEnterPositionWithYieldToken(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      allocationData: MorphoAllocationStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    allocateAndEnterPositionWithYieldTokenAndLeverage(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
       borrowAmount: PromiseOrValue<BigNumberish>,
       depositData: PromiseOrValue<BytesLike>,
       allocationData: MorphoAllocationStruct[],
@@ -768,6 +956,23 @@ export interface MorphoLendingRouter extends BaseContract {
       onBehalf: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       depositAssetAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      depositData: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    enterPositionWithYieldToken(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    enterPositionWithYieldTokenAndLeverage(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
       borrowAmount: PromiseOrValue<BigNumberish>,
       depositData: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -862,6 +1067,8 @@ export interface MorphoLendingRouter extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    positionSwapContract(overrides?: CallOverrides): Promise<string>;
+
     setApproval(
       operator: PromiseOrValue<string>,
       approved: PromiseOrValue<boolean>,
@@ -897,6 +1104,21 @@ export interface MorphoLendingRouter extends BaseContract {
       vaultSharesReceived?: null,
       wasMigrated?: null
     ): EnterPositionEventFilter;
+
+    "EnterPositionWithYieldToken(address,address,uint256,uint256,uint256)"(
+      user?: PromiseOrValue<string> | null,
+      vault?: PromiseOrValue<string> | null,
+      yieldTokenAmount?: null,
+      borrowShares?: null,
+      vaultSharesReceived?: null
+    ): EnterPositionWithYieldTokenEventFilter;
+    EnterPositionWithYieldToken(
+      user?: PromiseOrValue<string> | null,
+      vault?: PromiseOrValue<string> | null,
+      yieldTokenAmount?: null,
+      borrowShares?: null,
+      vaultSharesReceived?: null
+    ): EnterPositionWithYieldTokenEventFilter;
 
     "ExitPosition(address,address,uint256,uint256,uint256)"(
       user?: PromiseOrValue<string> | null,
@@ -951,6 +1173,25 @@ export interface MorphoLendingRouter extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    allocateAndEnterPositionWithYieldToken(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      allocationData: MorphoAllocationStruct[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    allocateAndEnterPositionWithYieldTokenAndLeverage(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      depositData: PromiseOrValue<BytesLike>,
+      allocationData: MorphoAllocationStruct[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     allocateAndMigratePosition(
       onBehalf: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
@@ -987,6 +1228,23 @@ export interface MorphoLendingRouter extends BaseContract {
       onBehalf: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       depositAssetAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      depositData: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    enterPositionWithYieldToken(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    enterPositionWithYieldTokenAndLeverage(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
       borrowAmount: PromiseOrValue<BigNumberish>,
       depositData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1075,6 +1333,8 @@ export interface MorphoLendingRouter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    positionSwapContract(overrides?: CallOverrides): Promise<BigNumber>;
+
     setApproval(
       operator: PromiseOrValue<string>,
       approved: PromiseOrValue<boolean>,
@@ -1087,6 +1347,25 @@ export interface MorphoLendingRouter extends BaseContract {
       onBehalf: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       depositAssetAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      depositData: PromiseOrValue<BytesLike>,
+      allocationData: MorphoAllocationStruct[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    allocateAndEnterPositionWithYieldToken(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      allocationData: MorphoAllocationStruct[],
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    allocateAndEnterPositionWithYieldTokenAndLeverage(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
       borrowAmount: PromiseOrValue<BigNumberish>,
       depositData: PromiseOrValue<BytesLike>,
       allocationData: MorphoAllocationStruct[],
@@ -1129,6 +1408,23 @@ export interface MorphoLendingRouter extends BaseContract {
       onBehalf: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       depositAssetAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      depositData: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    enterPositionWithYieldToken(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
+      borrowAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    enterPositionWithYieldTokenAndLeverage(
+      onBehalf: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      yieldTokenAmount: PromiseOrValue<BigNumberish>,
       borrowAmount: PromiseOrValue<BigNumberish>,
       depositData: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1215,6 +1511,10 @@ export interface MorphoLendingRouter extends BaseContract {
       assetToRepay: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    positionSwapContract(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setApproval(

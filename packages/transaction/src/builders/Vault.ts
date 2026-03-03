@@ -31,7 +31,34 @@ export async function EnterVault({
     totalDeposit
   );
 
-  // TODO: check if deposit token is the yield token
+  const isEnterWithYieldToken =
+    depositBalance.tokenId === vaultAdapter.yieldToken.id;
+  if (isEnterWithYieldToken) {
+    if (allocations) {
+      return populateLendingRouterTxnAndGas(
+        network,
+        address,
+        lendingRouter,
+        'allocateAndEnterPositionWithYieldTokenAndLeverage',
+        [
+          address,
+          vaultAddress,
+          depositBalance.n,
+          borrowAmount.n,
+          vaultData,
+          allocations,
+        ]
+      );
+    } else {
+      return populateLendingRouterTxnAndGas(
+        network,
+        address,
+        lendingRouter,
+        'enterPositionWithYieldTokenAndLeverage',
+        [address, vaultAddress, depositBalance.n, borrowAmount.n, vaultData]
+      );
+    }
+  }
 
   if (allocations) {
     return populateLendingRouterTxnAndGas(

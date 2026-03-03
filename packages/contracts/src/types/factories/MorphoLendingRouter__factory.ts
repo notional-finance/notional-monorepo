@@ -11,6 +11,17 @@ import type {
 
 const _abi = [
   {
+    type: "constructor",
+    inputs: [
+      {
+        name: "_positionSwapContract",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+  },
+  {
     type: "function",
     name: "allocateAndEnterPosition",
     inputs: [
@@ -26,6 +37,189 @@ const _abi = [
       },
       {
         name: "depositAssetAmount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "borrowAmount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "depositData",
+        type: "bytes",
+        internalType: "bytes",
+      },
+      {
+        name: "allocationData",
+        type: "tuple[]",
+        internalType: "struct MorphoAllocation[]",
+        components: [
+          {
+            name: "vault",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "feeAmount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "withdrawals",
+            type: "tuple[]",
+            internalType: "struct Withdrawal[]",
+            components: [
+              {
+                name: "marketParams",
+                type: "tuple",
+                internalType: "struct MarketParams",
+                components: [
+                  {
+                    name: "loanToken",
+                    type: "address",
+                    internalType: "address",
+                  },
+                  {
+                    name: "collateralToken",
+                    type: "address",
+                    internalType: "address",
+                  },
+                  {
+                    name: "oracle",
+                    type: "address",
+                    internalType: "address",
+                  },
+                  {
+                    name: "irm",
+                    type: "address",
+                    internalType: "address",
+                  },
+                  {
+                    name: "lltv",
+                    type: "uint256",
+                    internalType: "uint256",
+                  },
+                ],
+              },
+              {
+                name: "amount",
+                type: "uint128",
+                internalType: "uint128",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
+    name: "allocateAndEnterPositionWithYieldToken",
+    inputs: [
+      {
+        name: "onBehalf",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "vault",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "yieldTokenAmount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "borrowAmount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "allocationData",
+        type: "tuple[]",
+        internalType: "struct MorphoAllocation[]",
+        components: [
+          {
+            name: "vault",
+            type: "address",
+            internalType: "address",
+          },
+          {
+            name: "feeAmount",
+            type: "uint256",
+            internalType: "uint256",
+          },
+          {
+            name: "withdrawals",
+            type: "tuple[]",
+            internalType: "struct Withdrawal[]",
+            components: [
+              {
+                name: "marketParams",
+                type: "tuple",
+                internalType: "struct MarketParams",
+                components: [
+                  {
+                    name: "loanToken",
+                    type: "address",
+                    internalType: "address",
+                  },
+                  {
+                    name: "collateralToken",
+                    type: "address",
+                    internalType: "address",
+                  },
+                  {
+                    name: "oracle",
+                    type: "address",
+                    internalType: "address",
+                  },
+                  {
+                    name: "irm",
+                    type: "address",
+                    internalType: "address",
+                  },
+                  {
+                    name: "lltv",
+                    type: "uint256",
+                    internalType: "uint256",
+                  },
+                ],
+              },
+              {
+                name: "amount",
+                type: "uint128",
+                internalType: "uint128",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
+    name: "allocateAndEnterPositionWithYieldTokenAndLeverage",
+    inputs: [
+      {
+        name: "onBehalf",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "vault",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "yieldTokenAmount",
         type: "uint256",
         internalType: "uint256",
       },
@@ -300,6 +494,67 @@ const _abi = [
       },
       {
         name: "depositAssetAmount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "borrowAmount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "depositData",
+        type: "bytes",
+        internalType: "bytes",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "enterPositionWithYieldToken",
+    inputs: [
+      {
+        name: "onBehalf",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "vault",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "yieldTokenAmount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+      {
+        name: "borrowAmount",
+        type: "uint256",
+        internalType: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "enterPositionWithYieldTokenAndLeverage",
+    inputs: [
+      {
+        name: "onBehalf",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "vault",
+        type: "address",
+        internalType: "address",
+      },
+      {
+        name: "yieldTokenAmount",
         type: "uint256",
         internalType: "uint256",
       },
@@ -666,6 +921,19 @@ const _abi = [
   },
   {
     type: "function",
+    name: "positionSwapContract",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "address",
+        internalType: "address",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
     name: "setApproval",
     inputs: [
       {
@@ -746,6 +1014,43 @@ const _abi = [
         type: "bool",
         indexed: false,
         internalType: "bool",
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "EnterPositionWithYieldToken",
+    inputs: [
+      {
+        name: "user",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "vault",
+        type: "address",
+        indexed: true,
+        internalType: "address",
+      },
+      {
+        name: "yieldTokenAmount",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+      {
+        name: "borrowShares",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
+      },
+      {
+        name: "vaultSharesReceived",
+        type: "uint256",
+        indexed: false,
+        internalType: "uint256",
       },
     ],
     anonymous: false,
