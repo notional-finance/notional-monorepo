@@ -141,6 +141,7 @@ export const TokenDefinitionModel = types.model('TokenDefinition', {
   vaultAddress: types.maybe(types.string),
   isFCashDebt: types.maybe(types.boolean),
   currencyId: types.maybe(types.number),
+  iconURL: types.maybe(types.string),
 });
 
 export const LendingRouterModel = types.model('LendingRouter', {

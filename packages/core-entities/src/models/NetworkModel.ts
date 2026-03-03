@@ -198,6 +198,20 @@ export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
       self.oracles.set(o.id, o);
     }
 
+    self.configuration?.vaults.forEach((v) => {
+      const iconURL = v.vaultAssets.find(
+        (a) =>
+          a.contractAddress.toLowerCase() === v.yieldToken.address.toLowerCase()
+      )?.logoURL;
+      const token = self.tokens.get(v.yieldToken.id.toLowerCase());
+      if (token && iconURL) {
+        self.tokens.set(v.yieldToken.id.toLowerCase(), {
+          ...token,
+          iconURL,
+        });
+      }
+    });
+
     // NOTE: just trigger this in the background so the APYs can load.
     if (isCreate) {
       self.getAllListedVaults().forEach((v) => {

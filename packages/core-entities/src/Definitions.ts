@@ -50,6 +50,8 @@ export interface TokenDefinition {
   maturity?: number;
   /** Vault Address */
   vaultAddress?: Lowercase<VaultAddress> | string;
+  /** Icon URL */
+  iconURL?: string;
 }
 
 export interface OracleDefinition {

@@ -10,12 +10,15 @@ import useApyChart from './use-apy-chart';
 import {
   useAssetPriceHistory,
   useCurrentTradeContext,
+  useVaultMetadata,
 } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 
 export const PerformanceChart = observer(() => {
   const trade = useCurrentTradeContext();
-  const { collateral, deposit } = trade?.selectedTokens || {};
+  const { collateral } = trade?.selectedTokens || {};
+  const vault = useVaultMetadata(trade?.vaultAddress);
+  const deposit = vault?.depositToken;
 
   const { areaChartData, areaChartStyles, isEmptyState, chartToolTipData } =
     usePerformanceChart();

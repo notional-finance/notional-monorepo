@@ -10,6 +10,7 @@ interface SelectDropdownProps {
   landingPage?: boolean;
   value: string | null;
   popperWidth?: string;
+  popupContainer?: HTMLElement | null;
   buttonComponent: ElementType;
   onChange: (value: string | null) => void;
   onListboxOpen?: (isOpen: boolean) => void;
@@ -49,6 +50,7 @@ export const SelectDropdown = ({
   children,
   landingPage,
   popperWidth,
+  popupContainer,
   buttonComponent,
   onListboxOpen,
   onChange,
@@ -92,6 +94,7 @@ export const SelectDropdown = ({
       ),
       theme,
       sx: {
+        marginLeft: theme.spacing(1),
         borderRadius: theme.shape.borderRadius(),
         h4: {
           color: landingPage
@@ -116,9 +119,9 @@ export const SelectDropdown = ({
       id: 'currency-select-popup',
       // open: true, // NOTE: uncomment this to keep the list box open when debugging
       placement: popperPlacement,
-      style: {
-        width: popperWidth || 'auto',
-      },
+      ...(popupContainer
+        ? { container: popupContainer, style: { width: '100%' } }
+        : { style: { width: popperWidth || 'auto' } }),
       theme,
     },
   };

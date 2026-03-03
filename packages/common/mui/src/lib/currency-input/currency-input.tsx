@@ -6,7 +6,6 @@ import CurrencySelect, { CurrencySelectProps } from './currency-select';
 import MiniButton from '../mini-button/mini-button';
 import { Paragraph, Caption } from '../typography/typography';
 import { useCallback, useRef } from 'react';
-import { useAppStore } from '@notional-finance/notionable-hooks';
 
 export interface CurrencyInputProps extends CurrencySelectProps {
   placeholder: string;
@@ -49,6 +48,7 @@ const Container = styled(Box)``;
 
 const InputContainer = styled(Box)(
   ({ theme }) => `
+  position: relative;
   display: flex;
   align-items: center;
   padding-top: ${theme.spacing(1)};
@@ -91,11 +91,21 @@ export const CurrencyInput = React.forwardRef<
     showScrollPopper,
   } = props;
   const theme = useTheme() as NotionalTheme;
-  const { isMobileView } = useAppStore();
   const [hasFocus, setHasFocus] = React.useState(false);
   const [value, setValue] = React.useState('');
 
-  const inputContainerRef = React.useRef(null);
+  const inputContainerRef = React.useRef<HTMLDivElement>(null);
+  const [popupContainer, setPopupContainer] =
+    React.useState<HTMLDivElement | null>(null);
+  const setInputContainerRef = React.useCallback(
+    (el: HTMLDivElement | null) => {
+      (
+        inputContainerRef as React.MutableRefObject<HTMLDivElement | null>
+      ).current = el;
+      setPopupContainer(el);
+    },
+    []
+  );
 
   // This imperative handle allows parent components to override the input
   // string directly without doing weird useEffect roundabout logic
@@ -131,7 +141,7 @@ export const CurrencyInput = React.forwardRef<
   return (
     <Container>
       <InputContainer
-        ref={inputContainerRef}
+        ref={setInputContainerRef}
         theme={theme}
         borderColor={borderColor}
         sx={{
@@ -193,13 +203,10 @@ export const CurrencyInput = React.forwardRef<
           }}
         />
         <CurrencySelect
-          minWidth={
-            isMobileView ? '100%' : 'min-content' // theme.spacing(55.875)
-          }
           options={props.options}
           defaultValue={props.defaultValue}
           onSelectChange={props.onSelectChange}
-          popperRef={inputContainerRef}
+          popupContainer={popupContainer}
           showScrollPopper={showScrollPopper}
         />
       </InputContainer>

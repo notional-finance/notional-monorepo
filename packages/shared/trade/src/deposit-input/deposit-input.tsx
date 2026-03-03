@@ -20,7 +20,10 @@ import { observer } from 'mobx-react-lite';
 
 interface DepositInputProps {
   onMaxValue?: () => void;
-  newRoute?: (newToken: string | null) => string;
+  newRoute?: (
+    newTokenSymbol: string | null,
+    newToken: TokenDefinition | null
+  ) => string;
   warningMsg?: React.ReactNode;
   inputLabel?: MessageDescriptor;
   errorMsgOverride?: MessageDescriptor;
@@ -164,16 +167,12 @@ export const DepositInput = observer(
             onSelectChange={(tokenId: string | null) => {
               // Always clear the input string when we change tokens
               inputRef.current?.setInputOverride('');
-              const newTokenSymbol = availableDepositTokens?.find(
+              const newToken = availableDepositTokens?.find(
                 (t) => t.id === tokenId
-              )?.symbol;
+              );
 
-              if (
-                newTokenSymbol &&
-                newTokenSymbol !== deposit.symbol &&
-                newRoute
-              ) {
-                navigate(newRoute(newTokenSymbol));
+              if (newToken && newToken.symbol !== deposit.symbol && newRoute) {
+                navigate(newRoute(newToken.symbol, newToken));
               }
             }}
           />

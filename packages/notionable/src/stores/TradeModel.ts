@@ -417,7 +417,7 @@ export const TradeModel = types
         const config = model.getVaultConfig(self.vaultAddress);
         self.strategyType = config.strategyType as VaultType;
         self.deposit = config.depositToken;
-        self.availableDepositTokens.replace([self.deposit]);
+        self.availableDepositTokens.replace([self.deposit, config.yieldToken]);
         self.availableCollateralTokens.replace([config.vaultToken]);
         self.collateral = config.vaultToken;
 
@@ -677,6 +677,12 @@ export const TradeModel = types
       calculate();
     };
 
+    const setDepositToken = (token: TokenDefinition) => {
+      if (!isAlive(self)) return;
+      self.deposit = token as Instance<typeof TokenDefinitionModel>;
+      calculate();
+    };
+
     const setHasInputErrors = (inputErrors: boolean) => {
       if (!isAlive(self)) return;
       self.inputErrors = inputErrors;
@@ -864,6 +870,7 @@ export const TradeModel = types
       afterAttach,
       setHasInputErrors,
       setDepositBalance,
+      setDepositToken,
       setConfirm,
       buildTransaction,
       clearTradeState,

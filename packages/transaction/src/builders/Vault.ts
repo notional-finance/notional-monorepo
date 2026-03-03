@@ -17,10 +17,14 @@ export async function EnterVault({
   const vaultAddress = debtBalance.vaultAddress;
   const lendingRouter = debtBalance.token.address;
 
+  const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
+  const isEnterWithYieldToken =
+    depositBalance.tokenId === vaultAdapter.yieldToken.id;
   // This must be a positive number
   const borrowAmount = debtBalance.neg().toUnderlying();
-  const vaultAdapter = getNetworkModel(network).getVaultAdapter(vaultAddress);
-  const totalDeposit = borrowAmount.add(depositBalance);
+  const totalDeposit = isEnterWithYieldToken
+    ? borrowAmount
+    : borrowAmount.add(depositBalance);
   const allocations = getNetworkModel(network)
     .getLendingMarketFromVaultDebt(debtBalance.token)
     .getAllocationData(undefined, debtBalance.neg());
@@ -30,6 +34,33 @@ export async function EnterVault({
     debtBalance.maturity || 0,
     totalDeposit
   );
+
+  if (isEnterWithYieldToken) {
+    if (allocations) {
+      return populateLendingRouterTxnAndGas(
+        network,
+        address,
+        lendingRouter,
+        'allocateAndEnterPositionWithYieldTokenAndLeverage',
+        [
+          address,
+          vaultAddress,
+          depositBalance.n,
+          borrowAmount.n,
+          vaultData,
+          allocations,
+        ]
+      );
+    } else {
+      return populateLendingRouterTxnAndGas(
+        network,
+        address,
+        lendingRouter,
+        'enterPositionWithYieldTokenAndLeverage',
+        [address, vaultAddress, depositBalance.n, borrowAmount.n, vaultData]
+      );
+    }
+  }
 
   if (allocations) {
     return populateLendingRouterTxnAndGas(

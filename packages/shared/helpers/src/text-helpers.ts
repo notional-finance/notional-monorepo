@@ -35,7 +35,7 @@ export function formatTokenType(token: TokenDefinition): {
     case 'Underlying':
       return {
         title: token.symbol,
-        icon: token.symbol,
+        icon: token.iconURL || token.symbol,
         formattedTitle: token.symbol,
         titleWithMaturity: token.symbol,
       };
