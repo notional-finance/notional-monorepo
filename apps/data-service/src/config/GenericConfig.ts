@@ -749,4 +749,19 @@ export const configDefs: ConfigDefinition[] = [
     },
     network: Network.mainnet,
   },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x9B5ae92EBa3C383Be073e3ff94613B2C33851282',
+      contractABI: ['function price() public view returns (uint256)'],
+      method: 'price',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'liUSD-1w to USD',
+      decimals: 18,
+    },
+    network: Network.mainnet,
+  },
 ];
