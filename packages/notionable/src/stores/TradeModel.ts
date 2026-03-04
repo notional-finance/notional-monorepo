@@ -417,9 +417,17 @@ export const TradeModel = types
         const config = model.getVaultConfig(self.vaultAddress);
         self.strategyType = config.strategyType as VaultType;
         self.deposit = config.depositToken;
-        self.availableDepositTokens.replace([self.deposit, config.yieldToken]);
         self.availableCollateralTokens.replace([config.vaultToken]);
         self.collateral = config.vaultToken;
+
+        if (self.tradeType === 'CreateVaultPosition') {
+          self.availableDepositTokens.replace([
+            self.deposit,
+            config.yieldToken,
+          ]);
+        } else {
+          self.availableDepositTokens.replace([self.deposit]);
+        }
 
         if (self.tradeType === 'AdjustVaultLeverage') {
           self.depositBalance = TokenBalance.zero(
@@ -680,6 +688,8 @@ export const TradeModel = types
     const setDepositToken = (token: TokenDefinition) => {
       if (!isAlive(self)) return;
       self.deposit = token as Instance<typeof TokenDefinitionModel>;
+      self.depositBalance = undefined;
+      self.maxWithdraw = false;
       calculate();
     };
 
