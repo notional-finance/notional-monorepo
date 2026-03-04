@@ -42,11 +42,16 @@ export const useTransactionApprovals = (
       : undefined);
 
   const insufficientAllowance =
-    approvalRequired && tokenStatus && tokenStatus.amount.lt(approvalRequired);
+    approvalRequired &&
+    tokenStatus &&
+    tokenStatus.amount.token.id === approvalRequired.token.id &&
+    tokenStatus.amount.lt(approvalRequired);
 
   const secondaryInsufficientAllowance =
     secondaryApprovalRequired &&
     secondaryTokenStatus &&
+    secondaryTokenStatus.amount.token.id ===
+      secondaryApprovalRequired.token.id &&
     secondaryTokenStatus.amount.lt(secondaryApprovalRequired);
 
   const tokenApprovalRequired =
