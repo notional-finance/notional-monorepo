@@ -39,6 +39,7 @@ codedthemes
 codeigniter
 coen
 colab
+crdx
 collateralized
 colum
 convertf
