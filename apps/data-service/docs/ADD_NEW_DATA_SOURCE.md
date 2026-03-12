@@ -184,15 +184,36 @@ Example timestamps:
 - Start: `1704067200` (January 1, 2024)
 - End: `1735689600` (December 31, 2024)
 
-### Step 6: Create Pull Request
+### Step 6: Deploy to Production
 
-1. **Only commit the configuration change** (`GenericConfig.ts`)
+Before creating a PR, you should deploy the changes to production to test them:
+
+1. **Deploy from your terminal**:
+
+```bash
+# From the monorepo root
+yarn nx run data-service:deploy-gcp
+```
+
+This will:
+
+- Build the data-service
+- Deploy both the data-service and cron-service functions to GCP in parallel
+
+2. **Verify the deployment**: Check the GCP console or logs to ensure the deployment succeeded
+
+3. **Monitor data collection**: The new oracle should start collecting data at the next scheduled interval
+
+### Step 7: Create Pull Request
+
+1. **Only commit the configuration change** (`GenericConfig.ts`, `.gitignore`, and docs)
 2. **Do NOT commit** the backfill script (it should be ignored by git)
 3. Create a PR with a descriptive title like "Add [Oracle Name] data sources"
 4. In the PR description, document:
    - What oracles were added
    - What data they provide
    - Why they're needed
+   - Note that you've already deployed and tested in production
 
 ## Quick Reference: Configuration Fields
 
@@ -312,14 +333,39 @@ For each data source, I need the following information:
 - Check if `/apps/data-service/.gitignore` already has `backfill-*.sh`
 - If not, add it
 
-### 5. Confirm with User
+### 5. Prompt User to Deploy
 
-Summarize what was added and provide next steps:
+After adding the configuration and creating the backfill script, prompt the user to deploy:
 
-- Configuration entries added
+**Say this to the user:**
+
+```
+Configuration added successfully!
+
+Next steps:
+1. Deploy to production:
+   yarn nx run data-service:deploy-gcp
+
+2. (Optional) Run backfill script:
+   cd apps/data-service
+   ./backfill-<descriptor>.sh <startTimestamp> <endTimestamp>
+
+3. After deployment succeeds and you verify data collection, create a PR with:
+   - GenericConfig.ts changes
+   - .gitignore update
+   - Documentation updates
+
+The backfill script will remain local (git-ignored).
+```
+
+### 6. Confirm with User
+
+Summarize what was added:
+
+- Configuration entries added to GenericConfig.ts
 - Backfill script created and location
-- How to run the backfill script
-- Remind them that only GenericConfig.ts should be committed
+- .gitignore updated
+- Remind them to deploy before creating PR
 
 ## Troubleshooting
 
