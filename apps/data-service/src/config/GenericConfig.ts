@@ -764,4 +764,22 @@ export const configDefs: ConfigDefinition[] = [
     },
     network: Network.mainnet,
   },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x74A739EA1Dc67c5a0179ebad665D1D3c4b80B712',
+      contractABI: [
+        'function convertToAssets(uint256 shares) view external returns (uint256)',
+      ],
+      method: 'convertToAssets',
+      args: [ethers.utils.parseEther('1')],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'CRDX to USD Oracle',
+      decimals: 6,
+    },
+    network: Network.mainnet,
+  },
 ];
