@@ -782,4 +782,20 @@ export const configDefs: ConfigDefinition[] = [
     },
     network: Network.mainnet,
   },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x1d95cC100D6Cd9C7BbDbD7Cb328d99b3D6037fF7',
+      contractABI: ['function exchangeRate(uint32) view returns (uint256)'],
+      method: 'exchangeRate',
+      args: [4],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'liUSD-4w to USD',
+      decimals: 18,
+    },
+    network: Network.mainnet,
+  },
 ];
