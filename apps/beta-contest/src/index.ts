@@ -29,11 +29,13 @@ interface PointsResponse {
   lastUpdated: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function refreshPoints(env: Env) {
   const models = initializeTokenBalanceRegistry();
   await Promise.all(models.map((m) => m.triggerRefresh(true)));
   const { AllVaultAccountsDocument } = await loadGraphClientDeferred();
 
+  // TODO: this removes empty positions from the points calculation, that needs to be fixed.
   const allPositions = await fetchGraphPaginate(
     Network.mainnet,
     AllVaultAccountsDocument,
@@ -130,12 +132,5 @@ export default {
         'Access-Control-Max-Age': '86400',
       },
     });
-  },
-  async scheduled(
-    _controller: ScheduledController,
-    env: Env,
-    _ctx: ExecutionContext
-  ): Promise<void> {
-    await refreshPoints(env);
   },
 };
