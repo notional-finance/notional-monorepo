@@ -198,8 +198,11 @@ export class Staking extends VaultAdapter {
     totalDeposit: TokenBalance,
     slippageFactor = 25 * BASIS_POINT
   ) {
-    const { dexId, depositExchangeData: exchangeData } =
+    const defaultDex =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (!defaultDex) return '0x';
+
+    const { dexId, depositExchangeData: exchangeData } = defaultDex;
     const tradeType = 0; // Exact In Single
     const minPurchaseAmount = totalDeposit
       .toToken(this.stakingToken)
@@ -224,8 +227,10 @@ export class Staking extends VaultAdapter {
   override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
     if (withdrawTokensBurned.length !== 1)
       throw Error('Staking vault only supports one withdraw token');
-    const { withdrawPoolAddress } =
+    const defaultDex =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (!defaultDex) return [];
+    const { withdrawPoolAddress } = defaultDex;
     return [
       this.getVaultTradeMetadata(
         withdrawTokensBurned[0],
@@ -241,8 +246,10 @@ export class Staking extends VaultAdapter {
     withdrawTokensBurned: TokenBalance[],
     slippageFactor?: number
   ) {
-    const { dexId, withdrawExchangeData } =
+    const defaultDex =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (!defaultDex) return '0x';
+    const { dexId, withdrawExchangeData } = defaultDex;
     if (withdrawTokensBurned.length !== 1)
       throw Error('Staking vault only supports one withdraw token');
 
@@ -269,8 +276,11 @@ export class Staking extends VaultAdapter {
     _underlyingToRepayDebt: TokenBalance,
     slippageFactor?: number
   ) {
-    const { dexId, redeemExchangeData: exchangeData } =
+    const defaultDex =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (!defaultDex) return '0x';
+    const { dexId, redeemExchangeData: exchangeData } = defaultDex;
+    VaultDefaultDexParameters[this.network][this.vaultAddress];
     const minPurchaseAmount = vaultSharesToRedeem
       .toToken(this.borrowedToken)
       .mulInRatePrecision(RATE_PRECISION - (slippageFactor || 0)).n;
