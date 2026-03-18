@@ -1,7 +1,6 @@
 import { BytesLike } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { TokenDefinition } from '..';
-import { SECONDS_IN_DAY } from '@notional-finance/util';
 
 interface WithdrawContext {
   stakingToken: TokenDefinition;
@@ -53,6 +52,9 @@ export class WithdrawManager {
       return new DefaultWithdrawStrategy('7 days');
     } else if (this.strategyType === 'MidasStaking') {
       return new DefaultWithdrawStrategy('within 3 business days');
+    } else if (this.yieldToken.symbol === 'liUSD-4w') {
+      // TODO: this does not count down from the withdraw init time.
+      return new DefaultWithdrawStrategy('4 weeks');
     }
     // Can switch on yield token here to return different strategies
     return new DefaultWithdrawStrategy();
