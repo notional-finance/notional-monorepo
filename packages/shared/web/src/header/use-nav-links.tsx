@@ -5,7 +5,6 @@ import {
   CoinsIcon,
   GearIcon,
   LightningOutlineIcon,
-  ExponentBetaIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS, Network } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
@@ -70,12 +69,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
     //     />
     //   ),
     // },
-    {
-      key: 'exponent-beta',
-      link: '/exponent-leaderboard',
-      isRight: true,
-      iconImg: <ExponentBetaIcon sx={{ width: 168, height: 33 }} />,
-    },
     {
       key: 'note',
       label: <FormattedMessage defaultMessage={'NOTE'} />,
