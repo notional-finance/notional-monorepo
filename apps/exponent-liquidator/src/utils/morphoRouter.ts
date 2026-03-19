@@ -142,4 +142,15 @@ export class MorphoRouterIntegration {
 
     return liquidationIncentiveFactors;
   }
+
+  async forceWithdraw(
+    accountAddress: string,
+    vaultAddress: string
+  ): Promise<ethers.PopulatedTransaction> {
+    return this.morphoRouterContract.populateTransaction['forceWithdraw'](
+      accountAddress,
+      vaultAddress,
+      '0x'
+    );
+  }
 }

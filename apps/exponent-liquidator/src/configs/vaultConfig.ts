@@ -13,6 +13,7 @@ export const DEFAULT_VAULT_LIQUIDATION_SETTINGS = {
   liquidateYieldTokens: true,
   slippageLimit: DEFAULT_SLIPPAGE_LIMIT,
   ptSlippageLimit: DEFAULT_PT_SLIPPAGE_LIMIT,
+  autoForceWithdraw: false,
 } as const;
 
 // Vault DEX parameters by network and vault address
