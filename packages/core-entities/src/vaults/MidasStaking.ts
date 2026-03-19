@@ -6,19 +6,8 @@ import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
 import { getNetworkModel } from '../Models';
 import { MidasPool } from '../exchanges';
-import { APYData } from '..';
 
 export class MidasStaking extends Staking {
-  override getPendingWithdrawAPY(): APYData {
-    const organicAPY = this.getVaultAPY();
-    return {
-      totalAPY: organicAPY,
-      assetAPY: organicAPY,
-      organicAPY: organicAPY,
-      feeAPY: 0,
-    };
-  }
-
   override getVaultShareExitToUnderlying(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;

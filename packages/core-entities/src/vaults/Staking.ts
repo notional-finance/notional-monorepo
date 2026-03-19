@@ -355,4 +355,30 @@ export class Staking extends VaultAdapter {
       assetAPY: organicAPY,
     };
   }
+
+  override getPendingWithdrawAPY(): APYData {
+    const withdrawManager = getNetworkModel(this.network).getWithdrawManagers(
+      this.vaultAddress
+    );
+    if (!withdrawManager || withdrawManager.length !== 1)
+      throw Error('Withdraw manager not found');
+    const earnsYieldDuringWithdraw =
+      withdrawManager[0].earnsYieldDuringWithdraw;
+    if (!earnsYieldDuringWithdraw) {
+      const organicAPY = this.getVaultAPY();
+      return {
+        totalAPY: organicAPY,
+        assetAPY: organicAPY,
+        organicAPY: organicAPY,
+        feeAPY: 0,
+      };
+    } else {
+      return {
+        totalAPY: 0,
+        assetAPY: 0,
+        organicAPY: 0,
+        feeAPY: 0,
+      };
+    }
+  }
 }
