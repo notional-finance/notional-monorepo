@@ -451,7 +451,7 @@ export class SingleSidedLP extends VaultAdapter {
   override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
     return [
       ...withdrawTokensBurned.map((t) =>
-        this.getVaultTradeMetadata(t, this.borrowedToken)
+        this.getVaultTradeMetadata(t, this.borrowedToken, true)
       ),
     ];
   }

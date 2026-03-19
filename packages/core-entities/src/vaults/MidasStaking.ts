@@ -55,6 +55,7 @@ export class MidasStaking extends Staking {
     const tradeMetadata = this.getVaultTradeMetadata(
       yieldTokens,
       this.borrowedToken,
+      true,
       stakingPoolAddress
     );
 

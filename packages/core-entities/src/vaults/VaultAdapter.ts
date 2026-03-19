@@ -137,6 +137,7 @@ export abstract class VaultAdapter {
   protected getVaultTradeMetadata(
     tokenSold: TokenBalance,
     tokenBought: TokenDefinition,
+    isSoldTokenBase: boolean, // this is true on redeem, false on deposit
     poolAddress?: string,
     defaultSlippage = 0
   ): VaultTradeMetadata {
@@ -178,9 +179,12 @@ export abstract class VaultAdapter {
         .mulInRatePrecision(RATE_PRECISION - defaultSlippage);
     }
 
-    const exchangeRate = tokensBought.toFloat() / tokenSold.toFloat();
-    const spotPrice =
-      tokenSold.toToken(tokenBought).toFloat() / tokenSold.toFloat();
+    const exchangeRate = isSoldTokenBase
+      ? tokensBought.toFloat() / tokenSold.toFloat()
+      : tokenSold.toFloat() / tokensBought.toFloat();
+    const spotPrice = isSoldTokenBase
+      ? tokenSold.toToken(tokenBought).toFloat() / tokenSold.toFloat()
+      : tokenSold.toFloat() / tokenSold.toToken(tokenBought).toFloat();
 
     return {
       tokensSold: tokenSold,

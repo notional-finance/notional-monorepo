@@ -212,6 +212,7 @@ export class PendlePT extends VaultAdapter {
       return this.getVaultTradeMetadata(
         underlyingIn,
         this.assetToken,
+        false,
         depositPoolAddress,
         defaultSlippage
       );
@@ -254,6 +255,7 @@ export class PendlePT extends VaultAdapter {
         const sDAITrade = this.getVaultTradeMetadata(
           tokenOutSy,
           getNetworkModel(this.network).getTokenBySymbol('sDAI'),
+          true,
           registerTokensMap[this.network]['sDAI/sUSDe']
         );
         vaultTradeMetadata.push(sDAITrade);
@@ -264,6 +266,7 @@ export class PendlePT extends VaultAdapter {
       const trade = this.getVaultTradeMetadata(
         _tokenOutSy,
         this.borrowedToken,
+        true,
         redeemPoolAddress
       );
       vaultTradeMetadata.push(trade);
@@ -524,6 +527,7 @@ export class PendlePT extends VaultAdapter {
       vaultSharesToRedeem
     );
   }
+
   override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
     if (withdrawTokensBurned.length !== 1)
       throw Error('PendlePT vault only supports one withdraw token');
@@ -534,6 +538,7 @@ export class PendlePT extends VaultAdapter {
       this.getVaultTradeMetadata(
         withdrawTokensBurned[0],
         this.borrowedToken,
+        true,
         withdrawPoolAddress
       ),
     ];
