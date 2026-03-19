@@ -966,6 +966,7 @@ export const TradeModel = types
 
     const getVaultAPYBreakdown = () => {
       const { priorVaultRisk, postVaultRisk } = getPostVaultRiskProfile();
+      const vaultType = priorVaultRisk?.vaultConfig.strategyType;
       const account = root().getNetworkAccount(self.selectedNetwork);
       const model = root().getNetworkClient(self.selectedNetwork);
       const holdings = account?.vaultHoldings?.find(
@@ -1009,7 +1010,8 @@ export const TradeModel = types
         if (
           priorVaultRisk &&
           ((self.tradeType === 'AdjustVaultLeverage' &&
-            // Only do this if we are increasing the leverage
+            // Only do this if we are increasing the leverage for PT vaults
+            vaultType === 'PendlePT' &&
             (self.leverageRatio || 0) > (postVaultRisk.leverageRatio() || 0)) ||
             self.tradeType === 'IncreaseVaultPosition')
         ) {
@@ -1063,7 +1065,6 @@ export const TradeModel = types
         ) {
           updatedAPY = netPositionAPY;
         } else if (self.tradeType === 'AdjustVaultLeverage') {
-          // In this case it is reducing the leverage
           updatedAPY = createLeveragedAPYData(
             netPositionAPY.unleveragedAssetAPY || {},
             netPositionAPY.debtAPY || 0,
