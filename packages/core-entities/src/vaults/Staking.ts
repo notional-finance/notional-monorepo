@@ -74,6 +74,7 @@ export class Staking extends VaultAdapter {
     const tradeMetadata = this.getVaultTradeMetadata(
       netVaultShares.neg().toToken(this.yieldToken),
       this.borrowedToken,
+      true,
       stakingPoolAddress
     );
     return {
@@ -98,6 +99,7 @@ export class Staking extends VaultAdapter {
     const tradeMetadata = this.getVaultTradeMetadata(
       yieldTokens,
       this.borrowedToken,
+      true,
       stakingPoolAddress
     );
 
@@ -135,6 +137,7 @@ export class Staking extends VaultAdapter {
         this.getVaultTradeMetadata(
           netUnderlying,
           this.stakingToken,
+          false,
           netUnderlying.isPositive()
             ? defaultDex.depositPoolAddress
             : defaultDex.redeemPoolAddress
@@ -146,6 +149,7 @@ export class Staking extends VaultAdapter {
       const tradeMetadata = this.getVaultTradeMetadata(
         netUnderlying.toToken(this.stakingToken),
         this.yieldToken,
+        false,
         stakingPoolAddress
       );
       vaultTradeMetadata.push(tradeMetadata);
@@ -235,6 +239,7 @@ export class Staking extends VaultAdapter {
       this.getVaultTradeMetadata(
         withdrawTokensBurned[0],
         this.borrowedToken,
+        true,
         withdrawPoolAddress
       ),
     ];
@@ -349,5 +354,31 @@ export class Staking extends VaultAdapter {
       organicAPY: organicAPY,
       assetAPY: organicAPY,
     };
+  }
+
+  override getPendingWithdrawAPY(): APYData {
+    const withdrawManager = getNetworkModel(this.network).getWithdrawManagers(
+      this.vaultAddress
+    );
+    if (!withdrawManager || withdrawManager.length !== 1)
+      throw Error('Withdraw manager not found');
+    const earnsYieldDuringWithdraw =
+      withdrawManager[0].earnsYieldDuringWithdraw;
+    if (!earnsYieldDuringWithdraw) {
+      const organicAPY = this.getVaultAPY();
+      return {
+        totalAPY: organicAPY,
+        assetAPY: organicAPY,
+        organicAPY: organicAPY,
+        feeAPY: 0,
+      };
+    } else {
+      return {
+        totalAPY: 0,
+        assetAPY: 0,
+        organicAPY: 0,
+        feeAPY: 0,
+      };
+    }
   }
 }

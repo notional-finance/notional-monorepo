@@ -354,7 +354,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         this.vaultShares.neg()
       );
       netUnderlyingForVaultShares = result.netUnderlyingForVaultShares;
-      feesPaid = result.feesPaid;
+      feesPaid = result.feesPaid.toToken(netUnderlyingForVaultShares.token);
       vaultTradeMetadata = result.vaultTradeMetadata || [];
     }
 

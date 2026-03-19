@@ -51,7 +51,8 @@ export async function fetchCurrentAccount(
     .getAllTokens()
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
   const yieldTokens = allVaults
-    .filter((v) => v.isVisible)
+    // You cannot deposit staked liquidity tokens directly
+    .filter((v) => v.strategyClass !== 'Liquidity')
     .map((v) => ({
       yieldToken: v.yieldToken as TokenDefinition,
       vaultAddress: v.vaultAddress,
