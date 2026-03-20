@@ -349,7 +349,7 @@ function formatAPYValues(
 const useApyBreakdown = () => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
-  const { leveragedAPY, assets, debts, netWorth } =
+  const { leveragedAPY, assets, debts, netWorth, earnsYieldDuringWithdraw } =
     trade?.getVaultAPYBreakdown() || {};
   const unleveragedAssetAPY = leveragedAPY?.unleveragedAssetAPY;
   const strategyType = trade?.strategyType;
@@ -441,6 +441,7 @@ const useApyBreakdown = () => {
     apy,
     points,
     assetsDebts,
+    earnsYieldDuringWithdraw,
   };
 };
 
@@ -664,7 +665,8 @@ export const useInfoBox = () => {
             key="assets-debts"
             items={apyBreakdown.assetsDebts}
             sectionFooter={
-              trade?.tradeType === 'InitiateWithdraw' ? (
+              trade?.tradeType === 'InitiateWithdraw' &&
+              !apyBreakdown.earnsYieldDuringWithdraw ? (
                 <ErrorMessage
                   variant="pending"
                   hideTitle

@@ -134,6 +134,15 @@ export abstract class VaultAdapter {
     vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData;
 
+  earnsYieldDuringWithdraw(): boolean {
+    const withdrawManager = getNetworkModel(this.network).getWithdrawManagers(
+      this.vaultAddress
+    );
+    if (!withdrawManager || withdrawManager.length !== 1)
+      throw Error('Withdraw manager not found');
+    return withdrawManager[0].earnsYieldDuringWithdraw;
+  }
+
   getPendingWithdrawAPY(): APYData {
     return {
       totalAPY: 0,
