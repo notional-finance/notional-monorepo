@@ -242,7 +242,7 @@ export interface YieldData {
     symbol: string;
     incentiveAPY: number;
   };
-  pointMultiples?: Record<string, number>;
+  pointMultiples?: Record<string, { multiple: number; icon: string }>;
 }
 
 export interface DataPoint {

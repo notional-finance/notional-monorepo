@@ -6,6 +6,7 @@ import {
   RATE_PRECISION,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
+import { PointsMultipliers } from '../config/whitelisted-vaults';
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
@@ -109,7 +110,20 @@ export abstract class VaultAdapter {
     );
   }
 
-  getPointMultiples(): Record<string, number> | undefined {
+  getPointMultiples() {
+    const pointsFunc = PointsMultipliers[this.network][this.vaultAddress];
+    if (pointsFunc) {
+      const multiples = pointsFunc(this);
+      const icon = this.yieldToken.iconURL;
+      return Object.entries(multiples).reduce((acc, [key, multiple]) => {
+        acc[key] = {
+          multiple,
+          icon: icon || 'unknown',
+        };
+        return acc;
+      }, {} as Record<string, { multiple: number; icon: string }>);
+    }
+
     return undefined;
   }
 
@@ -119,6 +133,15 @@ export abstract class VaultAdapter {
     netAmount: TokenBalance,
     vaultTradeMetadata?: VaultTradeMetadata[]
   ): APYData;
+
+  earnsYieldDuringWithdraw(): boolean {
+    const withdrawManager = getNetworkModel(this.network).getWithdrawManagers(
+      this.vaultAddress
+    );
+    if (!withdrawManager || withdrawManager.length !== 1)
+      throw Error('Withdraw manager not found');
+    return withdrawManager[0].earnsYieldDuringWithdraw;
+  }
 
   getPendingWithdrawAPY(): APYData {
     return {

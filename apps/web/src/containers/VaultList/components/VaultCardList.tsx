@@ -6,6 +6,7 @@ import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useAllVaults, useAppStore } from '@notional-finance/notionable-hooks';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
+import { formatNumber } from '@notional-finance/util';
 
 interface VaultCardListProps {
   selectedDepositToken: 'USDC' | 'WETH' | null;
@@ -45,7 +46,7 @@ const VaultCard = ({ vault, baseCurrency }: VaultCardProps) => {
 
   const pointsText = vault?.apy?.pointMultiples
     ? Object.entries(vault.apy.pointMultiples)
-        .map(([k, v]) => `${v}x ${k}`)
+        .map(([k, { multiple }]) => `${formatNumber(multiple, 2)}x ${k}`)
         .join(', ')
     : null;
 
@@ -140,14 +141,23 @@ const VaultCard = ({ vault, baseCurrency }: VaultCardProps) => {
       </Box>
 
       {pointsText && (
-        <Box sx={{ marginTop: theme.spacing(1.5) }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: theme.spacing(2),
+          }}
+        >
           <BodySecondary
             gutter="none"
             sx={{ color: theme.palette.typography.light }}
           >
             Points
           </BodySecondary>
-          <Body gutter="none">{pointsText}</Body>
+          <Body gutter="none" sx={{ textAlign: 'right' }}>
+            {pointsText}
+          </Body>
         </Box>
       )}
 

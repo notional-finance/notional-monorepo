@@ -1077,6 +1077,8 @@ export const TradeModel = types
         leveragedAPY: (updatedAPY || currentAPY || undefined) as
           | APYData
           | undefined,
+        earnsYieldDuringWithdraw:
+          priorVaultRisk?.vaultAdapter.earnsYieldDuringWithdraw() || false,
         assets:
           // Use the prior vault risk assets if there is a withdraw
           self.tradeType === 'InitiateWithdraw'

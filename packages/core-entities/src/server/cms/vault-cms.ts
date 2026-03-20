@@ -199,6 +199,7 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
       strategyIcon: v.fieldData['strategy-type-2']['icon']?.url,
       vaultDescription: v.fieldData['vault-description'] || '',
       isVisible: v.fieldData['is-visible'],
+      // TODO: add points to here..
       projects: v.fieldData['projects'].map((p) => ({
         id: p.slug,
         name: p.name,
