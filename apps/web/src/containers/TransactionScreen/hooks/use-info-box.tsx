@@ -360,12 +360,14 @@ const useApyBreakdown = () => {
 
   if (leveragedAPY?.pointMultiples) {
     // These are leveraged point multiples
-    points = Object.entries(leveragedAPY.pointMultiples).map(([key, value]) => {
-      return {
-        label: key,
-        values: [{ value: `${formatNumber(value)}x` }],
-      };
-    });
+    points = Object.entries(leveragedAPY.pointMultiples).map(
+      ([key, { multiple }]) => {
+        return {
+          label: key,
+          values: [{ value: `${formatNumber(multiple)}x` }],
+        };
+      }
+    );
   }
 
   if (unleveragedAssetAPY?.incentives) {

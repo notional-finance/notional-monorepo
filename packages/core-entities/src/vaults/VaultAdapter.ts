@@ -112,7 +112,17 @@ export abstract class VaultAdapter {
 
   getPointMultiples() {
     const pointsFunc = PointsMultipliers[this.network][this.vaultAddress];
-    if (pointsFunc) return pointsFunc(this);
+    if (pointsFunc) {
+      const multiples = pointsFunc(this);
+      const icon = this.yieldToken.iconURL;
+      return Object.entries(multiples).reduce((acc, [key, multiple]) => {
+        acc[key] = {
+          multiple,
+          icon: icon || 'unknown',
+        };
+        return acc;
+      }, {} as Record<string, { multiple: number; icon: string }>);
+    }
 
     return undefined;
   }

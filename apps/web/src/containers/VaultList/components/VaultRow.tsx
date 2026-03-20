@@ -5,6 +5,7 @@ import { Body, BodySecondary, H4 } from '@notional-finance/mui';
 import { formatNumberAsPercentWithUndefined } from '@notional-finance/helpers';
 import { useAllVaults } from '@notional-finance/notionable-hooks';
 import { useNavigate } from 'react-router-dom';
+import { formatNumber } from '@notional-finance/util';
 
 interface VaultRowProps {
   vault: ReturnType<typeof useAllVaults>[number];
@@ -120,7 +121,10 @@ export const VaultRow = ({
                   color: theme.palette.typography.light,
                 }}
               >
-                <img src={vault?.vaultConfig?.strategyIcon} />
+                <img
+                  style={{ width: theme.spacing(2), height: theme.spacing(2) }}
+                  src={vault?.vaultConfig?.strategyIcon}
+                />
                 {strategyType}
               </BodySecondary>
               {vaultFeatures.slice(0, 2).map((feature) => (
@@ -231,9 +235,14 @@ export const VaultRow = ({
           }}
         >
           {vault?.apy?.pointMultiples
-            ? Object.entries(vault.apy.pointMultiples)
-                .map(([k, v]) => `${v}x ${k}`)
-                .join(', ')
+            ? Object.entries(vault.apy.pointMultiples).map(
+                ([k, { multiple, icon }]) => (
+                  <span key={k}>
+                    {formatNumber(multiple, 2)}x{' '}
+                    <TokenIcon symbol={icon} size="small" />
+                  </span>
+                )
+              )
             : '-'}
         </Body>
       </TableCell>
