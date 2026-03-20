@@ -32,7 +32,9 @@ const APYDataModel = types.model('APYDataModel', {
     )
   ),
   utilization: types.maybe(types.number),
-  pointMultiples: types.maybe(types.map(types.number)),
+  pointMultiples: types.maybe(
+    types.map(types.model({ multiple: types.number, icon: types.string }))
+  ),
   unleveragedAssetAPY: types.maybe(types.late(() => APYDataModel)),
 });
 

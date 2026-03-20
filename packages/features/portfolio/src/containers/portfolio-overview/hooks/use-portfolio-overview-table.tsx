@@ -176,7 +176,7 @@ function getSpecificVaultInfo(
                 .map(
                   (k) =>
                     `${pointsMultiple(
-                      points.get(k) || 0,
+                      points.get(k).multiple || 0,
                       v.leverageRatio || 0
                     ).toFixed(2)}x ${k}`
                 )
