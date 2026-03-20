@@ -259,6 +259,7 @@ export const vaults = {
       '0x1d1B767dA61e56b36B7F1be4c64Ef52e5695F665' as const,
     Pendle_USDe_28MAY2025:
       '0x62a244caEf7567bE7dF8c3743060D84Dd9447Ab3' as const,
+    InfiniFi_liUSD_4w: '0x9fb57943926749b49a644f237a28b491c9b465e0' as const,
   },
   arbitrum: {
     Curve_xFRAX_USDC: '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf' as const,

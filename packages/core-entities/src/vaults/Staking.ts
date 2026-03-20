@@ -353,6 +353,7 @@ export class Staking extends VaultAdapter {
       totalAPY: organicAPY,
       organicAPY: organicAPY,
       assetAPY: organicAPY,
+      pointMultiples: this.getPointMultiples(),
     };
   }
 
@@ -371,6 +372,7 @@ export class Staking extends VaultAdapter {
         assetAPY: organicAPY,
         organicAPY: organicAPY,
         feeAPY: 0,
+        pointMultiples: this.getPointMultiples(),
       };
     } else {
       return {

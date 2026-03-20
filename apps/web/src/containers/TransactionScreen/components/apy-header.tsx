@@ -26,7 +26,7 @@ const PointSection = ({
       <RowContainer>
         <TokenIcon symbol={symbol} size="medium" />
         <H3>
-          <CountUp value={multiple} decimals={0} suffix="x" />
+          <CountUp value={multiple} decimals={2} suffix="x" />
         </H3>
       </RowContainer>
       <RowContainer>

@@ -39,12 +39,12 @@ codedthemes
 codeigniter
 coen
 colab
-crdx
 collateralized
 colum
 convertf
 cooldown
 countup
+crdx
 cryptotester
 cryptotesters
 cssmodule
@@ -138,6 +138,7 @@ immunifi
 implemted
 incentivizes
 incrementer
+Infini
 infor
 initialised
 invoicemaster

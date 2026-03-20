@@ -12,10 +12,7 @@ import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder, BytesLike, formatUnits } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
-import {
-  PointsMultipliers,
-  VaultDefaultDexParameters,
-} from '../config/whitelisted-vaults';
+import { VaultDefaultDexParameters } from '../config/whitelisted-vaults';
 import { TimeSeriesResponse } from '../models/ModelTypes';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
@@ -529,13 +526,6 @@ export class SingleSidedLP extends VaultAdapter {
     const balance = this.pool.balances[tokenIndex];
     const tvl = this.pool.totalValueLocked(tokenIndex);
     return balance.ratioWith(tvl).toNumber() / RATE_PRECISION;
-  }
-
-  override getPointMultiples() {
-    const pointsFunc = PointsMultipliers[this.network][this.vaultAddress];
-    if (pointsFunc) return pointsFunc(this);
-
-    return undefined;
   }
 
   /** No dilution is applied to SingleSidedLP vaults */

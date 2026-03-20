@@ -6,6 +6,7 @@ import {
   RATE_PRECISION,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
+import { PointsMultipliers } from '../config/whitelisted-vaults';
 import { TokenDefinition, VaultTradeMetadata } from '../Definitions';
 import { getNetworkModel } from '../Models';
 import { APYData } from '../models/views/YieldViews';
@@ -109,7 +110,10 @@ export abstract class VaultAdapter {
     );
   }
 
-  getPointMultiples(): Record<string, number> | undefined {
+  getPointMultiples() {
+    const pointsFunc = PointsMultipliers[this.network][this.vaultAddress];
+    if (pointsFunc) return pointsFunc(this);
+
     return undefined;
   }
 
