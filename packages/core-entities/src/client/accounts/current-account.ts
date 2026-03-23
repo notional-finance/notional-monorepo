@@ -190,7 +190,8 @@ export async function fetchCurrentAccount(
         };
       },
     ],
-    provider
+    provider,
+    true // allow failure for paused vaults
   );
 }
 
