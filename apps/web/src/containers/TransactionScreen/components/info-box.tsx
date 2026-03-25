@@ -1,6 +1,7 @@
 import { Box, styled, Tabs, Tab, Fade } from '@mui/material';
 import { ScrollableIcon } from '@notional-finance/icons';
 import { useState, ReactNode, useRef, useEffect } from 'react';
+import { useTheme, useMediaQuery } from '@mui/material';
 
 interface InfoBoxProps {
   tabs: {
@@ -10,6 +11,8 @@ interface InfoBoxProps {
 }
 
 const InfoBox = ({ tabs }: InfoBoxProps) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [selectedTab, setSelectedTab] = useState(0);
   const [isScrollable, setIsScrollable] = useState(false);
   const [isAtBottomOfScroll, setIsAtBottomOfScroll] = useState(false);
@@ -62,7 +65,19 @@ const InfoBox = ({ tabs }: InfoBoxProps) => {
           variant="fullWidth"
         >
           {tabs.map((tab, index) => (
-            <CustomTab disableRipple key={index} label={tab.tabTitle} />
+            <CustomTab
+              disableRipple
+              key={index}
+              label={
+                isMobile
+                  ? tab.tabTitle === 'APY Breakdown'
+                    ? 'APY'
+                    : tab.tabTitle === 'Order Details'
+                    ? 'Details'
+                    : tab.tabTitle
+                  : tab.tabTitle
+              }
+            />
           ))}
         </CustomTabs>
       </TabsContainer>
@@ -98,6 +113,11 @@ const InfoBoxContainer = styled(Box)(
   width: 100%;
   flex: 1;
   overflow: hidden;
+
+  ${theme.breakpoints.down('sm')} {
+    flex: unset;
+    overflow: visible;
+  }
 `
 );
 
@@ -160,6 +180,13 @@ const ContentContainer = styled(Box)(
   overflow-x: visible;
   padding-left: ${theme.spacing(3)};
   padding-right: ${theme.spacing(3)};
+
+  ${theme.breakpoints.down('sm')} {
+    flex: unset;
+    min-height: auto;
+    overflow-y: visible;
+    padding-bottom: ${theme.spacing(1)};
+  }
 `
 );
 

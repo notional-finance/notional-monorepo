@@ -73,9 +73,11 @@ const DataSection = () => {
             suffix="%"
           />
         </TotalBoxesContainer>
-        <Box sx={{ width: '100%' }}>
-          <VaultPerformanceChart />
-        </Box>
+        {!isMobileView && (
+          <Box sx={{ width: '100%' }}>
+            <VaultPerformanceChart />
+          </Box>
+        )}
       </ContentContainer>
     </DataSectionContainer>
   );

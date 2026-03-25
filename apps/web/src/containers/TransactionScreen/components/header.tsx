@@ -1,6 +1,6 @@
 import { Box, Chip, styled, useTheme } from '@mui/material';
 import { MultiTokenIcon } from '@notional-finance/icons';
-import { H2, LargeInputTextEmphasized } from '@notional-finance/mui';
+import { H2, H4 } from '@notional-finance/mui';
 import {
   useAppStore,
   useCurrentTradeContext,
@@ -37,20 +37,26 @@ const Header = observer(({ actionPrefix, isPointsOnly }: HeaderProps) => {
               vaultMetadata?.vaultIcon,
               vaultMetadata?.depositToken.symbol,
             ]}
-            size={isMobileView ? 'large' : 'xl'}
+            size="xl"
           />
         )}
-        <Column sx={{ alignItems: 'flex-start' }}>
-          {isMobileView ? (
-            <LargeInputTextEmphasized>{title}</LargeInputTextEmphasized>
-          ) : (
-            <H2>{title}</H2>
-          )}
+        <Column
+          sx={{
+            alignItems: { xs: 'flex-end', sm: 'flex-start' },
+            justifyContent: 'center',
+            textAlign: { xs: 'right', sm: 'left' },
+            width: { xs: 'auto', sm: 'auto' },
+            alignSelf: { xs: 'auto', sm: 'auto' },
+          }}
+        >
+          {isMobileView ? <H4>{title}</H4> : <H2>{title}</H2>}
           <Box
             sx={{
               display: 'flex',
               flexDirection: 'row',
               gap: theme.spacing(1),
+              flexWrap: 'wrap',
+              justifyContent: isMobileView ? 'flex-end' : 'flex-start',
             }}
           >
             {tradeType === 'ManageVault'
@@ -74,11 +80,12 @@ const Header = observer(({ actionPrefix, isPointsOnly }: HeaderProps) => {
         {leveragedAPY && (
           <Column
             sx={{
-              alignItems: 'flex-end',
+              alignItems: { xs: 'flex-end', sm: 'flex-end' },
               padding: theme.spacing(1.5, 3),
               backgroundColor: theme.palette.background.paper,
               borderRadius: theme.shape.borderRadius(),
               border: theme.shape.borderStandard,
+              width: '100%',
             }}
           >
             {isPointsOnly ? (
@@ -101,6 +108,12 @@ const HeaderContainer = styled(Box)(
     justify-content: space-between;
     gap: ${theme.spacing(2)};
     padding: ${theme.spacing(2, 0)};
+
+    ${theme.breakpoints.down('sm')} {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: ${theme.spacing(2.5)};
+    }
     `
 );
 
@@ -117,6 +130,14 @@ const LeftSection = styled(Box)(
     flex-direction: row;
     align-items: center;
     gap: ${theme.spacing(1)};
+
+    ${theme.breakpoints.down('sm')} {
+      width: 100%;
+      flex-direction: row;
+      justify-content: flex-end;
+      align-items: center;
+      gap: ${theme.spacing(1.5)};
+    }
   `
 );
 
@@ -126,6 +147,12 @@ const RightSection = styled(Box)(
     flex-direction: row;
     align-self: flex-end;
     gap: ${theme.spacing(1)};
+
+    ${theme.breakpoints.down('sm')} {
+      width: 100%;
+      align-self: stretch;
+      justify-content: flex-start;
+    }
   `
 );
 export default Header;

@@ -37,6 +37,7 @@ export function TotalBox({
         padding: theme.spacing(2, 3),
         border: theme.shape.borderStandard,
         whiteSpace: 'nowrap',
+        textAlign: 'right',
       }}
     >
       <LargeNumberLabel gutter="default">{title}</LargeNumberLabel>
@@ -98,7 +99,7 @@ export function TotalBox({
 const TrendContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
-  justifyContent: 'flex-start',
+  justifyContent: 'flex-end',
   alignItems: 'center',
   gap: theme.spacing(0.5),
 }));
@@ -106,11 +107,13 @@ const TrendContainer = styled(Box)(({ theme }) => ({
 const ContentContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
+  alignItems: 'flex-end',
 
   [theme.breakpoints.down('sm')]: {
-    flexDirection: 'row',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
     justifyContent: 'flex-start',
-    gap: theme.spacing(2),
+    gap: theme.spacing(0.5),
   },
 }));
 

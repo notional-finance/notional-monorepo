@@ -18,6 +18,12 @@ const RichText = ({
         p: {
           ...theme.typography.body1,
         },
+        a: {
+          maxWidth: '100%',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: 'block',
+        },
         'ul, ol': {
           paddingLeft: theme.spacing(3),
           margin: theme.spacing(1, 0),
