@@ -124,6 +124,10 @@ const ScreenContainer = styled(Box)(
   max-width: 1200px;
   margin: ${theme.spacing(7)} auto;
   padding: 0 ${theme.spacing(2)};
+
+  ${theme.breakpoints.down('sm')} {
+    margin: ${theme.spacing(3)} auto;
+  }
 `
 );
 
