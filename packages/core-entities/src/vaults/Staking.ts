@@ -74,6 +74,7 @@ export class Staking extends VaultAdapter {
     const tradeMetadata = this.getVaultTradeMetadata(
       netVaultShares.neg().toToken(this.yieldToken),
       this.borrowedToken,
+      true,
       stakingPoolAddress
     );
     return {
@@ -98,6 +99,7 @@ export class Staking extends VaultAdapter {
     const tradeMetadata = this.getVaultTradeMetadata(
       yieldTokens,
       this.borrowedToken,
+      true,
       stakingPoolAddress
     );
 
@@ -135,6 +137,7 @@ export class Staking extends VaultAdapter {
         this.getVaultTradeMetadata(
           netUnderlying,
           this.stakingToken,
+          false,
           netUnderlying.isPositive()
             ? defaultDex.depositPoolAddress
             : defaultDex.redeemPoolAddress
@@ -146,6 +149,7 @@ export class Staking extends VaultAdapter {
       const tradeMetadata = this.getVaultTradeMetadata(
         netUnderlying.toToken(this.stakingToken),
         this.yieldToken,
+        false,
         stakingPoolAddress
       );
       vaultTradeMetadata.push(tradeMetadata);
@@ -198,8 +202,11 @@ export class Staking extends VaultAdapter {
     totalDeposit: TokenBalance,
     slippageFactor = 25 * BASIS_POINT
   ) {
-    const { dexId, depositExchangeData: exchangeData } =
+    const defaultDex =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (!defaultDex) return '0x';
+
+    const { dexId, depositExchangeData: exchangeData } = defaultDex;
     const tradeType = 0; // Exact In Single
     const minPurchaseAmount = totalDeposit
       .toToken(this.stakingToken)
@@ -224,12 +231,15 @@ export class Staking extends VaultAdapter {
   override getWithdrawTradeMetadata(withdrawTokensBurned: TokenBalance[]) {
     if (withdrawTokensBurned.length !== 1)
       throw Error('Staking vault only supports one withdraw token');
-    const { withdrawPoolAddress } =
+    const defaultDex =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (!defaultDex) return [];
+    const { withdrawPoolAddress } = defaultDex;
     return [
       this.getVaultTradeMetadata(
         withdrawTokensBurned[0],
         this.borrowedToken,
+        true,
         withdrawPoolAddress
       ),
     ];
@@ -241,8 +251,10 @@ export class Staking extends VaultAdapter {
     withdrawTokensBurned: TokenBalance[],
     slippageFactor?: number
   ) {
-    const { dexId, withdrawExchangeData } =
+    const defaultDex =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (!defaultDex) return '0x';
+    const { dexId, withdrawExchangeData } = defaultDex;
     if (withdrawTokensBurned.length !== 1)
       throw Error('Staking vault only supports one withdraw token');
 
@@ -269,8 +281,11 @@ export class Staking extends VaultAdapter {
     _underlyingToRepayDebt: TokenBalance,
     slippageFactor?: number
   ) {
-    const { dexId, redeemExchangeData: exchangeData } =
+    const defaultDex =
       VaultDefaultDexParameters[this.network][this.vaultAddress];
+    if (!defaultDex) return '0x';
+    const { dexId, redeemExchangeData: exchangeData } = defaultDex;
+    VaultDefaultDexParameters[this.network][this.vaultAddress];
     const minPurchaseAmount = vaultSharesToRedeem
       .toToken(this.borrowedToken)
       .mulInRatePrecision(RATE_PRECISION - (slippageFactor || 0)).n;
@@ -338,6 +353,27 @@ export class Staking extends VaultAdapter {
       totalAPY: organicAPY,
       organicAPY: organicAPY,
       assetAPY: organicAPY,
+      pointMultiples: this.getPointMultiples(),
     };
+  }
+
+  override getPendingWithdrawAPY(): APYData {
+    if (this.earnsYieldDuringWithdraw()) {
+      const organicAPY = this.getVaultAPY();
+      return {
+        totalAPY: organicAPY,
+        assetAPY: organicAPY,
+        organicAPY: organicAPY,
+        feeAPY: 0,
+        pointMultiples: this.getPointMultiples(),
+      };
+    } else {
+      return {
+        totalAPY: 0,
+        assetAPY: 0,
+        organicAPY: 0,
+        feeAPY: 0,
+      };
+    }
   }
 }

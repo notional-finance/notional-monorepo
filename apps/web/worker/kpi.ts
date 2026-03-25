@@ -31,13 +31,15 @@ export async function calculateKPI(viewCacheR2: R2Bucket) {
   if (!mainnet || !all) return;
 
   // Update the landing page stats
-  const allVaults = mainnet.getAllListedVaults(true);
+  const allVaults = mainnet.getAllListedVaults();
   await Promise.all(
     allVaults.map((v) =>
       mainnet.fetchTimeSeriesData(v.vaultToken.id, ChartType.APY)
     )
   );
-  const allVaultsWithYield = mainnet.getAllListedVaultsWithYield();
+  const allVaultsWithYield = mainnet
+    .getAllListedVaultsWithYield()
+    .filter((v) => v.vaultConfig.isVisible);
   const USD = all.getTokenBySymbol('USD');
 
   const totalTVL = allVaultsWithYield.reduce(
@@ -47,11 +49,9 @@ export async function calculateKPI(viewCacheR2: R2Bucket) {
 
   const highestUSDC = allVaultsWithYield
     .filter((v) => v.underlying?.symbol === 'USDC')
-    .reduce(
-      (max, v) =>
-        v.apy?.totalAPY && max < v.apy.totalAPY ? v.apy.totalAPY : max,
-      0
-    );
+    .reduce((max, v) => {
+      return v.apy?.totalAPY && max < v.apy.totalAPY ? v.apy.totalAPY : max;
+    }, 0);
   const highestETH = allVaultsWithYield
     .filter((v) => v.underlying?.symbol === 'WETH')
     .reduce(

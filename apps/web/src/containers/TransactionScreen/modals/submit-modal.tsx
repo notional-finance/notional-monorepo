@@ -3,7 +3,10 @@ import {
   useLendingRouterApproval,
   useTransactionApprovals,
 } from '@notional-finance/trade';
-import { useCurrentTradeContext } from '@notional-finance/notionable-hooks';
+import {
+  useCurrentTradeContext,
+  useVaultMetadata,
+} from '@notional-finance/notionable-hooks';
 import { useSubmitTxn } from '@notional-finance/notionable-hooks';
 import { useWalletStore } from '@notional-finance/notionable-hooks';
 import { useState } from 'react';
@@ -78,9 +81,15 @@ enum ApprovalState {
 export const SubmitModal = observer(() => {
   const trade = useCurrentTradeContext();
   const lendingRouter = trade?.debt?.address;
+  const depositToken = trade?.deposit;
+  const v = useVaultMetadata(trade?.vaultAddress);
+  const isYieldToken = v?.yieldToken.id === depositToken?.id;
 
   const { enableToken, tokenApprovalRequired, allowanceIncreaseRequired } =
-    useTransactionApprovals(lendingRouter, trade?.depositBalance);
+    useTransactionApprovals(
+      isYieldToken ? v?.vaultAddress : lendingRouter,
+      trade?.depositBalance
+    );
   const { routerApprovalRequired, approveRouter } =
     useLendingRouterApproval(lendingRouter);
   const [initialApprovalState, setInitialApprovalState] =

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs, styled, Tab, Box, useTheme, TabsProps } from '@mui/material';
-import { NotionalTheme, colors } from '@notional-finance/styles';
+import { NotionalTheme } from '@notional-finance/styles';
 
 export interface ToggleProps extends TabsProps {
   selectedTabIndex: number;
@@ -9,38 +9,29 @@ export interface ToggleProps extends TabsProps {
     event: React.SyntheticEvent<Element, Event>,
     value: string | number | boolean
   ) => void;
-  minHeight?: string;
-  width?: string;
-}
-
-interface StyledTabProps {
-  theme?: NotionalTheme;
-  minHeight?: string;
-  width?: string;
 }
 
 export const Toggle = ({
   selectedTabIndex = 0,
   tabLabels,
   onChange,
-  minHeight,
-  width,
+  ...tabsProps
 }: ToggleProps) => {
   const theme = useTheme() as NotionalTheme;
   return (
-    <Container width={width} theme={theme}>
+    <Container theme={theme}>
       <StyledTabs
-        minHeight={minHeight}
         theme={theme}
         variant="fullWidth"
-        defaultValue={0}
         value={selectedTabIndex}
         onChange={onChange}
+        TabIndicatorProps={{ children: <IndicatorPill theme={theme} /> }}
+        {...tabsProps}
       >
         {tabLabels.map((l, i) => {
           return (
             <StyledTab
-              disableRipple={true}
+              disableRipple
               theme={theme}
               key={`tab-label-${i}`}
               label={l}
@@ -52,71 +43,72 @@ export const Toggle = ({
   );
 };
 
-const Container = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'width',
-})(
-  ({ width, theme }: StyledTabProps) => `
-  height: 100%;
-  width: ${width};
+const Container = styled(Box)(
+  ({ theme }) => `
+  display: inline-flex;
+  align-items: center;
+  height: ${theme?.spacing(5.5)};
   background: ${theme?.palette.common.white};
-  border-radius: 32px;
+  border-radius: ${theme?.spacing(6.5)};
 `
 );
 
-const StyledTabs = styled(Tabs, {
-  shouldForwardProp: (prop: string) => prop !== 'minHeight',
-})(
-  ({ minHeight, theme }: StyledTabProps) => `
+const StyledTabs = styled(Tabs)(
+  ({ theme }) => `
   height: 100%;
-  border-radius: ${theme?.spacing(4)};
-  border: ${theme?.shape.borderStandard};
-  background: transparent;
-  max-height: 3rem;
   min-height: unset;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  padding: 3px;
-  box-shadow: ${theme?.shape.shadowStandard};
-  min-height: ${minHeight};
-  transition: background 0.3s ease;
+  border-radius: ${theme?.spacing(6.5)};
+  background: transparent;
+  overflow: hidden;
 
   .MuiTabs-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: ${theme?.spacing(5)};
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
     z-index: 1;
-    background: ${theme?.palette.primary.light};
-    border-radius: ${theme?.spacing(4)};
-    height: 100%;
   }
+
   .MuiTabs-flexContainer {
     height: 100%;
+    align-items: center;
   }
+`
+);
+
+const IndicatorPill = styled(Box)(
+  ({ theme }) => `
+  width: 100%;
+  height: 100%;
+  border-radius: ${theme?.spacing(6.5)};
+  background: ${theme?.palette.info.light};
 `
 );
 
 const StyledTab = styled(Tab)(
   ({ theme }) => `
-  height: 100%;
-  font-family: ${theme.typography.fontFamily};
-  color: ${colors.greenGrey};
+  height: ${theme?.spacing(5)};
   background-color: transparent;
-  z-index: 2;
-  transition-delay: 0s;
-  transition-duration: 0.3s;
-  transition-property: all;
   min-height: unset;
-  span {
-    font-weight: 500 !important;
-    color: ${theme?.palette.typography.light};
-  };
+  min-width: ${theme?.spacing(14)};
+  z-index: 2;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600 !important;
+  color: ${theme?.palette.typography.light};
+  padding: ${theme?.spacing(1, 2)};
+  text-transform: none;
+  border-radius: ${theme?.spacing(6.5)};
 
   &.Mui-selected {
-    span {
-      font-weight: 600 !important;
-      color: ${theme?.palette.typography.contrastText};
-    };
+    font-weight: 600 !important;
+    color: ${theme?.palette.typography.accent};
   }
   &:hover {
-    background: ${theme.palette.info.light};
-    border-radius: 50px;
+    background: transparent;
   }
 `
 );

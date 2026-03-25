@@ -749,4 +749,53 @@ export const configDefs: ConfigDefinition[] = [
     },
     network: Network.mainnet,
   },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x9B5ae92EBa3C383Be073e3ff94613B2C33851282',
+      contractABI: ['function price() public view returns (uint256)'],
+      method: 'price',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'liUSD-1w to USD',
+      decimals: 18,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x74A739EA1Dc67c5a0179ebad665D1D3c4b80B712',
+      contractABI: [
+        'function convertToAssets(uint256 shares) view external returns (uint256)',
+      ],
+      method: 'convertToAssets',
+      args: [ethers.utils.parseEther('1')],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'CRDX to USD Oracle',
+      decimals: 6,
+    },
+    network: Network.mainnet,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x1d95cC100D6Cd9C7BbDbD7Cb328d99b3D6037fF7',
+      contractABI: ['function exchangeRate(uint32) view returns (uint256)'],
+      method: 'exchangeRate',
+      args: [4],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'liUSD-4w to USD',
+      decimals: 18,
+    },
+    network: Network.mainnet,
+  },
 ];

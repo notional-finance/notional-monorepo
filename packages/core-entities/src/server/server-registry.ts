@@ -82,7 +82,8 @@ export async function fetchUsingMulticall<T>(
   calls: AggregateCall<T>[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transforms: ((r: Record<string, any>) => Record<string, T>)[],
-  provider?: providers.Provider
+  provider?: providers.Provider,
+  allowFailure = false
 ): Promise<CacheSchema<T>> {
   let block: providers.Block;
   let results: Record<string, T>;
@@ -97,7 +98,9 @@ export async function fetchUsingMulticall<T>(
       // provider instead
       ({ block, results } = await aggregate<T>(
         calls,
-        getProviderFromNetwork(network)
+        getProviderFromNetwork(network),
+        undefined,
+        allowFailure
       ));
     } else {
       throw e;

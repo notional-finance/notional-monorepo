@@ -20,7 +20,7 @@ import {
   useVaultHoldings,
 } from '@notional-finance/notionable-hooks';
 import { pointsMultiple, TXN_HISTORY_TYPE } from '@notional-finance/util';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { Box, Theme, useTheme } from '@mui/material';
 import { Body, ButtonOptionsType, H4, LinkText } from '@notional-finance/mui';
 import { TokenIcon } from '@notional-finance/icons';
@@ -151,13 +151,13 @@ function getSpecificVaultInfo(
     const pointsLink = PointsLinks[v.network][v.vaultAddress];
     const points = v.vaultYield?.pointMultiples;
 
-    if (typeof totalEarnings === 'object' && totalEarnings.data) {
-      totalEarnings.data[0]['toolTipContent'] = defineMessage({
-        defaultMessage:
-          'Most of the APY in this strategy is driven by points and point earnings are not shown here. Check the partner protocol dashboard to track accrued points.',
-        description: 'points tooltip',
-      });
-    }
+    // if (typeof totalEarnings === 'object' && totalEarnings.data) {
+    //   totalEarnings.data[0]['toolTipContent'] = defineMessage({
+    //     defaultMessage:
+    //       'Some APY in this strategy is driven by points and point earnings are not shown here. Check the partner protocol dashboard to track accrued points.',
+    //     description: 'points tooltip',
+    //   });
+    // }
 
     return {
       subRowInfo: [
@@ -176,7 +176,7 @@ function getSpecificVaultInfo(
                 .map(
                   (k) =>
                     `${pointsMultiple(
-                      points.get(k) || 0,
+                      points.get(k).multiple || 0,
                       v.leverageRatio || 0
                     ).toFixed(2)}x ${k}`
                 )

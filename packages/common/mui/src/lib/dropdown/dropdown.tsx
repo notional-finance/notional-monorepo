@@ -1,17 +1,16 @@
 import { useState } from 'react';
-import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon } from '@notional-finance/icons';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import {
   useTheme,
   Box,
-  Button,
   Menu,
   MenuProps,
   styled,
   MenuItem,
   ListItemIcon,
 } from '@mui/material';
+import { Button } from '../button/button';
 import { trackOutboundLink } from '@notional-finance/helpers';
 
 export interface DropdownItem {
@@ -30,32 +29,28 @@ export interface DropdownProps extends MenuProps {
 
 export interface ButtonTextProps {
   buttonTextAlign?: string;
-  theme: NotionalTheme;
 }
 
 const TextWrapper = styled('div', {
   shouldForwardProp: (prop: string) => prop !== 'buttonTextAlign',
 })(
   ({ buttonTextAlign }: ButtonTextProps) => `
-  flex: 1;
+  display: flex;
+  align-items: center;
   text-align: ${buttonTextAlign ? buttonTextAlign : 'center'};
 `
 );
 
-const DropdownButton = styled(Button)`
-  width: 100%;
-  text-transform: capitalize;
-  justify-content: flex-start;
-  padding: 1.25rem;
-  font-size: 1rem;
-  font-weight: 700;
-`;
-
 const ArrowWrapper = styled(Box)(
-  ({ theme: { palette } }) => `
-  background-color: ${palette.primary.light};
+  ({ theme }) => `
+  background-color: ${theme.palette.info.light};
   border-radius: 50%;
-  width: 28px;
+  width: ${theme.spacing(2.5)};
+  height: ${theme.spacing(2.5)};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 `
 );
 
@@ -67,8 +62,7 @@ export function Dropdown({
   buttonText,
 }: DropdownProps) {
   const theme = useTheme();
-  // @ts-ignore
-  const [anchorEl, setAnchorEl] = useState<any>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const LastMenuItem = dropDownItems[dropDownItems.length - 1];
   const open = Boolean(anchorEl);
 
@@ -83,13 +77,41 @@ export function Dropdown({
 
   return (
     <Box>
-      <DropdownButton
+      <Button
         id="basic-button"
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
-        variant="contained"
+        variant="outlined"
+        size="medium"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
+        sx={{
+          borderRadius: theme.spacing(2.5),
+          minWidth: theme.spacing(20.5),
+          height: theme.spacing(5.5),
+          padding: theme.spacing(1.5, 2),
+          gap: theme.spacing(3),
+          color: theme.palette.typography.light,
+          fontSize: '14px',
+          fontWeight: 600,
+          lineHeight: '20px',
+          textTransform: 'none',
+          background: theme.palette.common.white,
+          border: 'none',
+          boxShadow: 'none',
+          justifyContent: 'center',
+          '& .MuiButton-endIcon': {
+            margin: 0,
+          },
+          '& .MuiButton-startIcon': {
+            margin: 0,
+          },
+          '&:hover': {
+            background: theme.palette.common.white,
+            border: 'none',
+            boxShadow: 'none',
+          },
+        }}
         startIcon={ButtonStartIcon && <ButtonStartIcon />}
         endIcon={
           ButtonEndIcon ? (
@@ -98,22 +120,21 @@ export function Dropdown({
             <ArrowWrapper>
               <ArrowIcon
                 sx={{
-                  color: theme.palette.common.white,
-                  backgroundColor: theme.palette.primary.light,
-                  fontSize: '.875rem',
-                  fontWeight: 800,
                   transform: `rotate(${open ? '0' : '180'}deg)`,
-                  transition: 'transform .5s ease-in-out',
+                  transition: 'transform .25s ease-in-out',
+                  color: theme.palette.primary.light,
+                  width: theme.spacing(1.5),
+                  height: theme.spacing(1.5),
                 }}
               />
             </ArrowWrapper>
           )
         }
       >
-        <TextWrapper buttonTextAlign={buttonTextAlign} theme={theme}>
+        <TextWrapper buttonTextAlign={buttonTextAlign}>
           <FormattedMessage {...buttonText} />
         </TextWrapper>
-      </DropdownButton>
+      </Button>
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
@@ -122,7 +143,17 @@ export function Dropdown({
         transitionDuration={{ exit: 0, enter: 200 }}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
-          sx: { minWidth: anchorEl && anchorEl.offsetWidth },
+          sx: {
+            minWidth: anchorEl && anchorEl.offsetWidth,
+            padding: theme.spacing(1),
+          },
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: theme.shape.borderRadius(),
+            marginTop: theme.spacing(0.5),
+            boxShadow: theme.shape.shadowStandard,
+          },
         }}
       >
         {dropDownItems.map(({ label, Icon, href }, index) => (
@@ -137,9 +168,10 @@ export function Dropdown({
                 LastMenuItem.label === label
                   ? 'none'
                   : theme.shape.borderStandard,
-              width: '90%',
-              margin: 'auto',
-              padding: '15px 10px',
+              borderRadius: theme.shape.borderRadius(),
+              width: '100%',
+              margin: 0,
+              padding: theme.spacing(1.5, 1.25),
             }}
           >
             {Icon && (

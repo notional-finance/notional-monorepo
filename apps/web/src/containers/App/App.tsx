@@ -31,11 +31,11 @@ import { VaultDefaultScreen } from '../TransactionScreen';
 import {
   LandingPageInject,
   PointsPageInject,
-  VaultsPageInject,
   BetaPageInject,
   BetaPageLeaderboardInject,
 } from '../Webflow/AttributesInject';
 import { BlockedView } from '../TermsView/blocked';
+import { VaultList } from '../VaultList';
 
 const RedirectToDefaultNetwork = () => {
   const selectedNetwork = useSelectedNetwork();
@@ -166,9 +166,8 @@ const AllRoutes = observer(() => {
           element={
             <AppLayoutRoute
               path="/vaults"
-              component={VaultsPageInject}
+              component={VaultList}
               routeType="Card"
-              isInjected
             />
           }
         />

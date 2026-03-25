@@ -46,10 +46,17 @@ export async function fetchCurrentAccount(
   const isContract = (await provider.getCode(account)) !== '0x';
   const model = getNetworkModel(network);
   const lendingRouters = model.getLendingRouters();
+  const allVaults = model.getAllListedVaults();
   const depositTokens = model
     .getAllTokens()
     .filter((t) => DEPOSIT_TOKENS[network].includes(t.symbol));
-  const allVaults = model.getAllListedVaults(false);
+  const yieldTokens = allVaults
+    // You cannot deposit staked liquidity tokens directly
+    .filter((v) => v.strategyClass !== 'Liquidity')
+    .map((v) => ({
+      yieldToken: v.yieldToken as TokenDefinition,
+      vaultAddress: v.vaultAddress,
+    }));
 
   const vaultAddresses = allVaults.map((v) => v.vaultAddress);
   const rewardVaults = allVaults
@@ -70,7 +77,11 @@ export async function fetchCurrentAccount(
     );
   });
 
-  const allCalls = getDepositTokenBalanceCalls(account, depositTokens, provider)
+  const allCalls = getDepositTokenBalanceCalls(
+    account,
+    depositTokens.concat(yieldTokens.map((v) => v.yieldToken)),
+    provider
+  )
     .concat(
       getAllowanceCalls(
         account,
@@ -79,6 +90,7 @@ export async function fetchCurrentAccount(
         provider
       )
     )
+    .concat(getYieldTokenAllowanceCalls(account, yieldTokens, provider))
     .concat(getVaultBalanceCalls(network, account, positions, provider))
     .concat(getStakedNOTECalls(network, account, provider))
     .concat(
@@ -178,7 +190,8 @@ export async function fetchCurrentAccount(
         };
       },
     ],
-    provider
+    provider,
+    true // allow failure for paused vaults
   );
 }
 
@@ -245,6 +258,25 @@ function getAllowanceCalls(
       }
     })
   );
+}
+
+function getYieldTokenAllowanceCalls(
+  account: string,
+  yieldTokens: { yieldToken: TokenDefinition; vaultAddress: string }[],
+  provider: providers.Provider
+): AggregateCall[] {
+  return yieldTokens.map(({ yieldToken, vaultAddress }) => {
+    return {
+      stage: 0,
+      target: new Contract(yieldToken.address, ERC20ABI, provider),
+      method: 'allowance',
+      args: [account, vaultAddress],
+      key: `${yieldToken.address}.${vaultAddress}.allowance`,
+      transform: (b: BigNumber) => {
+        return TokenBalance.from(b, yieldToken);
+      },
+    };
+  });
 }
 
 async function getAccountPositions(

@@ -1,4 +1,4 @@
-import { Network, VaultAddress, vaults, DexIds } from '@notional-finance/util';
+import { Network, vaults, DexIds } from '@notional-finance/util';
 import { VaultAdapter } from '../vaults';
 import { defaultAbiCoder } from '@ethersproject/abi';
 import { BytesLike } from 'ethers';
@@ -8,9 +8,9 @@ export const PointsMultipliers: Record<
   Record<string, (v: VaultAdapter) => Record<string, number>>
 > = {
   [Network.mainnet]: {
-    // [vaults.mainnet.Curve_USDe_xUSDC.toLowerCase()]: (_v) => ({
-    //   Ethena: 20,
-    // }),
+    [vaults.mainnet.InfiniFi_liUSD_4w.toLowerCase()]: (_v) => ({
+      InfiniFi: 1,
+    }),
   },
   [Network.all]: {},
   [Network.arbitrum]: {},
@@ -18,8 +18,7 @@ export const PointsMultipliers: Record<
 
 export const PointsLinks: Record<Network, Record<string, string>> = {
   [Network.mainnet]: {
-    // [vaults.mainnet.Aura_xrETH_weETH.toLowerCase()]:
-    //   'https://app.ether.fi/defi',
+    [vaults.mainnet.InfiniFi_liUSD_4w.toLowerCase()]: 'https://infinifi.xyz/',
     // [vaults.mainnet.Aura_ezETH_xWETH.toLowerCase()]:
     //   'https://app.renzoprotocol.com/defi',
     // [vaults.mainnet.Curve_USDe_xUSDC.toLowerCase()]:
@@ -43,24 +42,6 @@ export const PendlePTVaults: Record<Network, string[]> = {
   [Network.arbitrum]: [].map(toLowercase),
   [Network.mainnet]: [vaults.mainnet.Pendle_sUSDe_27NOV2025].map(toLowercase),
   [Network.all]: [],
-};
-
-/** @dev all vault addresses should be lowercased */
-export const whitelistedVaults = (
-  network: Network
-): Lowercase<VaultAddress>[] => {
-  switch (network) {
-    case Network.all:
-      return [];
-    case Network.mainnet:
-      return [
-        vaults.mainnet.Convex_OETH_WETH,
-        vaults.mainnet.Staking_mHYPER,
-        vaults.mainnet.Staking_mAPOLLO,
-      ].map(toLowercase);
-    case Network.arbitrum:
-      return [].map(toLowercase);
-  }
 };
 
 const sUSDe_DEFAULT_DEX_PARAMETERS = {

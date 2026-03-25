@@ -141,6 +141,7 @@ export const TokenDefinitionModel = types.model('TokenDefinition', {
   vaultAddress: types.maybe(types.string),
   isFCashDebt: types.maybe(types.boolean),
   currencyId: types.maybe(types.number),
+  iconURL: types.maybe(types.string),
 });
 
 export const LendingRouterModel = types.model('LendingRouter', {
@@ -193,6 +194,7 @@ export const VaultModel = types.model('VaultModel', {
   vaultFeatures: types.array(types.string),
   launchedOn: types.Date,
   strategyClass: types.string,
+  strategyIcon: types.optional(types.maybe(types.string), undefined),
   vaultDescription: types.string,
   isVisible: types.boolean,
   rewards: types.optional(types.array(RewardModel), []),

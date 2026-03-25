@@ -349,7 +349,7 @@ function formatAPYValues(
 const useApyBreakdown = () => {
   const theme = useTheme();
   const trade = useCurrentTradeContext();
-  const { leveragedAPY, assets, debts, netWorth } =
+  const { leveragedAPY, assets, debts, netWorth, earnsYieldDuringWithdraw } =
     trade?.getVaultAPYBreakdown() || {};
   const unleveragedAssetAPY = leveragedAPY?.unleveragedAssetAPY;
   const strategyType = trade?.strategyType;
@@ -360,12 +360,14 @@ const useApyBreakdown = () => {
 
   if (leveragedAPY?.pointMultiples) {
     // These are leveraged point multiples
-    points = Object.entries(leveragedAPY.pointMultiples).map(([key, value]) => {
-      return {
-        label: key,
-        values: [{ value: `${formatNumber(value)}x` }],
-      };
-    });
+    points = Object.entries(leveragedAPY.pointMultiples).map(
+      ([key, { multiple }]) => {
+        return {
+          label: key,
+          values: [{ value: `${formatNumber(multiple)}x` }],
+        };
+      }
+    );
   }
 
   if (unleveragedAssetAPY?.incentives) {
@@ -439,6 +441,7 @@ const useApyBreakdown = () => {
     apy,
     points,
     assetsDebts,
+    earnsYieldDuringWithdraw,
   };
 };
 
@@ -662,7 +665,8 @@ export const useInfoBox = () => {
             key="assets-debts"
             items={apyBreakdown.assetsDebts}
             sectionFooter={
-              trade?.tradeType === 'InitiateWithdraw' ? (
+              trade?.tradeType === 'InitiateWithdraw' &&
+              !apyBreakdown.earnsYieldDuringWithdraw ? (
                 <ErrorMessage
                   variant="pending"
                   hideTitle

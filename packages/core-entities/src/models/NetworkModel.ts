@@ -33,7 +33,6 @@ import { ConfigurationViews } from './views/ConfigurationViews';
 import defaultPools from '../exchanges/default-pools';
 import { buildOracleGraph, OracleViews } from './views/OracleViews';
 import { YieldViews } from './views/YieldViews';
-import { whitelistedVaults } from '../config/whitelisted-vaults';
 import { getEnvVarWithFallback } from '../utils/env';
 import { destroyGraphClient } from '../server/server-registry';
 
@@ -141,7 +140,6 @@ export const NetworkServerModel = NetworkModelWithViews.named(
       exchangeRegistry = new ExchangeRegistryServer(env);
       oracleRegistry = new OracleRegistryServer(env);
       vaultRegistry = new VaultRegistryServer(env);
-      // TODO: need to fetch from previous snapshot and apply it here if not doing a full refresh
 
       saveStorage = () => {
         return storageMethod(JSON.stringify(getSnapshot(self)));
@@ -200,10 +198,24 @@ export const NetworkClientModel = NetworkModelWithViews.actions((self) => {
       self.oracles.set(o.id, o);
     }
 
+    self.configuration?.vaults.forEach((v) => {
+      const iconURL = v.vaultAssets.find(
+        (a) =>
+          a.contractAddress.toLowerCase() === v.yieldToken.address.toLowerCase()
+      )?.logoURL;
+      const token = self.tokens.get(v.yieldToken.id.toLowerCase());
+      if (token && iconURL) {
+        self.tokens.set(v.yieldToken.id.toLowerCase(), {
+          ...token,
+          iconURL,
+        });
+      }
+    });
+
     // NOTE: just trigger this in the background so the APYs can load.
     if (isCreate) {
-      whitelistedVaults(self.network).forEach((vaultAddress) => {
-        self.fetchTimeSeriesData(vaultAddress, ChartType.APY);
+      self.getAllListedVaults().forEach((v) => {
+        self.fetchTimeSeriesData(v.vaultAddress, ChartType.APY);
       });
     }
   });

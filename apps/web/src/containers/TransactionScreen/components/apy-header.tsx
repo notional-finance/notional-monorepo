@@ -26,7 +26,7 @@ const PointSection = ({
       <RowContainer>
         <TokenIcon symbol={symbol} size="medium" />
         <H3>
-          <CountUp value={multiple} decimals={0} suffix="x" />
+          <CountUp value={multiple} decimals={2} suffix="x" />
         </H3>
       </RowContainer>
       <RowContainer>
@@ -56,12 +56,14 @@ export const APYBeforePoints = ({ apyInfo }: { apyInfo: APYData }) => {
     apyInfo.pointMultiples &&
     Object.keys(apyInfo.pointMultiples).length > 0
   ) {
-    Object.entries(apyInfo.pointMultiples).forEach(([key, value]) => {
-      pointBoxes.push(<APYSectionDivider />);
-      pointBoxes.push(
-        <PointSection label={key} multiple={value} symbol={key} />
-      );
-    });
+    Object.entries(apyInfo.pointMultiples).forEach(
+      ([key, { multiple, icon }]) => {
+        pointBoxes.push(<APYSectionDivider />);
+        pointBoxes.push(
+          <PointSection label={key} multiple={multiple} symbol={icon} />
+        );
+      }
+    );
   }
 
   return (
@@ -114,12 +116,14 @@ export const APYBox = ({ apyInfo }: { apyInfo: APYData }) => {
     apyInfo.pointMultiples &&
     Object.keys(apyInfo.pointMultiples).length > 0
   ) {
-    Object.entries(apyInfo.pointMultiples).forEach(([key, value]) => {
-      pointBoxes.push(
-        <PointSection label={key} multiple={value} symbol={key} />
-      );
-      pointBoxes.push(<APYSectionDivider />);
-    });
+    Object.entries(apyInfo.pointMultiples).forEach(
+      ([key, { multiple, icon }]) => {
+        pointBoxes.push(
+          <PointSection label={key} multiple={multiple} symbol={icon} />
+        );
+        pointBoxes.push(<APYSectionDivider />);
+      }
+    );
 
     ToolTip = () => (
       <Box

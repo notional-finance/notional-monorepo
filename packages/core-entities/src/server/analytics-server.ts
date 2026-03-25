@@ -31,10 +31,7 @@ import { formatUnits } from 'ethers/lib/utils';
 import { TimeSeriesDataPoint } from '../models/ModelTypes';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { HistoricalOracleValuesQuery } from '../.graphclient';
-import {
-  PendlePTVaults,
-  whitelistedVaults,
-} from '../config/whitelisted-vaults';
+import { PendlePTVaults } from '../config/whitelisted-vaults';
 import { TokenBalance } from '../token-balance';
 
 export type GraphDocument = keyof Omit<
@@ -148,7 +145,12 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       );
   }
 
-  public async fetchTimeSeries(network: Network) {
+  public async fetchTimeSeries(
+    network: Network,
+    vaultAddresses: string[],
+    fetchView: (network: Network, view: string) => Promise<AnalyticsData> = this
+      .fetchView
+  ) {
     const allNetworkPrices = await this.allNetworkPrices();
     if (network === Network.all) {
       return {
@@ -157,7 +159,11 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
       };
     }
 
-    const timeSeries = await this._fetchTokenTimeSeries(network);
+    const timeSeries = await this._fetchTokenTimeSeries(
+      network,
+      vaultAddresses,
+      fetchView
+    );
     const priceChanges = this.calculatePriceChanges(timeSeries, network);
 
     return {
@@ -371,6 +377,8 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
 
   protected async _fetchTokenTimeSeries(
     network: Network,
+    vaultAddresses: string[],
+    fetchView: (network: Network, view: string) => Promise<AnalyticsData>,
     minTimestamp = getNowSeconds() - 90 * SECONDS_IN_DAY
   ) {
     const results: TimeSeriesResponse[] = [];
@@ -413,10 +421,10 @@ export class AnalyticsServer extends ServerRegistry<unknown> {
     });
 
     const vaults: TimeSeriesResponse[] = await Promise.all(
-      whitelistedVaults(network).map(async (vaultAddress) => {
+      vaultAddresses.map(async (vaultAddress) => {
         let r: AnalyticsData;
         try {
-          r = await this.fetchView(network, vaultAddress);
+          r = await fetchView(network, vaultAddress);
         } catch {
           r = [];
         }

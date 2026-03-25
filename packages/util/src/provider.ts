@@ -7,11 +7,15 @@ import {
   SupportedNetworks,
 } from './constants';
 
+const TESTNET_RPC = process.env['NX_TESTNET_RPC'] as string | undefined;
+const USE_TESTNET_RPC = !!TESTNET_RPC;
+
 // eslint-disable-next-line @cspell/spellchecker
 /* cspell:disable-next-line */
 export const ALCHEMY_KEY = 'pq08EwFvymYFPbDReObtP-SFw3bCes8Z';
 
 export function getProviderURLFromNetwork(network: Network, useNFT = false) {
+  if (USE_TESTNET_RPC) return TESTNET_RPC;
   return `${
     useNFT ? AlchemyNFTUrl[network] : AlchemyUrl[network]
   }/${ALCHEMY_KEY}`;
@@ -28,7 +32,9 @@ export function getProviderFromNetwork(
     });
   }
 
-  return new ethers.providers.JsonRpcProvider(getProviderURLFromNetwork(network));
+  return new ethers.providers.JsonRpcProvider(
+    getProviderURLFromNetwork(network)
+  );
 }
 
 export function getNetworkFromId(id: number) {

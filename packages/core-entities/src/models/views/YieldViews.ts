@@ -20,7 +20,7 @@ export interface APYData {
     incentiveAPY: number;
   }[];
   utilization?: number;
-  pointMultiples?: Record<string, number>;
+  pointMultiples?: Record<string, { multiple: number; icon: string }>;
   leverageRatio?: number;
   debtAPY?: number;
   unleveragedAssetAPY?: APYData;
@@ -61,15 +61,18 @@ export function createLeveragedAPYData(
     pointMultiples: assetData?.pointMultiples
       ? Object.keys(assetData.pointMultiples).reduce((acc, k) => {
           if (assetData.pointMultiples) {
-            acc[k] =
-              leveragedYield(
-                assetData.pointMultiples[k] || 0,
-                0,
-                leverageRatio
-              ) || 0;
+            acc[k] = {
+              multiple:
+                leveragedYield(
+                  assetData.pointMultiples[k].multiple || 0,
+                  0,
+                  leverageRatio
+                ) || 0,
+              icon: assetData.pointMultiples[k].icon,
+            };
           }
           return acc;
-        }, {} as Record<string, number>)
+        }, {} as Record<string, { multiple: number; icon: string }>)
       : undefined,
     unleveragedAssetAPY: assetData,
   };

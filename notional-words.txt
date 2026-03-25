@@ -44,6 +44,7 @@ colum
 convertf
 cooldown
 countup
+crdx
 cryptotester
 cryptotesters
 cssmodule
@@ -137,6 +138,7 @@ immunifi
 implemted
 incentivizes
 incrementer
+Infini
 infor
 initialised
 invoicemaster
