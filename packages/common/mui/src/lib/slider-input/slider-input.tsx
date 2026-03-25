@@ -72,6 +72,13 @@ const ValueContainer = styled(Box)(
   padding-left: ${theme.spacing(2)};
   padding-right: ${theme.spacing(2)};
   max-width: ${theme.spacing(16)};
+  flex: 0 0 auto;
+
+  ${theme.breakpoints.down('sm')} {
+    padding-left: ${theme.spacing(1.5)};
+    padding-right: ${theme.spacing(1.5)};
+    max-width: ${theme.spacing(11)};
+  }
 `
 );
 
@@ -392,6 +399,7 @@ export const SliderInput = React.forwardRef<
               sx={{
                 input: {
                   textAlign: 'right',
+                  width: '4ch',
                 },
                 color: theme.palette.typography.main,
                 fontSize: {

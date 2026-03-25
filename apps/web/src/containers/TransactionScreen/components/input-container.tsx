@@ -106,12 +106,19 @@ const InputContainerWrapper = styled(Box)(
   align-items: flex-start;
   justify-content: space-between;
   flex: 1;
+  width: 100%;
   min-width: ${theme.spacing(88)};
   min-height: 100%;
+  box-sizing: border-box;
   background-color: ${theme.palette.background.paper};
   padding: ${theme.spacing(3)};
   border: 1px solid ${theme.palette.borders.paper};
   border-radius: ${theme.shape.borderRadius()};
+
+  ${theme.breakpoints.down('sm')} {
+    min-width: 0;
+    padding: ${theme.spacing(2)};
+  }
   `
 );
 
