@@ -148,6 +148,7 @@ const TopSection = styled(Box)(
 
   @media (max-width: 768px) {
     flex-direction: column;
+    height: auto;
   }
 `
 );

@@ -76,7 +76,12 @@ const InputContainer = observer(
         </Box>
         {hideSubmitButton === false && (
           <Box
-            sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}
+            sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              marginTop: theme.spacing(2),
+            }}
           >
             <TradeActionButton
               canSubmit={canSubmitOverride ?? context?.canSubmit() ?? false}
