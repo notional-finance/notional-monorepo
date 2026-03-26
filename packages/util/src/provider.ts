@@ -7,7 +7,10 @@ import {
   SupportedNetworks,
 } from './constants';
 
-const TESTNET_RPC = process.env['NX_TESTNET_RPC'] as string | undefined;
+const TESTNET_RPC =
+  typeof process !== 'undefined'
+    ? (process.env['NX_TESTNET_RPC'] as string | undefined)
+    : undefined;
 const USE_TESTNET_RPC = !!TESTNET_RPC;
 
 // eslint-disable-next-line @cspell/spellchecker
