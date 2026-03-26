@@ -113,6 +113,24 @@
         "totalTransactions": 1
       },
       "timeout": 60000
+    },
+    {
+      "name": "Inifinifi liUSD-4w force withdraw",
+      "description": "successful force withdraw of Inifinifi liUSD-4w vault",
+      "forkBlock": 24743690,
+      "network": "mainnet",
+      "positions": [
+        [
+          "0x9299B176bFd1CaBB967ac2A027814FAad8782BA7",
+          "0x9fb57943926749b49a644f237a28b491c9b465e0"
+        ]
+      ],
+      "expectedResults": {
+        "successfulTransactions": 1,
+        "failedTransactions": 0,
+        "totalTransactions": 1
+      },
+      "timeout": 60000
     }
   ]
 }
