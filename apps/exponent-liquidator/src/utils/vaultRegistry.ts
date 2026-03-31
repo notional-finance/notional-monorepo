@@ -459,6 +459,7 @@ export class VaultRegistry {
       ptSlippageLimit: liquidationSettings.ptSlippageLimit,
       vaultAssetEqualsWithdrawToken:
         liquidationSettings.vaultAssetEqualsWithdrawToken,
+      autoForceWithdraw: liquidationSettings.autoForceWithdraw,
     };
   }
 }

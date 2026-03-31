@@ -40,6 +40,7 @@ export interface TransactionResult {
   error?: string;
   gasLimit?: number;
   to?: string;
+  type?: 'liquidation' | 'forceWithdraw';
 }
 
 export interface LiquidationReport {
@@ -116,6 +117,7 @@ export interface OffChainVaultConfig {
   secondaryWithdrawDexId?: number;
   secondaryWithdrawExchangeData?: string;
   vaultAssetEqualsWithdrawToken?: boolean;
+  autoForceWithdraw?: boolean;
 }
 
 export interface VaultConfig extends OnChainVaultConfig, OffChainVaultConfig {

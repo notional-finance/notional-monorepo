@@ -268,6 +268,11 @@ export default class ExponentLiquidator {
         return false;
       }
 
+      // If autoForceWithdraw is enabled, skip normal liquidation for positions without pending withdraws
+      if (vaultConfig.autoForceWithdraw && !position.isWithdrawRequestPending) {
+        return false;
+      }
+
       const canLiquidateYieldTokens =
         vaultConfig.liquidateYieldTokens === true &&
         !position.isWithdrawRequestPending;
@@ -275,6 +280,25 @@ export default class ExponentLiquidator {
         position.isWithdrawRequestPending &&
         position.canWithdrawRequestFinalize;
       return canLiquidateYieldTokens || canLiquidateWithdrawRequest;
+    });
+  }
+
+  filterPositionsForForceWithdraw(
+    enrichedPositions: EnrichedPosition[]
+  ): EnrichedPosition[] {
+    return enrichedPositions.filter((position) => {
+      const vaultConfig = this.vaultRegistry.getVaultConfig(position.vault);
+      if (!vaultConfig) {
+        return false;
+      }
+
+      // Only force withdraw if:
+      // 1. autoForceWithdraw is enabled
+      // 2. No pending withdraw request
+      return (
+        vaultConfig.autoForceWithdraw === true &&
+        !position.isWithdrawRequestPending
+      );
     });
   }
 
@@ -511,6 +535,19 @@ export default class ExponentLiquidator {
     return batch.filter((tx): tx is PopulatedTransaction => tx !== null);
   }
 
+  private async generateForceWithdrawTransactions(
+    positions: EnrichedPosition[]
+  ): Promise<PopulatedTransaction[]> {
+    return Promise.all(
+      positions.map(async (position) => {
+        return await this.morphoRouterIntegration.forceWithdraw(
+          position.account,
+          position.vault
+        );
+      })
+    );
+  }
+
   private async executeTransactionsViaRelay(
     validTxs: PopulatedTransaction[]
   ): Promise<LiquidationReport> {
@@ -681,6 +718,7 @@ export default class ExponentLiquidator {
       throw error;
     }
 
+    let positionsForForceWithdraw: EnrichedPosition[] = [];
     try {
       // Step 3: Filter positions for liquidation
       positionsToLiquidate =
@@ -689,6 +727,17 @@ export default class ExponentLiquidator {
         'Positions to liquidate filtered',
         {
           positionsToLiquidateCount: positionsToLiquidate.length,
+        },
+        this.env.LOG_LEVEL
+      );
+
+      // Step 3b: Filter positions for force withdraw
+      positionsForForceWithdraw =
+        this.filterPositionsForForceWithdraw(enrichedPositions);
+      logDebug(
+        'Positions for force withdraw filtered',
+        {
+          positionsForForceWithdrawCount: positionsForForceWithdraw.length,
         },
         this.env.LOG_LEVEL
       );
@@ -818,6 +867,7 @@ export default class ExponentLiquidator {
     }
 
     let populatedTxs: PopulatedTransaction[];
+    let forceWithdrawTxs: PopulatedTransaction[] = [];
     try {
       // Step 8: Generate populated transactions
       populatedTxs = await this.generateTransactions(liquidationParams);
@@ -828,6 +878,20 @@ export default class ExponentLiquidator {
         },
         this.env.LOG_LEVEL
       );
+
+      // Step 8b: Generate force withdraw transactions
+      if (positionsForForceWithdraw.length > 0) {
+        forceWithdrawTxs = await this.generateForceWithdrawTransactions(
+          positionsForForceWithdraw
+        );
+        logDebug(
+          'Force withdraw transactions generated',
+          {
+            forceWithdrawTxsCount: forceWithdrawTxs.length,
+          },
+          this.env.LOG_LEVEL
+        );
+      }
     } catch (error) {
       logError('Generating populated transactions', error as Error, {
         positionsToLiquidate: positionsToLiquidate,
@@ -839,7 +903,8 @@ export default class ExponentLiquidator {
     let validTxs: PopulatedTransaction[];
     try {
       // Step 9: Prune failing transactions
-      validTxs = await this.pruneFailingTransactions(populatedTxs);
+      const allTxs = [...populatedTxs, ...forceWithdrawTxs];
+      validTxs = await this.pruneFailingTransactions(allTxs);
       logDebug(
         'Valid transactions',
         {
