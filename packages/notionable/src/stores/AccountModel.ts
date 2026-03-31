@@ -92,6 +92,14 @@ export const BalanceStatementModel = types.model('BalanceStatement', {
     })
   ),
   impliedFixedRate: types.maybe(types.number),
+  withdrawRequest: types.maybe(
+    types.array(
+      types.model({
+        lastUpdateTimestamp: types.number,
+        requestId: types.string,
+      })
+    )
+  ),
 });
 
 const WithdrawRequestModel = types.model('WithdrawRequest', {

@@ -127,6 +127,10 @@ export interface BalanceStatement {
     adjustedClaimed: TokenBalance;
   }[];
   impliedFixedRate?: number;
+  withdrawRequest?: {
+    lastUpdateTimestamp: number;
+    requestId: string;
+  }[];
 }
 
 export interface AccountTransactions {
