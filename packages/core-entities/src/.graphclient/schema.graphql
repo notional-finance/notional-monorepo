@@ -116,6 +116,16 @@ enum Account_orderBy {
   profitLossLineItems
 }
 
+"""
+Indicates whether the current, partially filled bucket should be included in the response. Defaults to `exclude`
+"""
+enum Aggregation_current {
+  """Exclude the current, partially filled bucket from the response"""
+  exclude
+  """Include the current, partially filled bucket in the response"""
+  include
+}
+
 enum Aggregation_interval {
   hour
   day
@@ -1332,21 +1342,15 @@ input OracleRegistry_filter {
   listedVaults: [Bytes!]
   listedVaults_not: [Bytes!]
   listedVaults_contains: [Bytes!]
-  listedVaults_contains_nocase: [Bytes!]
   listedVaults_not_contains: [Bytes!]
-  listedVaults_not_contains_nocase: [Bytes!]
   lendingRouters: [Bytes!]
   lendingRouters_not: [Bytes!]
   lendingRouters_contains: [Bytes!]
-  lendingRouters_contains_nocase: [Bytes!]
   lendingRouters_not_contains: [Bytes!]
-  lendingRouters_not_contains_nocase: [Bytes!]
   withdrawRequestManager: [Bytes!]
   withdrawRequestManager_not: [Bytes!]
   withdrawRequestManager_contains: [Bytes!]
-  withdrawRequestManager_contains_nocase: [Bytes!]
   withdrawRequestManager_not_contains: [Bytes!]
-  withdrawRequestManager_not_contains_nocase: [Bytes!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [OracleRegistry_filter]
@@ -2867,9 +2871,7 @@ input TradingModulePermission_filter {
   allowedDexes: [DEX!]
   allowedDexes_not: [DEX!]
   allowedDexes_contains: [DEX!]
-  allowedDexes_contains_nocase: [DEX!]
   allowedDexes_not_contains: [DEX!]
-  allowedDexes_not_contains_nocase: [DEX!]
   allowSell: Boolean
   allowSell_not: Boolean
   allowSell_in: [Boolean!]
@@ -2877,9 +2879,7 @@ input TradingModulePermission_filter {
   allowedTradeTypes: [TradeType!]
   allowedTradeTypes_not: [TradeType!]
   allowedTradeTypes_contains: [TradeType!]
-  allowedTradeTypes_contains_nocase: [TradeType!]
   allowedTradeTypes_not_contains: [TradeType!]
-  allowedTradeTypes_not_contains_nocase: [TradeType!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [TradingModulePermission_filter]

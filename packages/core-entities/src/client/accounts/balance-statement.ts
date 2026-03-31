@@ -83,7 +83,7 @@ export async function fetchBalanceStatements(
         [account]:
           r.account?.balances
             ?.filter(({ token }) => !!token.underlying)
-            .map(({ current, token, incentives }) => {
+            .map(({ current, token, incentives, withdrawRequest }) => {
               if (!token.underlying) throw Error('Unknown underlying');
               const model = getNetworkModel(network);
 
@@ -104,6 +104,12 @@ export async function fetchBalanceStatements(
                       i.rewardToken.symbol
                     ),
                   })) || [],
+                withdrawRequest: withdrawRequest
+                  ? withdrawRequest.map((w) => ({
+                      lastUpdateTimestamp: w.lastUpdateTimestamp,
+                      requestId: w.requestId.toString(),
+                    }))
+                  : undefined,
               };
             }) || [],
       };
