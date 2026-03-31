@@ -420,7 +420,10 @@ export const TradeModel = types
         self.availableCollateralTokens.replace([config.vaultToken]);
         self.collateral = config.vaultToken;
 
-        if (self.tradeType === 'CreateVaultPosition') {
+        if (
+          self.tradeType === 'CreateVaultPosition' ||
+          self.tradeType === 'IncreaseVaultPosition'
+        ) {
           self.availableDepositTokens.replace([
             self.deposit,
             config.yieldToken,
