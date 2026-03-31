@@ -146,12 +146,18 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return !!this.withdrawRequests && this.withdrawRequests.length > 0;
   }
 
-  get estimatedWithdrawTime() {
+  estimatedWithdrawTime(
+    withdrawRequests?: { lastUpdateTimestamp: number; requestId: string }[]
+  ) {
     return this.hasPendingWithdraw
       ? this.model
           .getWithdrawManagers(this.vaultAddress)
           .reduce(
-            (m, t) => m || t.estimatedWithdrawTime,
+            (m, t, i) =>
+              m ||
+              t.estimatedWithdrawTime(
+                withdrawRequests ? withdrawRequests[i] : undefined
+              ),
             undefined as string | undefined
           )
       : undefined;

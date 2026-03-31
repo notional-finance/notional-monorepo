@@ -118,7 +118,7 @@ export function calculateVaultHoldings(
       leverageRatio,
       hasPendingWithdraw: v.hasPendingWithdraw,
       hasFinalizedWithdraw: v.hasFinalizedWithdraw,
-      estimatedWithdrawTime: v.estimatedWithdrawTime,
+      estimatedWithdrawTime: v.estimatedWithdrawTime(assetPnL?.withdrawRequest),
       amountPaid,
       totalEarnings,
       underlying: denom.symbol,

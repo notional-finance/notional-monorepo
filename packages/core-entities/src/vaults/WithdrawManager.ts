@@ -47,7 +47,10 @@ export class WithdrawManager {
     this.strategy = this.createStrategy();
   }
 
-  get estimatedWithdrawTime(): string | undefined {
+  estimatedWithdrawTime(withdrawRequests?: {
+    lastUpdateTimestamp: number;
+    requestId: string;
+  }): string | undefined {
     return this.strategy.estimatedWithdrawTime;
   }
 

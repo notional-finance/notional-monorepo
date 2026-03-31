@@ -381,7 +381,7 @@ export class SingleSidedLP extends VaultAdapter {
         w.withdrawToken
       );
       return {
-        estimatedWithdrawTime: w.estimatedWithdrawTime,
+        estimatedWithdrawTime: w.estimatedWithdrawTime(),
         yieldTokensRedeemed: yieldTokensRedeemed,
         withdrawTokensToReceive: withdrawTokensToReceive,
       };
