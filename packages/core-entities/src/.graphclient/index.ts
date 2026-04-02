@@ -166,6 +166,13 @@ export type Account_orderBy =
   | 'balances'
   | 'profitLossLineItems';
 
+/** Indicates whether the current, partially filled bucket should be included in the response. Defaults to `exclude` */
+export type Aggregation_current =
+  /** Exclude the current, partially filled bucket from the response */
+  | 'exclude'
+  /** Include the current, partially filled bucket in the response */
+  | 'include';
+
 export type Aggregation_interval =
   | 'hour'
   | 'day';
@@ -1177,7 +1184,8 @@ export type LineItemType =
   | 'MigratePosition'
   | 'WithdrawRequest'
   | 'WithdrawRequestFinalized'
-  | 'TradeExecution';
+  | 'TradeExecution'
+  | 'EnterPositionWithYieldToken';
 
 /** Only set on the first entry for a lending router / vault combination */
 export type Market = {
@@ -1427,21 +1435,15 @@ export type OracleRegistry_filter = {
   listedVaults?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   listedVaults_not?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   listedVaults_contains?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  listedVaults_contains_nocase?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   listedVaults_not_contains?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  listedVaults_not_contains_nocase?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   lendingRouters?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   lendingRouters_not?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   lendingRouters_contains?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  lendingRouters_contains_nocase?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   lendingRouters_not_contains?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  lendingRouters_not_contains_nocase?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   withdrawRequestManager?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   withdrawRequestManager_not?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   withdrawRequestManager_contains?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  withdrawRequestManager_contains_nocase?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   withdrawRequestManager_not_contains?: InputMaybe<Array<Scalars['Bytes']['input']>>;
-  withdrawRequestManager_not_contains_nocase?: InputMaybe<Array<Scalars['Bytes']['input']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<OracleRegistry_filter>>>;
@@ -2893,9 +2895,7 @@ export type TradingModulePermission_filter = {
   allowedDexes?: InputMaybe<Array<DEX>>;
   allowedDexes_not?: InputMaybe<Array<DEX>>;
   allowedDexes_contains?: InputMaybe<Array<DEX>>;
-  allowedDexes_contains_nocase?: InputMaybe<Array<DEX>>;
   allowedDexes_not_contains?: InputMaybe<Array<DEX>>;
-  allowedDexes_not_contains_nocase?: InputMaybe<Array<DEX>>;
   allowSell?: InputMaybe<Scalars['Boolean']['input']>;
   allowSell_not?: InputMaybe<Scalars['Boolean']['input']>;
   allowSell_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
@@ -2903,9 +2903,7 @@ export type TradingModulePermission_filter = {
   allowedTradeTypes?: InputMaybe<Array<TradeType>>;
   allowedTradeTypes_not?: InputMaybe<Array<TradeType>>;
   allowedTradeTypes_contains?: InputMaybe<Array<TradeType>>;
-  allowedTradeTypes_contains_nocase?: InputMaybe<Array<TradeType>>;
   allowedTradeTypes_not_contains?: InputMaybe<Array<TradeType>>;
-  allowedTradeTypes_not_contains_nocase?: InputMaybe<Array<TradeType>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<TradingModulePermission_filter>>>;
@@ -3882,6 +3880,7 @@ export type ResolversTypes = ResolversObject<{
   Account: ResolverTypeWrapper<Account>;
   Account_filter: Account_filter;
   Account_orderBy: Account_orderBy;
+  Aggregation_current: Aggregation_current;
   Aggregation_interval: Aggregation_interval;
   Balance: ResolverTypeWrapper<Balance>;
   BalanceSnapshot: ResolverTypeWrapper<BalanceSnapshot>;
