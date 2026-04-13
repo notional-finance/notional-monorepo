@@ -85,7 +85,7 @@ export async function fetchCurrentAccount(
     .concat(
       getAllowanceCalls(
         account,
-        lendingRouters.map((l) => l.id),
+        lendingRouters.map((l) => l.id).concat(MorphoRouter[network]),
         depositTokens,
         provider
       )

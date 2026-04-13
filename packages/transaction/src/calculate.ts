@@ -205,7 +205,7 @@ export function calculateVaultRoll({
   };
 }
 
-function calculateVaultCollateral({
+export function calculateVaultCollateral({
   collateral,
   vaultAdapter,
   depositBalance,
@@ -288,6 +288,18 @@ export function calculateWithdraw({
     simulatedWithdraws,
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: TokenBalance.zero(debt),
+    debtFee: TokenBalance.zero(debt),
+  };
+}
+
+export function calculateRepay({ collateral, debt, depositBalance }) {
+  return {
+    collateralBalance: TokenBalance.zero(collateral),
+    collateralFee: TokenBalance.zero(depositBalance.token),
+    debtBalance: depositBalance.toToken(debt),
+    netRealizedCollateralBalance: TokenBalance.zero(depositBalance.token),
+    // These two are just used to satisfy the type system, not used in the UI
+    netRealizedDebtBalance: depositBalance,
     debtFee: TokenBalance.zero(debt),
   };
 }

@@ -68,6 +68,18 @@ export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
     }
   };
 
+  const getMorphoMarketParams = (vault: string, lendingRouter: string) => {
+    const lr = self.configuration?.lendingRouters.find(
+      (lr) => lr.id === lendingRouter
+    );
+    const m = lr?.markets.find((m) => m.vault === vault);
+    if (lr?.name === 'Morpho' && m) {
+      return decodeMorphoLendingRouterParams(m.params);
+    } else {
+      throw Error(`Market params for ${vault} on ${lendingRouter} not found`);
+    }
+  };
+
   const getLendingMarketFromVaultDebt = (vaultDebt: TokenDefinition) => {
     if (!vaultDebt.vaultAddress)
       throw Error('Vault debt token has no vault address');
@@ -96,5 +108,6 @@ export const ExchangeViews = (self: Instance<typeof NetworkModel>) => {
     getSNOTEPool,
     getLendingMarketFromVaultDebt,
     getMorphoMarketId,
+    getMorphoMarketParams,
   };
 };
