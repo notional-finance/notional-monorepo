@@ -422,7 +422,8 @@ export const TradeModel = types
 
         if (
           self.tradeType === 'CreateVaultPosition' ||
-          self.tradeType === 'IncreaseVaultPosition'
+          self.tradeType === 'IncreaseVaultPosition' ||
+          self.tradeType === 'DepositVault'
         ) {
           self.availableDepositTokens.replace([
             self.deposit,
@@ -474,6 +475,11 @@ export const TradeModel = types
 
       setAvailableDebtTokens();
       setInitialLeverageRatios();
+
+      if (self.tradeType === 'DepositVault' && self.debt) {
+        // Set the debt balance to zero for the deposit vault trade type
+        self.debtBalance = TokenBalance.zero(self.debt as TokenDefinition);
+      }
 
       // NOTE: everything above here is just setting the initial state including leverage
       // ratios and the available tokens

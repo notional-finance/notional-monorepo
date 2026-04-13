@@ -17,6 +17,8 @@ import {
   VaultPendingWithdraw,
   VaultFinalizeWithdraw,
   VaultClaimRewards,
+  VaultDepositScreen,
+  VaultRepayScreen,
 } from './screens';
 import { VaultAdjustLeverage } from './screens/adjust-leverage';
 
@@ -55,6 +57,8 @@ export const VaultDefaultScreen = observer(() => {
         <Route path="finalize-withdraw" element={<VaultFinalizeWithdraw />} />
         <Route path="adjust-leverage" element={<VaultAdjustLeverage />} />
         <Route path="claim-rewards" element={<VaultClaimRewards />} />
+        <Route path="deposit-collateral" element={<VaultDepositScreen />} />
+        <Route path="repay-debt" element={<VaultRepayScreen />} />
       </Routes>
     </FeatureLoader>
   );

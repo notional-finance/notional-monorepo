@@ -1,10 +1,16 @@
-import { PopulatedTransaction, ethers } from 'ethers';
+import { BigNumber, Contract, PopulatedTransaction, ethers } from 'ethers';
 import {
   PopulateTransactionInputs,
   populateLendingRouterTxnAndGas,
+  populateTxnAndGas,
 } from './common';
 import { getNetworkModel } from '@notional-finance/core-entities';
-import { Network } from '@notional-finance/util';
+import {
+  getProviderFromNetwork,
+  MorphoRouter,
+  Network,
+} from '@notional-finance/util';
+import { Morpho, MorphoABI } from '@notional-finance/contracts';
 
 export async function EnterVault({
   address,
@@ -248,4 +254,38 @@ export async function ClaimRewards({
     'claimRewards',
     [address, vaultAddress]
   );
+}
+
+export async function RepayVault({
+  address,
+  network,
+  depositBalance,
+  debtBalance,
+}: PopulateTransactionInputs): Promise<PopulatedTransaction> {
+  if (!depositBalance || !debtBalance)
+    throw Error('Deposit balance and debt balance must be defined');
+  const morpho = new Contract(
+    MorphoRouter[network],
+    MorphoABI,
+    getProviderFromNetwork(network)
+  ) as Morpho;
+  const assets = depositBalance.n;
+  const marketParams = getNetworkModel(network).getMorphoMarketParams(
+    depositBalance.vaultAddress,
+    debtBalance.token.address
+  );
+
+  return populateTxnAndGas(morpho, address, 'repay', [
+    {
+      loanToken: marketParams.loanToken,
+      collateralToken: marketParams.collateralToken,
+      oracle: marketParams.oracle,
+      irm: marketParams.irm,
+      lltv: marketParams.lltv,
+    },
+    assets,
+    BigNumber.from(0),
+    address,
+    '0x',
+  ]);
 }
