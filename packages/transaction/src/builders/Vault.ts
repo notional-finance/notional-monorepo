@@ -260,9 +260,10 @@ export async function RepayVault({
   address,
   network,
   depositBalance,
+  collateralBalance,
   debtBalance,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
-  if (!depositBalance || !debtBalance)
+  if (!depositBalance || !debtBalance || !collateralBalance)
     throw Error('Deposit balance and debt balance must be defined');
   const morpho = new Contract(
     MorphoRouter[network],
@@ -271,7 +272,7 @@ export async function RepayVault({
   ) as Morpho;
   const assets = depositBalance.n;
   const marketParams = getNetworkModel(network).getMorphoMarketParams(
-    depositBalance.vaultAddress,
+    collateralBalance.vaultAddress,
     debtBalance.token.address
   );
 

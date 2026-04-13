@@ -101,6 +101,8 @@ export const TradeModel = types
       'ManageVault',
       'InitiateWithdraw',
       'FinalizeWithdraw',
+      'RepayVault',
+      'DepositVault',
     ]),
     /** True if the page is ready to be displayed */
     isReady: types.optional(types.boolean, false),

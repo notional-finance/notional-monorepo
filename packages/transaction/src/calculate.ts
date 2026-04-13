@@ -296,10 +296,10 @@ export function calculateRepay({ collateral, debt, depositBalance }) {
   return {
     collateralBalance: TokenBalance.zero(collateral),
     collateralFee: TokenBalance.zero(depositBalance.token),
-    debtBalance: depositBalance.toToken(debt).neg(),
+    debtBalance: depositBalance.toToken(debt),
     netRealizedCollateralBalance: TokenBalance.zero(depositBalance.token),
     // These two are just used to satisfy the type system, not used in the UI
-    netRealizedDebtBalance: depositBalance.neg(),
+    netRealizedDebtBalance: depositBalance,
     debtFee: TokenBalance.zero(debt),
   };
 }

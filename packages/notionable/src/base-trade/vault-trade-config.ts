@@ -9,6 +9,7 @@ import {
   RepayVault,
   RollVault,
   calculateFinalizeWithdraw,
+  calculateRepay,
   calculateVaultCollateral,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
   calculateVaultRoll,
@@ -155,7 +156,7 @@ export const VaultTradeConfiguration = {
     transactionBuilder: EnterVault,
   } as TransactionConfig,
   RepayVault: {
-    calculationFn: calculateVaultCollateral,
+    calculationFn: calculateRepay,
     requiredArgs: ['collateral', 'debt', 'depositBalance'],
     collateralFilter: (t, _, s) =>
       t.tokenType === 'VaultShare' &&
