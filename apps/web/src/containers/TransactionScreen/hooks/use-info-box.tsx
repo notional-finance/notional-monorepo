@@ -466,6 +466,17 @@ const useOrderDetails = () => {
         : 'Amount Borrowed',
       content: formatCountUp(borrowed),
     });
+    const { debt } = trade?.computedOptions ?? {};
+    const utilization = debt?.find(
+      (o) => o.token.id === trade?.debtBalance?.tokenId
+    )?.utilization;
+
+    if (utilization !== undefined) {
+      orderDetails.push({
+        label: 'Market Utilization',
+        content: <CountUp value={utilization} decimals={2} suffix="%" />,
+      });
+    }
   }
 
   if (trade?.collateralBalance && trade.tradeType !== 'InitiateWithdraw') {
