@@ -1072,7 +1072,9 @@ export const TradeModel = types
           };
         } else if (
           self.tradeType === 'CreateVaultPosition' ||
-          self.tradeType === 'RollVaultPosition'
+          self.tradeType === 'RollVaultPosition' ||
+          self.tradeType === 'RepayVault' ||
+          self.tradeType === 'DepositVault'
         ) {
           updatedAPY = netPositionAPY;
         } else if (self.tradeType === 'AdjustVaultLeverage') {
