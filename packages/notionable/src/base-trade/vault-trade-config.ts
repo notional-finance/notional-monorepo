@@ -151,7 +151,7 @@ export const VaultTradeConfiguration = {
       eligibleDebtToken(t, s.vaultConfig) &&
       sameVaultMaturity(t, a?.balances, s.vaultAddress),
     depositFilter: (t, _, s) => isPrimaryCurrency(t, s.vaultConfig),
-    calculateDebtOptions: true,
+    calculateDebtOptions: false,
     calculateCollateralOptions: true,
     transactionBuilder: EnterVault,
   } as TransactionConfig,
@@ -167,7 +167,7 @@ export const VaultTradeConfiguration = {
       sameVaultMaturity(t, a?.balances, s.vaultAddress),
     depositFilter: (t, _, s) => isPrimaryCurrency(t, s.vaultConfig),
     calculateDebtOptions: true,
-    calculateCollateralOptions: true,
+    calculateCollateralOptions: false,
     transactionBuilder: RepayVault,
   } as TransactionConfig,
 
