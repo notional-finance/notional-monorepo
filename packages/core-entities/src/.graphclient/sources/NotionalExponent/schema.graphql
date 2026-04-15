@@ -1109,6 +1109,7 @@ enum LineItemType {
   WithdrawRequest
   WithdrawRequestFinalized
   TradeExecution
+  EnterPositionWithYieldToken
 }
 
 """Only set on the first entry for a lending router / vault combination"""

@@ -15443,6 +15443,14 @@ const schemaAST = {
             "value": "TradeExecution"
           },
           "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "EnterPositionWithYieldToken"
+          },
+          "directives": []
         }
       ],
       "directives": []
