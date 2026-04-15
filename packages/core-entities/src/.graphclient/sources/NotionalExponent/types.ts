@@ -1161,7 +1161,8 @@ export type LineItemType =
   | 'MigratePosition'
   | 'WithdrawRequest'
   | 'WithdrawRequestFinalized'
-  | 'TradeExecution';
+  | 'TradeExecution'
+  | 'EnterPositionWithYieldToken';
 
 /** Only set on the first entry for a lending router / vault combination */
 export type Market = {
