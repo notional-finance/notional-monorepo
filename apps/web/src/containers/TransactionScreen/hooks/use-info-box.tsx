@@ -449,7 +449,7 @@ const useOrderDetails = () => {
   const trade = useCurrentTradeContext();
   const orderDetails: LabelValueSectionProps['items'] = [];
 
-  if (trade?.depositBalance) {
+  if (trade?.depositBalance && trade.tradeType !== 'RepayVault') {
     orderDetails.push({
       label: trade.depositBalance.isNegative()
         ? 'Amount Withdrawn'
