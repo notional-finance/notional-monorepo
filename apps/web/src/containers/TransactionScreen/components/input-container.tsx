@@ -15,6 +15,7 @@ interface InputContainerProps {
   children: React.ReactNode | React.ReactNode[];
   hideSubmitButton?: boolean;
   submitText?: MessageDescriptor;
+  errorMessageOverride?: MessageDescriptor;
   hasBackButton?: boolean;
   canSubmitOverride?: boolean;
   onSubmitOverride?: () => void;
@@ -25,13 +26,15 @@ const InputContainer = observer(
     children,
     hasBackButton,
     submitText,
+    errorMessageOverride,
     hideSubmitButton = false,
     canSubmitOverride,
     onSubmitOverride,
   }: InputContainerProps) => {
     const theme = useTheme();
     const context = useCurrentTradeContext();
-    const errorText = useTradeErrorMessage();
+    let errorText = useTradeErrorMessage();
+    errorText = errorMessageOverride || errorText;
 
     return (
       <InputContainerWrapper>
