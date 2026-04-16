@@ -586,6 +586,8 @@ export const TradeModel = types
           self.debtFee = undefined;
           self.collateralFee = undefined;
         }
+      } else {
+        self.calculationSuccess = false;
       }
       self.inputsSatisfied = inputsSatisfied;
 
