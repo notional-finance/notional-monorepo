@@ -268,7 +268,7 @@ export const AccountModel = types
       )) as Awaited<ReturnType<typeof fetchTransactionHistory>>;
 
       self.accountHistory.replace(
-        history[self.address].map((v) => ({
+        history[self.address.toLowerCase()].map((v) => ({
           ...v,
           blockNumber: Number(v.blockNumber),
         })) as unknown as Instance<typeof AccountHistoryModel>[]
@@ -284,10 +284,12 @@ export const AccountModel = types
         )) as Awaited<ReturnType<typeof fetchBalanceStatements>>;
 
         self.balanceStatement.replace(
-          balanceStatements.finalResults[self.address].map((v) => ({
-            ...v,
-            blockNumber: Number(v.blockNumber),
-          })) as Instance<typeof BalanceStatementModel>[]
+          balanceStatements.finalResults[self.address.toLowerCase()].map(
+            (v) => ({
+              ...v,
+              blockNumber: Number(v.blockNumber),
+            })
+          ) as Instance<typeof BalanceStatementModel>[]
         );
       } catch (e) {
         console.error(e);
@@ -302,7 +304,7 @@ export const AccountModel = types
       )) as Awaited<ReturnType<typeof fetchHistoricalBalances>>;
 
       self.historicalBalances.replace(
-        historicalBalances.finalResults[self.address]
+        historicalBalances.finalResults[self.address.toLowerCase()]
       );
     });
 
