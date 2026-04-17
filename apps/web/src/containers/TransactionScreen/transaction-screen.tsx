@@ -21,6 +21,7 @@ export const TransactionScreen = observer(
     inputs,
     hasBackButton,
     submitText,
+    errorMessageOverride,
     hideSubmitButton,
     canSubmitOverride,
     onSubmitOverride,
@@ -28,6 +29,7 @@ export const TransactionScreen = observer(
     actionPrefix?: string;
     hasBackButton?: boolean;
     submitText?: MessageDescriptor;
+    errorMessageOverride?: MessageDescriptor;
     hideSubmitButton?: boolean;
     canSubmitOverride?: boolean;
     onSubmitOverride?: () => void;
@@ -50,6 +52,7 @@ export const TransactionScreen = observer(
               <InputContainer
                 hasBackButton={hasBackButton}
                 submitText={submitText}
+                errorMessageOverride={errorMessageOverride}
                 hideSubmitButton={hideSubmitButton}
                 canSubmitOverride={canSubmitOverride}
                 onSubmitOverride={onSubmitOverride}

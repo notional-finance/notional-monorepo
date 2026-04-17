@@ -12,11 +12,11 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import { useState } from 'react';
 
 const insufficientBalanceMsg = defineMessage({
-  defaultMessage: 'Insufficient balance',
+  defaultMessage: 'Insufficient Balance',
 });
 
 const overMaxRepayAmountMsg = defineMessage({
-  defaultMessage: 'Over max repay amount',
+  defaultMessage: 'Above Outstanding Debt',
 });
 
 export const VaultRepayScreen = observer(() => {
@@ -40,14 +40,10 @@ export const VaultRepayScreen = observer(() => {
     trade?.setDepositBalance(inputAmount, false);
     setCurrencyInput(inputAmount?.toExactString() || '', false);
 
-    if (inputAmount && maxBalance && inputAmount.gt(maxBalance)) {
-      setBalanceError(insufficientBalanceMsg);
-    } else if (
-      inputAmount &&
-      maxRepayAmount &&
-      inputAmount.gt(maxRepayAmount)
-    ) {
+    if (inputAmount && maxRepayAmount && inputAmount.gt(maxRepayAmount)) {
       setBalanceError(overMaxRepayAmountMsg);
+    } else if (inputAmount && maxBalance && inputAmount.gt(maxBalance)) {
+      setBalanceError(insufficientBalanceMsg);
     } else {
       setBalanceError(undefined);
     }
@@ -68,6 +64,7 @@ export const VaultRepayScreen = observer(() => {
     <TransactionScreen
       actionPrefix="Repay"
       hasBackButton
+      errorMessageOverride={balanceError}
       inputs={[
         <DepositInput
           ref={currencyInputRef}
@@ -79,7 +76,6 @@ export const VaultRepayScreen = observer(() => {
           depositTokens={trade?.availableTokens.deposit}
           onUpdate={onUpdate}
           onMaxValue={onMaxValue}
-          errorMsgOverride={balanceError}
         />,
       ]}
     />

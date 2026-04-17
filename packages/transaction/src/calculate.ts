@@ -292,11 +292,29 @@ export function calculateWithdraw({
   };
 }
 
-export function calculateRepay({ collateral, debt, depositBalance }) {
+export function calculateRepay({
+  collateral,
+  debt,
+  depositBalance,
+  balances,
+}: {
+  collateral: TokenDefinition;
+  debt: TokenDefinition;
+  depositBalance: TokenBalance;
+  balances: TokenBalance[];
+}) {
+  const debtBalance = depositBalance.toToken(debt);
+  const outstandingDebt = balances
+    .find((b) => b.token.id === debt.id)
+    ?.toUnderlying();
+  if (!outstandingDebt || depositBalance.gt(outstandingDebt.neg())) {
+    throw Error('Cannot repay more than the outstanding debt');
+  }
+
   return {
     collateralBalance: TokenBalance.zero(collateral),
     collateralFee: TokenBalance.zero(depositBalance.token),
-    debtBalance: depositBalance.toToken(debt),
+    debtBalance,
     netRealizedCollateralBalance: TokenBalance.zero(depositBalance.token),
     // These two are just used to satisfy the type system, not used in the UI
     netRealizedDebtBalance: depositBalance,

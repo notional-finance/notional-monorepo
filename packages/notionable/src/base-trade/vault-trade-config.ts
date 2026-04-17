@@ -157,7 +157,7 @@ export const VaultTradeConfiguration = {
   } as TransactionConfig,
   RepayVault: {
     calculationFn: calculateRepay,
-    requiredArgs: ['collateral', 'debt', 'depositBalance'],
+    requiredArgs: ['collateral', 'debt', 'depositBalance', 'balances'],
     collateralFilter: (t, _, s) =>
       t.tokenType === 'VaultShare' &&
       t.vaultAddress === s.vaultAddress &&
