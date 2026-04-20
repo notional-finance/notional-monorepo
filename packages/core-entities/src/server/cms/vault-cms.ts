@@ -204,7 +204,7 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
         id: p.slug,
         name: p.name,
         logoURL: p['project-logo']?.url,
-        description: p['project-info'],
+        description: p['project-info'] === null ? undefined : p['project-info'],
       })),
       rewards:
         v.fieldData['rewards']?.map((r) => ({
@@ -217,7 +217,7 @@ export async function getVaultCMSData(): Promise<VaultCMSData[]> {
         name: a.name,
         contractAddress: a['contract-address'],
         logoURL: a['icon']?.url,
-        description: a['description'],
+        description: a['description'] === null ? undefined : a['description'],
       })),
     };
   });

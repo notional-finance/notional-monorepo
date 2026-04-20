@@ -16,11 +16,7 @@ import {
   RouteType,
   THEME_VARIANTS,
 } from '@notional-finance/util';
-import {
-  InitIntercom,
-  InitSanctionsBlock,
-  InitPageTrack,
-} from './InitComponents';
+import { InitSanctionsBlock, InitPageTrack } from './InitComponents';
 import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 
@@ -60,7 +56,7 @@ const AppLayoutRoute = ({
     <ThemeProvider theme={notionalTheme}>
       <CssBaseline />
       <FeatureLoader>
-        <InitIntercom />
+        {/* <InitIntercom /> */}
         <InitPageTrack routeType={routeType} />
         <InitSanctionsBlock />
         <Box>
