@@ -56,7 +56,7 @@ export async function fetchHistoricalBalances(
         }) || [];
 
       return {
-        [account]: snapshots
+        [account.toLowerCase()]: snapshots
           .concat(current)
           .sort((a, b) => a.timestamp - b.timestamp),
       };
@@ -80,7 +80,7 @@ export async function fetchBalanceStatements(
     AccountBalanceStatementDocument,
     (r): Record<string, BalanceStatement[]> => {
       return {
-        [account]:
+        [account.toLowerCase()]:
           r.account?.balances
             ?.filter(({ token }) => !!token.underlying)
             .map(({ current, token, incentives, withdrawRequest }) => {
