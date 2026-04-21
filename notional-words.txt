@@ -320,6 +320,7 @@ vnet
 vswst
 walletconnect
 webflow
+WEXP
 wireframing
 wishlisted
 wrappedf

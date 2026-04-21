@@ -13,7 +13,7 @@ import {
   UTILIZATION_ERROR,
 } from '@notional-finance/util';
 import { BigNumber, Contract, ethers } from 'ethers';
-import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { parseUnits } from 'ethers/lib/utils';
 import {
   Morpho,
   MorphoABI,
@@ -518,6 +518,23 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
 }
 
 export class MorphoAdaptiveIRM extends MorphoVariableMarket {
+  private readonly LN_2_INT = parseUnits(
+    '0.693147180559945309',
+    SCALAR_DECIMALS
+  );
+  private readonly LN_WEI_INT = parseUnits(
+    '-41.446531673892822312',
+    SCALAR_DECIMALS
+  );
+  private readonly WEXP_UPPER_BOUND = parseUnits(
+    '93.859467695000404319',
+    SCALAR_DECIMALS
+  );
+  private readonly WEXP_UPPER_VALUE = parseUnits(
+    '57716089161558943949701069502944508345128.422502756744429568',
+    SCALAR_DECIMALS
+  );
+
   // 0.9e18
   public TARGET_UTILIZATION = SCALAR_PRECISION.mul(90).div(100);
   // 4% APY on a per second basis
@@ -607,9 +624,9 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
       }
     }
 
-    const rateInScalar = this.curve(avgRateAtTarget, err).mul(
-      SECONDS_IN_YEAR_ACTUAL
-    );
+    const rateInScalar = this.exp(
+      this.curve(avgRateAtTarget, err).mul(SECONDS_IN_YEAR_ACTUAL)
+    ).sub(SCALAR_PRECISION);
     return (
       parseFloat(ethers.utils.formatUnits(rateInScalar, SCALAR_DECIMALS)) * 100
     );
@@ -636,12 +653,7 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
     startRateAtTarget: BigNumber,
     linearAdaptation: BigNumber
   ) {
-    const exp = parseUnits(
-      Math.exp(
-        parseInt(formatUnits(linearAdaptation, SCALAR_DECIMALS))
-      ).toString(),
-      SCALAR_DECIMALS
-    );
+    const exp = this.exp(linearAdaptation);
     const newRate = startRateAtTarget.mul(exp).div(SCALAR_PRECISION);
 
     // Bound the rate at target to the min and max rates at target
@@ -652,5 +664,20 @@ export class MorphoAdaptiveIRM extends MorphoVariableMarket {
     } else {
       return newRate;
     }
+  }
+
+  private exp(x: BigNumber) {
+    if (x.lt(this.LN_WEI_INT)) return BigNumber.from(0);
+    if (x.gte(this.WEXP_UPPER_BOUND)) return this.WEXP_UPPER_VALUE;
+
+    const halfLn2 = this.LN_2_INT.div(2);
+    const roundingAdjustment = x.lt(0) ? halfLn2.mul(-1) : halfLn2;
+    const q = x.add(roundingAdjustment).div(this.LN_2_INT);
+    const r = x.sub(q.mul(this.LN_2_INT));
+    const expR = SCALAR_PRECISION.add(r).add(
+      r.mul(r).div(SCALAR_PRECISION).div(2)
+    );
+
+    return q.gte(0) ? expR.shl(q.toNumber()) : expR.shr(q.mul(-1).toNumber());
   }
 }

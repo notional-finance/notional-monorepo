@@ -10,7 +10,11 @@ import {
 import { useSubmitTxn } from '@notional-finance/notionable-hooks';
 import { useWalletStore } from '@notional-finance/notionable-hooks';
 import { useState } from 'react';
-import { TransactionStatus } from '@notional-finance/util';
+import {
+  MorphoRouter,
+  Network,
+  TransactionStatus,
+} from '@notional-finance/util';
 import { observer } from 'mobx-react-lite';
 import { SingleApprovalModal } from './single-approval';
 import { FormattedMessage } from 'react-intl';
@@ -84,12 +88,13 @@ export const SubmitModal = observer(() => {
   const depositToken = trade?.deposit;
   const v = useVaultMetadata(trade?.vaultAddress);
   const isYieldToken = v?.yieldToken.id === depositToken?.id;
+  let spender = isYieldToken ? v?.vaultAddress : lendingRouter;
+  if (trade?.selectedNetwork && trade?.tradeType === 'RepayVault') {
+    spender = MorphoRouter[trade?.selectedNetwork as Network];
+  }
 
   const { enableToken, tokenApprovalRequired, allowanceIncreaseRequired } =
-    useTransactionApprovals(
-      isYieldToken ? v?.vaultAddress : lendingRouter,
-      trade?.depositBalance
-    );
+    useTransactionApprovals(spender, trade?.depositBalance);
   const { routerApprovalRequired, approveRouter } =
     useLendingRouterApproval(lendingRouter);
   const [initialApprovalState, setInitialApprovalState] =

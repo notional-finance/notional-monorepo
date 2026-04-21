@@ -449,7 +449,7 @@ const useOrderDetails = () => {
   const trade = useCurrentTradeContext();
   const orderDetails: LabelValueSectionProps['items'] = [];
 
-  if (trade?.depositBalance) {
+  if (trade?.depositBalance && trade.tradeType !== 'RepayVault') {
     orderDetails.push({
       label: trade.depositBalance.isNegative()
         ? 'Amount Withdrawn'
@@ -466,6 +466,17 @@ const useOrderDetails = () => {
         : 'Amount Borrowed',
       content: formatCountUp(borrowed),
     });
+    const { debt } = trade?.computedOptions ?? {};
+    const utilization = debt?.find(
+      (o) => o.token.id === trade?.debtBalance?.tokenId
+    )?.utilization;
+
+    if (utilization !== undefined) {
+      orderDetails.push({
+        label: 'Market Utilization',
+        content: <CountUp value={utilization} decimals={2} suffix="%" />,
+      });
+    }
   }
 
   if (trade?.collateralBalance && trade.tradeType !== 'InitiateWithdraw') {
@@ -531,48 +542,56 @@ const useWithdrawDetails = () => {
 const useTradeMetadata = () => {
   const trade = useCurrentTradeContext();
   if (trade?.tradeType === 'ManageVault') return undefined;
-  return trade?.vaultTradeMetadata?.map((metadata, index) => {
-    const items = [
-      {
-        label: 'Amount Sold',
-        content: formatCountUp(metadata.tokensSold),
-      },
-      {
-        label: 'Amount Bought',
-        content: formatCountUp(metadata.tokensBought),
-      },
-      {
-        label: 'Exchange Rate',
-        content: (
-          <Box>
-            {metadata.differenceFromSpot !== 0 ? (
-              <LabelValue light inline>
-                {`(${formatNumberAsPercent(metadata.differenceFromSpot, 4)}) `}
+  return trade?.vaultTradeMetadata
+    ?.filter(
+      (metadata) =>
+        !(metadata.tokensSold.isZero() && metadata.tokensBought.isZero())
+    )
+    .map((metadata, index) => {
+      const items = [
+        {
+          label: 'Amount Sold',
+          content: formatCountUp(metadata.tokensSold),
+        },
+        {
+          label: 'Amount Bought',
+          content: formatCountUp(metadata.tokensBought),
+        },
+        {
+          label: 'Exchange Rate',
+          content: (
+            <Box>
+              {metadata.differenceFromSpot !== 0 ? (
+                <LabelValue light inline>
+                  {`(${formatNumberAsPercent(
+                    metadata.differenceFromSpot,
+                    4
+                  )}) `}
+                </LabelValue>
+              ) : undefined}
+              <LabelValue inline>
+                {formatNumber(metadata.exchangeRate, 4)}
               </LabelValue>
-            ) : undefined}
-            <LabelValue inline>
-              {formatNumber(metadata.exchangeRate, 4)}
-            </LabelValue>
-          </Box>
-        ),
-      },
-    ];
+            </Box>
+          ),
+        },
+      ];
 
-    if (metadata.feesPaid && !metadata.feesPaid.isZero()) {
-      items.push({
-        label: 'Fees Paid',
-        content: formatCountUp(metadata.feesPaid.abs()),
-      });
-    }
+      if (metadata.feesPaid && !metadata.feesPaid.isZero()) {
+        items.push({
+          label: 'Fees Paid',
+          content: formatCountUp(metadata.feesPaid.abs()),
+        });
+      }
 
-    return (
-      <LabelValueSection
-        key={index}
-        sectionTitle={`Trade: ${metadata.tokensSold.symbol} → ${metadata.tokensBought.symbol}`}
-        items={items}
-      />
-    );
-  });
+      return (
+        <LabelValueSection
+          key={index}
+          sectionTitle={`Trade: ${metadata.tokensSold.symbol} → ${metadata.tokensBought.symbol}`}
+          items={items}
+        />
+      );
+    });
 };
 
 export const useInfoBox = () => {
@@ -689,11 +708,13 @@ export const useInfoBox = () => {
   if (trade?.tradeType !== 'ManageVault') {
     tabs.push({
       tabTitle: 'Order Details',
-      tabContent: (
+      tabContent: trade?.calculationSuccess ? (
         <DividedSections>
           <LabelValueSection key="order-details" items={orderDetails} />
           {tradeMetadata}
         </DividedSections>
+      ) : (
+        <></>
       ),
     });
   }

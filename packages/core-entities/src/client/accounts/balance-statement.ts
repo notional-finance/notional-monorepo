@@ -56,7 +56,7 @@ export async function fetchHistoricalBalances(
         }) || [];
 
       return {
-        [account]: snapshots
+        [account.toLowerCase()]: snapshots
           .concat(current)
           .sort((a, b) => a.timestamp - b.timestamp),
       };
@@ -80,10 +80,10 @@ export async function fetchBalanceStatements(
     AccountBalanceStatementDocument,
     (r): Record<string, BalanceStatement[]> => {
       return {
-        [account]:
+        [account.toLowerCase()]:
           r.account?.balances
             ?.filter(({ token }) => !!token.underlying)
-            .map(({ current, token, incentives }) => {
+            .map(({ current, token, incentives, withdrawRequest }) => {
               if (!token.underlying) throw Error('Unknown underlying');
               const model = getNetworkModel(network);
 
@@ -104,6 +104,12 @@ export async function fetchBalanceStatements(
                       i.rewardToken.symbol
                     ),
                   })) || [],
+                withdrawRequest: withdrawRequest
+                  ? withdrawRequest.map((w) => ({
+                      lastUpdateTimestamp: w.lastUpdateTimestamp,
+                      requestId: w.requestId.toString(),
+                    }))
+                  : undefined,
               };
             }) || [],
       };

@@ -84,11 +84,23 @@ export const VaultManageScreen = observer(() => {
   }[] = [];
 
   if (metadata?.enabled) {
-    adjustLeverage.push({
-      label: <FormattedMessage defaultMessage="Adjust Leverage" />,
-      to: `${path}/adjust-leverage`,
-      disabled: isInCooldown,
-    });
+    adjustLeverage.push(
+      {
+        label: <FormattedMessage defaultMessage="Adjust Leverage" />,
+        to: `${path}/adjust-leverage`,
+        disabled: isInCooldown,
+      },
+      {
+        label: <FormattedMessage defaultMessage="Deposit Collateral" />,
+        to: `${path}/deposit-collateral`,
+        disabled: isInCooldown,
+      },
+      {
+        label: <FormattedMessage defaultMessage="Repay Debt" />,
+        to: `${path}/repay-debt`,
+        disabled: isInCooldown,
+      }
+    );
   }
 
   const inputs: React.ReactNode[] = [];

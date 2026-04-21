@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { useObserver } from 'mobx-react-lite';
 import { useRootStore } from './use-root-store';
 import { Instance } from 'mobx-state-tree';
-import { defineMessage } from 'react-intl';
+import { defineMessage, MessageDescriptor } from 'react-intl';
 import { UTILIZATION_ERROR } from '@notional-finance/util';
 export interface ObservableContext {
   tradeModel?: Instance<typeof TradeModel>;
@@ -68,7 +68,7 @@ export function useCurrentTradeContext() {
   return useObserver(() => root.tradeModel);
 }
 
-export function useTradeErrorMessage() {
+export function useTradeErrorMessage(): MessageDescriptor | undefined {
   const context = useCurrentTradeContext();
   const inputsSatisfied = context?.inputsSatisfied;
   const calculationSuccess = context?.calculationSuccess;

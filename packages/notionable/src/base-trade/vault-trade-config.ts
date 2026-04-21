@@ -6,8 +6,11 @@ import {
   ExitVault,
   ExitVaultFinalizeWithdraw,
   InitiateWithdraw,
+  RepayVault,
   RollVault,
   calculateFinalizeWithdraw,
+  calculateRepay,
+  calculateVaultCollateral,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
   calculateVaultRoll,
   calculateWithdraw,
@@ -127,6 +130,45 @@ export const VaultTradeConfiguration = {
     calculateDebtOptions: true,
     calculateCollateralOptions: true,
     transactionBuilder: EnterVault,
+  } as TransactionConfig,
+  // Only deposit into the vault, not increase the position
+  DepositVault: {
+    calculationFn: calculateVaultCollateral,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'vaultAdapter',
+      'depositBalance',
+      'debtBalance',
+      'balances',
+      'vaultLastUpdateTime',
+    ],
+    collateralFilter: (t, _, s) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
+    debtFilter: (t, a, s) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
+    depositFilter: (t, _, s) => isPrimaryCurrency(t, s.vaultConfig),
+    calculateDebtOptions: false,
+    calculateCollateralOptions: true,
+    transactionBuilder: EnterVault,
+  } as TransactionConfig,
+  RepayVault: {
+    calculationFn: calculateRepay,
+    requiredArgs: ['collateral', 'debt', 'depositBalance', 'balances'],
+    collateralFilter: (t, _, s) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
+    debtFilter: (t, a, s) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
+    depositFilter: (t, _, s) => isPrimaryCurrency(t, s.vaultConfig),
+    calculateDebtOptions: true,
+    calculateCollateralOptions: false,
+    transactionBuilder: RepayVault,
   } as TransactionConfig,
 
   /**
