@@ -4457,9 +4457,9 @@ const merger = new(BareMerger as any)({
         store: rootStore.child('bareMerger')
       })
 const documentHashMap = {
-        "f025231933038b0abd9e80ec20b014aa56b5b2d0090d1bd2a27afafe30a06a4b": AccountBalanceStatementDocument,
-"b7aae423c7c493a71c03ed0bd678a04ec44a663dec8df173d687e889d30c8113": AccountHoldingsHistoricalDocument,
+        "69e2c24583d2126deb075689520de68507d11169c414adf587dcfb3421a8a5e7": AccountBalanceStatementDocument,
 "257286d52c180cc7e75909850ff12dc5d6a7d779ac0fbaceee24f5cf9ef94037": AccountIncentiveSnapshotsDocument,
+"b7aae423c7c493a71c03ed0bd678a04ec44a663dec8df173d687e889d30c8113": AccountHoldingsHistoricalDocument,
 "918b83cfd464ef3f17c742038656d9d3b12c24349c4d5cde5596d307121e3434": AccountPositionsDocument,
 "dafd4d227ae753f313f7308579e37e5a7087b6a5f56dc8d95840d4873c185eba": AccountTransactionHistoryDocument,
 "2b82dae20a6c13b62f528c205924427589a1388dba5fdf157908212c6df9e2b4": AllAccountsDocument,
@@ -4502,19 +4502,19 @@ additionalEnvelopPlugins.push(usePersistedOperations({
         location: 'AccountBalanceStatementDocument.graphql',
         sha256Hash: 'f025231933038b0abd9e80ec20b014aa56b5b2d0090d1bd2a27afafe30a06a4b'
       },{
-        document: AccountHoldingsHistoricalDocument,
-        get rawSDL() {
-          return printWithCache(AccountHoldingsHistoricalDocument);
-        },
-        location: 'AccountHoldingsHistoricalDocument.graphql',
-        sha256Hash: 'b7aae423c7c493a71c03ed0bd678a04ec44a663dec8df173d687e889d30c8113'
-      },{
         document: AccountIncentiveSnapshotsDocument,
         get rawSDL() {
           return printWithCache(AccountIncentiveSnapshotsDocument);
         },
         location: 'AccountIncentiveSnapshotsDocument.graphql',
         sha256Hash: '257286d52c180cc7e75909850ff12dc5d6a7d779ac0fbaceee24f5cf9ef94037'
+      },{
+        document: AccountHoldingsHistoricalDocument,
+        get rawSDL() {
+          return printWithCache(AccountHoldingsHistoricalDocument);
+        },
+        location: 'AccountHoldingsHistoricalDocument.graphql',
+        sha256Hash: 'b7aae423c7c493a71c03ed0bd678a04ec44a663dec8df173d687e889d30c8113'
       },{
         document: AccountPositionsDocument,
         get rawSDL() {
