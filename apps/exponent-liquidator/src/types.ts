@@ -65,6 +65,7 @@ export interface Env {
   HYPERNATIVE_CLIENT_ID: string;
   HYPERNATIVE_CLIENT_SECRET: string;
   LOG_LEVEL: 'info' | 'debug';
+  ALCHEMY_KEY: string;
 }
 
 export class MetricNames {
