@@ -15,7 +15,11 @@ const USE_TESTNET_RPC = !!TESTNET_RPC;
 
 // eslint-disable-next-line @cspell/spellchecker
 /* cspell:disable-next-line */
-export const ALCHEMY_KEY = 'pq08EwFvymYFPbDReObtP-SFw3bCes8Z';
+export let ALCHEMY_KEY = 'pq08EwFvymYFPbDReObtP-SFw3bCes8Z';
+
+export function setAlchemyKey(key: string) {
+  ALCHEMY_KEY = key;
+}
 
 export function getProviderURLFromNetwork(network: Network, useNFT = false) {
   if (USE_TESTNET_RPC) return TESTNET_RPC;

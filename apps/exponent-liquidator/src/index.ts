@@ -3,7 +3,7 @@ import ExponentLiquidator from './ExponentLiquidator';
 import { Env, Position } from './types';
 import { fetchPositions } from './utils/dataService';
 import { VaultRegistry } from './utils/vaultRegistry';
-import { getProviderFromNetwork } from '@notional-finance/util';
+import { getProviderFromNetwork, setAlchemyKey } from '@notional-finance/util';
 import { logDebug, logInfo, logError } from './utils/logger';
 
 async function createLiquidator(
@@ -131,6 +131,7 @@ export default {
     env: Env,
     _: ExecutionContext
   ): Promise<Response> {
+    setAlchemyKey(env.ALCHEMY_KEY);
     const url = new URL(request.url);
 
     // Test endpoint for mocked data and custom provider
@@ -259,6 +260,7 @@ export default {
     env: Env,
     _: ExecutionContext
   ): Promise<void> {
+    setAlchemyKey(env.ALCHEMY_KEY);
     try {
       const liquidator = await createLiquidator(
         env,

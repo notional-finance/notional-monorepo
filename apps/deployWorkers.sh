@@ -5,6 +5,7 @@ set -e
 
 yarn nx publish-wrangler-manual registry --env dev
 yarn nx publish-wrangler-manual beta-contest --env dev
+yarn nx publish-wrangler-manual exponent-liquidator --env mainnet
 
 # Registry
 # yarn nx publish-wrangler-manual api --env prod

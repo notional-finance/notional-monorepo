@@ -1,6 +1,6 @@
 import { Request } from '@cloudflare/workers-types';
 import { NetworkServerModel } from '@notional-finance/core-entities';
-import { Network } from '@notional-finance/util';
+import { Network, setAlchemyKey } from '@notional-finance/util';
 import { putStorageKey } from './registry-helpers';
 import { refreshViews } from './views-helpers';
 import { destroy } from 'mobx-state-tree';
@@ -14,6 +14,7 @@ export interface BaseDOEnv {
   SUPPORTED_NETWORKS: Network[];
   DATA_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
+  ALCHEMY_KEY: string;
 }
 
 async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
@@ -38,6 +39,7 @@ async function execute(env: BaseDOEnv, network: Network, onlyViews: boolean) {
 
 export default {
   async fetch(req: Request, env: BaseDOEnv): Promise<Response> {
+    setAlchemyKey(env.ALCHEMY_KEY);
     const url = new URL(req.url);
     if (url.pathname === '/refreshViews') {
       await Promise.all(
@@ -79,6 +81,7 @@ export default {
   },
   async scheduled(event: ScheduledController, env: BaseDOEnv): Promise<void> {
     const onlyViews = event.cron === '0 * * * *';
+    setAlchemyKey(env.ALCHEMY_KEY);
     await execute(env, Network.mainnet, onlyViews);
     await execute(env, Network.all, onlyViews);
   },
