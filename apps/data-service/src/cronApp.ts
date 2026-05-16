@@ -1,7 +1,7 @@
 import { Request, Response } from '@google-cloud/functions-framework';
 import DataService from './DataService';
 import { syncDune } from './DuneService';
-import { ONE_HOUR_MS } from '@notional-finance/util';
+import { ONE_HOUR_MS, setAlchemyKey } from '@notional-finance/util';
 import { logToDataDog } from './util';
 
 export default async function (req: Request, res: Response) {
@@ -9,6 +9,7 @@ export default async function (req: Request, res: Response) {
   // will be only triggered by google cloud scheduler with the proper service account
   // that has the necessary permissions and is not meant to be accessed from outside of google cloud
 
+  setAlchemyKey(process.env.ALCHEMY_KEY || '');
   const dataService = new DataService();
 
   try {

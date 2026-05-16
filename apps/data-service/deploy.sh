@@ -30,7 +30,8 @@ DATA_SERVICE_AUTH_TOKEN=projects/663932775145/secrets/DATA_SERVICE_AUTH_TOKEN/ve
 R2_SECRET_ACCESS_KEY=projects/663932775145/secrets/R2_SECRET_ACCESS_KEY/versions/latest,\
 DUNE_API_KEY=projects/663932775145/secrets/DUNE_API_KEY/versions/latest,\
 SUBGRAPH_API_KEY=projects/663932775145/secrets/SUBGRAPH_API_KEY/versions/latest,\
-DD_API_KEY=projects/663932775145/secrets/DD_API_KEY/versions/latest"
+DD_API_KEY=projects/663932775145/secrets/DD_API_KEY/versions/latest,\
+ALCHEMY_KEY=projects/663932775145/secrets/ALCHEMY_KEY/versions/latest"
 
 # Deploy based on the first argument
 if [ "$1" = "data-service" ]; then

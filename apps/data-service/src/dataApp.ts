@@ -8,10 +8,13 @@ import {
   DataServiceEvent,
   DataServiceReinvestmentTrade,
   DataServiceEndpoints,
+  setAlchemyKey,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { VaultAccount, BackfillType } from './types';
 import { logToDataDog, parseQueryParams } from './util';
+
+setAlchemyKey(process.env.ALCHEMY_KEY || '');
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const app = express();
