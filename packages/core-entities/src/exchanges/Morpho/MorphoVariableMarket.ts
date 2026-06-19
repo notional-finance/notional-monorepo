@@ -28,8 +28,8 @@ import {
 import { MorphoAllocationStruct } from '@notional-finance/contracts/types/MorphoLendingRouter';
 
 const MorphoLiquidityQuery = gql`
-  query MarketByUniqueKey($uniqueKey: String!, $chainId: Int) {
-    marketByUniqueKey(uniqueKey: $uniqueKey, chainId: $chainId) {
+  query MarketByUniqueKey($marketId: String!, $chainId: Int!) {
+    marketById(marketId: $marketId, chainId: $chainId) {
       reallocatableLiquidityAssets
       state {
         liquidityAssets
@@ -43,7 +43,7 @@ const MorphoLiquidityQuery = gql`
           address
         }
         withdrawMarket {
-          uniqueKey
+          marketId
           loanAsset {
             address
           }
@@ -249,13 +249,12 @@ export abstract class MorphoVariableMarket extends BaseLiquidityPool<MorphoVaria
     const { data, errors } = await client.query<MorphoLiquidityQueryResult>({
       query: MorphoLiquidityQuery,
       variables: {
-        uniqueKey: marketId,
+        marketId: marketId,
         chainId: NetworkId[network],
       },
     });
 
     if (errors) throw new Error(errors[0].message);
-
     const reallocatableLiquidityAssets = TokenBalance.toJSON(
       BigNumber.from(data.marketByUniqueKey.reallocatableLiquidityAssets),
       data.marketByUniqueKey.loanAsset.address,
